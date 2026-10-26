@@ -285,7 +285,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-activemq"
-        id="activemq"
+        id="activemq-component"
         role="button"
       >
         <div
@@ -299,7 +299,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable activemq"
+                aria-labelledby="activemq-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -322,7 +322,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="activemq-title"
+                id="activemq-component-title"
               >
                 <span>
                   ActiveMQ 5.x
@@ -385,7 +385,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-activemq6"
-        id="activemq6"
+        id="activemq6-component"
         role="button"
       >
         <div
@@ -399,7 +399,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable activemq6"
+                aria-labelledby="activemq6-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -422,7 +422,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="activemq6-title"
+                id="activemq6-component-title"
               >
                 <span>
                   ActiveMQ 6.x
@@ -485,7 +485,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-amqp"
-        id="amqp"
+        id="amqp-component"
         role="button"
       >
         <div
@@ -499,7 +499,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable amqp"
+                aria-labelledby="amqp-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -522,7 +522,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="amqp-title"
+                id="amqp-component-title"
               >
                 <span>
                   AMQP
@@ -585,7 +585,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-arangodb"
-        id="arangodb"
+        id="arangodb-component"
         role="button"
       >
         <div
@@ -599,7 +599,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable arangodb"
+                aria-labelledby="arangodb-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -622,7 +622,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="arangodb-title"
+                id="arangodb-component-title"
               >
                 <span>
                   ArangoDb
@@ -685,7 +685,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-as2"
-        id="as2"
+        id="as2-component"
         role="button"
       >
         <div
@@ -699,7 +699,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable as2"
+                aria-labelledby="as2-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -722,7 +722,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="as2-title"
+                id="as2-component-title"
               >
                 <span>
                   AS2
@@ -785,7 +785,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-cxf"
-        id="cxf"
+        id="cxf-component"
         role="button"
       >
         <div
@@ -799,7 +799,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable cxf"
+                aria-labelledby="cxf-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -822,7 +822,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="cxf-title"
+                id="cxf-component-title"
               >
                 <span>
                   CXF
@@ -885,7 +885,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-exec"
-        id="exec"
+        id="exec-component"
         role="button"
       >
         <div
@@ -899,7 +899,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable exec"
+                aria-labelledby="exec-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -922,7 +922,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="exec-title"
+                id="exec-component-title"
               >
                 <span>
                   Exec
@@ -985,7 +985,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-toD"
-        id="toD"
+        id="toD-processor"
         role="button"
       >
         <div
@@ -999,7 +999,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable toD"
+                aria-labelledby="toD-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1022,7 +1022,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="toD-title"
+                id="toD-processor-title"
               >
                 <span>
                   to D
@@ -1085,7 +1085,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-doTry"
-        id="doTry"
+        id="doTry-processor"
         role="button"
       >
         <div
@@ -1099,7 +1099,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable doTry"
+                aria-labelledby="doTry-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1122,7 +1122,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="doTry-title"
+                id="doTry-processor-title"
               >
                 <span>
                   doTry
@@ -1185,7 +1185,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-Validate"
-        id="Validate"
+        id="Validate-processor"
         role="button"
       >
         <div
@@ -1199,7 +1199,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable Validate"
+                aria-labelledby="Validate-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1222,7 +1222,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="Validate-title"
+                id="Validate-processor-title"
               >
                 <span>
                   Validate
@@ -1285,7 +1285,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-when"
-        id="when"
+        id="when-processor"
         role="button"
       >
         <div
@@ -1299,7 +1299,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable when"
+                aria-labelledby="when-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1322,7 +1322,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="when-title"
+                id="when-processor-title"
               >
                 <span>
                   when
@@ -1385,7 +1385,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-onException"
-        id="onException"
+        id="onException-processor"
         role="button"
       >
         <div
@@ -1399,7 +1399,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable onException"
+                aria-labelledby="onException-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1422,7 +1422,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="onException-title"
+                id="onException-processor-title"
               >
                 <span>
                   onException
@@ -1485,7 +1485,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-wireTap"
-        id="wireTap"
+        id="wireTap-processor"
         role="button"
       >
         <div
@@ -1499,7 +1499,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable wireTap"
+                aria-labelledby="wireTap-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1522,7 +1522,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="wireTap-title"
+                id="wireTap-processor-title"
               >
                 <span>
                   wireTap
@@ -1585,7 +1585,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-intercept"
-        id="intercept"
+        id="intercept-processor"
         role="button"
       >
         <div
@@ -1599,7 +1599,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable intercept"
+                aria-labelledby="intercept-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1622,7 +1622,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="intercept-title"
+                id="intercept-processor-title"
               >
                 <span>
                   intercept
@@ -1685,7 +1685,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-saga"
-        id="saga"
+        id="saga-processor"
         role="button"
       >
         <div
@@ -1699,7 +1699,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable saga"
+                aria-labelledby="saga-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1722,7 +1722,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="saga-title"
+                id="saga-processor-title"
               >
                 <span>
                   saga
@@ -1785,7 +1785,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-script"
-        id="script"
+        id="script-processor"
         role="button"
       >
         <div
@@ -1799,7 +1799,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable script"
+                aria-labelledby="script-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1822,7 +1822,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="script-title"
+                id="script-processor-title"
               >
                 <span>
                   script
@@ -1885,7 +1885,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-sort"
-        id="sort"
+        id="sort-processor"
         role="button"
       >
         <div
@@ -1899,7 +1899,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable sort"
+                aria-labelledby="sort-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -1922,7 +1922,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="sort-title"
+                id="sort-processor-title"
               >
                 <span>
                   sort
@@ -1985,7 +1985,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-sink"
-        id="sink"
+        id="sink-kamelet"
         role="button"
       >
         <div
@@ -1999,7 +1999,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable sink"
+                aria-labelledby="sink-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2022,7 +2022,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="sink-title"
+                id="sink-kamelet-title"
               >
                 <span>
                   Kamelet Sink
@@ -2085,7 +2085,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-kafka-source"
-        id="kafka-source"
+        id="kafka-source-kamelet"
         role="button"
       >
         <div
@@ -2099,7 +2099,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable kafka-source"
+                aria-labelledby="kafka-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2122,7 +2122,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="kafka-source-title"
+                id="kafka-source-kamelet-title"
               >
                 <span>
                   Kafka Source
@@ -2185,7 +2185,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-http-source"
-        id="http-source"
+        id="http-source-kamelet"
         role="button"
       >
         <div
@@ -2199,7 +2199,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable http-source"
+                aria-labelledby="http-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2222,7 +2222,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="http-source-title"
+                id="http-source-kamelet-title"
               >
                 <span>
                   http-source
@@ -2285,7 +2285,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-ssh-source"
-        id="ssh-source"
+        id="ssh-source-kamelet"
         role="button"
       >
         <div
@@ -2299,7 +2299,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable ssh-source"
+                aria-labelledby="ssh-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2322,7 +2322,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="ssh-source-title"
+                id="ssh-source-kamelet-title"
               >
                 <span>
                   ssh-source
@@ -2385,7 +2385,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-jira-source"
-        id="jira-source"
+        id="jira-source-kamelet"
         role="button"
       >
         <div
@@ -2399,7 +2399,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable jira-source"
+                aria-labelledby="jira-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2422,7 +2422,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="jira-source-title"
+                id="jira-source-kamelet-title"
               >
                 <span>
                   jira-source
@@ -2485,7 +2485,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-coffee-source"
-        id="coffee-source"
+        id="coffee-source-kamelet"
         role="button"
       >
         <div
@@ -2499,7 +2499,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable coffee-source"
+                aria-labelledby="coffee-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2522,7 +2522,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="coffee-source-title"
+                id="coffee-source-kamelet-title"
               >
                 <span>
                   coffee-source
@@ -2585,7 +2585,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-mariadb-source"
-        id="mariadb-source"
+        id="mariadb-source-kamelet"
         role="button"
       >
         <div
@@ -2599,7 +2599,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable mariadb-source"
+                aria-labelledby="mariadb-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2622,7 +2622,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="mariadb-source-title"
+                id="mariadb-source-kamelet-title"
               >
                 <span>
                   mariadbsource
@@ -2685,7 +2685,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-dropbox-source"
-        id="dropbox-source"
+        id="dropbox-source-kamelet"
         role="button"
       >
         <div
@@ -2699,7 +2699,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable dropbox-source"
+                aria-labelledby="dropbox-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2722,7 +2722,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="dropbox-source-title"
+                id="dropbox-source-kamelet-title"
               >
                 <span>
                   dropbox-source
@@ -2785,7 +2785,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-cassandra-source"
-        id="cassandra-source"
+        id="cassandra-source-kamelet"
         role="button"
       >
         <div
@@ -2799,7 +2799,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable cassandra-source"
+                aria-labelledby="cassandra-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2822,7 +2822,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="cassandra-source-title"
+                id="cassandra-source-kamelet-title"
               >
                 <span>
                   cassandrasource
@@ -2885,7 +2885,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-aws-redshift-source"
-        id="aws-redshift-source"
+        id="aws-redshift-source-kamelet"
         role="button"
       >
         <div
@@ -2899,7 +2899,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable aws-redshift-source"
+                aria-labelledby="aws-redshift-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -2922,7 +2922,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="aws-redshift-source-title"
+                id="aws-redshift-source-kamelet-title"
               >
                 <span>
                   aws-redshift-source
@@ -2985,7 +2985,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-redis-source"
-        id="redis-source"
+        id="redis-source-kamelet"
         role="button"
       >
         <div
@@ -2999,7 +2999,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable redis-source"
+                aria-labelledby="redis-source-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3022,7 +3022,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="redis-source-title"
+                id="redis-source-kamelet-title"
               >
                 <span>
                   redis-source
@@ -3085,7 +3085,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-pulsar-sink"
-        id="pulsar-sink"
+        id="pulsar-sink-kamelet"
         role="button"
       >
         <div
@@ -3099,7 +3099,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable pulsar-sink"
+                aria-labelledby="pulsar-sink-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3122,7 +3122,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="pulsar-sink-title"
+                id="pulsar-sink-kamelet-title"
               >
                 <span>
                   pulsar-sink
@@ -3185,7 +3185,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-dropbox-sink"
-        id="dropbox-sink"
+        id="dropbox-sink-kamelet"
         role="button"
       >
         <div
@@ -3199,7 +3199,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable dropbox-sink"
+                aria-labelledby="dropbox-sink-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3222,7 +3222,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="dropbox-sink-title"
+                id="dropbox-sink-kamelet-title"
               >
                 <span>
                   dropbox-source
@@ -3285,7 +3285,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-activemq-1"
-        id="activemq-1"
+        id="activemq-1-component"
         role="button"
       >
         <div
@@ -3299,7 +3299,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable activemq-1"
+                aria-labelledby="activemq-1-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3322,7 +3322,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="activemq-1-title"
+                id="activemq-1-component-title"
               >
                 <span>
                   ActiveMQ 5.x
@@ -3385,7 +3385,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-activemq6-1"
-        id="activemq6-1"
+        id="activemq6-1-component"
         role="button"
       >
         <div
@@ -3399,7 +3399,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable activemq6-1"
+                aria-labelledby="activemq6-1-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3422,7 +3422,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="activemq6-1-title"
+                id="activemq6-1-component-title"
               >
                 <span>
                   ActiveMQ 6.x
@@ -3485,7 +3485,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-amqp-1"
-        id="amqp-1"
+        id="amqp-1-component"
         role="button"
       >
         <div
@@ -3499,7 +3499,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable amqp-1"
+                aria-labelledby="amqp-1-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3522,7 +3522,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="amqp-1-title"
+                id="amqp-1-component-title"
               >
                 <span>
                   AMQP
@@ -3585,7 +3585,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-arangodb-1"
-        id="arangodb-1"
+        id="arangodb-1-component"
         role="button"
       >
         <div
@@ -3599,7 +3599,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable arangodb-1"
+                aria-labelledby="arangodb-1-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3622,7 +3622,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="arangodb-1-title"
+                id="arangodb-1-component-title"
               >
                 <span>
                   ArangoDb
@@ -3685,7 +3685,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-as2-1"
-        id="as2-1"
+        id="as2-1-component"
         role="button"
       >
         <div
@@ -3699,7 +3699,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable as2-1"
+                aria-labelledby="as2-1-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3722,7 +3722,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="as2-1-title"
+                id="as2-1-component-title"
               >
                 <span>
                   AS2
@@ -3785,7 +3785,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-cxf-1"
-        id="cxf-1"
+        id="cxf-1-component"
         role="button"
       >
         <div
@@ -3799,7 +3799,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable cxf-1"
+                aria-labelledby="cxf-1-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3822,7 +3822,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="cxf-1-title"
+                id="cxf-1-component-title"
               >
                 <span>
                   CXF
@@ -3885,7 +3885,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-exec-1"
-        id="exec-1"
+        id="exec-1-component"
         role="button"
       >
         <div
@@ -3899,7 +3899,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable exec-1"
+                aria-labelledby="exec-1-component-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -3922,7 +3922,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="exec-1-title"
+                id="exec-1-component-title"
               >
                 <span>
                   Exec
@@ -3985,7 +3985,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-toD-1"
-        id="toD-1"
+        id="toD-1-processor"
         role="button"
       >
         <div
@@ -3999,7 +3999,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable toD-1"
+                aria-labelledby="toD-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4022,7 +4022,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="toD-1-title"
+                id="toD-1-processor-title"
               >
                 <span>
                   to D
@@ -4085,7 +4085,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-doTry-1"
-        id="doTry-1"
+        id="doTry-1-processor"
         role="button"
       >
         <div
@@ -4099,7 +4099,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable doTry-1"
+                aria-labelledby="doTry-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4122,7 +4122,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="doTry-1-title"
+                id="doTry-1-processor-title"
               >
                 <span>
                   doTry
@@ -4185,7 +4185,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-Validate-1"
-        id="Validate-1"
+        id="Validate-1-processor"
         role="button"
       >
         <div
@@ -4199,7 +4199,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable Validate-1"
+                aria-labelledby="Validate-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4222,7 +4222,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="Validate-1-title"
+                id="Validate-1-processor-title"
               >
                 <span>
                   Validate
@@ -4285,7 +4285,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-when-1"
-        id="when-1"
+        id="when-1-processor"
         role="button"
       >
         <div
@@ -4299,7 +4299,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable when-1"
+                aria-labelledby="when-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4322,7 +4322,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="when-1-title"
+                id="when-1-processor-title"
               >
                 <span>
                   when
@@ -4385,7 +4385,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-onException-1"
-        id="onException-1"
+        id="onException-1-processor"
         role="button"
       >
         <div
@@ -4399,7 +4399,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable onException-1"
+                aria-labelledby="onException-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4422,7 +4422,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="onException-1-title"
+                id="onException-1-processor-title"
               >
                 <span>
                   onException
@@ -4485,7 +4485,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-wireTap-1"
-        id="wireTap-1"
+        id="wireTap-1-processor"
         role="button"
       >
         <div
@@ -4499,7 +4499,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable wireTap-1"
+                aria-labelledby="wireTap-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4522,7 +4522,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="wireTap-1-title"
+                id="wireTap-1-processor-title"
               >
                 <span>
                   wireTap
@@ -4585,7 +4585,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-intercept-1"
-        id="intercept-1"
+        id="intercept-1-processor"
         role="button"
       >
         <div
@@ -4599,7 +4599,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable intercept-1"
+                aria-labelledby="intercept-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4622,7 +4622,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="intercept-1-title"
+                id="intercept-1-processor-title"
               >
                 <span>
                   intercept
@@ -4685,7 +4685,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-saga-1"
-        id="saga-1"
+        id="saga-1-processor"
         role="button"
       >
         <div
@@ -4699,7 +4699,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable saga-1"
+                aria-labelledby="saga-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4722,7 +4722,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="saga-1-title"
+                id="saga-1-processor-title"
               >
                 <span>
                   saga
@@ -4785,7 +4785,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-script-1"
-        id="script-1"
+        id="script-1-processor"
         role="button"
       >
         <div
@@ -4799,7 +4799,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable script-1"
+                aria-labelledby="script-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4822,7 +4822,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="script-1-title"
+                id="script-1-processor-title"
               >
                 <span>
                   script
@@ -4885,7 +4885,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-sort-1"
-        id="sort-1"
+        id="sort-1-processor"
         role="button"
       >
         <div
@@ -4899,7 +4899,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable sort-1"
+                aria-labelledby="sort-1-processor-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -4922,7 +4922,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="sort-1-title"
+                id="sort-1-processor-title"
               >
                 <span>
                   sort
@@ -4985,7 +4985,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-sink-1"
-        id="sink-1"
+        id="sink-1-kamelet"
         role="button"
       >
         <div
@@ -4999,7 +4999,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable sink-1"
+                aria-labelledby="sink-1-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -5022,7 +5022,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="sink-1-title"
+                id="sink-1-kamelet-title"
               >
                 <span>
                   Kamelet Sink
@@ -5085,7 +5085,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-kafka-source-1"
-        id="kafka-source-1"
+        id="kafka-source-1-kamelet"
         role="button"
       >
         <div
@@ -5099,7 +5099,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable kafka-source-1"
+                aria-labelledby="kafka-source-1-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -5122,7 +5122,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="kafka-source-1-title"
+                id="kafka-source-1-kamelet-title"
               >
                 <span>
                   Kafka Source
@@ -5185,7 +5185,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
         data-ouia-component-type="PF6/Card"
         data-ouia-safe="true"
         data-testid="tile-http-source-1"
-        id="http-source-1"
+        id="http-source-1-kamelet"
         role="button"
       >
         <div
@@ -5199,7 +5199,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
               class="pf-v6-c-card__selectable-actions"
             >
               <button
-                aria-labelledby="Selectable http-source-1"
+                aria-labelledby="http-source-1-kamelet-title"
                 class="pf-v6-c-card__clickable-action"
                 type="button"
               />
@@ -5222,7 +5222,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
             >
               <div
                 class="pf-v6-c-card__title-text tile__title"
-                id="http-source-1-title"
+                id="http-source-1-kamelet-title"
               >
                 <span>
                   http-source
@@ -5566,7 +5566,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
       role="list"
     >
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-activemq"
         id="activemq-component"
         tabindex="0"
       >
@@ -5596,7 +5597,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="activemq-component-title"
                     >
                       ActiveMQ 5.x
                     </span>
@@ -5657,7 +5658,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -5666,7 +5667,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-activemq6"
         id="activemq6-component"
         tabindex="0"
       >
@@ -5696,7 +5698,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="activemq6-component-title"
                     >
                       ActiveMQ 6.x
                     </span>
@@ -5757,7 +5759,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -5766,7 +5768,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-amqp"
         id="amqp-component"
         tabindex="0"
       >
@@ -5796,7 +5799,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="amqp-component-title"
                     >
                       AMQP
                     </span>
@@ -5857,7 +5860,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -5866,7 +5869,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-arangodb"
         id="arangodb-component"
         tabindex="0"
       >
@@ -5896,7 +5900,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="arangodb-component-title"
                     >
                       ArangoDb
                     </span>
@@ -5957,7 +5961,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -5966,7 +5970,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-as2"
         id="as2-component"
         tabindex="0"
       >
@@ -5996,7 +6001,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="as2-component-title"
                     >
                       AS2
                     </span>
@@ -6057,7 +6062,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6066,7 +6071,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-cxf"
         id="cxf-component"
         tabindex="0"
       >
@@ -6096,7 +6102,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="cxf-component-title"
                     >
                       CXF
                     </span>
@@ -6157,7 +6163,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6166,7 +6172,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-exec"
         id="exec-component"
         tabindex="0"
       >
@@ -6196,7 +6203,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="exec-component-title"
                     >
                       Exec
                     </span>
@@ -6257,7 +6264,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6266,7 +6273,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-toD"
         id="toD-processor"
         tabindex="0"
       >
@@ -6296,7 +6304,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="toD-processor-title"
                     >
                       to D
                     </span>
@@ -6357,7 +6365,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6366,7 +6374,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-doTry"
         id="doTry-processor"
         tabindex="0"
       >
@@ -6396,7 +6405,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="doTry-processor-title"
                     >
                       doTry
                     </span>
@@ -6457,7 +6466,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6466,7 +6475,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-Validate"
         id="Validate-processor"
         tabindex="0"
       >
@@ -6496,7 +6506,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="Validate-processor-title"
                     >
                       Validate
                     </span>
@@ -6557,7 +6567,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6566,7 +6576,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-when"
         id="when-processor"
         tabindex="0"
       >
@@ -6596,7 +6607,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="when-processor-title"
                     >
                       when
                     </span>
@@ -6657,7 +6668,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6666,7 +6677,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-onException"
         id="onException-processor"
         tabindex="0"
       >
@@ -6696,7 +6708,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="onException-processor-title"
                     >
                       onException
                     </span>
@@ -6757,7 +6769,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6766,7 +6778,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-wireTap"
         id="wireTap-processor"
         tabindex="0"
       >
@@ -6796,7 +6809,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="wireTap-processor-title"
                     >
                       wireTap
                     </span>
@@ -6857,7 +6870,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6866,7 +6879,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-intercept"
         id="intercept-processor"
         tabindex="0"
       >
@@ -6896,7 +6910,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="intercept-processor-title"
                     >
                       intercept
                     </span>
@@ -6957,7 +6971,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -6966,7 +6980,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-saga"
         id="saga-processor"
         tabindex="0"
       >
@@ -6996,7 +7011,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="saga-processor-title"
                     >
                       saga
                     </span>
@@ -7057,7 +7072,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7066,7 +7081,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-script"
         id="script-processor"
         tabindex="0"
       >
@@ -7096,7 +7112,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="script-processor-title"
                     >
                       script
                     </span>
@@ -7157,7 +7173,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7166,7 +7182,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-sort"
         id="sort-processor"
         tabindex="0"
       >
@@ -7196,7 +7213,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="sort-processor-title"
                     >
                       sort
                     </span>
@@ -7257,7 +7274,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7266,7 +7283,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-sink"
         id="sink-kamelet"
         tabindex="0"
       >
@@ -7296,7 +7314,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="sink-kamelet-title"
                     >
                       Kamelet Sink
                     </span>
@@ -7357,7 +7375,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7366,7 +7384,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-kafka-source"
         id="kafka-source-kamelet"
         tabindex="0"
       >
@@ -7396,7 +7415,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="kafka-source-kamelet-title"
                     >
                       Kafka Source
                     </span>
@@ -7457,7 +7476,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7466,7 +7485,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-http-source"
         id="http-source-kamelet"
         tabindex="0"
       >
@@ -7496,7 +7516,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="http-source-kamelet-title"
                     >
                       http-source
                     </span>
@@ -7557,7 +7577,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7566,7 +7586,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-ssh-source"
         id="ssh-source-kamelet"
         tabindex="0"
       >
@@ -7596,7 +7617,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="ssh-source-kamelet-title"
                     >
                       ssh-source
                     </span>
@@ -7657,7 +7678,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7666,7 +7687,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-jira-source"
         id="jira-source-kamelet"
         tabindex="0"
       >
@@ -7696,7 +7718,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="jira-source-kamelet-title"
                     >
                       jira-source
                     </span>
@@ -7757,7 +7779,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7766,7 +7788,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-coffee-source"
         id="coffee-source-kamelet"
         tabindex="0"
       >
@@ -7796,7 +7819,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="coffee-source-kamelet-title"
                     >
                       coffee-source
                     </span>
@@ -7857,7 +7880,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7866,7 +7889,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-mariadb-source"
         id="mariadb-source-kamelet"
         tabindex="0"
       >
@@ -7896,7 +7920,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="mariadb-source-kamelet-title"
                     >
                       mariadbsource
                     </span>
@@ -7957,7 +7981,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -7966,7 +7990,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-dropbox-source"
         id="dropbox-source-kamelet"
         tabindex="0"
       >
@@ -7996,7 +8021,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="dropbox-source-kamelet-title"
                     >
                       dropbox-source
                     </span>
@@ -8057,7 +8082,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8066,7 +8091,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-cassandra-source"
         id="cassandra-source-kamelet"
         tabindex="0"
       >
@@ -8096,7 +8122,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="cassandra-source-kamelet-title"
                     >
                       cassandrasource
                     </span>
@@ -8157,7 +8183,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8166,7 +8192,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-aws-redshift-source"
         id="aws-redshift-source-kamelet"
         tabindex="0"
       >
@@ -8196,7 +8223,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="aws-redshift-source-kamelet-title"
                     >
                       aws-redshift-source
                     </span>
@@ -8257,7 +8284,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8266,7 +8293,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-redis-source"
         id="redis-source-kamelet"
         tabindex="0"
       >
@@ -8296,7 +8324,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="redis-source-kamelet-title"
                     >
                       redis-source
                     </span>
@@ -8357,7 +8385,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8366,7 +8394,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-pulsar-sink"
         id="pulsar-sink-kamelet"
         tabindex="0"
       >
@@ -8396,7 +8425,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="pulsar-sink-kamelet-title"
                     >
                       pulsar-sink
                     </span>
@@ -8457,7 +8486,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8466,7 +8495,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-dropbox-sink"
         id="dropbox-sink-kamelet"
         tabindex="0"
       >
@@ -8496,7 +8526,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="dropbox-sink-kamelet-title"
                     >
                       dropbox-source
                     </span>
@@ -8557,7 +8587,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8566,7 +8596,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-activemq-1"
         id="activemq-1-component"
         tabindex="0"
       >
@@ -8596,7 +8627,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="activemq-1-component-title"
                     >
                       ActiveMQ 5.x
                     </span>
@@ -8657,7 +8688,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8666,7 +8697,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-activemq6-1"
         id="activemq6-1-component"
         tabindex="0"
       >
@@ -8696,7 +8728,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="activemq6-1-component-title"
                     >
                       ActiveMQ 6.x
                     </span>
@@ -8757,7 +8789,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8766,7 +8798,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-amqp-1"
         id="amqp-1-component"
         tabindex="0"
       >
@@ -8796,7 +8829,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="amqp-1-component-title"
                     >
                       AMQP
                     </span>
@@ -8857,7 +8890,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8866,7 +8899,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-arangodb-1"
         id="arangodb-1-component"
         tabindex="0"
       >
@@ -8896,7 +8930,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="arangodb-1-component-title"
                     >
                       ArangoDb
                     </span>
@@ -8957,7 +8991,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -8966,7 +9000,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-as2-1"
         id="as2-1-component"
         tabindex="0"
       >
@@ -8996,7 +9031,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="as2-1-component-title"
                     >
                       AS2
                     </span>
@@ -9057,7 +9092,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9066,7 +9101,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-cxf-1"
         id="cxf-1-component"
         tabindex="0"
       >
@@ -9096,7 +9132,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="cxf-1-component-title"
                     >
                       CXF
                     </span>
@@ -9157,7 +9193,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9166,7 +9202,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-exec-1"
         id="exec-1-component"
         tabindex="0"
       >
@@ -9196,7 +9233,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="exec-1-component-title"
                     >
                       Exec
                     </span>
@@ -9257,7 +9294,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9266,7 +9303,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-toD-1"
         id="toD-1-processor"
         tabindex="0"
       >
@@ -9296,7 +9334,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="toD-1-processor-title"
                     >
                       to D
                     </span>
@@ -9357,7 +9395,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9366,7 +9404,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-doTry-1"
         id="doTry-1-processor"
         tabindex="0"
       >
@@ -9396,7 +9435,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="doTry-1-processor-title"
                     >
                       doTry
                     </span>
@@ -9457,7 +9496,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9466,7 +9505,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-Validate-1"
         id="Validate-1-processor"
         tabindex="0"
       >
@@ -9496,7 +9536,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="Validate-1-processor-title"
                     >
                       Validate
                     </span>
@@ -9557,7 +9597,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9566,7 +9606,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-when-1"
         id="when-1-processor"
         tabindex="0"
       >
@@ -9596,7 +9637,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="when-1-processor-title"
                     >
                       when
                     </span>
@@ -9657,7 +9698,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9666,7 +9707,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-onException-1"
         id="onException-1-processor"
         tabindex="0"
       >
@@ -9696,7 +9738,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="onException-1-processor-title"
                     >
                       onException
                     </span>
@@ -9757,7 +9799,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9766,7 +9808,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-wireTap-1"
         id="wireTap-1-processor"
         tabindex="0"
       >
@@ -9796,7 +9839,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="wireTap-1-processor-title"
                     >
                       wireTap
                     </span>
@@ -9857,7 +9900,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9866,7 +9909,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-intercept-1"
         id="intercept-1-processor"
         tabindex="0"
       >
@@ -9896,7 +9940,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="intercept-1-processor-title"
                     >
                       intercept
                     </span>
@@ -9957,7 +10001,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -9966,7 +10010,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-saga-1"
         id="saga-1-processor"
         tabindex="0"
       >
@@ -9996,7 +10041,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="saga-1-processor-title"
                     >
                       saga
                     </span>
@@ -10057,7 +10102,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -10066,7 +10111,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-script-1"
         id="script-1-processor"
         tabindex="0"
       >
@@ -10096,7 +10142,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="script-1-processor-title"
                     >
                       script
                     </span>
@@ -10157,7 +10203,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -10166,7 +10212,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-sort-1"
         id="sort-1-processor"
         tabindex="0"
       >
@@ -10196,7 +10243,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="sort-1-processor-title"
                     >
                       sort
                     </span>
@@ -10257,7 +10304,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -10266,7 +10313,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-sink-1"
         id="sink-1-kamelet"
         tabindex="0"
       >
@@ -10296,7 +10344,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="sink-1-kamelet-title"
                     >
                       Kamelet Sink
                     </span>
@@ -10357,7 +10405,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -10366,7 +10414,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-kafka-source-1"
         id="kafka-source-1-kamelet"
         tabindex="0"
       >
@@ -10396,7 +10445,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="kafka-source-1-kamelet-title"
                     >
                       Kafka Source
                     </span>
@@ -10457,7 +10506,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>
@@ -10466,7 +10515,8 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
         </div>
       </li>
       <li
-        class="pf-v6-c-data-list__item pf-m-clickable catalog-data-list-item"
+        class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
+        data-testid="tile-http-source-1"
         id="http-source-1-kamelet"
         tabindex="0"
       >
@@ -10496,7 +10546,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                     />
                     <span
                       class="catalog-data-list-item__title-div-left__title"
-                      id="clickable-action-item1"
+                      id="http-source-1-kamelet-title"
                     >
                       http-source
                     </span>
@@ -10557,7 +10607,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
                   style="--pf-v6-l-grid--item--Order: 4; --pf-v6-l-grid--item--Order-on-md: 4;"
                 >
                   <span
-                    class="catalog-data-list-item__provider"
+                    class="catalog-tile-provider catalog-data-list-item__provider"
                   />
                 </div>
               </div>

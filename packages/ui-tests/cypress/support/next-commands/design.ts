@@ -119,19 +119,19 @@ Cypress.Commands.add('selectRemoveGroup', (groupName: string, groupIndex?: numbe
 Cypress.Commands.add('chooseFromCatalog', (_nodeType: string, name: string) => {
   cy.get(`input[placeholder="Filter by name, description or tag"]`).click();
   cy.get(`input[placeholder="Filter by name, description or tag"]`).type(name);
-  cy.get(`#${name}`).should('be.visible').click();
+  cy.get(`[data-testid="tile-${name}"]`).first().should('be.visible').click();
   // wait for the canvas rerender
   cy.wait(1000);
 });
 
 Cypress.Commands.add('checkCatalogEntryExists', (_nodeType: string, name: string) => {
   cy.get(`input[placeholder="Filter by name, description or tag"]`).clear().type(name);
-  cy.get(`#${name}`).should('exist');
+  cy.get(`[data-testid="tile-${name}"]`).should('exist');
 });
 
 Cypress.Commands.add('checkCatalogEntryNotExists', (_nodeType: string, name: string) => {
   cy.get(`input[placeholder="Filter by name, description or tag"]`).clear().type(name);
-  cy.get(`#${name}`).should('not.exist');
+  cy.get(`[data-testid="tile-${name}"]`).should('not.exist');
 });
 
 Cypress.Commands.add('closeCatalogModal', () => {

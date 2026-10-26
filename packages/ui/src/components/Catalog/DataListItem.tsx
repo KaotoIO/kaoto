@@ -1,21 +1,15 @@
 import './DataListItem.scss';
 
-import {
-  DataListCell,
-  DataListItem,
-  DataListItemCells,
-  DataListItemRow,
-  Grid,
-  GridItem,
-  LabelGroup,
-} from '@patternfly/react-core';
-import { FunctionComponent } from 'react';
+import { DataListCell, DataListItem, DataListItemCells, DataListItemRow, Grid, GridItem } from '@patternfly/react-core';
+import { FunctionComponent, KeyboardEvent, memo, useCallback } from 'react';
 
-import { ITile } from './Catalog.models';
-import { CatalogTag, CatalogTagsPanel } from './Tags';
+import { getTileKey, ITile } from './Catalog.models';
+import { CatalogTagsPanel } from './Tags';
+import { TileHeaderTags, TileIcon, TileProvider } from './TileParts';
 
 interface ICatalogDataListItemProps {
   tile: ITile;
+  onClick: (tile: ITile) => void;
   onTagClick: (_event: unknown, value: string) => void;
 }
 
@@ -38,68 +32,74 @@ const providerElementOrder = {
   md: '4',
 };
 
-export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> = (props) => {
-  return (
-    <DataListItem
-      aria-labelledby={props.tile.name}
-      key={props.tile.name}
-      id={props.tile.name + '-' + props.tile.type}
-      className="catalog-data-list-item"
-    >
-      <DataListItemRow>
-        <DataListItemCells
-          dataListCells={[
-            <DataListCell key="List item">
-              <Grid>
-                <GridItem sm={12} md={6} order={titleElementOrder}>
-                  <div className="catalog-data-list-item__title-div-left">
-                    {props.tile.iconUrl && (
-                      <img
-                        src={props.tile.iconUrl}
-                        className="catalog-data-list-item__title-div-left__icon"
-                        alt={`${props.tile.type} icon`}
+export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> = memo(
+  ({ tile, onClick, onTagClick }) => {
+    const tileKey = getTileKey(tile);
+
+    const onItemClick = useCallback(() => {
+      onClick(tile);
+    }, [onClick, tile]);
+
+    const onItemKeyDown = useCallback(
+      (event: KeyboardEvent<HTMLLIElement>) => {
+        /* Ignore keys coming from nested controls, e.g. the tag buttons */
+        if (event.target !== event.currentTarget) return;
+
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick(tile);
+        }
+      },
+      [onClick, tile],
+    );
+
+    return (
+      <DataListItem
+        aria-labelledby={`${tileKey}-title`}
+        id={tileKey}
+        data-testid={'tile-' + tile.name}
+        className="catalog-data-list-item pf-m-clickable"
+        tabIndex={0}
+        onClick={onItemClick}
+        onKeyDown={onItemKeyDown}
+      >
+        <DataListItemRow>
+          <DataListItemCells
+            dataListCells={[
+              <DataListCell key="List item">
+                <Grid>
+                  <GridItem sm={12} md={6} order={titleElementOrder}>
+                    <div className="catalog-data-list-item__title-div-left">
+                      <TileIcon tile={tile} className="catalog-data-list-item__title-div-left__icon" />
+                      <span id={`${tileKey}-title`} className="catalog-data-list-item__title-div-left__title">
+                        {tile.title}
+                      </span>
+                      <TileHeaderTags
+                        tile={tile}
+                        aria-label="data-list-item-headers-tags"
+                        tagClassName="catalog-data-list-item__tags"
+                        showVersion
                       />
-                    )}
-                    <span id="clickable-action-item1" className="catalog-data-list-item__title-div-left__title">
-                      {props.tile.title}
-                    </span>
-                    <LabelGroup isCompact aria-label="data-list-item-headers-tags">
-                      {props.tile.headerTags?.map((tag, index) => (
-                        <CatalogTag
-                          key={`${props.tile.name}-${tag}-${index}`}
-                          tag={tag}
-                          className="catalog-data-list-item__tags"
-                        />
-                      ))}
-                      {props.tile.version && (
-                        <CatalogTag
-                          key={`${props.tile.version}`}
-                          tag={props.tile.version}
-                          className="catalog-data-list-item__tags"
-                          variant="outline"
-                        />
-                      )}
-                    </LabelGroup>
-                  </div>
-                </GridItem>
-                <GridItem sm={12} md={6} order={tagsElementOrder}>
-                  <div className="catalog-data-list-item__title-div-right">
-                    <CatalogTagsPanel tags={props.tile.tags} onTagClick={props.onTagClick} />
-                  </div>
-                </GridItem>
-                <GridItem sm={12} md={11} order={descriptionElementOrder}>
-                  <span className="catalog-data-list-item__description">{props.tile.description}</span>
-                </GridItem>
-                <GridItem sm={12} md={1} order={providerElementOrder}>
-                  <span className="catalog-data-list-item__provider" data-provider={props.tile.provider}>
-                    {props.tile.provider}
-                  </span>
-                </GridItem>
-              </Grid>
-            </DataListCell>,
-          ]}
-        />
-      </DataListItemRow>
-    </DataListItem>
-  );
-};
+                    </div>
+                  </GridItem>
+                  <GridItem sm={12} md={6} order={tagsElementOrder}>
+                    <div className="catalog-data-list-item__title-div-right">
+                      <CatalogTagsPanel tags={tile.tags} onTagClick={onTagClick} />
+                    </div>
+                  </GridItem>
+                  <GridItem sm={12} md={11} order={descriptionElementOrder}>
+                    <span className="catalog-data-list-item__description">{tile.description}</span>
+                  </GridItem>
+                  <GridItem sm={12} md={1} order={providerElementOrder}>
+                    <TileProvider provider={tile.provider} className="catalog-data-list-item__provider" />
+                  </GridItem>
+                </Grid>
+              </DataListCell>,
+            ]}
+          />
+        </DataListItemRow>
+      </DataListItem>
+    );
+  },
+);
+CatalogDataListItem.displayName = 'CatalogDataListItem';

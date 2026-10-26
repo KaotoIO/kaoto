@@ -10,8 +10,8 @@ describe('Test for Branching actions from the canvas', () => {
     cy.checkNodeExist('when', 5);
     cy.selectInsertSpecialNode('choice');
 
-    cy.get('#otherwise').should('not.exist');
-    cy.get('#when').should('be.visible').click();
+    cy.get('[data-testid="tile-otherwise"]').should('not.exist');
+    cy.get('[data-testid="tile-when"]').first().should('be.visible').click();
     cy.checkNodeExist('when', 6);
   });
 
@@ -26,7 +26,7 @@ describe('Test for Branching actions from the canvas', () => {
     cy.checkNodeExist('otherwise', 2);
     // once there are is no "otherwise" node in the canvas - it shuld be again selectable in the special node insert
     cy.selectInsertSpecialNode('choice');
-    cy.get('#otherwise').should('exist');
+    cy.get('[data-testid="tile-otherwise"]').should('exist');
   });
 
   it('User inserts a branch from the canvas', () => {
