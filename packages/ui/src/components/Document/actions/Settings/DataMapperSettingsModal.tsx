@@ -43,8 +43,6 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
     () => targetBodyDocument.definitionType === DocumentDefinitionType.Primitive,
     [targetBodyDocument.definitionType],
   );
-  // Output validation UI: set to true when feature is complete
-  const showOutputValidation = false as boolean;
 
   const outputVariable = localOptions.outputVariable ?? '';
   const isSaveDisabled = !!DataMapperStepService.getOutputVariableNameError(outputVariable);
@@ -90,8 +88,7 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
               description={!isOmitXmlDeclarationSupported ? 'Only available when target document is XML' : undefined}
             />
           </FormGroup>
-          {/* Output validation UI: set to true when feature is complete */}
-          {showOutputValidation && !isTargetPrimitive && (
+          {!isTargetPrimitive && (
             <FormGroup label="Output Validation">
               <Checkbox
                 id="validate-output-settings"

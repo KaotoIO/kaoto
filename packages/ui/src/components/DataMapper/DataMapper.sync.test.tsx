@@ -27,8 +27,7 @@ import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
 import { getCartXsd, getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
 
-// Output validation auto-sync: disabled
-describe.skip('DataMapper sync — onUpdateDocument validation step synchronization', () => {
+describe('DataMapper sync — onUpdateDocument validation step synchronization', () => {
   const mockEntitiesContext = {
     updateSourceCodeFromEntities: vi.fn(),
     updateEntitiesFromCamelResource: vi.fn(),

@@ -58,8 +58,6 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
   const [isValidationEnabled, setIsValidationEnabled] = useState<boolean>(false);
   const [isValidationTogglePending, setIsValidationTogglePending] = useState<boolean>(false);
   const [isTargetPrimitive, setIsTargetPrimitive] = useState<boolean>(true);
-  // Output validation UI: set to true when feature is complete
-  const showOutputValidation = true;
   // useState lazy initializer: getOutputVariable is called once at mount, not on every render.
   const [outputVariableName, setOutputVariableName] = useState<string>(
     () => (vizNode ? DataMapperStepService.getOutputVariable(vizNode) : undefined) ?? '',
@@ -231,8 +229,7 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
           />
         </FormGroup>
       )}
-      {/* Output validation UI: set to true when feature is complete */}
-      {showOutputValidation && xsltFileExists && !isTargetPrimitive && (
+      {xsltFileExists && !isTargetPrimitive && (
         <FormGroup label="Output Validation">
           <Checkbox
             id="validate-output"
