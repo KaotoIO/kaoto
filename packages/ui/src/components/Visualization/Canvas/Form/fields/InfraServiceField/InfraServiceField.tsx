@@ -91,13 +91,21 @@ export const InfraServiceField: FunctionComponent<FieldProps> = ({ propName, req
     (item?: TypeaheadItem<string>) => {
       if (!item) return;
       const colonIndex = item.value.indexOf(':');
-      if (colonIndex < 0) {
-        onServiceChange(item.value);
-        onImplementationChange(undefined as unknown as string);
-      } else {
+      if (colonIndex >= 0) {
         onServiceChange(item.value.substring(0, colonIndex));
         onImplementationChange(item.value.substring(colonIndex + 1));
+        return;
       }
+
+      const dotIndex = item.value.indexOf('.');
+      if (dotIndex >= 0) {
+        onServiceChange(item.value.substring(0, dotIndex));
+        onImplementationChange(item.value.substring(dotIndex + 1));
+        return;
+      }
+
+      onServiceChange(item.value);
+      onImplementationChange(undefined as unknown as string);
     },
     [onServiceChange, onImplementationChange],
   );

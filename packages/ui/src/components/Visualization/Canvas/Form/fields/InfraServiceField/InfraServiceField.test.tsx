@@ -207,6 +207,19 @@ describe('InfraServiceField', () => {
     expect(onPropertyChange).toHaveBeenCalledWith('implementation', 's3');
   });
 
+  it('should split dotted custom input into service and implementation', async () => {
+    const { onPropertyChange } = renderField({ service: undefined });
+
+    const input = screen.getByRole('textbox', { name: 'Service' });
+    fireEvent.change(input, { target: { value: 'kafka.strimzi' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(onPropertyChange).toHaveBeenCalledWith('service', 'kafka');
+      expect(onPropertyChange).toHaveBeenCalledWith('implementation', 'strimzi');
+    });
+  });
+
   it('should return empty items when catalog is not available', async () => {
     vi.spyOn(DynamicCatalogRegistry.get(), 'getCatalog').mockReturnValue(undefined);
 
