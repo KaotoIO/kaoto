@@ -74,9 +74,7 @@ describe('CitrusTestReportService', () => {
     });
 
     it('should find a matching action result with colon-separated group path', () => {
-      const actions: TestActionResult[] = [
-        { name: 'http:send-request', path: 'actions.0.http:send-request' },
-      ];
+      const actions: TestActionResult[] = [{ name: 'http:send-request', path: 'actions.0.http:send-request' }];
 
       const result = CitrusTestReportService.findResult('actions.0.http-send-request', actions);
 
@@ -85,9 +83,7 @@ describe('CitrusTestReportService', () => {
     });
 
     it('should match by index position when action group segments are in wrong order (Citrus bug workaround)', () => {
-      const actions: TestActionResult[] = [
-        { name: 'camel:run-infra', path: 'actions.0.camel:run-infra' },
-      ];
+      const actions: TestActionResult[] = [{ name: 'camel:run-infra', path: 'actions.0.camel:run-infra' }];
 
       const result = CitrusTestReportService.findResult('actions.0.camel-infra-run', actions);
 
