@@ -35,8 +35,8 @@ describe('Test for Bean support', () => {
 
     cy.get('[data-testid="metadata-row-0"]').as('row');
     cy.get('@row').find('td').eq(0).should('contain', 'test');
-    cy.get('@row').find('td').eq(1).should('contain', 'org.acme');
     cy.get('@row').click();
+    cy.get(`input[name="#.type"]`).should('have.value', 'org.acme');
 
     cy.get('[placeholder="Write a key"]').should('exist');
     cy.get('[placeholder="Write a value"]').should('exist');

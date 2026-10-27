@@ -24,7 +24,7 @@ export const restConfigurationSchema: KaotoSchemaDefinition['schema'] = {
       type: 'string',
       title: 'Component',
       description:
-        'The Camel Rest component to use for the REST transport (consumer), such as netty-http, jetty, servlet, undertow.',
+        'The Camel Rest component to use for the REST transport (consumer), such as platform-http, netty-http, jetty, servlet, undertow.',
       enum: ['platform-http', 'servlet', 'jetty', 'undertow', 'netty-http', 'coap'],
       $comment: 'group:common',
     },

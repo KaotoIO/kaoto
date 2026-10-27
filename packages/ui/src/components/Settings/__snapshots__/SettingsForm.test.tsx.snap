@@ -332,7 +332,7 @@ exports[`SettingsForm > should render 1`] = `
           <span
             class="runtime-selector pf-v6-u-m-sm"
           >
-            Citrus 5.0.0
+            Citrus 5.1.0
           </span>
         </span>
         <span
