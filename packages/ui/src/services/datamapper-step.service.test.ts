@@ -844,7 +844,11 @@ describe('DataMapperStepService', () => {
     it('should return undefined when managed setVariable step has no name', () => {
       const model = {
         id: 'step-id',
-        steps: [{ setVariable: { id: 'kaoto-datamapper-output-variable-abc123' } } as ProcessorDefinition],
+        steps: [
+          {
+            setVariable: { id: 'kaoto-datamapper-output-variable-abc123', simple: '${body}' },
+          } as ProcessorDefinition,
+        ],
       };
       vizNode.data.definition = model;
 
@@ -1032,7 +1036,7 @@ describe('DataMapperStepService', () => {
 
       const updatedModel = updateModelSpy.mock.calls[0][0] as typeof model;
       const steps = updatedModel.steps as ProcessorDefinition[];
-      expect((steps[steps.length - 1].setVariable as { name: string }).name).toBe('myVar');
+      expect(steps[steps.length - 1].setVariable).toEqual(expect.objectContaining({ name: 'myVar' }));
     });
 
     it('should remove the managed step when the name is whitespace-only', () => {

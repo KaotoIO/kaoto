@@ -218,7 +218,10 @@ describe('Camel Route', () => {
       const vizNode = await new CamelRouteVisualEntity({
         route: {
           id: 'route-1234',
-          from: { uri: 'timer', steps: [{ choice: { when: [{ steps: [{ log: { message: 'We got a one.' } }] }] } }] },
+          from: {
+            uri: 'timer',
+            steps: [{ choice: { when: [{ simple: '${body} == 1', steps: [{ log: { message: 'We got a one.' } }] }] } }],
+          },
         },
       }).toVizNode();
       const fromNode = vizNode.getChildren()![0];

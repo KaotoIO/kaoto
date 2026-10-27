@@ -237,7 +237,23 @@ describe('BeanField', () => {
       expect(screen.queryByTestId('NewBeanModal-myNewBean')).not.toBeInTheDocument();
     });
 
-    it('should not allow to create a bean without a type', async () => {
+    it('should not allow to create a bean without a name', async () => {
+      await createBean('myNewBean', 'Bean');
+
+      const fieldActions = screen.getByTestId(`#.name__field-actions`);
+      fireEvent.click(fieldActions);
+
+      const clearButton = await screen.findByRole('menuitem', { name: /Clear name field/i });
+      fireEvent.click(clearButton);
+
+      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
+      fireEvent.click(createButton);
+
+      expect(onPropertyChangeSpy).not.toHaveBeenCalled();
+      expect(screen.getByTestId('NewBeanModal-myNewBean')).toBeInTheDocument();
+    });
+
+    it('should allow to create a bean without a type', async () => {
       await createBean('myNewBean', 'Bean');
 
       const fieldActions = screen.getByTestId(`#.type__field-actions`);
@@ -246,11 +262,10 @@ describe('BeanField', () => {
       const clearButton = await screen.findByRole('menuitem', { name: /Clear type field/i });
       fireEvent.click(clearButton);
 
-      const createButton = screen.getAllByRole('button').find((b) => b.textContent === 'Create')!;
-      fireEvent.click(createButton);
+      await clickCreateButton();
 
-      expect(onPropertyChangeSpy).not.toHaveBeenCalled();
-      expect(screen.getByTestId('NewBeanModal-myNewBean')).toBeInTheDocument();
+      expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, '#myNewBean');
+      expect(screen.queryByTestId('NewBeanModal-myNewBean')).not.toBeInTheDocument();
     });
 
     it('should appear in document export when bean is added', async () => {

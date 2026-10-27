@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
+import { CatalogLibrary, RouteDefinition, SetBody } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsContext, KaotoForm, KeyValue } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -22,7 +22,7 @@ describe('CanvasFormBody', () => {
     setupDynamicCatalogRegistry(catalogsMap);
   });
 
-  const createSetBodyNode = async (definition: Record<string, unknown>) => {
+  const createSetBodyNode = async (definition: SetBody) => {
     const entity = new CamelRouteVisualEntity({
       route: {
         id: 'route',
@@ -314,7 +314,7 @@ describe('CanvasFormBody', () => {
             },
           ],
         },
-      } as RouteDefinition;
+      } as unknown as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];
@@ -367,7 +367,7 @@ describe('CanvasFormBody', () => {
             },
           ],
         },
-      } as RouteDefinition;
+      } as unknown as RouteDefinition;
       const entity = new CamelRouteVisualEntity(camelRoute);
       const rootNode: IVisualizationNode = await entity.toVizNode();
       const setHeaderNode = rootNode.getChildren()![1];

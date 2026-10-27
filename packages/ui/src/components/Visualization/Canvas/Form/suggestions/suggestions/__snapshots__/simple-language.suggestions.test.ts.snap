@@ -289,6 +289,11 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${empty(type)}",
   },
   {
+    "description": "Escapes special characters in the message body (or expression) so the value can be safely embedded in HTML, XML, JSON, JavaScript, SQL, or a URL. The kind is one of: html, xml, json, js, sql, url.",
+    "group": "Simple Language",
+    "value": "\${escape(kind,exp)}",
+  },
+  {
     "description": "The exception object on the exchange (also from caught exceptions), is null if no exception present.",
     "group": "Simple Language",
     "value": "\${exception}",
@@ -301,7 +306,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
   {
     "description": "The exception stacktrace (also from caught exceptions), is null if no exception present.",
     "group": "Simple Language",
-    "value": "\${exception.stackTrace}",
+    "value": "\${exception.stacktrace}",
   },
   {
     "description": "The current exchange",
@@ -361,7 +366,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
   {
     "description": "Returns the local hostname (may be empty if not possible to resolve).",
     "group": "Simple Language",
-    "value": "\${hostName}",
+    "value": "\${hostname}",
   },
   {
     "description": "Cleans the HTML to remove unsafe links and JavaScripts from the message body (or expression)",
@@ -454,6 +459,11 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${load(file)}",
   },
   {
+    "description": "Dumps the exchange for logging purpose (uses \`ExchangeFormatter\` to format the output).",
+    "group": "Simple Language",
+    "value": "\${logExchange}",
+  },
+  {
     "description": "Lowercases the message body (or expression)",
     "group": "Simple Language",
     "value": "\${lowercase(exp)}",
@@ -516,7 +526,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
   {
     "description": "Evaluates the predicate and returns the opposite.",
     "group": "Simple Language",
-    "value": "\${not}",
+    "value": "\${not(exp)}",
   },
   {
     "description": "Returns a null value",
@@ -529,7 +539,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${originalBody}",
   },
   {
-    "description": "Pads the expression with extra padding if necessary, according the the total width. The separator is by default a space. If the width is negative then padding to the right, otherwise to the left.",
+    "description": "Pads the expression with extra padding if necessary, according to the total width. The separator is by default a space. A positive width pads to the right (after the value), and a negative width pads to the left (before the value).",
     "group": "Simple Language",
     "value": "\${pad(exp,width,separator)}",
   },
@@ -599,14 +609,19 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${safeQuote(exp)}",
   },
   {
-    "description": "Sets a message header with the given expression (optional converting to the given type)",
+    "description": "Invoke a named semantic evaluation and return its typed value. Preserves the body and publishes CamelSemanticResult. Each occurrence invokes the expert. Requires camel-semantic.",
     "group": "Simple Language",
-    "value": "\${setHeader(name,type,exp)}",
+    "value": "\${semantic(name)}",
   },
   {
     "description": "Sets an attachment with payload from the message body/expression.",
     "group": "Simple Language",
-    "value": "\${setVariable(key,exp)}",
+    "value": "\${setAttachment(key,exp)}",
+  },
+  {
+    "description": "Sets a message header with the given expression (optional converting to the given type)",
+    "group": "Simple Language",
+    "value": "\${setHeader(name,type,exp)}",
   },
   {
     "description": "Sets a variable with the given expression (optional converting to the given type)",
@@ -649,7 +664,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${stepId}",
   },
   {
-    "description": "Returns a substring of the message body/expression. If only one positive number, then the returned string is clipped from the beginning. If only one negative number, then the returned string is clipped from the beginning. Otherwise the returned string is clipped between the head and tail positions.",
+    "description": "Returns a substring of the message body/expression by clipping characters off its ends (not by positions). With one number, a positive number clips that many characters from the beginning, and a negative number clips that many characters from the end. With two numbers, head is how many characters to clip from the beginning and tail how many to clip from the end; the sign of tail does not matter, so -1 and 1 both clip one character.",
     "group": "Simple Language",
     "value": "\${substring(head,tail)}",
   },
@@ -691,7 +706,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
   {
     "description": "Deliberately throws an error. Uses IllegalArgumentException by default if no type is specified (use fully qualified classname).",
     "group": "Simple Language",
-    "value": "\${throwException(type,msg)}",
+    "value": "\${throwException(msg,type)}",
   },
   {
     "description": "Converts the expression to JSon String representation.",
@@ -734,7 +749,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${uppercase(exp)}",
   },
   {
-    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
+    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\`, \`simple\` and \`random\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
     "group": "Simple Language",
     "value": "\${uuid(type)}",
   },
@@ -1050,6 +1065,11 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${empty(type)}",
   },
   {
+    "description": "Escapes special characters in the message body (or expression) so the value can be safely embedded in HTML, XML, JSON, JavaScript, SQL, or a URL. The kind is one of: html, xml, json, js, sql, url.",
+    "group": "Simple Language",
+    "value": "\${escape(kind,exp)}",
+  },
+  {
     "description": "The exception object on the exchange (also from caught exceptions), is null if no exception present.",
     "group": "Simple Language",
     "value": "\${exception}",
@@ -1062,7 +1082,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
   {
     "description": "The exception stacktrace (also from caught exceptions), is null if no exception present.",
     "group": "Simple Language",
-    "value": "\${exception.stackTrace}",
+    "value": "\${exception.stacktrace}",
   },
   {
     "description": "The current exchange",
@@ -1122,7 +1142,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
   {
     "description": "Returns the local hostname (may be empty if not possible to resolve).",
     "group": "Simple Language",
-    "value": "\${hostName}",
+    "value": "\${hostname}",
   },
   {
     "description": "Cleans the HTML to remove unsafe links and JavaScripts from the message body (or expression)",
@@ -1215,6 +1235,11 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${load(file)}",
   },
   {
+    "description": "Dumps the exchange for logging purpose (uses \`ExchangeFormatter\` to format the output).",
+    "group": "Simple Language",
+    "value": "\${logExchange}",
+  },
+  {
     "description": "Lowercases the message body (or expression)",
     "group": "Simple Language",
     "value": "\${lowercase(exp)}",
@@ -1277,7 +1302,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
   {
     "description": "Evaluates the predicate and returns the opposite.",
     "group": "Simple Language",
-    "value": "\${not}",
+    "value": "\${not(exp)}",
   },
   {
     "description": "Returns a null value",
@@ -1290,7 +1315,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${originalBody}",
   },
   {
-    "description": "Pads the expression with extra padding if necessary, according the the total width. The separator is by default a space. If the width is negative then padding to the right, otherwise to the left.",
+    "description": "Pads the expression with extra padding if necessary, according to the total width. The separator is by default a space. A positive width pads to the right (after the value), and a negative width pads to the left (before the value).",
     "group": "Simple Language",
     "value": "\${pad(exp,width,separator)}",
   },
@@ -1360,14 +1385,19 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${safeQuote(exp)}",
   },
   {
-    "description": "Sets a message header with the given expression (optional converting to the given type)",
+    "description": "Invoke a named semantic evaluation and return its typed value. Preserves the body and publishes CamelSemanticResult. Each occurrence invokes the expert. Requires camel-semantic.",
     "group": "Simple Language",
-    "value": "\${setHeader(name,type,exp)}",
+    "value": "\${semantic(name)}",
   },
   {
     "description": "Sets an attachment with payload from the message body/expression.",
     "group": "Simple Language",
-    "value": "\${setVariable(key,exp)}",
+    "value": "\${setAttachment(key,exp)}",
+  },
+  {
+    "description": "Sets a message header with the given expression (optional converting to the given type)",
+    "group": "Simple Language",
+    "value": "\${setHeader(name,type,exp)}",
   },
   {
     "description": "Sets a variable with the given expression (optional converting to the given type)",
@@ -1410,7 +1440,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${stepId}",
   },
   {
-    "description": "Returns a substring of the message body/expression. If only one positive number, then the returned string is clipped from the beginning. If only one negative number, then the returned string is clipped from the beginning. Otherwise the returned string is clipped between the head and tail positions.",
+    "description": "Returns a substring of the message body/expression by clipping characters off its ends (not by positions). With one number, a positive number clips that many characters from the beginning, and a negative number clips that many characters from the end. With two numbers, head is how many characters to clip from the beginning and tail how many to clip from the end; the sign of tail does not matter, so -1 and 1 both clip one character.",
     "group": "Simple Language",
     "value": "\${substring(head,tail)}",
   },
@@ -1452,7 +1482,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
   {
     "description": "Deliberately throws an error. Uses IllegalArgumentException by default if no type is specified (use fully qualified classname).",
     "group": "Simple Language",
-    "value": "\${throwException(type,msg)}",
+    "value": "\${throwException(msg,type)}",
   },
   {
     "description": "Converts the expression to JSon String representation.",
@@ -1495,7 +1525,7 @@ exports[`Properties Suggestions > should return suggestions for word="" inputVal
     "value": "\${uppercase(exp)}",
   },
   {
-    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
+    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\`, \`simple\` and \`random\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
     "group": "Simple Language",
     "value": "\${uuid(type)}",
   },
@@ -1833,6 +1863,11 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
     "value": "\${empty(type)}",
   },
   {
+    "description": "Escapes special characters in the message body (or expression) so the value can be safely embedded in HTML, XML, JSON, JavaScript, SQL, or a URL. The kind is one of: html, xml, json, js, sql, url.",
+    "group": "Simple Language",
+    "value": "\${escape(kind,exp)}",
+  },
+  {
     "description": "The exception object on the exchange (also from caught exceptions), is null if no exception present.",
     "group": "Simple Language",
     "value": "\${exception}",
@@ -1845,7 +1880,7 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
   {
     "description": "The exception stacktrace (also from caught exceptions), is null if no exception present.",
     "group": "Simple Language",
-    "value": "\${exception.stackTrace}",
+    "value": "\${exception.stacktrace}",
   },
   {
     "description": "The current exchange",
@@ -1905,7 +1940,7 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
   {
     "description": "Returns the local hostname (may be empty if not possible to resolve).",
     "group": "Simple Language",
-    "value": "\${hostName}",
+    "value": "\${hostname}",
   },
   {
     "description": "Cleans the HTML to remove unsafe links and JavaScripts from the message body (or expression)",
@@ -1998,6 +2033,11 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
     "value": "\${load(file)}",
   },
   {
+    "description": "Dumps the exchange for logging purpose (uses \`ExchangeFormatter\` to format the output).",
+    "group": "Simple Language",
+    "value": "\${logExchange}",
+  },
+  {
     "description": "Lowercases the message body (or expression)",
     "group": "Simple Language",
     "value": "\${lowercase(exp)}",
@@ -2060,7 +2100,7 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
   {
     "description": "Evaluates the predicate and returns the opposite.",
     "group": "Simple Language",
-    "value": "\${not}",
+    "value": "\${not(exp)}",
   },
   {
     "description": "Returns a null value",
@@ -2073,7 +2113,7 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
     "value": "\${originalBody}",
   },
   {
-    "description": "Pads the expression with extra padding if necessary, according the the total width. The separator is by default a space. If the width is negative then padding to the right, otherwise to the left.",
+    "description": "Pads the expression with extra padding if necessary, according to the total width. The separator is by default a space. A positive width pads to the right (after the value), and a negative width pads to the left (before the value).",
     "group": "Simple Language",
     "value": "\${pad(exp,width,separator)}",
   },
@@ -2143,14 +2183,19 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
     "value": "\${safeQuote(exp)}",
   },
   {
-    "description": "Sets a message header with the given expression (optional converting to the given type)",
+    "description": "Invoke a named semantic evaluation and return its typed value. Preserves the body and publishes CamelSemanticResult. Each occurrence invokes the expert. Requires camel-semantic.",
     "group": "Simple Language",
-    "value": "\${setHeader(name,type,exp)}",
+    "value": "\${semantic(name)}",
   },
   {
     "description": "Sets an attachment with payload from the message body/expression.",
     "group": "Simple Language",
-    "value": "\${setVariable(key,exp)}",
+    "value": "\${setAttachment(key,exp)}",
+  },
+  {
+    "description": "Sets a message header with the given expression (optional converting to the given type)",
+    "group": "Simple Language",
+    "value": "\${setHeader(name,type,exp)}",
   },
   {
     "description": "Sets a variable with the given expression (optional converting to the given type)",
@@ -2193,7 +2238,7 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
     "value": "\${stepId}",
   },
   {
-    "description": "Returns a substring of the message body/expression. If only one positive number, then the returned string is clipped from the beginning. If only one negative number, then the returned string is clipped from the beginning. Otherwise the returned string is clipped between the head and tail positions.",
+    "description": "Returns a substring of the message body/expression by clipping characters off its ends (not by positions). With one number, a positive number clips that many characters from the beginning, and a negative number clips that many characters from the end. With two numbers, head is how many characters to clip from the beginning and tail how many to clip from the end; the sign of tail does not matter, so -1 and 1 both clip one character.",
     "group": "Simple Language",
     "value": "\${substring(head,tail)}",
   },
@@ -2235,7 +2280,7 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
   {
     "description": "Deliberately throws an error. Uses IllegalArgumentException by default if no type is specified (use fully qualified classname).",
     "group": "Simple Language",
-    "value": "\${throwException(type,msg)}",
+    "value": "\${throwException(msg,type)}",
   },
   {
     "description": "Converts the expression to JSon String representation.",
@@ -2278,7 +2323,7 @@ exports[`Properties Suggestions > should return suggestions from the catalog 1`]
     "value": "\${uppercase(exp)}",
   },
   {
-    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\` and \`simple\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
+    "description": "Returns a UUID using the Camel \`UuidGenerator\`. You can choose between \`default\`, \`classic\`, \`short\`, \`simple\` and \`random\` as the type. If no type is given, the default is used. It is also possible to use a custom \`UuidGenerator\` and bind the bean to the Registry with an id. For example \`\${uuid(myGenerator)}\` where the ID is _myGenerator_.",
     "group": "Simple Language",
     "value": "\${uuid(type)}",
   },
