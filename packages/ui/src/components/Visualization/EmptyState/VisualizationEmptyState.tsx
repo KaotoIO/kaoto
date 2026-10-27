@@ -1,4 +1,6 @@
-import { Flow, View, ViewOff } from '@carbon/icons-react';
+import './VisualizationEmptyState.scss';
+
+import { View } from '@carbon/icons-react';
 import {
   Bullseye,
   Button,
@@ -10,12 +12,11 @@ import {
 } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useMemo } from 'react';
 
+import noDataIcon from '../../../assets/no-data.svg';
+import notFoundIcon from '../../../assets/not-found.svg';
 import { IDataTestID } from '../../../models';
 import { VisibleFlowsContext } from '../../../providers';
 import { NewFlow } from './FlowType/NewFlow';
-
-const CubesIcon: FunctionComponent = (props) => <Flow data-testid="cubes-icon" {...props} />;
-const EyeSlashIcon: FunctionComponent = (props) => <ViewOff data-testid="eye-slash-icon" {...props} />;
 
 interface IVisualizationEmptyState extends IDataTestID {
   entitiesNumber: number;
@@ -29,9 +30,13 @@ export const VisualizationEmptyState: FunctionComponent<IVisualizationEmptyState
   return (
     <Bullseye className={props.className}>
       <Card>
+        <img
+          src={hasRoutes ? noDataIcon : notFoundIcon}
+          alt={hasRoutes ? 'no data' : 'not found'}
+          className="empty-state-icon"
+        />
         <EmptyState
           headingLevel="h4"
-          icon={hasRoutes ? EyeSlashIcon : CubesIcon}
           titleText={hasRoutes ? <p>There are no visible routes</p> : <p>There are no routes defined</p>}
           data-testid={props['data-testid']}
         >

@@ -5,7 +5,7 @@ import { VisualizationEmptyState } from './VisualizationEmptyState';
 
 describe('VisualizationEmptyState.tsx', () => {
   describe('when there are no routes', () => {
-    it('should render the CubesIcon whenever there are no routes', async () => {
+    it('should render the not-found image whenever there are no routes', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
       const { Provider } = await TestProvidersWrapper();
       const wrapper = render(
@@ -16,7 +16,7 @@ describe('VisualizationEmptyState.tsx', () => {
         </RuntimeProvider>,
       );
 
-      const icon = wrapper.getByTestId('cubes-icon');
+      const icon = wrapper.getByAltText('not found');
 
       expect(icon).toBeInTheDocument();
     });
@@ -41,7 +41,7 @@ describe('VisualizationEmptyState.tsx', () => {
   });
 
   describe('when there are routes but they are not visible', () => {
-    it('should render the EyeSlashIcon whenever there are no routes', async () => {
+    it('should render the no-data image whenever there are routes but they are not visible', async () => {
       const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
       const { Provider } = await TestProvidersWrapper();
       const wrapper = render(
@@ -51,7 +51,7 @@ describe('VisualizationEmptyState.tsx', () => {
           </Provider>
         </RuntimeProvider>,
       );
-      const icon = wrapper.getByTestId('eye-slash-icon');
+      const icon = wrapper.getByAltText('no data');
 
       expect(icon).toBeInTheDocument();
     });
