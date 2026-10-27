@@ -397,6 +397,21 @@
                     </xs:complexType>
                 </xs:element>
 
+                <!-- OBXLoop — repeating Observation/Result group (HL7 v2 OBX segment) -->
+                <xs:element name="OBXLoop" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="OBX" minOccurs="1" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:complexContent>
+                                        <xs:extension base="FieldBlock"/>
+                                    </xs:complexContent>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+
             </xs:sequence>
         </xs:complexType>
     </xs:element>
