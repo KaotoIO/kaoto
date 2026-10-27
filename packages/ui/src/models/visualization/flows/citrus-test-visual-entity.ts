@@ -404,7 +404,8 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
       }
 
       const result = CitrusTestReportService.findResult(path, this.report.actions);
-      return result && result.error === undefined;
+      if (!result) return undefined;
+      return CitrusTestReportService.findError(path, this.report.actions) === undefined;
     }
 
     return undefined;
