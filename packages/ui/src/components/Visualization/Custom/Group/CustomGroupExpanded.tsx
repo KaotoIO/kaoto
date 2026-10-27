@@ -37,7 +37,7 @@ import {
   useDragNode,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, MouseEventHandler, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { FunctionComponent, useCallback, useContext, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -106,8 +106,8 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
     }, AnchorEnd.both);
 
     const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
-    const showError: MouseEventHandler<HTMLDivElement> = useCallback(
-      (event) => {
+    const showError = useCallback(
+      (event: React.SyntheticEvent) => {
         event.stopPropagation();
         setIsErrorModalOpen(true);
       },
@@ -368,9 +368,16 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
               height={25}
             >
               <FloatingCircle>
-                <Icon status="danger" className="custom-group__warning-icon" title={validationText} onClick={showError}>
-                  <WarningFilled />
-                </Icon>
+                <button
+                  type="button"
+                  onClick={showError}
+                  aria-label="Show error details"
+                  style={{ all: 'unset', cursor: 'pointer' }}
+                >
+                  <Icon status="danger" className="custom-group__warning-icon" title={validationText}>
+                    <WarningFilled />
+                  </Icon>
+                </button>
               </FloatingCircle>
             </foreignObject>
           )}
