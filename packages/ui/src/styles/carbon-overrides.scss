@@ -137,6 +137,7 @@ body {
 /* stylelint-disable selector-class-pattern */
 .pf-v6-c-button .pf-v6-c-button__icon,
 .pf-v6-c-menu-toggle .pf-v6-c-menu-toggle__icon,
+.pf-v6-c-menu__item .pf-v6-c-menu__item-icon,
 .pf-v6-c-toggle-group .pf-v6-c-toggle-group__icon,
 .pf-v6-c-label .pf-v6-c-label__icon,
 .pf-topology-control-bar__button .pf-v6-c-button__text {
@@ -152,6 +153,16 @@ body {
   carried; a flex layout is avoided to keep the text ellipsis and the existing spacing untouched.
 */
 .pf-topology-context-menu__c-dropdown__menu .pf-v6-c-menu__item-text > svg {
+  vertical-align: -0.125em;
+}
+
+/*
+  Topology context menu items and split-button menu toggles render `<Icon /> Label` as plain children,
+  so the icon lands inline in `__item-text` / `__button` instead of in a dedicated icon slot.
+  Restore the baseline offset the PatternFly icons carried.
+*/
+.pf-topology-context-menu__c-dropdown__menu .pf-v6-c-menu__item-text > svg,
+.pf-v6-c-menu-toggle__button svg {
   vertical-align: -0.125em;
 }
 /* stylelint-enable selector-class-pattern */
