@@ -97,6 +97,8 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
     entitiesContextRef.current = entitiesContext;
   });
 
+  const reportGenerationRef = useRef(0);
+
   const loadTestReports = useCallback(() => {
     const ctx = entitiesContextRef.current;
     if (!ctx?.visualEntities || !getTestReport) return;
@@ -106,10 +108,11 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
     );
     if (citrusEntities.length === 0) return;
 
+    const generation = reportGenerationRef.current;
     let cancelled = false;
     for (const entity of citrusEntities) {
       void getTestReport(entity.id).then((report) => {
-        if (cancelled) return;
+        if (cancelled || generation !== reportGenerationRef.current) return;
         if (report) {
           entity.applyTestReport(report);
         } else {
@@ -132,6 +135,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
   }, [hasEntities, loadTestReports]);
 
   const clearTestReports = useCallback(() => {
+    reportGenerationRef.current += 1;
     const ctx = entitiesContextRef.current;
     if (!ctx?.visualEntities) return;
 

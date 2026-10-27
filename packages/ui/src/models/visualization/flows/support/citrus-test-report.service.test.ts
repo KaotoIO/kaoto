@@ -204,5 +204,13 @@ describe('CitrusTestReportService', () => {
 
       expect(result).toBeUndefined();
     });
+
+    it('should treat empty error string as a failure with fallback message', () => {
+      const actions: TestActionResult[] = [{ name: 'print', path: 'actions.0.print', error: '' }];
+
+      const result = CitrusTestReportService.findError('actions.0.print', actions);
+
+      expect(result).toBe('Test action failed');
+    });
   });
 });

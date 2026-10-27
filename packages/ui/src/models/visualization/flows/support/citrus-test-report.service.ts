@@ -24,7 +24,9 @@ export class CitrusTestReportService {
     }
 
     return this.traverseActions(actions, (action) =>
-      action.error && this.matchPath(action.path, path) ? action.error : undefined,
+      action.error !== undefined && this.matchPath(action.path, path)
+        ? action.error || 'Test action failed'
+        : undefined,
     );
   }
 
