@@ -47,17 +47,25 @@ A new **Recently used** row is shown below the catalog filters, so you can pick 
 
 ### DataMapper improvements
 
-- **Automatic `xsl:if` for optional mappings** — when both the source and the target field of a mapping are optional (`minOccurs=0`), the mapping is wrapped with an `xsl:if` that checks the source is present, so the target element is only produced when there is something to map. The guard is removed automatically when its mapped field is deleted
-- **Save as variable** — a new optional **Save as variable** setting, available in the DataMapper settings and in the DataMapper launcher panel, stores the transformation result in a named Camel variable by adding a `setVariable` step to the DataMapper step group. Your own `setVariable` steps in the group are never touched
-- **`Add copy selector` placement** — the new `xsl:copy-of` node is now rendered at the top of the field children, next to where you invoked the action, like `Add Variable`
+- **Automatic `xsl:if` for optional mappings** — when both the source and the target field of a mapping are optional (`minOccurs=0`), the mapping is wrapped with an `xsl:if` that checks the source is present, so the target element is only produced when there is something to map
+- **Save as variable** — a new optional **Save as variable** setting, available  in the DataMapper launcher panel and in the DataMapper settings, stores the transformation result in a named Camel variable by adding a `setVariable` step to the DataMapper step group
+- **`Add copy selector` placement** — the new `xsl:copy-of` node is now rendered at the top of the field children, next to where you invoked the action, like `Add Variable`. In the previous version, the new `xsl:copy-of` node was added to the bottom, which could be out of view when there are many children
 - **`copy-of` availability** — `Add copy selector` is no longer offered on leaf fields or on JSON targets, where it does not apply
 
 <p align="center">
-    <img src="./datamapper-auto-if.png" alt="DataMapper mapping between two optional Note fields with the automatically added if node" width="70%">
+    <img src="./datamapper-auto-if.gif" alt="DataMapper mapping between two optional Note fields with the automatically added if node" width="70%">
 </p>
 
 <p align="center">
-    <img src="./datamapper-output-variable.png" alt="DataMapper Settings dialog with the Save as variable field" width="50%">
+    <img src="./datamapper-output-variable-launcher.png" alt="DataMapper launcher panel with the Save as variable field" width="50%">
+</p>
+
+<p align="center">
+    <img src="./datamapper-settings.png" alt="Open DataMapper Settings dialog" width="50%">
+</p>
+
+<p align="center">
+    <img src="./datamapper-settings-variable.png" alt="DataMapper Settings dialog with the Save as variable field" width="50%">
 </p>
 
 ---
