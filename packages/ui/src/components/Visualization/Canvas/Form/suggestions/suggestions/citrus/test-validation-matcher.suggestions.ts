@@ -9,7 +9,7 @@ const VALIDATION_MATCHER_ACTIVATED_FIELDS = [
   /^#\.validate\.\d+\.xpath\.\d+\.value$/,
   /^#\.message\.body\.data$/,
   /^#\.message\.headers\.\d+\.value$/,
-  /^#\.response\.body\.\d+\.data$/,
+  /^#\.response\.body\.data$/,
   /^#\.response\.headers\.\d+\.value$/,
   /^#\.message\.expression\.\d+\.path$/,
   /^#\.message\.expression\.\d+\.value$/,

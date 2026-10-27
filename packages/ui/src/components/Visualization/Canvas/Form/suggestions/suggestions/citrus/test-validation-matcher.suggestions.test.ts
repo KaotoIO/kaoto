@@ -9,7 +9,7 @@ describe('Test Validation Matcher Suggestions', () => {
     { propertyName: '#.validate.0.xpath.0.value', schema: { type: 'string' }, expected: true },
     { propertyName: '#.message.body.data', schema: { type: 'string' }, expected: true },
     { propertyName: '#.message.headers.0.value', schema: { type: 'string' }, expected: true },
-    { propertyName: '#.response.body.0.data', schema: { type: 'string' }, expected: true },
+    { propertyName: '#.response.body.data', schema: { type: 'string' }, expected: true },
     { propertyName: '#.response.headers.0.value', schema: { type: 'string' }, expected: true },
     { propertyName: '#.message.expression.0.path', schema: { type: 'string' }, expected: true },
     { propertyName: '#.message.expression.0.value', schema: { type: 'string' }, expected: true },

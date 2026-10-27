@@ -4,13 +4,14 @@ import { CitrusTestResource } from '../../../../../../../models/citrus/citrus-te
 import { KaotoResource } from '../../../../../../../models/kaoto-resource';
 
 const VARIABLE_ACTIVATED_FIELDS = [
+  /^#\.variables\.\d+\.value$/,
   /^#\.validate\.\d+\.value$/,
   /^#\.validate\.\d+\.jsonPath\.\d+\.value$/,
   /^#\.validate\.\d+\.xpath\.\d+\.value$/,
   /^#\.ignore\.\d+\.path$/,
   /^#\.message\.body\.data$/,
   /^#\.message\.headers\.\d+\.value$/,
-  /^#\.response\.body\.\d+\.data$/,
+  /^#\.response\.body\.data$/,
   /^#\.response\.headers\.\d+\.value$/,
   /^#\.message\.expression\.\d+\.path$/,
   /^#\.message\.expression\.\d+\.value$/,
