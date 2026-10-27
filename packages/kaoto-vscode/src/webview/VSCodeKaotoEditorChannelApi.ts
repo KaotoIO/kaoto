@@ -71,10 +71,17 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 			}
 		});
 
+		const testRunStartedSubscription = TestReportEvents.instance.onTestRunStarted((filePaths) => {
+			if (filePaths.includes(this.currentEditedDocument.uri.fsPath)) {
+				editor.panel.webview.postMessage({ type: 'kaoto__testRunStarted' });
+			}
+		});
+
 		// Dispose watcher when the webview/editor is closed
 		editor.setupPanelOnDidDispose();
 		editor.panel.onDidDispose(() => {
 			testReportSubscription.dispose();
+			testRunStartedSubscription.dispose();
 			StepsOnSaveManager.instance.disposeFor(this.currentEditedDocument.uri);
 		});
 	}

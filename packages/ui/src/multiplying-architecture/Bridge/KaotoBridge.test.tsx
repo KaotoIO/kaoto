@@ -133,6 +133,44 @@ describe('KaotoBridge', () => {
       expect(applyTestReportSpy).not.toHaveBeenCalled();
     });
 
+    it('should clear test reports when kaoto__testRunStarted message is received', async () => {
+      const entity = new CitrusTestVisualEntity({ name: 'test-1', actions: [] });
+      const mockReport: TestReportEntry = {
+        name: 'test-1',
+        result: { name: 'test-1', result: 'SUCCESS', success: true },
+        actions: [],
+      };
+      const mockGetTestReport = vi.fn().mockResolvedValue(mockReport);
+      const mockRefreshVisualEntities = vi.fn();
+
+      const context = createEntitiesContext([entity]);
+      context.refreshVisualEntities = mockRefreshVisualEntities;
+
+      render(
+        <EntitiesContext.Provider value={context}>
+          <KaotoBridge {...defaultProps} getTestReport={mockGetTestReport}>
+            <div>Test Child</div>
+          </KaotoBridge>
+        </EntitiesContext.Provider>,
+      );
+
+      await waitFor(() => {
+        expect(mockGetTestReport).toHaveBeenCalledWith('test-1');
+      });
+
+      expect(entity['report']).toBeDefined();
+
+      const clearTestReportSpy = vi.spyOn(entity, 'clearTestReport');
+
+      window.dispatchEvent(new MessageEvent('message', { data: { type: 'kaoto__testRunStarted' } }));
+
+      await waitFor(() => {
+        expect(clearTestReportSpy).toHaveBeenCalled();
+      });
+
+      expect(entity['report']).toBeUndefined();
+    });
+
     it('should re-fetch test reports when kaoto__testReportReady message is received', async () => {
       const entity = new CitrusTestVisualEntity({ name: 'test-1', actions: [] });
       const mockGetTestReport = vi.fn().mockResolvedValue(undefined);

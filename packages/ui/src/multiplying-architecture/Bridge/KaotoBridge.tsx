@@ -131,12 +131,28 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
     }
   }, [hasEntities, loadTestReports]);
 
-  /** Re-fetch test reports when the extension signals a test run completed */
+  const clearTestReports = useCallback(() => {
+    const ctx = entitiesContextRef.current;
+    if (!ctx?.visualEntities) return;
+
+    const citrusEntities = ctx.visualEntities.filter(
+      (e): e is CitrusTestVisualEntity => e instanceof CitrusTestVisualEntity,
+    );
+
+    for (const entity of citrusEntities) {
+      entity.clearTestReport();
+    }
+    ctx.refreshVisualEntities();
+  }, []);
+
+  /** Listen for test run started / test report ready messages from the extension */
   useEffect(() => {
     const expectedOrigin = window.location.origin;
     const handler = (event: MessageEvent) => {
       if (event.origin && event.origin !== expectedOrigin) return;
-      if (event.data?.type === 'kaoto__testReportReady') {
+      if (event.data?.type === 'kaoto__testRunStarted') {
+        clearTestReports();
+      } else if (event.data?.type === 'kaoto__testReportReady') {
         loadTestReports();
       }
     };
@@ -144,7 +160,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
     return () => {
       window.removeEventListener('message', handler);
     };
-  }, [loadTestReports]);
+  }, [loadTestReports, clearTestReports]);
 
   return (
     <CatalogTilesProvider>
