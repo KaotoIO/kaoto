@@ -125,6 +125,8 @@ export class TestsRegistrar implements IRegistrar {
 	}
 
 	private async executeTestRun(testFilePaths: string[], createTask: () => Promise<CamelTask>, progressMessage: string): Promise<void> {
+		TestReportEvents.instance.fireTestRunStarted(testFilePaths);
+
 		for (const testPath of testFilePaths) {
 			this.testsProvider.setTestRunning(testPath, true);
 		}
