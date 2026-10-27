@@ -6,10 +6,11 @@ import { CatalogKind } from '../../../../../../../models';
 const FUNCTION_ACTIVATED_FIELDS = [
   /^#\.message\.body\.data$/,
   /^#\.message\.headers\.\d+\.value$/,
-  /^#\.response\.body\.\d+\.data$/,
+  /^#\.response\.body\.data$/,
   /^#\.response\.headers\.\d+\.value$/,
   /^#\.message\.expression\.\d+\.value$/,
   /^#\.extract\.body\.\d+\.path$/,
+  /^#\.variables\.\d+\.value$/,
 ];
 
 export const testFunctionSuggestionProvider: SuggestionProvider = {

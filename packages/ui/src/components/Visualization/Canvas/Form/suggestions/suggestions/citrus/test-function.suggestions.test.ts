@@ -6,10 +6,11 @@ describe('Test Function Suggestions', () => {
   it.each([
     { propertyName: '#.message.body.data', schema: { type: 'string' }, expected: true },
     { propertyName: '#.message.headers.0.value', schema: { type: 'string' }, expected: true },
-    { propertyName: '#.response.body.0.data', schema: { type: 'string' }, expected: true },
+    { propertyName: '#.response.body.data', schema: { type: 'string' }, expected: true },
     { propertyName: '#.response.headers.0.value', schema: { type: 'string' }, expected: true },
     { propertyName: '#.message.expression.0.value', schema: { type: 'string' }, expected: true },
     { propertyName: '#.extract.body.0.path', schema: { type: 'string' }, expected: true },
+    { propertyName: '#.variables.0.value', schema: { type: 'string' }, expected: true },
     { propertyName: 'test', schema: { type: 'string' }, expected: false },
     { propertyName: '#.message.body.data', schema: { type: 'number' }, expected: false },
   ] as const)(
