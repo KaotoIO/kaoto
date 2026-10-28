@@ -13,7 +13,8 @@ export const configureSourceSchemaTypes = (): void => {
     { type: SourceSchemaType.RouteXml, name: 'Camel Route XML', description: 'Camel Route XML desc' },
     { type: SourceSchemaType.Kamelet, name: 'Kamelet', description: 'Kamelet desc' },
     { type: SourceSchemaType.Pipe, name: 'Pipe', description: 'Pipe desc' },
-    { type: SourceSchemaType.Test, name: 'Test', description: 'Test desc' },
+    { type: SourceSchemaType.Test, name: 'Test YAML', description: 'Test YAML desc' },
+    { type: SourceSchemaType.TestXml, name: 'Test XML', description: 'Test XML desc' },
     { type: SourceSchemaType.Integration, name: 'Integration', description: 'Integration desc' },
     { type: SourceSchemaType.KameletBinding, name: 'kameletBinding', description: 'KameletBinding desc' },
   ];

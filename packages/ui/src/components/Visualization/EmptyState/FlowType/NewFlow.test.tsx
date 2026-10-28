@@ -115,7 +115,7 @@ describe('NewFlow.tsx', () => {
     fireEvent.click(trigger);
 
     /** Select Citrus Test option */
-    const element = getByText('Test');
+    const element = getByText('Test YAML');
     fireEvent.click(element);
 
     /** Confirm the modal */

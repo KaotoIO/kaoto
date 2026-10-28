@@ -4,7 +4,6 @@ import { parse } from 'yaml';
 import { isXML } from '../../serializers/xml/kaoto-xml-parser';
 import { parseYamlComments } from '../../utils/yaml-comments';
 import { CitrusTestResourceFactory } from '../citrus/citrus-test-resource-factory';
-import { Test } from '../citrus/entities/Test';
 import { KaotoResource } from '../kaoto-resource';
 import { CamelKResourceFactory } from './camel-k-resource-factory';
 import { CamelRouteResource } from './camel-route-resource';
@@ -22,20 +21,21 @@ export class CamelResourceFactory {
    * @param source
    */
   static createCamelResource(source?: string, options: Partial<{ path: string }> = {}): KaotoResource {
+    const pathResourceType = getResourceTypeFromPath(options.path);
+
+    const testResource = CitrusTestResourceFactory.getCitrusTestResource(source, pathResourceType);
+    if (testResource) {
+      return testResource;
+    }
+
     const isXmlSource = options.path ? options.path.toLowerCase().endsWith('.xml') : isXML(source);
     if (isXmlSource) {
       // XML is always a Camel route; entity parsing is deferred to initialize() (post-catalog).
       return new CamelXMLRouteResource(typeof source === 'string' ? source : '');
     }
 
-    const pathResourceType = getResourceTypeFromPath(options.path);
     const comments = source ? parseYamlComments(source) : [];
     const parsedCode = typeof source === 'string' ? parse(source) : source;
-
-    const testResource = CitrusTestResourceFactory.getCitrusTestResource(parsedCode as Test, pathResourceType);
-    if (testResource) {
-      return testResource;
-    }
 
     const resource = CamelKResourceFactory.getCamelKResource(
       parsedCode as Integration | KameletBinding | Pipe | IKameletDefinition,

@@ -42,7 +42,10 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
 
   const { kaotoResource } = useKaotoResourceContext();
   const currentSchemaType = kaotoResource.getType();
-  const catalogName = currentSchemaType === SourceSchemaType.Test ? testingCatalogName : runtimeCatalogName;
+  const catalogName =
+    currentSchemaType === SourceSchemaType.Test || currentSchemaType === SourceSchemaType.TestXml
+      ? testingCatalogName
+      : runtimeCatalogName;
 
   const basePath = catalogUrl.substring(0, catalogUrl.lastIndexOf('/'));
   const request = useMemo(

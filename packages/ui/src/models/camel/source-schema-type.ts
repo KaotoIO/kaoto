@@ -6,6 +6,7 @@ export enum SourceSchemaType {
   Kamelet = 'Kamelet',
   Pipe = 'Pipe',
   Test = 'Test',
+  TestXml = 'TestXml',
 }
 
 export const getResourceTypeFromPath = (path?: string): SourceSchemaType | undefined => {
@@ -21,14 +22,13 @@ export const getResourceTypeFromPath = (path?: string): SourceSchemaType | undef
     return SourceSchemaType.Kamelet;
   } else if (path?.includes('.pipe') || path?.includes('pipe.yaml') || path?.includes('pipe.yml')) {
     return SourceSchemaType.Pipe;
+  } else if (path?.endsWith('citrus.xml') || path?.endsWith('citrus.test.xml') || path?.endsWith('citrus.it.xml')) {
+    return SourceSchemaType.TestXml;
   } else if (
-    path?.endsWith('citrus.xml') ||
     path?.endsWith('citrus.yaml') ||
     path?.endsWith('citrus.yml') ||
-    path?.endsWith('citrus.test.xml') ||
     path?.endsWith('citrus.test.yaml') ||
     path?.endsWith('citrus.test.yml') ||
-    path?.endsWith('citrus.it.xml') ||
     path?.endsWith('citrus.it.yaml') ||
     path?.endsWith('citrus.it.yml')
   ) {
