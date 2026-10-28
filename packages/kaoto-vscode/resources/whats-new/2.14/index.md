@@ -2,6 +2,8 @@
 
 We are happy to announce that a new version of the extension has been released!
 
+<img src="./featured.png" alt="Kaoto 2.14" width="75%">
+
 ## Key highlights of this release
 
 This release focuses on three themes: a more accessible and easier-to-navigate **canvas** with keyboard navigation, a single shared hover toolbar and a "Recently used" row in the catalog; further **DataMapper** improvements, including automatic `xsl:if` guards for optional mappings and the ability to store the transformation result in a Camel variable; and **Citrus test designer** support for Camel infra services. It also ships a fix to how the extension looks up its `.kaoto` metadata file, and the latest Kaoto catalog, which includes **Apache Camel 4.23.0**.
@@ -126,4 +128,3 @@ Do you have an idea how to improve Kaoto? Would you love to see a useful feature
 Thank you to everyone who made this release possible!
 
 Whether you are contributing code, reporting bugs, or sharing feedback in our [GitHub discussions](https://github.com/KaotoIO/kaoto/discussions), your involvement is what keeps the Camel riding! 🐫🎉
-
