@@ -41,7 +41,7 @@ const TopBarMenuToggle: FunctionComponent<{
   onClick: () => void;
   isOpen: boolean;
 }> = ({ toggleRef, onClick, isOpen }) => (
-  <MenuToggle ref={toggleRef} onClick={onClick} variant="plain" isExpanded={isOpen}>
+  <MenuToggle ref={toggleRef} onClick={onClick} variant="plain" isExpanded={isOpen} aria-label="Application menu">
     <OverflowMenuVertical />
   </MenuToggle>
 );
