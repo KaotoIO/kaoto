@@ -2,9 +2,9 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock, MockInstance } from 'vitest';
 
-import { useDataMapper } from '../../hooks/useDataMapper';
-import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { DocumentService } from '../../services/document/document.service';
+import { useDataMapper } from '../../../hooks/useDataMapper';
+import { DataMapperProvider } from '../../../providers/datamapper.provider';
+import { DocumentService } from '../../../services/document/document.service';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
 
 describe('ParameterInputPlaceholder', () => {
