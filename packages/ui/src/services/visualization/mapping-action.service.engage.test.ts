@@ -581,6 +581,55 @@ describe('MappingActionService — mapping engagement', () => {
         expect(xslt.indexOf('Address')).toBeGreaterThan(-1);
         expect(xslt.indexOf('Address')).toBeLessThan(xslt.indexOf('Phone'));
       });
+
+      it.each([
+        ['target order', ['Address', 'Fax', 'Phone']],
+        ['reverse of target order', ['Phone', 'Fax', 'Address']],
+        ['middle inserted last', ['Address', 'Phone', 'Fax']],
+        ['middle inserted first', ['Fax', 'Phone', 'Address']],
+      ])('should keep three for-each loops in target sequence order when dropped in %s', (_label, dropOrder) => {
+        const xsd = ROOT_XSD(REPEATING('Address') + REPEATING('Fax') + REPEATING('Phone'));
+        const srcDoc = createDoc(DocumentType.SOURCE_BODY, xsd);
+        const tgtDoc = createDoc(DocumentType.TARGET_BODY, xsd);
+        const tgtTree = new MappingTree(tgtDoc.documentType, tgtDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+
+        for (const name of dropOrder) dropCollection(srcDoc, tgtDoc, tgtTree, name);
+
+        const rootItem = tgtTree.children[0] as FieldItem;
+        const loops = rootItem.children.filter((c) => c instanceof ForEachItem) as ForEachItem[];
+        expect(loops.map((loop) => (loop.children[0] as FieldItem).field.name)).toEqual(['Address', 'Fax', 'Phone']);
+      });
+
+      it('should remove the stray field item when a sibling for-each already wraps the same field', () => {
+        const xsd = ROOT_XSD(REPEATING('Address') + REPEATING('Phone'));
+        const srcDoc = createDoc(DocumentType.SOURCE_BODY, xsd);
+        const tgtDoc = createDoc(DocumentType.TARGET_BODY, xsd);
+        const tgtTree = new MappingTree(tgtDoc.documentType, tgtDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+
+        dropCollection(srcDoc, tgtDoc, tgtTree, 'Address');
+        dropCollection(srcDoc, tgtDoc, tgtTree, 'Phone');
+        // The UI exposes the loop-wrapped Address as a different node type, so build a plain, unmapped
+        // target node by hand. Dropping on it creates a stray FieldItem next to the existing loop,
+        // which the guard must discard.
+        const srcChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          VisualizationService.generateStructuredDocumentChildren(new DocumentNodeData(srcDoc))[0],
+        );
+        const tgtRootNode = VisualizationService.generateStructuredDocumentChildren(
+          new TargetDocumentNodeData(tgtDoc, tgtTree),
+        )[0] as TargetFieldNodeData;
+        const addressField = tgtRootNode.field.fields.find((f) => f.name === 'Address')!;
+        const strayNode = new TargetFieldNodeData(tgtRootNode, addressField);
+        MappingActionService.engageMapping(
+          tgtTree,
+          srcChildren.find((c) => c instanceof FieldNodeData && c.field.name === 'Address') as FieldNodeData,
+          strayNode,
+        );
+
+        const rootItem = tgtTree.children[0] as FieldItem;
+        expect(rootItem.children.every((c) => c instanceof ForEachItem)).toBe(true);
+        const loops = rootItem.children as ForEachItem[];
+        expect(loops.map((loop) => (loop.children[0] as FieldItem).field.name)).toEqual(['Address', 'Phone']);
+      });
     });
 
     describe('auto-optional-if (drag/drop engagement)', () => {
