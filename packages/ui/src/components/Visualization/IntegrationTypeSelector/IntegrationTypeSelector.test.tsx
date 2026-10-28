@@ -68,7 +68,7 @@ describe('IntegrationTypeSelector', () => {
 
     fireEvent.click(wrapper.getByTestId('test-toggle'));
 
-    for (const label of ['Camel Route YAML', 'Camel Route XML', 'Kamelet', 'Pipe', 'Test']) {
+    for (const label of ['Camel Route YAML', 'Camel Route XML', 'Kamelet', 'Pipe', 'Test YAML', 'Test XML']) {
       expect(await wrapper.findByText(label)).toBeInTheDocument();
     }
   });

@@ -54,7 +54,15 @@ export class CitrusTestResource implements KaotoResource {
    *
    * @param rawEntities - Raw test definition(s) to parse into entities
    */
-  constructor(private readonly rawEntities?: Test | Test[]) {}
+  private rawEntities?: Test | Test[];
+
+  constructor(rawEntities?: Test | Test[]) {
+    this.rawEntities = rawEntities;
+  }
+
+  protected setRawEntities(rawEntities?: Test | Test[]): void {
+    this.rawEntities = rawEntities;
+  }
 
   async initialize(): Promise<void> {
     if (!this.rawEntities) {

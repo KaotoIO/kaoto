@@ -77,7 +77,8 @@ describe('IntegrationTypeSelector.tsx', () => {
       'integration-type-Camel Route XML',
       'integration-type-Pipe',
       'integration-type-Kamelet',
-      'integration-type-Test',
+      'integration-type-Test YAML',
+      'integration-type-Test XML',
     ]) {
       const element = await wrapper.findByTestId(testId);
       expect(element).toBeInTheDocument();
@@ -121,7 +122,7 @@ describe('IntegrationTypeSelector.tsx', () => {
     fireEvent.click(trigger);
 
     /** Select an option */
-    const element = getByTestId('integration-type-Test').firstElementChild; // drop down button
+    const element = getByTestId('integration-type-Test YAML').firstElementChild; // drop down button
     expect(element).toBeTruthy();
     fireEvent.click(element!);
 
