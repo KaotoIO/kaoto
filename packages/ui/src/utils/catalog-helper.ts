@@ -18,7 +18,7 @@ export const findCatalog = (sourceType: SourceSchemaType, catalogLibrary?: Catal
     return undefined;
   }
 
-  if (sourceType === SourceSchemaType.Test) {
+  if (sourceType === SourceSchemaType.Test || sourceType === SourceSchemaType.TestXml) {
     const citrusCatalogs = catalogLibrary.definitions
       .filter((c: CatalogLibraryEntry) => c.runtime === 'Citrus')
       .sort((c1: CatalogLibraryEntry, c2: CatalogLibraryEntry) => versionCompare(c1.version, c2.version));
@@ -55,5 +55,6 @@ export const findCatalog = (sourceType: SourceSchemaType, catalogLibrary?: Catal
  * @returns True if a catalog change is required, false otherwise
  */
 export const requiresCatalogChange = (sourceType: SourceSchemaType, catalog?: CatalogLibraryEntry) => {
-  return catalog?.runtime === 'Citrus' ? sourceType !== SourceSchemaType.Test : sourceType === SourceSchemaType.Test;
+  const isCitrusType = sourceType === SourceSchemaType.Test || sourceType === SourceSchemaType.TestXml;
+  return catalog?.runtime === 'Citrus' ? !isCitrusType : isCitrusType;
 };

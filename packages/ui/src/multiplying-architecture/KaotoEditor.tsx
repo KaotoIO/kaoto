@@ -47,6 +47,7 @@ const SCHEMA_TABS: Record<SourceSchemaType, TabList[]> = {
   [SourceSchemaType.KameletBinding]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler, TabList.About],
   [SourceSchemaType.Pipe]: [TabList.Design, TabList.Metadata, TabList.ErrorHandler, TabList.About],
   [SourceSchemaType.Test]: [TabList.Design, TabList.About],
+  [SourceSchemaType.TestXml]: [TabList.Design, TabList.About],
 };
 
 export const KaotoEditor = () => {

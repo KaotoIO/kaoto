@@ -16,7 +16,10 @@ export const SuggestionRegistrar: FunctionComponent<PropsWithChildren> = ({ chil
   const entitiesContext = useContext(EntitiesContext);
 
   useEffect(() => {
-    if (entitiesContext?.currentSchemaType === SourceSchemaType.Test) {
+    if (
+      entitiesContext?.currentSchemaType === SourceSchemaType.Test ||
+      entitiesContext?.currentSchemaType === SourceSchemaType.TestXml
+    ) {
       const testVariableSuggestionProvider = getTestVariableSuggestionProvider(entitiesContext.camelResource);
       suggestionRegistry?.registerProvider(testVariableSuggestionProvider);
       suggestionRegistry?.registerProvider(testFunctionSuggestionProvider);

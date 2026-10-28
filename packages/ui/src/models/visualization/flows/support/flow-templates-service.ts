@@ -1,5 +1,6 @@
 import { SourceSchemaType } from '../../../camel/source-schema-type';
 import { testTemplate } from '../templates/citrus';
+import { testXmlTemplate } from '../templates/citrus-xml';
 import { kameletTemplate } from '../templates/kamelet';
 import { pipeTemplate } from '../templates/pipe';
 import { routeTemplate } from '../templates/route';
@@ -19,6 +20,9 @@ export class FlowTemplateService {
 
       case SourceSchemaType.Test:
         return testTemplate();
+
+      case SourceSchemaType.TestXml:
+        return testXmlTemplate();
 
       case SourceSchemaType.Kamelet:
         return kameletTemplate();
