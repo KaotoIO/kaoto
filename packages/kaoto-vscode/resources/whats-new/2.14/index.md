@@ -1,10 +1,10 @@
 # Kaoto 2.14 released
 
-We are happy to announce that new version of extension was released!
+We are happy to announce that a new version of the extension has been released!
 
 ## Key highlights of this release
 
-This release focuses on three themes: a more accessible and easier to navigate **canvas** with keyboard navigation, a single shared hover toolbar and a "Recently used" row in the catalog; further **DataMapper** improvements, including automatic `xsl:if` guards for optional mappings and the ability to store the transformation result in a Camel variable; and **Citrus test designer** support for Camel infra services. It also ships a fix to how the extension looks up its `.kaoto` metadata file, and the latest Kaoto catalog, which includes **Apache Camel 4.23.0**.
+This release focuses on three themes: a more accessible and easier-to-navigate **canvas** with keyboard navigation, a single shared hover toolbar and a "Recently used" row in the catalog; further **DataMapper** improvements, including automatic `xsl:if` guards for optional mappings and the ability to store the transformation result in a Camel variable; and **Citrus test designer** support for Camel infra services. It also ships a fix to how the extension looks up its `.kaoto` metadata file, and the latest Kaoto catalog, which includes **Apache Camel 4.23.0**.
 
 ---
 
@@ -104,7 +104,7 @@ Citrus value fields also offer **suggestions**: press `Ctrl+Space` (or use the l
 
 The extension no longer walks up the file system looking for a `.kaoto` metadata file. The lookup now stops at the workspace folder, so a `.kaoto` file in your home directory is no longer picked up by every project below it and the metadata of different projects is no longer mixed.
 
-> **Note:** an existing `~/.kaoto` file is now ignored and left untouched. New metadata is stored in the `.kaoto` file in the workspace root. Routes that are outside a workspace folder can't store metadata and report a clear error instead.
+> **Note:** an existing `~/.kaoto` file is now ignored and left untouched. For routes in a workspace, new metadata is stored in `.kaoto` at the workspace root. For routes outside a workspace, metadata is stored in `.kaoto` beside the route.
 
 ---
 
