@@ -110,6 +110,16 @@ The extension no longer walks up the file system looking for a `.kaoto` metadata
 
 ---
 
+### Simpler and more robust local Kamelets resolution
+
+To make out-of-the-box local Kamelets resolution more robust and reliable across different Camel versions, we have streamlined the default `kaoto.localKameletDirectories` setting to target a single `./kamelets` directory (instead of both `.` and `./kamelets`).
+
+This simplification avoids passing multiple comma-separated directories to `--local-kamelet-dir` under the hood. With this streamlined default, your routes and exports run flawlessly out of the box.
+
+> **Warning:** Due to path resolution and scheme-stripping issues in the underlying Apache Camel JBang under Camel 4.23.x (see [CAMEL-26370](https://issues.apache.org/jira/browse/CAMEL-26370) and [CAMEL-26371](https://issues.apache.org/jira/browse/CAMEL-26371)), configuring multiple comma-separated local Kamelet directories via `--local-kamelet-dir` can prevent routes or exports from starting successfully. Fully restored support for multiple local Kamelet directories will be available starting with Apache Camel 4.24.0!
+
+---
+
 ### Camel Catalog
 
 This release ships with `@kaoto/camel-catalog 0.10.7`, which adds the **Apache Camel 4.23.0** catalog alongside 4.22.2, 4.18.4 and 4.14.9, bringing the latest components, EIPs, and Kamelet definitions from the Apache Camel community.
