@@ -4,7 +4,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { DocumentType } from '../../../models/datamapper/document';
 import { MappingService } from '../../../services/mapping/mapping.service';
-import { ConfirmActionButton } from './ConfirmActionButton';
+import { ConfirmActionButton } from '../actions/ConfirmActionButton';
 
 type DeleteParameterProps = {
   parameterName: string;

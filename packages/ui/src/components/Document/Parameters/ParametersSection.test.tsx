@@ -1,15 +1,15 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
-import { PARAMETERS_SECTION_ANCHOR } from '../../models/datamapper/connection-port';
-import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
-import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { useDocumentTreeStore } from '../../store/document-tree.store';
-import { BrowserFilePickerMetadataProvider } from '../../stubs/BrowserFilePickerMetadataProvider';
-import { getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
-import { createFile } from '../../stubs/read-file-as-string';
-import { ExpansionPanels } from '../ExpansionPanels/ExpansionPanels';
-import { ParametersSection } from './Parameters';
+import { PARAMETERS_SECTION_ANCHOR } from '../../../models/datamapper/connection-port';
+import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
+import { DataMapperProvider } from '../../../providers/datamapper.provider';
+import { useDocumentTreeStore } from '../../../store/document-tree.store';
+import { BrowserFilePickerMetadataProvider } from '../../../stubs/BrowserFilePickerMetadataProvider';
+import { getShipOrderJsonSchema, getShipOrderXsd } from '../../../stubs/datamapper/data-mapper';
+import { createFile } from '../../../stubs/read-file-as-string';
+import { ExpansionPanels } from '../../ExpansionPanels/ExpansionPanels';
+import { ParametersSection } from './ParametersSection';
 
 describe('ParametersSection', () => {
   // Helper to wrap components with VirtuosoMockContext for testing

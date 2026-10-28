@@ -1,12 +1,12 @@
 import { AlertVariant } from '@patternfly/react-core';
 import { FunctionComponent, useCallback } from 'react';
 
-import { useDataMapper } from '../../hooks/useDataMapper';
-import { DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
-import { NameValidation, NameValidationStatus } from '../../models/datamapper/visualization';
-import { DocumentService } from '../../services/document/document.service';
-import { VisualizationService } from '../../services/visualization/visualization.service';
-import { NameInputPlaceholder } from './NameInputPlaceholder';
+import { useDataMapper } from '../../../hooks/useDataMapper';
+import { DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
+import { NameValidation, NameValidationStatus } from '../../../models/datamapper/visualization';
+import { DocumentService } from '../../../services/document/document.service';
+import { VisualizationService } from '../../../services/visualization/visualization.service';
+import { NameInputPlaceholder } from '../NameInputPlaceholder';
 
 type ParameterInputPlaceholderProps = {
   onComplete: () => void;

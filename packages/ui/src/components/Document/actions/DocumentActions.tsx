@@ -4,8 +4,8 @@ import { FunctionComponent, MouseEvent, useCallback } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { DocumentType } from '../../../models/datamapper/document';
 import { DocumentNodeData } from '../../../models/datamapper/visualization';
+import { DeleteParameterButton } from '../Parameters/DeleteParameterButton';
 import { AttachSchemaButton } from './AttachSchema';
-import { DeleteParameterButton } from './DeleteParameterButton';
 import { DetachSchemaButton } from './DetachSchemaButton';
 import { RenameButton } from './RenameButton';
 
