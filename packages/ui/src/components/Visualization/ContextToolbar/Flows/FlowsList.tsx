@@ -168,6 +168,7 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                 <Td dataLabel={columnNames.isVisible}>
                   <Button
                     data-testid={`toggle-btn-${flow.id}`}
+                    aria-label={visibleFlows[flow.id] ? `Hide ${flow.id}` : `Show ${flow.id}`}
                     icon={
                       visibleFlows[flow.id] ? (
                         <Icon isInline>

@@ -48,7 +48,7 @@ const EntityOption: FunctionComponent<IEntityOption> = ({
             )
           }
           actionId="toggle"
-          aria-label="toggle"
+          aria-label={isVisible ? `Hide ${entityLabel}` : `Show ${entityLabel}`}
           onClick={(event) => {
             onToggleVisibility(entityIndex);
             /** Required to avoid closing the Dropdown after clicking in the icon */
