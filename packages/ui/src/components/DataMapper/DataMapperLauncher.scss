@@ -8,3 +8,15 @@
     width: fit-content;
   }
 }
+/* stylelint-disable selector-class-pattern -- Carbon component class names */
+.data-mapper-not-configurable {
+  margin-top: 1rem;
+
+  .cds--actionable-notification__text-wrapper {
+    flex-direction: column;
+  }
+
+  .cds--actionable-notification__subtitle {
+    padding-top: 0.25rem;
+  }
+}

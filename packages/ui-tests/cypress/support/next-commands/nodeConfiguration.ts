@@ -1,3 +1,19 @@
+import { KaotoFormPageObject } from '@kaoto/forms/testing/page-object';
+import { configure, within } from '@testing-library/dom';
+
+/** Let the page object's `findBy*` queries wait as long as a regular Cypress command */
+configure({ asyncUtilTimeout: Cypress.config('defaultCommandTimeout') });
+
+/**
+ * Runs the callback with a {@link KaotoFormPageObject} bound to the application under test,
+ * so the form selectors are maintained in a single place.
+ */
+const withKaotoForm = <T>(callback: (form: KaotoFormPageObject) => Promise<T>) => {
+  const runWithDocument = (doc: Document) => callback(new KaotoFormPageObject(within(doc.body), (action) => action()));
+
+  return cy.document().then({ timeout: Cypress.config('defaultCommandTimeout') * 2 }, runWithDocument);
+};
+
 Cypress.Commands.add(
   'interactWithConfigInputObject',
   (inputName: string, value?: string, options?: Partial<Cypress.TypeOptions>) => {
@@ -13,7 +29,7 @@ Cypress.Commands.add(
       cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).type(value, options);
     } else {
       /** We need to use {force:true} because the `Switch` component is wrapped by a label component, blocking the click event */
-      cy.get(`input[name="${inputName}"], textarea[name="${inputName}"]`).click({ force: true });
+      cy.get(`button[name="${inputName}"]`).click({ force: true });
     }
   },
 );
@@ -32,10 +48,10 @@ Cypress.Commands.add('closeWrappedSection', (sectionName: string) => {
 });
 
 Cypress.Commands.add('switchWrappedSection', (sectionName: string, wrapped: boolean) => {
-  cy.get(`div[aria-labelledby^="${sectionName}"]`)
+  cy.get(`[data-testid^="${sectionName}"]`)
     .scrollIntoView()
     .within(() => {
-      cy.get('button').each(($button) => {
+      cy.get('button.cds--accordion__heading').each(($button) => {
         if ($button.attr('aria-expanded') === String(wrapped)) {
           cy.wrap($button).click();
           cy.wrap($button).should('have.attr', 'aria-expanded', String(!wrapped));
@@ -51,8 +67,12 @@ Cypress.Commands.add('checkExpressionResultType', (value: string) => {
 });
 
 Cypress.Commands.add('checkConfigCheckboxObject', (inputName: string, value: boolean) => {
-  const checked = value ? '' : 'not.';
-  cy.get(`input[name="#.${inputName}"], textarea[name="#.${inputName}"]`).should(`${checked}be.checked`);
+  const checked = value ? 'true' : 'false';
+  cy.get(`button[role="switch"][name="#.${inputName}"], button[role="switch"][id="#.${inputName}"]`).should(
+    'have.attr',
+    'aria-checked',
+    checked,
+  );
 });
 
 Cypress.Commands.add('checkExpressionConfigInputObject', (inputName: string, value: string) => {
@@ -64,41 +84,38 @@ Cypress.Commands.add('checkConfigInputObject', (inputName: string, value: string
 });
 
 Cypress.Commands.add('selectExpression', (expression: string, index = 0) => {
-  cy.get('[data-testid="#__expression-list-typeahead-select-input"]')
-    .eq(index)
+  cy.get('[data-testid="#__expression-list"]').eq(index).scrollIntoView().should('be.visible');
+  cy.get('[data-testid="#__expression-list"]').eq(index).clear({ force: true }).type(expression);
+  const regex = new RegExp(`^${expression}$`, 'i');
+  cy.get('[role="listbox"]')
+    .contains('.cds--list-box__menu-item__option span > span', regex)
+    .should('exist')
     .scrollIntoView()
-    .should('be.visible')
-    .within(() => {
-      cy.get('input.pf-v6-c-text-input-group__text-input').click();
-      cy.get('input.pf-v6-c-text-input-group__text-input').clear();
-      cy.get('input.pf-v6-c-text-input-group__text-input').type(expression);
-    });
-  const regex = new RegExp(`^${expression}$`);
-  cy.get('span.pf-v6-c-menu__item-text').contains(regex).should('exist').scrollIntoView().click();
+    .closest('[role="option"]')
+    .click();
 });
 
 Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {
-  cy.get(`[data-testid="#.${inputGroup}-typeahead-select-input"]`).within(() => {
-    cy.get('input.pf-v6-c-text-input-group__text-input').clear();
-  });
-  cy.get('.pf-v6-c-menu__item-text').contains(value).click();
+  cy.get(`[data-testid="#.${inputGroup}"]`).scrollIntoView();
+  cy.get(`[data-testid="#.${inputGroup}"]`).click();
+  cy.get('.cds--list-box__menu').contains(value).first().click();
 });
 
 Cypress.Commands.add('configureBeanReference', (inputName: string, value: string) => {
-  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).scrollIntoView();
-  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).click();
-  cy.get('.pf-v6-c-menu__item-text').contains(value).first().click();
+  cy.get(`[data-testid="#.${inputName}"]`).scrollIntoView();
+  cy.get(`[data-testid="#.${inputName}"]`).click();
+  cy.get('.cds--list-box__menu').contains(value).first().click();
 });
 
 Cypress.Commands.add('configureNewBeanReference', (inputName: string) => {
-  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).scrollIntoView();
-  cy.get(`[data-testid="#.${inputName}-typeahead-select-input"]`).click();
-  cy.get('.pf-v6-c-menu__item-text').contains('Create new bean').first().click();
+  cy.get(`[data-testid="#.${inputName}"]`).scrollIntoView();
+  cy.get(`[data-testid="#.${inputName}"]`).click();
+  cy.get('.cds--list-box__menu').contains('Create new bean').first().click();
 });
 
 Cypress.Commands.add('selectDataformat', (dataformat: string) => {
-  cy.get(`div[data-testid="#__oneof-list-typeahead-select-input"]`).click();
-  cy.get('.pf-v6-c-menu__item-text').contains(dataformat).first().click();
+  cy.get(`[data-testid="#__oneof-list"]`).click();
+  cy.get('.cds--list-box__menu').contains(dataformat).first().click();
 });
 
 Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: string) => {
@@ -106,7 +123,7 @@ Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: strin
 });
 
 Cypress.Commands.add('deselectNodeBean', (inputName: string) => {
-  cy.get(`button[data-testid="#.${inputName}__clear"][aria-label="Clear input value"]`).click();
+  withKaotoForm((form) => form.clearForProperty(`#.${inputName}`));
 });
 
 Cypress.Commands.add('addProperty', (propertyName: string) => {
@@ -120,37 +137,26 @@ Cypress.Commands.add('addSingleKVProperty', (propertyName: string, key: string, 
 });
 
 Cypress.Commands.add('filterFields', (filter: string) => {
-  cy.get('[data-testid="filter-fields"]').within(() => {
-    cy.get('input.pf-v6-c-text-input-group__text-input').clear();
-    cy.get('input.pf-v6-c-text-input-group__text-input').type(filter);
+  withKaotoForm((form) => form.filterFields(filter));
+});
+
+Cypress.Commands.add('selectFormTab', (tab: Cypress.FormTab) => {
+  withKaotoForm((form) => form.findTab(tab)).then((tabElement) => {
+    cy.wrap(tabElement).click();
   });
 });
 
-Cypress.Commands.add('selectFormTab', (value: string) => {
-  cy.get('div.form-tabs').within(() => {
-    cy.get(`[id$="${value}"]`).click();
-  });
-});
-
-Cypress.Commands.add('specifiedFormTab', (value: string) => {
-  cy.get('div.form-tabs').within(() => {
-    cy.get(`[id$="${value}"]`).should('have.attr', 'aria-pressed', 'true');
+Cypress.Commands.add('specifiedFormTab', (tab: Cypress.FormTab) => {
+  withKaotoForm((form) => form.findTab(tab)).then((tabElement) => {
+    cy.wrap(tabElement).should('have.attr', 'aria-selected', 'true');
   });
 });
 
 Cypress.Commands.add('addStringProperty', (selector: string, key: string, value: string) => {
   cy.get(`[data-testid="#.${selector}__add"]`).click();
 
-  cy.get(`[data-testid="#.${selector}__key"]`)
-    .first()
-    .within(() => {
-      cy.get(`input.pf-v6-c-text-input-group__text-input`).clear().type(key);
-    });
-  cy.get(`[data-testid="#.${selector}__value"]`)
-    .first()
-    .within(() => {
-      cy.get(`input.pf-v6-c-text-input-group__text-input`).clear().type(value);
-    });
+  cy.get(`[data-testid="#.${selector}__key"]`).first().clear().type(key);
+  cy.get(`[data-testid="#.${selector}__value"]`).first().clear().type(value);
 });
 
 Cypress.Commands.add('generateDocumentationPreview', () => {
@@ -176,14 +182,14 @@ Cypress.Commands.add('documentationTableCompare', (routeName: string, expectedTa
 
 Cypress.Commands.add('toggleMediaTypeField', (nodeName: string) => {
   cy.get(`[data-testid="#.${nodeName}__field-wrapper"]`).within(() => {
-    cy.get('[data-testid="media-type-field-toggle"]').click();
+    cy.get('[data-testid="media-type-field-toggle"] button.cds--list-box__field').click();
   });
 });
 
 Cypress.Commands.add('selectMediaTypes', (nodeName: string, mediaType: string[]) => {
   cy.toggleMediaTypeField(nodeName);
   mediaType.forEach((type) => {
-    cy.contains('.pf-v6-c-menu__item-text', type).click();
+    cy.contains('.cds--list-box__menu-item__option', type).click();
   });
   cy.toggleMediaTypeField(nodeName);
 });

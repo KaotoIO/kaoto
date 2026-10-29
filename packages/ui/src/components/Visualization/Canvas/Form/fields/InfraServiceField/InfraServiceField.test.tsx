@@ -108,7 +108,7 @@ describe('InfraServiceField', () => {
     renderField({ service: undefined });
 
     await waitFor(() => {
-      const input = screen.getByRole('textbox', { name: 'Service' });
+      const input = screen.getByRole('combobox', { name: 'Service' });
       expect(input).toBeInTheDocument();
       expect(input).toHaveValue('');
     });
@@ -118,7 +118,7 @@ describe('InfraServiceField', () => {
     renderField({ service: 'kafka' });
 
     await waitFor(() => {
-      const input = screen.getByRole('textbox', { name: 'Service' });
+      const input = screen.getByRole('combobox', { name: 'Service' });
       expect(input).toHaveValue('Kafka');
     });
   });
@@ -126,7 +126,7 @@ describe('InfraServiceField', () => {
   it('should show base services and inferred service groups as top-level items', async () => {
     renderField({ service: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Service' });
+    const input = screen.getByRole('combobox', { name: 'Service' });
     fireEvent.click(input);
 
     await waitFor(() => {
@@ -139,7 +139,7 @@ describe('InfraServiceField', () => {
   it('should show implementation sub-options for services with implementations', async () => {
     renderField({ service: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Service' });
+    const input = screen.getByRole('combobox', { name: 'Service' });
     fireEvent.click(input);
 
     await waitFor(() => {
@@ -151,7 +151,7 @@ describe('InfraServiceField', () => {
   it('should set service and clear implementation when selecting a base service', async () => {
     const { onPropertyChange } = renderField({ service: undefined, implementation: 'strimzi' });
 
-    const input = screen.getByRole('textbox', { name: 'Service' });
+    const input = screen.getByRole('combobox', { name: 'Service' });
     fireEvent.click(input);
 
     await waitFor(() => {
@@ -167,7 +167,7 @@ describe('InfraServiceField', () => {
   it('should set service and implementation when selecting an implementation', async () => {
     const { onPropertyChange } = renderField({ service: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Service' });
+    const input = screen.getByRole('combobox', { name: 'Service' });
     fireEvent.click(input);
 
     await waitFor(() => {
@@ -183,7 +183,7 @@ describe('InfraServiceField', () => {
   it('should show inferred service implementations as sub-options', async () => {
     renderField({ service: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Service' });
+    const input = screen.getByRole('combobox', { name: 'Service' });
     fireEvent.click(input);
 
     await waitFor(() => {
@@ -194,7 +194,7 @@ describe('InfraServiceField', () => {
   it('should set service and implementation when selecting an inferred implementation', async () => {
     const { onPropertyChange } = renderField({ service: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Service' });
+    const input = screen.getByRole('combobox', { name: 'Service' });
     fireEvent.click(input);
 
     await waitFor(() => {
@@ -210,7 +210,7 @@ describe('InfraServiceField', () => {
   it('should split dotted custom input into service and implementation', async () => {
     const { onPropertyChange } = renderField({ service: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Service' });
+    const input = screen.getByRole('combobox', { name: 'Service' });
     fireEvent.change(input, { target: { value: 'kafka.strimzi' } });
     fireEvent.keyDown(input, { key: 'Enter' });
 
@@ -225,7 +225,7 @@ describe('InfraServiceField', () => {
 
     renderField({ service: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Service' });
+    const input = screen.getByRole('combobox', { name: 'Service' });
     fireEvent.click(input);
 
     expect(screen.queryByText('Kafka')).not.toBeInTheDocument();
