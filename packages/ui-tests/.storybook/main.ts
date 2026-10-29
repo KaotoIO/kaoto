@@ -59,11 +59,6 @@ const config: StorybookConfig = {
             find: /^~/,
             replacement: '',
           },
-          // For linking forms
-          {
-            find: '@kaoto/forms',
-            replacement: fileURLToPath(new URL('../../forms/src/index.ts', import.meta.url)),
-          },
         ],
       },
       css: {
