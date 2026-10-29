@@ -136,6 +136,21 @@ export class MappingActionRegistryService {
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
         if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
+        // Check element-children constraint for both unmapped field nodes (TargetFieldNodeData)
+        // and mapped field nodes (FieldItemNodeData). The check must happen before the
+        // isMappingNode branch because FieldItemNodeData IS a MappingNodeData — once a child
+        // mapping is created on a container, the parent becomes FieldItemNodeData, which would
+        // otherwise bypass this guard.
+        const field = VisualizationUtilService.getField(n);
+        if (field) {
+          const isJson = n.mappingTree?.documentDefinitionType === DocumentDefinitionType.JSON_SCHEMA;
+          // For JSON documents, value-of is invalid on any container field.
+          // For XML, it is invalid on fields that have element (non-attribute) children.
+          const hasInvalidChildren = isJson
+            ? DocumentService.hasChildren(field)
+            : DocumentService.hasElementChildren(field);
+          if (hasInvalidChildren) return false;
+        }
         if (!VisualizationUtilService.isMappingNode(n)) return true;
         return !MappingActionRegistryService.mappingIsOneOf(
           ValueSelector,
