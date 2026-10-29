@@ -820,7 +820,7 @@ describe('ParametersSection', () => {
       expect(deleteButtons).toHaveLength(0);
     });
 
-    it('should not show toggle button in read-only mode', async () => {
+    it('should show toggle button but not add button in read-only mode', async () => {
       renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
           <DataMapperProvider>
@@ -839,8 +839,8 @@ describe('ParametersSection', () => {
       // Add button should not exist in read-only
       expect(screen.queryByTestId('add-parameter-button')).not.toBeInTheDocument();
 
-      // Toggle button should not exist in read-only
-      expect(screen.queryByTestId('toggle-parameters-button')).not.toBeInTheDocument();
+      // Toggle button should still be available in read-only
+      expect(screen.getByTestId('toggle-parameters-button')).toBeInTheDocument();
     });
   });
 
