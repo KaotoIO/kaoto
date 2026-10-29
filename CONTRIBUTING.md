@@ -9,7 +9,7 @@ Thank you for considering contributing to Kaoto! Community contributions are ess
 Before you start contributing, ensure that you have the following installed:
 
 - NodeJS (>v22.x)
-- yarn (>v3.x)
+- yarn (4.x — exact version pinned in `package.json` under `"packageManager"`)
 - Java 17+
 
 ### Setting Up the Project
@@ -93,7 +93,7 @@ We welcome contributions created with AI assistance! AI tools can help accelerat
 
 - **Active Participation Expected**:
   - PRs require active follow-up from the human contributor
-  - PRs without response after **2 weeks** will be closed
+  - PRs without response after **1 week** will be closed
   - We know sometimes things happen. If you need more time, please communicate with maintainers to make the necessary adjustments
 
 - **Quality Standards Apply**:
