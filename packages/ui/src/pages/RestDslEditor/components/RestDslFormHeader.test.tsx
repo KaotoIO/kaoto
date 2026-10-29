@@ -35,7 +35,7 @@ describe('RestDslFormHeader', () => {
       </FilteredFieldContext.Provider>,
     );
 
-    const searchInput = screen.getByLabelText('Search input') as HTMLInputElement;
+    const searchInput = screen.getByRole('searchbox') as HTMLInputElement;
     expect(searchInput).toBeInTheDocument();
     expect(searchInput.value).toBe('test search');
   });
@@ -55,7 +55,7 @@ describe('RestDslFormHeader', () => {
       </FilteredFieldContext.Provider>,
     );
 
-    const searchInput = screen.getByLabelText('Search input');
+    const searchInput = screen.getByRole('searchbox');
     await user.type(searchInput, 'test');
 
     expect(mockOnFilterChange).toHaveBeenCalled();
@@ -76,7 +76,7 @@ describe('RestDslFormHeader', () => {
       </FilteredFieldContext.Provider>,
     );
 
-    const resetButton = screen.getByRole('button', { name: /reset/i });
+    const resetButton = screen.getByRole('button', { name: /clear search input/i });
     await user.click(resetButton);
 
     expect(mockOnFilterChange).toHaveBeenCalled();

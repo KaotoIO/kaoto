@@ -1,3 +1,4 @@
+import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import {
   CanvasFormTabsContext,
   CanvasFormTabsContextResult,
@@ -5,7 +6,6 @@ import {
   ModelContextProvider,
   SchemaProvider,
 } from '@kaoto/forms';
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-modal.provider';
@@ -87,16 +87,10 @@ export const NewEndpointModal: FunctionComponent<EndpointModalProps> = ({
 
   return (
     endpointsSchema && (
-      <Modal
-        isOpen
-        variant={ModalVariant.large}
-        data-testid="NewEndpointModal"
-        onClose={onCancel}
-        ouiaId="NewEndpointModal"
-      >
+      <ComposedModal open size="lg" data-testid="NewEndpointModal" onClose={onCancel}>
         <ModalHeader
           title={`${mode} endpoint`}
-          description="Send and receive test actions may reference this endpoint by its name when sending and receiving messages during the test."
+          label="Send and receive test actions may reference this endpoint by its name when sending and receiving messages during the test."
         />
 
         <ModalBody>
@@ -117,20 +111,19 @@ export const NewEndpointModal: FunctionComponent<EndpointModalProps> = ({
         </ModalBody>
 
         <ModalFooter>
+          <Button kind="secondary" onClick={onCancel} data-testid="endpoint-modal-cancel-btn">
+            Cancel
+          </Button>
           <Button
-            key="confirm"
-            variant="primary"
-            isDisabled={endpointModel === undefined || endpointType === ''}
+            kind="primary"
+            disabled={endpointModel === undefined || endpointType === ''}
             onClick={handleConfirm}
             data-testid="endpoint-modal-confirm-btn"
           >
             {mode}
           </Button>
-          <Button key="cancel" variant="link" onClick={onCancel} data-testid="endpoint-modal-cancel-btn">
-            Cancel
-          </Button>
         </ModalFooter>
-      </Modal>
+      </ComposedModal>
     )
   );
 };
