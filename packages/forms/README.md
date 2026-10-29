@@ -136,14 +136,13 @@ import { KaotoFormPageObject } from '@kaoto/forms/testing/page-object';
 
 # Development
 
-This package lives in the [Kaoto monorepo](https://github.com/KaotoIO/kaoto) under `packages/forms`. It is currently excluded from the root Yarn workspaces (see the root `package.json`), so run the commands from this folder:
+This package lives in the [Kaoto monorepo](https://github.com/KaotoIO/kaoto) under `packages/forms`. Run all commands from the **repository root**:
 
 ```bash
-npx vitest run --config vitest.config.mts                  # run the unit tests
-npx tsc --noEmit --project tsconfig.json                   # type-check the sources
-npx eslint "src/**/*.{ts,tsx}"                             # lint the sources
-npx rimraf dist && npx tsc --project tsconfig.lib.json \
-  && npx copyfiles -u 1 "./src/**/*.scss" ./dist           # build the library into ./dist
+yarn workspace @kaoto/forms test        # run the unit tests
+yarn workspace @kaoto/forms typecheck   # type-check the sources
+yarn workspace @kaoto/forms lint        # lint the sources
+yarn workspace @kaoto/forms build:lib   # build the library into ./dist
 ```
 
-Dependencies are installed from the repository root with `yarn install`.
+Install dependencies with `yarn install` from the repository root.

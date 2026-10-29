@@ -3,7 +3,10 @@ import './ArrayBadgesField.scss';
 import { Button, Tag, TextInput } from '@carbon/react';
 import { FunctionComponent, KeyboardEvent, useCallback, useContext, useMemo, useState } from 'react';
 
-import { FieldProps, FieldWrapper, SchemaContext, useFieldValue } from '..';
+import { useFieldValue } from '../hooks/field-value';
+import { FieldProps } from '../models/typings';
+import { SchemaContext } from '../providers/SchemaProvider';
+import { FieldWrapper } from './FieldWrapper';
 
 export interface ArrayBadgesFieldProps extends FieldProps {
   placeholder?: string;

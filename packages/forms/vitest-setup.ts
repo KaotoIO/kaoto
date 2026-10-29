@@ -33,7 +33,15 @@ vi.mock('@carbon/react', async (importOriginal) => {
     React.createElement(React.Fragment, null, children);
   ToggletipContent.displayName = 'ToggletipContent';
 
-  return { ...actual, Toggletip, ToggletipButton, ToggletipContent };
+  // IconButton with `autoAlign` activates floating-ui's useFloating through its Tooltip/Popover,
+  // which never settles in jsdom (same problem as Toggletip above). Drop the prop.
+  const IconButton = React.forwardRef<HTMLButtonElement, React.ComponentProps<typeof actual.IconButton>>(
+    ({ autoAlign: _autoAlign, ...props }, ref) =>
+      React.createElement(actual.IconButton as React.ElementType, { ...props, ref }),
+  );
+  IconButton.displayName = 'IconButton';
+
+  return { ...actual, IconButton, Toggletip, ToggletipButton, ToggletipContent };
 });
 
 // Mock ResizeObserver
