@@ -1,6 +1,7 @@
 /* Carbon's BEM class names are not kebab-case */
 /* stylelint-disable selector-class-pattern */
-.cds--accordion__content {
+// Doubled specificity to win over Carbon's responsive (breakpoint) padding rule, regardless of load order.
+.kaoto-form__expandable-group .cds--accordion__content.cds--accordion__content {
   padding-inline-end: 0;
 }
 

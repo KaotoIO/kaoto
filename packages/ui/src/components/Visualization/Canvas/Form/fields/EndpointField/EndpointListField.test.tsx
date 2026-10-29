@@ -61,6 +61,14 @@ describe('EndpointListField', () => {
     DynamicCatalogRegistry.get().clearRegistry();
   });
 
+  const selectCatalogTile = async (name = 'http-client') => {
+    const tile = await screen.findByTestId(`tile-header-${name}`);
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      fireEvent.click(tile);
+    });
+  };
+
   const PROP_NAME = 'endpoints';
   const schema: JSONSchema4 = {
     title: 'Endpoints',
@@ -98,7 +106,7 @@ describe('EndpointListField', () => {
     );
 
     return {
-      getTable: () => screen.getByRole('grid', { name: 'endpoint-table' }),
+      getTable: () => screen.getByRole('table', { name: 'endpoint-table' }),
       getAddButton: () => screen.getByTestId('create-new-endpoint-btn'),
     };
   };
@@ -118,12 +126,11 @@ describe('EndpointListField', () => {
       // Table should have headers
       expect(screen.getByText('Name')).toBeInTheDocument();
       expect(screen.getByText('Type')).toBeInTheDocument();
-      expect(screen.getByText('Actions')).toBeInTheDocument();
 
       // Add button should be present
       const addButton = getAddButton();
       expect(addButton).toBeInTheDocument();
-      expect(addButton).toHaveTextContent('Add');
+      expect(addButton).toHaveAccessibleName('Add a new endpoint');
     });
 
     it('should render table with endpoints', async () => {
@@ -184,14 +191,14 @@ describe('EndpointListField', () => {
       await renderField({ endpoints: testModel.endpoints }, testModel);
 
       // Check for edit button
-      const editButton = screen.getByTestId('endpoint-edit-0-btn');
+      expect(screen.getByTestId('endpoint-edit-0-btn')).toBeInTheDocument();
+      const editButton = screen.getByLabelText('Edit httpClient');
       expect(editButton).toBeInTheDocument();
-      expect(editButton).toHaveAttribute('title', 'Edit httpClient');
 
       // Check for delete button
-      const deleteButton = screen.getByTestId('endpoint-delete-0-btn');
+      expect(screen.getByTestId('endpoint-delete-0-btn')).toBeInTheDocument();
+      const deleteButton = screen.getByLabelText('Delete httpClient');
       expect(deleteButton).toBeInTheDocument();
-      expect(deleteButton).toHaveAttribute('title', 'Delete httpClient');
     });
 
     it('should render with required prop', async () => {
@@ -220,6 +227,10 @@ describe('EndpointListField', () => {
 
       fireEvent.click(addButton);
 
+      // The catalog is shown first, the endpoint modal opens once a type is selected
+      expect(screen.queryByTestId('NewEndpointModal')).not.toBeInTheDocument();
+      await selectCatalogTile();
+
       // Modal should appear
       await waitFor(() => {
         expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
@@ -241,23 +252,14 @@ describe('EndpointListField', () => {
 
       fireEvent.click(addButton);
 
+      // Select endpoint from catalog
+      await selectCatalogTile();
+
       // Modal should appear
       await waitFor(() => {
         expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
         // Modal should be in Create mode
         expect(screen.getByText('Create endpoint')).toBeInTheDocument();
-      });
-
-      // Select endpoint from catalog
-      await waitFor(() => {
-        expect(screen.getByTestId('tile-header-http-client')).toBeInTheDocument();
-      });
-
-      // Click on a tile
-      const httpClientTile = screen.getByTestId('tile-header-http-client');
-      // eslint-disable-next-line testing-library/no-unnecessary-act
-      await act(async () => {
-        fireEvent.click(httpClientTile);
       });
 
       const nameInput = screen.getByLabelText('Name');
@@ -282,6 +284,7 @@ describe('EndpointListField', () => {
       const { getAddButton } = await renderField({ endpoints: [] }, testModel);
 
       fireEvent.click(getAddButton());
+      await selectCatalogTile();
 
       await waitFor(() => {
         expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
@@ -554,7 +557,7 @@ describe('EndpointListField', () => {
       });
 
       // Table should still be present but empty
-      const table = screen.getByRole('grid', { name: 'endpoint-table' });
+      const table = screen.getByRole('table', { name: 'endpoint-table' });
       expect(table).toBeInTheDocument();
     });
 
@@ -718,6 +721,9 @@ describe('EndpointListField', () => {
         const addButton = screen.getByTestId('create-new-endpoint-btn');
         fireEvent.click(addButton);
 
+        // Dismiss the catalog without selecting an endpoint type
+        fireEvent.keyDown(await screen.findByTestId('tile-header-http-client'), { key: 'Escape', code: 'Escape' });
+
         await waitFor(() => {
           expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
         });
@@ -744,6 +750,9 @@ describe('EndpointListField', () => {
         const addButton = screen.getByTestId('create-new-endpoint-btn');
         fireEvent.click(addButton);
 
+        // Dismiss the catalog without selecting an endpoint type
+        fireEvent.keyDown(await screen.findByTestId('tile-header-http-client'), { key: 'Escape', code: 'Escape' });
+
         await waitFor(() => {
           expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
         });
@@ -768,6 +777,7 @@ describe('EndpointListField', () => {
 
       const addButton = screen.getByTestId('create-new-endpoint-btn');
       fireEvent.click(addButton);
+      await selectCatalogTile();
 
       await waitFor(() => {
         expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
@@ -823,16 +833,12 @@ describe('EndpointListField', () => {
       const addButton = screen.getByTestId('create-new-endpoint-btn');
       fireEvent.click(addButton);
 
+      // Select a tile type but do not fill the Name field, leaving it empty
+      await selectCatalogTile();
+
       await waitFor(() => {
         expect(screen.getByTestId('NewEndpointModal')).toBeInTheDocument();
       });
-
-      // Select a tile type but do not fill the Name field, leaving it empty
-      await waitFor(() => {
-        expect(screen.getByTestId('tile-header-http-client')).toBeInTheDocument();
-      });
-
-      fireEvent.click(screen.getByTestId('tile-header-http-client'));
 
       // Confirm without filling in a name — the guard in handleCreateOrEdit returns early
       const confirmButton = screen.getByTestId('endpoint-modal-confirm-btn');

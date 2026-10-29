@@ -128,7 +128,13 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
       {props.children}
 
       {isModalOpen && (
-        <Modal isOpen variant={ModalVariant.small} onClose={handleCloseModal} ouiaId="ActionConfirmationModal">
+        <Modal
+          isOpen
+          variant={ModalVariant.small}
+          onClose={handleCloseModal}
+          ouiaId="ActionConfirmationModal"
+          backdropClassName="action-confirmation-modal-backdrop"
+        >
           <ModalHeader title={title} titleIconVariant="warning" />
           <ModalBody>
             {textParagraphs.length === 1

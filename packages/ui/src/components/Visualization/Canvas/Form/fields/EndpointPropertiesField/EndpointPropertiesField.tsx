@@ -1,6 +1,7 @@
 import './EndpointPropertiesField.scss';
 
 import { SettingsAdjust, TableSplit, TrashCan } from '@carbon/icons-react';
+import { ContentSwitcher, Switch } from '@carbon/react';
 import {
   ArrayFieldWrapper,
   FieldProps,
@@ -9,7 +10,7 @@ import {
   SchemaContext,
   useFieldValue,
 } from '@kaoto/forms';
-import { Badge, Button, ToggleGroup, ToggleGroupItem } from '@patternfly/react-core';
+import { Badge, Button } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
 import { MultiValuePropertyEditor } from './MultiValuePropertyEditor';
@@ -31,32 +32,30 @@ export const EndpointPropertiesField: FunctionComponent<FieldProps> = ({ propNam
     onChange(undefined);
   }, [onChange]);
 
+  const activeIndex = activeView === 'standard' ? 0 : 1;
+
   return (
     <>
       {hasSchemaProperties && (
         <div>
-          <ToggleGroup isCompact aria-label="Mode toggle" className="custom-mode-toggle">
-            <ToggleGroupItem
-              icon={<SettingsAdjust />}
-              text="Standard"
-              buttonId="standard"
-              isSelected={activeView === 'standard'}
-              onChange={() => {
-                setActiveView('standard');
-              }}
-              data-testid={`${propName}-standard-toggle`}
-            />
-            <ToggleGroupItem
-              icon={<TableSplit />}
-              text="Custom"
-              buttonId="custom"
-              isSelected={activeView === 'custom'}
-              onChange={() => {
-                setActiveView('custom');
-              }}
-              data-testid={`${propName}-custom-toggle`}
-            />
-          </ToggleGroup>
+          <ContentSwitcher
+            size="sm"
+            selectedIndex={activeIndex}
+            onChange={({ name }: { name?: string | number }) => {
+              if (name === 'standard' || name === 'custom') {
+                setActiveView(name);
+              }
+            }}
+            className="custom-mode-toggle"
+            aria-label="Mode toggle"
+          >
+            <Switch name="standard" text="Standard" data-testid={`${propName}-standard-toggle`}>
+              <SettingsAdjust />
+            </Switch>
+            <Switch name="custom" text="Custom" data-testid={`${propName}-custom-toggle`}>
+              <TableSplit />
+            </Switch>
+          </ContentSwitcher>
         </div>
       )}
 

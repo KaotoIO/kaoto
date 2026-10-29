@@ -1,7 +1,7 @@
 import './SettingsForm.scss';
 
+import { Button, InlineNotification } from '@carbon/react';
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
-import { Alert, Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -46,25 +46,29 @@ export const SettingsForm: FunctionComponent = () => {
   };
 
   return (
-    <Card className="settings-form-card" data-last-render={lastRender}>
-      <CardTitle>Settings</CardTitle>
+    <div className="settings-form-card" data-last-render={lastRender}>
+      <h2 className="settings-form-card__title">Settings</h2>
 
-      <CardBody>
+      <div className="settings-form-card__body">
         {hasPendingCatalogUrlChange && (
-          <Alert
+          <InlineNotification
             className="alert-catalog-url"
-            isInline
-            variant="info"
+            kind="info"
+            lowContrast
+            hideCloseButton
             title="Catalog versions will be recomputed after saving a custom catalog."
-          >
-            Runtime selector versions still reflect the currently saved catalog URL. Save the settings to recompute the
-            available Camel and testing catalogs options from the new catalog URL.
-          </Alert>
+            subtitle="Runtime selector versions still reflect the currently saved catalog URL. Save the settings to recompute the available Camel and testing catalogs options from the new catalog URL."
+          />
         )}
         {saveError && (
-          <Alert className="alert-catalog-url" isInline variant="danger" title="Failed to save settings.">
-            {saveError}
-          </Alert>
+          <InlineNotification
+            className="alert-catalog-url"
+            kind="error"
+            lowContrast
+            hideCloseButton
+            title="Failed to save settings."
+            subtitle={saveError}
+          />
         )}
         <CanvasFormTabsContext.Provider value={formTabsValue}>
           <KaotoForm
@@ -75,19 +79,19 @@ export const SettingsForm: FunctionComponent = () => {
             customFieldsFactory={customFieldsFactoryfactory}
           />
         </CanvasFormTabsContext.Provider>
-      </CardBody>
+      </div>
 
-      <CardFooter>
+      <div className="settings-form-card__footer">
         <Button
           data-testid="settings-form-save-btn"
-          variant="primary"
+          kind="primary"
           onClick={async () => {
             await onSave();
           }}
         >
           Save
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };

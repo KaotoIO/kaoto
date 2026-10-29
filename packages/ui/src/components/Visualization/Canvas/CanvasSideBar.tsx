@@ -1,5 +1,6 @@
 import './CanvasSideBar.scss';
 
+import { Layer } from '@carbon/react';
 import { FilteredFieldProvider } from '@kaoto/forms';
 import { TopologySideBar } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
@@ -24,11 +25,13 @@ export const CanvasSideBar: FunctionComponent<CanvasSideBarProps> = ({ vizNode, 
      * and doesn't take into account the sidebar children.
      */
     <TopologySideBar resizable className="canvas-sidebar">
-      <CanvasSidePanelErrorBoundary key={vizNode.id} onClose={onClose}>
-        <FilteredFieldProvider>
-          <CanvasForm vizNode={vizNode} onClose={onClose} />
-        </FilteredFieldProvider>
-      </CanvasSidePanelErrorBoundary>
+      <Layer className="canvas-sidebar__layer">
+        <CanvasSidePanelErrorBoundary key={vizNode.id} onClose={onClose}>
+          <FilteredFieldProvider>
+            <CanvasForm vizNode={vizNode} onClose={onClose} />
+          </FilteredFieldProvider>
+        </CanvasSidePanelErrorBoundary>
+      </Layer>
     </TopologySideBar>
   );
 };

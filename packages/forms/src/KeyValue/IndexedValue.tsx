@@ -1,3 +1,5 @@
+import './KeyValue.scss';
+
 import { Add, TrashCan } from '@carbon/icons-react';
 import { Column, Grid, IconButton } from '@carbon/react';
 import { FunctionComponent, useRef, useState } from 'react';
@@ -73,7 +75,7 @@ export const IndexedValue: FunctionComponent<KeyValueProps> = ({
 
   return (
     <div>
-      <Grid>
+      <Grid className="key-value-grid key-value-grid--indexed">
         <Column sm={1} md={2} lg={3}>
           <strong>Index</strong>
         </Column>
@@ -99,6 +101,7 @@ export const IndexedValue: FunctionComponent<KeyValueProps> = ({
         return (
           <Grid
             key={index} // NOSONAR typescript:S6479 - intentional: using pair key as React key causes input focus loss on update
+            className="key-value-grid key-value-grid--indexed"
           >
             <Column sm={1} md={2} lg={3}>
               <span data-testid={`${propName}__index`}>{key}</span>

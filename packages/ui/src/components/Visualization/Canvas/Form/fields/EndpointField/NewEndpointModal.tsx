@@ -1,12 +1,9 @@
-import {
-  CanvasFormTabsContext,
-  CanvasFormTabsContextResult,
-  isDefined,
-  ModelContextProvider,
-  SchemaProvider,
-} from '@kaoto/forms';
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
+import './NewEndpointModal.scss';
+
+import { Button, ComposedModal, Layer, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
+import { CanvasFormTabsContextResult, isDefined, ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-modal.provider';
 import { CatalogKind, KaotoSchemaDefinition } from '../../../../../../models';
@@ -39,6 +36,8 @@ export const NewEndpointModal: FunctionComponent<EndpointModalProps> = ({
   const [endpointType, setEndpointType] = useState<string | undefined>(type);
   const catalogModalContext = useContext(CatalogModalContext);
   const hasSelectedEndpoint = useRef(false);
+  /** When no endpoint is provided, the catalog modal is shown first and this modal waits for its outcome */
+  const [isSelectingType, setIsSelectingType] = useState(!isDefined(endpoint));
 
   const selectEndpoint = useCallback(async () => {
     /** Open Catalog modal, filtering the compatible nodes */
@@ -81,28 +80,34 @@ export const NewEndpointModal: FunctionComponent<EndpointModalProps> = ({
         })
         .catch(() => {
           /* catalog modal was dismissed */
+        })
+        .finally(() => {
+          setIsSelectingType(false);
         });
     }
   }, [endpointModel, endpointsSchema, selectEndpoint]);
 
-  return (
-    endpointsSchema && (
-      <Modal
-        isOpen
-        variant={ModalVariant.large}
-        data-testid="NewEndpointModal"
-        onClose={onCancel}
-        ouiaId="NewEndpointModal"
-      >
-        <ModalHeader
-          title={`${mode} endpoint`}
-          description="Send and receive test actions may reference this endpoint by its name when sending and receiving messages during the test."
-        />
+  if (!endpointsSchema || isSelectingType) {
+    return null;
+  }
 
-        <ModalBody>
+  /** Render in document.body so the modal overlay covers the whole app instead of the surrounding form */
+  return createPortal(
+    <ComposedModal open size="lg" data-testid="NewEndpointModal" onClose={onCancel}>
+      <ModalHeader title={`${mode} endpoint`} />
+
+      <ModalBody>
+        <p className="new-endpoint-modal__subtitle">
+          Send and receive test actions may reference this endpoint by its name when sending and receiving messages
+          during the test.
+        </p>
+
+        {/* ModalBody is already a Layer, reset it so the form starts on the same (white) layer as the canvas form */}
+        <Layer level={0}>
           <ModelContextProvider model={endpointModel} onPropertyChange={onEndpointModelChange}>
             <SchemaProvider schema={endpointsSchema}>
-              <CanvasFormTabsContext.Provider value={formTabsValue}>
+              {/* The modal is rendered through a portal and must not inherit the outer canvas form tab */}
+              <CanvasFormTabsProvider tab="All">
                 <EndpointFieldInner
                   mode={mode}
                   propName={ROOT_PATH}
@@ -111,26 +116,26 @@ export const NewEndpointModal: FunctionComponent<EndpointModalProps> = ({
                   setEndpointType={setEndpointType}
                   onModelChange={setEndpointModel}
                 />
-              </CanvasFormTabsContext.Provider>
+              </CanvasFormTabsProvider>
             </SchemaProvider>
           </ModelContextProvider>
-        </ModalBody>
+        </Layer>
+      </ModalBody>
 
-        <ModalFooter>
-          <Button
-            key="confirm"
-            variant="primary"
-            isDisabled={endpointModel === undefined || endpointType === ''}
-            onClick={handleConfirm}
-            data-testid="endpoint-modal-confirm-btn"
-          >
-            {mode}
-          </Button>
-          <Button key="cancel" variant="link" onClick={onCancel} data-testid="endpoint-modal-cancel-btn">
-            Cancel
-          </Button>
-        </ModalFooter>
-      </Modal>
-    )
+      <ModalFooter>
+        <Button kind="secondary" onClick={onCancel} data-testid="endpoint-modal-cancel-btn">
+          Cancel
+        </Button>
+        <Button
+          kind="primary"
+          disabled={endpointModel === undefined || endpointType === ''}
+          onClick={handleConfirm}
+          data-testid="endpoint-modal-confirm-btn"
+        >
+          {mode}
+        </Button>
+      </ModalFooter>
+    </ComposedModal>,
+    document.body,
   );
 };

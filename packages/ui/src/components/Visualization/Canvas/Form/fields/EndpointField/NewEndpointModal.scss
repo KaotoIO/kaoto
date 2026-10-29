@@ -1,0 +1,16 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+/*
+  Carbon styles direct `p` children of the modal content (`.cds--modal-content > p`) with a 20% end padding
+  and its own type style. Match that selector to override it for the subtitle.
+*/
+/* stylelint-disable-next-line selector-class-pattern */
+.cds--modal-content > p.new-endpoint-modal__subtitle {
+  @include type-style('body-short-01');
+
+  color: $text-secondary;
+  margin-bottom: $spacing-05;
+  padding-inline-end: 0;
+}
