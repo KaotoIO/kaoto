@@ -59,7 +59,7 @@ export const ArrayFieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapper
             {required && <span className="array-field-wrapper-required">*</span>}
             {title}
           </h4>
-          <Toggletip align="top">
+          <Toggletip autoAlign>
             <ToggletipButton label={`More info for ${title} field`}>
               <Information />
             </ToggletipButton>

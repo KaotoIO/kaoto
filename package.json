@@ -6,8 +6,7 @@
   "author": "The Kaoto Team",
   "license": "Apache License v2.0",
   "workspaces": [
-    "packages/*",
-    "!packages/forms"
+    "packages/*"
   ],
   "resolutions": {
     "@patternfly/patternfly": "^6.6.1",

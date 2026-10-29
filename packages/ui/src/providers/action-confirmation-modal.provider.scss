@@ -3,3 +3,9 @@
     white-space: normal;
   }
 }
+
+// Carbon modals (e.g. the endpoint modal) use z-index 9000, above PatternFly's backdrop default.
+// The confirmation must be shown over any Carbon modal that triggered it.
+.pf-v6-c-backdrop.action-confirmation-modal-backdrop {
+  --pf-v6-c-backdrop--ZIndex: 9100;
+}

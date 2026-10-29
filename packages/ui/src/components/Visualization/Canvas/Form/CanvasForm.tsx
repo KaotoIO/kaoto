@@ -1,6 +1,5 @@
 import './CanvasForm.scss';
 
-import { Card, CardBody, CardHeader } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useContext, useEffect, useRef } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
@@ -42,16 +41,16 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClos
       title={title || undefined}
       errorTitle="This node cannot be configured"
     >
-      <Card className="canvas-form">
-        <CardHeader>
+      <div className="canvas-form">
+        <div className="canvas-form__header">
           <CanvasFormHeader nodeId={vizNode.id} title={title} onClose={onCloseFn} iconUrl={vizNode.data.iconUrl} />
           <RenderingAnchor anchorTag={Anchors.CanvasFormHeader} vizNode={vizNode} />
-        </CardHeader>
+        </div>
 
-        <CardBody className="canvas-form__body">
+        <div className="canvas-form__body">
           <CanvasFormBody vizNode={vizNode} />
-        </CardBody>
-      </Card>
+        </div>
+      </div>
     </CanvasSidePanelErrorBoundary>
   );
 };

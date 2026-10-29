@@ -1,3 +1,4 @@
+import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { BeanFactory } from '@kaoto/camel-catalog/types';
 import {
   CanvasFormTabsContext,
@@ -8,7 +9,6 @@ import {
   KaotoFormApi,
   KaotoFormProps,
 } from '@kaoto/forms';
-import { Button, Modal, ModalBody, ModalFooter, ModalHeader, ModalVariant } from '@patternfly/react-core';
 import { cloneDeep } from 'lodash';
 import { FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
 
@@ -39,7 +39,7 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = ({
   const [beanModel, setBeanModel] = useState<unknown>({ name: beanName, type: javaType });
   const formRef = useRef<KaotoFormApi>(null);
 
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = useCallback(() => {
     // validation updates the bean model, so we need to clone it to avoid creating the bean with default values
     const beanModelTmp = cloneDeep(beanModel);
     const valid = formRef.current?.validate();
@@ -53,17 +53,8 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = ({
   }
 
   return (
-    <Modal
-      isOpen
-      variant={ModalVariant.large}
-      data-testid={`NewBeanModal-${beanName}`}
-      onClose={onCancelCreateBean}
-      ouiaId="NewBeanModal"
-    >
-      <ModalHeader
-        title={`Create a new ${propertyTitle} bean`}
-        description={javaType ? `Java Type: ${javaType}` : ''}
-      />
+    <ComposedModal open size="lg" data-testid={`NewBeanModal-${beanName}`} onClose={onCancelCreateBean}>
+      <ModalHeader title={`Create a new ${propertyTitle} bean`} label={javaType ? `Java Type: ${javaType}` : ''} />
 
       <ModalBody>
         <FilteredFieldProvider>
@@ -82,13 +73,13 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = ({
       </ModalBody>
 
       <ModalFooter>
-        <Button key="confirm" variant="primary" onClick={handleConfirm} data-testid="create-bean-btn">
-          Create
-        </Button>
-        <Button key="cancel" variant="link" onClick={onCancelCreateBean} data-testid="cancel-bean-btn">
+        <Button kind="secondary" onClick={onCancelCreateBean} data-testid="cancel-bean-btn">
           Cancel
         </Button>
+        <Button kind="primary" onClick={handleConfirm} data-testid="create-bean-btn">
+          Create
+        </Button>
       </ModalFooter>
-    </Modal>
+    </ComposedModal>
   );
 };

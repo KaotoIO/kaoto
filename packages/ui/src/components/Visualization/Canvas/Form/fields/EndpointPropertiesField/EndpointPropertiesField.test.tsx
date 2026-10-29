@@ -4,7 +4,7 @@ import {
   ModelContextProvider,
   SchemaContext,
 } from '@kaoto/forms';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
@@ -90,7 +90,7 @@ describe('EndpointPropertiesField', () => {
       expect(screen.queryByText('Endpoint Properties')).not.toBeInTheDocument();
 
       const standardToggle = screen.getByTestId('testProp-standard-toggle');
-      expect(within(standardToggle).getByRole('button')).toHaveClass('pf-m-selected');
+      expect(standardToggle).toHaveClass('cds--content-switcher--selected');
     });
 
     it('should switch to custom view and back', async () => {
@@ -116,7 +116,7 @@ describe('EndpointPropertiesField', () => {
       expect(screen.queryByTestId('testProp.prop1__field-wrapper')).not.toBeInTheDocument();
 
       const customToggle = screen.getByTestId('testProp-custom-toggle');
-      expect(within(customToggle).getByRole('button')).toHaveClass('pf-m-selected');
+      expect(customToggle).toHaveClass('cds--content-switcher--selected');
 
       // Switch back to standard view
       await user.click(screen.getByText('Standard'));
