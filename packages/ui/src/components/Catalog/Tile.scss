@@ -1,4 +1,8 @@
 .tile {
+  /* VirtuosoGrid gives every tile the same height, so the texts are clamped instead of growing the tile */
+  height: 100%;
+  overflow: hidden;
+
   /* stylelint-disable-next-line selector-class-pattern */
   .pf-v6-c-card__actions {
     padding: 0;
@@ -18,12 +22,11 @@
   }
 
   &__name {
-    text-align: center;
-    min-height: 25px;
+    max-width: 100%;
     font-size: small;
-    display: flex;
-    flex-flow: column;
-    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__title {
@@ -33,9 +36,24 @@
     align-items: center;
   }
 
-  &__body {
-    max-height: 150px;
+  &__title-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
     overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+  }
+
+  &__body {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* The clamp goes on an inner element, the body is stretched by the card and would show the clamped lines */
+  &__description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    overflow: hidden;
   }
 }

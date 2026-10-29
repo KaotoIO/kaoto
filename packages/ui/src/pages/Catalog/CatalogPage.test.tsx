@@ -1,4 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { FunctionComponent, PropsWithChildren } from 'react';
+import { VirtuosoGridMockContext } from 'react-virtuoso';
 import type { Mock } from 'vitest';
 
 import { ITile } from '../../components/Catalog';
@@ -6,6 +8,13 @@ import { CatalogTilesContext } from '../../dynamic-catalog/catalog-tiles.provide
 import { AbstractSettingsAdapter, DefaultSettingsAdapter } from '../../models/settings';
 import { ReloadContext, SettingsProvider } from '../../providers';
 import { CatalogPage } from './CatalogPage';
+
+const VIRTUOSO_GRID_MOCK = { viewportHeight: 2000, viewportWidth: 1000, itemHeight: 10, itemWidth: 250 };
+
+// jsdom has no layout, so VirtuosoGrid needs fixed measurements to render the tiles
+const VirtuosoGridWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
+  <VirtuosoGridMockContext.Provider value={VIRTUOSO_GRID_MOCK}>{children}</VirtuosoGridMockContext.Provider>
+);
 
 describe('CatalogPage', () => {
   let reloadPage: Mock;
@@ -53,6 +62,7 @@ describe('CatalogPage', () => {
       <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
         <CatalogPage />
       </CatalogTilesContext.Provider>,
+      { wrapper: VirtuosoGridWrapper },
     );
 
     expect(screen.getByText('Fetching catalogs')).toBeInTheDocument();
@@ -75,6 +85,7 @@ describe('CatalogPage', () => {
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
           <CatalogPage />
         </CatalogTilesContext.Provider>,
+        { wrapper: VirtuosoGridWrapper },
       );
 
       await waitFor(() => {
@@ -91,6 +102,7 @@ describe('CatalogPage', () => {
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
           <CatalogPage />
         </CatalogTilesContext.Provider>,
+        { wrapper: VirtuosoGridWrapper },
       );
 
       await waitFor(() => {
@@ -114,6 +126,7 @@ describe('CatalogPage', () => {
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
           <CatalogPage />
         </CatalogTilesContext.Provider>,
+        { wrapper: VirtuosoGridWrapper },
       );
 
       await waitFor(() => {
@@ -144,6 +157,7 @@ describe('CatalogPage', () => {
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
           <CatalogPage />
         </CatalogTilesContext.Provider>,
+        { wrapper: VirtuosoGridWrapper },
       );
 
       await waitFor(() => {
@@ -228,6 +242,7 @@ describe('CatalogPage', () => {
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
           <CatalogPage />
         </CatalogTilesContext.Provider>,
+        { wrapper: VirtuosoGridWrapper },
       );
 
       await waitFor(() => {
@@ -244,6 +259,7 @@ describe('CatalogPage', () => {
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
           <CatalogPage />
         </CatalogTilesContext.Provider>,
+        { wrapper: VirtuosoGridWrapper },
       );
 
       await waitFor(() => {
@@ -262,6 +278,7 @@ describe('CatalogPage', () => {
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
           <CatalogPage />
         </CatalogTilesContext.Provider>,
+        { wrapper: VirtuosoGridWrapper },
       );
 
       await waitFor(() => {
@@ -283,6 +300,7 @@ describe('CatalogPage', () => {
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
           <CatalogPage />
         </CatalogTilesContext.Provider>,
+        { wrapper: VirtuosoGridWrapper },
       );
 
       await waitFor(() => {
@@ -316,6 +334,7 @@ describe('CatalogPage', () => {
         <CatalogTilesContext.Provider value={{ fetchTiles, getTiles: getTilesSpy }}>
           <CatalogPage />
         </CatalogTilesContext.Provider>,
+        { wrapper: VirtuosoGridWrapper },
       );
 
       await waitFor(() => {

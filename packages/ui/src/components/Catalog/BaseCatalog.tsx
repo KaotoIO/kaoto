@@ -1,7 +1,18 @@
 import './BaseCatalog.scss';
+// The PatternFly `Gallery` component pulls this stylesheet in, but the virtualized grid only reuses its CSS classes
+import '@patternfly/react-styles/css/layouts/Gallery/gallery.css';
 
-import { DataList, Gallery, Pagination } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+import { DataList } from '@patternfly/react-core';
+import { forwardRef, FunctionComponent, Ref, useCallback, useEffect, useRef } from 'react';
+import {
+  Components,
+  GridComponents,
+  GridListProps,
+  ItemProps,
+  ListProps,
+  Virtuoso,
+  VirtuosoGrid,
+} from 'react-virtuoso';
 
 import { CatalogLayout, getTileKey, ITile } from './Catalog.models';
 import { CatalogDataListItem } from './DataListItem';
@@ -14,12 +25,42 @@ interface BaseCatalogProps {
   onTagClick: (_event: unknown, value: string) => void;
 }
 
+const computeItemKey = (_index: number, tile: ITile) => getTileKey(tile);
+
+/** Reuses the PatternFly gallery CSS, so the columns and the gutter are the same as a regular `Gallery` */
+const GalleryList = forwardRef<HTMLDivElement, GridListProps>(({ className, ...props }, ref) => (
+  <div {...props} ref={ref} className={`${className ?? ''} pf-v6-l-gallery pf-m-gutter catalog-list__content`.trim()} />
+));
+GalleryList.displayName = 'GalleryList';
+
+const galleryComponents: GridComponents = { List: GalleryList };
+
+const CatalogDataList = forwardRef<HTMLDivElement, ListProps>(({ children, style }, ref) => (
+  <DataList
+    aria-label="Catalog list"
+    isCompact
+    className="catalog-list__content"
+    style={style}
+    ref={ref as unknown as Ref<HTMLUListElement>}
+  >
+    {children}
+  </DataList>
+));
+CatalogDataList.displayName = 'CatalogDataList';
+
+/**
+ * Virtuoso wraps every item in an element. `CatalogDataListItem` already renders the `<li>`,
+ * so the wrapper must not be one.
+ */
+const CatalogDataListRow = ({ item: _item, ...props }: ItemProps<ITile>) => {
+  return <div {...props} />;
+};
+
+const listComponents: Components<ITile> = { List: CatalogDataList, Item: CatalogDataListRow };
+
 export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
-  const { onTileClick: onTileClickProp } = props;
-  const catalogBodyRef = useRef<HTMLDivElement>(null);
-  const itemCount = props.tiles?.length;
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(50);
+  const { tiles, catalogLayout, onTileClick: onTileClickProp, onTagClick } = props;
+  const scrollerRef = useRef<HTMLElement | Window | null>(null);
 
   const onTileClick = useCallback(
     (tile: ITile) => {
@@ -28,62 +69,49 @@ export const BaseCatalog: FunctionComponent<BaseCatalogProps> = (props) => {
     [onTileClickProp],
   );
 
-  // Clamp during rendering so filtering never commits an empty, out-of-range page.
-  const lastPage = Math.max(1, Math.ceil(itemCount / perPage));
-  if (page > lastPage || page < 1) setPage(Math.min(lastPage, Math.max(1, page)));
-  const startIndex = Math.max(0, (page - 1) * perPage);
-  const endIndex = page * perPage;
+  const onScrollerRef = useCallback((ref: HTMLElement | Window | null) => {
+    scrollerRef.current = ref;
+  }, []);
+
   useEffect(() => {
-    catalogBodyRef.current!.scrollTop = 0;
-  }, [props.tiles]);
+    // jsdom does not implement Element.prototype.scrollTo
+    scrollerRef.current?.scrollTo?.({ top: 0 });
+  }, [tiles]);
 
-  const onSetPage = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
-    setPage(newPage);
-  };
+  const renderListItem = useCallback(
+    (_index: number, tile: ITile) => <CatalogDataListItem tile={tile} onClick={onTileClick} onTagClick={onTagClick} />,
+    [onTileClick, onTagClick],
+  );
 
-  const onPerPageSelect = (
-    _event: React.MouseEvent | React.KeyboardEvent | MouseEvent,
-    newPerPage: number,
-    newPage: number,
-  ) => {
-    setPerPage(newPerPage);
-    setPage(newPage);
-  };
+  const renderGalleryItem = useCallback(
+    (_index: number, tile: ITile) => <Tile tile={tile} onClick={onTileClick} onTagClick={onTagClick} />,
+    [onTileClick, onTagClick],
+  );
 
-  const paginatedCards = props.tiles?.slice(startIndex, endIndex);
+  if (catalogLayout === CatalogLayout.List) {
+    return (
+      <Virtuoso
+        scrollerRef={onScrollerRef}
+        id="catalog-list"
+        className="catalog-list"
+        data={tiles}
+        computeItemKey={computeItemKey}
+        components={listComponents}
+        itemContent={renderListItem}
+      />
+    );
+  }
 
   return (
-    <>
-      <Pagination
-        itemCount={itemCount}
-        perPage={perPage}
-        page={page}
-        onSetPage={onSetPage}
-        widgetId="catalog-pagination"
-        onPerPageSelect={onPerPageSelect}
-        ouiaId="CatalogPagination"
-      />
-      <div id="catalog-list" className="catalog-list" ref={catalogBodyRef}>
-        {props.catalogLayout == CatalogLayout.List && (
-          <DataList aria-label="Catalog list" isCompact>
-            {paginatedCards.map((tile) => (
-              <CatalogDataListItem
-                key={getTileKey(tile)}
-                tile={tile}
-                onClick={onTileClick}
-                onTagClick={props.onTagClick}
-              />
-            ))}
-          </DataList>
-        )}
-        {props.catalogLayout == CatalogLayout.Gallery && (
-          <Gallery hasGutter>
-            {paginatedCards.map((tile) => (
-              <Tile key={getTileKey(tile)} tile={tile} onClick={onTileClick} onTagClick={props.onTagClick} />
-            ))}
-          </Gallery>
-        )}
-      </div>
-    </>
+    <VirtuosoGrid
+      scrollerRef={onScrollerRef}
+      id="catalog-list"
+      className="catalog-list"
+      data={tiles}
+      computeItemKey={computeItemKey}
+      components={galleryComponents}
+      itemClassName="catalog-grid-item"
+      itemContent={renderGalleryItem}
+    />
   );
 };

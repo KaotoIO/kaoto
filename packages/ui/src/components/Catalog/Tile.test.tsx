@@ -33,4 +33,18 @@ describe('Tile', () => {
     expect(onTagClick).toHaveBeenCalledTimes(1);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  it('shows the title and the description as the tooltip of the tile', () => {
+    const { getByTestId } = render(<Tile tile={tile} onClick={vi.fn()} onTagClick={vi.fn()} />);
+
+    expect(getByTestId('tile-tile-name')).toHaveAttribute('title', 'tile-title\n\ntile-description');
+  });
+
+  it('shows only the title as the tooltip when there is no description', () => {
+    const { getByTestId } = render(
+      <Tile tile={{ ...tile, description: undefined }} onClick={vi.fn()} onTagClick={vi.fn()} />,
+    );
+
+    expect(getByTestId('tile-tile-name')).toHaveAttribute('title', 'tile-title');
+  });
 });

@@ -212,6 +212,9 @@ async function addAMQPStep(driver: WebDriver) {
 	await KaotoCanvas.openContextMenu(driver, canvasNode);
 	await KaotoCanvas.clickReplaceInContextMenu(driver);
 
+	await driver.wait(until.elementLocated(By.xpath(kaotoLocators.KaotoCatalog.filterInput)), 5000, 'Cannot find the filter input');
+	const filterInput = await driver.findElement(By.xpath(kaotoLocators.KaotoCatalog.filterInput));
+	await filterInput.sendKeys('amqp');
 	await driver.wait(
 		until.elementLocated(By.xpath(kaotoLocators.KaotoCatalog.tileHeaderByTestId('amqp'))),
 		5000,

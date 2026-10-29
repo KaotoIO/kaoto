@@ -19,8 +19,19 @@ export const Tile: FunctionComponent<TileProps> = memo(({ tile, onClick, onTagCl
     onClick(tile);
   }, [onClick, tile]);
 
+  // The clickable overlay of the card covers the whole tile, so the native tooltip goes on the card itself
+  const tooltip = tile.description ? `${tile.title}\n\n${tile.description}` : tile.title;
+
   return (
-    <Card className="tile" data-testid={'tile-' + tile.name} isClickable isCompact role="button" id={tileKey}>
+    <Card
+      className="tile"
+      data-testid={'tile-' + tile.name}
+      isClickable
+      isCompact
+      role="button"
+      id={tileKey}
+      title={tooltip}
+    >
       <CardHeader
         selectableActions={{ variant: 'single', selectableActionAriaLabelledby: `${tileKey}-title` }}
         data-testid={'tile-header-' + tile.name}
@@ -32,13 +43,15 @@ export const Tile: FunctionComponent<TileProps> = memo(({ tile, onClick, onTagCl
         </div>
 
         <CardTitle className="tile__title">
-          <span>{tile.title}</span>
+          <span className="tile__title-text">{tile.title}</span>
           <span className="tile__name">({tile.name})</span>
           {tile.version && <CatalogTag tag={tile.version} variant="outline" />}
         </CardTitle>
       </CardHeader>
 
-      <CardBody className="tile__body">{tile.description}</CardBody>
+      <CardBody className="tile__body">
+        <span className="tile__description">{tile.description}</span>
+      </CardBody>
 
       <CardFooter>
         <CatalogTagsPanel tags={tile.tags} onTagClick={onTagClick} />

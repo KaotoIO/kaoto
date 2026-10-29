@@ -4,6 +4,7 @@ import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import { VirtuosoGridMockContext } from 'react-virtuoso';
 import type { Mock } from 'vitest';
 
 import { CatalogModalProvider } from '../../../../../../dynamic-catalog/catalog-modal.provider';
@@ -17,6 +18,8 @@ import { TestProvidersWrapper } from '../../../../../../stubs';
 import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../../../../stubs/test-load-catalog';
 import { ITile } from '../../../../../Catalog';
 import { EndpointListField } from './EndpointListField';
+
+const VIRTUOSO_GRID_MOCK = { viewportHeight: 2000, viewportWidth: 1000, itemHeight: 10, itemWidth: 250 };
 
 describe('EndpointListField', () => {
   const mockTiles: ITile[] = [
@@ -36,11 +39,13 @@ describe('EndpointListField', () => {
     getTiles: () => ITile[] = () => mockTiles,
   ): FunctionComponent<PropsWithChildren> => {
     const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <CatalogContext.Provider value={mockCatalogRegistry}>
-        <CatalogTilesContext.Provider value={{ fetchTiles, getTiles }}>
-          <CatalogModalProvider>{children}</CatalogModalProvider>
-        </CatalogTilesContext.Provider>
-      </CatalogContext.Provider>
+      <VirtuosoGridMockContext.Provider value={VIRTUOSO_GRID_MOCK}>
+        <CatalogContext.Provider value={mockCatalogRegistry}>
+          <CatalogTilesContext.Provider value={{ fetchTiles, getTiles }}>
+            <CatalogModalProvider>{children}</CatalogModalProvider>
+          </CatalogTilesContext.Provider>
+        </CatalogContext.Provider>
+      </VirtuosoGridMockContext.Provider>
     );
     return wrapper;
   };
