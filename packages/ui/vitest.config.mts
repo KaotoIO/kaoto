@@ -48,19 +48,6 @@ export default defineConfig({
         find: /^uuid$/,
         replacement: fileURLToPath(new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url)),
       },
-      // For linking forms — more specific subpaths must come before the bare specifier
-      {
-        find: /^@kaoto\/forms\/testing\/page-object$/,
-        replacement: fileURLToPath(new URL('../forms/src/testing/KaotoFormPageObject.ts', import.meta.url)),
-      },
-      {
-        find: /^@kaoto\/forms\/testing$/,
-        replacement: fileURLToPath(new URL('../forms/src/testing.ts', import.meta.url)),
-      },
-      {
-        find: /^@kaoto\/forms$/,
-        replacement: fileURLToPath(new URL('../forms/src/index.ts', import.meta.url)),
-      },
     ],
   },
   resolve: {
