@@ -13,7 +13,7 @@ type ParametersHeaderProps = {
 
 /**
  * ParametersHeader - Simple header for the Parameters section
- * Shows "Parameters" title + Add/Eye buttons (when not readonly)
+ * Shows "Parameters" title + Add/Eye buttons
  */
 export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
   isReadOnly,
@@ -34,35 +34,33 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
     </span>
     <ActionList isIconList className="parameters-header__actions">
       {!isReadOnly && (
-        <>
-          <ActionListItem>
-            <Button
-              icon={<Add />}
-              variant="plain"
-              title="Add parameter"
-              aria-label="Add parameter"
-              data-testid="add-parameter-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddParameter();
-              }}
-            />
-          </ActionListItem>
-          <ActionListItem>
-            <Button
-              variant="plain"
-              title={showParameters ? 'Hide all parameters' : 'Show all parameters'}
-              aria-label={showParameters ? 'Hide all parameters' : 'Show all parameters'}
-              data-testid="toggle-parameters-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleParameters();
-              }}
-              icon={showParameters ? <View /> : <ViewOff />}
-            />
-          </ActionListItem>
-        </>
+        <ActionListItem>
+          <Button
+            icon={<Add />}
+            variant="plain"
+            title="Add parameter"
+            aria-label="Add parameter"
+            data-testid="add-parameter-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddParameter();
+            }}
+          />
+        </ActionListItem>
       )}
+      <ActionListItem>
+        <Button
+          variant="plain"
+          title={showParameters ? 'Hide all parameters' : 'Show all parameters'}
+          aria-label={showParameters ? 'Hide all parameters' : 'Show all parameters'}
+          data-testid="toggle-parameters-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleParameters();
+          }}
+          icon={showParameters ? <View /> : <ViewOff />}
+        />
+      </ActionListItem>
     </ActionList>
   </div>
 );
