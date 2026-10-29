@@ -28,6 +28,7 @@ import {
   TargetNodeData,
 } from '../../models/datamapper/visualization';
 import {
+  getAdtInXsd,
   getContactsXsd,
   getEnvelopeXsd,
   getExtensionSimpleXsd,
@@ -472,6 +473,162 @@ describe('MappingActionService — mapping engagement', () => {
         const shipOrderFieldItem = tree.children[0] as FieldItem;
         const forEachItems = shipOrderFieldItem.children.filter((c) => c instanceof ForEachItem);
         expect(forEachItems).toHaveLength(1);
+      });
+
+      it('should create a separate ForEachItem for each repeating sibling (reproducible with ADT_IN.xsd)', () => {
+        const adtXsd = getAdtInXsd();
+        const srcDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+          new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+            'ADT_IN.xsd': adtXsd,
+          }),
+        ).document!;
+        const tgtDoc = XmlSchemaDocumentService.createXmlSchemaDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+            'ADT_IN.xsd': adtXsd,
+          }),
+        ).document!;
+        const hl7Tree = new MappingTree(tgtDoc.documentType, tgtDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+        const tgtDocNode = new TargetDocumentNodeData(tgtDoc, hl7Tree);
+
+        const srcChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          VisualizationService.generateStructuredDocumentChildren(new DocumentNodeData(srcDoc))[0],
+        );
+        const findSrc = (name: string) =>
+          srcChildren.find((n) => (n as FieldNodeData).field?.name === name) as FieldNodeData;
+        const findTgt = (name: string) =>
+          VisualizationService.generateNonDocumentNodeDataChildren(
+            VisualizationService.generateStructuredDocumentChildren(tgtDocNode)[0],
+          ).find((n) => n instanceof TargetFieldNodeData && n.field.name === name) as TargetNodeData;
+
+        const first = MappingActionService.engageMapping(hl7Tree, findSrc('NK1Loop'), findTgt('NK1Loop'));
+        const second = MappingActionService.engageMapping(hl7Tree, findSrc('OBXLoop'), findTgt('OBXLoop'));
+
+        expect(first).toBe(true);
+        expect(second).toBe(true);
+        const hl7Item = hl7Tree.children[0] as FieldItem;
+        const forEachItems = hl7Item.children.filter((c) => c instanceof ForEachItem) as ForEachItem[];
+        expect(forEachItems).toHaveLength(2);
+        const wrappedNames = forEachItems.map((f) => (f.children[0] as FieldItem).field.name);
+        expect(wrappedNames).toEqual(['NK1Loop', 'OBXLoop']);
+      });
+    });
+
+    describe('sibling collection loops', () => {
+      const ROOT_XSD = (children: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>${children}</xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+      const REPEATING = (name: string) =>
+        `<xs:element name="${name}" maxOccurs="unbounded"><xs:complexType><xs:sequence>` +
+        `<xs:element name="Value" type="xs:string"/></xs:sequence></xs:complexType></xs:element>`;
+
+      const createDoc = (type: DocumentType, xsd: string) => {
+        const definition = new DocumentDefinition(type, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+          'Root.xsd': xsd,
+        });
+        return XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
+      };
+
+      const dropCollection = (
+        srcDoc: XmlSchemaDocument,
+        tgtDoc: XmlSchemaDocument,
+        tgtTree: MappingTree,
+        name: string,
+      ) => {
+        const srcChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          VisualizationService.generateStructuredDocumentChildren(new DocumentNodeData(srcDoc))[0],
+        );
+        const tgtChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          VisualizationService.generateStructuredDocumentChildren(new TargetDocumentNodeData(tgtDoc, tgtTree))[0],
+        );
+        MappingActionService.engageMapping(
+          tgtTree,
+          srcChildren.find((c) => c instanceof FieldNodeData && c.field.name === name) as FieldNodeData,
+          tgtChildren.find((c) => c instanceof TargetFieldNodeData && c.field.name === name) as TargetNodeData,
+        );
+      };
+
+      it.each([
+        ['target order', ['Address', 'Phone']],
+        ['reverse of target order', ['Phone', 'Address']],
+      ])('should keep for-each loops in target sequence order when dropped in %s', (_label, dropOrder) => {
+        const xsd = ROOT_XSD(REPEATING('Address') + REPEATING('Phone'));
+        const srcDoc = createDoc(DocumentType.SOURCE_BODY, xsd);
+        const tgtDoc = createDoc(DocumentType.TARGET_BODY, xsd);
+        const tgtTree = new MappingTree(tgtDoc.documentType, tgtDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+
+        for (const name of dropOrder) dropCollection(srcDoc, tgtDoc, tgtTree, name);
+
+        const rootItem = tgtTree.children[0] as FieldItem;
+        const loops = rootItem.children.filter((c) => c instanceof ForEachItem) as ForEachItem[];
+        expect(loops).toHaveLength(2);
+        expect(loops.map((l) => l.expression)).toEqual([
+          expect.stringContaining('Address'),
+          expect.stringContaining('Phone'),
+        ]);
+        const mappedFields = loops.map((loop) => loop.children[0] as FieldItem);
+        expect(mappedFields.map((field) => field.field.name)).toEqual(['Address', 'Phone']);
+        expect(mappedFields.every((field) => field.children.length > 0)).toBe(true);
+
+        const xslt = MappingSerializerService.serialize(tgtTree, new Map());
+        for (const loop of loops) {
+          expect(xslt).toContain(`select="${loop.expression}"`);
+        }
+        expect(xslt.indexOf('Address')).toBeGreaterThan(-1);
+        expect(xslt.indexOf('Address')).toBeLessThan(xslt.indexOf('Phone'));
+      });
+
+      it.each([
+        ['target order', ['Address', 'Fax', 'Phone']],
+        ['reverse of target order', ['Phone', 'Fax', 'Address']],
+        ['middle inserted last', ['Address', 'Phone', 'Fax']],
+        ['middle inserted first', ['Fax', 'Phone', 'Address']],
+      ])('should keep three for-each loops in target sequence order when dropped in %s', (_label, dropOrder) => {
+        const xsd = ROOT_XSD(REPEATING('Address') + REPEATING('Fax') + REPEATING('Phone'));
+        const srcDoc = createDoc(DocumentType.SOURCE_BODY, xsd);
+        const tgtDoc = createDoc(DocumentType.TARGET_BODY, xsd);
+        const tgtTree = new MappingTree(tgtDoc.documentType, tgtDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+
+        for (const name of dropOrder) dropCollection(srcDoc, tgtDoc, tgtTree, name);
+
+        const rootItem = tgtTree.children[0] as FieldItem;
+        const loops = rootItem.children.filter((c) => c instanceof ForEachItem) as ForEachItem[];
+        expect(loops.map((loop) => (loop.children[0] as FieldItem).field.name)).toEqual(['Address', 'Fax', 'Phone']);
+      });
+
+      it('should remove the stray field item when a sibling for-each already wraps the same field', () => {
+        const xsd = ROOT_XSD(REPEATING('Address') + REPEATING('Phone'));
+        const srcDoc = createDoc(DocumentType.SOURCE_BODY, xsd);
+        const tgtDoc = createDoc(DocumentType.TARGET_BODY, xsd);
+        const tgtTree = new MappingTree(tgtDoc.documentType, tgtDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+
+        dropCollection(srcDoc, tgtDoc, tgtTree, 'Address');
+        dropCollection(srcDoc, tgtDoc, tgtTree, 'Phone');
+        // The UI exposes the loop-wrapped Address as a different node type, so build a plain, unmapped
+        // target node by hand. Dropping on it creates a stray FieldItem next to the existing loop,
+        // which the guard must discard.
+        const srcChildren = VisualizationService.generateNonDocumentNodeDataChildren(
+          VisualizationService.generateStructuredDocumentChildren(new DocumentNodeData(srcDoc))[0],
+        );
+        const tgtRootNode = VisualizationService.generateStructuredDocumentChildren(
+          new TargetDocumentNodeData(tgtDoc, tgtTree),
+        )[0] as TargetFieldNodeData;
+        const addressField = tgtRootNode.field.fields.find((f) => f.name === 'Address')!;
+        const strayNode = new TargetFieldNodeData(tgtRootNode, addressField);
+        MappingActionService.engageMapping(
+          tgtTree,
+          srcChildren.find((c) => c instanceof FieldNodeData && c.field.name === 'Address') as FieldNodeData,
+          strayNode,
+        );
+
+        const rootItem = tgtTree.children[0] as FieldItem;
+        expect(rootItem.children.every((c) => c instanceof ForEachItem)).toBe(true);
+        const loops = rootItem.children as ForEachItem[];
+        expect(loops.map((loop) => (loop.children[0] as FieldItem).field.name)).toEqual(['Address', 'Phone']);
       });
     });
 

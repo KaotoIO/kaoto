@@ -540,13 +540,20 @@ export class MappingActionService {
   /**
    * Checks whether a container auto-mapping ForEachItem already exists for this target field.
    * Returns `{ handled: true, structural }` (fully handled here — either a no-op reuse or a
-   * stray sibling `ForEachItem` was removed), `{ handled: false, structural: false }` (defer to
-   * regular mapping), or `undefined` (proceed with auto-mapping via {@link createCollectionForEach}).
+   * stray sibling `ForEachItem` wrapping the same target field was removed), `{ handled: false,
+   * structural: false }` (defer to regular mapping), or `undefined` (proceed with auto-mapping via
+   * {@link createCollectionForEach}). A sibling `ForEachItem` wrapping a different field, e.g. another
+   * repeating element under the same parent, does not count.
    */
   private static guardExistingForEach(item: MappingItem): { handled: boolean; structural: boolean } | undefined {
     if (item.children.some((c) => c instanceof ForEachItem)) return { handled: true, structural: false };
     if (item.parent instanceof ForEachItem) return { handled: false, structural: false };
-    if (item.parent.children.some((c) => c !== item && c instanceof ForEachItem)) {
+    if (
+      item instanceof FieldItem &&
+      item.parent.children.some(
+        (c) => c !== item && c instanceof ForEachItem && MappingService.getInstructionFields(c).includes(item.field),
+      )
+    ) {
       const idx = item.parent.children.indexOf(item);
       if (idx !== -1) item.parent.children.splice(idx, 1);
       return { handled: true, structural: true };
@@ -570,7 +577,55 @@ export class MappingActionService {
       MappingService.generateAutoChildMappings(sourceField, targetField, innerFieldItem);
     }
 
-    parentOfItem.children.push(forEachItem);
+    MappingActionService.insertInTargetOrder(parentOfItem, forEachItem, targetField);
+  }
+
+  /**
+   * Inserts a new loop among its siblings following the target schema order, so the serialized
+   * XSLT (which preserves the authored order of instruction items) respects the target
+   * `xs:sequence` regardless of the order the user dropped the mappings in. Siblings whose
+   * position can't be determined (variables, conditions without a field) are skipped; if no
+   * later sibling is found the loop is appended.
+   */
+  private static insertInTargetOrder(parent: MappingParentType, newItem: ForEachItem, targetField: IField) {
+    const newPath = MappingActionService.getFieldOrderPath(targetField);
+    const index = parent.children.findIndex((sibling) => {
+      const siblingField = MappingActionService.getFirstTargetField(sibling);
+      return (
+        !!siblingField &&
+        MappingActionService.compareOrderPaths(MappingActionService.getFieldOrderPath(siblingField), newPath) > 0
+      );
+    });
+    if (index === -1) parent.children.push(newItem);
+    else parent.children.splice(index, 0, newItem);
+  }
+
+  private static getFirstTargetField(item: MappingItem): IField | undefined {
+    if (item instanceof FieldItem) return item.field;
+    for (const child of item.children) {
+      const field = MappingActionService.getFirstTargetField(child);
+      if (field) return field;
+    }
+    return undefined;
+  }
+
+  /** Index of the field within each ancestor's `fields`, from the document root down. */
+  private static getFieldOrderPath(field: IField): number[] {
+    const path: number[] = [];
+    let current: IField = field;
+    while (current.parent?.fields) {
+      path.unshift(current.parent.fields.indexOf(current));
+      if (!('parent' in current.parent) || current.parent === current) break;
+      current = current.parent as IField;
+    }
+    return path;
+  }
+
+  private static compareOrderPaths(a: number[], b: number[]): number {
+    for (let i = 0; i < Math.min(a.length, b.length); i++) {
+      if (a[i] !== b[i]) return a[i] - b[i];
+    }
+    return a.length - b.length;
   }
 
   /** @returns whether a new `ChooseItem` was created (`false` if one already existed — a no-op). */
