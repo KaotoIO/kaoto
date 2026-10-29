@@ -377,7 +377,7 @@ export class CamelCommandAPI {
 	 * Parse the JSON output of `infra ps` into running service details.
 	 */
 	static extractRunningServices(output: string): InfraRunningServiceDetails[] {
-		type RunningServiceEntry = { name?: string; alias?: string; description?: string; serviceData?: Record<string, unknown> };
+		type RunningServiceEntry = { name?: string; alias?: string; description?: string; uiSupported?: unknown; serviceData?: Record<string, unknown> };
 		let parsed: RunningServiceEntry[];
 		try {
 			const raw: unknown = JSON.parse(output);
@@ -401,7 +401,9 @@ export class CamelCommandAPI {
 			const host = CamelCommandAPI.extractInfraHost(serviceData);
 			const port = CamelCommandAPI.extractInfraPort(serviceData);
 			const url = host && port ? `${host}:${port}` : undefined;
-			services.push({ name: identifier, description: service.description?.trim() || undefined, host, port, url, serviceData });
+			const uiUrl = typeof serviceData?.uiUrl === 'string' && serviceData.uiUrl.length > 0 ? serviceData.uiUrl : undefined;
+			const uiSupported = typeof service.uiSupported === 'boolean' ? service.uiSupported : undefined;
+			services.push({ name: identifier, description: service.description?.trim() || undefined, host, port, url, uiUrl, uiSupported, serviceData });
 		}
 		return services.sort((a, b) => a.name.localeCompare(b.name));
 	}
@@ -420,10 +422,7 @@ export class CamelCommandAPI {
 				return parsed;
 			}
 		}
-		for (const value of Object.values(serviceData)) {
-			if (typeof value !== 'string') {
-				continue;
-			}
+		for (const value of CamelCommandAPI.getConnectionStrings(serviceData)) {
 			// Matches port numbers in URLs like "http://host:8080" or "host:8080/path"
 			const match = /:(\d+)(?:\/|$)/.exec(value);
 			if (match) {
@@ -441,10 +440,7 @@ export class CamelCommandAPI {
 		if (typeof directHost === 'string' && directHost.trim().length > 0) {
 			return directHost.trim();
 		}
-		for (const value of Object.values(serviceData)) {
-			if (typeof value !== 'string') {
-				continue;
-			}
+		for (const value of CamelCommandAPI.getConnectionStrings(serviceData)) {
 			// Normalize compound URI schemes like "jdbc:postgresql://host:5432/db" → "postgresql://host:5432/db"
 			const normalized = /^[a-z][a-z0-9+.-]*:[a-z]/i.test(value) ? value.replace(/^[^:]+:/, '') : value;
 			// Matches hostnames in URLs like "http://hostname:8080" or "hostname:8080"
@@ -454,5 +450,15 @@ export class CamelCommandAPI {
 			}
 		}
 		return undefined;
+	}
+
+	/**
+	 * String values of `serviceData` that may describe the service connection.
+	 * `uiUrl` points to the companion dashboard, so it must not be mistaken for the service host/port.
+	 */
+	private static getConnectionStrings(serviceData: Record<string, unknown>): string[] {
+		return Object.entries(serviceData)
+			.filter((entry): entry is [string, string] => entry[0] !== 'uiUrl' && typeof entry[1] === 'string')
+			.map(([, value]) => value);
 	}
 }

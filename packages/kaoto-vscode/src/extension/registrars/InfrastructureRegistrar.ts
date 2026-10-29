@@ -19,6 +19,7 @@ import {
 	COMMAND_INFRASTRUCTURE_COPY_PORT,
 	COMMAND_INFRASTRUCTURE_COPY_URL,
 	COMMAND_INFRASTRUCTURE_LOGS,
+	COMMAND_INFRASTRUCTURE_OPEN_UI,
 	COMMAND_INFRASTRUCTURE_REFRESH,
 	COMMAND_INFRASTRUCTURE_START,
 	COMMAND_INFRASTRUCTURE_STOP,
@@ -143,6 +144,15 @@ export class InfrastructureRegistrar implements IRegistrar {
 			}
 		});
 
-		this.context.subscriptions.push(startCommand, stopCommand, logsCommand, copyUrlCommand, copyPortCommand);
+		const openUiCommand = vscode.commands.registerCommand(COMMAND_INFRASTRUCTURE_OPEN_UI, async (item: InfrastructureItem) => {
+			if (item.service.uiUrl) {
+				await vscode.env.openExternal(vscode.Uri.parse(item.service.uiUrl));
+				await sendCommandTrackingEvent(this.telemetryService, COMMAND_INFRASTRUCTURE_OPEN_UI);
+			} else {
+				vscode.window.showWarningMessage(`No UI URL available for service "${item.service.name}"`);
+			}
+		});
+
+		this.context.subscriptions.push(startCommand, stopCommand, logsCommand, copyUrlCommand, copyPortCommand, openUiCommand);
 	}
 }
