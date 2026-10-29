@@ -9,6 +9,9 @@ exports[`Tile > renders correctly 1`] = `
   data-testid="tile-tile-name"
   id="tile-name-component"
   role="button"
+  title="tile-title
+
+tile-description"
 >
   <div
     class="pf-v6-c-card__header"
@@ -94,7 +97,9 @@ exports[`Tile > renders correctly 1`] = `
           class="pf-v6-c-card__title-text tile__title"
           id="tile-name-component-title"
         >
-          <span>
+          <span
+            class="tile__title-text"
+          >
             tile-title
           </span>
           <span
@@ -111,7 +116,11 @@ exports[`Tile > renders correctly 1`] = `
   <div
     class="pf-v6-c-card__body tile__body"
   >
-    tile-description
+    <span
+      class="tile__description"
+    >
+      tile-description
+    </span>
   </div>
   <div
     class="pf-v6-c-card__footer"

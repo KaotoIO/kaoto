@@ -1,4 +1,14 @@
 .catalog-list {
-  overflow: auto;
-  padding: var(--pf-t--global--spacer--sm);
+  flex: 1 1 auto;
+  min-height: 0;
+
+  /* Virtuoso positions its viewport over the padding box, so the spacing goes on the list instead */
+  &__content {
+    padding-inline: var(--pf-t--global--spacer--sm);
+  }
+}
+
+.catalog-grid-item {
+  /* VirtuosoGrid requires every item to have the same size */
+  height: 15rem;
 }

@@ -1,8 +1,16 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useState } from 'react';
+import { VirtuosoGridMockContext } from 'react-virtuoso';
 
 import { Catalog, MAX_RECENT_TILES } from './Catalog';
 import { ITile } from './Catalog.models';
+
+const VIRTUOSO_GRID_MOCK = { viewportHeight: 2000, viewportWidth: 1000, itemHeight: 10, itemWidth: 250 };
+
+// jsdom has no layout, so VirtuosoGrid needs fixed measurements to render the tiles
+const VirtuosoGridWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
+  <VirtuosoGridMockContext.Provider value={VIRTUOSO_GRID_MOCK}>{children}</VirtuosoGridMockContext.Provider>
+);
 
 describe('Catalog — recently used tracking', () => {
   const STORAGE_KEY = 'catalogRecentlyUsed';
@@ -31,7 +39,7 @@ describe('Catalog — recently used tracking', () => {
     const tile = makeTile('timer');
     const onTileClick = vi.fn();
 
-    render(<Catalog tiles={[tile]} onTileClick={onTileClick} />);
+    render(<Catalog tiles={[tile]} onTileClick={onTileClick} />, { wrapper: VirtuosoGridWrapper });
 
     fireEvent.click(screen.getByTestId('tile-header-timer'));
 
@@ -44,7 +52,7 @@ describe('Catalog — recently used tracking', () => {
     const tile = makeTile('timer');
     const onTileClick = vi.fn();
 
-    render(<Catalog tiles={[tile]} onTileClick={onTileClick} />);
+    render(<Catalog tiles={[tile]} onTileClick={onTileClick} />, { wrapper: VirtuosoGridWrapper });
 
     fireEvent.click(screen.getByTestId('tile-header-timer'));
     fireEvent.click(screen.getByTestId('tile-header-timer'));
@@ -57,7 +65,7 @@ describe('Catalog — recently used tracking', () => {
     const tileA = makeTile('timer');
     const tileB = makeTile('log');
 
-    render(<Catalog tiles={[tileA, tileB]} onTileClick={vi.fn()} />);
+    render(<Catalog tiles={[tileA, tileB]} onTileClick={vi.fn()} />, { wrapper: VirtuosoGridWrapper });
 
     fireEvent.click(screen.getByTestId('tile-header-timer'));
     fireEvent.click(screen.getByTestId('tile-header-log'));
@@ -71,7 +79,7 @@ describe('Catalog — recently used tracking', () => {
   it(`caps the list at MAX_RECENT_TILES (${MAX_RECENT_TILES})`, () => {
     const tiles = Array.from({ length: MAX_RECENT_TILES + 2 }, (_, i) => makeTile(`tile-${i}`));
 
-    render(<Catalog tiles={tiles} onTileClick={vi.fn()} />);
+    render(<Catalog tiles={tiles} onTileClick={vi.fn()} />, { wrapper: VirtuosoGridWrapper });
 
     tiles.forEach((tile) => {
       fireEvent.click(screen.getByTestId(`tile-header-${tile.name}`));
@@ -84,7 +92,7 @@ describe('Catalog — recently used tracking', () => {
   it('shows the recently used strip after a tile is clicked', () => {
     const tile = makeTile('timer');
 
-    render(<Catalog tiles={[tile]} onTileClick={vi.fn()} />);
+    render(<Catalog tiles={[tile]} onTileClick={vi.fn()} />, { wrapper: VirtuosoGridWrapper });
 
     // Strip not visible initially
     expect(screen.queryByTestId('recently-used-tile-timer')).not.toBeInTheDocument();
@@ -98,7 +106,7 @@ describe('Catalog — recently used tracking', () => {
     const tile = makeTile('timer');
     localStorage.setItem(STORAGE_KEY, JSON.stringify([tile]));
 
-    render(<Catalog tiles={[tile]} onTileClick={vi.fn()} />);
+    render(<Catalog tiles={[tile]} onTileClick={vi.fn()} />, { wrapper: VirtuosoGridWrapper });
 
     expect(screen.getByTestId('recently-used-tile-timer')).toBeInTheDocument();
   });
@@ -107,7 +115,7 @@ describe('Catalog — recently used tracking', () => {
     const tile = makeTile('timer');
     localStorage.setItem(STORAGE_KEY, JSON.stringify([tile]));
 
-    const { rerender } = render(<Catalog tiles={[]} onTileClick={vi.fn()} />);
+    const { rerender } = render(<Catalog tiles={[]} onTileClick={vi.fn()} />, { wrapper: VirtuosoGridWrapper });
 
     expect(screen.queryByTestId('recently-used-tile-timer')).not.toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')).toEqual([tile]);
@@ -122,7 +130,7 @@ describe('Catalog — recently used tracking', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([oldTile]));
     const onTileClick = vi.fn();
 
-    render(<Catalog tiles={[currentTile]} onTileClick={onTileClick} />);
+    render(<Catalog tiles={[currentTile]} onTileClick={onTileClick} />, { wrapper: VirtuosoGridWrapper });
     fireEvent.click(screen.getByTestId('recently-used-tile-timer'));
 
     expect(onTileClick).toHaveBeenCalledWith(currentTile);
@@ -134,7 +142,7 @@ describe('Catalog — recently used tracking', () => {
     const processor = makeTile('log', 'processor');
     localStorage.setItem(STORAGE_KEY, JSON.stringify([processor]));
 
-    render(<Catalog tiles={[component]} onTileClick={vi.fn()} />);
+    render(<Catalog tiles={[component]} onTileClick={vi.fn()} />, { wrapper: VirtuosoGridWrapper });
     fireEvent.click(screen.getByTestId('tile-header-log'));
 
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')).toEqual([component, processor]);
@@ -146,10 +154,10 @@ describe('Catalog — recently used tracking', () => {
       expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')).toEqual([tile]);
       unmount();
     };
-    const { unmount } = render(<Catalog tiles={[tile]} onTileClick={onTileClick} />);
+    const { unmount } = render(<Catalog tiles={[tile]} onTileClick={onTileClick} />, { wrapper: VirtuosoGridWrapper });
 
     fireEvent.click(screen.getByTestId('tile-header-timer'));
-    render(<Catalog tiles={[tile]} />);
+    render(<Catalog tiles={[tile]} />, { wrapper: VirtuosoGridWrapper });
 
     expect(screen.getByTestId('recently-used-tile-timer')).toBeInTheDocument();
   });
@@ -159,7 +167,7 @@ describe('Catalog — recently used tracking', () => {
     localStorage.setItem(STORAGE_KEY, stored);
     const onTileClick = vi.fn();
 
-    render(<Catalog tiles={[tile]} onTileClick={onTileClick} />);
+    render(<Catalog tiles={[tile]} onTileClick={onTileClick} />, { wrapper: VirtuosoGridWrapper });
     expect(screen.queryByTestId('recently-used-tile-timer')).not.toBeInTheDocument();
     fireEvent.click(screen.getByTestId('tile-header-timer'));
 
@@ -171,7 +179,7 @@ describe('Catalog — recently used tracking', () => {
     const tile = makeTile('timer');
     localStorage.setItem(STORAGE_KEY, JSON.stringify([null, {}, { name: 42, type: 'component' }, tile]));
 
-    render(<Catalog tiles={[tile]} />);
+    render(<Catalog tiles={[tile]} />, { wrapper: VirtuosoGridWrapper });
 
     expect(screen.getByTestId('recently-used-tile-timer')).toBeInTheDocument();
   });
@@ -179,7 +187,7 @@ describe('Catalog — recently used tracking', () => {
   it('still selects a tile when storage is corrupted after opening the catalog', () => {
     const tile = makeTile('timer');
     const onTileClick = vi.fn();
-    render(<Catalog tiles={[tile]} onTileClick={onTileClick} />);
+    render(<Catalog tiles={[tile]} onTileClick={onTileClick} />, { wrapper: VirtuosoGridWrapper });
     localStorage.setItem(STORAGE_KEY, 'invalid JSON');
 
     fireEvent.click(screen.getByTestId('tile-header-timer'));
@@ -196,7 +204,7 @@ describe('Catalog — recently used tracking', () => {
       throw new DOMException('Storage unavailable', 'SecurityError');
     });
 
-    render(<Catalog tiles={[tileA, tileB]} onTileClick={onTileClick} />);
+    render(<Catalog tiles={[tileA, tileB]} onTileClick={onTileClick} />, { wrapper: VirtuosoGridWrapper });
     fireEvent.click(screen.getByTestId('tile-header-timer'));
     fireEvent.click(screen.getByTestId('tile-header-log'));
     fireEvent.click(screen.getByTestId('recently-used-tile-timer'));
@@ -231,7 +239,7 @@ describe('Catalog — recently used tracking', () => {
       );
     };
 
-    render(<ModalHost />);
+    render(<ModalHost />, { wrapper: VirtuosoGridWrapper });
     fireEvent.click(screen.getByTestId('tile-header-timer'));
     expect(screen.getByRole('button', { name: 'Reopen catalog' })).toBeInTheDocument();
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]')).toEqual([tile]);

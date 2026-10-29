@@ -6,3 +6,18 @@
     max-height: 100%;
   }
 }
+
+// A virtualized list needs a definite height, so the catalog modal does not shrink to its content.
+.catalog-modal.pf-v6-c-modal-box {
+  height: calc(100vh - 2 * var(--pf-t--global--spacer--xl));
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-modal-box__body {
+    min-height: 0;
+  }
+
+  .catalog {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+}
