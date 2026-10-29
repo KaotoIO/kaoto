@@ -485,6 +485,22 @@ export class DocumentService {
     return field.fields.length > 0 || field.namedTypeFragmentRefs.length > 0;
   }
 
+  /**
+   * Returns true if the field has element (non-attribute) child fields.
+   * Used to determine whether `xsl:value-of` is valid: value-of is not appropriate
+   * for container fields with element children (mixed content is not supported).
+   * Conservatively returns true for unexpanded fields with named type fragment refs.
+   * @param field - The field to inspect
+   * @returns true if the field has or can have element children, false otherwise
+   */
+  static hasElementChildren(field: IField): boolean {
+    if (field.isAttribute) return false;
+    if (field.fields.some((f) => !f.isAttribute)) return true;
+    // Unexpanded named-type field: conservatively treat as having element children
+    if (field.namedTypeFragmentRefs.length > 0 && field.fields.length === 0) return true;
+    return false;
+  }
+
   private static isRepeating(field: IField): boolean {
     return field.maxOccurs === 'unbounded' || Number(field.maxOccurs) > 1;
   }

@@ -43,11 +43,9 @@ describe('MappingContextMenuAction', () => {
 
   it('should apply ValueSelector', async () => {
     const user = userEvent.setup();
-    const nodeData = new TargetFieldNodeData(
-      documentNodeData,
-      targetDoc.fields[0],
-      new FieldItem(mappingTree, targetDoc.fields[0]),
-    );
+    // Use a leaf element field: value-of is not allowed on fields with element children
+    const leafField = targetDoc.fields[0].fields[1];
+    const nodeData = new TargetFieldNodeData(documentNodeData, leafField, new FieldItem(mappingTree, leafField));
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingActionService, 'applyValueOfSelector');
     render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
@@ -197,11 +195,9 @@ describe('MappingContextMenuAction', () => {
 
   it('should stop event propagation upon selecting a menu option', async () => {
     const user = userEvent.setup();
-    const nodeData = new TargetFieldNodeData(
-      documentNodeData,
-      targetDoc.fields[0].fields[3],
-      new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
-    );
+    // Use a leaf element field: value-of is not allowed on fields with element children
+    const leafField = targetDoc.fields[0].fields[1];
+    const nodeData = new TargetFieldNodeData(documentNodeData, leafField, new FieldItem(mappingTree, leafField));
 
     const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />, {
       wrapper: dataMapperWrapper,
@@ -620,11 +616,9 @@ describe('MappingContextMenuAction', () => {
 
     it('should render ungrouped actions as direct top-level items', async () => {
       const user = userEvent.setup();
-      const nodeData = new TargetFieldNodeData(
-        documentNodeData,
-        targetDoc.fields[0],
-        new FieldItem(mappingTree, targetDoc.fields[0]),
-      );
+      // Use a leaf element field: value-of is not allowed on fields with element children
+      const leafField = targetDoc.fields[0].fields[1];
+      const nodeData = new TargetFieldNodeData(documentNodeData, leafField, new FieldItem(mappingTree, leafField));
       render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
 
       const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
