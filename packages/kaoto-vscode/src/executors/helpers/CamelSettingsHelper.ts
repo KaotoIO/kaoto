@@ -25,6 +25,7 @@ export interface ProcessedArguments {
 
 interface CatalogContext {
 	camelVersion: string;
+	camelSpringBootVersion: string;
 	runtime: RuntimeType | '';
 	frameworkVersion: string;
 	executorType: ExecutorType | undefined;
@@ -53,6 +54,7 @@ export class CamelSettingsHelper {
 
 		return {
 			camelVersion: catalogService.getCamelVersionForCLI(catalog, executorType) || '',
+			camelSpringBootVersion: catalogService.getCamelSpringBootVersionForCLI(catalog) || '',
 			runtime: catalogService.getRuntimeForCLI(catalog) || '',
 			frameworkVersion: catalog?.frameworkVersion || '',
 			executorType,
@@ -167,14 +169,14 @@ export class CamelSettingsHelper {
 	async getSpringBootArguments(userArgs: string[] = []): Promise<string[]> {
 		const ctx = await this.ensureCatalogContext();
 
-		if (ctx.runtime !== RuntimeType.SPRING_BOOT || !ctx.camelVersion) {
+		if (ctx.runtime !== RuntimeType.SPRING_BOOT || !ctx.camelSpringBootVersion) {
 			return [];
 		}
 
 		const args: string[] = [];
 
 		if (!ArgumentConflictDetector.hasArgument(userArgs, 'camel-spring-boot-version')) {
-			args.push(`--camel-spring-boot-version=${ctx.camelVersion}`);
+			args.push(`--camel-spring-boot-version=${ctx.camelSpringBootVersion}`);
 		}
 
 		if (ctx.frameworkVersion && !ArgumentConflictDetector.hasArgument(userArgs, 'spring-boot-version')) {
@@ -213,7 +215,7 @@ export class CamelSettingsHelper {
 	 * (guaranteed by getRunArguments/getRunSourceDirArguments/etc. calling it first).
 	 */
 	private getCatalogContextSync(): CatalogContext {
-		return this.catalogContext ?? { camelVersion: '', runtime: '', frameworkVersion: '', executorType: undefined };
+		return this.catalogContext ?? { camelVersion: '', camelSpringBootVersion: '', runtime: '', frameworkVersion: '', executorType: undefined };
 	}
 
 	/**

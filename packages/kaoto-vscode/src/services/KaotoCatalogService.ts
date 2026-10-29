@@ -404,6 +404,22 @@ export class KaotoCatalogService {
 	}
 
 	/**
+	 * Get the Camel Spring Boot version for CLI from catalog selection
+	 * This is used for --camel-spring-boot-version and the -Dcamel.jbang.camelSpringBootVersion system property
+	 * (differs from the Camel and camel-launcher versions of getCamelVersionForCLI for RedHat builds)
+	 *
+	 * @param catalog The catalog definition to get Camel Spring Boot version for
+	 * @returns The Camel Spring Boot version, or undefined if the catalog is not a Spring Boot one
+	 */
+	public getCamelSpringBootVersionForCLI(catalog: CatalogLibraryEntry | undefined): string | undefined {
+		if (!catalog || this.getRuntimeForCLI(catalog) !== RuntimeType.SPRING_BOOT) {
+			return undefined;
+		}
+
+		return catalog.runtimeProviderVersion || catalog.version;
+	}
+
+	/**
 	 * Get the runtime parameter for CLI from catalog selection
 	 * Normalizes the runtime name to the format expected by Camel CLI
 	 *

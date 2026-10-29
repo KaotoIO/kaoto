@@ -1,7 +1,13 @@
 import { assert } from 'chai';
+import * as vscode from 'vscode';
+import { CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { CamelSettingsHelper } from '../../executors/helpers/CamelSettingsHelper';
+import { ExecutorType } from '../../executors/types/ExecutorTypes';
+import { KaotoCatalogService } from '../../services/KaotoCatalogService';
+import { KAOTO_EXECUTOR_TYPE_SETTING_ID } from '../../constants';
 import * as path from 'path';
-import { initializeKaotoCatalogService } from '../utils/TestSetup';
+import { initializeKaotoCatalogService, preserveKaotoCatalogServiceInstance } from '../utils/TestSetup';
+import { SPRING_BOOT_CATALOGS } from '../utils/SpringBootCatalogs';
 
 suite('CamelSettingsHelper Tests', () => {
 	let helper: CamelSettingsHelper;
@@ -113,5 +119,62 @@ suite('CamelSettingsHelper Tests', () => {
 		// Should extract port from user args
 		assert.equal(result.resolvedPort, 8080);
 		assert.equal(result.argument, '');
+	});
+
+	suite('Spring Boot arguments', () => {
+		const executorTypes: ExecutorType[] = ['jbang', 'camel-launcher'];
+		let catalogService: KaotoCatalogService;
+		let originalGetConfiguration: typeof vscode.workspace.getConfiguration;
+		let restoreCatalogServiceInstance: () => void;
+
+		suiteSetup(async () => {
+			restoreCatalogServiceInstance = preserveKaotoCatalogServiceInstance();
+			catalogService = await initializeKaotoCatalogService();
+		});
+
+		setup(() => {
+			originalGetConfiguration = vscode.workspace.getConfiguration;
+		});
+
+		teardown(() => {
+			Object.defineProperty(vscode.workspace, 'getConfiguration', {
+				value: originalGetConfiguration,
+				configurable: true,
+			});
+		});
+
+		suiteTeardown(() => {
+			// The instance with a stubbed catalog selection must not outlive this suite.
+			restoreCatalogServiceInstance();
+		});
+
+		/**
+		 * Make the helper resolve this catalog and executor type; other settings keep their values.
+		 */
+		function selectCatalog(catalog: CatalogLibraryEntry, executorType: ExecutorType): void {
+			catalogService.getSelectedIntegrationCatalog = async () => catalog;
+			Object.defineProperty(vscode.workspace, 'getConfiguration', {
+				value: (section?: string, scope?: vscode.ConfigurationScope | null) => {
+					const config = originalGetConfiguration(section, scope);
+					return {
+						...config,
+						get: (key: string, defaultValue?: unknown) => (key === KAOTO_EXECUTOR_TYPE_SETTING_ID ? executorType : config.get(key, defaultValue)),
+					};
+				},
+				configurable: true,
+			});
+		}
+
+		for (const executorType of executorTypes) {
+			for (const { name, catalog, camelSpringBootVersion } of SPRING_BOOT_CATALOGS) {
+				test(`Should pass the Camel Spring Boot version of ${name} with the ${executorType} executor`, async () => {
+					selectCatalog(catalog, executorType);
+
+					const args = await helper.getSpringBootArguments();
+
+					assert.deepEqual(args, [`--camel-spring-boot-version=${camelSpringBootVersion}`, `--spring-boot-version=${catalog.frameworkVersion}`]);
+				});
+			}
+		}
 	});
 });

@@ -1,9 +1,12 @@
 import { assert } from 'chai';
 import { JBangExecutor } from '../../executors/JBangExecutor';
 import { CamelLauncherExecutor } from '../../executors/CamelLauncherExecutor';
+import { KaotoCatalogService } from '../../services/KaotoCatalogService';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
+import { initializeKaotoCatalogService } from '../utils/TestSetup';
+import { SPRING_BOOT_CATALOGS } from '../utils/SpringBootCatalogs';
 
 suite('Executor Implementation Tests', () => {
 	suite('JBangExecutor Tests', () => {
@@ -42,6 +45,25 @@ suite('Executor Implementation Tests', () => {
 				// above-minimum prefix with non-numeric suffix — still replaced
 				assert.equal(JBangExecutor.enforceMinVersion('5.0.0.redhat-00019', '4.22.0'), '4.22.0');
 			});
+		});
+
+		suite('Spring Boot system properties', () => {
+			let catalogService: KaotoCatalogService;
+
+			suiteSetup(async () => {
+				catalogService = await initializeKaotoCatalogService();
+			});
+
+			for (const { name, catalog, camelSpringBootVersion } of SPRING_BOOT_CATALOGS) {
+				test(`Should pass the Camel Spring Boot version of ${name}`, () => {
+					const properties = executor['getRuntimeSystemProperties'](catalogService, catalog).map((property) => property.value);
+
+					assert.deepEqual(properties, [
+						`-Dcamel.jbang.camelSpringBootVersion=${camelSpringBootVersion}`,
+						`-Dcamel.jbang.springBootVersion=${catalog.frameworkVersion}`,
+					]);
+				});
+			}
 		});
 
 		test('Should have correct configuration', () => {
