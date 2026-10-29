@@ -2,6 +2,12 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { VirtuosoMockContext } from 'react-virtuoso';
 
 import { PARAMETERS_SECTION_ANCHOR } from '../../../models/datamapper/connection-port';
+import {
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentInitializationModel,
+  DocumentType,
+} from '../../../models/datamapper/document';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { useDocumentTreeStore } from '../../../store/document-tree.store';
@@ -820,10 +826,13 @@ describe('ParametersSection', () => {
       expect(deleteButtons).toHaveLength(0);
     });
 
-    it('should not show toggle button in read-only mode', async () => {
+    it('should show toggle button but not add button in read-only mode', async () => {
+      const documentInitializationModel = new DocumentInitializationModel({
+        param1: new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'param1'),
+      });
       renderWithVirtuoso(
         <BrowserFilePickerMetadataProvider>
-          <DataMapperProvider>
+          <DataMapperProvider documentInitializationModel={documentInitializationModel}>
             <MappingLinksProvider>
               <ExpansionPanels>
                 <ParametersSection isReadOnly />
@@ -839,8 +848,22 @@ describe('ParametersSection', () => {
       // Add button should not exist in read-only
       expect(screen.queryByTestId('add-parameter-button')).not.toBeInTheDocument();
 
-      // Toggle button should not exist in read-only
-      expect(screen.queryByTestId('toggle-parameters-button')).not.toBeInTheDocument();
+      // Toggle button should still be available in read-only
+      const toggleButton = screen.getByTestId('toggle-parameters-button');
+      expect(toggleButton).toBeInTheDocument();
+
+      // Parameter is rendered
+      expect(await screen.findByText('param1')).toBeInTheDocument();
+
+      // Toggle hides the parameter
+      fireEvent.click(toggleButton);
+      await waitFor(() => {
+        expect(screen.queryByText('param1')).not.toBeInTheDocument();
+      });
+
+      // Toggle shows the parameter again
+      fireEvent.click(toggleButton);
+      expect(await screen.findByText('param1')).toBeInTheDocument();
     });
   });
 

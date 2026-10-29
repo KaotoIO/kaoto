@@ -153,10 +153,41 @@ describe('VariablesSection', () => {
       expect(screen.getByTestId('new-variable-name-input')).toBeInTheDocument();
     });
 
-    it('should not show toggle button in read-only mode', () => {
-      renderVariablesSection(true);
+    it('should show toggle button in read-only mode and keep it functional', async () => {
+      const { rerender } = renderVariablesSection();
 
-      expect(screen.queryByTestId('toggle-variables-button')).not.toBeInTheDocument();
+      // Seed a variable while editable
+      const addButton = await screen.findByTestId('add-variable-button');
+      fireEvent.click(addButton);
+      fireEvent.change(screen.getByTestId('new-variable-name-input'), { target: { value: 'testVar' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
+      await screen.findByTestId('variable-row-testVar');
+
+      // Switch to read-only, keeping the provider state
+      rerender(
+        <DataMapperProvider>
+          <MappingLinksProvider>
+            <ExpansionPanels>
+              <VariablesSection isReadOnly />
+            </ExpansionPanels>
+          </MappingLinksProvider>
+        </DataMapperProvider>,
+      );
+
+      expect(screen.queryByTestId('add-variable-button')).not.toBeInTheDocument();
+      const toggleButton = screen.getByTestId('toggle-variables-button');
+      expect(toggleButton).toBeInTheDocument();
+      expect(screen.getByTestId('variable-row-testVar')).toBeInTheDocument();
+
+      // Hide
+      fireEvent.click(toggleButton);
+      await waitFor(() => {
+        expect(screen.queryByTestId('variable-row-testVar')).not.toBeInTheDocument();
+      });
+
+      // Show again
+      fireEvent.click(toggleButton);
+      await screen.findByTestId('variable-row-testVar');
     });
 
     it('should render connection port on VariablesHeader', async () => {

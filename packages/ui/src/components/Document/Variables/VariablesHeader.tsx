@@ -12,12 +12,16 @@ type VariablesHeaderProps = {
   actionItems?: React.ReactNode[];
 };
 
+/**
+ * VariablesHeader - Simple header for the Variables section
+ * Shows "Variables" title + Add/Eye buttons
+ */
 export const VariablesHeader: FunctionComponent<VariablesHeaderProps> = ({
   isReadOnly,
   onAddVariable,
   showVariables,
   onToggleVariables,
-  actionItems,
+  actionItems = [],
 }) => (
   <div className="parameters-header" data-testid="source-variables-header">
     <span
@@ -32,36 +36,34 @@ export const VariablesHeader: FunctionComponent<VariablesHeaderProps> = ({
     </span>
     <ActionList isIconList className="parameters-header__actions">
       {!isReadOnly && (
-        <>
-          <ActionListItem>
-            <Button
-              icon={<Add />}
-              variant="plain"
-              title="Add global variable"
-              aria-label="Add global variable"
-              data-testid="add-variable-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddVariable();
-              }}
-            />
-          </ActionListItem>
-          <ActionListItem>
-            <Button
-              variant="plain"
-              title={showVariables ? 'Hide all variables' : 'Show all variables'}
-              aria-label={showVariables ? 'Hide all variables' : 'Show all variables'}
-              data-testid="toggle-variables-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleVariables();
-              }}
-              icon={showVariables ? <View /> : <ViewOff />}
-            />
-          </ActionListItem>
-          <Divider orientation={{ default: 'vertical' }} />
-        </>
+        <ActionListItem>
+          <Button
+            icon={<Add />}
+            variant="plain"
+            title="Add global variable"
+            aria-label="Add global variable"
+            data-testid="add-variable-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddVariable();
+            }}
+          />
+        </ActionListItem>
       )}
+      <ActionListItem>
+        <Button
+          variant="plain"
+          title={showVariables ? 'Hide all variables' : 'Show all variables'}
+          aria-label={showVariables ? 'Hide all variables' : 'Show all variables'}
+          data-testid="toggle-variables-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleVariables();
+          }}
+          icon={showVariables ? <View /> : <ViewOff />}
+        />
+      </ActionListItem>
+      {actionItems?.length > 0 && <Divider orientation={{ default: 'vertical' }} />}
       {actionItems?.map((item) => (
         <ActionListItem key={isValidElement(item) ? item.key : undefined}>{item}</ActionListItem>
       ))}
