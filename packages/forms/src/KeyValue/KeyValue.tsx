@@ -34,7 +34,9 @@ export const KeyValue: FunctionComponent<KeyValueProps> = ({ propName, initialMo
     const isLocalEcho =
       lastEmittedModel !== null &&
       entries.length === Object.keys(lastEmittedModel).length &&
-      entries.every(([key, val]) => Object.hasOwn(lastEmittedModel, key) && lastEmittedModel[key] === val);
+      entries.every(
+        ([key, val]) => Object.prototype.hasOwnProperty.call(lastEmittedModel, key) && lastEmittedModel[key] === val,
+      );
     if (!isLocalEcho) {
       setInternalModel(entries);
       setLastEmittedModel(null);
