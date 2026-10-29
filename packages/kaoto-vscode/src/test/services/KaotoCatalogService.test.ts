@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
 import { KaotoCatalogService } from '../../services/KaotoCatalogService';
 import { closeAllEditors, getExtensionContext, initializeKaotoCatalogService, preserveKaotoCatalogServiceInstance } from '../utils/TestSetup';
+import { SPRING_BOOT_CATALOGS } from '../utils/SpringBootCatalogs';
 import { RuntimeType } from '../../executors/types/ExecutorTypes';
 import { KAOTO_CATALOG_URL_SETTING_ID } from '../../constants';
 
@@ -413,6 +414,31 @@ suite('KaotoCatalogService Test Suite', () => {
 	test('should return undefined Camel version for undefined catalog', () => {
 		const camelVersion = catalogService.getCamelVersionForCLI(undefined);
 		expect(camelVersion).to.be.undefined;
+	});
+
+	for (const { name, catalog, camelSpringBootVersion } of SPRING_BOOT_CATALOGS) {
+		test(`should get Camel Spring Boot version for CLI from ${name}`, () => {
+			expect(catalogService.getCamelSpringBootVersionForCLI(catalog)).to.equal(camelSpringBootVersion);
+		});
+	}
+
+	test('should return undefined Camel Spring Boot version for a non Spring Boot catalog', () => {
+		const catalog: CatalogLibraryEntry = {
+			name: 'Camel Quarkus 3.32.0',
+			version: '3.32.0',
+			runtime: 'Quarkus',
+			fileName: 'camel-quarkus/3.32.0/index-xxx.json',
+			executorVersion: '4.18.0',
+			camelCatalogVersion: '4.18.0',
+			runtimeProviderVersion: '3.32.0',
+			frameworkVersion: '3.32.2',
+		};
+
+		expect(catalogService.getCamelSpringBootVersionForCLI(catalog)).to.be.undefined;
+	});
+
+	test('should return undefined Camel Spring Boot version for undefined catalog', () => {
+		expect(catalogService.getCamelSpringBootVersionForCLI(undefined)).to.be.undefined;
 	});
 
 	test('should get runtime for CLI from catalog (Main)', () => {
