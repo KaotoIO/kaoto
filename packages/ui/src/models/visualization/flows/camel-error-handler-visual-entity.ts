@@ -1,4 +1,4 @@
-import { ErrorHandlerDeserializer, ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { ErrorHandlerDeserializer } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 
 import { getCamelRandomId } from '../../../camel-utils/camel-random-id';
@@ -168,7 +168,6 @@ export class CamelErrorHandlerVisualEntity implements BaseVisualEntity {
       title: '',
       description: '',
       processorIconTooltip: '',
-      processorName: 'errorHandler' as keyof ProcessorDefinition,
       primaryNodeId: { name: this.type, catalogKind: CatalogKind.Entity } satisfies NodeIdentity,
     });
 
