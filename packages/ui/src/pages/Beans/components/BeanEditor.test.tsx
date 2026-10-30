@@ -74,6 +74,16 @@ describe('BeanEditor.tsx', () => {
     expect(container.querySelector('.metadata-editor-modal-details-view')).toBeTruthy();
   });
 
+  test('shows an empty state with an add button when there are no beans', async () => {
+    render(<BeanEditor name="beans" schema={mockSchema.beans} metadata={[]} onChangeModel={() => {}} />);
+    const emptyState = screen.getByTestId('metadata-editor-empty-details');
+    expect(emptyState).toHaveTextContent('There are no beans defined');
+    expect(emptyState).toHaveTextContent('Start creating some beans here');
+
+    fireEvent.click(screen.getByTestId('bean-empty-state-add-btn'));
+    expect(await screen.findByTestId('bean-add-modal')).toBeInTheDocument();
+  });
+
   test('shows a placeholder instead of the form when no bean is selected', () => {
     render(
       <BeanEditor
@@ -83,11 +93,27 @@ describe('BeanEditor.tsx', () => {
         onChangeModel={() => {}}
       />,
     );
-    expect(screen.getByTestId('metadata-editor-empty-details')).toHaveTextContent(
-      'Select a bean from the list to edit its details',
-    );
+    const emptyState = screen.getByTestId('metadata-editor-empty-details');
+    expect(emptyState).toHaveTextContent('There are no beans selected');
+    expect(emptyState).toHaveTextContent('Select a bean to show its properties');
+    expect(screen.queryByTestId('bean-empty-state-add-btn')).not.toBeInTheDocument();
     expect(screen.queryAllByRole('textbox')).toHaveLength(0);
     expect(screen.queryByTestId('bean-editor-title')).not.toBeInTheDocument();
+  });
+
+  test('the empty state button shows the form of the first bean', () => {
+    render(
+      <BeanEditor
+        name="beans"
+        schema={mockSchema.beans}
+        metadata={cloneDeep(mockModel.beans)}
+        onChangeModel={() => {}}
+      />,
+    );
+    fireEvent.click(screen.getByTestId('metadata-editor-empty-details-select-first-btn'));
+
+    expect(screen.queryByTestId('metadata-editor-empty-details')).not.toBeInTheDocument();
+    expect(screen.getByTestId('bean-editor-title')).toHaveTextContent('Edit bean1');
   });
 
   test('shows the form and hides the placeholder after selecting a row', async () => {
