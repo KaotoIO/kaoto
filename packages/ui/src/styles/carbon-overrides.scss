@@ -145,24 +145,23 @@ body {
   align-items: center;
   align-self: center;
   justify-content: center;
-}
 
-/*
-  Topology context menu items render `<Icon /> Label` as plain children, so the icon lands inline in
-  `__item-text` instead of in a dedicated icon slot. Restore the baseline offset the PatternFly icons
-  carried; a flex layout is avoided to keep the text ellipsis and the existing spacing untouched.
-*/
-.pf-topology-context-menu__c-dropdown__menu .pf-v6-c-menu__item-text > svg {
-  vertical-align: -0.125em;
+  /*
+    Keep the line box the icon used to occupy so icon-only buttons don't shrink to the 16px glyph.
+    `--pf-v6-c-button--LineHeight` is only defined inside buttons, hence the global fallback.
+  */
+  min-block-size: calc(1em * var(--pf-v6-c-button--LineHeight, var(--pf-t--global--font--line-height--body)));
 }
 
 /*
   Topology context menu items and split-button menu toggles render `<Icon /> Label` as plain children,
   so the icon lands inline in `__item-text` / `__button` instead of in a dedicated icon slot.
-  Restore the baseline offset the PatternFly icons carried.
+  Restore the baseline offset the PatternFly icons carried; a flex layout is avoided to keep the text
+  ellipsis and the existing spacing untouched.
 */
 .pf-topology-context-menu__c-dropdown__menu .pf-v6-c-menu__item-text > svg,
 .pf-v6-c-menu-toggle__button svg {
   vertical-align: -0.125em;
 }
+
 /* stylelint-enable selector-class-pattern */
