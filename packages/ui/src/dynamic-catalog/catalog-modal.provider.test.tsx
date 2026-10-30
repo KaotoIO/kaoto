@@ -1,16 +1,14 @@
 import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
-import { VirtuosoGridMockContext } from 'react-virtuoso';
 import type { Mock } from 'vitest';
 
 import { ITile } from '../components/Catalog';
 import { CatalogKind, DefinedComponent, LocalStorageKeys } from '../models';
+import { VirtuosoWrapper } from '../stubs/virtuoso-wrapper.mock';
 import { CatalogContext } from './catalog.provider';
 import { CatalogModalContext, CatalogModalProvider } from './catalog-modal.provider';
 import { CatalogTilesContext } from './catalog-tiles.provider';
 import { IDynamicCatalogRegistry } from './models';
-
-const VIRTUOSO_GRID_MOCK = { viewportHeight: 2000, viewportWidth: 1000, itemHeight: 10, itemWidth: 250 };
 
 describe('CatalogModalProvider', () => {
   const mockTiles: ITile[] = [
@@ -32,13 +30,13 @@ describe('CatalogModalProvider', () => {
     getTiles: () => ITile[] = () => mockTiles,
   ): FunctionComponent<PropsWithChildren> => {
     const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
-      <VirtuosoGridMockContext.Provider value={VIRTUOSO_GRID_MOCK}>
+      <VirtuosoWrapper>
         <CatalogContext.Provider value={mockCatalogRegistry}>
           <CatalogTilesContext.Provider value={{ fetchTiles, getTiles }}>
             <CatalogModalProvider>{children}</CatalogModalProvider>
           </CatalogTilesContext.Provider>
         </CatalogContext.Provider>
-      </VirtuosoGridMockContext.Provider>
+      </VirtuosoWrapper>
     );
     return wrapper;
   };
