@@ -16,24 +16,19 @@ Cypress.Commands.add('switchWrappedMetadataSection', (sectionName: string, wrapp
 });
 
 Cypress.Commands.add('forceSelectMetadataRow', (rowIndex: number) => {
-  cy.get('input[name="#.name"]').then(($input) => {
-    // Check if the input field is disabled
-    if ($input.is(':disabled')) {
-      cy.get(`[data-testid="metadata-row-${rowIndex}"]`).click();
-      cy.get('input[name="#.name"]').then(($element) => {
-        const attributeValue = $element.attr('disabled');
-        if (attributeValue !== undefined) {
-          let retryCount = 0;
-          if (retryCount < 5) {
-            retryCount++;
-            cy.forceSelectMetadataRow(rowIndex);
-          } else {
-            return;
-          }
-        }
-      });
-    }
+  // The details form is only rendered while a bean is selected
+  cy.get(`[data-testid="metadata-row-${rowIndex}"]`).click();
+  cy.get('input[name="#.name"]').should('not.be.disabled');
+});
+
+Cypress.Commands.add('addBeanUsingModal', (name: string, type: string) => {
+  cy.contains('button', 'Actions').click();
+  cy.get('[data-testid="metadata-add-Beans-btn"]').click();
+  cy.get('[data-testid="bean-add-modal"]').within(() => {
+    cy.interactWithConfigInputObject('name', name);
+    cy.interactWithConfigInputObject('type', type);
   });
+  cy.get('[data-testid="bean-add-modal-add-btn"]').click();
 });
 
 Cypress.Commands.add('addMetadataField', (fieldName: string) => {

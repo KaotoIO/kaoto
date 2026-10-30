@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { CamelResourceFactory } from '../../../models/camel/camel-resource-factory';
 import { CatalogKind } from '../../../models/catalog-kind';
@@ -95,7 +95,7 @@ describe('RestTree', () => {
     });
   });
 
-  it('should select a right-clicked node and open its delete menu', async () => {
+  it('should select a right-clicked node and open its context menu', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1234
@@ -118,46 +118,6 @@ describe('RestTree', () => {
       ids: { primaryNodeId: { name: 'get', catalogKind: CatalogKind.Pattern } },
     });
     expect(await screen.findByRole('menu', { name: 'REST tree node actions' })).toBeInTheDocument();
-    const deleteAction = screen.getByRole('menuitem', { name: /Delete/ });
-    expect(deleteAction).toHaveClass('cds--menu-item');
-    expect(deleteAction).toHaveClass('cds--menu-item--danger');
-    expect(deleteAction.querySelector('svg')).toBeInTheDocument();
-  });
-
-  it('should move the open menu when another node is right-clicked', async () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
-- rest:
-    id: rest-1
-- rest:
-    id: rest-2
-    `);
-    await camelResource.initialize();
-
-    const entities = getRestEntities(camelResource.getEntities());
-    render(<RestTree entities={entities} onSelect={mockOnSelect} onDelete={mockOnDelete} />);
-
-    fireEvent.contextMenu(screen.getByText('rest-1'), { clientX: 20, clientY: 30 });
-    await waitFor(() => {
-      expect(screen.getByRole('menu', { name: 'REST tree node actions' })).toHaveStyle({
-        insetInlineStart: '20px',
-        insetBlockStart: '30px',
-      });
-    });
-
-    fireEvent.contextMenu(screen.getByText('rest-2'), { clientX: 220, clientY: 230 });
-
-    await waitFor(() => {
-      expect(screen.getAllByRole('menu', { name: 'REST tree node actions' })).toHaveLength(1);
-      expect(screen.getByRole('menu', { name: 'REST tree node actions' })).toHaveStyle({
-        insetInlineStart: '220px',
-        insetBlockStart: '230px',
-      });
-    });
-    expect(mockOnSelect).toHaveBeenLastCalledWith({
-      entityId: 'rest-2',
-      modelPath: 'rest',
-      ids: { primaryNodeId: { name: 'rest', catalogKind: CatalogKind.Entity } },
-    });
   });
 
   it('should open the same menu for configuration, service, and method badge targets', async () => {
@@ -230,23 +190,7 @@ describe('RestTree', () => {
     expect(mockOnSelect).not.toHaveBeenCalled();
   });
 
-  it('should ignore right-clicks outside a tree node', async () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
-- rest:
-    id: rest-1
-    `);
-    await camelResource.initialize();
-
-    const entities = getRestEntities(camelResource.getEntities());
-    render(<RestTree entities={entities} onSelect={mockOnSelect} onDelete={mockOnDelete} />);
-
-    fireEvent.contextMenu(screen.getByRole('tree', { name: 'Rest DSL Configuration' }));
-
-    expect(screen.queryByRole('menu', { name: 'REST tree node actions' })).not.toBeInTheDocument();
-    expect(mockOnSelect).not.toHaveBeenCalled();
-  });
-
-  it('should delete through the context menu and close it', async () => {
+  it('should call onDelete from the context menu', async () => {
     const camelResource = CamelResourceFactory.createCamelResource(`
 - rest:
     id: rest-1
@@ -260,42 +204,6 @@ describe('RestTree', () => {
     fireEvent.click(await screen.findByRole('menuitem', { name: /Delete/ }));
 
     expect(mockOnDelete).toHaveBeenCalledOnce();
-    await waitFor(() => {
-      expect(screen.queryByRole('menu', { name: 'REST tree node actions' })).not.toBeInTheDocument();
-    });
-  });
-
-  it('should close the context menu with Escape or an outside click', async () => {
-    const camelResource = CamelResourceFactory.createCamelResource(`
-- rest:
-    id: rest-1
-    `);
-    await camelResource.initialize();
-
-    const entities = getRestEntities(camelResource.getEntities());
-    render(<RestTree entities={entities} onSelect={mockOnSelect} onDelete={mockOnDelete} />);
-
-    const treeItem = screen.getByText('rest-1').closest('[role="treeitem"]');
-    if (!(treeItem instanceof HTMLElement)) expect.unreachable('REST tree item not found');
-
-    fireEvent.contextMenu(treeItem);
-    const deleteAction = await screen.findByRole('menuitem', { name: /Delete/ });
-    await waitFor(() => {
-      expect(deleteAction).toHaveFocus();
-    });
-    fireEvent.keyDown(deleteAction, { key: 'Escape' });
-    await waitFor(() => {
-      expect(screen.queryByRole('menu', { name: 'REST tree node actions' })).not.toBeInTheDocument();
-    });
-    expect(treeItem).toHaveFocus();
-
-    fireEvent.contextMenu(screen.getByText('rest-1'));
-    expect(await screen.findByRole('menu', { name: 'REST tree node actions' })).toBeInTheDocument();
-    fireEvent.pointerDown(globalThis.document.body);
-
-    await waitFor(() => {
-      expect(screen.queryByRole('menu', { name: 'REST tree node actions' })).not.toBeInTheDocument();
-    });
   });
 
   it('should handle empty entities array gracefully', async () => {

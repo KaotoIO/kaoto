@@ -1,0 +1,6 @@
+// Same minimum width as the REST method badge so the tree labels line up; the cap truncates long bean names
+.bean-badge {
+  display: inline-flex;
+  min-inline-size: 4.5rem;
+  max-inline-size: 10rem;
+}

@@ -1,9 +1,9 @@
 import './RestTree.scss';
 
-import { TrashCan } from '@carbon/icons-react';
-import { Menu, MenuItem, TreeNode, TreeView, useContextMenu } from '@carbon/react';
-import { FunctionComponent, PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { TreeNode } from '@carbon/react';
+import { FunctionComponent, PropsWithChildren } from 'react';
 
+import { EditorTree } from '../../../components/EditorShell';
 import { IVisualizationNodeIds } from '../../../models/visualization/base-visual-entity';
 import { CamelRestVisualEntity } from '../../../models/visualization/flows/camel-rest-visual-entity';
 import { RestEntity } from '../../../models/visualization/flows/rest-entity';
@@ -30,26 +30,6 @@ export interface IRestTree extends PropsWithChildren {
  */
 export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onSelect, onDelete, children }) => {
   const restTreeNodes = restToTree(entities);
-  const contextMenuTriggerRef = useRef<HTMLDivElement>(null);
-  const contextMenuRef = useRef<HTMLUListElement>(null);
-  const contextMenuProps = useContextMenu(contextMenuTriggerRef);
-  const [contextMenuNodeId, setContextMenuNodeId] = useState<string>();
-
-  useEffect(() => {
-    if (!contextMenuProps.open) return;
-
-    // Menu closes on blur, but pointer events on non-focusable areas do not always move focus.
-    const handlePointerDown = (event: PointerEvent) => {
-      if (event.target instanceof Node && !contextMenuRef.current?.contains(event.target)) {
-        contextMenuProps.onClose();
-      }
-    };
-
-    document.addEventListener('pointerdown', handlePointerDown);
-    return () => {
-      document.removeEventListener('pointerdown', handlePointerDown);
-    };
-  }, [contextMenuProps]);
 
   /** Generates a unique node ID from entity ID and model path */
   const getNodeId = (entityId: string, modelPath: string) => `${entityId}::${modelPath}`;
@@ -71,102 +51,81 @@ export const RestTree: FunctionComponent<IRestTree> = ({ entities, selected, onS
     });
   });
 
+  const resolveSelection = (treeItem: HTMLElement) => {
+    const selection = selectionsByNodeId.get(treeItem.id);
+    if (!selection) return false;
+
+    if (selection.entityId !== selected?.entityId || selection.modelPath !== selected.modelPath) {
+      onSelect(selection);
+    }
+    return true;
+  };
+
   return (
     <>
       <div>{children}</div>
 
-      <div
-        ref={contextMenuTriggerRef}
+      {/* controllable={false}: nodes use isExpanded without onToggle, so Carbon's controllable mode would keep them expanded */}
+      <EditorTree
         className="rest-tree"
-        onContextMenuCapture={(event) => {
-          if (!(event.target instanceof Element)) {
-            event.stopPropagation();
-            return;
-          }
-
-          const treeItem = event.target.closest('[role="treeitem"]');
-          if (!(treeItem instanceof HTMLElement) || !event.currentTarget.contains(treeItem)) {
-            event.stopPropagation();
-            return;
-          }
-
-          const selection = selectionsByNodeId.get(treeItem.id);
-          if (!selection) {
-            event.stopPropagation();
-            return;
-          }
-
-          if (selection.entityId !== selected?.entityId || selection.modelPath !== selected.modelPath) {
-            onSelect(selection);
-          }
-          treeItem.focus();
-          setContextMenuNodeId(treeItem.id);
-        }}
+        label="Rest DSL Configuration"
+        activeId={activeNodeId}
+        menuLabel="REST tree node actions"
+        controllable={false}
+        resolveSelection={resolveSelection}
+        onDelete={onDelete}
       >
-        <TreeView label="Rest DSL Configuration" active={activeNodeId}>
-          {restTreeNodes.map((node) => {
-            const nodeId = getNodeId(node.entityId, node.modelPath);
-            return (
-              <TreeNode
-                isExpanded
-                key={nodeId}
-                id={nodeId}
-                label={node.id}
-                onSelect={() => {
-                  onSelect({
-                    entityId: node.entityId,
-                    modelPath: node.modelPath,
-                    ids: { primaryNodeId: node.primaryNodeId },
-                  });
-                }}
-              >
-                {node.children?.map((child) => {
-                  const currentEntity = entities.find(
-                    (entity) => entity.id === node.entityId && entity instanceof CamelRestVisualEntity,
-                  ) as CamelRestVisualEntity | undefined;
-                  const pathLabel = (
-                    currentEntity !== undefined
-                      ? (getValue(currentEntity.restDef, child.modelPath) as { path?: string } | undefined)
-                      : undefined
-                  )?.path;
-                  const label = pathLabel?.trim() ? (
-                    pathLabel
-                  ) : (
-                    <span className="rest-tree__label-unspecified">not specified</span>
-                  );
-                  const childId = getNodeId(child.entityId, child.modelPath);
-                  return (
-                    <TreeNode
-                      key={childId}
-                      id={childId}
-                      label={label}
-                      renderIcon={() => <MethodBadge type={child.type} />}
-                      onSelect={() => {
-                        onSelect({
-                          entityId: child.entityId,
-                          modelPath: child.modelPath,
-                          ids: { primaryNodeId: child.primaryNodeId },
-                        });
-                      }}
-                    />
-                  );
-                })}
-              </TreeNode>
-            );
-          })}
-        </TreeView>
-      </div>
-
-      {contextMenuNodeId && (
-        <Menu
-          key={`${contextMenuNodeId}:${contextMenuProps.x}:${contextMenuProps.y}`}
-          {...contextMenuProps}
-          ref={contextMenuRef}
-          label="REST tree node actions"
-        >
-          <MenuItem kind="danger" label="Delete" renderIcon={TrashCan} onClick={onDelete} />
-        </Menu>
-      )}
+        {restTreeNodes.map((node) => {
+          const nodeId = getNodeId(node.entityId, node.modelPath);
+          return (
+            <TreeNode
+              isExpanded
+              key={nodeId}
+              id={nodeId}
+              label={node.id}
+              onSelect={() => {
+                onSelect({
+                  entityId: node.entityId,
+                  modelPath: node.modelPath,
+                  ids: { primaryNodeId: node.primaryNodeId },
+                });
+              }}
+            >
+              {node.children?.map((child) => {
+                const currentEntity = entities.find(
+                  (entity) => entity.id === node.entityId && entity instanceof CamelRestVisualEntity,
+                ) as CamelRestVisualEntity | undefined;
+                const pathLabel = (
+                  currentEntity !== undefined
+                    ? (getValue(currentEntity.restDef, child.modelPath) as { path?: string } | undefined)
+                    : undefined
+                )?.path;
+                const label = pathLabel?.trim() ? (
+                  pathLabel
+                ) : (
+                  <span className="rest-tree__label-unspecified">not specified</span>
+                );
+                const childId = getNodeId(child.entityId, child.modelPath);
+                return (
+                  <TreeNode
+                    key={childId}
+                    id={childId}
+                    label={label}
+                    renderIcon={() => <MethodBadge type={child.type} />}
+                    onSelect={() => {
+                      onSelect({
+                        entityId: child.entityId,
+                        modelPath: child.modelPath,
+                        ids: { primaryNodeId: child.primaryNodeId },
+                      });
+                    }}
+                  />
+                );
+              })}
+            </TreeNode>
+          );
+        })}
+      </EditorTree>
     </>
   );
 };

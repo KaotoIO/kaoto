@@ -6,9 +6,7 @@ describe('Test for Bean support', () => {
   it('Beans - create a new bean using bean editor', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openBeans();
-    cy.get('[data-testid="metadata-add-Beans-btn"]').eq(0).click();
-    cy.get(`input[name="#.name"]`).clear().type('test');
-    cy.get(`input[name="#.type"]`).clear().type('org.acme');
+    cy.addBeanUsingModal('test', 'org.acme');
 
     cy.openSourceCode();
     cy.checkCodeSpanLine('- beans:');
@@ -34,7 +32,7 @@ describe('Test for Bean support', () => {
     cy.openBeans();
 
     cy.get('[data-testid="metadata-row-0"]').as('row');
-    cy.get('@row').find('td').eq(0).should('contain', 'test');
+    cy.get('@row').should('contain.text', 'test');
     cy.get('@row').click();
     cy.get(`input[name="#.type"]`).should('have.value', 'org.acme');
 
@@ -76,6 +74,8 @@ describe('Test for Bean support', () => {
     cy.uploadFixture('flows/camelRoute/beans.yaml');
     cy.openBeans();
 
+    cy.get('[data-testid="metadata-row-1"]').click();
+    cy.contains('button', 'Actions').click();
     cy.get('[data-testid="metadata-delete-1-btn"]').click();
     cy.get('[data-testid="metadata-row-1"]').should('not.exist');
 
@@ -85,6 +85,8 @@ describe('Test for Bean support', () => {
     cy.checkCodeSpanLine('value: value', 0);
 
     cy.openBeans();
+    cy.get('[data-testid="metadata-row-0"]').click();
+    cy.contains('button', 'Actions').click();
     cy.get('[data-testid="metadata-delete-0-btn"]').click();
     cy.get('[data-testid="metadata-row-0"]').should('not.exist');
     // CHECK the second bean was deleted in the code editor

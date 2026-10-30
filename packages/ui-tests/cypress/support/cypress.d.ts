@@ -152,6 +152,7 @@ declare global {
         value: string,
       ): Chainable<JQuery<Element>>;
       forceSelectMetadataRow(rowIndex: number): Chainable<JQuery<Element>>;
+      addBeanUsingModal(name: string, type: string): Chainable<JQuery<Element>>;
       addMetadataField(fieldName: string): Chainable<JQuery<Element>>;
       // sourceCode
       editorScrollToTop(): Chainable<JQuery<Element>>;

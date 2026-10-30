@@ -9,9 +9,7 @@ describe('Test for Bean support in XML', () => {
 
     cy.openBeans();
 
-    cy.get('[data-testid="metadata-add-Beans-btn"]').eq(0).click();
-    cy.get(`input[name="#.name"]`).clear().type('test');
-    cy.get(`input[name="#.type"]`).clear().type('org.acme');
+    cy.addBeanUsingModal('test', 'org.acme');
     cy.get('button[aria-label="Toggle Advanced group"]').click();
     cy.get(`input[name="#.initMethod"]`).clear().type('initMethodTest');
     cy.get(`input[name="#.destroyMethod"]`).clear().type('destroyMethodTest');

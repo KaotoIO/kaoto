@@ -8,7 +8,6 @@
 /** Public components */
 export * from './components/Catalog';
 export * from './components/InlineEdit';
-export * from './components/MetadataEditor';
 export * from './components/PropertiesModal';
 export * from './components/Settings';
 export * from './components/Visualization';
@@ -21,6 +20,7 @@ export * from './models/runtime-maven-information';
 export * from './models/send-message';
 export * from './models/step-update-action';
 export * from './multiplying-architecture';
+export * from './pages/Beans/components';
 export * from './pages/Metadata/MetadataPage';
 export * from './pages/PipeErrorHandler/PipeErrorHandlerPage';
 export * from './providers/send-message-modal.provider';

@@ -1,0 +1,12 @@
+/* stylelint-disable selector-class-pattern -- BEM class names */
+.metadata-editor-modal-details-view {
+  height: 100%;
+  overflow-y: auto;
+}
+
+.bean-editor__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 26px;
+}
