@@ -2,7 +2,7 @@ import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be
 
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { Button } from '@patternfly/react-core';
-import { createRef, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { RouterProvider } from 'react-router';
 
 import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
@@ -45,7 +45,8 @@ interface Props {
 }
 
 export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
-  const editorRef = createRef<SourceCodeBridgeProviderRef>();
+  // A stable ref: the document binding below captures it once, so it must survive re-renders.
+  const editorRef = useRef<SourceCodeBridgeProviderRef>(null);
 
   // Settings state: start from initialSettings, updated by bus events
   const [settingsAdapter, setSettingsAdapter] = useState(() => new DefaultSettingsAdapter(initialSettings.settings));
