@@ -19,6 +19,7 @@ import {
 } from '../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../xml-schema-ts/QName';
 import { ensureNamespaceRegistered } from '../../namespace-util';
+import { FieldOverrideService } from '../field-override.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 
@@ -177,6 +178,25 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       const map: Record<string, string> = { tns: 'http://example.com/other' };
       ensureNamespaceRegistered('http://example.com/test', map, 'tns');
       expect(map['ns0']).toBe('http://example.com/test');
+    });
+
+    it('should keep the entrySchemaFile of the document when adding files', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd() },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'shipOrder.xsd',
+      );
+      const document = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document as XmlSchemaDocument;
+
+      FieldOverrideService.addSchemaFilesForTypeOverride(document, { 'ImportedTypes.xsd': getImportedTypesXsd() });
+
+      expect(document.definition.entrySchemaFile).toBe('shipOrder.xsd');
     });
 
     it('should support multiple sequential addSchemaFiles() calls', () => {
@@ -455,6 +475,43 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       expect(removeResult.errors).toBeDefined();
     });
 
+    it('should keep entrySchemaFile when removing a file other than the entry', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd(), 'ImportedTypes.xsd': getImportedTypesXsd() },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'shipOrder.xsd',
+      );
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'ImportedTypes.xsd', {});
+      expect(removeResult.validationStatus).toBe('success');
+      expect(removeResult.documentDefinition!.entrySchemaFile).toBe('shipOrder.xsd');
+    });
+
+    it('should re-infer entrySchemaFile when the entry file itself is removed', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd(), 'element-ref.xsd': getElementRefXsd() },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'shipOrder.xsd',
+      );
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'shipOrder.xsd', {});
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.entrySchemaFile).toBe('element-ref.xsd');
+      expect(definition.entrySchemaFile).toBe('shipOrder.xsd');
+    });
+
     it('should not mutate the original definition', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
@@ -504,6 +561,85 @@ describe('XmlSchemaDocumentService / schema file management', () => {
         namespaceUri: 'io.kaoto.datamapper.poc.test',
         name: 'ShipOrder',
       });
+    });
+
+    it('should preserve rootElementChoice and choiceSelections when removed wrapper includes file that still declares the root', () => {
+      const wrapperXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:o" xmlns:tns="urn:o">
+  <xs:include schemaLocation="Orders.xsd"/>
+</xs:schema>`;
+      const ordersXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:o" xmlns:tns="urn:o">
+  <xs:element name="Header" type="xs:string"/>
+  <xs:element name="Order">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="OptionA" type="xs:string"/>
+        <xs:element name="OptionB" type="xs:string"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'Wrapper.xsd': wrapperXsd, 'Orders.xsd': ordersXsd },
+        { namespaceUri: 'urn:o', name: 'Order', entrySchemaFile: 'Wrapper.xsd' },
+        undefined,
+        [{ schemaPath: '/Order/{choice:0}', selectedMemberIndex: 1 }],
+        undefined,
+        'Wrapper.xsd',
+      );
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'Wrapper.xsd', { ns0: 'urn:o' });
+
+      expect(removeResult.validationStatus).toBe('success');
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.document?.fields[0].name).toBe('Order');
+      expect(removeResult.documentDefinition!.rootElementChoice).toEqual({
+        namespaceUri: 'urn:o',
+        name: 'Order',
+        entrySchemaFile: 'Orders.xsd',
+      });
+      expect(definition.rootElementChoice?.entrySchemaFile).toBe('Wrapper.xsd');
+      expect(removeResult.documentDefinition!.choiceSelections).toEqual([
+        { schemaPath: '/Order/{choice:0}', selectedMemberIndex: 1 },
+      ]);
+    });
+
+    it('should not mutate original definition.rootElementChoice object when removing an unreferenced schema file', () => {
+      const wrapperXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:o" xmlns:tns="urn:o">
+  <xs:include schemaLocation="Orders.xsd"/>
+</xs:schema>`;
+      const ordersXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:o" xmlns:tns="urn:o">
+  <xs:element name="Order" type="xs:string"/>
+</xs:schema>`;
+      const unusedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:u" xmlns:tns="urn:u">
+  <xs:element name="Unused" type="xs:string"/>
+</xs:schema>`;
+
+      const originalChoice = { namespaceUri: 'urn:o', name: 'Order', entrySchemaFile: 'Wrapper.xsd' };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'Wrapper.xsd': wrapperXsd, 'Orders.xsd': ordersXsd, 'Unused.xsd': unusedXsd },
+        originalChoice,
+        undefined,
+        undefined,
+        undefined,
+        'Wrapper.xsd',
+      );
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'Unused.xsd', { ns0: 'urn:o' });
+      expect(removeResult.validationStatus).toBe('success');
+      expect(originalChoice.entrySchemaFile).toBe('Wrapper.xsd');
+      expect(removeResult.documentDefinition?.rootElementChoice).not.toBe(originalChoice);
     });
 
     it('should clear fieldTypeOverrides, choiceSelections and fieldSubstitutions when rootElementChoice file is removed', () => {

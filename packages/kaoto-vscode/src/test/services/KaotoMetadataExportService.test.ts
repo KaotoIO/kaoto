@@ -543,6 +543,51 @@ suite('KaotoMetadataExportService', () => {
 			expect(destKaotoContent['multi-step-2']).to.not.be.undefined;
 		});
 
+		test('normalizes the entry schema file fields together with the file paths', async () => {
+			fs.mkdirSync(path.join(tempSourceDir, 'schemas'), { recursive: true });
+
+			const routePath = path.join(tempSourceDir, 'route.camel.yaml');
+			fs.writeFileSync(routePath, '- route:\n    from: direct:entry\n    steps:\n      - step:\n          id: entry-step\n');
+			fs.writeFileSync(path.join(tempSourceDir, 'schemas', 'main.xsd'), '<schema>Main</schema>');
+			fs.writeFileSync(path.join(tempSourceDir, 'schemas', 'param.xsd'), '<schema>Param</schema>');
+
+			const kaotoMetadata: Record<string, DataMapperMetadataEntry> = {
+				'entry-step': {
+					sourceBody: {
+						filePath: ['schemas\\main.xsd'],
+						entrySchemaFile: 'schemas\\main.xsd',
+						rootElementChoice: { entrySchemaFile: '..\\schemas\\main.xsd' },
+					},
+					targetBody: {
+						filePath: ['schemas/main.xsd'],
+						entrySchemaFile: './schemas/main.xsd',
+						rootElementChoice: { entrySchemaFile: 'schemas\\main.xsd' },
+					},
+					sourceParameters: {
+						p1: {
+							filePath: ['schemas\\param.xsd'],
+							entrySchemaFile: 'schemas\\param.xsd',
+							rootElementChoice: { entrySchemaFile: 'schemas\\param.xsd' },
+						},
+					},
+				},
+			};
+			fs.writeFileSync(path.join(tempSourceDir, '.kaoto'), JSON.stringify(kaotoMetadata, null, 2));
+
+			await KaotoMetadataExportService.copyMetadataAndResources(vscode.Uri.file(routePath), vscode.Uri.file(tempOutputDir));
+
+			const exported = JSON.parse(fs.readFileSync(path.join(tempOutputDir, '.kaoto'), 'utf-8'));
+			const entry = exported['entry-step'];
+			expect(entry.sourceBody.filePath).to.deep.equal(['schemas/main.xsd']);
+			expect(entry.sourceBody.entrySchemaFile).to.equal('schemas/main.xsd');
+			expect(entry.sourceBody.rootElementChoice.entrySchemaFile).to.equal('schemas/main.xsd');
+			expect(entry.targetBody.entrySchemaFile).to.equal('schemas/main.xsd');
+			expect(entry.targetBody.rootElementChoice.entrySchemaFile).to.equal('schemas/main.xsd');
+			expect(entry.sourceParameters.p1.filePath).to.deep.equal(['schemas/param.xsd']);
+			expect(entry.sourceParameters.p1.entrySchemaFile).to.equal('schemas/param.xsd');
+			expect(entry.sourceParameters.p1.rootElementChoice.entrySchemaFile).to.equal('schemas/param.xsd');
+		});
+
 		test('handles Windows-style backslash paths in .kaoto metadata file', async () => {
 			fs.mkdirSync(path.join(tempSourceDir, 'mappings'), { recursive: true });
 			fs.mkdirSync(path.join(tempSourceDir, 'schemas'), { recursive: true });

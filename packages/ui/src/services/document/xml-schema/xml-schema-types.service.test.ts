@@ -9,12 +9,15 @@ import {
   getSimpleTypeInheritanceXsd,
   TestUtil,
 } from '../../../stubs/datamapper/data-mapper';
-import { XmlSchema, XmlSchemaCollection, XmlSchemaSimpleType } from '../../../xml-schema-ts';
+import { XmlSchema, XmlSchemaCollection, XmlSchemaComplexType, XmlSchemaSimpleType } from '../../../xml-schema-ts';
+import { XmlSchemaComplexContent } from '../../../xml-schema-ts/complex/XmlSchemaComplexContent';
+import { XmlSchemaComplexContentExtension } from '../../../xml-schema-ts/complex/XmlSchemaComplexContentExtension';
 import { QName } from '../../../xml-schema-ts/QName';
 import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { JsonSchemaDocument, JsonSchemaField } from '../json-schema/json-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 describe('XmlSchemaTypesService', () => {
@@ -1198,6 +1201,16 @@ describe('XmlSchemaTypesService', () => {
       expect(result!.type).toBe(Types.Container);
     });
 
+    it('should return undefined for an abstract element', () => {
+      const doc = createSubstitutionDoc();
+      const result = XmlSchemaTypesService.resolveSubstitution(
+        doc,
+        { schemaPath: '/sub:AbstractAnimal', name: 'sub:AbstractAnimal', originalName: 'sub:AbstractAnimal' },
+        { sub: NS_SUBSTITUTION },
+      );
+      expect(result).toBeUndefined();
+    });
+
     it('should resolve Nickname substitute element typed with user-defined simple type as String', () => {
       const doc = createSubstitutionDoc();
       const namespaceMap = { sub: NS_SUBSTITUTION };
@@ -1274,6 +1287,368 @@ describe('XmlSchemaTypesService', () => {
           {},
         );
         expect(result).toBeUndefined();
+      });
+    });
+
+    describe('isExtensionOrRestriction()', () => {
+      it('should not throw (cycle guard) when complexType derivation chain forms a cycle', () => {
+        // TypeA extends TypeB, TypeB extends TypeA, TypeC is an unrelated type.
+        // isExtensionOrRestriction(typeA, typeC) would loop forever without a cycle guard.
+        const ns = 'http://www.example.com/CYCLIC-COMPLEX';
+        const schema = new XmlSchema(ns);
+
+        const typeA = new XmlSchemaComplexType(schema, true);
+        typeA.setName('TypeA');
+        const typeB = new XmlSchemaComplexType(schema, true);
+        typeB.setName('TypeB');
+        const typeC = new XmlSchemaComplexType(schema, true);
+        typeC.setName('TypeC');
+
+        const contentA = new XmlSchemaComplexContent();
+        const extA = new XmlSchemaComplexContentExtension();
+        extA.setBaseTypeName(typeB.getQName()!);
+        contentA.setContent(extA);
+        typeA.setContentModel(contentA);
+
+        const contentB = new XmlSchemaComplexContent();
+        const extB = new XmlSchemaComplexContentExtension();
+        extB.setBaseTypeName(typeA.getQName()!);
+        contentB.setContent(extB);
+        typeB.setContentModel(contentB);
+
+        const collection = new XmlSchemaCollection();
+        vi.spyOn(collection, 'getTypeByQName').mockImplementation((qName: QName) => {
+          if (qName.getLocalPart() === 'TypeA') return typeA;
+          if (qName.getLocalPart() === 'TypeB') return typeB;
+          return null;
+        });
+
+        // Without the cycle guard this would throw RangeError.
+        // With the guard it terminates and returns false (typeA is not derived from typeC).
+        expect(() => XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).not.toThrow();
+        expect(XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).toBe(false);
+      });
+
+      it('should not throw (cycle guard) when simpleType derivation chain forms a cycle', () => {
+        // TypeA restricts TypeB, TypeB restricts TypeA, TypeC is an unrelated simpleType.
+        // isExtensionOrRestriction(typeA, typeC) would loop forever without a cycle guard.
+        const ns = 'http://www.example.com/CYCLIC-SIMPLE';
+        const schema = new XmlSchema(ns);
+        const typeA = new XmlSchemaSimpleType(schema, true);
+        typeA.setName('TypeA');
+        const typeB = new XmlSchemaSimpleType(schema, true);
+        typeB.setName('TypeB');
+        const typeC = new XmlSchemaSimpleType(schema, true);
+        typeC.setName('TypeC');
+
+        const restrictionA = new XmlSchemaSimpleTypeRestriction();
+        restrictionA.setBaseTypeName(typeB.getQName()!);
+        typeA.setContent(restrictionA);
+        const restrictionB = new XmlSchemaSimpleTypeRestriction();
+        restrictionB.setBaseTypeName(typeA.getQName()!);
+        typeB.setContent(restrictionB);
+
+        const collection = new XmlSchemaCollection();
+        vi.spyOn(collection, 'getTypeByQName').mockImplementation((qName: QName) => {
+          if (qName.getLocalPart() === 'TypeA') return typeA;
+          if (qName.getLocalPart() === 'TypeB') return typeB;
+          return null;
+        });
+
+        expect(() => XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).not.toThrow();
+        expect(XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).toBe(false);
+      });
+
+      it('should scope type lookup through entrySchemaFile when an unrelated schema declares the same QName', () => {
+        // An unrelated schema declares a same-QName BaseStringType first. The collection-wide lookup
+        // returns that one, so only the entry-scoped lookup can resolve to the entry's own BaseStringType.
+        const ns = 'http://www.example.com/SIMPLEINHERIT';
+        const unrelatedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}">
+  <xs:simpleType name="BaseStringType">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="5"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>`;
+        const def = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'scope-test',
+          { 'Unrelated.xsd': unrelatedXsd, 'SimpleTypeInheritance.xsd': getSimpleTypeInheritanceXsd() },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'SimpleTypeInheritance.xsd',
+        );
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(def);
+        expect(result.validationStatus).toBe('warning');
+        const collection = result.document!.xmlSchemaCollection;
+
+        const entrySchema = collection.getXmlSchema('SimpleTypeInheritance.xsd')[0];
+        const derivedType = entrySchema.getTypeByQName(new QName(ns, 'DerivedStringType'), true);
+        const entryBaseType = entrySchema.getTypeByQName(new QName(ns, 'BaseStringType'), true);
+        expect(derivedType).toBeDefined();
+        expect(entryBaseType).toBeDefined();
+        expect(collection.getTypeByQName(new QName(ns, 'BaseStringType'))).not.toBe(entryBaseType);
+
+        // With entrySchemaFile — scoped lookup resolves to the entry's own BaseStringType.
+        expect(
+          XmlSchemaTypesService.isExtensionOrRestriction(
+            derivedType!,
+            entryBaseType!,
+            collection,
+            'SimpleTypeInheritance.xsd',
+          ),
+        ).toBe(true);
+
+        // Without entrySchemaFile — the collection-wide lookup hits the unrelated declaration.
+        expect(XmlSchemaTypesService.isExtensionOrRestriction(derivedType!, entryBaseType!, collection)).toBe(false);
+      });
+
+      it('should resolve and check candidate compatibility against entry-scoped declaration when same QName exists in unrelated schema', () => {
+        const ns = 'http://www.example.com/SIMPLEINHERIT';
+        // Unrelated.xsd defines:
+        // 1. DerivedStringType restricting xs:string (does NOT restrict BaseStringType)
+        // 2. UnrelatedCandidate restricting tns:BaseStringType (unrelated claims it extends Base, but entry defines it as xs:int)
+        const unrelatedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}" xmlns:tns="${ns}">
+  <xs:simpleType name="DerivedStringType">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="3"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="UnrelatedCandidate">
+    <xs:restriction base="tns:BaseStringType">
+      <xs:maxLength value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>`;
+        const entryXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}" xmlns:tns="${ns}">
+  <xs:element name="Root" type="xs:string"/>
+  <xs:simpleType name="BaseStringType">
+    <xs:restriction base="xs:string">
+      <xs:maxLength value="100"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="DerivedStringType">
+    <xs:restriction base="tns:BaseStringType">
+      <xs:maxLength value="50"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="UnrelatedCandidate">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+</xs:schema>`;
+        const def = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'override-candidate-scope-test',
+          { 'Unrelated.xsd': unrelatedXsd, 'Entry.xsd': entryXsd },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'Entry.xsd',
+        );
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(def);
+        const doc = result.document as XmlSchemaDocument;
+        const field = new XmlSchemaField(doc, 'test', false);
+        field.typeQName = new QName(ns, 'BaseStringType');
+
+        const namespaceMap: Record<string, string> = { tns: ns };
+        const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
+          field,
+          doc.xmlSchemaCollection,
+          namespaceMap,
+          'Entry.xsd',
+        );
+
+        // In Entry.xsd, DerivedStringType extends BaseStringType -> must be offered
+        expect(candidates['tns:DerivedStringType']).toBeDefined();
+        expect(candidates['tns:DerivedStringType'].displayName).toBe('DerivedStringType');
+
+        // In Entry.xsd, UnrelatedCandidate extends xs:int (not BaseStringType) -> must NOT be offered
+        expect(candidates['tns:UnrelatedCandidate']).toBeUndefined();
+      });
+
+      it('should prefer entry-scoped member declaration for getSubstitutionGroupMembers when entrySchemaFile is provided', () => {
+        const ns = 'http://www.example.com/SUBSTITUTION';
+        const unrelatedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}">
+  <xs:element name="Cat" type="xs:string" substitutionGroup="tns:AbstractAnimal" xmlns:tns="${ns}"/>
+</xs:schema>`;
+        const def = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'substitution-scope-test',
+          { 'Unrelated.xsd': unrelatedXsd, 'FieldSubstitution.xsd': getFieldSubstitutionXsd() },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'FieldSubstitution.xsd',
+        );
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(def);
+        const doc = result.document as XmlSchemaDocument;
+        const headElement = XmlSchemaDocumentUtilService.lookupSchemaElement(
+          doc.xmlSchemaCollection,
+          new QName(ns, 'AbstractAnimal'),
+          'FieldSubstitution.xsd',
+        );
+
+        expect(headElement).toBeDefined();
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
+          headElement!,
+          doc.xmlSchemaCollection,
+          'FieldSubstitution.xsd',
+        );
+
+        const catMember = members.find((m) => m.getWireName()?.getLocalPart() === 'Cat');
+        expect(catMember).toBeDefined();
+        // The member resolved in FieldSubstitution.xsd has schema type AnimalType (complex), not xs:string (from Unrelated.xsd)
+        expect(catMember!.getSchemaType()).toBeInstanceOf(XmlSchemaComplexType);
+      });
+
+      it('should exclude abstract entry-scoped members even if unrelated schema declares them as concrete', () => {
+        const ns = 'http://www.example.com/SUBST_ABSTRACT';
+        const unrelatedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}" xmlns:tns="${ns}">
+  <xs:element name="Head" type="xs:string"/>
+  <xs:element name="Member" type="xs:string" substitutionGroup="tns:Head"/>
+</xs:schema>`;
+        const entryXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}" xmlns:tns="${ns}">
+  <xs:element name="Head" type="xs:string"/>
+  <xs:element name="Member" type="xs:string" abstract="true" substitutionGroup="tns:Head"/>
+</xs:schema>`;
+
+        const def = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'subst-abstract-test',
+          { 'Unrelated.xsd': unrelatedXsd, 'Entry.xsd': entryXsd },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'Entry.xsd',
+        );
+        const doc = XmlSchemaDocumentService.createXmlSchemaDocument(def).document as XmlSchemaDocument;
+        const head = XmlSchemaDocumentUtilService.lookupSchemaElement(
+          doc.xmlSchemaCollection,
+          new QName(ns, 'Head'),
+          'Entry.xsd',
+        );
+        expect(head).toBeDefined();
+
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(head!, doc.xmlSchemaCollection, 'Entry.xsd');
+        expect(members.find((m) => m.getWireName()?.getLocalPart() === 'Member')).toBeUndefined();
+      });
+
+      it('should include concrete entry-scoped members even if unrelated schema declares them as abstract', () => {
+        const ns = 'http://www.example.com/SUBST_CONCRETE';
+        const unrelatedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}" xmlns:tns="${ns}">
+  <xs:element name="Head" type="xs:string"/>
+  <xs:element name="Member" type="xs:string" abstract="true" substitutionGroup="tns:Head"/>
+</xs:schema>`;
+        const entryXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}" xmlns:tns="${ns}">
+  <xs:element name="Head" type="xs:string"/>
+  <xs:element name="Member" type="xs:string" abstract="false" substitutionGroup="tns:Head"/>
+</xs:schema>`;
+
+        const def = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'subst-concrete-test',
+          { 'Unrelated.xsd': unrelatedXsd, 'Entry.xsd': entryXsd },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'Entry.xsd',
+        );
+        const doc = XmlSchemaDocumentService.createXmlSchemaDocument(def).document as XmlSchemaDocument;
+        const head = XmlSchemaDocumentUtilService.lookupSchemaElement(
+          doc.xmlSchemaCollection,
+          new QName(ns, 'Head'),
+          'Entry.xsd',
+        );
+        expect(head).toBeDefined();
+
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(head!, doc.xmlSchemaCollection, 'Entry.xsd');
+        expect(members.find((m) => m.getWireName()?.getLocalPart() === 'Member')).toBeDefined();
+      });
+
+      it('should not offer a member whose entry declaration has no substitutionGroup even if unrelated schema has it', () => {
+        const ns = 'urn:s';
+        const unrelatedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}" xmlns:tns="${ns}">
+  <xs:element name="Head" type="xs:string"/>
+  <xs:element name="M" type="xs:string" substitutionGroup="tns:Head"/>
+</xs:schema>`;
+        const entryXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}" xmlns:tns="${ns}">
+  <xs:element name="Head" type="xs:string"/>
+  <xs:element name="M" type="xs:int"/>
+</xs:schema>`;
+
+        const def = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'subst-nonmember-test',
+          { 'Unrelated.xsd': unrelatedXsd, 'Entry.xsd': entryXsd },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'Entry.xsd',
+        );
+        const doc = XmlSchemaDocumentService.createXmlSchemaDocument(def).document as XmlSchemaDocument;
+        const head = XmlSchemaDocumentUtilService.lookupSchemaElement(
+          doc.xmlSchemaCollection,
+          new QName(ns, 'Head'),
+          'Entry.xsd',
+        );
+        expect(head).toBeDefined();
+
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(head!, doc.xmlSchemaCollection, 'Entry.xsd');
+        expect(members).toHaveLength(0);
+      });
+
+      it('should list a member declared in several schemas only once', () => {
+        const ns = 'urn:dup';
+        const schemaXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}" xmlns:tns="${ns}">
+  <xs:element name="Head" type="xs:string"/>
+  <xs:element name="Member" type="xs:string" substitutionGroup="tns:Head"/>
+</xs:schema>`;
+
+        const def = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'subst-duplicate-test',
+          { 'Other.xsd': schemaXsd, 'Entry.xsd': schemaXsd },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'Entry.xsd',
+        );
+        const doc = XmlSchemaDocumentService.createXmlSchemaDocument(def).document as XmlSchemaDocument;
+        const head = XmlSchemaDocumentUtilService.lookupSchemaElement(
+          doc.xmlSchemaCollection,
+          new QName(ns, 'Head'),
+          'Entry.xsd',
+        );
+        expect(head).toBeDefined();
+
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(head!, doc.xmlSchemaCollection, 'Entry.xsd');
+        expect(members.filter((m) => m.getWireName()?.getLocalPart() === 'Member')).toHaveLength(1);
       });
     });
   });

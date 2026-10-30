@@ -415,6 +415,7 @@ export class DocumentDefinition {
     public fieldTypeOverrides?: IFieldTypeOverride[],
     public choiceSelections?: IChoiceSelection[],
     public fieldSubstitutions?: IFieldSubstitution[],
+    public entrySchemaFile?: string,
   ) {
     if (!definitionFiles) this.definitionFiles = {};
   }
@@ -448,6 +449,10 @@ export class DocumentInitializationModel {
 export type RootElementOption = {
   namespaceUri: string;
   name: string;
+  /** Unreferenced root schema (assembly entry point) the element is resolved against. */
+  entrySchemaFile?: string;
+  /** File where the element is physically declared. Display only, set when it differs from `entrySchemaFile`; never persisted. */
+  declaringFile?: string;
 };
 
 /**

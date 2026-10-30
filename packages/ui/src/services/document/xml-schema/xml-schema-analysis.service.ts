@@ -14,7 +14,7 @@ interface SchemaFileInfo {
   directives: SchemaDirective[];
 }
 
-interface DependencyEdge {
+export interface DependencyEdge {
   from: string;
   to: string;
   directive: SchemaDirective;
@@ -91,6 +91,20 @@ export class XmlSchemaAnalysisService {
     const loadOrder = XmlSchemaAnalysisService.topologicalSort(Object.keys(definitionFiles), edges);
 
     return { fileInfos, edges, errors, warnings, loadOrder };
+  }
+
+  /**
+   * Builds the forward `from -> to` adjacency of the dependency edges, optionally limited to one directive type.
+   */
+  private static buildSuccessors(edges: DependencyEdge[], type?: SchemaDirective['type']): Map<string, string[]> {
+    const successors = new Map<string, string[]>();
+    for (const edge of edges) {
+      if (type && edge.directive.type !== type) continue;
+      const list = successors.get(edge.from) ?? [];
+      list.push(edge.to);
+      successors.set(edge.from, list);
+    }
+    return successors;
   }
 
   private static parseSchemaFileInfo(
@@ -200,14 +214,7 @@ export class XmlSchemaAnalysisService {
     fileInfos: Map<string, SchemaFileInfo>,
     edges: DependencyEdge[],
   ): ReportMessage[] {
-    const includeAdj = new Map<string, string[]>();
-    for (const edge of edges) {
-      if (edge.directive.type === 'include') {
-        const neighbors = includeAdj.get(edge.from) ?? [];
-        neighbors.push(edge.to);
-        includeAdj.set(edge.from, neighbors);
-      }
-    }
+    const includeAdj = XmlSchemaAnalysisService.buildSuccessors(edges, 'include');
 
     const warnings: ReportMessage[] = [];
     const reportedCycles = new Set<string>();
@@ -262,14 +269,7 @@ export class XmlSchemaAnalysisService {
     fileInfos: Map<string, SchemaFileInfo>,
     edges: DependencyEdge[],
   ): ReportMessage[] {
-    const importAdj = new Map<string, string[]>();
-    for (const edge of edges) {
-      if (edge.directive.type === 'import') {
-        const neighbors = importAdj.get(edge.from) ?? [];
-        neighbors.push(edge.to);
-        importAdj.set(edge.from, neighbors);
-      }
-    }
+    const importAdj = XmlSchemaAnalysisService.buildSuccessors(edges, 'import');
 
     const warnings: ReportMessage[] = [];
     const visited = new Set<string>();
@@ -475,15 +475,30 @@ export class XmlSchemaAnalysisService {
    * @param report - Analysis report produced by {@link XmlSchemaAnalysisService.analyze}
    * @returns Unreferenced schema file paths, in `fileInfos` (input) order
    */
-  static findUnreferencedSchemas(report: Pick<XmlSchemaAnalysisReport, 'fileInfos' | 'edges'>): string[] {
-    return XmlSchemaAnalysisService.computeUnreferencedSchemas(Array.from(report.fileInfos.keys()), report.edges);
+  static findUnreferencedSchemas(report: Pick<XmlSchemaAnalysisReport, 'fileInfos' | 'edges'>): string[];
+  /**
+   * Finds unreferenced schemas given an explicit list of file paths and dependency edges.
+   *
+   * @param nodes - Schema file paths, in input order
+   * @param edges - Include/import dependency edges
+   * @returns Unreferenced schema file paths, in input order
+   */
+  static findUnreferencedSchemas(nodes: string[], edges: DependencyEdge[]): string[];
+  static findUnreferencedSchemas(
+    reportOrNodes: Pick<XmlSchemaAnalysisReport, 'fileInfos' | 'edges'> | string[],
+    edges?: DependencyEdge[],
+  ): string[] {
+    if (Array.isArray(reportOrNodes)) {
+      return XmlSchemaAnalysisService.computeUnreferencedSchemas(reportOrNodes, edges ?? []);
+    }
+    return XmlSchemaAnalysisService.computeUnreferencedSchemas(
+      Array.from(reportOrNodes.fileInfos.keys()),
+      reportOrNodes.edges,
+    );
   }
 
   private static computeUnreferencedSchemas(nodes: string[], edges: DependencyEdge[]): string[] {
-    const successorsOf = new Map<string, string[]>(nodes.map((node) => [node, []]));
-    for (const edge of edges) {
-      successorsOf.get(edge.from)?.push(edge.to);
-    }
+    const successorsOf = XmlSchemaAnalysisService.buildSuccessors(edges);
     const components = stronglyConnectedComponents(nodes, (node) => successorsOf.get(node) ?? []);
     const componentOf = new Map<string, number>();
     components.forEach((component, index) => {

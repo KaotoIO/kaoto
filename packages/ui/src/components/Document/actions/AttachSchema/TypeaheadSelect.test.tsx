@@ -100,6 +100,35 @@ describe('TypeaheadSelect', () => {
     expect(screen.queryByText('Order')).not.toBeInTheDocument();
   });
 
+  it('should filter by searchText that is not displayed', async () => {
+    const user = userEvent.setup();
+    const options: TypeaheadSelectOption[] = [
+      { value: 'order-key', label: 'Order', searchText: 'order.xsd' },
+      { value: 'invoice-key', label: 'Invoice', searchText: 'invoice.xsd' },
+    ];
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={options} data-testid="select-input" />);
+    await user.click(getInput());
+    await user.type(getInput(), 'invoice.xsd');
+    expect(await screen.findByText('Invoice')).toBeInTheDocument();
+    expect(screen.queryByText('Order')).not.toBeInTheDocument();
+    expect(screen.queryByText('invoice.xsd')).not.toBeInTheDocument();
+  });
+
+  it('should remove options when the text matches neither label, description nor searchText', async () => {
+    const user = userEvent.setup();
+    const options: TypeaheadSelectOption[] = [
+      { value: 'order-key', label: 'Order', searchText: 'order.xsd' },
+      { value: 'invoice-key', label: 'Invoice' },
+    ];
+    render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={options} data-testid="select-input" />);
+    await user.click(getInput());
+    await user.type(getInput(), 'other.xsd');
+    await waitFor(() => {
+      expect(screen.queryByText('Order')).not.toBeInTheDocument();
+    });
+    expect(screen.queryByText('Invoice')).not.toBeInTheDocument();
+  });
+
   it('should open dropdown via toggle click', async () => {
     const user = userEvent.setup();
     render(<TypeaheadSelect value="order-key" onChange={vi.fn()} options={OPTIONS} data-testid="select-input" />);

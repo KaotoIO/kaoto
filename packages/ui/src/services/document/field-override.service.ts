@@ -93,6 +93,7 @@ export class FieldOverrideService {
         field,
         field.ownerDocument.xmlSchemaCollection,
         namespaceMap,
+        field.ownerDocument.definition?.entrySchemaFile,
       );
     }
 
@@ -378,6 +379,7 @@ export class FieldOverrideService {
       document.definition.fieldTypeOverrides,
       document.definition.choiceSelections,
       document.definition.fieldSubstitutions,
+      document.definition.entrySchemaFile,
     );
   }
 
@@ -400,6 +402,7 @@ export class FieldOverrideService {
       field,
       field.ownerDocument.xmlSchemaCollection,
       namespaceMap,
+      field.ownerDocument.definition?.entrySchemaFile,
     );
   }
 
@@ -422,6 +425,7 @@ export class FieldOverrideService {
       elementName,
       elementNamespace,
       document.xmlSchemaCollection,
+      document.definition?.entrySchemaFile,
     );
   }
 
@@ -445,11 +449,7 @@ export class FieldOverrideService {
   ): void {
     const document = field.ownerDocument;
     if (!(document instanceof XmlSchemaDocument) || !document.xmlSchemaCollection) return;
-    const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
-      field,
-      document.xmlSchemaCollection,
-      namespaceMap,
-    );
+    const candidates = FieldOverrideService.getFieldSubstitutionCandidates(field, namespaceMap);
     const candidate = candidates[substituteElementQName];
     if (!candidate) return;
     if (field.typeOverride === FieldOverrideVariant.SAFE || field.typeOverride === FieldOverrideVariant.FORCE) {

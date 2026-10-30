@@ -74,6 +74,18 @@ suite('Kaoto host services', () => {
 		equal(await services.getMetadata('parent'), undefined);
 	});
 
+	test('normalizes entrySchemaFile backslashes, including inside rootElementChoice', async () => {
+		await write(
+			vscode.Uri.joinPath(root, 'project/.kaoto'),
+			'{"schema":{"entrySchemaFile":"x\\\\main.xsd","rootElementChoice":{"name":"Root","entrySchemaFile":"x\\\\main.xsd"},"label":"keep\\\\label"}}',
+		);
+		deepStrictEqual(await services.getMetadata('schema'), {
+			entrySchemaFile: 'x/main.xsd',
+			rootElementChoice: { name: 'Root', entrySchemaFile: 'x/main.xsd' },
+			label: 'keep\\label',
+		});
+	});
+
 	test('distinguishes missing metadata from malformed metadata without overwriting it', async () => {
 		equal(await services.getMetadata('missing'), undefined);
 		const metadata = vscode.Uri.joinPath(root, 'project/.kaoto');
