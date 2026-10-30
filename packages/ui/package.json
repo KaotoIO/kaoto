@@ -58,6 +58,7 @@
     "build:dev": "tsc -b && vite build --mode=dev",
     "build:lib": "yarn rimraf ./lib && tsc -b tsconfig.lib.json && copyfiles -u 1 './src/**/*.scss' './src/assets/**' ./lib && yarn write-version",
     "build:webview": "vite build --config vite.config.webview.mjs",
+    "build:webview:dev": "vite build --config vite.config.webview.mjs --mode development",
     "write-version": "node ./scripts/write-version-file.mjs",
     "preview": "vite preview",
     "test": "vitest run --config vitest.config.mts",

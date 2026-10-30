@@ -20,6 +20,7 @@ import { FunctionComponent } from 'react';
 
 import logo from '../../assets/logo-kaoto-dark.png';
 import { About } from '../../components/About/About';
+import { KAOTO_VERSION } from '../../version';
 
 export const AboutPage: FunctionComponent = () => {
   return (
@@ -34,8 +35,7 @@ export const AboutPage: FunctionComponent = () => {
           <strong>Version</strong>
         </Content>
         <Content component="dd" data-testid="about-vscode-version">
-          {/* This is only available when running Kaoto through VS Code */}
-          {__VSCODE_KAOTO_VERSION}
+          {KAOTO_VERSION}
         </Content>
       </About>
     </Bullseye>
