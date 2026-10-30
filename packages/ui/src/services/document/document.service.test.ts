@@ -564,6 +564,42 @@ describe('DocumentService', () => {
     });
   });
 
+  describe('hasElementChildren()', () => {
+    it('should return false for attribute fields', () => {
+      // OrderId is an attribute in ShipOrder
+      const shipOrderField = sourceDoc.fields[0];
+      const orderIdAttr = shipOrderField.fields.find((f) => f.isAttribute && f.name === 'OrderId');
+      expect(orderIdAttr).toBeDefined();
+      expect(DocumentService.hasElementChildren(orderIdAttr!)).toBeFalsy();
+    });
+
+    it('should return false for leaf element fields (no children)', () => {
+      // OrderPerson is a leaf string element in ShipOrder
+      const shipOrderField = sourceDoc.fields[0];
+      const orderPersonField = shipOrderField.fields.find((f) => !f.isAttribute && f.name === 'OrderPerson');
+      expect(orderPersonField).toBeDefined();
+      expect(DocumentService.hasElementChildren(orderPersonField!)).toBeFalsy();
+    });
+
+    it('should return true for container element fields with element children', () => {
+      // ShipTo has element children (Name, Address, City, Country)
+      const shipOrderField = sourceDoc.fields[0];
+      const shipToField = shipOrderField.fields.find((f) => !f.isAttribute && f.name === 'ShipTo');
+      expect(shipToField).toBeDefined();
+      expect(DocumentService.hasElementChildren(shipToField!)).toBeTruthy();
+    });
+
+    it('should return false for element fields with only attribute children (constructed)', () => {
+      // Construct a field that has only attribute children using XmlSchemaField directly
+      const shipOrderField = sourceDoc.fields[0];
+      const containerField = new XmlSchemaField(shipOrderField, 'AttrOnlyContainer', false);
+      const attrChild1 = new XmlSchemaField(containerField, 'id', true); // isAttribute = true
+      const attrChild2 = new XmlSchemaField(containerField, 'name', true); // isAttribute = true
+      containerField.fields = [attrChild1, attrChild2];
+      expect(DocumentService.hasElementChildren(containerField)).toBeFalsy();
+    });
+  });
+
   describe('isCollectionField()', () => {
     it('should identify collection fields by maxOccurs', () => {
       expect(DocumentService.isCollectionField(sourceDoc.fields[0])).toBeFalsy();

@@ -332,6 +332,88 @@ describe('MappingActionService', () => {
       });
     });
 
+    describe('getMappingContextMenuItems() ValueSelector isAllowed', () => {
+      it('should allow ValueSelector for a leaf (no-children) field', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const orderPersonNode = shipOrderChildren.find((c) => c.title === 'OrderPerson') as TargetNodeData;
+        expect(orderPersonNode).toBeDefined();
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(orderPersonNode);
+        const valueSelectorAction = menuItems.find((item) => item.key === MappingActionKind.ValueSelector);
+        expect(valueSelectorAction).toBeDefined();
+      });
+
+      it('should allow ValueSelector for an attribute field', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const orderIdNode = shipOrderChildren.find((c) => c.title === 'OrderId') as TargetNodeData;
+        expect(orderIdNode).toBeDefined();
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(orderIdNode);
+        const valueSelectorAction = menuItems.find((item) => item.key === MappingActionKind.ValueSelector);
+        expect(valueSelectorAction).toBeDefined();
+      });
+
+      it('should disallow ValueSelector for a container field with element children (XML)', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const shipToNode = shipOrderChildren.find((c) => c.title === 'ShipTo') as TargetNodeData;
+        expect(shipToNode).toBeDefined();
+        const menuItems = MappingActionRegistryService.getMappingContextMenuItems(shipToNode);
+        const valueSelectorAction = menuItems.find((item) => item.key === MappingActionKind.ValueSelector);
+        expect(valueSelectorAction).toBeUndefined();
+      });
+
+      it('should disallow ValueSelector for a container field with element children (XML) via getAllowedActions', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        const shipToNode = shipOrderChildren.find((c) => c.title === 'ShipTo') as TargetNodeData;
+        expect(shipToNode).toBeDefined();
+        expect(MappingActionRegistryService.getAllowedActions(shipToNode)).not.toContain(
+          MappingActionKind.ValueSelector,
+        );
+      });
+
+      it('should disallow ValueSelector for JSON container fields', () => {
+        const jsonTargetDoc = TestUtil.createJSONTargetOrderDoc();
+        const jsonTree = new MappingTree(
+          jsonTargetDoc.documentType,
+          jsonTargetDoc.documentId,
+          DocumentDefinitionType.JSON_SCHEMA,
+        );
+        const jsonTargetDocNode = new TargetDocumentNodeData(jsonTargetDoc, jsonTree);
+        const jsonDocChildren = VisualizationService.generateStructuredDocumentChildren(jsonTargetDocNode);
+        // jsonDocChildren[0].title === 'map' (root JSON object)
+        const jsonRootChildren = VisualizationService.generateNonDocumentNodeDataChildren(jsonDocChildren[0]);
+        // ShipTo in JSON is 'map [@key = ShipTo]' (a container with children)
+        const shipToNode = jsonRootChildren.find((c) => c.title === 'map [@key = ShipTo]') as TargetNodeData;
+        expect(shipToNode).toBeDefined();
+        expect(MappingActionRegistryService.getAllowedActions(shipToNode)).not.toContain(
+          MappingActionKind.ValueSelector,
+        );
+      });
+
+      it('should allow ValueSelector for JSON leaf fields', () => {
+        const jsonTargetDoc = TestUtil.createJSONTargetOrderDoc();
+        const jsonTree = new MappingTree(
+          jsonTargetDoc.documentType,
+          jsonTargetDoc.documentId,
+          DocumentDefinitionType.JSON_SCHEMA,
+        );
+        const jsonTargetDocNode = new TargetDocumentNodeData(jsonTargetDoc, jsonTree);
+        const jsonDocChildren = VisualizationService.generateStructuredDocumentChildren(jsonTargetDocNode);
+        // jsonDocChildren[0].title === 'map' (root JSON object)
+        const jsonRootChildren = VisualizationService.generateNonDocumentNodeDataChildren(jsonDocChildren[0]);
+        // OrderPerson in JSON is 'string [@key = OrderPerson]' (leaf field)
+        const orderPersonNode = jsonRootChildren.find(
+          (c) => c.title === 'string [@key = OrderPerson]',
+        ) as TargetNodeData;
+        expect(orderPersonNode).toBeDefined();
+        expect(MappingActionRegistryService.getAllowedActions(orderPersonNode)).toContain(
+          MappingActionKind.ValueSelector,
+        );
+      });
+    });
+
     describe('getMappingContextMenuItems() AddField isDisabled', () => {
       function createFieldSubstitutionSetup() {
         const definition = new DocumentDefinition(
