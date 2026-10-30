@@ -1,11 +1,12 @@
 import './BeanEditor.scss';
 
-import { Stack } from '@carbon/react';
+import { Add } from '@carbon/icons-react';
+import { Button, Stack } from '@carbon/react';
 import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 import { FunctionComponent, useMemo, useState } from 'react';
 
-import { useKeyedModal } from '../../../components/EditorShell';
+import { EditorEmptyState, useKeyedModal } from '../../../components/EditorShell';
 import { ResizableSplitPanels } from '../../../components/ResizableSplitPanels/ResizableSplitPanels';
 import { BeanAddModal } from './BeanAddModal';
 import { BeanTreeList } from './BeanTreeList';
@@ -111,7 +112,19 @@ export const BeanEditor: FunctionComponent<BeanEditorProps> = (props) => {
                 </CanvasFormTabsContext.Provider>
               </Stack>
             ) : (
-              <div data-testid="metadata-editor-empty-details">Select a bean from the list to edit its details</div>
+              <EditorEmptyState
+                hasItems={!!(preparedModel ?? props.metadata)?.length}
+                singular="bean"
+                plural="beans"
+                onSelectFirst={() => {
+                  setSelected(0);
+                }}
+                data-testid="metadata-editor-empty-details"
+              >
+                <Button kind="tertiary" renderIcon={Add} onClick={addModal.open} data-testid="bean-empty-state-add-btn">
+                  Add new bean
+                </Button>
+              </EditorEmptyState>
             )}
           </div>
         }

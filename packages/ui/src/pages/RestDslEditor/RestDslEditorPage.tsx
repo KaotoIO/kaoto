@@ -1,11 +1,12 @@
 import './RestDslEditorPage.scss';
 
-import { CodeSnippet } from '@carbon/react';
+import { Add } from '@carbon/icons-react';
+import { CodeSnippet, MenuButton, MenuItem } from '@carbon/react';
 import { Rest } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider, FilteredFieldProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { useKeyedModal } from '../../components/EditorShell';
+import { EditorEmptyState, useKeyedModal } from '../../components/EditorShell';
 import { Loading } from '../../components/Loading';
 import { ResizableSplitPanels } from '../../components/ResizableSplitPanels/ResizableSplitPanels';
 import { SuggestionRegistrar } from '../../components/Visualization/Canvas/Form/suggestions/SuggestionsProvider';
@@ -21,6 +22,7 @@ import { RestDslFormHeader } from './components/RestDslFormHeader';
 import { restFormFieldFactory } from './components/restFormFieldFactory';
 import { IRestTreeSelection, RestTree } from './components/RestTree';
 import { RestTreeToolbar } from './components/RestTreeToolbar';
+import { restToTree } from './rest-to-tree';
 
 const DEFAULT_TREE_PANEL_WIDTH_PERCENT = 30;
 const DEFAULT_REST_METHOD_URI = 'direct';
@@ -160,6 +162,18 @@ export const RestDslEditorPage: FunctionComponent = () => {
     [selectedEntity, updateEntitiesFromCamelResource],
   );
 
+  /** Selects the first node of the tree, the same one the tree shows at the top */
+  const handleSelectFirst = useCallback(() => {
+    const [firstNode] = restToTree(restRelatedEntities);
+    if (!firstNode) return;
+
+    setSelectedElement({
+      entityId: firstNode.entityId,
+      modelPath: firstNode.modelPath,
+      ids: { primaryNodeId: firstNode.primaryNodeId },
+    });
+  }, [restRelatedEntities]);
+
   /** Deletes the selected REST entity or method */
   const handleDelete = useCallback(() => {
     if (!selectedEntity || !selectedElement) return;
@@ -201,7 +215,30 @@ export const RestDslEditorPage: FunctionComponent = () => {
         }
         rightPanel={
           <div className="rest-right-panel">
-            {!entityId && <div>Select an entity from the list to edit its configuration</div>}
+            {!entityId && (
+              <EditorEmptyState
+                hasItems={restRelatedEntities.length > 0}
+                singular="entity"
+                plural="entities"
+                onSelectFirst={handleSelectFirst}
+                data-testid="rest-editor-empty-state"
+              >
+                <MenuButton kind="tertiary" label="Add" data-testid="rest-empty-state-add-menu">
+                  <MenuItem
+                    label="Add Configuration"
+                    renderIcon={Add}
+                    onClick={handleAddRestConfiguration}
+                    data-testid="rest-empty-state-add-configuration-btn"
+                  />
+                  <MenuItem
+                    label="Add Service"
+                    renderIcon={Add}
+                    onClick={handleAddRest}
+                    data-testid="rest-empty-state-add-service-btn"
+                  />
+                </MenuButton>
+              </EditorEmptyState>
+            )}
             {selectedElement && (
               <>
                 <div className="form-rest-title">
