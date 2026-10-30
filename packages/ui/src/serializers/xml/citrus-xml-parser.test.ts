@@ -1,5 +1,5 @@
 import { Test } from '../../models/citrus/entities/Test';
-import { parseCitrusXml, parseXmlDeclaration, serializeCitrusXml } from './citrus-xml-parser';
+import { parseCitrusXml, parseRootAttributes, parseXmlDeclaration, serializeCitrusXml } from './citrus-xml-parser';
 
 describe('citrus-xml-parser', () => {
   describe('parseXmlDeclaration', () => {
@@ -10,6 +10,45 @@ describe('citrus-xml-parser', () => {
 
     it('should return empty string when no declaration', () => {
       expect(parseXmlDeclaration('<test/>')).toBe('');
+    });
+  });
+
+  describe('parseRootAttributes', () => {
+    it('should extract xmlns:xsi and xsi:schemaLocation', () => {
+      const xml = `<test xmlns="http://citrusframework.org/schema/xml/testcase"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://citrusframework.org/schema/xml/testcase http://citrusframework.org/schema/xml/testcase.xsd"
+        name="my-test">
+  <actions/>
+</test>`;
+      const attrs = parseRootAttributes(xml);
+      expect(attrs).toContain('xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"');
+      expect(attrs).toContain(
+        'xsi:schemaLocation="http://citrusframework.org/schema/xml/testcase http://citrusframework.org/schema/xml/testcase.xsd"',
+      );
+    });
+
+    it('should exclude name, author, status, and xmlns', () => {
+      const xml = `<test xmlns="http://citrusframework.org/schema/xml/testcase"
+        name="my-test" author="John" status="FINAL">
+  <actions/>
+</test>`;
+      const attrs = parseRootAttributes(xml);
+      expect(attrs).toEqual([]);
+    });
+
+    it('should return empty array for invalid XML', () => {
+      expect(parseRootAttributes('<not-valid')).toEqual([]);
+    });
+
+    it('should preserve custom namespace declarations', () => {
+      const xml = `<test xmlns="http://citrusframework.org/schema/xml/testcase"
+        xmlns:custom="http://example.com/custom"
+        name="my-test">
+  <actions/>
+</test>`;
+      const attrs = parseRootAttributes(xml);
+      expect(attrs).toContain('xmlns:custom="http://example.com/custom"');
     });
   });
 
@@ -231,6 +270,21 @@ describe('citrus-xml-parser', () => {
       expect(xml).toContain('</print>');
     });
 
+    it('should serialize with rootAttributes', () => {
+      const test: Test = {
+        name: 'my-test',
+        actions: [],
+      };
+      const rootAttrs = [
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
+        'xsi:schemaLocation="http://citrusframework.org/schema/xml/testcase http://citrusframework.org/schema/xml/testcase.xsd"',
+      ];
+      const xml = serializeCitrusXml(test, undefined, rootAttrs);
+      expect(xml).toContain('xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"');
+      expect(xml).toContain('xsi:schemaLocation=');
+      expect(xml).toContain('name="my-test"');
+    });
+
     it('should serialize test attributes', () => {
       const test: Test = {
         name: 't',
@@ -426,6 +480,30 @@ describe('citrus-xml-parser', () => {
       expect(parsed.actions[0].createVariables?.variables).toEqual([{ name: 'host', value: 'localhost' }]);
       expect(parsed.actions[1].print?.message).toBe('Hello ${user}!');
       expect(parsed.actions[2].echo?.message).toBe('Done');
+    });
+
+    it('should preserve root namespace attributes through parse → serialize', () => {
+      const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<test xmlns="http://citrusframework.org/schema/xml/testcase"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://citrusframework.org/schema/xml/testcase http://citrusframework.org/schema/xml/testcase.xsd"
+  name="ns-test">
+  <actions>
+    <echo><message>hi</message></echo>
+  </actions>
+</test>`;
+
+      const rootAttrs = parseRootAttributes(xml);
+      const parsed = parseCitrusXml(xml);
+      const serialized = serializeCitrusXml(parsed, parseXmlDeclaration(xml), rootAttrs);
+
+      expect(serialized).toContain('xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"');
+      expect(serialized).toContain('xsi:schemaLocation=');
+      expect(serialized).toContain('name="ns-test"');
+
+      const reparsed = parseCitrusXml(serialized);
+      expect(reparsed.name).toBe('ns-test');
+      expect(reparsed.actions[0].echo?.message).toBe('hi');
     });
   });
 });
