@@ -1,16 +1,16 @@
-import { MetadataEditor } from '@kaoto/kaoto';
+import { BeanEditor } from '@kaoto/kaoto';
 import { Meta, StoryFn } from '@storybook/react';
 
 import mockModel from '../../cypress/fixtures/metadata/beansModel.json';
 import mockSchema from '../../cypress/fixtures/metadata/beansSchema.json';
 
 export default {
-  title: 'MetadataEditor/BeanEditor',
-  component: MetadataEditor,
-} as Meta<typeof MetadataEditor>;
+  title: 'BeanEditor/BeanEditor',
+  component: BeanEditor,
+} as Meta<typeof BeanEditor>;
 
-const Template: StoryFn<typeof MetadataEditor> = (args) => {
-  return <MetadataEditor {...args} />;
+const Template: StoryFn<typeof BeanEditor> = (args) => {
+  return <BeanEditor {...args} />;
 };
 
 export const BeansCustomProperties = Template.bind({});

@@ -1,12 +1,11 @@
 import { BeanFactory, BeansDeserializer } from '@kaoto/camel-catalog/types';
-import { Content } from '@patternfly/react-core';
 import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo } from 'react';
 
 import { Loading } from '../../components/Loading';
-import { MetadataEditor } from '../../components/MetadataEditor';
 import { KaotoSchemaDefinition } from '../../models/kaoto-schema';
 import { BeansEntityHandler } from '../../models/visualization/metadata/beans-entity-handler';
 import { EntitiesContext, EntitiesContextResult } from '../../providers/entities.provider';
+import { BeanEditor } from './components';
 
 export const BeansPage: FunctionComponent = () => {
   const entitiesContext = useContext(EntitiesContext);
@@ -23,7 +22,7 @@ export const BeansPage: FunctionComponent = () => {
   }, [beansHandler]);
 
   if (!isSupported) {
-    return <Content>Not applicable</Content>;
+    return <p>Not applicable</p>;
   }
 
   return (
@@ -56,7 +55,5 @@ const BeansPageInner: FunctionComponent<{
     [beansHandler, entitiesContext],
   );
 
-  return (
-    <MetadataEditor name="Beans" schema={beansSchema} metadata={getBeansModel()} onChangeModel={handleChangeModel} />
-  );
+  return <BeanEditor name="Beans" schema={beansSchema} metadata={getBeansModel()} onChangeModel={handleChangeModel} />;
 };

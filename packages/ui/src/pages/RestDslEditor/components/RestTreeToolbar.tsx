@@ -1,7 +1,8 @@
 import { Add, TrashCan } from '@carbon/icons-react';
-import { MenuButton, MenuItem, MenuItemDivider } from '@carbon/react';
+import { MenuItem, MenuItemDivider } from '@carbon/react';
 import { FunctionComponent, RefObject, useLayoutEffect, useMemo, useRef } from 'react';
 
+import { EditorActionsMenu } from '../../../components/EditorShell';
 import { CamelRestConfigurationVisualEntity } from '../../../models/visualization/flows/camel-rest-configuration-visual-entity';
 import { CamelRestVisualEntity } from '../../../models/visualization/flows/camel-rest-visual-entity';
 import { RestEntity } from '../../../models/visualization/flows/rest-entity';
@@ -73,26 +74,24 @@ export const RestTreeToolbar: FunctionComponent<RestTreeToolbarProps> = ({
   }, [entities, selectedElement]);
 
   return (
-    <div className="rest-tree-toolbar">
-      <MenuButton ref={menuButtonContainerRef} kind="tertiary" label="Actions" data-testid="rest-tree-toolbar-menu">
-        <MenuItem
-          label="Add Configuration"
-          renderIcon={Add}
-          onClick={onAddRestConfiguration}
-          disabled={hasRestConfiguration}
-          data-testid="add-rest-configuration-btn"
-        />
-        <MenuItem label="Add Service" renderIcon={Add} onClick={onAddRest} data-testid="add-rest-service-btn" />
-        <MenuItem
-          label="Add Operation"
-          renderIcon={Add}
-          onClick={onAddMethodClick}
-          disabled={!selectedRestEntity}
-          data-testid="add-rest-operation-btn"
-        />
-        <MenuItemDivider />
-        <MenuItem kind="danger" label="Delete" renderIcon={TrashCan} onClick={onDelete} disabled={!selectedElement} />
-      </MenuButton>
-    </div>
+    <EditorActionsMenu ref={menuButtonContainerRef} data-testid="rest-tree-toolbar-menu">
+      <MenuItem
+        label="Add Configuration"
+        renderIcon={Add}
+        onClick={onAddRestConfiguration}
+        disabled={hasRestConfiguration}
+        data-testid="add-rest-configuration-btn"
+      />
+      <MenuItem label="Add Service" renderIcon={Add} onClick={onAddRest} data-testid="add-rest-service-btn" />
+      <MenuItem
+        label="Add Operation"
+        renderIcon={Add}
+        onClick={onAddMethodClick}
+        disabled={!selectedRestEntity}
+        data-testid="add-rest-operation-btn"
+      />
+      <MenuItemDivider />
+      <MenuItem kind="danger" label="Delete" renderIcon={TrashCan} onClick={onDelete} disabled={!selectedElement} />
+    </EditorActionsMenu>
   );
 };
