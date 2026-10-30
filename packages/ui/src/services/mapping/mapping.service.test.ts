@@ -1071,6 +1071,42 @@ describe('MappingService', () => {
     });
   });
 
+  describe('unwrapItem()', () => {
+    it('should remove the wrapper and reparent its single child in its place', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const rootItem = new FieldItem(manualTree, targetDoc.fields[0]);
+      manualTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetDoc.fields[0].fields[1]);
+      rootItem.children.push(fieldItem);
+      MappingService.wrapWithIf(fieldItem);
+      const ifItem = fieldItem.parent as IfItem;
+      expect(rootItem.children).toEqual([ifItem]);
+
+      const unwrapped = MappingService.unwrapItem(ifItem);
+
+      expect(unwrapped).toBe(fieldItem);
+      expect(fieldItem.parent).toBe(rootItem);
+      expect(rootItem.children).toEqual([fieldItem]);
+    });
+
+    it('should no-op when the wrapper does not have exactly one child', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const ifItem = new IfItem(manualTree);
+      manualTree.children.push(ifItem);
+
+      expect(MappingService.unwrapItem(ifItem)).toBeUndefined();
+      expect(manualTree.children).toEqual([ifItem]);
+    });
+  });
+
   describe('createValueOfSelector()', () => {
     it('should create ValueOfSelector', () => {
       const orderIdFieldItem = tree.children[0].children[0] as FieldItem;
@@ -1148,7 +1184,7 @@ describe('MappingService', () => {
       expect(tree.children).not.toContain(copyOf);
     });
 
-    it('should keep the auto-optional guard when its sole mapped field is deleted', () => {
+    it('should remove the auto-optional guard along with its sole mapped field', () => {
       const shipOrderItem = tree.children[0] as FieldItem;
       const targetField = targetDoc.fields[0].fields[1];
       const sourceField = sourceDoc.fields[0].fields[1];
@@ -1162,12 +1198,46 @@ describe('MappingService', () => {
 
       MappingService.deleteMappingItem(fieldItem);
 
-      // The guard is deliberately left behind. autoDetectOptionalGuards flags any shape-matching
-      // xsl:if on load, including one the user wrote by hand, so removing it here could silently
-      // destroy their stylesheet. An emptied guard stays visible and removable.
-      expect(ifItem.children).not.toContain(fieldItem);
-      expect(ifItem.children).toHaveLength(0);
-      expect(shipOrderItem.children).toContain(ifItem);
+      // The guard is see-through, so the user only ever saw it as part of the field.
+      expect(shipOrderItem.children).not.toContain(ifItem);
+      expect(shipOrderItem.children).not.toContain(fieldItem);
+    });
+
+    it('should remove the auto-optional guard when its container copy-of is deleted', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const targetField = targetDoc.fields[0].fields[1];
+      const sourceField = sourceDoc.fields[0].fields[1];
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      MappingService.mapToFieldWithValueType(sourceField, fieldItem, CopyOfType.CONTAINER_NODE);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)!;
+      expect(ifItem.isAutoOptionalIf).toBe(true);
+      const copyOf = fieldItem.children[0];
+      expect(copyOf).toBeInstanceOf(CopyOfSelector);
+
+      MappingService.deleteMappingItem(copyOf as CopyOfSelector);
+
+      expect(shipOrderItem.children).not.toContain(ifItem);
+      expect(shipOrderItem.children).not.toContain(fieldItem);
+    });
+
+    it('should clean up an emptied parent field when the removed guard was its only child', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      shipOrderItem.isUserCreated = true;
+      const targetField = targetDoc.fields[0].fields[1];
+      const sourceField = sourceDoc.fields[0].fields[1];
+      sourceField.minOccurs = 0;
+      targetField.minOccurs = 0;
+      shipOrderItem.children = [];
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetField);
+      MappingService.mapToField(sourceField, fieldItem);
+      MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false);
+
+      MappingService.deleteMappingItem(fieldItem);
+
+      expect(shipOrderItem.children).toHaveLength(0);
+      expect(tree.children).not.toContain(shipOrderItem);
     });
 
     it('should delete a field under a visible (non-auto) if without removing the if', () => {

@@ -114,4 +114,21 @@ describe('XPathInputAction', () => {
 
     expect(input).not.toHaveFocus();
   });
+
+  it('should call onCommit on blur, not on every keystroke', () => {
+    const onCommitMock = vi.fn();
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} onCommit={onCommitMock} />);
+    const input = screen.getByTestId('transformation-xpath-input');
+
+    fireEvent.change(input, { target: { value: '/ShipOrder' } });
+    expect(onCommitMock).not.toHaveBeenCalled();
+
+    fireEvent.blur(input);
+    expect(onCommitMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not fail on blur when no onCommit is supplied', () => {
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
+    expect(() => fireEvent.blur(screen.getByTestId('transformation-xpath-input'))).not.toThrow();
+  });
 });

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import {
   BODY_DOCUMENT_ID,
@@ -7,8 +7,8 @@ import {
   DocumentType,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
-import { MappingTree, ValueOfSelector } from '../../../models/datamapper/mapping';
-import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
+import { FieldItem, IfItem, MappingTree, ValueOfSelector } from '../../../models/datamapper/mapping';
+import { FieldItemNodeData, MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
@@ -61,5 +61,49 @@ describe('TargetNodeActions', () => {
     );
     expect(await screen.findByTestId('transformation-xpath-input')).toBeInTheDocument();
     expect(screen.getByTestId(`edit-xpath-button-${mappingData.id}`)).toBeInTheDocument();
+  });
+
+  describe('optional guard reconciliation', () => {
+    function renderGuardedField() {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const field = targetDoc.fields[0].fields[1];
+      field.minOccurs = 0;
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const rootItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(rootItem);
+      const ifItem = new IfItem(rootItem);
+      ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      ifItem.isAutoOptionalIf = true;
+      rootItem.children.push(ifItem);
+      const fieldItem = new FieldItem(ifItem, field);
+      ifItem.children.push(fieldItem);
+      const selector = new ValueOfSelector(fieldItem);
+      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      fieldItem.children.push(selector);
+      const nodeData = new FieldItemNodeData(new TargetDocumentNodeData(targetDoc, tree), fieldItem);
+      nodeData.autoOptionalIfItem = ifItem;
+      const onUpdate = vi.fn();
+      const onStructuralUpdate = vi.fn();
+      render(
+        <DataMapperProvider>
+          <MappingLinksProvider>
+            <TargetNodeActions nodeData={nodeData} onUpdate={onUpdate} onStructuralUpdate={onStructuralUpdate} />
+          </MappingLinksProvider>
+        </DataMapperProvider>,
+      );
+      return { ifItem, onUpdate, onStructuralUpdate };
+    }
+
+    it('should only refresh the tree structure on blur, not while typing', async () => {
+      const { ifItem, onStructuralUpdate } = renderGuardedField();
+      const input = await screen.findByTestId('transformation-xpath-input');
+
+      fireEvent.change(input, { target: { value: "concat(/ns0:ShipOrder/ns0:OrderPerson, '!')" } });
+      expect(onStructuralUpdate).not.toHaveBeenCalled();
+
+      fireEvent.blur(input);
+      expect(ifItem.isAutoOptionalIf).toBe(false);
+      expect(onStructuralUpdate).toHaveBeenCalledTimes(1);
+    });
   });
 });

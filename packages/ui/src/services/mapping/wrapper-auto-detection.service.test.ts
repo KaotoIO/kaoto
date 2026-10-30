@@ -1,3 +1,5 @@
+import type { Mock } from 'vitest';
+
 import {
   BaseField,
   BODY_DOCUMENT_ID,
@@ -20,6 +22,7 @@ import {
 } from '../../models/datamapper/mapping';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
+import { FieldItemNodeData, MappingNodeData, TargetDocumentNodeData } from '../../models/datamapper/visualization';
 import {
   getChoiceWithAbstractXsd,
   getFieldSubstitutionXsd,
@@ -1026,6 +1029,140 @@ describe('WrapperAutoDetectionService', () => {
       it('should return false when the shape matches but isAutoOptionalIf is not set', () => {
         const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
         expect(WrapperAutoDetectionService.isEffectivelyAutoOptional(ifItem)).toBe(false);
+      });
+    });
+
+    describe('reconcileGuardAndDispatch()', () => {
+      const PERSON = '/ns0:ShipOrder/ns0:OrderPerson';
+      let targetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
+      let docData: TargetDocumentNodeData;
+      let rootItem: FieldItem;
+      let onUpdate: Mock<() => void>;
+      let onStructuralUpdate: Mock<() => void>;
+
+      beforeEach(() => {
+        targetDoc = TestUtil.createTargetOrderDoc();
+        tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+        docData = new TargetDocumentNodeData(targetDoc, tree);
+        targetDoc.fields[0].fields[1].minOccurs = 0;
+        rootItem = new FieldItem(tree, targetDoc.fields[0]);
+        tree.children.push(rootItem);
+        onUpdate = vi.fn<() => void>();
+        onStructuralUpdate = vi.fn<() => void>();
+      });
+
+      function guard(isAutoOptionalIf: boolean, selector: ValueOfSelector | CopyOfSelector, ifTest = PERSON) {
+        const ifItem = new IfItem(rootItem);
+        ifItem.expression = ifTest;
+        ifItem.isAutoOptionalIf = isAutoOptionalIf;
+        rootItem.children.push(ifItem);
+        const fieldItem = new FieldItem(ifItem, targetDoc.fields[0].fields[1]);
+        ifItem.children.push(fieldItem);
+        selector.parent = fieldItem;
+        fieldItem.children.push(selector);
+        const nodeData = new FieldItemNodeData(docData, fieldItem);
+        if (isAutoOptionalIf) nodeData.autoOptionalIfItem = ifItem;
+        return { ifItem, fieldItem, nodeData };
+      }
+
+      function valueOf(expression: string) {
+        const selector = new ValueOfSelector(rootItem);
+        selector.expression = expression;
+        return selector;
+      }
+
+      function containerCopyOf(expression: string) {
+        const selector = new CopyOfSelector(rootItem, CopyOfType.CONTAINER_NODE);
+        selector.expression = expression;
+        return selector;
+      }
+
+      it('should keep the guard hidden and sync its test when the expression stays a simple path', () => {
+        const selector = valueOf(PERSON);
+        const { ifItem, nodeData } = guard(true, selector);
+        selector.expression = '/ns0:ShipOrder/ns0:OrderId';
+
+        WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, selector, onUpdate, onStructuralUpdate);
+
+        expect(ifItem.isAutoOptionalIf).toBe(true);
+        expect(ifItem.expression).toBe('/ns0:ShipOrder/ns0:OrderId');
+        expect(onUpdate).toHaveBeenCalled();
+        expect(onStructuralUpdate).not.toHaveBeenCalled();
+      });
+
+      it('should demote the hidden guard to a visible if once the expression is no longer a simple path', () => {
+        const selector = valueOf(PERSON);
+        const { ifItem, nodeData } = guard(true, selector);
+        selector.expression = "concat(/ns0:ShipOrder/ns0:OrderPerson, '!')";
+
+        WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, selector, onUpdate, onStructuralUpdate);
+
+        expect(ifItem.isAutoOptionalIf).toBe(false);
+        expect(onStructuralUpdate).toHaveBeenCalled();
+        expect(onUpdate).not.toHaveBeenCalled();
+      });
+
+      it('should re-collapse a visible if into a hidden guard once the expression matches its test again', () => {
+        const selector = valueOf("concat(/ns0:ShipOrder/ns0:OrderPerson, '!')");
+        const { ifItem, nodeData } = guard(false, selector);
+        selector.expression = PERSON;
+
+        WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, selector, onUpdate, onStructuralUpdate);
+
+        expect(ifItem.isAutoOptionalIf).toBe(true);
+        expect(onStructuralUpdate).toHaveBeenCalled();
+      });
+
+      it('should leave a visible if alone when the simplified expression still does not match its test', () => {
+        const selector = valueOf("concat(/ns0:ShipOrder/ns0:OrderPerson, '!')");
+        const { ifItem, nodeData } = guard(false, selector);
+        selector.expression = '/ns0:ShipOrder/ns0:OrderId';
+
+        WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, selector, onUpdate, onStructuralUpdate);
+
+        expect(ifItem.isAutoOptionalIf).toBe(false);
+        expect(onUpdate).not.toHaveBeenCalled();
+        expect(onStructuralUpdate).not.toHaveBeenCalled();
+      });
+
+      describe('container copy-of rendered as its own child node', () => {
+        it('should sync the guard test from the source path, without the /node() suffix', () => {
+          const selector = containerCopyOf(`${PERSON}/node()`);
+          const { ifItem, nodeData } = guard(true, selector);
+          selector.expression = '/ns0:ShipOrder/ns0:OrderId/node()';
+          const copyOfNodeData = new MappingNodeData(nodeData, selector);
+
+          WrapperAutoDetectionService.reconcileGuardAndDispatch(copyOfNodeData, selector, onUpdate, onStructuralUpdate);
+
+          expect(ifItem.isAutoOptionalIf).toBe(true);
+          expect(ifItem.expression).toBe('/ns0:ShipOrder/ns0:OrderId');
+          expect(onUpdate).toHaveBeenCalled();
+          expect(onStructuralUpdate).not.toHaveBeenCalled();
+        });
+
+        it('should demote the guard once the copy-of is no longer a simple path', () => {
+          const selector = containerCopyOf(`${PERSON}/node()`);
+          const { ifItem, nodeData } = guard(true, selector);
+          selector.expression = '/ns0:ShipOrder/ns0:OrderPerson[1]/node()';
+          const copyOfNodeData = new MappingNodeData(nodeData, selector);
+
+          WrapperAutoDetectionService.reconcileGuardAndDispatch(copyOfNodeData, selector, onUpdate, onStructuralUpdate);
+
+          expect(ifItem.isAutoOptionalIf).toBe(false);
+          expect(onStructuralUpdate).toHaveBeenCalled();
+        });
+      });
+
+      it('should be a no-op for a node that does not belong to a field (e.g. the target document root)', () => {
+        const selector = valueOf(PERSON);
+        const { ifItem } = guard(true, selector);
+        selector.expression = "concat(/ns0:ShipOrder/ns0:OrderPerson, '!')";
+
+        WrapperAutoDetectionService.reconcileGuardAndDispatch(docData, selector, onUpdate, onStructuralUpdate);
+
+        expect(ifItem.isAutoOptionalIf).toBe(true);
+        expect(onUpdate).not.toHaveBeenCalled();
+        expect(onStructuralUpdate).not.toHaveBeenCalled();
       });
     });
   });

@@ -13,6 +13,7 @@ import {
   ForEachItem,
   IfItem,
   MappingTree,
+  ValueOfSelector,
   ValueSelector,
   VariableItem,
 } from '../../models/datamapper/mapping';
@@ -678,6 +679,36 @@ describe('MappingActionService — mapping engagement', () => {
         expect(structural).toBe(true);
       });
 
+      it('should demote the guard to a visible if when the identical source is dropped again', () => {
+        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+        sourceOrderPerson.minOccurs = 0;
+        targetOrderPerson.minOccurs = 0;
+
+        const sourceItem = findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData;
+        const targetItem = findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData;
+        MappingActionService.engageMapping(tree, sourceItem, targetItem);
+
+        // A second drop onto an already-guarded field always demotes it to a regular, visible
+        // `if` — even when the dropped source is identical to the one the guard was created for.
+        // The user action was a second drop, so the field is no longer "a fresh 1-to-1 mapping."
+        const structural = MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData,
+          findTargetFieldNode('OrderPerson'),
+        );
+
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const ifItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
+        expect(ifItem).toBeDefined();
+        expect(ifItem.isAutoOptionalIf).toBe(false);
+        const fieldItem = ifItem.children.find((c) => c instanceof FieldItem) as FieldItem;
+        expect((fieldItem.children[0] as ValueSelector).expression).toBe(
+          '/ns0:ShipOrder/ns0:OrderPerson, /ns0:ShipOrder/ns0:OrderPerson',
+        );
+        expect(structural).toBe(true);
+      });
+
       it('should clear the container copy-of when re-mapping a child that sits under a guard', () => {
         const sourceShipTo = sourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
         const targetShipTo = targetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
@@ -727,7 +758,7 @@ describe('MappingActionService — mapping engagement', () => {
         expect(shipToItem.children.some((c) => c instanceof CopyOfSelector)).toBe(false);
       });
 
-      it('should unwrap the guard when a second source is dropped onto an already-guarded field', () => {
+      it('should demote the guard to a visible if when a second (different) source is dropped onto an already-guarded field', () => {
         const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
         const sourceOrderId = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderId')!;
         const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
@@ -742,15 +773,26 @@ describe('MappingActionService — mapping engagement', () => {
           targetItem,
         );
 
-        // Only the selector's expression is extended, so the tree shape is unchanged and the
-        // target panel must not rebuild — see engageMapping's @returns contract.
+        // A second drop onto an already-guarded field always demotes it to a regular, visible
+        // `if` — the field keeps both sources in its selector, and the if is still there in the
+        // tree so the user can see and edit it, rather than vanishing with no trace.
         const structural = MappingActionService.engageMapping(
           tree,
           findByName(sourceShipOrderChildren(), 'OrderId') as FieldNodeData,
           findTargetFieldNode('OrderPerson'),
         );
 
-        expect(structural).toBe(false);
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const ifItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
+        expect(ifItem).toBeDefined();
+        expect(ifItem.isAutoOptionalIf).toBe(false);
+        const orderPerson = ifItem.children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'OrderPerson',
+        ) as FieldItem;
+        expect(orderPerson).toBeDefined();
+        expect((orderPerson.children[0] as ValueSelector).expression).toMatch(/OrderPerson.*OrderId/);
+        // The guard transitioning from hidden to visible changes the rendered tree shape.
+        expect(structural).toBe(true);
       });
 
       it('should not guard a field that is already mapped from a required source', () => {
@@ -1125,6 +1167,47 @@ describe('MappingActionService — mapping engagement', () => {
         expect(valueSelector).toBeDefined();
         expect(valueSelector.expression).toBe('.');
       });
+    });
+  });
+
+  describe('addOptionalGuard()', () => {
+    function buildMappedField(minOccurs: number, expression: string) {
+      targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const targetField = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      targetField.minOccurs = minOccurs;
+      const fieldItem = new FieldItem(tree, targetField);
+      tree.children.push(fieldItem);
+      const selector = new ValueOfSelector(fieldItem);
+      selector.expression = expression;
+      fieldItem.children.push(selector);
+      return { fieldItem, nodeData: new FieldItemNodeData(targetDocNode, fieldItem) };
+    }
+
+    it('should wrap an optional field with a simple selector in a hidden guard', () => {
+      const { fieldItem, nodeData } = buildMappedField(0, '/ns0:ShipOrder/ns0:OrderPerson');
+
+      MappingActionService.addOptionalGuard(nodeData);
+
+      expect(fieldItem.parent).toBeInstanceOf(IfItem);
+      const ifItem = fieldItem.parent as IfItem;
+      expect(ifItem.isAutoOptionalIf).toBe(true);
+      expect(ifItem.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+    });
+
+    it('should not wrap a required target field', () => {
+      const { fieldItem, nodeData } = buildMappedField(1, '/ns0:ShipOrder/ns0:OrderPerson');
+
+      MappingActionService.addOptionalGuard(nodeData);
+
+      expect(fieldItem.parent).toBe(tree);
+    });
+
+    it('should not wrap a field whose selector is not a simple path', () => {
+      const { fieldItem, nodeData } = buildMappedField(0, "concat(/ns0:ShipOrder/ns0:OrderPerson, '!')");
+
+      MappingActionService.addOptionalGuard(nodeData);
+
+      expect(fieldItem.parent).toBe(tree);
     });
   });
 });

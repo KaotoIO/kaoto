@@ -1,6 +1,7 @@
 import { DocumentDefinitionType } from '../../models/datamapper/document';
 import {
   ChooseItem,
+  CopyOfSelector,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -8,11 +9,13 @@ import {
   MappingItem,
   OtherwiseItem,
   UnknownMappingItem,
+  ValueOfSelector,
   ValueSelector,
   WhenItem,
 } from '../../models/datamapper/mapping';
 import {
   IMappingAction,
+  IMappingActionSourceContext,
   IMappingContextMenuAction,
   MappingActionGroup,
   MappingActionKind,
@@ -28,8 +31,11 @@ import {
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
+import { MappingService } from '../mapping/mapping.service';
+import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
 import { FieldCandidateService } from './field-candidate.service';
 import { MappingActionService } from './mapping-action.service';
+import { MappingLinksService } from './mapping-links.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
 /**
@@ -434,7 +440,66 @@ export class MappingActionRegistryService {
         return true;
       },
     },
+    {
+      key: MappingActionKind.RemoveOptionalGuard,
+      testId: 'transformation-actions-remove-optional-guard',
+      getLabel: () => 'Remove optional guard',
+      apply: (n, { onUpdate }) => {
+        if (n instanceof FieldItemNodeData && n.autoOptionalIfItem) {
+          MappingService.unwrapItem(n.autoOptionalIfItem);
+        }
+        onUpdate();
+      },
+      isAllowed: (n) => n instanceof FieldItemNodeData && !!n.autoOptionalIfItem,
+    },
+    {
+      key: MappingActionKind.AddOptionalGuard,
+      testId: 'transformation-actions-add-optional-guard',
+      getLabel: () => 'Add optional guard',
+      apply: (n, { onUpdate }) => {
+        if (n instanceof FieldItemNodeData) MappingActionService.addOptionalGuard(n);
+        onUpdate();
+      },
+      // Visible whenever the target is optional and not already guarded — independent of
+      // whether the mapping's current shape/source can actually support a guard yet, so a
+      // recursive container (no sole selector to resolve) or an unconfirmed source shows up
+      // disabled instead of silently vanishing from the menu.
+      isAllowed: (n) => {
+        if (!(n instanceof FieldItemNodeData) || n.autoOptionalIfItem) return false;
+        if (n.mapping.parent instanceof IfItem) return false;
+        return n.field.minOccurs === 0;
+      },
+      // Disabled unless the field has a single, simple (bare field reference) selector whose
+      // source can be resolved and confirmed optional too.
+      isDisabled: (n, sourceContext) => {
+        if (!(n instanceof FieldItemNodeData)) return true;
+        const selector = WrapperAutoDetectionService.getHiddenGuardSelector(n.mapping);
+        if (!selector || !sourceContext) return true;
+        return !MappingActionRegistryService.isSourceFieldOptional(selector, sourceContext);
+      },
+    },
   ];
+
+  /**
+   * Resolves `selector`'s XPath expression back to a source field and checks whether it's
+   * optional, via the same {@link WrapperAutoDetectionService.isOptionalSourceField} rule
+   * drag-and-drop enforces directly on the source `IField` (through
+   * {@link WrapperAutoDetectionService.decideOptionalGuard}), so the two eligibility checks
+   * cannot disagree on what counts as optional. An expression that doesn't resolve to exactly
+   * one source field is conservatively treated as not-optional (can't confirm it).
+   */
+  private static isSourceFieldOptional(
+    selector: ValueOfSelector | CopyOfSelector,
+    sourceContext: IMappingActionSourceContext,
+  ): boolean {
+    const resolved = MappingLinksService.resolveSourceFields(
+      selector,
+      sourceContext.sourceParameterMap,
+      sourceContext.sourceBody,
+    );
+    if (resolved.length !== 1) return false;
+    return WrapperAutoDetectionService.isOptionalSourceField(resolved[0].field);
+  }
 
   /**
    * Returns the set of {@link MappingActionKind} values permitted for the given
@@ -444,8 +509,10 @@ export class MappingActionRegistryService {
    * @param nodeData - The target node whose capabilities are evaluated.
    * @returns An array of allowed action identifiers for this node.
    */
-  static getAllowedActions(nodeData: TargetNodeData): MappingActionKind[] {
-    return MappingActionRegistryService.ACTION_REGISTRY.filter((def) => def.isAllowed(nodeData)).map((def) => def.key);
+  static getAllowedActions(nodeData: TargetNodeData, sourceContext?: IMappingActionSourceContext): MappingActionKind[] {
+    return MappingActionRegistryService.ACTION_REGISTRY.filter((def) => def.isAllowed(nodeData, sourceContext)).map(
+      (def) => def.key,
+    );
   }
 
   /**
@@ -455,10 +522,13 @@ export class MappingActionRegistryService {
    * @param nodeData - The target node whose menu items are evaluated.
    * @returns An array of allowed context menu action definitions.
    */
-  static getMappingContextMenuItems(nodeData: TargetNodeData): IMappingContextMenuAction[] {
+  static getMappingContextMenuItems(
+    nodeData: TargetNodeData,
+    sourceContext?: IMappingActionSourceContext,
+  ): IMappingContextMenuAction[] {
     return MappingActionRegistryService.ACTION_REGISTRY.filter(
       (def): def is IMappingContextMenuAction =>
-        MappingActionRegistryService.isContextMenuAction(def) && def.isAllowed(nodeData),
+        MappingActionRegistryService.isContextMenuAction(def) && def.isAllowed(nodeData, sourceContext),
     );
   }
 }
