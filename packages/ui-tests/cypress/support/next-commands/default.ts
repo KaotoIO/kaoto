@@ -147,9 +147,7 @@ Cypress.Commands.add('openSettings', () => {
 Cypress.Commands.add('selectIntegrationRuntime', (catalogName: string) => {
   cy.openSettings();
 
-  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('be.visible').click();
-
-  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
+  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('be.visible').select(catalogName);
 
   cy.get('[data-testid="settings-form-save-btn"]').click();
   cy.waitSchemasLoading();
@@ -158,9 +156,7 @@ Cypress.Commands.add('selectIntegrationRuntime', (catalogName: string) => {
 Cypress.Commands.add('selectTestingRuntime', (catalogName: string) => {
   cy.openSettings();
 
-  cy.get('[data-testid="#.testingCatalogName-catalog-selector-toggle"]').should('be.visible').click();
-
-  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
+  cy.get('[data-testid="#.testingCatalogName-catalog-selector-toggle"]').should('be.visible').select(catalogName);
 
   cy.get('[data-testid="settings-form-save-btn"]').click();
   cy.waitSchemasLoading();
@@ -171,13 +167,23 @@ Cypress.Commands.add('verifySelectedRuntime', (expectedName: string) => {
 });
 
 Cypress.Commands.add('selectRuntimeVersion', (type: string, version?: string) => {
-  const catalogName = version ? `Camel ${type} ${version}` : `Camel ${type}`;
-
   cy.openSettings();
 
-  cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').should('be.visible').click();
-
-  cy.contains('.pf-v6-c-menu__item', catalogName, { timeout: 10000 }).should('be.visible').click();
+  if (version) {
+    cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]')
+      .should('be.visible')
+      .select(`Camel ${type} ${version}`);
+  } else {
+    // Select the first option that contains the runtime name (e.g. "Camel Quarkus" or "Camel Spring Boot")
+    cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]')
+      .should('be.visible')
+      .find('option')
+      .filter((_index, option) => (option.textContent ?? '').includes(`Camel ${type}`))
+      .first()
+      .then((option) => {
+        cy.get('[data-testid="#.runtimeCatalogName-catalog-selector-toggle"]').select(option.val() as string);
+      });
+  }
 
   cy.get('[data-testid="settings-form-save-btn"]').click();
   cy.waitSchemasLoading();
@@ -195,11 +201,10 @@ Cypress.Commands.add('extractVersionFromText', (text: string) => {
 Cypress.Commands.add('getRuntimeVersionAndCheckCatalog', (nodeName: string, nodeIndex?: number) => {
   cy.get('[data-testid="runtime-selector-display"]')
     .invoke('text')
-    .then((text) => {
-      cy.extractVersionFromText(text).then((version) => {
-        cy.selectAppendNode(nodeName, nodeIndex);
-        cy.checkCatalogVersion(version);
-      });
+    .then((text) => cy.extractVersionFromText(text))
+    .then((version) => {
+      cy.selectAppendNode(nodeName, nodeIndex);
+      cy.checkCatalogVersion(version);
     });
 });
 
@@ -283,11 +288,7 @@ Cypress.Commands.add('toggleFlowsList', () => {
 Cypress.Commands.add('closeFlowsListIfVisible', () => {
   cy.get('body').then((body) => {
     if (body.find('[data-testid="flows-list-table"]').length > 0) {
-      cy.get('[data-testid="flows-list-table"]').then(($element) => {
-        if ($element.length > 0) {
-          cy.toggleFlowsList();
-        }
-      });
+      cy.toggleFlowsList();
     }
   });
 });
@@ -304,13 +305,9 @@ Cypress.Commands.add('allignAllRoutesVisibility', (switchvisibility: string) => 
   cy.toggleFlowsList();
   cy.get('[data-testid="flows-list-table"]').then((body) => {
     if (body.find(`svg[data-testid$="${switchvisibility}"]`).length > 0) {
-      cy.get(`svg[data-testid$="${switchvisibility}"]`).then(($element) => {
-        if ($element.attr('data-testid')?.endsWith(`${switchvisibility}`)) {
-          cy.wrap($element[0]).click();
-          cy.closeFlowsListIfVisible();
-          cy.allignAllRoutesVisibility(switchvisibility);
-        }
-      });
+      cy.get(`svg[data-testid$="${switchvisibility}"]`).first().click();
+      cy.closeFlowsListIfVisible();
+      cy.allignAllRoutesVisibility(switchvisibility);
     }
   });
   cy.closeFlowsListIfVisible();
@@ -382,35 +379,25 @@ Cypress.Commands.add('allowClipboardAccess', () => {
   );
 });
 
+async function assertClipboardContent(clipboard: Clipboard, value: object) {
+  const items = await clipboard.read();
+  const blobs = await Promise.all(
+    items.flatMap((item) =>
+      ['web text/kaoto', 'text/plain'].filter((type) => item.types.includes(type)).map((type) => item.getType(type)),
+    ),
+  );
+  const contents = await Promise.all(blobs.map((blob) => blob.text()));
+
+  for (const content of contents) {
+    expect(normalizeClipboardContent(parse(content))).to.deep.equal(value);
+  }
+}
+
 Cypress.Commands.add('assertValueCopiedToClipboard', (value) => {
-  cy.window().then(async (win) => {
+  cy.window().then((win) => {
     if (win.navigator?.clipboard?.read) {
-      // Return the promise so Cypress awaits the clipboard read before the command resolves.
-      // Otherwise the read floats and may resolve against a later copy's content, throwing an
-      // uncaught AssertionError (the Chromium-only "deeply equal" failure seen in CI).
-      return win.navigator?.clipboard?.read().then(async (text: ClipboardItems) => {
-        for (const item of text) {
-          if (item.types.includes('web text/kaoto')) {
-            const blob = await item.getType('web text/kaoto');
-            const yamlText = await blob.text();
-            const parsedContent = parse(yamlText);
-
-            // Normalize parsed YAML to IClipboardContent format
-            const clipboardContent = normalizeClipboardContent(parsedContent);
-            expect(clipboardContent).to.deep.equal(value);
-          }
-
-          if (item.types.includes('text/plain')) {
-            const blob = await item.getType('text/plain');
-            const yamlText = await blob.text();
-            const parsedContent = parse(yamlText);
-
-            // Normalize parsed YAML to IClipboardContent format
-            const clipboardContent = normalizeClipboardContent(parsedContent);
-            expect(clipboardContent).to.deep.equal(value);
-          }
-        }
-      });
+      // Return the promise so Cypress waits for every format before the next copy can run.
+      return assertClipboardContent(win.navigator.clipboard, value);
     } else {
       // For browsers without clipboard API support, skip the assertion
       cy.log('Clipboard API not available - skipping clipboard assertion');

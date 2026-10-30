@@ -67,7 +67,7 @@ describe('InfraImplementationField', () => {
   it('should show implementations filtered by the selected service', async () => {
     renderField({ service: 'kafka', implementation: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Implementation' });
+    const input = screen.getByRole('combobox', { name: 'Implementation' });
     fireEvent.click(input);
 
     await waitFor(() => {
@@ -79,7 +79,7 @@ describe('InfraImplementationField', () => {
   it('should show no suggestions when service has no implementations', async () => {
     renderField({ service: 'postgres', implementation: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Implementation' });
+    const input = screen.getByRole('combobox', { name: 'Implementation' });
     fireEvent.click(input);
 
     await waitFor(() => {
@@ -90,7 +90,7 @@ describe('InfraImplementationField', () => {
   it('should show no suggestions when no service is selected', async () => {
     renderField({ service: undefined, implementation: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Implementation' });
+    const input = screen.getByRole('combobox', { name: 'Implementation' });
     fireEvent.click(input);
 
     expect(screen.queryByText('Strimzi')).not.toBeInTheDocument();
@@ -99,7 +99,7 @@ describe('InfraImplementationField', () => {
   it('should set implementation value when selecting an item', async () => {
     const { onPropertyChange } = renderField({ service: 'kafka', implementation: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Implementation' });
+    const input = screen.getByRole('combobox', { name: 'Implementation' });
     fireEvent.click(input);
 
     await waitFor(() => {
@@ -115,7 +115,7 @@ describe('InfraImplementationField', () => {
     renderField({ service: 'kafka', implementation: 'strimzi' });
 
     await waitFor(() => {
-      const input = screen.getByRole('textbox', { name: 'Implementation' });
+      const input = screen.getByRole('combobox', { name: 'Implementation' });
       expect(input).toHaveValue('Strimzi');
     });
   });
@@ -125,7 +125,7 @@ describe('InfraImplementationField', () => {
 
     renderField({ service: 'kafka', implementation: undefined });
 
-    const input = screen.getByRole('textbox', { name: 'Implementation' });
+    const input = screen.getByRole('combobox', { name: 'Implementation' });
     fireEvent.click(input);
 
     expect(screen.queryByText('Strimzi')).not.toBeInTheDocument();

@@ -1,7 +1,6 @@
+import { Add, Edit, TrashCan } from '@carbon/icons-react';
+import { Button, IconButton, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@carbon/react';
 import { FieldProps, FieldWrapper, useFieldValue } from '@kaoto/forms';
-import { Button } from '@patternfly/react-core';
-import { EditIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
-import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
 import { useEntityContext } from '../../../../../../hooks/useEntityContext/useEntityContext';
@@ -110,49 +109,47 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
   return (
     <>
       <FieldWrapper propName={propName} required={required} title="" type="string">
-        <Table aria-label="endpoint-table" variant={TableVariant.compact} borders>
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Type</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
+        <Table aria-label="endpoint-table" size="sm" useZebraStyles={false}>
+          <TableHead>
+            <TableRow>
+              <TableHeader>Name</TableHeader>
+              <TableHeader>Type</TableHeader>
+              <TableHeader>Actions</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {items.map((item, index) => (
-              <Tr key={item.name}>
-                <Td style={{ textTransform: 'none' }}>{item.name}</Td>
-                <Td style={{ textTransform: 'none' }}>{item.type}</Td>
-                <Td>
-                  <Button
-                    title={`Edit ${item.name}`}
+              <TableRow key={item.name}>
+                <TableCell style={{ textTransform: 'none' }}>{item.name}</TableCell>
+                <TableCell style={{ textTransform: 'none' }}>{item.type}</TableCell>
+                <TableCell>
+                  <IconButton
+                    kind="ghost"
+                    size="sm"
+                    label={`Edit ${item.name}`}
                     data-testid={'endpoint-edit-' + index + '-btn'}
-                    icon={<EditIcon />}
-                    variant="link"
                     onClick={() => {
                       handleEdit(index);
                     }}
-                  />
-                  <Button
-                    title={`Delete ${item.name}`}
+                  >
+                    <Edit />
+                  </IconButton>
+                  <IconButton
+                    kind="ghost"
+                    size="sm"
+                    label={`Delete ${item.name}`}
                     data-testid={'endpoint-delete-' + index + '-btn'}
-                    icon={<TrashIcon />}
-                    variant="link"
                     onClick={() => handleDelete(index)}
-                  />
-                </Td>
-              </Tr>
+                  >
+                    <TrashCan />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
             ))}
-          </Tbody>
+          </TableBody>
         </Table>
 
-        <Button
-          icon={<PlusCircleIcon />}
-          key="create"
-          variant="link"
-          onClick={handleAdd}
-          data-testid="create-new-endpoint-btn"
-        >
+        <Button kind="ghost" renderIcon={Add} onClick={handleAdd} data-testid="create-new-endpoint-btn">
           Add
         </Button>
       </FieldWrapper>

@@ -22,15 +22,18 @@
   "main": "dist/index.js",
   "exports": {
     ".": {
-      "source": "./src/index.ts",
+      "@kaoto/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./testing": {
-      "source": "./src/testing.ts",
+      "@kaoto/source": "./src/testing.ts",
+      "types": "./dist/testing.d.ts",
       "default": "./dist/testing.js"
     },
     "./testing/page-object": {
-      "source": "./src/testing/KaotoFormPageObject.ts",
+      "@kaoto/source": "./src/testing/KaotoFormPageObject.ts",
+      "types": "./dist/testing/KaotoFormPageObject.d.ts",
       "default": "./dist/testing/KaotoFormPageObject.js"
     }
   },

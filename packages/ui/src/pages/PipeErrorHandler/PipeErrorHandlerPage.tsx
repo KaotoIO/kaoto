@@ -73,6 +73,7 @@ const PipeErrorHandlerPageInner: FunctionComponent<{
     <CanvasFormTabsContext.Provider value={formTabsValue}>
       <KaotoForm
         data-testid="pipe-error-handler-form"
+        withLayer={false}
         schema={errorHandlerSchema}
         model={getErrorHandlerModel()}
         onChange={onChangeModel as KaotoFormProps['onChange']}
