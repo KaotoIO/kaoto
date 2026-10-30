@@ -94,7 +94,6 @@ describe('CitrusTestSchemaService', () => {
       ['sequential', 'actions', 'branch'],
       ['conditional', 'actions', 'branch'],
       ['doFinally', 'actions', 'branch'],
-      ['waitFor', 'actions', 'branch'],
       ['async', 'actions', 'branch'],
       ['parallel', 'actions', 'array-node'],
       ['catch', 'when', 'branch'],
@@ -107,6 +106,25 @@ describe('CitrusTestSchemaService', () => {
       expect(settings).toBeDefined();
       expect(settings?.name).toEqual(name);
       expect(settings?.type).toEqual(type);
+    });
+
+    it('should return single-node container for waitFor with action condition', () => {
+      const modelData: TestActions = { waitFor: { action: {}, condition: '' } } as unknown as TestActions;
+      const settings = CitrusTestSchemaService.getTestContainerSettings('waitFor', modelData);
+      expect(settings).toBeDefined();
+      expect(settings?.name).toBe('action');
+      expect(settings?.type).toBe('single-node');
+    });
+
+    it.each(['http', 'message', 'file'])('should return undefined for waitFor with %s condition', (condition) => {
+      const modelData = { waitFor: { [condition]: { url: 'http://localhost' } } } as unknown as TestActions;
+      const settings = CitrusTestSchemaService.getTestContainerSettings('waitFor', modelData);
+      expect(settings).toBeUndefined();
+    });
+
+    it('should return undefined for waitFor without model data', () => {
+      const settings = CitrusTestSchemaService.getTestContainerSettings('waitFor');
+      expect(settings).toBeUndefined();
     });
 
     it('should handle settings not found', () => {
