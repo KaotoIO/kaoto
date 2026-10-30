@@ -2,7 +2,7 @@ import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { ChannelType, StateControlCommand } from '@kie-tools-core/editor/dist/api';
 import { Notification } from '@kie-tools-core/notifications/dist/api';
 import { VisualizationProvider } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, useEffect, useMemo } from 'react';
+import { FunctionComponent, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 import { NodeInteractionAddonProvider } from '../../components/registers/interactions/node-interaction-addon.provider';
 import { RegisterComponents } from '../../components/registers/RegisterComponents';
@@ -10,7 +10,8 @@ import { RegisterNodeInteractionAddons } from '../../components/registers/Regist
 import { RenderingProvider } from '../../components/RenderingAnchor/rendering.provider';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
 import { CatalogTilesProvider } from '../../dynamic-catalog/catalog-tiles.provider';
-import { IMetadataApi, MetadataProvider, VisibleFlowsProvider } from '../../providers';
+import { CitrusTestVisualEntity } from '../../models/visualization/flows';
+import { EntitiesContext, IMetadataApi, MetadataProvider, VisibleFlowsProvider } from '../../providers';
 
 interface KaotoBridgeProps extends IMetadataApi {
   /**
@@ -52,6 +53,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
   getSuggestions,
   shouldSaveSchema,
   onStepUpdated,
+  getTestReport,
 }) => {
   const controller = useMemo(() => ControllerService.createController(), []);
   const metadataApi: IMetadataApi = useMemo(
@@ -66,6 +68,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
       getSuggestions,
       shouldSaveSchema,
       onStepUpdated,
+      getTestReport,
     }),
     [
       getMetadata,
@@ -78,6 +81,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
       getSuggestions,
       shouldSaveSchema,
       onStepUpdated,
+      getTestReport,
     ],
   );
 
@@ -85,6 +89,82 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
   useEffect(() => {
     onReady();
   }, [onReady]);
+
+  /** Load test reports for Citrus test entities */
+  const entitiesContext = useContext(EntitiesContext);
+  const entitiesContextRef = useRef(entitiesContext);
+  useEffect(() => {
+    entitiesContextRef.current = entitiesContext;
+  });
+
+  const reportGenerationRef = useRef(0);
+
+  const loadTestReports = useCallback(() => {
+    const ctx = entitiesContextRef.current;
+    if (!ctx?.visualEntities || !getTestReport) return;
+
+    const citrusEntities = ctx.visualEntities.filter(
+      (e): e is CitrusTestVisualEntity => e instanceof CitrusTestVisualEntity,
+    );
+    if (citrusEntities.length === 0) return;
+
+    const generation = reportGenerationRef.current;
+    let cancelled = false;
+    for (const entity of citrusEntities) {
+      void getTestReport(entity.id).then((report) => {
+        if (cancelled || generation !== reportGenerationRef.current) return;
+        if (report) {
+          entity.applyTestReport(report);
+        } else {
+          entity.clearTestReport();
+        }
+        ctx.refreshVisualEntities();
+      });
+    }
+
+    return () => {
+      cancelled = true;
+    };
+  }, [getTestReport]);
+
+  const hasEntities = (entitiesContext?.visualEntities?.length ?? 0) > 0;
+  useEffect(() => {
+    if (hasEntities) {
+      return loadTestReports();
+    }
+  }, [hasEntities, loadTestReports]);
+
+  const clearTestReports = useCallback(() => {
+    reportGenerationRef.current += 1;
+    const ctx = entitiesContextRef.current;
+    if (!ctx?.visualEntities) return;
+
+    const citrusEntities = ctx.visualEntities.filter(
+      (e): e is CitrusTestVisualEntity => e instanceof CitrusTestVisualEntity,
+    );
+
+    for (const entity of citrusEntities) {
+      entity.clearTestReport();
+    }
+    ctx.refreshVisualEntities();
+  }, []);
+
+  /** Listen for test run started / test report ready messages from the extension */
+  useEffect(() => {
+    const expectedOrigin = window.location.origin;
+    const handler = (event: MessageEvent) => {
+      if (event.origin && event.origin !== expectedOrigin) return;
+      if (event.data?.type === 'kaoto__testRunStarted') {
+        clearTestReports();
+      } else if (event.data?.type === 'kaoto__testReportReady') {
+        loadTestReports();
+      }
+    };
+    window.addEventListener('message', handler); // NOSONAR — origin verified in handler
+    return () => {
+      window.removeEventListener('message', handler);
+    };
+  }, [loadTestReports, clearTestReports]);
 
   return (
     <CatalogTilesProvider>

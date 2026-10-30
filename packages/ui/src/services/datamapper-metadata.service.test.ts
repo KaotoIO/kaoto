@@ -29,6 +29,7 @@ describe('DataMapperMetadataService', () => {
       getSuggestions: vi.fn(),
       shouldSaveSchema: false,
       onStepUpdated: vi.fn(),
+      getTestReport: vi.fn().mockResolvedValue(undefined),
     } as Mocked<IMetadataApi>;
   });
 

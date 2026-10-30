@@ -13,6 +13,7 @@ import {
 	StepUpdateAction,
 	Suggestion,
 	SuggestionRequestContext,
+	TestReportEntry,
 } from '@kaoto/kaoto/models';
 import { BackendProxy } from '@kie-tools-core/backend/dist/api';
 import { I18n } from '@kie-tools-core/i18n/dist/core';
@@ -38,6 +39,7 @@ import {
 } from '../constants';
 import { RuntimeType } from '../executors/types/ExecutorTypes';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
+import { TestReportEvents } from '../services/TestReportEvents';
 import { findClasspathRoot } from '../utils/ClasspathRootFinder';
 import { resolvePaths } from '../utils/Path';
 import { readKameletsFromDirectory } from '../services/KameletFileReader';
@@ -63,9 +65,23 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 		super(editor, resourceContentService, workspaceApi, backendProxy, notificationsApi, javaCodeCompletionApi, viewType, i18n);
 		this.currentEditedDocument = editor.document.document;
 
+		const testReportSubscription = TestReportEvents.instance.onTestReportReady((filePaths) => {
+			if (filePaths.includes(this.currentEditedDocument.uri.fsPath)) {
+				editor.panel.webview.postMessage({ type: 'kaoto__testReportReady' });
+			}
+		});
+
+		const testRunStartedSubscription = TestReportEvents.instance.onTestRunStarted((filePaths) => {
+			if (filePaths.includes(this.currentEditedDocument.uri.fsPath)) {
+				editor.panel.webview.postMessage({ type: 'kaoto__testRunStarted' });
+			}
+		});
+
 		// Dispose watcher when the webview/editor is closed
 		editor.setupPanelOnDidDispose();
 		editor.panel.onDidDispose(() => {
+			testReportSubscription.dispose();
+			testRunStartedSubscription.dispose();
 			StepsOnSaveManager.instance.disposeFor(this.currentEditedDocument.uri);
 		});
 	}
@@ -318,6 +334,26 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 				break;
 			default:
 				break;
+		}
+	}
+
+	async getTestReport(_name: string): Promise<TestReportEntry | undefined> {
+		try {
+			const testFilePath = this.currentEditedDocument.uri.fsPath;
+			const testDir = path.dirname(testFilePath);
+			const fileName = path.basename(testFilePath, '.yaml');
+			const resultFilePath = path.join(testDir, '.citrus-jbang', 'citrus-reports', `${fileName}-flow.json`);
+
+			const resultUri = vscode.Uri.file(resultFilePath);
+			const resultContent = await vscode.workspace.fs.readFile(resultUri);
+			const report = JSON.parse(new TextDecoder('utf-8').decode(resultContent)) as Partial<TestReportEntry> | null;
+			if (!report || typeof report.result !== 'object' || report.result === null) {
+				return undefined;
+			}
+			return { ...report, actions: Array.isArray(report.actions) ? report.actions : [] } as TestReportEntry;
+		} catch (error) {
+			KaotoOutputChannel.logWarning(`Could not read test report for current document: ${error}`);
+			return undefined;
 		}
 	}
 

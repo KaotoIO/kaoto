@@ -14,7 +14,7 @@ import { createRef, RefObject } from 'react';
 import { RouterProvider } from 'react-router';
 
 import { CatalogLoaderProvider } from '../dynamic-catalog/catalog.provider';
-import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';
+import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction, TestReportEntry } from '../models';
 import { AbstractSettingsAdapter, SettingsModel } from '../models/settings';
 import { KaotoResourceProvider } from '../providers';
 import { EntitiesProvider } from '../providers/entities.provider';
@@ -59,6 +59,7 @@ export class KaotoEditorApp implements Editor {
     this.askUserForFileSelection = this.askUserForFileSelection.bind(this);
     this.getSuggestions = this.getSuggestions.bind(this);
     this.onStepUpdated = this.onStepUpdated.bind(this);
+    this.getTestReport = this.getTestReport.bind(this);
   }
 
   async setContent(path: string, content: string): Promise<void> {
@@ -170,6 +171,10 @@ export class KaotoEditorApp implements Editor {
     return this.envelopeContext.channelApi.requests.onStepUpdated(action, stepType, stepName);
   }
 
+  getTestReport(name: string): Promise<TestReportEntry | undefined> {
+    return this.envelopeContext.channelApi.requests.getTestReport(name);
+  }
+
   af_onOpen(): void {
     setColorScheme(this.settingsAdapter.getSettings().colorScheme);
   }
@@ -203,6 +208,7 @@ export class KaotoEditorApp implements Editor {
                         getSuggestions={this.getSuggestions}
                         shouldSaveSchema={false}
                         onStepUpdated={this.onStepUpdated}
+                        getTestReport={this.getTestReport}
                       >
                         <RouterProvider router={kaotoEditorRouter} />
                       </KaotoBridge>

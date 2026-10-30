@@ -30,7 +30,8 @@ type UsedRequests =
   | 'deleteResource'
   | 'askUserForFileSelection'
   | 'getSuggestions'
-  | 'onStepUpdated';
+  | 'onStepUpdated'
+  | 'getTestReport';
 
 describe('KaotoEditorApp', () => {
   let kaotoEditorApp: KaotoEditorAppTest;
@@ -66,6 +67,7 @@ describe('KaotoEditorApp', () => {
       askUserForFileSelection: vi.fn(),
       getSuggestions: vi.fn(),
       onStepUpdated: vi.fn(),
+      getTestReport: vi.fn().mockResolvedValue(undefined),
     };
 
     envelopeContext = {

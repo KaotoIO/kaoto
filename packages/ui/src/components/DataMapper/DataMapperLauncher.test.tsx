@@ -34,6 +34,7 @@ describe('DataMapperLauncher', () => {
     askUserForFileSelection: vi.fn(),
     getSuggestions: vi.fn(),
     shouldSaveSchema: false,
+    getTestReport: vi.fn().mockResolvedValue(undefined),
   };
 
   const mockCamelResource: KaotoResource = {
@@ -61,6 +62,7 @@ describe('DataMapperLauncher', () => {
     updateSourceCodeFromEntities: vi.fn(),
     updateEntitiesFromSource: vi.fn(),
     updateEntitiesFromCamelResource: vi.fn(),
+    refreshVisualEntities: vi.fn(),
     setCurrentEntity: vi.fn(),
   };
 

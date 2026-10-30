@@ -37,6 +37,7 @@ describe('useAddStep', () => {
     askUserForFileSelection: vi.fn(),
     getSuggestions: vi.fn(),
     shouldSaveSchema: false,
+    getTestReport: vi.fn().mockResolvedValue(undefined),
   };
 
   const mockDefinedComponent = {

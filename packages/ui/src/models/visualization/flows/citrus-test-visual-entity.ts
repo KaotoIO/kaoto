@@ -8,6 +8,7 @@ import { DefinedComponent } from '../../camel/camel-catalog-index';
 import { CatalogKind } from '../../catalog-kind';
 import { CITRUS_TEST_ROOT_ENTITY_NAME } from '../../citrus/citrus-catalog-index';
 import { Test, TestAction, TestActions } from '../../citrus/entities/Test';
+import { TestReportEntry } from '../../citrus/entities/TestResult';
 import { EntityType } from '../../entities';
 import { KaotoSchemaDefinition } from '../../kaoto-schema';
 import { PlaceholderType } from '../../placeholder.constants';
@@ -25,6 +26,7 @@ import { NodeIdentity } from '../node-identity';
 import { createVisualizationNode } from '../visualization-node';
 import { NodeEnrichmentService } from './nodes/node-enrichment.service';
 import { CitrusTestDefaultService } from './support/citrus-test-default.service';
+import { CitrusTestReportService } from './support/citrus-test-report.service';
 import { CitrusTestContainerSettings, CitrusTestSchemaService } from './support/citrus-test-schema.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
@@ -91,6 +93,7 @@ const getDefaultTest = (name: string): Test => {
  */
 export class CitrusTestVisualEntity implements BaseVisualEntity {
   id: string;
+  report?: TestReportEntry;
   readonly type = EntityType.Test;
   static readonly ROOT_PATH = 'test';
 
@@ -127,6 +130,14 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   setId(testName: string): void {
     this.id = testName;
     this.test.name = this.id;
+  }
+
+  applyTestReport(entry: TestReportEntry): void {
+    this.report = entry;
+  }
+
+  clearTestReport(): void {
+    this.report = undefined;
   }
 
   /**
@@ -298,6 +309,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
   removeStep(path?: string): void {
     if (!path) return;
+    this.clearTestReport();
 
     const pathArray = path.split('.');
     const last = pathArray[pathArray.length - 1];
@@ -365,10 +377,35 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     schema?: KaotoSchemaDefinition['schema'],
     ids?: IVisualizationNodeIds,
   ): Promise<string | undefined> {
+    if (path && this.report && (this.report.result.failed || this.report.result.result === 'FAILURE')) {
+      if (path === this.getRootPath()) {
+        return this.report.result.errorMessage || this.report.result.result;
+      }
+
+      const errorMsg = CitrusTestReportService.findError(path, this.report.actions);
+      if (errorMsg) {
+        return errorMsg;
+      }
+    }
+
     const definition = await this.fetchNodeDefinition(path, ids);
     if (!schema || !definition) return undefined;
 
     return await ModelValidationService.validateNodeStatus(schema, definition);
+  }
+
+  isVerified(path?: string): boolean | undefined {
+    if (path && this.report) {
+      if (path === this.getRootPath()) {
+        return this.report.result.errorMessage === undefined && this.report.result.result === 'SUCCESS';
+      }
+
+      const result = CitrusTestReportService.findResult(path, this.report.actions);
+      if (!result) return undefined;
+      return CitrusTestReportService.findError(path, this.report.actions) === undefined;
+    }
+
+    return undefined;
   }
 
   getGroupIcons(): { icon: string; title: string }[] {
@@ -402,6 +439,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   private addNewStep(action: TestActions, mode: AddStepMode, data: IVisualizationNodeData) {
     const path = data.path;
     if (!path) return;
+    this.clearTestReport();
 
     const pathArray = path.split('.');
     const last = pathArray[pathArray.length - 1];

@@ -85,6 +85,9 @@ export interface BaseVisualEntity extends BaseEntity {
     ids?: IVisualizationNodeIds,
   ): Promise<string | undefined>;
 
+  /** Check if this node has been verified (e.g. with a successful test result) */
+  isVerified(path?: string): boolean | undefined;
+
   /** Generates a IVisualizationNode from the underlying Camel entity */
   toVizNode: () => Promise<IVisualizationNode>;
 }
@@ -164,8 +167,11 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   removeChild(): void;
 
-  /** Retrieve the node's validation status, relying into the underlying entity */
+  /** Retrieve the node's validation status, relying on the underlying entity */
   getNodeValidationText(): Promise<string | undefined>;
+
+  /** Check if this node has been verified (e.g. with a successful test result) */
+  isVerified(): boolean | undefined;
 }
 
 /**

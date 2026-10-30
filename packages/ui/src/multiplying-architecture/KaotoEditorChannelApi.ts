@@ -1,7 +1,7 @@
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { KogitoEditorChannelApi } from '@kie-tools-core/editor/dist/api';
 
-import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../models';
+import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction, TestReportEntry } from '../models';
 import {
   CamelMainMavenInformation,
   CamelQuarkusMavenInformation,
@@ -104,4 +104,11 @@ export interface KaotoEditorChannelApi extends KogitoEditorChannelApi {
    * @param stepName The name of the step that was added.
    */
   onStepUpdated(action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void>;
+
+  /**
+   * Retrieve the test report for a Citrus test by name.
+   * @param name The test name to look up
+   * @returns The full test report entry, or undefined if no report exists
+   */
+  getTestReport(name: string): Promise<TestReportEntry | undefined>;
 }

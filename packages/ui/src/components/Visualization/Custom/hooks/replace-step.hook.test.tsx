@@ -48,6 +48,7 @@ describe('useReplaceStep', () => {
     deleteResource: vi.fn(),
     askUserForFileSelection: vi.fn(),
     getSuggestions: vi.fn(),
+    getTestReport: vi.fn().mockResolvedValue(undefined),
     shouldSaveSchema: false,
   };
 

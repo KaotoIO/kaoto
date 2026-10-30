@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { TestReportEntry } from '@kaoto/kaoto/models';
 import { AbstractFolderTreeProvider } from '../shared/AbstractFolderTreeProvider';
 import { commands, Disposable, RelativePattern, TreeItem, TreeItemCollapsibleState, Uri, workspace } from 'vscode';
 import { Test } from './Test';
@@ -40,6 +41,9 @@ export class TestsProvider extends AbstractFolderTreeProvider<TestFolder> {
 
 	/** Persistent storage of test results that survives cache clears */
 	private readonly testResults: Map<string, TestResult> = new Map();
+
+	/** Full test report entries keyed by test file path */
+	private readonly testReportEntries: Map<string, TestReportEntry> = new Map();
 
 	/** Paths awaiting a batched full refresh (items not yet in cache) */
 	private readonly pendingRefreshPaths = new Set<string>();
@@ -217,6 +221,7 @@ export class TestsProvider extends AbstractFolderTreeProvider<TestFolder> {
 	 */
 	clearAllResults(): void {
 		this.testResults.clear();
+		this.testReportEntries.clear();
 		this.updateResultsContext();
 
 		for (const testItem of this.testItemCache.values()) {
@@ -238,17 +243,13 @@ export class TestsProvider extends AbstractFolderTreeProvider<TestFolder> {
 	 */
 	async readTestResult(testFilePath: string): Promise<TestResult> {
 		try {
-			const testDir = dirname(testFilePath);
-			const fileName = basename(testFilePath, '.yaml');
+			const resultJson = await this.readTestReportJson(testFilePath);
+			if (!resultJson) {
+				return 'none';
+			}
 
-			const resultFilePath = join(testDir, '.citrus-jbang', 'citrus-reports', `${fileName}-flow.json`);
+			this.testReportEntries.set(testFilePath, resultJson);
 
-			const resultUri = Uri.file(resultFilePath);
-			const resultContent = await workspace.fs.readFile(resultUri);
-			const resultJson = JSON.parse(new TextDecoder('utf-8').decode(resultContent));
-
-			// Check the result field in the JSON
-			// Expected structure: { result: { result: "SUCCESS" | "FAILURE" | ... } }
 			const result = resultJson?.result?.result;
 			if (result === 'SUCCESS') {
 				return 'success';
@@ -260,5 +261,44 @@ export class TestsProvider extends AbstractFolderTreeProvider<TestFolder> {
 			KaotoOutputChannel.logWarning(`Could not read test result for ${testFilePath}: ${error}`);
 			return 'none';
 		}
+	}
+
+	/**
+	 * Get the full test report entry for a test by name.
+	 * Searches stored reports for a matching test name.
+	 * @param name The test name to look up
+	 * @returns The full test report entry, or undefined if not found
+	 */
+	getTestReport(name: string): TestReportEntry | undefined {
+		for (const entry of this.testReportEntries.values()) {
+			if (entry.name === name) {
+				return entry;
+			}
+		}
+		return undefined;
+	}
+
+	/**
+	 * Get the full test report entry for a test by file path.
+	 * @param filePath The test file path
+	 * @returns The full test report entry, or undefined if not found
+	 */
+	getTestReportByFilePath(filePath: string): TestReportEntry | undefined {
+		return this.testReportEntries.get(filePath);
+	}
+
+	/**
+	 * Read and parse the test report JSON file for a test file.
+	 * @param testFilePath The path to the test file
+	 * @returns The parsed JSON object, or undefined if not found
+	 */
+	private async readTestReportJson(testFilePath: string): Promise<TestReportEntry | undefined> {
+		const testDir = dirname(testFilePath);
+		const fileName = basename(testFilePath, '.yaml');
+		const resultFilePath = join(testDir, '.citrus-jbang', 'citrus-reports', `${fileName}-flow.json`);
+
+		const resultUri = Uri.file(resultFilePath);
+		const resultContent = await workspace.fs.readFile(resultUri);
+		return JSON.parse(new TextDecoder('utf-8').decode(resultContent));
 	}
 }
