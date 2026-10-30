@@ -153,10 +153,10 @@ describe('VariablesSection', () => {
       expect(screen.getByTestId('new-variable-name-input')).toBeInTheDocument();
     });
 
-    it('should not show toggle button in read-only mode', () => {
+    it('should show toggle button in read-only mode', () => {
       renderVariablesSection(true);
 
-      expect(screen.queryByTestId('toggle-variables-button')).not.toBeInTheDocument();
+      expect(screen.getByTestId('toggle-variables-button')).toBeInTheDocument();
     });
 
     it('should render connection port on VariablesHeader', async () => {

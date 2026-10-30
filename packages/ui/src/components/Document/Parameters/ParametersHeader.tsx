@@ -34,35 +34,33 @@ export const ParametersHeader: FunctionComponent<ParametersHeaderProps> = ({
     </span>
     <ActionList isIconList className="parameters-header__actions">
       {!isReadOnly && (
-        <>
-          <ActionListItem>
-            <Button
-              icon={<PlusIcon />}
-              variant="plain"
-              title="Add parameter"
-              aria-label="Add parameter"
-              data-testid="add-parameter-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddParameter();
-              }}
-            />
-          </ActionListItem>
-          <ActionListItem>
-            <Button
-              variant="plain"
-              title={showParameters ? 'Hide all parameters' : 'Show all parameters'}
-              aria-label={showParameters ? 'Hide all parameters' : 'Show all parameters'}
-              data-testid="toggle-parameters-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleParameters();
-              }}
-              icon={<Icon isInline>{showParameters ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
-            />
-          </ActionListItem>
-        </>
+        <ActionListItem>
+          <Button
+            icon={<PlusIcon />}
+            variant="plain"
+            title="Add parameter"
+            aria-label="Add parameter"
+            data-testid="add-parameter-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddParameter();
+            }}
+          />
+        </ActionListItem>
       )}
+      <ActionListItem>
+        <Button
+          variant="plain"
+          title={showParameters ? 'Hide all parameters' : 'Show all parameters'}
+          aria-label={showParameters ? 'Hide all parameters' : 'Show all parameters'}
+          data-testid="toggle-parameters-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleParameters();
+          }}
+          icon={<Icon isInline>{showParameters ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
+        />
+      </ActionListItem>
     </ActionList>
   </div>
 );

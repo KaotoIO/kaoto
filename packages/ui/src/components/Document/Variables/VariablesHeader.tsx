@@ -32,36 +32,34 @@ export const VariablesHeader: FunctionComponent<VariablesHeaderProps> = ({
     </span>
     <ActionList isIconList className="parameters-header__actions">
       {!isReadOnly && (
-        <>
-          <ActionListItem>
-            <Button
-              icon={<PlusIcon />}
-              variant="plain"
-              title="Add global variable"
-              aria-label="Add global variable"
-              data-testid="add-variable-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddVariable();
-              }}
-            />
-          </ActionListItem>
-          <ActionListItem>
-            <Button
-              variant="plain"
-              title={showVariables ? 'Hide all variables' : 'Show all variables'}
-              aria-label={showVariables ? 'Hide all variables' : 'Show all variables'}
-              data-testid="toggle-variables-button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onToggleVariables();
-              }}
-              icon={<Icon isInline>{showVariables ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
-            />
-          </ActionListItem>
-          <Divider orientation={{ default: 'vertical' }} />
-        </>
+        <ActionListItem>
+          <Button
+            icon={<PlusIcon />}
+            variant="plain"
+            title="Add global variable"
+            aria-label="Add global variable"
+            data-testid="add-variable-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddVariable();
+            }}
+          />
+        </ActionListItem>
       )}
+      <ActionListItem>
+        <Button
+          variant="plain"
+          title={showVariables ? 'Hide all variables' : 'Show all variables'}
+          aria-label={showVariables ? 'Hide all variables' : 'Show all variables'}
+          data-testid="toggle-variables-button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleVariables();
+          }}
+          icon={<Icon isInline>{showVariables ? <EyeIcon /> : <EyeSlashIcon />}</Icon>}
+        />
+      </ActionListItem>
+      {!!actionItems?.length && <Divider orientation={{ default: 'vertical' }} />}
       {actionItems?.map((item) => (
         <ActionListItem key={isValidElement(item) ? item.key : undefined}>{item}</ActionListItem>
       ))}
