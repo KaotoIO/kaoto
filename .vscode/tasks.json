@@ -50,14 +50,14 @@
     {
       "label": "build:webview then watch",
       "dependsOrder": "sequence",
-      "dependsOn": ["build: @kaoto/kaoto build:webview", "build: vscode-kaoto build:dev"],
+      "dependsOn": ["build: @kaoto/kaoto build:webview:dev", "build: vscode-kaoto build:dev"],
       "problemMatcher": []
     },
     {
       "path": "packages/ui",
       "type": "npm",
-      "label": "build: @kaoto/kaoto build:webview",
-      "script": "build:webview",
+      "label": "build: @kaoto/kaoto build:webview:dev",
+      "script": "build:webview:dev",
       "problemMatcher": "$tsc",
       "presentation": {
         "reveal": "always"
