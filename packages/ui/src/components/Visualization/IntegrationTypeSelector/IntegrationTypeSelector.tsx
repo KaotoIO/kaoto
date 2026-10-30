@@ -10,6 +10,7 @@ const DSL_LIST = [
   SourceSchemaType.Kamelet,
   SourceSchemaType.Pipe,
   SourceSchemaType.Test,
+  SourceSchemaType.TestXml,
 ];
 
 interface IntegrationTypeOption {
@@ -69,13 +70,13 @@ export const IntegrationTypeSelector: FunctionComponent<IntegrationTypeSelectorP
       style={style}
     >
       <SelectList data-testid={selectListDataTestId}>
-        {DSL_LIST.map((sourceType, index) => {
+        {DSL_LIST.map((sourceType) => {
           const sourceSchema = sourceSchemaConfig.config[sourceType];
           const { description, isDisabled, labelSuffix, testIdPrefix } = getOption(sourceType);
 
           return (
             <SelectOption
-              key={`${testIdPrefix}-${sourceSchema.schema?.name ?? index}`}
+              key={sourceType}
               data-testid={`${testIdPrefix}-${sourceSchema.schema?.name ?? sourceSchema.name}`}
               itemId={sourceType}
               description={<span style={{ wordBreak: 'keep-all' }}>{description}</span>}
