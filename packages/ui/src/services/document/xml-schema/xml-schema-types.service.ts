@@ -147,9 +147,17 @@ export class XmlSchemaTypesService {
     }
 
     const xmlDoc = ownerDoc as XmlSchemaDocument;
-    const newSchemaType = xmlDoc.xmlSchemaCollection.getTypeByQName(newTypeQName);
+    const entrySchemaFile = xmlDoc.definition?.entrySchemaFile;
+    const newSchemaType = XmlSchemaDocumentUtilService.lookupSchemaType(
+      xmlDoc.xmlSchemaCollection,
+      newTypeQName,
+      entrySchemaFile,
+    );
     const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
-    const originalSchemaType = origTypeQName && xmlDoc.xmlSchemaCollection.getTypeByQName(origTypeQName);
+    const originalSchemaType = origTypeQName
+      ? (XmlSchemaDocumentUtilService.lookupSchemaType(xmlDoc.xmlSchemaCollection, origTypeQName, entrySchemaFile) ??
+        xmlDoc.xmlSchemaCollection.getTypeByQName(origTypeQName))
+      : null;
 
     if (!newSchemaType || !originalSchemaType) {
       return false;
@@ -159,6 +167,7 @@ export class XmlSchemaTypesService {
       newSchemaType,
       originalSchemaType,
       xmlDoc.xmlSchemaCollection,
+      entrySchemaFile,
     );
   }
 
@@ -168,15 +177,24 @@ export class XmlSchemaTypesService {
     }
 
     const collection = field.ownerDocument.xmlSchemaCollection;
-    const newSchemaType = collection.getTypeByQName(newTypeQName);
+    const entrySchemaFile = field.ownerDocument.definition?.entrySchemaFile;
+    const newSchemaType = XmlSchemaDocumentUtilService.lookupSchemaType(collection, newTypeQName, entrySchemaFile);
     const originalTypeQName = field.originalField?.typeQName ?? field.typeQName;
-    const originalSchemaType = originalTypeQName && collection.getTypeByQName(originalTypeQName);
+    const originalSchemaType = originalTypeQName
+      ? (XmlSchemaDocumentUtilService.lookupSchemaType(collection, originalTypeQName, entrySchemaFile) ??
+        collection.getTypeByQName(originalTypeQName))
+      : null;
 
     if (!(newSchemaType instanceof XmlSchemaSimpleType) || !(originalSchemaType instanceof XmlSchemaSimpleType)) {
       return false;
     }
 
-    return XmlSchemaTypesService.isExtensionOrRestriction(newSchemaType, originalSchemaType, collection);
+    return XmlSchemaTypesService.isExtensionOrRestriction(
+      newSchemaType,
+      originalSchemaType,
+      collection,
+      entrySchemaFile,
+    );
   }
 
   /**
@@ -280,10 +298,14 @@ export class XmlSchemaTypesService {
     return undefined;
   }
 
-  static resolveSimpleTypeToEnum(schemaType: XmlSchemaSimpleType, collection?: XmlSchemaCollection): Types {
+  static resolveSimpleTypeToEnum(
+    schemaType: XmlSchemaSimpleType,
+    collection?: XmlSchemaCollection,
+    entrySchemaFile?: string,
+  ): Types {
     const typeQName = schemaType.getQName();
     if (!typeQName?.getLocalPart()) {
-      const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection);
+      const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection, entrySchemaFile);
       return resolved === Types.Container ? Types.AnyType : resolved;
     }
     const type = XmlSchemaDocumentUtilService.getFieldTypeFromName(
@@ -291,11 +313,15 @@ export class XmlSchemaTypesService {
       typeQName.getNamespaceURI(),
     );
     if (type !== Types.Container) return type;
-    const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection);
+    const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection, entrySchemaFile);
     return resolved === Types.Container ? Types.AnyType : resolved;
   }
 
-  private static followRestrictionChain(schemaType: XmlSchemaSimpleType, collection?: XmlSchemaCollection): Types {
+  private static followRestrictionChain(
+    schemaType: XmlSchemaSimpleType,
+    collection?: XmlSchemaCollection,
+    entrySchemaFile?: string,
+  ): Types {
     let current: XmlSchemaSimpleType = schemaType;
     const visited = new Set<XmlSchemaSimpleType>();
     while (true) {
@@ -308,7 +334,11 @@ export class XmlSchemaTypesService {
         baseInfo.baseTypeName.getLocalPart() || '',
       );
       if (baseType !== Types.Container) return baseType;
-      const next = collection?.getTypeByQName(baseInfo.baseTypeName);
+      // Use scoped lookup first (entry assembly), fall back to full collection for built-ins.
+      const next =
+        collection &&
+        (XmlSchemaDocumentUtilService.lookupSchemaType(collection, baseInfo.baseTypeName, entrySchemaFile) ??
+          collection.getTypeByQName(baseInfo.baseTypeName));
       if (!(next instanceof XmlSchemaSimpleType)) return Types.Container;
       current = next;
     }
@@ -379,15 +409,46 @@ export class XmlSchemaTypesService {
     derivedType: XmlSchemaType,
     baseType: XmlSchemaType,
     collection: XmlSchemaCollection,
+    entrySchemaFile?: string,
+  ): boolean {
+    return XmlSchemaTypesService.doIsExtensionOrRestriction(
+      derivedType,
+      baseType,
+      collection,
+      entrySchemaFile,
+      new Set<XmlSchemaType>(),
+    );
+  }
+
+  private static doIsExtensionOrRestriction(
+    derivedType: XmlSchemaType,
+    baseType: XmlSchemaType,
+    collection: XmlSchemaCollection,
+    entrySchemaFile: string | undefined,
+    visited: Set<XmlSchemaType>,
   ): boolean {
     if (derivedType === baseType) return true;
+    if (visited.has(derivedType)) return false;
+    visited.add(derivedType);
 
     if (derivedType instanceof XmlSchemaComplexType) {
-      return XmlSchemaTypesService.checkComplexTypeInheritance(derivedType, baseType, collection);
+      return XmlSchemaTypesService.checkComplexTypeInheritance(
+        derivedType,
+        baseType,
+        collection,
+        entrySchemaFile,
+        visited,
+      );
     }
 
     if (derivedType instanceof XmlSchemaSimpleType) {
-      return XmlSchemaTypesService.checkSimpleTypeInheritance(derivedType, baseType, collection);
+      return XmlSchemaTypesService.checkSimpleTypeInheritance(
+        derivedType,
+        baseType,
+        collection,
+        entrySchemaFile,
+        visited,
+      );
     }
 
     return false;
@@ -402,12 +463,15 @@ export class XmlSchemaTypesService {
    * @param derivedType - The complexType to check
    * @param baseType - The potential base type
    * @param collection - XML Schema collection for type lookups
+   * @param entrySchemaFile - Optional entry schema file for scoped type resolution
    * @returns True if derivedType extends or restricts baseType
    */
   static checkComplexTypeInheritance(
     derivedType: XmlSchemaComplexType,
     baseType: XmlSchemaType,
     collection: XmlSchemaCollection,
+    entrySchemaFile?: string,
+    visited?: Set<XmlSchemaType>,
   ): boolean {
     const contentModel = derivedType.getContentModel();
     if (!contentModel) return false;
@@ -420,7 +484,13 @@ export class XmlSchemaTypesService {
       return false;
     }
 
-    return XmlSchemaTypesService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, collection);
+    return XmlSchemaTypesService.checkBaseTypeMatch(
+      content.getBaseTypeName(),
+      baseType,
+      collection,
+      entrySchemaFile,
+      visited,
+    );
   }
 
   /**
@@ -432,31 +502,51 @@ export class XmlSchemaTypesService {
    * @param derivedType - The simpleType to check
    * @param baseType - The potential base type
    * @param collection - XML Schema collection for type lookups
+   * @param entrySchemaFile - Optional entry schema file for scoped type resolution
    * @returns True if derivedType restricts baseType
    */
   static checkSimpleTypeInheritance(
     derivedType: XmlSchemaSimpleType,
     baseType: XmlSchemaType,
     collection: XmlSchemaCollection,
+    entrySchemaFile?: string,
+    visited?: Set<XmlSchemaType>,
   ): boolean {
     const content = derivedType.getContent();
     if (!(content instanceof XmlSchemaSimpleTypeRestriction)) return false;
 
-    return XmlSchemaTypesService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, collection);
+    return XmlSchemaTypesService.checkBaseTypeMatch(
+      content.getBaseTypeName(),
+      baseType,
+      collection,
+      entrySchemaFile,
+      visited,
+    );
   }
 
   private static checkBaseTypeMatch(
     baseTypeName: QName | null,
     targetBaseType: XmlSchemaType,
     collection: XmlSchemaCollection,
+    entrySchemaFile?: string,
+    visited?: Set<XmlSchemaType>,
   ): boolean {
     if (!baseTypeName) return false;
 
-    const baseSchemaType = collection.getTypeByQName(baseTypeName);
+    // Scoped lookup first (entry assembly), fall back to full collection for built-ins.
+    const baseSchemaType =
+      XmlSchemaDocumentUtilService.lookupSchemaType(collection, baseTypeName, entrySchemaFile) ??
+      collection.getTypeByQName(baseTypeName);
     if (baseSchemaType === targetBaseType) return true;
     if (!baseSchemaType) return false;
 
-    return XmlSchemaTypesService.isExtensionOrRestriction(baseSchemaType, targetBaseType, collection);
+    return XmlSchemaTypesService.doIsExtensionOrRestriction(
+      baseSchemaType,
+      targetBaseType,
+      collection,
+      entrySchemaFile,
+      visited ?? new Set<XmlSchemaType>(),
+    );
   }
 
   /**
@@ -501,12 +591,18 @@ export class XmlSchemaTypesService {
    * // Returns [PositiveInteger, NegativeInteger, NonNegativeInteger, ...]
    * ```
    */
-  static getExtensionsAndRestrictions(baseType: XmlSchemaType, collection: XmlSchemaCollection): XmlSchemaType[] {
+  static getExtensionsAndRestrictions(
+    baseType: XmlSchemaType,
+    collection: XmlSchemaCollection,
+    entrySchemaFile?: string,
+  ): XmlSchemaType[] {
     const results: XmlSchemaType[] = [];
 
+    // Enumerate all schemas to find derived types — derived types may be in any attached schema.
+    // entrySchemaFile is passed through so that base-type chain resolution within each check is scoped.
     for (const schema of collection.getUserSchemas()) {
       for (const type of schema.getSchemaTypes().values()) {
-        if (XmlSchemaTypesService.isExtensionOrRestriction(type, baseType, collection)) {
+        if (XmlSchemaTypesService.isExtensionOrRestriction(type, baseType, collection, entrySchemaFile)) {
           if (type !== baseType) {
             results.push(type);
           }
@@ -646,24 +742,39 @@ export class XmlSchemaTypesService {
     field: IField,
     collection: XmlSchemaCollection,
     namespaceMap: Record<string, string>,
+    entrySchemaFile?: string,
   ): Record<string, IFieldTypeInfo> {
     const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
     if (!origTypeQName) {
       return {};
     }
 
-    const baseType = collection.getTypeByQName(origTypeQName);
+    const baseType =
+      XmlSchemaDocumentUtilService.lookupSchemaType(collection, origTypeQName, entrySchemaFile) ??
+      collection.getTypeByQName(origTypeQName);
     if (!baseType) {
       return {};
     }
 
-    const derivedTypes = XmlSchemaTypesService.getExtensionsAndRestrictions(baseType, collection);
+    const derivedTypes = XmlSchemaTypesService.getExtensionsAndRestrictions(baseType, collection, entrySchemaFile);
 
     const results: Record<string, IFieldTypeInfo> = {};
+    const seenQNames = new Set<string>();
 
     for (const derivedType of derivedTypes) {
-      if (derivedType instanceof XmlSchemaComplexType && derivedType.isAbstract()) continue;
-      const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(derivedType, true);
+      const typeQName = derivedType.getQName();
+      const qnameStr = typeQName?.toString();
+      if (qnameStr && seenQNames.has(qnameStr)) continue;
+      if (qnameStr) seenQNames.add(qnameStr);
+
+      const resolvedType =
+        (typeQName &&
+          entrySchemaFile &&
+          XmlSchemaDocumentUtilService.lookupSchemaType(collection, typeQName, entrySchemaFile)) ||
+        derivedType;
+
+      if (resolvedType instanceof XmlSchemaComplexType && resolvedType.isAbstract()) continue;
+      const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(resolvedType, true);
       if (typeInfo) {
         ensureNamespaceRegistered(typeInfo.typeQName.getNamespaceURI(), namespaceMap);
         results[formatQNameWithPrefix(typeInfo.typeQName, namespaceMap)] = typeInfo;
@@ -676,6 +787,7 @@ export class XmlSchemaTypesService {
   private static resolveElementTypeInfo(
     element: XmlSchemaElement,
     collection?: XmlSchemaCollection,
+    entrySchemaFile?: string,
   ): Omit<IFieldSubstituteInfo, 'qname' | 'displayName'> {
     const schemaType = element.getSchemaType();
     let type = Types.AnyType;
@@ -696,7 +808,7 @@ export class XmlSchemaTypesService {
       }
     } else if (schemaType instanceof XmlSchemaSimpleType) {
       typeQName = schemaType.getQName();
-      type = XmlSchemaTypesService.resolveSimpleTypeToEnum(schemaType, collection);
+      type = XmlSchemaTypesService.resolveSimpleTypeToEnum(schemaType, collection, entrySchemaFile);
     }
 
     return { type, typeQName, namedTypeFragmentRefs };
@@ -730,7 +842,11 @@ export class XmlSchemaTypesService {
     if (prefix && nsURI === undefined) return undefined;
     const qname = new QName(nsURI, localPart);
 
-    const element = xmlDoc.xmlSchemaCollection.getElementByQName(qname);
+    const element = XmlSchemaDocumentUtilService.lookupSchemaElement(
+      xmlDoc.xmlSchemaCollection,
+      qname,
+      xmlDoc.definition?.entrySchemaFile,
+    );
     if (!element) return undefined;
 
     const wireName = element.getWireName();
@@ -739,7 +855,11 @@ export class XmlSchemaTypesService {
     return {
       qname: wireName,
       displayName: wireName.getLocalPart()!,
-      ...XmlSchemaTypesService.resolveElementTypeInfo(element, xmlDoc.xmlSchemaCollection),
+      ...XmlSchemaTypesService.resolveElementTypeInfo(
+        element,
+        xmlDoc.xmlSchemaCollection,
+        xmlDoc.definition?.entrySchemaFile,
+      ),
     };
   }
 
@@ -757,6 +877,7 @@ export class XmlSchemaTypesService {
   static getSubstitutionGroupMembers(
     headElement: XmlSchemaElement,
     collection: XmlSchemaCollection,
+    entrySchemaFile?: string,
   ): XmlSchemaElement[] {
     const headQNameString = headElement.getQName()?.toString();
     if (!headQNameString) return [];
@@ -764,17 +885,26 @@ export class XmlSchemaTypesService {
     const allElements = XmlSchemaTypesService.collectAllElements(collection);
     const frontier = new Set<string>([headQNameString]);
     const results: XmlSchemaElement[] = [];
+    const seenResults = new Set<string>();
     let changed = true;
     while (changed) {
       changed = false;
       for (const el of allElements) {
         const subGroup = el.getSubstitutionGroup()?.toString();
         if (!subGroup || !frontier.has(subGroup)) continue;
-        const elQName = el.getQName()?.toString();
-        if (!elQName || frontier.has(elQName)) continue;
-        frontier.add(elQName);
+        const elQName = el.getQName();
+        const elQNameString = elQName?.toString();
+        if (!elQNameString || frontier.has(elQNameString)) continue;
+        frontier.add(elQNameString);
         changed = true;
-        if (!el.isAbstract()) results.push(el);
+        if (!el.isAbstract() && !seenResults.has(elQNameString)) {
+          seenResults.add(elQNameString);
+          const resolvedEl =
+            (entrySchemaFile &&
+              XmlSchemaDocumentUtilService.lookupSchemaElement(collection, elQName, entrySchemaFile)) ||
+            el;
+          results.push(resolvedEl);
+        }
       }
     }
     results.sort((a, b) => (a.getQName()?.toString() ?? '').localeCompare(b.getQName()?.toString() ?? '', 'en-US'));
@@ -809,8 +939,13 @@ export class XmlSchemaTypesService {
     elementName: string,
     elementNamespace: string,
     collection: XmlSchemaCollection,
+    entrySchemaFile?: string,
   ): { headField: IField; info: IFieldSubstituteInfo } | undefined {
-    const substituteElement = collection.getElementByQName(new QName(elementNamespace, elementName));
+    const substituteElement = XmlSchemaDocumentUtilService.lookupSchemaElement(
+      collection,
+      new QName(elementNamespace, elementName),
+      entrySchemaFile,
+    );
     if (!substituteElement) return undefined;
 
     const wireName = substituteElement.getWireName();
@@ -842,12 +977,14 @@ export class XmlSchemaTypesService {
           info: {
             qname: wireName,
             displayName: wireName.getLocalPart()!,
-            ...XmlSchemaTypesService.resolveElementTypeInfo(substituteElement, collection),
+            ...XmlSchemaTypesService.resolveElementTypeInfo(substituteElement, collection, entrySchemaFile),
           },
         };
       }
 
-      current = collection.getElementByQName(headQName);
+      current =
+        XmlSchemaDocumentUtilService.lookupSchemaElement(collection, headQName, entrySchemaFile) ??
+        collection.getElementByQName(headQName);
     }
 
     return undefined;
@@ -873,16 +1010,21 @@ export class XmlSchemaTypesService {
     field: IField,
     collection: XmlSchemaCollection,
     namespaceMap: Record<string, string>,
+    entrySchemaFile?: string,
   ): Record<string, IFieldSubstituteInfo> {
     const isSubstituted = field.typeOverride === FieldOverrideVariant.SUBSTITUTION;
     if (isSubstituted && !field.originalField) return {};
     const headName = isSubstituted ? field.originalField!.name : field.name;
     const headNamespaceURI = isSubstituted ? field.originalField!.namespaceURI : field.namespaceURI;
 
-    const headElement = collection.getElementByQName(new QName(headNamespaceURI, headName));
+    const headElement = XmlSchemaDocumentUtilService.lookupSchemaElement(
+      collection,
+      new QName(headNamespaceURI, headName),
+      entrySchemaFile,
+    );
     if (!headElement) return {};
 
-    const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement, collection);
+    const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement, collection, entrySchemaFile);
     if (members.length === 0) return {};
 
     const results: Record<string, IFieldSubstituteInfo> = {};
@@ -894,7 +1036,7 @@ export class XmlSchemaTypesService {
       results[key] = {
         qname: wireName,
         displayName: wireName.getLocalPart()!,
-        ...XmlSchemaTypesService.resolveElementTypeInfo(el, collection),
+        ...XmlSchemaTypesService.resolveElementTypeInfo(el, collection, entrySchemaFile),
       };
     }
     return results;

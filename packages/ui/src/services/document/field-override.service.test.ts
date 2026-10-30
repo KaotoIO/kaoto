@@ -24,6 +24,7 @@ import { JsonSchemaDocument } from './json-schema/json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema/json-schema-document.service';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema/xml-schema-document.service';
+import { XmlSchemaTypesService } from './xml-schema/xml-schema-types.service';
 
 const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
 const NS_TYPE_MAPPING = 'http://www.example.com/TYPE-MAPPING';
@@ -870,6 +871,58 @@ describe('FieldOverrideService', () => {
 
       expect(() => FieldOverrideService.getFieldSubstitutionCandidates(field, {})).not.toThrow();
       expect(FieldOverrideService.getFieldSubstitutionCandidates(field, {})).toEqual({});
+    });
+  });
+
+  describe('applyFieldSubstitution() scoped to the entry schema', () => {
+    const NS = 'urn:scoped';
+    const entryXsd = `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="${NS}" targetNamespace="${NS}">
+  <xs:element name="Holder">
+    <xs:complexType><xs:sequence><xs:element ref="Head"/></xs:sequence></xs:complexType>
+  </xs:element>
+  <xs:element name="Head" abstract="true" type="xs:anySimpleType"/>
+  <xs:element name="Member" substitutionGroup="Head" type="MemberType"/>
+  <xs:simpleType name="MemberType"><xs:restriction base="BaseType"/></xs:simpleType>
+  <xs:simpleType name="BaseType"><xs:restriction base="xs:string"/></xs:simpleType>
+</xs:schema>`;
+    // Declares the same QNames as the entry schema (BaseType, Head) with a different shape. It is attached first, so
+    // an unscoped lookup would find its BaseType (integer) before the entry schema's (string).
+    const unrelatedXsd = `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="${NS}" targetNamespace="${NS}">
+  <xs:element name="Head" abstract="true" type="xs:anySimpleType"/>
+  <xs:simpleType name="BaseType"><xs:restriction base="xs:int"/></xs:simpleType>
+</xs:schema>`;
+
+    it('should resolve candidates in applyFieldSubstitution with the same entrySchemaFile as the listed candidates', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test-doc',
+        { 'Unrelated.xsd': unrelatedXsd, 'Entry.xsd': entryXsd },
+        { namespaceUri: NS, name: 'Holder' },
+        undefined,
+        undefined,
+        undefined,
+        'Entry.xsd',
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const doc = result.document as XmlSchemaDocument;
+      expect(doc).toBeDefined();
+      const namespaceMap = { s: NS };
+      const headField = findFieldByName(doc.fields, 'Head')!;
+      const spy = vi.spyOn(XmlSchemaTypesService, 'getFieldSubstitutionCandidates');
+
+      const listed = FieldOverrideService.getFieldSubstitutionCandidates(headField, namespaceMap)['s:Member'];
+      FieldOverrideService.applyFieldSubstitution(headField, 's:Member', namespaceMap);
+
+      // Both calls must scope the head/type lookups to the same entry schema, otherwise the UI list and the applied
+      // candidate can differ when a QName is declared in more than one file.
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(spy.mock.calls[0][3]).toBe('Entry.xsd');
+      expect(spy.mock.calls[1][3]).toBe('Entry.xsd');
+      spy.mockRestore();
+      expect(listed.type).toBe(Types.String);
+      expect(headField.selectedMemberQName?.getLocalPart()).toBe('Member');
+      expect(headField.fields[0].type).toBe(listed.type);
     });
   });
 

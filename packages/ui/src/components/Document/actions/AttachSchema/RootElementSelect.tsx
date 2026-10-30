@@ -10,22 +10,52 @@ type RootElementSelectProps = {
   onChange: (option: RootElementOption) => void;
 };
 
-const toOptionKey = (option: RootElementOption): string =>
-  option.namespaceUri ? `{${option.namespaceUri}}${option.name}` : option.name;
+const toOptionKey = (option: RootElementOption): string => {
+  const filePrefix = option.entrySchemaFile ? `${option.entrySchemaFile}#` : '';
+  const nsSegment = option.namespaceUri ? `{${option.namespaceUri}}` : '';
+  return `${filePrefix}${nsSegment}${option.name}`;
+};
 
 export const RootElementSelect: FunctionComponent<RootElementSelectProps> = ({
   rootElementOptions,
   selectedOption,
   onChange,
 }) => {
+  // Show the file when two or more options share the same element name (ambiguous names), and always for elements
+  // declared in a file other than their entry schema: "File: <declaringFile> (via <entry>)".
+  const ambiguousNames = useMemo(() => {
+    const nameCounts = new Map<string, number>();
+    for (const opt of rootElementOptions) {
+      nameCounts.set(opt.name, (nameCounts.get(opt.name) ?? 0) + 1);
+    }
+    return new Set(
+      Array.from(nameCounts.entries())
+        .filter(([, count]) => count > 1)
+        .map(([name]) => name),
+    );
+  }, [rootElementOptions]);
+
   const options: TypeaheadSelectOption[] = useMemo(
     () =>
-      rootElementOptions.map((opt) => ({
-        value: toOptionKey(opt),
-        label: opt.name,
-        ...(opt.namespaceUri && { description: `Namespace URI: ${opt.namespaceUri}` }),
-      })),
-    [rootElementOptions],
+      rootElementOptions.map((opt) => {
+        const descParts: string[] = [];
+        // declaringFile is only set when it differs from entrySchemaFile (element reached indirectly).
+        if (opt.declaringFile) {
+          const via = opt.entrySchemaFile ? ` (via ${opt.entrySchemaFile})` : '';
+          descParts.push(`File: ${opt.declaringFile}${via}`);
+        } else if (ambiguousNames.has(opt.name) && opt.entrySchemaFile) {
+          descParts.push(`File: ${opt.entrySchemaFile}`);
+        }
+        if (opt.namespaceUri) {
+          descParts.push(`Namespace URI: ${opt.namespaceUri}`);
+        }
+        return {
+          value: toOptionKey(opt),
+          label: opt.name,
+          ...(descParts.length > 0 && { description: descParts.join(' | ') }),
+        };
+      }),
+    [rootElementOptions, ambiguousNames],
   );
 
   const selectedKey = selectedOption ? toOptionKey(selectedOption) : (options[0]?.value ?? '');

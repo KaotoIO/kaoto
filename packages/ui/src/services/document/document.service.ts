@@ -106,15 +106,21 @@ export class DocumentService {
     schemaFilePaths: string[],
   ): Promise<DocumentDefinition | undefined> {
     if (!schemaFilePaths || schemaFilePaths.length === 0) return;
-    const fileContents: Record<string, string> = {};
+    const loaded = new Map<string, string>();
     const fileContentPromises: Promise<void>[] = [];
     schemaFilePaths.forEach((path: string) => {
       const promise = api.getResourceContent(path).then((content: string | undefined) => {
-        if (content) fileContents[path] = content;
+        if (content) loaded.set(path, content);
       });
       fileContentPromises.push(promise);
     });
     await Promise.allSettled(fileContentPromises);
+    // Key the contents in attach order: entry inference depends on it, not on which read finished first.
+    const fileContents: Record<string, string> = {};
+    for (const path of schemaFilePaths) {
+      const content = loaded.get(path);
+      if (content) fileContents[path] = content;
+    }
     return new DocumentDefinition(documentType, definitionType, documentId, fileContents);
   }
 

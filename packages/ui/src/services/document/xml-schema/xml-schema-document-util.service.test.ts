@@ -6,14 +6,22 @@ import {
   getAccountLcXsd,
   getAccountNs2Xsd,
   getAccountNsXsd,
+  getCircularIncludeAXsd,
+  getCircularIncludeBXsd,
+  getCommonTypesXsd,
   getExtensionComplexXsd,
+  getIncludeOnlyEntryXsd,
+  getMainWithIncludeXsd,
   getMultipleElementsXsd,
   getRestrictionComplexXsd,
+  getRootDeclaredXsd,
   getSimpleTypeInheritanceXsd,
   getSimpleTypeRestrictionXsd,
   TestUtil,
 } from '../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../xml-schema-ts/QName';
+import { XmlSchemaCollection } from '../../../xml-schema-ts/XmlSchemaCollection';
+import { XmlSchemaAnalysisService } from './xml-schema-analysis.service';
 import { XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
@@ -860,16 +868,21 @@ describe('XmlSchemaDocumentUtilService', () => {
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');
 
-      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(result.document!.xmlSchemaCollection);
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        result.document!.xmlSchemaCollection,
+        XmlSchemaAnalysisService.analyze(definition.definitionFiles!).edges,
+      );
 
       expect(options).toHaveLength(2);
       expect(options).toContainEqual({
         namespaceUri: 'kaoto.datamapper.test',
         name: 'account',
+        entrySchemaFile: 'account-ns.xsd',
       });
       expect(options).toContainEqual({
         namespaceUri: 'kaoto.datamapper.test.alternate',
         name: 'account',
+        entrySchemaFile: 'account-ns2.xsd',
       });
     });
 
@@ -887,16 +900,21 @@ describe('XmlSchemaDocumentUtilService', () => {
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');
 
-      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(result.document!.xmlSchemaCollection);
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        result.document!.xmlSchemaCollection,
+        XmlSchemaAnalysisService.analyze(definition.definitionFiles!).edges,
+      );
 
       expect(options).toHaveLength(2);
       expect(options).toContainEqual({
         namespaceUri: '',
         name: 'account',
+        entrySchemaFile: 'account-lc.xsd',
       });
       expect(options).toContainEqual({
         namespaceUri: 'kaoto.datamapper.test',
         name: 'account',
+        entrySchemaFile: 'account-ns.xsd',
       });
     });
 
@@ -913,21 +931,467 @@ describe('XmlSchemaDocumentUtilService', () => {
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');
 
-      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(result.document!.xmlSchemaCollection);
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        result.document!.xmlSchemaCollection,
+        XmlSchemaAnalysisService.analyze(definition.definitionFiles!).edges,
+      );
 
       expect(options).toHaveLength(3);
       expect(options).toContainEqual({
         namespaceUri: 'io.kaoto.datamapper.test.multiple',
         name: 'Order',
+        entrySchemaFile: 'MultipleElements.xsd',
       });
       expect(options).toContainEqual({
         namespaceUri: 'io.kaoto.datamapper.test.multiple',
         name: 'Invoice',
+        entrySchemaFile: 'MultipleElements.xsd',
       });
       expect(options).toContainEqual({
         namespaceUri: 'io.kaoto.datamapper.test.multiple',
         name: 'Shipment',
+        entrySchemaFile: 'MultipleElements.xsd',
       });
+    });
+
+    it('should distinguish same-QName elements from separate unrelated entry schemas', () => {
+      const sameQNameXsd1 = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/orders">
+  <xs:element name="Order" type="xs:string"/>
+</xs:schema>`;
+      const sameQNameXsd2 = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/orders">
+  <xs:element name="Order" type="xs:string"/>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'FirstOrder.xsd': sameQNameXsd1,
+          'SecondOrder.xsd': sameQNameXsd2,
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('warning');
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        result.document!.xmlSchemaCollection,
+        XmlSchemaAnalysisService.analyze(definition.definitionFiles!).edges,
+      );
+
+      expect(options).toHaveLength(2);
+      expect(options).toContainEqual({
+        namespaceUri: 'http://example.com/orders',
+        name: 'Order',
+        entrySchemaFile: 'FirstOrder.xsd',
+      });
+      expect(options).toContainEqual({
+        namespaceUri: 'http://example.com/orders',
+        name: 'Order',
+        entrySchemaFile: 'SecondOrder.xsd',
+      });
+    });
+  });
+
+  describe('collectRootElementOptions() with include/import hierarchy', () => {
+    const analyzeEdges = (files: Record<string, string>) => XmlSchemaAnalysisService.analyze(files).edges;
+
+    it('should attribute included elements to the unreferenced entry schema and expose declaringFile', () => {
+      const files = {
+        'MainWithInclude.xsd': getMainWithIncludeXsd(),
+        'CommonTypes.xsd': getCommonTypesXsd(),
+        'account-lc.xsd': getAccountLcXsd(),
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        files,
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        result.document!.xmlSchemaCollection,
+        analyzeEdges(files),
+      );
+
+      expect(options).toContainEqual({ namespaceUri: '', name: 'Main', entrySchemaFile: 'MainWithInclude.xsd' });
+      expect(options).toContainEqual({ namespaceUri: '', name: 'account', entrySchemaFile: 'account-lc.xsd' });
+      expect(options.some((o) => o.entrySchemaFile === 'CommonTypes.xsd')).toBe(false);
+    });
+
+    it('should expose declaringFile when the element is declared in an included file', () => {
+      const files = {
+        'IncludeOnlyEntry.xsd': getIncludeOnlyEntryXsd(),
+        'RootDeclared.xsd': getRootDeclaredXsd(),
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        files,
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        result.document!.xmlSchemaCollection,
+        analyzeEdges(files),
+      );
+
+      expect(options).toEqual([
+        {
+          namespaceUri: '',
+          name: 'Correct',
+          entrySchemaFile: 'IncludeOnlyEntry.xsd',
+          declaringFile: 'RootDeclared.xsd',
+        },
+      ]);
+    });
+
+    it('should only offer a chameleon include under the namespace of the entry that includes it', () => {
+      const files = {
+        'A.xsd': `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:a" xmlns="urn:a">
+  <xs:include schemaLocation="Cham.xsd"/>
+  <xs:element name="RootA" type="xs:string"/>
+</xs:schema>`,
+        'B.xsd': `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:b" xmlns="urn:b">
+  <xs:include schemaLocation="Cham.xsd"/>
+  <xs:element name="RootB" type="xs:string"/>
+</xs:schema>`,
+        'Cham.xsd': `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Shared" type="xs:string"/>
+</xs:schema>`,
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        files,
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        result.document!.xmlSchemaCollection,
+        analyzeEdges(files),
+      );
+
+      const shared = options.filter((o) => o.name === 'Shared');
+      expect(shared).toHaveLength(2);
+      expect(shared).toContainEqual({
+        namespaceUri: 'urn:a',
+        name: 'Shared',
+        entrySchemaFile: 'A.xsd',
+        declaringFile: 'Cham.xsd',
+      });
+      expect(shared).toContainEqual({
+        namespaceUri: 'urn:b',
+        name: 'Shared',
+        entrySchemaFile: 'B.xsd',
+        declaringFile: 'Cham.xsd',
+      });
+    });
+
+    it('should fall back to treating every schema as its own entry for circular includes', () => {
+      const files = {
+        'CircularIncludeA.xsd': getCircularIncludeAXsd(),
+        'CircularIncludeB.xsd': getCircularIncludeBXsd(),
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        files,
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.document).toBeDefined();
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        result.document!.xmlSchemaCollection,
+        analyzeEdges(files),
+      );
+
+      expect(options.length).toBeGreaterThan(0);
+      expect(options.some((o) => o.name === 'Root')).toBe(true);
+    });
+
+    it('should still list an isolated include cycle when another unreferenced schema exists', () => {
+      const files = {
+        'account-lc.xsd': getAccountLcXsd(),
+        'CircularIncludeA.xsd': getCircularIncludeAXsd(),
+        'CircularIncludeB.xsd': getCircularIncludeBXsd(),
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        files,
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.document).toBeDefined();
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        result.document!.xmlSchemaCollection,
+        analyzeEdges(files),
+      );
+
+      expect(options.some((o) => o.name === 'account' && o.entrySchemaFile === 'account-lc.xsd')).toBe(true);
+      expect(options.some((o) => o.name === 'Root')).toBe(true);
+    });
+  });
+
+  describe('determineRootElement() with include-only entry', () => {
+    it('should pick the first element from a file reachable via include, not from an unrelated file', () => {
+      const files = {
+        'account-lc.xsd': getAccountLcXsd(),
+        'IncludeOnlyEntry.xsd': getIncludeOnlyEntryXsd(),
+        'RootDeclared.xsd': getRootDeclaredXsd(),
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        files,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'IncludeOnlyEntry.xsd',
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+
+      expect(result.validationStatus).toBe('success');
+      expect(result.document!.rootElement!.getName()).toBe('Correct');
+    });
+
+    it('should infer the unreferenced schema as entrySchemaFile when none is provided', () => {
+      // CommonTypes.xsd is attached first but is included by MainWithInclude.xsd, so Main is the assembly root.
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'CommonTypes.xsd': getCommonTypesXsd(),
+          'MainWithInclude.xsd': getMainWithIncludeXsd(),
+        },
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+
+      expect(result.validationStatus).toBe('success');
+      expect(result.documentDefinition!.entrySchemaFile).toBe('MainWithInclude.xsd');
+      expect(result.document!.rootElement!.getName()).toBe('Main');
+    });
+  });
+
+  describe('entry schema inference and persistence round-trip', () => {
+    const mainXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/ns" xmlns="http://example.com/ns">
+  <xs:include schemaLocation="Common.xsd"/>
+  <xs:element name="Root" type="xs:string"/>
+</xs:schema>`;
+    const commonXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/ns" xmlns="http://example.com/ns">
+  <xs:element name="LibraryRoot" type="xs:string"/>
+</xs:schema>`;
+    const ns = 'http://example.com/ns';
+
+    const createDefinition = (
+      files: Record<string, string>,
+      rootElementChoice?: { namespaceUri: string; name: string; entrySchemaFile?: string },
+      entrySchemaFile?: string,
+    ) =>
+      new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        files,
+        rootElementChoice,
+        undefined,
+        undefined,
+        undefined,
+        entrySchemaFile,
+      );
+
+    /** Simulates save + reload: only the persisted fields survive, the rest is re-inferred. */
+    const reload = (files: Record<string, string>, saved: DocumentDefinition) =>
+      XmlSchemaDocumentService.createXmlSchemaDocument(
+        createDefinition(files, saved.rootElementChoice, saved.entrySchemaFile),
+      );
+
+    it('should infer the unreferenced schema as the entry regardless of attach order (Main + Common)', () => {
+      const attachCommonFirst = XmlSchemaDocumentService.createXmlSchemaDocument(
+        createDefinition({ 'Common.xsd': commonXsd, 'Main.xsd': mainXsd }),
+      );
+      const attachMainFirst = XmlSchemaDocumentService.createXmlSchemaDocument(
+        createDefinition({ 'Main.xsd': mainXsd, 'Common.xsd': commonXsd }),
+      );
+
+      expect(attachCommonFirst.documentDefinition!.entrySchemaFile).toBe('Main.xsd');
+      expect(attachMainFirst.documentDefinition!.entrySchemaFile).toBe('Main.xsd');
+    });
+
+    it('should keep the same root and entry after reload when the root is declared in the entry file', () => {
+      const files = { 'Main.xsd': mainXsd, 'Common.xsd': commonXsd };
+      const attached = XmlSchemaDocumentService.createXmlSchemaDocument(
+        createDefinition(files, { namespaceUri: ns, name: 'Root' }),
+      );
+      expect(attached.document!.rootElement!.getName()).toBe('Root');
+
+      const reloaded = reload(files, attached.documentDefinition!);
+
+      expect(reloaded.document!.rootElement!.getName()).toBe('Root');
+      expect(reloaded.documentDefinition!.entrySchemaFile).toBe(attached.documentDefinition!.entrySchemaFile);
+    });
+
+    it('should keep the including entry and the chosen root after reload when the root is declared in an included file', () => {
+      const files = { 'Common.xsd': commonXsd, 'Main.xsd': mainXsd };
+      const attached = XmlSchemaDocumentService.createXmlSchemaDocument(
+        createDefinition(files, { namespaceUri: ns, name: 'LibraryRoot' }),
+      );
+      expect(attached.documentDefinition!.entrySchemaFile).toBe('Main.xsd');
+      expect(attached.document!.rootElement!.getName()).toBe('LibraryRoot');
+
+      const reloaded = reload(files, attached.documentDefinition!);
+
+      expect(reloaded.documentDefinition!.entrySchemaFile).toBe('Main.xsd');
+      expect(reloaded.document!.rootElement!.getName()).toBe('LibraryRoot');
+    });
+
+    it('should keep root and entry after reload for an entry that only includes the root declaring file', () => {
+      const files = { 'RootDeclared.xsd': getRootDeclaredXsd(), 'IncludeOnlyEntry.xsd': getIncludeOnlyEntryXsd() };
+      const attached = XmlSchemaDocumentService.createXmlSchemaDocument(
+        createDefinition(files, { namespaceUri: '', name: 'Correct' }),
+      );
+      expect(attached.documentDefinition!.entrySchemaFile).toBe('IncludeOnlyEntry.xsd');
+
+      const reloaded = reload(files, attached.documentDefinition!);
+
+      expect(reloaded.documentDefinition!.entrySchemaFile).toBe('IncludeOnlyEntry.xsd');
+      expect(reloaded.document!.rootElement!.getName()).toBe('Correct');
+    });
+
+    it('should keep the including entry when updateRootElement selects an element declared in an included file', () => {
+      const files = { 'Main.xsd': mainXsd, 'Common.xsd': commonXsd };
+      const attached = XmlSchemaDocumentService.createXmlSchemaDocument(createDefinition(files));
+      expect(attached.document!.rootElement!.getName()).toBe('Root');
+
+      const options = XmlSchemaDocumentUtilService.collectRootElementOptions(
+        attached.document!.xmlSchemaCollection,
+        XmlSchemaAnalysisService.analyze(files).edges,
+      );
+      const libraryRoot = options.find((o) => o.name === 'LibraryRoot')!;
+      expect(libraryRoot.entrySchemaFile).toBe('Main.xsd');
+      expect(libraryRoot.declaringFile).toBe('Common.xsd');
+
+      const updated = XmlSchemaDocumentService.updateRootElement(attached.document!, libraryRoot);
+
+      expect(updated.rootElement!.getName()).toBe('LibraryRoot');
+      expect(updated.definition.entrySchemaFile).toBe('Main.xsd');
+      expect(updated.definition.rootElementChoice).toEqual(libraryRoot);
+    });
+  });
+
+  describe('inferEntrySchemaFile()', () => {
+    it('should return undefined when definitionFiles is empty', () => {
+      const collection = new XmlSchemaCollection();
+      expect(XmlSchemaDocumentUtilService.inferEntrySchemaFile(collection, {}, [])).toBeUndefined();
+    });
+
+    it('should return the candidate reaching rootElementChoice', () => {
+      const collection = new XmlSchemaCollection();
+      const files = {
+        'Types.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/types"><xs:complexType name="T"/></xs:schema>',
+        'Main.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/main"><xs:element name="Root" type="xs:string"/></xs:schema>',
+      };
+      XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, files);
+
+      const entry = XmlSchemaDocumentUtilService.inferEntrySchemaFile(collection, files, [], {
+        namespaceUri: 'http://example.com/main',
+        name: 'Root',
+      });
+
+      expect(entry).toBe('Main.xsd');
+    });
+
+    it('should pick candidate with elements over types-only candidate when no rootElementChoice is provided (split entry fix)', () => {
+      const collection = new XmlSchemaCollection();
+      const files = {
+        'Types.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/types"><xs:complexType name="T"/></xs:schema>',
+        'Main.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/main"><xs:element name="Root" type="xs:string"/></xs:schema>',
+      };
+      XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, files);
+
+      // Types.xsd is attached first and both are unreferenced, but Types.xsd has 0 elements.
+      const entry = XmlSchemaDocumentUtilService.inferEntrySchemaFile(collection, files, []);
+
+      expect(entry).toBe('Main.xsd');
+    });
+
+    it('should infer candidate that reaches elements only through an import', () => {
+      const collection = new XmlSchemaCollection();
+      const files = {
+        'EmptyUnreferenced.xsd': '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"/>',
+        'EntryImporting.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/entry"><xs:import namespace="http://example.com/types" schemaLocation="TypesWithElem.xsd"/></xs:schema>',
+        'TypesWithElem.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/types"><xs:element name="ImportedElem" type="xs:string"/></xs:schema>',
+      };
+      collection.getSchemaResolver().addFiles(files);
+      XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, files);
+      const edges = XmlSchemaAnalysisService.analyze(files).edges;
+
+      const entry = XmlSchemaDocumentUtilService.inferEntrySchemaFile(collection, files, edges);
+
+      expect(entry).toBe('EntryImporting.xsd');
+    });
+
+    it('should respect effective namespace when resolving first element from a chameleon schema included by multiple hosts', () => {
+      const collection = new XmlSchemaCollection();
+      const files = {
+        'HostB.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:ns-b"><xs:include schemaLocation="Cham.xsd"/></xs:schema>',
+        'HostA.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:ns-a"><xs:include schemaLocation="Cham.xsd"/></xs:schema>',
+        'Cham.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="SharedItem" type="xs:string"/></xs:schema>',
+      };
+      collection.getSchemaResolver().addFiles(files);
+      // Load HostB first so its chameleon instance (urn:ns-b) is first in collection.getUserSchemas()
+      XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, files);
+      const edges = XmlSchemaAnalysisService.analyze(files).edges;
+
+      // In HostA (urn:ns-a), determineRootElement must find SharedItem under urn:ns-a, not urn:ns-b
+      const rootElemA = XmlSchemaDocumentUtilService.determineRootElement(collection, undefined, 'HostA.xsd', edges);
+      expect(rootElemA.getQName()?.getNamespaceURI()).toBe('urn:ns-a');
+      expect(rootElemA.getName()).toBe('SharedItem');
+    });
+
+    it('should handle circular include graphs using findUnreferencedSchemas', () => {
+      const files = {
+        'CircularIncludeA.xsd': getCircularIncludeAXsd(),
+        'CircularIncludeB.xsd': getCircularIncludeBXsd(),
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        files,
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('warning');
+      expect(result.documentDefinition?.entrySchemaFile).toBe('CircularIncludeA.xsd');
     });
   });
 });
