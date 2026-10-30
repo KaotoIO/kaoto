@@ -28,6 +28,10 @@ import type { ValidatorComponentDef } from '../utils/is-validator-component';
  *           uri: validator:ShipOrder.xsd
  * ```
  *
+ * This service only mutates the Camel model. It does not touch any resource file: the resource URI
+ * the validator points to (a schema file or a generated wrapper schema) is resolved by the caller,
+ * see `on-output-validation.ts`.
+ *
  * This service handles:
  * - Adding/removing the validation step (validator or json-validator)
  * - Updating the validation resource URI when the target schema changes
@@ -35,15 +39,22 @@ import type { ValidatorComponentDef } from '../utils/is-validator-component';
  */
 export class DataMapperValidationStepService {
   /**
+   * Gets the validation step from a DataMapper step group definition, if present.
+   * @param definition The step group definition (the `definition` of the DataMapper visualization node)
+   * @returns The validator step definition, or `undefined` if none exists
+   */
+  static getValidationStepFromDefinition(definition: unknown): ValidatorComponentDef | undefined {
+    const steps = (definition as { steps?: ProcessorDefinition[] } | undefined)?.steps;
+    return steps?.find((s): s is ValidatorComponentDef => isValidatorComponent(s) || isJsonValidatorComponent(s));
+  }
+
+  /**
    * Gets the validation step from the DataMapper step group, if present.
    * @param vizNode The visualization node representing the DataMapper step
    * @returns The validator step definition, or `undefined` if none exists
    */
   static getValidationStep(vizNode: IVisualizationNode): ValidatorComponentDef | undefined {
-    const model = vizNode.data?.definition as Record<string, unknown>;
-    return (model.steps as ProcessorDefinition[])?.find(
-      (s): s is ValidatorComponentDef => isValidatorComponent(s) || isJsonValidatorComponent(s),
-    );
+    return DataMapperValidationStepService.getValidationStepFromDefinition(vizNode.data?.definition);
   }
 
   /**
@@ -58,15 +69,18 @@ export class DataMapperValidationStepService {
   /**
    * Adds a validation step after the XSLT step in the DataMapper step group.
    * Uses `validator` for XML_SCHEMA targets and `json-validator` for JSON_SCHEMA targets.
-   * Does nothing for Primitive targets or when `filePath` is empty.
+   * Does nothing for Primitive targets or when there is no resource to validate against.
    * @param vizNode The visualization node representing the DataMapper step
    * @param targetMetadata The metadata for the target document schema
    * @param entitiesContext The entities context for updating source code
+   * @param resourceUri The resource the validator points to. Defaults to the first schema file; pass a
+   * different value when the validation uses a generated wrapper schema.
    */
   static addValidationStep(
     vizNode: IVisualizationNode,
     targetMetadata: IDocumentMetadata,
     entitiesContext: EntitiesContextResult,
+    resourceUri: string | undefined = targetMetadata.filePath?.[0],
   ): void {
     let componentName: string;
     let idPrefix: string;
@@ -84,7 +98,6 @@ export class DataMapperValidationStepService {
         return;
     }
 
-    const resourceUri = targetMetadata.filePath?.[0];
     if (!resourceUri) {
       return;
     }
@@ -132,11 +145,14 @@ export class DataMapperValidationStepService {
    * @param vizNode The visualization node representing the DataMapper step
    * @param targetMetadata The metadata for the updated target document schema
    * @param entitiesContext The entities context for updating source code
+   * @param resourceUri The resource the validator points to. Defaults to the first schema file; pass a
+   * different value when the validation uses a generated wrapper schema.
    */
   static updateValidationStep(
     vizNode: IVisualizationNode,
     targetMetadata: IDocumentMetadata,
     entitiesContext: EntitiesContextResult,
+    resourceUri: string | undefined = targetMetadata.filePath?.[0],
   ): void {
     const existingStep = DataMapperValidationStepService.getValidationStep(vizNode);
     if (!existingStep) {
@@ -148,7 +164,6 @@ export class DataMapperValidationStepService {
       return;
     }
 
-    const resourceUri = targetMetadata.filePath?.[0];
     if (!resourceUri) {
       return;
     }
@@ -165,8 +180,14 @@ export class DataMapperValidationStepService {
         return;
     }
 
+    const currentUri = existingStep.to.uri;
+    // Skip if nothing changed
+    if (currentUri === `${componentName}:${resourceUri}`) {
+      return;
+    }
+
     const model = vizNode.data?.definition;
-    const currentComponent = existingStep.to.uri.split(':')[0];
+    const currentComponent = currentUri.split(':')[0];
     if (currentComponent !== componentName) {
       existingStep.to.id = getCamelRandomId(
         componentName === JSON_VALIDATOR_COMPONENT_NAME
@@ -177,5 +198,28 @@ export class DataMapperValidationStepService {
     existingStep.to.uri = `${componentName}:${resourceUri}`;
     vizNode.updateModel(model);
     entitiesContext.updateSourceCodeFromEntities();
+  }
+
+  /**
+   * Points the validation step of a plain step definition to another resource, but only when it
+   * currently points to `fromResource`. Used when a DataMapper step is copied or renamed and the
+   * generated wrapper schema it validates against moves with it. The caller persists the definition.
+   * @param definition The step group definition
+   * @param fromResource The resource the validator is expected to point to now
+   * @param toResource The resource the validator should point to
+   * @returns `true` when the validator was retargeted
+   */
+  static retargetValidationResource(definition: unknown, fromResource: string, toResource: string): boolean {
+    const validatorStep = DataMapperValidationStepService.getValidationStepFromDefinition(definition);
+    if (!validatorStep) {
+      return false;
+    }
+    const currentUri = validatorStep.to.uri;
+    const componentName = currentUri.split(':')[0];
+    if (currentUri.substring(componentName.length + 1) !== fromResource) {
+      return false;
+    }
+    validatorStep.to.uri = `${componentName}:${toResource}`;
+    return true;
   }
 }

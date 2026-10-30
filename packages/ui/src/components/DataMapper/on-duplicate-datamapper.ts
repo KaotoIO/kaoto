@@ -7,6 +7,7 @@ import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { clearXsltUri, setXsltUri } from './datamapper-utils';
+import { copyValidationWrapper } from './on-output-validation';
 
 export const onDuplicateDataMapper = async (
   api: IMetadataApi | undefined,
@@ -51,6 +52,8 @@ export const onDuplicateDataMapper = async (
   await DataMapperMetadataService.duplicateXsltFile(api, originalMetadata, newXsltPath);
 
   setXsltUri(stepDef, newXsltPath);
+
+  await copyValidationWrapper(api, stepDef, originalMetadata.xsltPath, newXsltPath);
 
   return parameters.content;
 };

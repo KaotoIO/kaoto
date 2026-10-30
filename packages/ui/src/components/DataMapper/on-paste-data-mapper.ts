@@ -7,6 +7,7 @@ import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { isDataMapperNode } from '../../utils/is-datamapper';
 import { clearXsltUri, setXsltUri } from './datamapper-utils';
+import { copyValidationWrapper } from './on-output-validation';
 
 type DataMapperNodeCollection = { idMap: Map<string, string>; updatedNodes: Map<string, Step> };
 
@@ -97,6 +98,7 @@ const generateDataMapperMetadata = async (
   const updatedNode = updatedNodes.get(newId);
   if (updatedNode) {
     setXsltUri(updatedNode, newXsltPath);
+    await copyValidationWrapper(api, updatedNode, originalMetadata.xsltPath, newXsltPath);
   }
 };
 

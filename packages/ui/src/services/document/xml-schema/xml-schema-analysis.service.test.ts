@@ -238,6 +238,48 @@ ${elements}
     expect(result.edges).toHaveLength(1);
     expect(result.edges[0].to).toBe('schemas/common.xsd');
   });
+  describe('findEntryPoints', () => {
+    it('should return the single file for a single schema', () => {
+      const report = XmlSchemaAnalysisService.analyze({ 'root.xsd': makeSchema() });
+      expect(XmlSchemaAnalysisService.findEntryPoints(report)).toEqual(['root.xsd']);
+    });
+
+    it('should return both files when two schemas are not connected', () => {
+      const report = XmlSchemaAnalysisService.analyze({ 'a.xsd': makeSchema(), 'b.xsd': makeSchema() });
+      expect(XmlSchemaAnalysisService.findEntryPoints(report)).toEqual(['a.xsd', 'b.xsd']);
+    });
+
+    it('should return only the head of a chain A -> B -> C', () => {
+      const report = XmlSchemaAnalysisService.analyze({
+        'C.xsd': makeSchema(),
+        'B.xsd': makeSchema({ includes: ['C.xsd'] }),
+        'A.xsd': makeSchema({ includes: ['B.xsd'] }),
+      });
+      expect(XmlSchemaAnalysisService.findEntryPoints(report)).toEqual(['A.xsd']);
+    });
+
+    it('should return a single entry for an import cycle that nobody else references', () => {
+      const report = XmlSchemaAnalysisService.analyze({
+        'a.xsd': makeSchema({ targetNamespace: 'urn:a', imports: [{ ns: 'urn:b', loc: 'b.xsd' }] }),
+        'b.xsd': makeSchema({ targetNamespace: 'urn:b', imports: [{ ns: 'urn:a', loc: 'a.xsd' }] }),
+      });
+      expect(XmlSchemaAnalysisService.findEntryPoints(report)).toEqual(['a.xsd']);
+    });
+
+    it('should return the cycle entry and an unrelated file', () => {
+      const report = XmlSchemaAnalysisService.analyze({
+        'a.xsd': makeSchema({ targetNamespace: 'urn:a', imports: [{ ns: 'urn:b', loc: 'b.xsd' }] }),
+        'b.xsd': makeSchema({ targetNamespace: 'urn:b', imports: [{ ns: 'urn:a', loc: 'a.xsd' }] }),
+        'other.xsd': makeSchema({ targetNamespace: 'urn:other' }),
+      });
+      expect(XmlSchemaAnalysisService.findEntryPoints(report)).toEqual(['a.xsd', 'other.xsd']);
+    });
+
+    it('should return an empty list for an empty report', () => {
+      const report = XmlSchemaAnalysisService.analyze({});
+      expect(XmlSchemaAnalysisService.findEntryPoints(report)).toEqual([]);
+    });
+  });
 
   describe('namespace validation', () => {
     describe('xs:include namespace validation', () => {

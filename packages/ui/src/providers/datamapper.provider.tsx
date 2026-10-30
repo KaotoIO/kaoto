@@ -90,16 +90,24 @@ export interface IDataMapperContext {
 
 export const DataMapperContext = createContext<IDataMapperContext | null>(null);
 
+/**
+ * Step settings the host (the Camel model) ended up with after handling an update. The provider applies it to its
+ * own settings state, so the settings UI shows what the model really contains, e.g. a validation toggle that could
+ * not be honoured, or a validator step that was added/removed automatically after a target schema change.
+ * Applying a patch never calls `onUpdateStepSettings` again.
+ */
+type StepSettingsPatch = Partial<IStepSettings> | void;
+
 type DataMapperProviderProps = PropsWithChildren & {
   documentInitializationModel?: DocumentInitializationModel;
-  onUpdateDocument?: (definition: DocumentDefinition) => void;
+  onUpdateDocument?: (definition: DocumentDefinition) => void | Promise<StepSettingsPatch>;
   onDeleteParameter?: (name: string) => void;
   onRenameParameter?: (oldName: string, newName: string) => void;
   initialXsltFile?: string;
   onUpdateMappings?: (xsltFile: string) => void;
   onUpdateNamespaceMap?: (namespaceMap: Record<string, string>) => void;
   initialStepSettings?: Partial<IStepSettings>;
-  onUpdateStepSettings?: (settings: IStepSettings) => void;
+  onUpdateStepSettings?: (settings: IStepSettings) => void | Promise<StepSettingsPatch>;
 };
 
 const INITIAL_NAMESPACE_MAP = { xs: NS_XML_SCHEMA, fn: NS_XPATH_FUNCTIONS, xsl: NS_XSL };
@@ -187,15 +195,35 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     setDataMapperSettings(next);
   }, []);
 
+  /**
+   * Applies the settings the host reports back (see {@link StepSettingsPatch}). Does nothing when the patch
+   * does not change the current settings. Never calls `onUpdateStepSettings`, so it can not loop.
+   */
+  const applyStepSettingsPatch = useCallback(
+    (hostResult: void | Promise<StepSettingsPatch>) => {
+      void Promise.resolve(hostResult)
+        .then((patch) => {
+          if (!patch) return;
+          const current = dataMapperSettingsRef.current;
+          const changed = (Object.keys(patch) as (keyof IStepSettings)[]).some((key) => patch[key] !== current[key]);
+          if (changed) applyDataMapperSettings({ ...current, ...patch });
+        })
+        .catch((error) => {
+          console.warn('[DataMapperProvider] Failed to update the step settings:', error);
+        });
+    },
+    [applyDataMapperSettings],
+  );
+
   const updateDataMapperSettings = useCallback(
     (settings: Partial<IDataMapperSettings>) => {
       const next: IDataMapperSettings = { ...dataMapperSettingsRef.current, ...settings };
       // Side-effect runs outside the setState updater — safe under React StrictMode
       // (updaters must be pure; side-effects in updaters are double-invoked in dev).
-      onUpdateStepSettings?.(next);
+      applyStepSettingsPatch(onUpdateStepSettings?.(next));
       applyDataMapperSettings(next);
     },
-    [applyDataMapperSettings, onUpdateStepSettings],
+    [applyDataMapperSettings, applyStepSettingsPatch, onUpdateStepSettings],
   );
 
   const [sourceParameterMap, setSourceParameterMap] = useState(initialState.sourceParameterMap);
@@ -398,10 +426,11 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           refreshMappingTree({ structural: true });
           break;
       }
-      onUpdateDocument?.(definition);
+      applyStepSettingsPatch(onUpdateDocument?.(definition));
     },
     [
       applyDataMapperSettings,
+      applyStepSettingsPatch,
       dataMapperSettings,
       onUpdateDocument,
       refreshMappingTree,

@@ -12,6 +12,7 @@ import {
   IFieldTypeOverride,
 } from '../models/datamapper/metadata';
 import { IMetadataApi } from '../providers';
+import { XmlSchemaWrapperGeneratorService } from './document/xml-schema/xml-schema-wrapper-generator.service';
 import { EMPTY_XSL } from './mapping/mapping-serializer.service';
 
 /**
@@ -136,20 +137,20 @@ export class DataMapperMetadataService {
   ): Promise<DocumentDefinition> {
     return new Promise((resolve) => {
       const definitionType = documentMetadata.type ? documentMetadata.type : DocumentDefinitionType.Primitive;
-      const definitionFiles: Record<string, string> = {};
-      const fileReadingPromises = documentMetadata.filePath
-        ? documentMetadata.filePath.map((path) =>
-            api
-              .getResourceContent(path)
-              .then((value) => {
-                if (value) definitionFiles[path] = value;
-              })
-              .catch((error) => {
-                console.log(`Could not read a file "${path}": ${error}`);
-              }),
-          )
-        : [];
-      void Promise.allSettled(fileReadingPromises).then(() => {
+      const filePaths = documentMetadata.filePath ?? [];
+      const fileReadingPromises = filePaths.map((path) =>
+        api.getResourceContent(path).catch((error) => {
+          console.log(`Could not read a file "${path}": ${error}`);
+          return undefined;
+        }),
+      );
+      void Promise.all(fileReadingPromises).then((contents) => {
+        // Built after all reads settled, in `filePath` order, so the key order of `definitionFiles`
+        // does not depend on which read completed first.
+        const definitionFiles: Record<string, string> = {};
+        filePaths.forEach((path, i) => {
+          if (contents[i]) definitionFiles[path] = contents[i];
+        });
         const answer = new DocumentDefinition(
           documentType,
           definitionType,
@@ -340,12 +341,116 @@ export class DataMapperMetadataService {
   }
 
   /**
-   * Deletes DataMapper metadata.
+   * Deletes DataMapper metadata. The generated validation wrapper schema is a DataMapper-managed
+   * file that belongs to the step, so it is removed here as well, regardless of whether the user
+   * keeps the XSLT file. Wrapper removal is best-effort and never blocks the metadata removal.
    * @param api The metadata API
    * @param metadataId The metadata identifier
    */
   static async deleteMetadata(api: IMetadataApi, metadataId: string) {
+    try {
+      const metadata = await api.getMetadata<IDataMapperMetadata>(metadataId);
+      if (metadata?.xsltPath) {
+        await DataMapperMetadataService.deleteValidationWrapper(api, metadata.xsltPath);
+      }
+    } catch (error) {
+      console.warn(`Could not clean up the validation wrapper for "${metadataId}": ${error}`);
+    }
     await api.setMetadata(metadataId, undefined);
+  }
+
+  /**
+   * Checks whether the target body of a DataMapper step is a Primitive (no schema attached).
+   * @param api The metadata API
+   * @param metadataId The metadata identifier
+   * @returns true when there is no metadata, no target body or the target body is a Primitive
+   */
+  static async isTargetBodyPrimitive(api: IMetadataApi, metadataId: string): Promise<boolean> {
+    const metadata = await api.getMetadata<IDataMapperMetadata>(metadataId);
+    return !metadata?.targetBody || metadata.targetBody.type === DocumentDefinitionType.Primitive;
+  }
+
+  /**
+   * Loads the target body document definition (including the content of its schema files).
+   * @param api The metadata API
+   * @param metadata The DataMapper metadata
+   * @returns The target body definition; unreadable or empty schema files are not part of it
+   */
+  static loadTargetBodyDefinition(api: IMetadataApi, metadata: IDataMapperMetadata): Promise<DocumentDefinition> {
+    return DataMapperMetadataService.doLoadDocument(
+      api,
+      DocumentType.TARGET_BODY,
+      BODY_DOCUMENT_ID,
+      metadata.targetBody,
+    );
+  }
+
+  /**
+   * Persists a generated validation wrapper schema next to the XSLT file.
+   * @param api The metadata API
+   * @param xsltPath The path of the XSLT file the wrapper belongs to
+   * @param xsd The wrapper schema content
+   * @returns true when the wrapper was written
+   */
+  static async saveValidationWrapper(api: IMetadataApi, xsltPath: string, xsd: string): Promise<boolean> {
+    try {
+      await api.saveResourceContent(XmlSchemaWrapperGeneratorService.getWrapperPath(xsltPath), xsd);
+      return true;
+    } catch (error) {
+      console.warn(`Could not save the validation wrapper for "${xsltPath}": ${error}`);
+      return false;
+    }
+  }
+
+  /**
+   * Copies the generated validation wrapper of an XSLT file to a new XSLT file.
+   * The wrapper references schemas through relative `schemaLocation`s. This stays valid for the copy
+   * because every XSLT file lives in the same directory (file names can not contain a path separator).
+   * @param api The metadata API
+   * @param originalXsltPath The path of the original XSLT file
+   * @param newXsltPath The path of the new XSLT file
+   * @returns true only when a wrapper file was written; false when there was nothing to copy
+   * (no wrapper, a user file with the same name as the original wrapper), the target is a user file
+   * that must not be overwritten, or the copy failed
+   */
+  static async duplicateValidationWrapper(
+    api: IMetadataApi,
+    originalXsltPath: string,
+    newXsltPath: string,
+  ): Promise<boolean> {
+    if (!originalXsltPath || !newXsltPath) return false;
+    try {
+      const content = await api.getResourceContent(XmlSchemaWrapperGeneratorService.getWrapperPath(originalXsltPath));
+      if (!content || !XmlSchemaWrapperGeneratorService.isGeneratedWrapper(content)) return false;
+      const newWrapperPath = XmlSchemaWrapperGeneratorService.getWrapperPath(newXsltPath);
+      // Never overwrite a user file that happens to have the wrapper name.
+      const existing = await api.getResourceContent(newWrapperPath);
+      if (existing && !XmlSchemaWrapperGeneratorService.isGeneratedWrapper(existing)) return false;
+      await api.saveResourceContent(newWrapperPath, content);
+      return true;
+    } catch (error) {
+      console.warn(`Could not copy the validation wrapper of "${originalXsltPath}": ${error}`);
+      return false;
+    }
+  }
+
+  /**
+   * Deletes the generated validation wrapper of an XSLT file. Best-effort: only a file carrying the
+   * Kaoto generated marker is deleted (a user file with the same name is left alone), errors are logged.
+   * @param api The metadata API
+   * @param xsltPath The path of the XSLT file the wrapper belongs to
+   */
+  static async deleteValidationWrapper(api: IMetadataApi, xsltPath: string): Promise<void> {
+    if (!xsltPath) return;
+    const wrapperPath = XmlSchemaWrapperGeneratorService.getWrapperPath(xsltPath);
+    try {
+      const content = await api.getResourceContent(wrapperPath);
+      if (content && XmlSchemaWrapperGeneratorService.isGeneratedWrapper(content)) {
+        await api.deleteResource(wrapperPath);
+      }
+    } catch (error) {
+      console.warn(`Could not delete the validation wrapper "${wrapperPath}": ${error}`);
+    }
   }
 
   /**
