@@ -78,7 +78,7 @@ Running a single test group or a prebuilt VSIX is described in that package's RE
 - **`src/types/`** — Shared TypeScript types and enums
 - **`src/utils/`** — Pure, stateless helpers (no domain logic): `ArgumentConflictDetector`, `ClasspathRootFinder`, `DockerErrorDetector`, `Modals`, `Path`, `Process`, `Version`, `Vscode`
 - **`src/views/`** — Tree view providers by domain: `deployments/`, `help/`, `infrastructure/`, `integrations/`, `openapi/`, `shared/`, `tests/`
-- **`assets/`** — Host-side files for the Kaoto editor webview: `kaoto-editor.html` (production page template with the CSP, nonce and asset URLs) and `kaoto-host-shim.js` (the host shim). The editor bundle itself is built by `@kaoto/kaoto` (`build:webview`) and copied to `dist/webview/` by webpack.
+- **`assets/`** — Host-side files for the Kaoto editor webview: `kaoto-editor.html` (production page template with the CSP, nonce and asset URLs) and `kaoto-host-shim.js` (the host shim). The editor bundle itself is built by `@kaoto/kaoto` (`build:webview` for a minified production bundle, `build:webview:dev` for an unminified one with inline sourcemaps) and copied to `dist/webview/` by webpack.
 
 ### Test layout
 
