@@ -543,6 +543,11 @@ public void write(Writer writer, Map<String, String> options) {
     this.syntacticalTargetNamespace = syntacticalTargetNamespace;
   }
 
+  /**
+   * `schemaStack` collects every schema already searched during one lookup, not only the current path. A schema
+   * reached a second time cannot hold the name either, so skipping it keeps the first hit and avoids walking every
+   * path through diamond-shaped include graphs.
+   */
   private findByQName<T>(
     name: QName,
     map: QNameMap<T>,
@@ -557,10 +562,11 @@ public void write(Writer writer, Map<String, String> options) {
     if (!deep || item !== null) {
       return item;
     }
+    const stack = schemaStack ?? [];
+    stack.push(this);
     for (const ext of this.externals) {
       const schema = this.getSchema(ext);
       if (schema !== null) {
-        const stack = [...(schemaStack ?? []), this];
         const found = deepGetter(schema, name, deep, stack);
         if (found !== null) {
           return found;

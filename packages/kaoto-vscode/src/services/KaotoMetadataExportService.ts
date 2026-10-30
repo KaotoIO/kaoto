@@ -21,15 +21,18 @@ import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { findClasspathRoot } from '../utils/ClasspathRootFinder';
 import { findExistingKaotoMetadataFile } from '../utils/KaotoMetadataFileUtils';
 
+/** The schema files of one DataMapper document, and the entry schema file the root element is resolved from. */
+interface DataMapperMetadataDocument {
+	filePath?: string[];
+	entrySchemaFile?: string;
+	rootElementChoice?: { entrySchemaFile?: string };
+}
+
 export interface DataMapperMetadataEntry {
 	xsltPath?: string;
-	sourceBody?: {
-		filePath?: string[];
-	};
-	targetBody?: {
-		filePath?: string[];
-	};
-	sourceParameters?: Record<string, { filePath?: string[] }>;
+	sourceBody?: DataMapperMetadataDocument;
+	targetBody?: DataMapperMetadataDocument;
+	sourceParameters?: Record<string, DataMapperMetadataDocument>;
 	[key: string]: unknown;
 }
 
@@ -623,22 +626,36 @@ export class KaotoMetadataExportService {
 
 	/** Rewrite the paths of an entry to where its files were exported, relative to the exported classpath root. */
 	private static normalizeEntryPaths(entry: DataMapperMetadataEntry): void {
-		const norm = KaotoMetadataExportService.normalizePath;
 		if (entry.xsltPath) {
-			entry.xsltPath = norm(entry.xsltPath);
+			entry.xsltPath = KaotoMetadataExportService.normalizePath(entry.xsltPath);
 		}
-		if (Array.isArray(entry.sourceBody?.filePath)) {
-			entry.sourceBody.filePath = entry.sourceBody.filePath.map(norm);
-		}
-		if (Array.isArray(entry.targetBody?.filePath)) {
-			entry.targetBody.filePath = entry.targetBody.filePath.map(norm);
-		}
+		KaotoMetadataExportService.normalizeDocumentPaths(entry.sourceBody);
+		KaotoMetadataExportService.normalizeDocumentPaths(entry.targetBody);
 		if (entry.sourceParameters && typeof entry.sourceParameters === 'object' && !Array.isArray(entry.sourceParameters)) {
 			for (const param of Object.values(entry.sourceParameters)) {
-				if (Array.isArray(param?.filePath)) {
-					param.filePath = param.filePath.map(norm);
-				}
+				KaotoMetadataExportService.normalizeDocumentPaths(param);
 			}
+		}
+	}
+
+	/**
+	 * Normalize the schema file paths of one DataMapper document. The entry schema file fields name one of the
+	 * `filePath` files, so they must follow it to the exported location.
+	 */
+	private static normalizeDocumentPaths(document: DataMapperMetadataDocument | undefined): void {
+		if (!document || typeof document !== 'object') {
+			return;
+		}
+		const norm = KaotoMetadataExportService.normalizePath;
+		if (Array.isArray(document.filePath)) {
+			document.filePath = document.filePath.map(norm);
+		}
+		if (typeof document.entrySchemaFile === 'string') {
+			document.entrySchemaFile = norm(document.entrySchemaFile);
+		}
+		const choice = document.rootElementChoice;
+		if (choice && typeof choice === 'object' && typeof choice.entrySchemaFile === 'string') {
+			choice.entrySchemaFile = norm(choice.entrySchemaFile);
 		}
 	}
 }

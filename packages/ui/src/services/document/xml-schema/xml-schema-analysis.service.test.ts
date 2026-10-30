@@ -1,4 +1,4 @@
-import { XmlSchemaAnalysisService } from './xml-schema-analysis.service';
+import { DependencyEdge, XmlSchemaAnalysisService } from './xml-schema-analysis.service';
 
 describe('XmlSchemaAnalysisService', () => {
   const makeSchema = (opts?: {
@@ -278,6 +278,19 @@ ${elements}
     it('should return an empty list for an empty report', () => {
       const report = XmlSchemaAnalysisService.analyze({});
       expect(XmlSchemaAnalysisService.findUnreferencedSchemas(report)).toEqual([]);
+    });
+
+    it('should support explicit (nodes, edges) overload', () => {
+      const nodes = ['Main.xsd', 'Types.xsd'];
+      const edges: DependencyEdge[] = [
+        {
+          from: 'Main.xsd',
+          to: 'Types.xsd',
+          directive: { type: 'include', schemaLocation: 'Types.xsd', namespace: null },
+        },
+      ];
+      expect(XmlSchemaAnalysisService.findUnreferencedSchemas(nodes, edges)).toEqual(['Main.xsd']);
+      expect(XmlSchemaAnalysisService.findUnreferencedSchemas([], [])).toEqual([]);
     });
   });
 

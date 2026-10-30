@@ -182,6 +182,52 @@ describe('XmlSchemaDocumentService / abstract', () => {
       expect(abstractLabelField.minOccurs).toBe(1);
       expect(abstractLabelField.maxOccurs).toBe(1);
     });
+
+    it('should scope substitution group members to entrySchemaFile when populating abstract element fields', () => {
+      const entryXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:test" xmlns:tns="urn:test">
+  <xs:element name="AbstractItem" type="xs:string" abstract="true"/>
+  <xs:element name="ConcreteItem" type="xs:string" substitutionGroup="tns:AbstractItem"/>
+  <xs:element name="Container">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="tns:AbstractItem"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const unrelatedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:test" xmlns:tns="urn:test">
+  <xs:element name="AbstractItem" type="xs:string" abstract="true"/>
+  <xs:element name="ConcreteItem" type="xs:string" substitutionGroup="tns:AbstractItem" abstract="true"/>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        {
+          'Unrelated.xsd': unrelatedXsd,
+          'Entry.xsd': entryXsd,
+        },
+        { namespaceUri: 'urn:test', name: 'Container', entrySchemaFile: 'Entry.xsd' },
+        undefined,
+        undefined,
+        undefined,
+        'Entry.xsd',
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).not.toBe('error');
+      const document = result.document as XmlSchemaDocument;
+      const containerField = document.fields[0];
+      const abstractField = containerField.fields.find((f) => f.name === 'AbstractItem');
+      expect(abstractField).toBeDefined();
+      expect(abstractField!.wrapperKind).toBe('abstract');
+      const childNames = abstractField!.fields.map((f) => f.name);
+      expect(childNames).toContain('ConcreteItem');
+    });
   });
 
   describe('abstract complexType', () => {

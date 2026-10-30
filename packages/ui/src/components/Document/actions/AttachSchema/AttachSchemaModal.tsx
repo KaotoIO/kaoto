@@ -162,8 +162,15 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   const selectedRootOption: RootElementOption | undefined = useMemo(() => {
     const rootQName = DocumentService.getRootElementQName(createDocumentResult?.document);
     if (!rootQName || !createDocumentResult?.rootElementOptions) return undefined;
-    return createDocumentResult.rootElementOptions.find(
-      (opt) => opt.name === rootQName.getLocalPart() && opt.namespaceUri === (rootQName.getNamespaceURI() || ''),
+    const entrySchemaFile = createDocumentResult.document?.definition?.entrySchemaFile;
+    const name = rootQName.getLocalPart();
+    const namespaceUri = rootQName.getNamespaceURI() || '';
+    const options = createDocumentResult.rootElementOptions;
+    // Prefer the option whose entrySchemaFile matches the document's current entry schema.
+    return (
+      options.find(
+        (opt) => opt.name === name && opt.namespaceUri === namespaceUri && opt.entrySchemaFile === entrySchemaFile,
+      ) ?? options.find((opt) => opt.name === name && opt.namespaceUri === namespaceUri)
     );
   }, [createDocumentResult]);
 
@@ -191,6 +198,9 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
 
     setIsLoading(true);
     try {
+      // Persist the displayed root so that reload does not re-derive it from the entry schema.
+      // Done here (not on attach) because adding another file rebuilds the document.
+      createDocumentResult.documentDefinition.rootElementChoice ??= selectedRootOption;
       updateDocument(createDocumentResult.document, createDocumentResult.documentDefinition, documentReferenceId);
       /* eslint-disable @typescript-eslint/no-explicit-any */
     } catch (error: any) {
@@ -205,7 +215,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
     onModalClose();
     setCreateDocumentResult(null);
     setFilePaths([]);
-  }, [setIsLoading, updateDocument, createDocumentResult, documentReferenceId, onModalClose]);
+  }, [setIsLoading, updateDocument, createDocumentResult, selectedRootOption, documentReferenceId, onModalClose]);
 
   const onCancel = useCallback(() => {
     onModalClose();

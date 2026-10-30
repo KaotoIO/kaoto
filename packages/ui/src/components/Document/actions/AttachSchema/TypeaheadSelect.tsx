@@ -17,6 +17,8 @@ export interface TypeaheadSelectOption {
   value: string;
   label?: string;
   description?: string;
+  /** Extra text matched by the typeahead filter but not displayed. */
+  searchText?: string;
 }
 
 interface TypeaheadSelectProps {
@@ -62,7 +64,10 @@ export const TypeaheadSelect: FunctionComponent<TypeaheadSelectProps> = ({
     if (!filterText) return options;
     const lower = filterText.toLowerCase();
     return options.filter(
-      (opt) => (opt.label ?? opt.value).toLowerCase().includes(lower) || opt.description?.toLowerCase().includes(lower),
+      (opt) =>
+        (opt.label ?? opt.value).toLowerCase().includes(lower) ||
+        opt.description?.toLowerCase().includes(lower) ||
+        opt.searchText?.toLowerCase().includes(lower),
     );
   }, [options, filterText]);
 

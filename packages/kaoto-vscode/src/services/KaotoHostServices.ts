@@ -311,12 +311,15 @@ export class KaotoHostServices implements vscode.Disposable {
 			return value.map((entry) => this.normalizeMetadataFilePaths(entry));
 		}
 		return Object.fromEntries(
-			Object.entries(value).map(([key, entry]) => [
-				key,
-				key === 'filePath' && Array.isArray(entry)
-					? entry.map((file) => (typeof file === 'string' ? file.replaceAll('\\', '/') : file))
-					: this.normalizeMetadataFilePaths(entry),
-			]),
+			Object.entries(value).map(([key, entry]) => {
+				if (key === 'filePath' && Array.isArray(entry)) {
+					return [key, entry.map((file) => (typeof file === 'string' ? file.replaceAll('\\', '/') : file))];
+				}
+				if (key === 'entrySchemaFile' && typeof entry === 'string') {
+					return [key, entry.replaceAll('\\', '/')];
+				}
+				return [key, this.normalizeMetadataFilePaths(entry)];
+			}),
 		);
 	}
 }

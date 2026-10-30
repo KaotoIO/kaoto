@@ -4,6 +4,7 @@ import {
   DocumentDefinitionType,
   DocumentInitializationModel,
   DocumentType,
+  RootElementOption,
 } from '../models/datamapper';
 import {
   IChoiceSelection,
@@ -12,6 +13,11 @@ import {
   IFieldTypeOverride,
 } from '../models/datamapper/metadata';
 import { IMetadataApi } from '../providers';
+import { XmlSchemaCollection } from '../xml-schema-ts';
+import { QName } from '../xml-schema-ts/QName';
+import { XmlSchemaAnalysisService } from './document/xml-schema/xml-schema-analysis.service';
+import { XmlSchemaDocumentService } from './document/xml-schema/xml-schema-document.service';
+import { XmlSchemaDocumentUtilService } from './document/xml-schema/xml-schema-document-util.service';
 import { XmlSchemaWrapperGeneratorService } from './document/xml-schema/xml-schema-wrapper-generator.service';
 import { EMPTY_XSL } from './mapping/mapping-serializer.service';
 
@@ -129,6 +135,15 @@ export class DataMapperMetadataService {
     });
   }
 
+  /**
+   * Loads a document definition from metadata.
+   * For legacy XML schema metadata lacking both `rootElementChoice` and `entrySchemaFile`,
+   * the default root element is inferred via {@link inferLegacyRootElementChoice} in topological
+   * load order to maintain backwards compatibility with existing mappings.
+   * The persisted `entrySchemaFile` is passed through as is; for metadata saved without one
+   * it is inferred by `XmlSchemaDocumentService.createXmlSchemaDocument`.
+   * File contents are keyed in `filePath` order (attach order).
+   */
   private static doLoadDocument(
     api: IMetadataApi,
     documentType: DocumentType,
@@ -151,19 +166,91 @@ export class DataMapperMetadataService {
         filePaths.forEach((path, i) => {
           if (contents[i]) definitionFiles[path] = contents[i];
         });
+
+        const savedChoice = documentMetadata.rootElementChoice;
+        // A saved choice without an entry file is legacy as well: it used to resolve collection-wide in load order.
+        const isLegacyXml =
+          definitionType === DocumentDefinitionType.XML_SCHEMA &&
+          !savedChoice?.entrySchemaFile &&
+          !documentMetadata.entrySchemaFile &&
+          Object.keys(definitionFiles).length > 0;
+
+        const inferredChoice = isLegacyXml
+          ? DataMapperMetadataService.inferLegacyRootElementChoice(definitionFiles, savedChoice)
+          : undefined;
+        const rootElementChoice = inferredChoice ?? savedChoice;
+        // Carried on the loaded metadata too, so that a save which does not rewrite the documents (mapping or
+        // namespace map only) pins the root as well. Not for an incomplete set of files: the first element of a
+        // partial set may differ from the one the mappings were created against.
+        if (inferredChoice && Object.keys(definitionFiles).length === filePaths.length) {
+          documentMetadata.rootElementChoice = inferredChoice;
+        }
+
         const answer = new DocumentDefinition(
           documentType,
           definitionType,
           name,
           definitionFiles,
-          documentMetadata.rootElementChoice,
+          rootElementChoice,
           documentMetadata.fieldTypeOverrides,
           documentMetadata.choiceSelections,
           documentMetadata.fieldSubstitutions,
+          documentMetadata.entrySchemaFile,
         );
         resolve(answer);
       });
     });
+  }
+
+  /**
+   * For legacy XML schema metadata saved without `entrySchemaFile`, resolves the root element the way
+   * pre-#3462 code did, using topological dependency load order and a collection-wide lookup, to preserve
+   * backwards compatibility for existing field mappings. Without a saved choice it is the first element;
+   * with a QName-only saved choice it is the first declaration of that QName.
+   * The result carries the entry schema (the unreferenced schema whose assembly reaches the exact declaring
+   * schema instance), so that reconstruction resolves the same declaration when several schemas declare the same QName.
+   */
+  private static inferLegacyRootElementChoice(
+    definitionFiles: Record<string, string>,
+    savedChoice?: RootElementOption,
+  ): RootElementOption | undefined {
+    try {
+      const collection = new XmlSchemaCollection();
+      collection.getSchemaResolver().addFiles(definitionFiles);
+      const analysis = XmlSchemaAnalysisService.analyze(definitionFiles);
+      if (analysis.errors.length > 0) return undefined;
+      const loadResult = XmlSchemaDocumentService.loadSchemaFiles(collection, analysis, definitionFiles);
+      if (loadResult.error) return undefined;
+      const legacyRoot = savedChoice
+        ? collection.getElementByQName(new QName(savedChoice.namespaceUri, savedChoice.name))
+        : XmlSchemaDocumentUtilService.getFirstElement(collection);
+      const qName = legacyRoot?.getQName();
+      const localPart = qName?.getLocalPart();
+      if (legacyRoot && localPart) {
+        const declaringSchema = collection
+          .getXmlSchemas()
+          .find((schema) => Array.from(schema.getElements().values()).includes(legacyRoot));
+        const declaringFile = declaringSchema?.getSourceURI();
+        const declaringNamespace = declaringSchema?.getLogicalTargetNamespace() || '';
+        const syntacticNamespaces = XmlSchemaDocumentUtilService.collectSyntacticNamespaces(collection);
+        const entrySchemaFile = declaringFile
+          ? XmlSchemaAnalysisService.findUnreferencedSchemas(Object.keys(definitionFiles), analysis.edges).find(
+              (candidate) =>
+                XmlSchemaDocumentUtilService.collectEffectiveNamespaces(candidate, analysis.edges, syntacticNamespaces)
+                  .get(declaringFile)
+                  ?.has(declaringNamespace),
+            )
+          : undefined;
+        return {
+          name: localPart,
+          namespaceUri: qName?.getNamespaceURI() || '',
+          ...(entrySchemaFile && { entrySchemaFile }),
+        };
+      }
+    } catch (err) {
+      console.warn(`[DataMapperMetadataService] Could not resolve legacy root element: ${err}`);
+    }
+    return undefined;
   }
 
   /**
@@ -210,6 +297,13 @@ export class DataMapperMetadataService {
     await api.setMetadata(metadataId, metadata);
   }
 
+  /** Strips the display-only `declaringFile` so it is never written to metadata. */
+  private static toPersistedRootElementChoice(choice?: RootElementOption): RootElementOption | undefined {
+    if (!choice) return undefined;
+    const { declaringFile: _declaringFile, ...persisted } = choice;
+    return persisted;
+  }
+
   private static async doCreateDocumentMetadata(
     api: IMetadataApi,
     definition: DocumentDefinition,
@@ -218,7 +312,8 @@ export class DataMapperMetadataService {
     const answer: IDocumentMetadata = {
       type: definition.definitionType,
       filePath: filePaths,
-      rootElementChoice: definition.rootElementChoice,
+      entrySchemaFile: definition.entrySchemaFile,
+      rootElementChoice: DataMapperMetadataService.toPersistedRootElementChoice(definition.rootElementChoice),
       fieldTypeOverrides: definition.fieldTypeOverrides,
       choiceSelections: definition.choiceSelections,
       fieldSubstitutions: definition.fieldSubstitutions,

@@ -12,11 +12,19 @@ import { IMetadataApi } from '../providers';
 import { getCommonTypesJsonSchema, getCustomerJsonSchema, getOrderJsonSchema } from '../stubs/datamapper/data-mapper';
 import { DataMapperMetadataService } from './datamapper-metadata.service';
 import { JsonSchemaDocumentService } from './document/json-schema/json-schema-document.service';
+import { XmlSchemaDocumentService } from './document/xml-schema/xml-schema-document.service';
 import {
   GENERATED_WRAPPER_MARKER,
   GENERATED_WRAPPER_NOTICE,
 } from './document/xml-schema/xml-schema-wrapper-generator.service';
 import { EMPTY_XSL } from './mapping/mapping-serializer.service';
+
+const rootDeclaration = (child: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:t">
+  <xs:element name="Root">
+    <xs:complexType><xs:sequence><xs:element name="${child}" type="xs:string"/></xs:sequence></xs:complexType>
+  </xs:element>
+</xs:schema>`;
 
 describe('DataMapperMetadataService', () => {
   let mockApi: Mocked<IMetadataApi>;
@@ -315,6 +323,457 @@ describe('DataMapperMetadataService', () => {
       expect(Object.keys(result.sourceParameters)).toHaveLength(0);
     });
 
+    it('should load entrySchemaFile from metadata when present', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Main.xsd', 'Types.xsd'],
+          entrySchemaFile: 'Main.xsd',
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => `<schema file="${path}"/>`);
+
+      const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(result.sourceBody.entrySchemaFile).toBe('Main.xsd');
+    });
+
+    it('should leave entrySchemaFile undefined for legacy metadata so createXmlSchemaDocument infers it', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Types.xsd', 'Main.xsd'],
+          rootElementChoice: { namespaceUri: 'http://example.com/main', name: 'Root' },
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Main.xsd') {
+          return '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/main"><xs:element name="Root"/></xs:schema>';
+        }
+        return '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/types"><xs:element name="Other"/></xs:schema>';
+      });
+
+      const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(result.sourceBody.entrySchemaFile).toBeUndefined();
+      expect(result.sourceBody.rootElementChoice).toEqual({
+        namespaceUri: 'http://example.com/main',
+        name: 'Root',
+        entrySchemaFile: 'Main.xsd',
+      });
+    });
+
+    it('should keep definitionFiles in filePath order for legacy metadata without rootElementChoice', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['First.xsd', 'Second.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => `<schema file="${path}"/>`);
+
+      const result = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(result.sourceBody.entrySchemaFile).toBeUndefined();
+      expect(Object.keys(result.sourceBody.definitionFiles ?? {})).toEqual(['First.xsd', 'Second.xsd']);
+    });
+
+    it('should successfully construct and populate XmlSchemaDocument from legacy metadata without entrySchemaFile', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['CommonTypes.xsd', 'Main.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Main.xsd') {
+          return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/ns" xmlns="http://example.com/ns">
+  <xs:include schemaLocation="CommonTypes.xsd"/>
+  <xs:element name="Order">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Id" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+        }
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/ns" xmlns="http://example.com/ns">
+  <xs:complexType name="ItemType">
+    <xs:sequence>
+      <xs:element name="Name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>`;
+      });
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      expect(loaded.sourceBody.entrySchemaFile).toBeUndefined();
+
+      const docResult = XmlSchemaDocumentService.createXmlSchemaDocument(loaded.sourceBody);
+      expect(docResult.validationStatus).toBe('success');
+      expect(docResult.documentDefinition?.entrySchemaFile).toBe('Main.xsd');
+      expect(docResult.document?.rootElement?.getName()).toBe('Order');
+      expect(docResult.document?.fields[0].name).toBe('Order');
+      expect(docResult.document?.fields[0].fields[0].name).toBe('Id');
+    });
+
+    it('should preserve legacy root element selection for legacy multi-file import without rootElementChoice', async () => {
+      // Main.xsd imports Types.xsd (both declare elements, no entrySchemaFile/rootElementChoice in legacy metadata).
+      // doLoadDocument infers the legacy root element (TypeItem from Types.xsd in load order) as rootElementChoice,
+      // preserving existing field mappings, while inferring Main.xsd as entrySchemaFile for scoped resolution.
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Types.xsd', 'Main.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Main.xsd') {
+          return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/main" xmlns:types="http://example.com/types">
+  <xs:import namespace="http://example.com/types" schemaLocation="Types.xsd"/>
+  <xs:element name="MainOrder" type="xs:string"/>
+</xs:schema>`;
+        }
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/types">
+  <xs:element name="TypeItem" type="xs:string"/>
+</xs:schema>`;
+      });
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      expect(loaded.sourceBody.entrySchemaFile).toBeUndefined();
+      expect(loaded.sourceBody.rootElementChoice).toEqual({
+        name: 'TypeItem',
+        namespaceUri: 'http://example.com/types',
+        entrySchemaFile: 'Main.xsd',
+      });
+
+      const docResult = XmlSchemaDocumentService.createXmlSchemaDocument(loaded.sourceBody);
+      expect(docResult.validationStatus).toBe('success');
+      expect(docResult.documentDefinition?.entrySchemaFile).toBe('Main.xsd');
+      expect(docResult.document?.rootElement?.getName()).toBe('TypeItem');
+    });
+
+    it('should preserve legacy root element in topological dependency order even when filePath lists importer first', async () => {
+      // Main.xsd is listed first in filePath but imports Types.xsd.
+      // Topological dependency sort ensures Types.xsd is loaded first, matching pre-#3462 behavior.
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Main.xsd', 'Types.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Main.xsd') {
+          return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/main" xmlns:types="http://example.com/types">
+  <xs:import namespace="http://example.com/types" schemaLocation="Types.xsd"/>
+  <xs:element name="MainOrder" type="xs:string"/>
+</xs:schema>`;
+        }
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/types">
+  <xs:element name="TypeItem" type="xs:string"/>
+</xs:schema>`;
+      });
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      expect(loaded.sourceBody.rootElementChoice).toEqual({
+        name: 'TypeItem',
+        namespaceUri: 'http://example.com/types',
+        entrySchemaFile: 'Main.xsd',
+      });
+
+      const docResult = XmlSchemaDocumentService.createXmlSchemaDocument(loaded.sourceBody);
+      expect(docResult.document?.rootElement?.getName()).toBe('TypeItem');
+    });
+
+    it('should resolve the legacy root from the same declaration that inference picked when a QName is declared twice', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Types.xsd', 'A.xsd', 'B.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Types.xsd') return rootDeclaration('fromTypes');
+        if (path === 'A.xsd') return rootDeclaration('fromA');
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:b">
+  <xs:import namespace="urn:t" schemaLocation="Types.xsd"/>
+  <xs:element name="Other" type="xs:string"/>
+</xs:schema>`;
+      });
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      // Legacy inference walks the topological load order, so the imported Types.xsd comes first.
+      // B.xsd is the unreferenced schema that reaches it, and the choice must carry it.
+      expect(loaded.sourceBody.rootElementChoice).toEqual({
+        name: 'Root',
+        namespaceUri: 'urn:t',
+        entrySchemaFile: 'B.xsd',
+      });
+
+      const docResult = XmlSchemaDocumentService.createXmlSchemaDocument(loaded.sourceBody);
+      expect(docResult.document?.fields[0].fields.map((f) => f.name)).toEqual(['fromTypes']);
+    });
+
+    it('should keep a saved QName-only root choice on the declaration that load order resolved before', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Types.xsd', 'A.xsd', 'B.xsd'],
+          rootElementChoice: { name: 'Root', namespaceUri: 'urn:t' },
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Types.xsd') return rootDeclaration('fromTypes');
+        if (path === 'A.xsd') return rootDeclaration('fromA');
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:b">
+  <xs:import namespace="urn:t" schemaLocation="Types.xsd"/>
+  <xs:element name="Other" type="xs:string"/>
+</xs:schema>`;
+      });
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      expect(loaded.sourceBody.rootElementChoice).toEqual({
+        name: 'Root',
+        namespaceUri: 'urn:t',
+        entrySchemaFile: 'B.xsd',
+      });
+
+      const docResult = XmlSchemaDocumentService.createXmlSchemaDocument(loaded.sourceBody);
+      expect(docResult.document?.fields[0].fields.map((f) => f.name)).toEqual(['fromTypes']);
+    });
+
+    it('should pick the entry that reaches the exact schema instance when a no-namespace schema is included by two hosts', async () => {
+      // A.xsd and B.xsd both include the no-namespace Shared.xsd (chameleon), which is parsed once per host namespace.
+      // A.xsd also imports an element-less schema, so it is listed first but only B.xsd reaches {urn:b}Root.
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['A.xsd', 'B.xsd', 'Shared.xsd', 'Empty.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        switch (path) {
+          case 'A.xsd':
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:a">
+  <xs:include schemaLocation="Shared.xsd"/>
+  <xs:import namespace="urn:e" schemaLocation="Empty.xsd"/>
+</xs:schema>`;
+          case 'B.xsd':
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:b">
+  <xs:include schemaLocation="Shared.xsd"/>
+</xs:schema>`;
+          case 'Empty.xsd':
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:e"/>`;
+          default:
+            return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="Root" type="xs:string"/>
+</xs:schema>`;
+        }
+      });
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      // The entry must reach the very declaration that was picked, under the host namespace it lives in.
+      expect(loaded.sourceBody.rootElementChoice).toEqual({
+        name: 'Root',
+        namespaceUri: 'urn:b',
+        entrySchemaFile: 'B.xsd',
+      });
+      const docResult = XmlSchemaDocumentService.createXmlSchemaDocument(loaded.sourceBody);
+      expect(docResult.document?.rootElement?.getQName()?.getNamespaceURI()).toBe('urn:b');
+    });
+
+    it('should preserve legacy root element for schemas with xs:include without rootElementChoice', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Included.xsd', 'Main.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Main.xsd') {
+          return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/ns">
+  <xs:include schemaLocation="Included.xsd"/>
+  <xs:element name="MainElem" type="xs:string"/>
+</xs:schema>`;
+        }
+        return `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/ns">
+  <xs:element name="IncludedElem" type="xs:string"/>
+</xs:schema>`;
+      });
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      expect(loaded.sourceBody.rootElementChoice).toEqual({
+        name: 'MainElem',
+        namespaceUri: 'http://example.com/ns',
+        entrySchemaFile: 'Main.xsd',
+      });
+    });
+
+    it('should not infer legacy root element when entrySchemaFile is already present', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Types.xsd', 'Main.xsd'],
+          entrySchemaFile: 'Main.xsd',
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Main.xsd') {
+          return '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="MainElem"/></xs:schema>';
+        }
+        return '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="TypeItem"/></xs:schema>';
+      });
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      expect(loaded.sourceBody.rootElementChoice).toBeUndefined();
+      expect(loaded.sourceBody.entrySchemaFile).toBe('Main.xsd');
+    });
+
+    it('should return undefined when analysis reports errors during legacy root inference', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Broken.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockResolvedValue('<xs:schema invalid syntax');
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      expect(loaded.sourceBody.rootElementChoice).toBeUndefined();
+    });
+
+    it('should persist inferred legacy rootElementChoice when metadata is updated', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Types.xsd', 'Main.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Main.xsd') {
+          return '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="MainElem"/></xs:schema>';
+        }
+        return '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="TypeElem"/></xs:schema>';
+      });
+
+      const loaded = await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      const inferredChoice = { name: 'TypeElem', namespaceUri: '', entrySchemaFile: 'Types.xsd' };
+      expect(loaded.sourceBody.rootElementChoice).toEqual(inferredChoice);
+
+      await DataMapperMetadataService.updateSourceBodyMetadata(mockApi, 'test-id', metadata, loaded.sourceBody);
+      expect(mockApi.setMetadata).toHaveBeenCalledWith(
+        'test-id',
+        expect.objectContaining({ sourceBody: expect.objectContaining({ rootElementChoice: inferredChoice }) }),
+      );
+    });
+
+    it('should pin the inferred legacy root on a save that does not rewrite the documents', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Types.xsd', 'Main.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Main.xsd') {
+          return '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="MainElem"/></xs:schema>';
+        }
+        return '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="TypeElem"/></xs:schema>';
+      });
+
+      await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+      await DataMapperMetadataService.setNamespaceMap(mockApi, 'test-id', metadata, { ns: 'urn:ns' });
+
+      expect(mockApi.setMetadata).toHaveBeenCalledWith(
+        'test-id',
+        expect.objectContaining({
+          sourceBody: expect.objectContaining({
+            rootElementChoice: { name: 'TypeElem', namespaceUri: '', entrySchemaFile: 'Types.xsd' },
+          }),
+        }),
+      );
+    });
+
+    it('should not pin an inferred legacy root when a schema file could not be read', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: {
+          type: DocumentDefinitionType.XML_SCHEMA,
+          filePath: ['Missing.xsd', 'Main.xsd'],
+        },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      mockApi.getResourceContent.mockImplementation(async (path) => {
+        if (path === 'Main.xsd') {
+          return '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="MainElem"/></xs:schema>';
+        }
+        throw new Error('File not found');
+      });
+      vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      await DataMapperMetadataService.loadDocuments(mockApi, metadata);
+
+      expect(metadata.sourceBody.rootElementChoice).toBeUndefined();
+    });
+
     it('should handle file read errors gracefully', async () => {
       const metadata: IDataMapperMetadata = {
         sourceBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['nonexistent.xsd'] },
@@ -432,6 +891,31 @@ describe('DataMapperMetadataService', () => {
       expect(metadata.sourceBody.filePath).toEqual(['source.xsd']);
       expect(metadata.sourceBody.rootElementChoice).toEqual(rootElementChoice);
       expect(mockApi.setMetadata).toHaveBeenCalledWith('test-id', metadata);
+    });
+
+    it('should not persist the display-only declaringFile of rootElementChoice', async () => {
+      const metadata: IDataMapperMetadata = {
+        sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        sourceParameters: {},
+        targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+        xsltPath: 'transform.xsl',
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'main.xsd': '<schema/>' },
+        { namespaceUri: 'urn:ns', name: 'Root', entrySchemaFile: 'main.xsd', declaringFile: 'types.xsd' },
+      );
+
+      await DataMapperMetadataService.updateSourceBodyMetadata(mockApi, 'test-id', metadata, definition);
+
+      expect(metadata.sourceBody.rootElementChoice).toEqual({
+        namespaceUri: 'urn:ns',
+        name: 'Root',
+        entrySchemaFile: 'main.xsd',
+      });
+      expect(metadata.sourceBody.rootElementChoice).not.toHaveProperty('declaringFile');
     });
 
     it('should not persist rootElementChoice when not provided', async () => {
@@ -554,6 +1038,25 @@ describe('DataMapperMetadataService', () => {
       await DataMapperMetadataService.updateSourceBodyMetadata(mockApi, 'test-id', metadata, definition);
 
       expect(metadata.sourceBody.fieldSubstitutions).toEqual(fieldSubstitutions);
+    });
+
+    it('should persist entrySchemaFile from DocumentDefinition to metadata', async () => {
+      const metadata = DataMapperMetadataService.createMetadata('test.xsl');
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'Main.xsd': '<schema/>', 'Sub.xsd': '<schema/>' },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'Main.xsd',
+      );
+
+      await DataMapperMetadataService.updateSourceBodyMetadata(mockApi, 'test-id', metadata, definition);
+
+      expect(metadata.sourceBody.entrySchemaFile).toBe('Main.xsd');
     });
   });
 

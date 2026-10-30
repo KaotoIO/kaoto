@@ -129,14 +129,128 @@ describe('RootElementSelect', () => {
     expect(onChange).toHaveBeenCalledWith({ name: 'Root', namespaceUri: 'urn:ns-b' });
   });
 
-  it('should omit description when namespaceUri is empty', async () => {
+  it('should omit description when namespaceUri and entrySchemaFile are empty', async () => {
     const options = createOptions(['Order', 'Invoice'], '');
     render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={vi.fn()} />);
 
     await openDropdown();
     const orderOption = screen.getByText('Order');
     expect(orderOption).toBeInTheDocument();
-    expect(orderOption.closest('[role="option"]')?.textContent).not.toContain('Namespace URI');
+    expect(orderOption.closest('[role="option"]')?.textContent).not.toContain('Namespace URI:');
+    expect(orderOption.closest('[role="option"]')?.textContent).not.toContain('File:');
+  });
+
+  it('should distinguish same-name elements from different entry schema files', async () => {
+    const options: RootElementOption[] = [
+      { name: 'Root', namespaceUri: 'urn:ns', entrySchemaFile: 'A.xsd' },
+      { name: 'Root', namespaceUri: 'urn:ns', entrySchemaFile: 'B.xsd' },
+    ];
+    const onChange = vi.fn();
+    render(<RootElementSelect rootElementOptions={options} selectedOption={options[0]} onChange={onChange} />);
+
+    await openDropdown();
+    const listbox = screen.getByRole('listbox');
+    const rootOptions = listbox.querySelectorAll('[role="option"]');
+    expect(rootOptions).toHaveLength(2);
+
+    fireEvent.click(rootOptions[1]);
+    expect(onChange).toHaveBeenCalledWith({ name: 'Root', namespaceUri: 'urn:ns', entrySchemaFile: 'B.xsd' });
+  });
+
+  it('should pre-select the option passed as selectedOption among same-name options from different entries', async () => {
+    // Two options share the same name but come from different entry files.
+    const firstOption: RootElementOption = { name: 'Root', namespaceUri: 'urn:ns', entrySchemaFile: 'First.xsd' };
+    const secondOption: RootElementOption = { name: 'Root', namespaceUri: 'urn:ns', entrySchemaFile: 'Second.xsd' };
+    const options = [firstOption, secondOption];
+
+    // selectedOption = secondOption (AttachSchemaModal picks the option matching entrySchemaFile)
+    render(<RootElementSelect rootElementOptions={options} selectedOption={secondOption} onChange={vi.fn()} />);
+
+    // Input shows the label of the selected option (both share 'Root').
+    expect(getInput().value).toBe('Root');
+
+    // Open dropdown: only the second option (Second.xsd) must be aria-selected.
+    await openDropdown();
+    const listbox = screen.getByRole('listbox');
+    const allOptions = listbox.querySelectorAll('[role="option"]');
+    expect(allOptions).toHaveLength(2);
+
+    // PatternFly marks the selected option with aria-selected="true".
+    const selectedDomOptions = listbox.querySelectorAll('[aria-selected="true"]');
+    expect(selectedDomOptions).toHaveLength(1);
+
+    // The selected option's text must contain 'Root' but its File label must be 'File: Second.xsd'
+    // (ambiguous name → File: prefix), confirming Second.xsd is pre-selected, not First.xsd.
+    expect(selectedDomOptions[0].textContent).toContain('Root');
+    expect(selectedDomOptions[0].textContent).toContain('Second.xsd');
+    expect(selectedDomOptions[0].textContent).not.toContain('First.xsd');
+  });
+
+  it('should show "File: <declaring> (via <entry>)" for elements declared in an included schema', async () => {
+    // Entry schema is Main.xsd; CommonTypes.xsd is included and declares its own global elements.
+    const mainOption: RootElementOption = { name: 'Root', namespaceUri: 'urn:ns', entrySchemaFile: 'Main.xsd' };
+    const indirectOption: RootElementOption = {
+      name: 'AuxRoot',
+      namespaceUri: 'urn:ns',
+      entrySchemaFile: 'Main.xsd',
+      declaringFile: 'CommonTypes.xsd',
+    };
+    const options = [mainOption, indirectOption];
+
+    render(<RootElementSelect rootElementOptions={options} selectedOption={mainOption} onChange={vi.fn()} />);
+
+    await openDropdown();
+    const listbox = screen.getByRole('listbox');
+
+    // AuxRoot is declared in CommonTypes.xsd and reached through the Main.xsd entry.
+    const auxOption = listbox.querySelectorAll('[role="option"]')[1];
+    expect(auxOption.textContent).toContain('AuxRoot');
+    expect(auxOption.textContent).toContain('File: CommonTypes.xsd (via Main.xsd)');
+
+    // Root is from Main.xsd (the entry schema itself) — no 'via' or 'File:' label needed.
+    const rootOption = listbox.querySelectorAll('[role="option"]')[0];
+    expect(rootOption.textContent).not.toContain('via');
+    expect(rootOption.textContent).not.toContain('File:');
+  });
+
+  it('should display file names without directory paths in the description', async () => {
+    const indirectOption: RootElementOption = {
+      name: 'AuxRoot',
+      namespaceUri: 'urn:ns',
+      entrySchemaFile: 'path/to/Main.xsd',
+      declaringFile: 'schemas/common/CommonTypes.xsd',
+    };
+    const options = [indirectOption];
+
+    render(<RootElementSelect rootElementOptions={options} selectedOption={indirectOption} onChange={vi.fn()} />);
+
+    await openDropdown();
+    const listbox = screen.getByRole('listbox');
+    const auxOption = listbox.querySelectorAll('[role="option"]')[0];
+    expect(auxOption.textContent).toContain('File: CommonTypes.xsd (via Main.xsd)');
+    expect(auxOption.textContent).not.toContain('schemas/common/');
+  });
+
+  it('should retain full path context when file basenames collide', async () => {
+    const option1: RootElementOption = {
+      name: 'Order',
+      namespaceUri: 'urn:orders',
+      entrySchemaFile: 'orders/schema.xsd',
+    };
+    const option2: RootElementOption = {
+      name: 'Order',
+      namespaceUri: 'urn:invoices',
+      entrySchemaFile: 'invoices/schema.xsd',
+    };
+    const options = [option1, option2];
+
+    render(<RootElementSelect rootElementOptions={options} selectedOption={option1} onChange={vi.fn()} />);
+
+    await openDropdown();
+    const listbox = screen.getByRole('listbox');
+    const renderedOptions = listbox.querySelectorAll('[role="option"]');
+    expect(renderedOptions[0].textContent).toContain('File: orders/schema.xsd');
+    expect(renderedOptions[1].textContent).toContain('File: invoices/schema.xsd');
   });
 
   it('should filter options by typing', async () => {
@@ -149,6 +263,47 @@ describe('RootElementSelect', () => {
     const visibleOptions = listbox.querySelectorAll('[role="option"]');
     expect(visibleOptions).toHaveLength(1);
     expect(screen.getByText('Invoice')).toBeInTheDocument();
+  });
+
+  it('should keep options without a File description when filtering by their entry file name', async () => {
+    const mainRoot: RootElementOption = { name: 'Root', namespaceUri: 'urn:ns', entrySchemaFile: 'Main.xsd' };
+    const mainAux: RootElementOption = {
+      name: 'AuxRoot',
+      namespaceUri: 'urn:ns',
+      entrySchemaFile: 'Main.xsd',
+      declaringFile: 'CommonTypes.xsd',
+    };
+    const otherRoot: RootElementOption = { name: 'Other', namespaceUri: 'urn:ns', entrySchemaFile: 'Other.xsd' };
+    const options = [mainRoot, mainAux, otherRoot];
+    render(<RootElementSelect rootElementOptions={options} selectedOption={mainRoot} onChange={vi.fn()} />);
+
+    await openDropdown();
+    fireEvent.change(getInput(), { target: { value: 'Main.xsd' } });
+    const listbox = screen.getByRole('listbox');
+    const visibleOptions = listbox.querySelectorAll('[role="option"]');
+    expect(visibleOptions).toHaveLength(2);
+    expect(screen.getByText('Root')).toBeInTheDocument();
+    expect(screen.getByText('AuxRoot')).toBeInTheDocument();
+    expect(screen.queryByText('Other')).not.toBeInTheDocument();
+  });
+
+  it('should filter options by their declaring file name', async () => {
+    const mainRoot: RootElementOption = { name: 'Root', namespaceUri: 'urn:ns', entrySchemaFile: 'Main.xsd' };
+    const mainAux: RootElementOption = {
+      name: 'AuxRoot',
+      namespaceUri: 'urn:ns',
+      entrySchemaFile: 'Main.xsd',
+      declaringFile: 'CommonTypes.xsd',
+    };
+    const options = [mainRoot, mainAux];
+    render(<RootElementSelect rootElementOptions={options} selectedOption={mainRoot} onChange={vi.fn()} />);
+
+    await openDropdown();
+    fireEvent.change(getInput(), { target: { value: 'CommonTypes.xsd' } });
+    const listbox = screen.getByRole('listbox');
+    const visibleOptions = listbox.querySelectorAll('[role="option"]');
+    expect(visibleOptions).toHaveLength(1);
+    expect(screen.getByText('AuxRoot')).toBeInTheDocument();
   });
 
   it('should filter by namespace description', async () => {
