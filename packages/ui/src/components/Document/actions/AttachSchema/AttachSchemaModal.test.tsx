@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
-import { BODY_DOCUMENT_ID, DocumentType } from '../../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentType, RootElementOption } from '../../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
 import { DocumentService } from '../../../../services/document/document.service';
 import { BrowserFilePickerMetadataProvider } from '../../../../stubs/BrowserFilePickerMetadataProvider';
@@ -621,6 +621,94 @@ describe('AttachSchemaModal', () => {
 
       const rootElementSelector = screen.queryByTestId('attach-schema-root-element');
       expect(rootElementSelector).not.toBeInTheDocument();
+    });
+
+    it('should pre-select the root option whose entrySchemaFile matches the document entry schema', async () => {
+      // Two root options share the same element name "Root" but come from different files.
+      // The document's entrySchemaFile is 'Second.xsd', so the picker must pre-select the
+      // second option — not the first — exercising the B1 entrySchemaFile-first match logic.
+      const sharedElementName = 'Root';
+      const sharedNs = 'http://example.com/ns';
+      const firstOption: RootElementOption = {
+        name: sharedElementName,
+        namespaceUri: sharedNs,
+        entrySchemaFile: 'First.xsd',
+      };
+      const secondOption: RootElementOption = {
+        name: sharedElementName,
+        namespaceUri: sharedNs,
+        entrySchemaFile: 'Second.xsd',
+      };
+
+      const fakeDoc = {
+        definition: { entrySchemaFile: 'Second.xsd' },
+      } as unknown as Parameters<typeof DocumentService.getRootElementQName>[0];
+
+      const createDocumentSpy = vi.spyOn(DocumentService, 'createDocument').mockResolvedValue({
+        validationStatus: 'success',
+        document: fakeDoc as never,
+        documentDefinition: {} as never,
+        rootElementOptions: [firstOption, secondOption],
+      });
+      const getRootQNameSpy = vi.spyOn(DocumentService, 'getRootElementQName').mockReturnValue({
+        getLocalPart: () => sharedElementName,
+        getNamespaceURI: () => sharedNs,
+      } as never);
+      const updateRootSpy = vi.spyOn(DocumentService, 'updateRootElement').mockReturnValue(fakeDoc as never);
+
+      render(
+        <BrowserFilePickerMetadataProvider>
+          <DataMapperProvider>
+            <AttachSchemaModal
+              isModalOpen
+              onModalClose={vi.fn()}
+              documentType={DocumentType.SOURCE_BODY}
+              documentId={BODY_DOCUMENT_ID}
+              documentReferenceId={BODY_DOCUMENT_ID}
+              actionName="Attach"
+              documentTypeLabel="Source"
+            />
+          </DataMapperProvider>
+        </BrowserFilePickerMetadataProvider>,
+      );
+
+      const importButton = await screen.findByTestId('attach-schema-modal-btn-file');
+      fireEvent.click(importButton);
+      const fileInput = await screen.findByTestId('attach-schema-file-input');
+      const fileContent = createSchemaFile(getShipOrderXsd(), 'ShipOrder.xsd');
+      fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('attach-schema-file-item-ShipOrder.xsd')).toBeInTheDocument();
+      });
+      expect(createDocumentSpy).toHaveBeenCalled();
+
+      // Both options share the same label ("Root"); the displayed input shows "Root".
+      const input = await findRootElementInput();
+      expect(input.value).toBe(sharedElementName);
+
+      // Open dropdown: the option from Second.xsd must be aria-selected="true" because
+      // selectedRootOption in the modal picked secondOption via the entrySchemaFile-first match.
+      fireEvent.focus(input);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeInTheDocument();
+      });
+      const listbox = screen.getByRole('listbox');
+      const allOptions = listbox.querySelectorAll('[role="option"]');
+      expect(allOptions).toHaveLength(2);
+
+      // PatternFly marks the pre-selected option with aria-selected="true".
+      // Exactly one option must be selected, and it must contain "Second.xsd" in its description
+      // (both options have the same name "Root" but the file label disambiguates).
+      const selectedOptions = listbox.querySelectorAll('[aria-selected="true"]');
+      expect(selectedOptions).toHaveLength(1);
+      expect(selectedOptions[0].textContent).toContain('Second.xsd');
+      expect(selectedOptions[0].textContent).not.toContain('First.xsd');
+
+      // Restore all mocks so subsequent tests in the same describe block are not affected.
+      createDocumentSpy.mockRestore();
+      getRootQNameSpy.mockRestore();
+      updateRootSpy.mockRestore();
     });
 
     it('should preserve root element selection when removing an unrelated file', async () => {

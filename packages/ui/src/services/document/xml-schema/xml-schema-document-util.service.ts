@@ -1,9 +1,8 @@
 import { IField, IParentType, RootElementOption } from '../../../models/datamapper/document';
 import { NS_XML, NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
 import { Types } from '../../../models/datamapper/types';
-import { XmlSchemaCollection, XmlSchemaElement, XmlSchemaType } from '../../../xml-schema-ts';
+import { XmlSchemaCollection, XmlSchemaElement, XmlSchemaGroup, XmlSchemaType } from '../../../xml-schema-ts';
 import { QName } from '../../../xml-schema-ts/QName';
-import { QNameMap } from '../../../xml-schema-ts/utils/ObjectMap';
 import { DocumentUtilService } from '../document-util.service';
 import { mapXmlSchemaTypeToEnum } from './xml-schema-type-mapping';
 
@@ -123,15 +122,17 @@ export class XmlSchemaDocumentUtilService {
    * @returns The root element
    * @throws Error if root element cannot be determined or specified element not found
    */
-  static determineRootElement(collection: XmlSchemaCollection, rootElemChoice?: RootElementOption): XmlSchemaElement {
+  static determineRootElement(
+    collection: XmlSchemaCollection,
+    rootElemChoice?: RootElementOption,
+    entrySchemaFile?: string,
+  ): XmlSchemaElement {
     if (rootElemChoice) {
-      const qName = new QName(rootElemChoice.namespaceUri, rootElemChoice.name);
-      const foundRootElement = collection.getElementByQName(qName);
-      if (!foundRootElement) {
-        throw new Error(`The specified root element '${qName.toString()}' is not found in the schema file(s)`);
-      }
-      return foundRootElement;
+      return XmlSchemaDocumentUtilService.resolveChosenRootElement(collection, rootElemChoice, entrySchemaFile);
     }
+
+    const fromEntry = XmlSchemaDocumentUtilService.getFirstElementFromSchema(collection, entrySchemaFile);
+    if (fromEntry) return fromEntry;
 
     const rootElement = XmlSchemaDocumentUtilService.getFirstElement(collection);
     if (!rootElement) {
@@ -140,24 +141,70 @@ export class XmlSchemaDocumentUtilService {
     return rootElement;
   }
 
+  private static resolveChosenRootElement(
+    collection: XmlSchemaCollection,
+    rootElemChoice: RootElementOption,
+    entrySchemaFile?: string,
+  ): XmlSchemaElement {
+    const qName = new QName(rootElemChoice.namespaceUri, rootElemChoice.name);
+    let foundRootElement: XmlSchemaElement | null = null;
+    const scopeFile = rootElemChoice.entrySchemaFile ?? entrySchemaFile;
+    if (scopeFile) {
+      const entrySchemas = collection.getXmlSchema(scopeFile);
+      for (const entrySchema of entrySchemas) {
+        foundRootElement = entrySchema.getElementByQName(qName, true);
+        if (foundRootElement) break;
+      }
+    }
+    foundRootElement ??= collection.getElementByQName(qName);
+    if (!foundRootElement) {
+      throw new Error(`The specified root element '${qName.toString()}' is not found in the schema file(s)`);
+    }
+    return foundRootElement;
+  }
+
+  private static getFirstElementFromSchema(
+    collection: XmlSchemaCollection,
+    entrySchemaFile?: string,
+  ): XmlSchemaElement | undefined {
+    if (!entrySchemaFile) return undefined;
+    // Prefer the first element declared in the entry schema so that the result is
+    // deterministic regardless of schema load order.
+    const entrySchemas = collection.getXmlSchema(entrySchemaFile);
+    for (const entrySchema of entrySchemas) {
+      const firstInEntry = entrySchema.getElements().values().next().value;
+      if (firstInEntry) return firstInEntry;
+    }
+    return undefined;
+  }
+
   /**
    * Collects all available root element options from the schema collection.
    * @param collection - The XML schema collection
-   * @returns Array of root element options with namespace URI and name
+   * @returns Array of root element options with namespace URI, name, and entrySchemaFile
    */
   static collectRootElementOptions(collection: XmlSchemaCollection): RootElementOption[] {
-    const allElements = new QNameMap<XmlSchemaElement>();
-    for (const schema of collection.getXmlSchemas()) {
-      for (const [key, value] of schema.getElements().entries()) {
-        allElements.set(key, value);
+    const options: RootElementOption[] = [];
+    const seen = new Set<string>();
+
+    for (const schema of collection.getUserSchemas()) {
+      const entrySchemaFile = schema.getSourceURI() || undefined;
+      for (const [key] of schema.getElements().entries()) {
+        const localPart = key.getLocalPart();
+        if (!localPart) continue;
+        const namespaceUri = key.getNamespaceURI() || '';
+        const uniqueKey = `${entrySchemaFile ?? ''}#${namespaceUri}#${localPart}`;
+        if (!seen.has(uniqueKey)) {
+          seen.add(uniqueKey);
+          options.push({
+            namespaceUri,
+            name: localPart,
+            entrySchemaFile,
+          });
+        }
       }
     }
-    return Array.from(allElements.keys())
-      .filter((key) => !!key.getLocalPart())
-      .map<RootElementOption>((key) => ({
-        namespaceUri: key.getNamespaceURI() || '',
-        name: key.getLocalPart()!,
-      }));
+    return options;
   }
 
   /**
@@ -190,7 +237,11 @@ export class XmlSchemaDocumentUtilService {
    * @param typeQName - The qualified name of the type to find
    * @returns The schema type if found and user-defined, null otherwise
    */
-  static lookupSchemaType(collection: XmlSchemaCollection, typeQName: QName | null): XmlSchemaType | null {
+  static lookupSchemaType(
+    collection: XmlSchemaCollection,
+    typeQName: QName | null,
+    entrySchemaFile?: string,
+  ): XmlSchemaType | null {
     if (!typeQName) return null;
 
     const namespace = typeQName.getNamespaceURI();
@@ -198,6 +249,62 @@ export class XmlSchemaDocumentUtilService {
       return null;
     }
 
+    if (entrySchemaFile) {
+      const entrySchemas = collection.getXmlSchema(entrySchemaFile);
+      for (const entrySchema of entrySchemas) {
+        const found = entrySchema.getTypeByQName(typeQName, true);
+        if (found) return found;
+      }
+    }
+
     return collection.getTypeByQName(typeQName) || null;
+  }
+
+  /**
+   * Looks up a schema element in the collection, scoped to entrySchemaFile's reachable hierarchy if provided.
+   *
+   * @param collection - The XML schema collection
+   * @param elementQName - The QName of the element to find
+   * @param entrySchemaFile - Optional entry schema file path
+   * @returns The schema element if found, null otherwise
+   */
+  static lookupSchemaElement(
+    collection: XmlSchemaCollection,
+    elementQName: QName | null,
+    entrySchemaFile?: string,
+  ): XmlSchemaElement | null {
+    if (!elementQName) return null;
+    if (entrySchemaFile) {
+      const entrySchemas = collection.getXmlSchema(entrySchemaFile);
+      for (const entrySchema of entrySchemas) {
+        const found = entrySchema.getElementByQName(elementQName, true);
+        if (found) return found;
+      }
+    }
+    return collection.getElementByQName(elementQName) || null;
+  }
+
+  /**
+   * Looks up a schema group in the collection, scoped to entrySchemaFile's reachable hierarchy if provided.
+   *
+   * @param collection - The XML schema collection
+   * @param groupQName - The QName of the group to find
+   * @param entrySchemaFile - Optional entry schema file path
+   * @returns The schema group if found, null otherwise
+   */
+  static lookupSchemaGroup(
+    collection: XmlSchemaCollection,
+    groupQName: QName | null,
+    entrySchemaFile?: string,
+  ): XmlSchemaGroup | null {
+    if (!groupQName) return null;
+    if (entrySchemaFile) {
+      const entrySchemas = collection.getXmlSchema(entrySchemaFile);
+      for (const entrySchema of entrySchemas) {
+        const found = entrySchema.getGroupByQName(groupQName, true);
+        if (found) return found;
+      }
+    }
+    return collection.getGroupByQName(groupQName) || null;
   }
 }

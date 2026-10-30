@@ -9,7 +9,9 @@ import {
   getSimpleTypeInheritanceXsd,
   TestUtil,
 } from '../../../stubs/datamapper/data-mapper';
-import { XmlSchema, XmlSchemaCollection, XmlSchemaSimpleType } from '../../../xml-schema-ts';
+import { XmlSchema, XmlSchemaCollection, XmlSchemaComplexType, XmlSchemaSimpleType } from '../../../xml-schema-ts';
+import { XmlSchemaComplexContent } from '../../../xml-schema-ts/complex/XmlSchemaComplexContent';
+import { XmlSchemaComplexContentExtension } from '../../../xml-schema-ts/complex/XmlSchemaComplexContentExtension';
 import { QName } from '../../../xml-schema-ts/QName';
 import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { JsonSchemaDocument, JsonSchemaField } from '../json-schema/json-schema-document.model';
@@ -1274,6 +1276,115 @@ describe('XmlSchemaTypesService', () => {
           {},
         );
         expect(result).toBeUndefined();
+      });
+    });
+
+    describe('isExtensionOrRestriction()', () => {
+      it('should not throw (cycle guard) when complexType derivation chain forms a cycle', () => {
+        // TypeA extends TypeB, TypeB extends TypeA, TypeC is an unrelated type.
+        // isExtensionOrRestriction(typeA, typeC) would loop forever without a cycle guard.
+        const ns = 'http://www.example.com/CYCLIC-COMPLEX';
+        const schema = new XmlSchema(ns);
+
+        const typeA = new XmlSchemaComplexType(schema, true);
+        typeA.setName('TypeA');
+        const typeB = new XmlSchemaComplexType(schema, true);
+        typeB.setName('TypeB');
+        const typeC = new XmlSchemaComplexType(schema, true);
+        typeC.setName('TypeC');
+
+        const contentA = new XmlSchemaComplexContent();
+        const extA = new XmlSchemaComplexContentExtension();
+        extA.setBaseTypeName(typeB.getQName()!);
+        contentA.setContent(extA);
+        typeA.setContentModel(contentA);
+
+        const contentB = new XmlSchemaComplexContent();
+        const extB = new XmlSchemaComplexContentExtension();
+        extB.setBaseTypeName(typeA.getQName()!);
+        contentB.setContent(extB);
+        typeB.setContentModel(contentB);
+
+        const collection = new XmlSchemaCollection();
+        vi.spyOn(collection, 'getTypeByQName').mockImplementation((qName: QName) => {
+          if (qName.getLocalPart() === 'TypeA') return typeA;
+          if (qName.getLocalPart() === 'TypeB') return typeB;
+          return null;
+        });
+
+        // Without the cycle guard this would throw RangeError.
+        // With the guard it terminates and returns false (typeA is not derived from typeC).
+        expect(() => XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).not.toThrow();
+        expect(XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).toBe(false);
+      });
+
+      it('should not throw (cycle guard) when simpleType derivation chain forms a cycle', () => {
+        // TypeA restricts TypeB, TypeB restricts TypeA, TypeC is an unrelated simpleType.
+        // isExtensionOrRestriction(typeA, typeC) would loop forever without a cycle guard.
+        const ns = 'http://www.example.com/CYCLIC-SIMPLE';
+        const schema = new XmlSchema(ns);
+        const typeA = new XmlSchemaSimpleType(schema, true);
+        typeA.setName('TypeA');
+        const typeB = new XmlSchemaSimpleType(schema, true);
+        typeB.setName('TypeB');
+        const typeC = new XmlSchemaSimpleType(schema, true);
+        typeC.setName('TypeC');
+
+        const restrictionA = new XmlSchemaSimpleTypeRestriction();
+        restrictionA.setBaseTypeName(typeB.getQName()!);
+        typeA.setContent(restrictionA);
+        const restrictionB = new XmlSchemaSimpleTypeRestriction();
+        restrictionB.setBaseTypeName(typeA.getQName()!);
+        typeB.setContent(restrictionB);
+
+        const collection = new XmlSchemaCollection();
+        vi.spyOn(collection, 'getTypeByQName').mockImplementation((qName: QName) => {
+          if (qName.getLocalPart() === 'TypeA') return typeA;
+          if (qName.getLocalPart() === 'TypeB') return typeB;
+          return null;
+        });
+
+        expect(() => XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).not.toThrow();
+        expect(XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).toBe(false);
+      });
+
+      it('should scope type lookup through entrySchemaFile when provided', () => {
+        // DerivedStringType restricts BaseStringType in SimpleTypeInheritance.xsd.
+        // isExtensionOrRestriction with entrySchemaFile routes through the scoped lookup path.
+        const def = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'scope-test',
+          { 'SimpleTypeInheritance.xsd': getSimpleTypeInheritanceXsd() },
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'SimpleTypeInheritance.xsd',
+        );
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(def);
+        expect(result.validationStatus).toBe('success');
+        const doc = result.document!;
+        const ns = 'http://www.example.com/SIMPLEINHERIT';
+        const collection = doc.xmlSchemaCollection;
+
+        const derivedType = collection.getTypeByQName(new QName(ns, 'DerivedStringType'));
+        const baseType = collection.getTypeByQName(new QName(ns, 'BaseStringType'));
+        expect(derivedType).toBeDefined();
+        expect(baseType).toBeDefined();
+
+        // With entrySchemaFile — scoped lookup resolves through the entry assembly.
+        expect(
+          XmlSchemaTypesService.isExtensionOrRestriction(
+            derivedType!,
+            baseType!,
+            collection,
+            'SimpleTypeInheritance.xsd',
+          ),
+        ).toBe(true);
+
+        // Without entrySchemaFile — collection-wide fallback still works.
+        expect(XmlSchemaTypesService.isExtensionOrRestriction(derivedType!, baseType!, collection)).toBe(true);
       });
     });
   });

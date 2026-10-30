@@ -106,6 +106,21 @@ describe('DataMapperValidationStepService', () => {
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
     });
 
+    it('should use entrySchemaFile instead of filePath[0] when entrySchemaFile is present', () => {
+      const model = createModel('xslt-saxon:transform.xsl');
+      const vizNode = createVizNode(model);
+      const metadata = {
+        type: DocumentDefinitionType.XML_SCHEMA,
+        filePath: ['Types.xsd', 'Main.xsd'],
+        entrySchemaFile: 'Main.xsd',
+      } as IDocumentMetadata;
+
+      DataMapperValidationStepService.addValidationStep(vizNode, metadata, mockEntitiesContext);
+
+      expect(model.steps).toHaveLength(2);
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({ uri: 'validator:Main.xsd' });
+    });
+
     it('should insert the validator before an existing output variable step', () => {
       const model = createModel('xslt-saxon:transform.xsl');
       model.steps.push({
@@ -231,6 +246,20 @@ describe('DataMapperValidationStepService', () => {
       expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({ uri: 'validator:New.xsd' });
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalledTimes(1);
+    });
+
+    it('should update URI using entrySchemaFile when present', () => {
+      const model = createModel('xslt-saxon:transform.xsl', 'validator:Old.xsd');
+      const vizNode = createVizNode(model);
+      const newMetadata = {
+        type: DocumentDefinitionType.XML_SCHEMA,
+        filePath: ['Types.xsd', 'NewMain.xsd'],
+        entrySchemaFile: 'NewMain.xsd',
+      } as IDocumentMetadata;
+
+      DataMapperValidationStepService.updateValidationStep(vizNode, newMetadata, mockEntitiesContext);
+
+      expect((model.steps[1] as ProcessorDefinition).to).toMatchObject({ uri: 'validator:NewMain.xsd' });
     });
 
     it('should update URI when file changes for same type (JSON)', () => {
