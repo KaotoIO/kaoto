@@ -5,12 +5,17 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  IDocument,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
-import { FieldItem, IfItem, MappingTree, ValueOfSelector } from '../../../models/datamapper/mapping';
+import { FieldItem, ForEachItem, IfItem, MappingTree, ValueOfSelector } from '../../../models/datamapper/mapping';
+import { XPathCommitResult } from '../../../models/datamapper/mapping-action';
 import { FieldItemNodeData, MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
+import { MappingActionService } from '../../../services/visualization/mapping-action.service';
+import { TargetRenderService } from '../../../services/visualization/target-render.service';
+import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { TargetNodeActions } from './TargetNodeActions';
 
@@ -63,25 +68,49 @@ describe('TargetNodeActions', () => {
     expect(screen.getByTestId(`edit-xpath-button-${mappingData.id}`)).toBeInTheDocument();
   });
 
-  describe('optional guard reconciliation', () => {
-    function renderGuardedField() {
+  describe('XPath commit', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    function renderGuardedNote() {
+      const sourceDoc = TestUtil.createSourceOrderDoc();
       const targetDoc = TestUtil.createTargetOrderDoc();
-      const field = targetDoc.fields[0].fields[1];
-      field.minOccurs = 0;
+      const shipOrderField = targetDoc.fields[0];
+      const itemField = shipOrderField.fields.find((field) => field.name === 'Item')!;
+      const noteField = itemField.fields.find((field) => field.name === 'Note')!;
       const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-      const rootItem = new FieldItem(tree, targetDoc.fields[0]);
-      tree.children.push(rootItem);
-      const ifItem = new IfItem(rootItem);
-      ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      ifItem.isAutoOptionalIf = true;
-      rootItem.children.push(ifItem);
-      const fieldItem = new FieldItem(ifItem, field);
-      ifItem.children.push(fieldItem);
-      const selector = new ValueOfSelector(fieldItem);
-      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      fieldItem.children.push(selector);
-      const nodeData = new FieldItemNodeData(new TargetDocumentNodeData(targetDoc, tree), fieldItem);
-      nodeData.autoOptionalIfItem = ifItem;
+      tree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const shipOrderItem = new FieldItem(tree, shipOrderField);
+      tree.children.push(shipOrderItem);
+      const forEachItem = new ForEachItem(shipOrderItem);
+      forEachItem.expression = '/ns0:ShipOrder/Item';
+      shipOrderItem.children.push(forEachItem);
+      const itemFieldItem = new FieldItem(forEachItem, itemField);
+      forEachItem.children.push(itemFieldItem);
+      const ifItem = new IfItem(itemFieldItem);
+      ifItem.expression = 'Note';
+      itemFieldItem.children.push(ifItem);
+      const noteFieldItem = new FieldItem(ifItem, noteField);
+      ifItem.children.push(noteFieldItem);
+      const selector = new ValueOfSelector(noteFieldItem);
+      selector.expression = 'Note';
+      noteFieldItem.children.push(selector);
+
+      const renderIndex = TargetRenderService.buildIndex(tree, {
+        sourceParameterMap: new Map<string, IDocument>(),
+        sourceBody: sourceDoc,
+      });
+      const shipOrderNode = VisualizationService.generateStructuredDocumentChildren(
+        new TargetDocumentNodeData(targetDoc, tree, renderIndex),
+      )[0];
+      const forEachNode = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderNode).find(
+        (node) => node instanceof MappingNodeData && node.mapping === forEachItem,
+      ) as MappingNodeData;
+      const itemNode = VisualizationService.generateNonDocumentNodeDataChildren(forEachNode)[0];
+      const nodeData = VisualizationService.generateNonDocumentNodeDataChildren(itemNode).find(
+        (node) => node instanceof FieldItemNodeData && node.mapping === noteFieldItem,
+      ) as FieldItemNodeData;
       const onUpdate = vi.fn();
       const onStructuralUpdate = vi.fn();
       render(
@@ -91,19 +120,39 @@ describe('TargetNodeActions', () => {
           </MappingLinksProvider>
         </DataMapperProvider>,
       );
-      return { ifItem, onUpdate, onStructuralUpdate };
+      return { ifItem, selector, nodeData, onUpdate, onStructuralUpdate };
     }
 
     it('should only refresh the tree structure on blur, not while typing', async () => {
-      const { ifItem, onStructuralUpdate } = renderGuardedField();
+      const { ifItem, nodeData, onStructuralUpdate } = renderGuardedNote();
       const input = await screen.findByTestId('transformation-xpath-input');
 
-      fireEvent.change(input, { target: { value: "concat(/ns0:ShipOrder/ns0:OrderPerson, '!')" } });
+      expect(nodeData.autoOptionalIfItem).toBe(ifItem);
+      fireEvent.change(input, { target: { value: "concat(Note, '!')" } });
       expect(onStructuralUpdate).not.toHaveBeenCalled();
 
       fireEvent.blur(input);
-      expect(ifItem.isAutoOptionalIf).toBe(false);
+      expect(ifItem.expression).toBe('Note');
       expect(onStructuralUpdate).toHaveBeenCalledTimes(1);
     });
+
+    it.each<[XPathCommitResult, number, number]>([
+      ['none', 0, 0],
+      ['update', 1, 0],
+      ['structural-update', 0, 1],
+    ])(
+      'should dispatch the callback matching a "%s" commit result on blur',
+      async (result, updateCalls, structuralUpdateCalls) => {
+        const commitExpressionSpy = vi.spyOn(MappingActionService, 'commitExpression').mockReturnValue(result);
+        const { selector, nodeData, onUpdate, onStructuralUpdate } = renderGuardedNote();
+        const input = await screen.findByTestId('transformation-xpath-input');
+
+        fireEvent.blur(input);
+
+        expect(commitExpressionSpy).toHaveBeenCalledWith(nodeData, selector);
+        expect(onUpdate).toHaveBeenCalledTimes(updateCalls);
+        expect(onStructuralUpdate).toHaveBeenCalledTimes(structuralUpdateCalls);
+      },
+    );
   });
 });

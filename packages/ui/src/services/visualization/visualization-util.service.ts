@@ -1,5 +1,13 @@
-import { IField } from '../../models/datamapper/document';
-import { CopyOfSelector, CopyOfType, FieldItem } from '../../models/datamapper/mapping';
+import { IField, IParentType } from '../../models/datamapper/document';
+import {
+  CopyOfSelector,
+  CopyOfType,
+  FieldItem,
+  MappingItem,
+  ValueOfSelector,
+  ValueOfType,
+  ValueSelector,
+} from '../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   AddMappingNodeData,
@@ -272,5 +280,38 @@ export class VisualizationUtilService {
     return nodeData.mapping.children.find(
       (c): c is CopyOfSelector => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER,
     );
+  }
+
+  /**
+   * Whether `item` is a selector edited inline in its parent's row rather than rendered as a row of
+   * its own. A value-of on a field with child fields and a `CONTAINER_NODE` copy-of get their own row.
+   * Lives here rather than in {@link VisualizationService} so that services which must not depend on
+   * the tree builder, such as {@link TargetRenderService}, can ask the same question.
+   * @param item - the mapping item to test
+   */
+  static isInlineValueSelector(item: MappingItem): item is ValueSelector {
+    if (item instanceof CopyOfSelector) return item.valueType !== CopyOfType.CONTAINER_NODE;
+    if (!(item instanceof ValueOfSelector)) return false;
+    if (item.valueType === ValueOfType.ATTRIBUTE) return true;
+    return !(item.parent instanceof FieldItem && DocumentService.hasChildren(item.parent.field));
+  }
+
+  /**
+   * Whether `node` is an `xs:choice` or abstract-element wrapper field.
+   * @param node - the schema node to test
+   */
+  static isWrapperField(node: IParentType): node is IField {
+    return 'wrapperKind' in node && !!node.wrapperKind;
+  }
+
+  /**
+   * Whether `node` is a wrapper field with a member selected, so the selected member is rendered in
+   * the wrapper's place instead of the wrapper itself.
+   * @param node - the schema node to test
+   */
+  static isSelectedWrapperField(node: IParentType): boolean {
+    if (!VisualizationUtilService.isWrapperField(node)) return false;
+    if (node.wrapperKind === 'abstract') return node.selectedMemberQName !== undefined;
+    return node.selectedMemberIndex !== undefined;
   }
 }

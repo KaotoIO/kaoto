@@ -84,6 +84,9 @@ export function getMultipleElementsXsd(): string {
 export function getCartToShipOrderXslt(): string {
   return readStubFile('./xml/CartToShipOrder.xsl');
 }
+export function getCartToShipOrderOptionalGuardsXslt(): string {
+  return readStubFile('./xml/CartToShipOrderOptionalGuards.xsl');
+}
 export function getShipOrderToShipOrderXslt(): string {
   return readStubFile('./xml/ShipOrderToShipOrder.xsl');
 }
@@ -149,6 +152,9 @@ export function getCartJsonSchema(): string {
 }
 export function getAccountJsonSchema(): string {
   return readStubFile('./json/Account.schema.json');
+}
+export function getAccountNameRequiredJsonSchema(): string {
+  return readStubFile('./json/AccountNameRequired.schema.json');
 }
 export function getShipOrderJsonSchema(): string {
   return readStubFile('./json/ShipOrder.schema.json');

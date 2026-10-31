@@ -1,5 +1,3 @@
-import type { Mock } from 'vitest';
-
 import {
   BaseField,
   BODY_DOCUMENT_ID,
@@ -16,13 +14,11 @@ import {
   CopyOfType,
   FieldItem,
   IfItem,
-  IFunctionDefinition,
   MappingTree,
   ValueOfSelector,
 } from '../../models/datamapper/mapping';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
-import { FieldItemNodeData, MappingNodeData, TargetDocumentNodeData } from '../../models/datamapper/visualization';
 import {
   getChoiceWithAbstractXsd,
   getFieldSubstitutionXsd,
@@ -31,7 +27,6 @@ import {
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
-import { MappingService } from './mapping.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { WrapperAutoDetectionService } from './wrapper-auto-detection.service';
 
@@ -501,25 +496,6 @@ describe('WrapperAutoDetectionService', () => {
       expect(substitutions!.length).toBeGreaterThanOrEqual(1);
       expect(substitutions![0].schemaPath).toContain('custom:');
     });
-
-    it('should run optional guard detection without the caller asking for it', () => {
-      const targetDoc = createTargetDoc(getSchemaTestXsd(), 'SchemaTest.xsd');
-      const xslt = makeXslt(
-        { ns0: NS_SCHEMA_TEST },
-        `    <xsl:if xmlns:xsl="${NS_XSL}" test="/ns0:Root/ns0:person/ns0:fax">
-      <ns0:Root>
-        <ns0:person>
-          <ns0:fax><xsl:value-of xmlns:xsl="${NS_XSL}" select="/ns0:Root/ns0:person/ns0:fax"/></ns0:fax>
-        </ns0:person>
-      </ns0:Root>
-    </xsl:if>`,
-      );
-
-      const mappingTree = deserializeAndAutoDetect(xslt, targetDoc);
-
-      const ifItem = mappingTree.children[0];
-      expect(ifItem).toBeInstanceOf(IfItem);
-    });
   });
 
   describe('choice metadata precedence', () => {
@@ -726,20 +702,23 @@ describe('WrapperAutoDetectionService', () => {
     });
   });
 
-  describe('optional guard auto-detection', () => {
+  describe('optional guard shape rules', () => {
+    const NOTE_PATH = '/ns0:ShipOrder/Item/Note';
     let tree: MappingTree;
     let targetField: IField;
+    let requiredTargetField: IField;
 
     beforeEach(() => {
       tree = new MappingTree(DocumentType.TARGET_BODY, 'ShipOrder', DocumentDefinitionType.XML_SCHEMA);
-      targetField = TestUtil.createTargetOrderDoc().fields[0].fields[1]; // OrderPerson — required by schema default
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      targetField = targetDoc.fields[0].fields[3].fields[1]; // Item/Note — minOccurs="0" in the schema
+      requiredTargetField = targetDoc.fields[0].fields[1];
     });
 
-    function buildSimpleGuard(expression: string, minOccurs: number): IfItem {
-      targetField.minOccurs = minOccurs;
+    function buildSimpleGuard(expression: string, field: IField = targetField): IfItem {
       const ifItem = new IfItem(tree);
       ifItem.expression = expression;
-      const fieldItem = new FieldItem(ifItem, targetField);
+      const fieldItem = new FieldItem(ifItem, field);
       const selector = new ValueOfSelector(fieldItem);
       selector.expression = expression;
       fieldItem.children.push(selector);
@@ -747,166 +726,140 @@ describe('WrapperAutoDetectionService', () => {
       return ifItem;
     }
 
-    describe('decideOptionalGuard()', () => {
+    describe('shouldWrapWithOptionalGuard()', () => {
+      let sourceDoc: IDocument;
       let sourceField: IField;
       let fieldItem: FieldItem;
 
       beforeEach(() => {
-        sourceField = TestUtil.createSourceOrderDoc().fields[0].fields[1]; // OrderPerson
-        sourceField.minOccurs = 0;
-        targetField.minOccurs = 0;
+        sourceDoc = TestUtil.createSourceOrderDoc();
+        sourceField = sourceDoc.fields[0].fields[3].fields[1]; // Item/Note
         fieldItem = new FieldItem(tree, targetField);
         tree.children.push(fieldItem);
       });
 
-      function mapFrom(expression: string) {
-        const selector = new ValueOfSelector(fieldItem);
+      function mapFrom(expression: string, item: FieldItem = fieldItem) {
+        const selector = new ValueOfSelector(item);
         selector.expression = expression;
-        fieldItem.children.push(selector);
+        item.children.push(selector);
       }
 
-      it('should return hidden for a sole selector holding a bare path', () => {
-        mapFrom('/ns0:ShipOrder/ns0:OrderPerson');
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, false)).toBe('hidden');
+      it('should return true for a sole selector holding a bare path', () => {
+        mapFrom(NOTE_PATH);
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(true);
       });
 
-      it('should return hidden for a CopyOfType.CONTAINER_NODE selector despite its /node() suffix', () => {
+      it('should return true for a CopyOfType.CONTAINER_NODE selector despite its /node() suffix', () => {
         const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
-        selector.expression = '/ns0:ShipOrder/ns0:ShipTo/node()';
+        selector.expression = `${NOTE_PATH}/node()`;
         fieldItem.children.push(selector);
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, false)).toBe('hidden');
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(true);
       });
 
-      it('should return skip when the selector already carries another source', () => {
-        mapFrom('/ns0:ShipOrder/ns0:OrderId, /ns0:ShipOrder/ns0:OrderPerson');
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, false)).toBe('skip');
+      it('should return false when the selector already carries another source', () => {
+        mapFrom(`/ns0:ShipOrder/Item/Title, ${NOTE_PATH}`);
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(false);
       });
 
-      it('should return skip when the selector is not a bare path', () => {
-        mapFrom('concat(/ns0:ShipOrder/ns0:OrderPerson, "!")');
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, false)).toBe('skip');
+      it('should return false when the selector is not a bare path', () => {
+        mapFrom(`concat(${NOTE_PATH}, "!")`);
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(false);
       });
 
-      it('should return skip when the field is already wrapped by an IfItem', () => {
-        mapFrom('/ns0:ShipOrder/ns0:OrderPerson');
+      it('should return false when the field is already wrapped by an IfItem', () => {
+        mapFrom(NOTE_PATH);
         fieldItem.parent = new IfItem(tree);
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, false)).toBe('skip');
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(false);
       });
 
-      it('should return skip when the target field is required', () => {
-        targetField.minOccurs = 1;
-        mapFrom('/ns0:ShipOrder/ns0:OrderPerson');
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, false)).toBe('skip');
+      it('should return false when the target field is required', () => {
+        const requiredItem = new FieldItem(tree, requiredTargetField);
+        mapFrom(NOTE_PATH, requiredItem);
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(requiredItem, sourceField, false)).toBe(false);
       });
 
-      it('should return skip when the source field is required', () => {
-        sourceField.minOccurs = 1;
+      it('should return false when the source field is required', () => {
+        const requiredSource = sourceDoc.fields[0].fields[1];
         mapFrom('/ns0:ShipOrder/ns0:OrderPerson');
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, false)).toBe('skip');
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, requiredSource, false)).toBe(false);
       });
 
-      it('should return skip for a PrimitiveDocument source, even though its minOccurs defaults to 0', () => {
-        mapFrom('/ns0:ShipOrder/ns0:OrderPerson');
+      it('should return false for a PrimitiveDocument source, even though its minOccurs defaults to 0', () => {
+        mapFrom(NOTE_PATH);
         const primitiveDoc = new PrimitiveDocument(
           new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'Body'),
         );
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, primitiveDoc, false)).toBe('skip');
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, primitiveDoc, false)).toBe(false);
       });
 
-      it('should return skip when the field has no children yet', () => {
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, false)).toBe('skip');
+      it('should return false when the field has no children yet', () => {
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(false);
       });
 
-      it('should return visible for recursive children on a previously unmapped field', () => {
+      it('should return true for recursive children on a previously unmapped field', () => {
         fieldItem.children.push(new FieldItem(fieldItem, targetField));
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, false)).toBe('visible');
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(true);
       });
 
-      it('should return skip for recursive children when the container already carried a mapping', () => {
+      it('should return false for recursive children when the container already carried a mapping', () => {
         fieldItem.children.push(new FieldItem(fieldItem, targetField));
-        expect(WrapperAutoDetectionService.decideOptionalGuard(fieldItem, sourceField, true)).toBe('skip');
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, true)).toBe(false);
       });
     });
 
-    describe('onExpressionChanged()', () => {
-      it('should demote a guard once its selector no longer matches the test', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        ifItem.isAutoOptionalIf = true;
-        const selector = (ifItem.children[0] as FieldItem).children[0] as ValueOfSelector;
-
-        MappingService.updateExpression(selector, '/ns0:ShipOrder/ns0:OrderId, /ns0:ShipOrder/ns0:OrderPerson');
-
-        expect(ifItem.isAutoOptionalIf).toBe(false);
-      });
-
-      it('should re-promote a guard once the expression is edited back into the simple shape', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        ifItem.isAutoOptionalIf = true;
-        const selector = (ifItem.children[0] as FieldItem).children[0] as ValueOfSelector;
-        MappingService.updateExpression(selector, 'concat(/ns0:ShipOrder/ns0:OrderPerson, "!")');
-        expect(ifItem.isAutoOptionalIf).toBe(false);
-
-        MappingService.updateExpression(selector, '/ns0:ShipOrder/ns0:OrderPerson');
-
-        expect(ifItem.isAutoOptionalIf).toBe(true);
-      });
-
-      it('should demote when the guard test itself is edited away from the selector', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        ifItem.isAutoOptionalIf = true;
-
-        MappingService.updateExpression(ifItem, '/ns0:ShipOrder/ns0:OrderId');
-
-        expect(ifItem.isAutoOptionalIf).toBe(false);
-      });
-
-      it('should demote when a function is wrapped around the selector expression', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        ifItem.isAutoOptionalIf = true;
-        const selector = (ifItem.children[0] as FieldItem).children[0] as ValueOfSelector;
-
-        MappingService.wrapWithFunction(selector, { name: 'upper-case' } as IFunctionDefinition);
-
-        expect(ifItem.isAutoOptionalIf).toBe(false);
-      });
-
-      it('should leave the flag set when the expression changes but the shape still matches', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        ifItem.isAutoOptionalIf = true;
-        const selector = (ifItem.children[0] as FieldItem).children[0] as ValueOfSelector;
-
-        MappingService.updateExpression(ifItem, '/ns0:ShipOrder/ns0:OrderId');
-        MappingService.updateExpression(selector, '/ns0:ShipOrder/ns0:OrderId');
-
-        expect(ifItem.isAutoOptionalIf).toBe(true);
-      });
-
-      it('should do nothing when the item has no enclosing IfItem', () => {
-        const fieldItem = new FieldItem(tree, targetField);
-        tree.children.push(fieldItem);
+    describe('getHiddenGuardSelector()', () => {
+      function mapField(field: IField, expression: string): FieldItem {
+        const fieldItem = new FieldItem(tree, field);
         const selector = new ValueOfSelector(fieldItem);
+        selector.expression = expression;
         fieldItem.children.push(selector);
+        return fieldItem;
+      }
 
-        expect(() => {
-          MappingService.updateExpression(selector, '/ns0:ShipOrder/ns0:OrderPerson');
-        }).not.toThrow();
+      it('should return the sole selector of an optional field mapped by a bare path', () => {
+        const fieldItem = mapField(targetField, NOTE_PATH);
+        expect(WrapperAutoDetectionService.getHiddenGuardSelector(fieldItem)).toBe(fieldItem.children[0]);
+      });
+
+      it('should return undefined for a field that is already under an IfItem', () => {
+        const ifItem = buildSimpleGuard(NOTE_PATH);
+        expect(WrapperAutoDetectionService.getHiddenGuardSelector(ifItem.children[0] as FieldItem)).toBeUndefined();
+      });
+
+      it('should return undefined for a required target field', () => {
+        const fieldItem = mapField(requiredTargetField, '/ns0:ShipOrder/ns0:OrderPerson');
+        expect(WrapperAutoDetectionService.getHiddenGuardSelector(fieldItem)).toBeUndefined();
+      });
+    });
+
+    describe('isOptionalSourceField()', () => {
+      it('should follow the source schema and never treat a PrimitiveDocument as optional', () => {
+        const sourceDoc = TestUtil.createSourceOrderDoc();
+        const noteSource = sourceDoc.fields[0].fields[3].fields[1];
+        const orderPersonSource = sourceDoc.fields[0].fields[1];
+        const primitiveDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'Body'),
+        );
+
+        expect(WrapperAutoDetectionService.isOptionalSourceField(noteSource)).toBe(true);
+        expect(WrapperAutoDetectionService.isOptionalSourceField(orderPersonSource)).toBe(false);
+        expect(WrapperAutoDetectionService.isOptionalSourceField(primitiveDoc)).toBe(false);
       });
     });
 
     describe('matchSimpleOptionalGuard()', () => {
       it('should match a simple value-of guard on an optional field', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
+        const ifItem = buildSimpleGuard(NOTE_PATH);
         const matched = WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem);
         expect(matched).toBe(ifItem.children[0]);
       });
 
       it('should strip the CopyOfType.CONTAINER_NODE /node() suffix before comparing', () => {
-        targetField.minOccurs = 0;
         const ifItem = new IfItem(tree);
-        ifItem.expression = '/ns0:ShipOrder/ns0:ShipTo';
+        ifItem.expression = NOTE_PATH;
         const fieldItem = new FieldItem(ifItem, targetField);
         const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
-        selector.expression = '/ns0:ShipOrder/ns0:ShipTo/node()';
+        selector.expression = `${NOTE_PATH}/node()`;
         fieldItem.children.push(selector);
         ifItem.children.push(fieldItem);
 
@@ -914,32 +867,31 @@ describe('WrapperAutoDetectionService', () => {
       });
 
       it('should return undefined when the IfItem does not have exactly one child', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
+        const ifItem = buildSimpleGuard(NOTE_PATH);
         ifItem.children.push(new FieldItem(ifItem, targetField));
         expect(WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem)).toBeUndefined();
       });
 
       it('should return undefined when the sole child is not a FieldItem', () => {
         const ifItem = new IfItem(tree);
-        ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+        ifItem.expression = NOTE_PATH;
         ifItem.children.push(new ValueOfSelector(ifItem));
         expect(WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem)).toBeUndefined();
       });
 
       it('should return undefined when the target field is required', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 1);
+        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', requiredTargetField);
         expect(WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem)).toBeUndefined();
       });
 
       it('should return undefined when the test expression is not a simple path', () => {
-        const ifItem = buildSimpleGuard("/ns0:ShipOrder/ns0:OrderPerson != ''", 0);
+        const ifItem = buildSimpleGuard(`${NOTE_PATH} != ''`);
         expect(WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem)).toBeUndefined();
       });
 
       it('should return undefined when the field has recursive children instead of a sole selector', () => {
-        targetField.minOccurs = 0;
         const ifItem = new IfItem(tree);
-        ifItem.expression = '/ns0:ShipOrder/ns0:ShipTo';
+        ifItem.expression = NOTE_PATH;
         const fieldItem = new FieldItem(ifItem, targetField);
         fieldItem.children.push(new FieldItem(fieldItem, targetField));
         ifItem.children.push(fieldItem);
@@ -947,222 +899,23 @@ describe('WrapperAutoDetectionService', () => {
       });
 
       it('should return undefined when the selector expression does not match the test expression', () => {
-        targetField.minOccurs = 0;
         const ifItem = new IfItem(tree);
-        ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+        ifItem.expression = NOTE_PATH;
         const fieldItem = new FieldItem(ifItem, targetField);
         const selector = new ValueOfSelector(fieldItem);
-        selector.expression = 'concat(/ns0:ShipOrder/ns0:OrderPerson, "!")';
+        selector.expression = `concat(${NOTE_PATH}, "!")`;
         fieldItem.children.push(selector);
         ifItem.children.push(fieldItem);
         expect(WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem)).toBeUndefined();
       });
-    });
 
-    describe('autoDetectOptionalGuards()', () => {
-      it('should mark a matching IfItem at the top level', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        tree.children.push(ifItem);
+      it('should match a candidate test without writing it to the IfItem', () => {
+        const ifItem = buildSimpleGuard(NOTE_PATH);
+        ifItem.expression = '/ns0:ShipOrder/Item/Title';
 
-        WrapperAutoDetectionService.autoDetectOptionalGuards(tree);
-
-        expect(ifItem.isAutoOptionalIf).toBe(true);
-      });
-
-      it('should mark a matching IfItem nested at arbitrary depth', () => {
-        const outerField = new FieldItem(tree, targetField);
-        tree.children.push(outerField);
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        ifItem.parent = outerField;
-        outerField.children.push(ifItem);
-
-        WrapperAutoDetectionService.autoDetectOptionalGuards(tree);
-
-        expect(ifItem.isAutoOptionalIf).toBe(true);
-      });
-
-      it('should leave a non-matching IfItem untouched', () => {
-        const ifItem = buildSimpleGuard("/ns0:ShipOrder/ns0:OrderPerson != ''", 0);
-        tree.children.push(ifItem);
-
-        WrapperAutoDetectionService.autoDetectOptionalGuards(tree);
-
-        expect(ifItem.isAutoOptionalIf).toBe(false);
-      });
-
-      it('should be idempotent on a tree that already has isAutoOptionalIf set', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        ifItem.isAutoOptionalIf = true;
-        tree.children.push(ifItem);
-
-        expect(() => {
-          WrapperAutoDetectionService.autoDetectOptionalGuards(tree);
-        }).not.toThrow();
-        expect(ifItem.isAutoOptionalIf).toBe(true);
-      });
-
-      it('should clear a flag that no longer reflects the shape', () => {
-        const ifItem = buildSimpleGuard("/ns0:ShipOrder/ns0:OrderPerson != ''", 0);
-        ifItem.isAutoOptionalIf = true;
-        tree.children.push(ifItem);
-
-        WrapperAutoDetectionService.autoDetectOptionalGuards(tree);
-
-        expect(ifItem.isAutoOptionalIf).toBe(false);
-      });
-    });
-
-    describe('isEffectivelyAutoOptional()', () => {
-      it('should return true for a matching guard with isAutoOptionalIf set', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        ifItem.isAutoOptionalIf = true;
-        expect(WrapperAutoDetectionService.isEffectivelyAutoOptional(ifItem)).toBe(true);
-      });
-
-      it('should return false when isAutoOptionalIf is set but the shape no longer matches', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        ifItem.isAutoOptionalIf = true;
-        (ifItem.children[0] as FieldItem).children.push(new FieldItem(ifItem.children[0] as FieldItem, targetField));
-        expect(WrapperAutoDetectionService.isEffectivelyAutoOptional(ifItem)).toBe(false);
-      });
-
-      it('should return false when the shape matches but isAutoOptionalIf is not set', () => {
-        const ifItem = buildSimpleGuard('/ns0:ShipOrder/ns0:OrderPerson', 0);
-        expect(WrapperAutoDetectionService.isEffectivelyAutoOptional(ifItem)).toBe(false);
-      });
-    });
-
-    describe('reconcileGuardAndDispatch()', () => {
-      const PERSON = '/ns0:ShipOrder/ns0:OrderPerson';
-      let targetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
-      let docData: TargetDocumentNodeData;
-      let rootItem: FieldItem;
-      let onUpdate: Mock<() => void>;
-      let onStructuralUpdate: Mock<() => void>;
-
-      beforeEach(() => {
-        targetDoc = TestUtil.createTargetOrderDoc();
-        tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-        docData = new TargetDocumentNodeData(targetDoc, tree);
-        targetDoc.fields[0].fields[1].minOccurs = 0;
-        rootItem = new FieldItem(tree, targetDoc.fields[0]);
-        tree.children.push(rootItem);
-        onUpdate = vi.fn<() => void>();
-        onStructuralUpdate = vi.fn<() => void>();
-      });
-
-      function guard(isAutoOptionalIf: boolean, selector: ValueOfSelector | CopyOfSelector, ifTest = PERSON) {
-        const ifItem = new IfItem(rootItem);
-        ifItem.expression = ifTest;
-        ifItem.isAutoOptionalIf = isAutoOptionalIf;
-        rootItem.children.push(ifItem);
-        const fieldItem = new FieldItem(ifItem, targetDoc.fields[0].fields[1]);
-        ifItem.children.push(fieldItem);
-        selector.parent = fieldItem;
-        fieldItem.children.push(selector);
-        const nodeData = new FieldItemNodeData(docData, fieldItem);
-        if (isAutoOptionalIf) nodeData.autoOptionalIfItem = ifItem;
-        return { ifItem, fieldItem, nodeData };
-      }
-
-      function valueOf(expression: string) {
-        const selector = new ValueOfSelector(rootItem);
-        selector.expression = expression;
-        return selector;
-      }
-
-      function containerCopyOf(expression: string) {
-        const selector = new CopyOfSelector(rootItem, CopyOfType.CONTAINER_NODE);
-        selector.expression = expression;
-        return selector;
-      }
-
-      it('should keep the guard hidden and sync its test when the expression stays a simple path', () => {
-        const selector = valueOf(PERSON);
-        const { ifItem, nodeData } = guard(true, selector);
-        selector.expression = '/ns0:ShipOrder/ns0:OrderId';
-
-        WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, selector, onUpdate, onStructuralUpdate);
-
-        expect(ifItem.isAutoOptionalIf).toBe(true);
-        expect(ifItem.expression).toBe('/ns0:ShipOrder/ns0:OrderId');
-        expect(onUpdate).toHaveBeenCalled();
-        expect(onStructuralUpdate).not.toHaveBeenCalled();
-      });
-
-      it('should demote the hidden guard to a visible if once the expression is no longer a simple path', () => {
-        const selector = valueOf(PERSON);
-        const { ifItem, nodeData } = guard(true, selector);
-        selector.expression = "concat(/ns0:ShipOrder/ns0:OrderPerson, '!')";
-
-        WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, selector, onUpdate, onStructuralUpdate);
-
-        expect(ifItem.isAutoOptionalIf).toBe(false);
-        expect(onStructuralUpdate).toHaveBeenCalled();
-        expect(onUpdate).not.toHaveBeenCalled();
-      });
-
-      it('should re-collapse a visible if into a hidden guard once the expression matches its test again', () => {
-        const selector = valueOf("concat(/ns0:ShipOrder/ns0:OrderPerson, '!')");
-        const { ifItem, nodeData } = guard(false, selector);
-        selector.expression = PERSON;
-
-        WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, selector, onUpdate, onStructuralUpdate);
-
-        expect(ifItem.isAutoOptionalIf).toBe(true);
-        expect(onStructuralUpdate).toHaveBeenCalled();
-      });
-
-      it('should leave a visible if alone when the simplified expression still does not match its test', () => {
-        const selector = valueOf("concat(/ns0:ShipOrder/ns0:OrderPerson, '!')");
-        const { ifItem, nodeData } = guard(false, selector);
-        selector.expression = '/ns0:ShipOrder/ns0:OrderId';
-
-        WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, selector, onUpdate, onStructuralUpdate);
-
-        expect(ifItem.isAutoOptionalIf).toBe(false);
-        expect(onUpdate).not.toHaveBeenCalled();
-        expect(onStructuralUpdate).not.toHaveBeenCalled();
-      });
-
-      describe('container copy-of rendered as its own child node', () => {
-        it('should sync the guard test from the source path, without the /node() suffix', () => {
-          const selector = containerCopyOf(`${PERSON}/node()`);
-          const { ifItem, nodeData } = guard(true, selector);
-          selector.expression = '/ns0:ShipOrder/ns0:OrderId/node()';
-          const copyOfNodeData = new MappingNodeData(nodeData, selector);
-
-          WrapperAutoDetectionService.reconcileGuardAndDispatch(copyOfNodeData, selector, onUpdate, onStructuralUpdate);
-
-          expect(ifItem.isAutoOptionalIf).toBe(true);
-          expect(ifItem.expression).toBe('/ns0:ShipOrder/ns0:OrderId');
-          expect(onUpdate).toHaveBeenCalled();
-          expect(onStructuralUpdate).not.toHaveBeenCalled();
-        });
-
-        it('should demote the guard once the copy-of is no longer a simple path', () => {
-          const selector = containerCopyOf(`${PERSON}/node()`);
-          const { ifItem, nodeData } = guard(true, selector);
-          selector.expression = '/ns0:ShipOrder/ns0:OrderPerson[1]/node()';
-          const copyOfNodeData = new MappingNodeData(nodeData, selector);
-
-          WrapperAutoDetectionService.reconcileGuardAndDispatch(copyOfNodeData, selector, onUpdate, onStructuralUpdate);
-
-          expect(ifItem.isAutoOptionalIf).toBe(false);
-          expect(onStructuralUpdate).toHaveBeenCalled();
-        });
-      });
-
-      it('should be a no-op for a node that does not belong to a field (e.g. the target document root)', () => {
-        const selector = valueOf(PERSON);
-        const { ifItem } = guard(true, selector);
-        selector.expression = "concat(/ns0:ShipOrder/ns0:OrderPerson, '!')";
-
-        WrapperAutoDetectionService.reconcileGuardAndDispatch(docData, selector, onUpdate, onStructuralUpdate);
-
-        expect(ifItem.isAutoOptionalIf).toBe(true);
-        expect(onUpdate).not.toHaveBeenCalled();
-        expect(onStructuralUpdate).not.toHaveBeenCalled();
+        expect(WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem)).toBeUndefined();
+        expect(WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem, NOTE_PATH)).toBe(ifItem.children[0]);
+        expect(ifItem.expression).toBe('/ns0:ShipOrder/Item/Title');
       });
     });
   });

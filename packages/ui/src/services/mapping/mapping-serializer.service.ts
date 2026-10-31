@@ -340,7 +340,6 @@ export class MappingSerializerService {
    */
   private static postDeserialize(mappingTree: MappingTree, targetDocument: IDocument): void {
     WrapperAutoDetectionService.autoDetectWrapperSelections(mappingTree, targetDocument, mappingTree.namespaceMap);
-    WrapperAutoDetectionService.autoDetectOptionalGuards(mappingTree);
   }
 
   private static restoreDataMapperSettings(xsltDocument: Document): IDataMapperSettings {

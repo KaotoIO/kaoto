@@ -10,7 +10,7 @@ import {
   RootElementOption,
 } from '../../models/datamapper/document';
 import { FieldItem, IfItem, MappingParentType, MappingTree, ValueOfSelector } from '../../models/datamapper/mapping';
-import { NodeData, TargetDocumentNodeData } from '../../models/datamapper/visualization';
+import { NodeData, TargetDocumentNodeData, TargetRenderIndex } from '../../models/datamapper/visualization';
 import { getChoiceWithAbstractXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from '../document/document-util.service';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
@@ -88,6 +88,7 @@ function linkTargetPath(mappingTree: MappingTree): string {
     mappingTree,
     TestUtil.createParameterMap(),
     TestUtil.createSourceOrderDoc(),
+    TargetRenderIndex.EMPTY,
   );
   if (links.length !== 1) throw new Error(`expected exactly one mapping link, got ${links.length}`);
   return links[0].targetNodePath;
@@ -97,7 +98,7 @@ function linkTargetPath(mappingTree: MappingTree): string {
  * Pins where a selected wrapper member renders versus where its mapping link points, ahead of the
  * visual-path refactoring.
  *
- * `MappingLinksService.computeVisualTargetNodePath` substitutes `field.id` for every selected
+ * `TargetRenderService.computeTargetPath` substitutes `field.id` for every selected
  * wrapper member. `VisualizationService.generateCollectionWrapperNodes` does not: it falls through
  * to a `FieldItemNodeData`, whose segment is the mapping id, whenever an `InstructionItem` sibling
  * touches the wrapper — independently of cardinality. So wrapping a selected member in `xsl:if`

@@ -4,6 +4,7 @@ import {
   DocumentDefinitionType,
   DocumentType,
   IDocument,
+  IField,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import {
@@ -38,23 +39,28 @@ import {
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
+  TargetRenderIndex,
   UnknownMappingNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import {
+  getAdtInXsd,
   getConditionalMappingsToShipOrderXslt,
   getShipOrderToShipOrderXslt,
   getShipOrderValueOfInContainerXslt,
   getUnknownApplyTemplateXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { expectNoDecisionChange } from '../../stubs/datamapper/target-render-test-helpers';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
 import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
+import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
 import { MappingActionRegistryService } from './mapping-action-registry.service';
+import { TargetRenderService } from './target-render.service';
 import { VisualizationService } from './visualization.service';
 
 describe('MappingActionService', () => {
@@ -1855,6 +1861,353 @@ describe('MappingActionService', () => {
       const unknownNode = children.find((n) => n instanceof UnknownMappingNodeData) as UnknownMappingNodeData;
       expect(unknownNode).toBeDefined();
       expect(unknownNode.mapping.element.localName).toBe('apply-templates');
+    });
+  });
+
+  describe('optional guards', () => {
+    let itemFieldItem: FieldItem;
+
+    beforeEach(() => {
+      tree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const shipOrderItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(shipOrderItem);
+      const forEachItem = new ForEachItem(shipOrderItem);
+      forEachItem.expression = '/ns0:ShipOrder/Item';
+      shipOrderItem.children.push(forEachItem);
+      itemFieldItem = new FieldItem(forEachItem, childField(targetDoc.fields[0], 'Item'));
+      forEachItem.children.push(itemFieldItem);
+    });
+
+    function childField(parent: IField, name: string): IField {
+      return parent.fields.find((field) => field.name === name)!;
+    }
+
+    function addNote(test: string, expression: string) {
+      const ifItem = new IfItem(itemFieldItem);
+      ifItem.expression = test;
+      itemFieldItem.children.push(ifItem);
+      const noteFieldItem = new FieldItem(ifItem, childField(itemFieldItem.field, 'Note'));
+      ifItem.children.push(noteFieldItem);
+      const selector = new ValueOfSelector(noteFieldItem);
+      selector.expression = expression;
+      noteFieldItem.children.push(selector);
+      return { ifItem, noteFieldItem, selector };
+    }
+
+    function buildRenderIndex() {
+      return TargetRenderService.buildIndex(tree, { sourceParameterMap: paramsMap, sourceBody: sourceDoc });
+    }
+
+    function renderForEachNode(renderIndex: TargetRenderIndex) {
+      const shipOrderNode = VisualizationService.generateStructuredDocumentChildren(
+        new TargetDocumentNodeData(targetDoc, tree, renderIndex),
+      )[0];
+      return VisualizationService.generateNonDocumentNodeDataChildren(shipOrderNode).find(
+        (node) => node instanceof MappingNodeData && node.mapping instanceof ForEachItem,
+      ) as MappingNodeData;
+    }
+
+    function renderItemChildren(renderIndex: TargetRenderIndex) {
+      const itemNode = VisualizationService.generateNonDocumentNodeDataChildren(renderForEachNode(renderIndex))[0];
+      return VisualizationService.generateNonDocumentNodeDataChildren(itemNode);
+    }
+
+    function findIfNode(nodes: NodeData[]) {
+      return nodes.find((node) => node instanceof MappingNodeData && node.mapping instanceof IfItem) as MappingNodeData;
+    }
+
+    function findNoteNode(nodes: NodeData[]) {
+      return nodes.find((node) => node instanceof FieldItemNodeData && node.field.name === 'Note') as FieldItemNodeData;
+    }
+
+    function renderNoteNodeUnderIf(renderIndex: TargetRenderIndex) {
+      return findNoteNode(
+        VisualizationService.generateNonDocumentNodeDataChildren(findIfNode(renderItemChildren(renderIndex))),
+      );
+    }
+
+    function setUpAdtIn() {
+      const createDocument = (documentType: DocumentType) =>
+        XmlSchemaDocumentService.createXmlSchemaDocument(
+          new DocumentDefinition(documentType, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+            'ADT_IN.xsd': getAdtInXsd(),
+          }),
+        ).document!;
+      const adtSourceDoc = createDocument(DocumentType.SOURCE_BODY);
+      const adtTargetDoc = createDocument(DocumentType.TARGET_BODY);
+      const adtTree = new MappingTree(
+        adtTargetDoc.documentType,
+        adtTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const hl7Item = new FieldItem(adtTree, adtTargetDoc.fields[0]);
+      adtTree.children.push(hl7Item);
+      const renderHl7Children = () => {
+        const renderIndex = TargetRenderService.buildIndex(adtTree, {
+          sourceParameterMap: paramsMap,
+          sourceBody: adtSourceDoc,
+        });
+        const hl7Node = VisualizationService.generateStructuredDocumentChildren(
+          new TargetDocumentNodeData(adtTargetDoc, adtTree, renderIndex),
+        )[0];
+        return VisualizationService.generateNonDocumentNodeDataChildren(hl7Node);
+      };
+      return { adtTree, hl7Item, renderHl7Children };
+    }
+
+    function addGuardedPid(hl7Item: FieldItem) {
+      const ifItem = new IfItem(hl7Item);
+      ifItem.expression = '/HL7/PID';
+      hl7Item.children.push(ifItem);
+      const pidFieldItem = new FieldItem(ifItem, childField(hl7Item.field, 'PID'));
+      ifItem.children.push(pidFieldItem);
+      return { ifItem, pidFieldItem };
+    }
+
+    function renderPidSelectorNode(hl7Children: NodeData[], selector: ValueSelector) {
+      const pidNode = hl7Children.find(
+        (node) => node instanceof FieldItemNodeData && node.field.name === 'PID',
+      ) as FieldItemNodeData;
+      const selectorNode = VisualizationService.generateNonDocumentNodeDataChildren(pidNode).find(
+        (node) => node instanceof MappingNodeData && node.mapping === selector,
+      ) as MappingNodeData;
+      return { pidNode, selectorNode };
+    }
+
+    describe('commitExpression()', () => {
+      it('should return none when a guarded field commits the path it already had', () => {
+        const { ifItem, selector } = addNote('Note', 'Note');
+        const renderIndex = buildRenderIndex();
+        const noteNode = findNoteNode(renderItemChildren(renderIndex));
+        expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+
+        expect(MappingActionService.commitExpression(noteNode, selector)).toBe('none');
+        expect(ifItem.expression).toBe('Note');
+        expectNoDecisionChange(tree, renderIndex);
+      });
+
+      it('should return none when a field whose source is required commits the path it already had', () => {
+        const { ifItem, selector } = addNote('Title', 'Title');
+        const renderIndex = buildRenderIndex();
+        const noteNode = renderNoteNodeUnderIf(renderIndex);
+        expect(renderIndex.isAbsorbed(ifItem)).toBe(false);
+
+        expect(MappingActionService.commitExpression(noteNode, selector)).toBe('none');
+        expect(ifItem.expression).toBe('Title');
+        expectNoDecisionChange(tree, renderIndex);
+      });
+
+      it('should re-sync the guard test and return update for a simple path to another optional source', () => {
+        const { ifItem, selector } = addNote('Note', 'Note');
+        const renderIndex = buildRenderIndex();
+        const noteNode = findNoteNode(renderItemChildren(renderIndex));
+
+        MappingService.updateExpression(selector, '/ns0:ShipOrder/Item/Note');
+
+        expect(MappingActionService.commitExpression(noteNode, selector)).toBe('update');
+        expect(ifItem.expression).toBe('/ns0:ShipOrder/Item/Note');
+        expectNoDecisionChange(tree, renderIndex);
+      });
+
+      it.each([
+        ['a simple path to a required source', 'Title'],
+        ['a path that is not simple', "concat(Note, '!')"],
+        ['an empty path', ''],
+      ])('should leave the guard test unchanged and return structural-update for %s', (_label, expression) => {
+        const { ifItem, selector } = addNote('Note', 'Note');
+        const renderIndex = buildRenderIndex();
+        const noteNode = findNoteNode(renderItemChildren(renderIndex));
+
+        MappingService.updateExpression(selector, expression);
+
+        expect(MappingActionService.commitExpression(noteNode, selector)).toBe('structural-update');
+        expect(ifItem.expression).toBe('Note');
+        expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(false);
+      });
+
+      it('should return structural-update without changing a visible if when the field commits exactly its test', () => {
+        const { ifItem, selector } = addNote('Note', 'normalize-space(Note)');
+        const renderIndex = buildRenderIndex();
+        const noteNode = renderNoteNodeUnderIf(renderIndex);
+        expect(renderIndex.isAbsorbed(ifItem)).toBe(false);
+
+        MappingService.updateExpression(selector, 'Note');
+
+        expect(MappingActionService.commitExpression(noteNode, selector)).toBe('structural-update');
+        expect(ifItem.expression).toBe('Note');
+        expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(true);
+      });
+
+      it('should return structural-update when an if row commits a test that its field matches', () => {
+        const { ifItem } = addNote("Note != ''", 'Note');
+        const renderIndex = buildRenderIndex();
+        const ifNode = findIfNode(renderItemChildren(renderIndex));
+        expect(ifNode.mapping).toBe(ifItem);
+
+        MappingService.updateExpression(ifItem, 'Note');
+
+        expect(MappingActionService.commitExpression(ifNode, ifItem)).toBe('structural-update');
+        expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(true);
+      });
+
+      it('should return structural-update when a for-each select change affects a guard in its body', () => {
+        const { ifItem } = addNote('Note', 'Note');
+        const renderIndex = buildRenderIndex();
+        const forEachNode = renderForEachNode(renderIndex);
+        const forEachItem = forEachNode.mapping as ForEachItem;
+        expect(renderIndex.isAbsorbed(ifItem)).toBe(true);
+
+        MappingService.updateExpression(forEachItem, '/ns0:ShipOrder/ShipTo');
+
+        expect(MappingActionService.commitExpression(forEachNode, forEachItem)).toBe('structural-update');
+        expect(ifItem.expression).toBe('Note');
+        expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(false);
+      });
+
+      it('should never change the test of a visible if', () => {
+        const { ifItem, selector } = addNote("Note != ''", 'Note');
+        const renderIndex = buildRenderIndex();
+        const noteNode = renderNoteNodeUnderIf(renderIndex);
+
+        MappingService.updateExpression(selector, '/ns0:ShipOrder/Item/Note');
+
+        expect(MappingActionService.commitExpression(noteNode, selector)).toBe('none');
+        expect(ifItem.expression).toBe("Note != ''");
+        expectNoDecisionChange(tree, renderIndex);
+      });
+    });
+
+    describe('deleteMappingItem()', () => {
+      it('should remove the guard together with the mapping of a guarded field row', () => {
+        const { ifItem } = addNote('Note', 'Note');
+        const noteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+        expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+
+        MappingActionService.deleteMappingItem(noteNode);
+
+        expect(itemFieldItem.children).toEqual([]);
+      });
+
+      it('should remove the guard together with the emptied field when deleting the copy-of row of a guarded field', () => {
+        const adt = setUpAdtIn();
+        const { ifItem, pidFieldItem } = addGuardedPid(adt.hl7Item);
+        const copyOf = new CopyOfSelector(pidFieldItem, CopyOfType.CONTAINER_NODE);
+        copyOf.expression = '/HL7/PID/node()';
+        pidFieldItem.children.push(copyOf);
+        const { pidNode, selectorNode } = renderPidSelectorNode(adt.renderHl7Children(), copyOf);
+        expect(pidNode.autoOptionalIfItem).toBe(ifItem);
+
+        MappingActionService.deleteMappingItem(selectorNode);
+
+        expect(adt.adtTree.children).toEqual([]);
+      });
+
+      it('should remove the guard together with the emptied field when deleting the value-of row of a guarded field', () => {
+        const adt = setUpAdtIn();
+        const { ifItem, pidFieldItem } = addGuardedPid(adt.hl7Item);
+        const valueOf = new ValueOfSelector(pidFieldItem);
+        valueOf.expression = '/HL7/PID';
+        pidFieldItem.children.push(valueOf);
+        const { pidNode, selectorNode } = renderPidSelectorNode(adt.renderHl7Children(), valueOf);
+        expect(pidNode.autoOptionalIfItem).toBe(ifItem);
+
+        MappingActionService.deleteMappingItem(selectorNode);
+
+        expect(adt.adtTree.children).toEqual([]);
+      });
+
+      it('should keep a guarded field of a for-each body without its guard when deleting its row', () => {
+        const adt = setUpAdtIn();
+        const forEachItem = new ForEachItem(adt.hl7Item);
+        forEachItem.expression = '/HL7/NK1Loop';
+        adt.hl7Item.children.push(forEachItem);
+        const ifItem = new IfItem(forEachItem);
+        ifItem.expression = '.';
+        forEachItem.children.push(ifItem);
+        const loopFieldItem = new FieldItem(ifItem, childField(adt.hl7Item.field, 'NK1Loop'));
+        ifItem.children.push(loopFieldItem);
+        const copyOf = new CopyOfSelector(loopFieldItem);
+        copyOf.expression = '.';
+        loopFieldItem.children.push(copyOf);
+        const forEachNode = adt
+          .renderHl7Children()
+          .find((node) => node instanceof MappingNodeData && node.mapping === forEachItem) as MappingNodeData;
+        const loopNode = VisualizationService.generateNonDocumentNodeDataChildren(forEachNode)[0] as FieldItemNodeData;
+        expect(loopNode.autoOptionalIfItem).toBe(ifItem);
+
+        MappingActionService.deleteMappingItem(loopNode);
+
+        expect(forEachItem.children).toEqual([loopFieldItem]);
+        expect(loopFieldItem.parent).toBe(forEachItem);
+        expect(loopFieldItem.children).toEqual([]);
+      });
+
+      it('should keep a visible if when deleting the field row under it', () => {
+        const { ifItem } = addNote("Note != ''", 'Note');
+        const noteNode = renderNoteNodeUnderIf(buildRenderIndex());
+
+        MappingActionService.deleteMappingItem(noteNode);
+
+        expect(itemFieldItem.children).toEqual([ifItem]);
+        expect(ifItem.children).toEqual([]);
+      });
+
+      it('should do nothing for a row without a mapping', () => {
+        const { ifItem } = addNote('Note', 'Note');
+        const titleNode = renderItemChildren(buildRenderIndex()).find(
+          (node) => node instanceof TargetFieldNodeData && node.field.name === 'Title',
+        ) as TargetFieldNodeData;
+        expect(titleNode.mapping).toBeUndefined();
+
+        MappingActionService.deleteMappingItem(titleNode);
+
+        expect(itemFieldItem.children).toEqual([ifItem]);
+      });
+    });
+
+    describe('removeOptionalGuard()', () => {
+      it('should leave a guard in place that no longer wraps only the field of the row', () => {
+        const { ifItem, noteFieldItem } = addNote('Note', 'Note');
+        ifItem.comment = 'Guard comment';
+        const noteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+        const titleFieldItem = new FieldItem(ifItem, childField(itemFieldItem.field, 'Title'));
+        ifItem.children.push(titleFieldItem);
+
+        expect(MappingActionService.removeOptionalGuard(noteNode)).toBeUndefined();
+
+        expect(itemFieldItem.children).toEqual([ifItem]);
+        expect(ifItem.children).toEqual([noteFieldItem, titleFieldItem]);
+        expect(noteFieldItem.comment).toBeUndefined();
+      });
+
+      it.each<[string, string | undefined, string | undefined, string | undefined]>([
+        ['both have one', 'Guard comment', 'Field comment', 'Guard comment\nField comment'],
+        ['only the guard has one', 'Guard comment', undefined, 'Guard comment'],
+        ['only the field has one', undefined, 'Field comment', 'Field comment'],
+        ['neither has one', undefined, undefined, undefined],
+      ])(
+        'should unwrap the guard and move its comment onto the field, ahead of the field comment, when %s',
+        (_label, guardComment, fieldComment, expectedComment) => {
+          const { ifItem, noteFieldItem } = addNote('Note', 'Note');
+          ifItem.comment = guardComment;
+          noteFieldItem.comment = fieldComment;
+          const noteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+
+          expect(MappingActionService.removeOptionalGuard(noteNode)).toBe(noteFieldItem);
+          expect(itemFieldItem.children).toEqual([noteFieldItem]);
+          expect(noteFieldItem.parent).toBe(itemFieldItem);
+          expect(noteFieldItem.comment).toBe(expectedComment);
+        },
+      );
+
+      it('should leave a visible if in place', () => {
+        const { ifItem, noteFieldItem } = addNote("Note != ''", 'Note');
+        const noteNode = renderNoteNodeUnderIf(buildRenderIndex());
+
+        expect(MappingActionService.removeOptionalGuard(noteNode)).toBeUndefined();
+        expect(noteFieldItem.parent).toBe(ifItem);
+        expect(itemFieldItem.children).toEqual([ifItem]);
+      });
     });
   });
 

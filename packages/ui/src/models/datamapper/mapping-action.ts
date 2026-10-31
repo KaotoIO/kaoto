@@ -1,5 +1,4 @@
-import type { IDocument } from './document';
-import type { TargetNodeData } from './visualization';
+import type { ISourceDocumentContext, TargetNodeData } from './visualization';
 
 /**
  * Enumeration of actions that can be performed on a target mapping node.
@@ -67,14 +66,12 @@ export interface IMappingActionCallbacks {
 }
 
 /**
- * Source document context needed by actions whose eligibility depends on resolving a
- * field's XPath expression back to a source field (e.g. `AddOptionalGuard`'s "is the
- * source also optional" check) — not available from `nodeData` alone.
+ * What committing an XPath edit (blur or closing the XPath editor) requires from the
+ * caller: `'structural-update'` when a see-through decision changed and the target tree must be
+ * rebuilt, `'update'` when only the model changed and must be written to the host, and `'none'`
+ * when nothing beyond the per-keystroke writes happened.
  */
-export interface IMappingActionSourceContext {
-  sourceParameterMap: Map<string, IDocument>;
-  sourceBody: IDocument;
-}
+export type XPathCommitResult = 'none' | 'update' | 'structural-update';
 
 /**
  * Base definition for a mapping action in the action registry.
@@ -83,8 +80,8 @@ export interface IMappingActionSourceContext {
  */
 export interface IMappingAction {
   key: MappingActionKind;
-  isAllowed: (nodeData: TargetNodeData, sourceContext?: IMappingActionSourceContext) => boolean;
-  isDisabled?: (nodeData: TargetNodeData, sourceContext?: IMappingActionSourceContext) => boolean;
+  isAllowed: (nodeData: TargetNodeData, sourceContext?: ISourceDocumentContext) => boolean;
+  isDisabled?: (nodeData: TargetNodeData, sourceContext?: ISourceDocumentContext) => boolean;
 }
 
 /**

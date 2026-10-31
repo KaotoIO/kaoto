@@ -6,7 +6,7 @@ import { FunctionComponent, useCallback } from 'react';
 import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingActionKind } from '../../../models/datamapper/mapping-action';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
-import { WrapperAutoDetectionService } from '../../../services/mapping/wrapper-auto-detection.service';
+import { MappingActionService } from '../../../services/visualization/mapping-action.service';
 import { MappingActionRegistryService } from '../../../services/visualization/mapping-action-registry.service';
 import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { DeleteMappingItemAction } from './DeleteMappingItemAction';
@@ -38,12 +38,14 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({
 
   /**
    * Runs once the user finishes editing the XPath (input blur or editor modal close) rather than
-   * on every keystroke, since promoting/demoting an auto-optional-if guard restructures the tree
-   * and would steal focus mid-edit.
+   * on every keystroke: a change to an optional guard's see-through decision restructures the
+   * tree, and rows change only at such commit points.
    */
   const handleXPathCommit = useCallback(() => {
     if (!expressionItem) return;
-    WrapperAutoDetectionService.reconcileGuardAndDispatch(nodeData, expressionItem, onUpdate, onStructuralUpdate);
+    const result = MappingActionService.commitExpression(nodeData, expressionItem);
+    if (result === 'update') onUpdate();
+    else if (result === 'structural-update') onStructuralUpdate();
   }, [nodeData, expressionItem, onUpdate, onStructuralUpdate]);
 
   return (

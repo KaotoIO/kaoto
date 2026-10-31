@@ -3,6 +3,8 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  IDocument,
+  IField,
 } from '../../models/datamapper/document';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { MappingTree } from '../../models/datamapper/mapping';
@@ -15,22 +17,40 @@ import { FieldOverrideService } from '../document/field-override.service';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { AbstractFieldService } from './abstract-field.service';
 import { MappingActionService } from './mapping-action.service';
+import { TargetRenderService } from './target-render.service';
 import { TreeParsingService } from './tree-parsing.service';
 import { TreeUIService } from './tree-ui.service';
 
-/** Create a wide+deep target document from WideDeep.xsd. */
-function createWideDeepTargetDoc() {
-  const definition = new DocumentDefinition(
-    DocumentType.TARGET_BODY,
-    DocumentDefinitionType.XML_SCHEMA,
-    BODY_DOCUMENT_ID,
-    { 'wide-deep.xsd': getWideDeepXsd() },
-  );
+function createWideDeepDoc(documentType: DocumentType) {
+  const definition = new DocumentDefinition(documentType, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+    'wide-deep.xsd': getWideDeepXsd(),
+  });
   const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
   if (result.validationStatus !== 'success' || !result.document) {
     throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create wide+deep doc');
   }
   return result.document;
+}
+
+/** Create a wide+deep target document from WideDeep.xsd. */
+function createWideDeepTargetDoc() {
+  return createWideDeepDoc(DocumentType.TARGET_BODY);
+}
+
+function findField(parent: IDocument | IField, name: string, ...descendantNames: string[]): IField {
+  let field = parent.fields.find((child) => child.name === name);
+  for (const descendantName of descendantNames) {
+    field = field?.fields.find((child) => child.name === descendantName);
+  }
+  if (!field) throw new Error(`No field at '${[name, ...descendantNames].join('/')}'`);
+  return field;
+}
+
+function parseChild(node: DocumentTreeNode, title: string): DocumentTreeNode {
+  if (!node.isParsed) TreeParsingService.parseTreeNode(node);
+  const child = node.children.find((candidate) => candidate.nodeData.title === title);
+  if (!child) throw new Error(`No row titled '${title}' under ${node.path}`);
+  return child;
 }
 
 describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
@@ -767,5 +787,47 @@ describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
       });
     }
     expect(Object.keys(expansionAfter).filter((k) => !livePaths.has(k))).toEqual([]);
+  });
+
+  it('should apply the snapshot decision to an optional guard parsed lazily below the parse frontier', () => {
+    const targetDoc = createWideDeepTargetDoc();
+    const sourceDoc = createWideDeepDoc(DocumentType.SOURCE_BODY);
+    const mappingTree = new MappingTree(
+      targetDoc.documentType,
+      targetDoc.documentId,
+      DocumentDefinitionType.XML_SCHEMA,
+    );
+    const wideDeepItem = MappingService.createFieldItem(mappingTree, findField(targetDoc, 'WideDeep'));
+    const deepChainItem = MappingService.createFieldItem(wideDeepItem, findField(wideDeepItem.field, 'deep_chain'));
+    const l2Item = MappingService.createFieldItem(deepChainItem, findField(deepChainItem.field, 'L2'));
+    const l3Item = MappingService.createFieldItem(l2Item, findField(l2Item.field, 'L3'));
+    const l4Item = MappingService.createFieldItem(l3Item, findField(l3Item.field, 'L4'));
+    const leafItem = MappingService.createFieldItem(l4Item, findField(l4Item.field, 'L5leaf'));
+    const selector = MappingService.createValueOfSelector(leafItem);
+    leafItem.children.push(selector);
+    const sourceLeaf = findField(sourceDoc, 'WideDeep', 'deep_chain', 'L2', 'L3', 'L4', 'L5leaf');
+    MappingService.mapToField(sourceLeaf, leafItem);
+    const guard = MappingService.tryAutoOptionalIfWrap(leafItem, sourceLeaf, false);
+    const sourceContext = { sourceParameterMap: new Map<string, IDocument>(), sourceBody: sourceDoc };
+    const renderIndex = TargetRenderService.buildIndex(mappingTree, sourceContext);
+
+    expect(renderIndex.isAbsorbed(guard)).toBe(true);
+
+    const tree = TreeUIService.createTree(new TargetDocumentNodeData(targetDoc, mappingTree, renderIndex));
+    const l2Node = parseChild(parseChild(tree.contentRoots[0], 'deep_chain'), 'L2');
+
+    expect(l2Node.isParsed).toBe(false);
+
+    MappingService.updateExpression(selector, `upper-case(${selector.expression})`);
+
+    expect(TargetRenderService.hasDecisionChanged(selector, renderIndex)).toBe(true);
+
+    const l4Node = parseChild(parseChild(l2Node, 'L3'), 'L4');
+    const leafRow = parseChild(l4Node, 'L5leaf');
+
+    expect(l4Node.children).toHaveLength(1);
+    expect(leafRow.nodeData).toBeInstanceOf(FieldItemNodeData);
+    expect(leafRow.nodeData).toHaveProperty('autoOptionalIfItem', guard);
+    expect(leafRow.path).toBe(TargetRenderService.getTargetPath(leafItem, renderIndex));
   });
 });

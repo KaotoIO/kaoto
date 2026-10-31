@@ -14,10 +14,10 @@ import {
   isExpressionHolder,
   MappingItem,
   MappingLineStyle,
-  MappingParentType,
   MappingTree,
   NodePath,
   PrimitiveDocument,
+  TargetRenderIndex,
   ValueOfSelector,
   ValueSelector,
   VariableItem,
@@ -27,119 +27,119 @@ import {
 } from '../../models/datamapper';
 import { DocumentService } from '../document/document.service';
 import { MappingService } from '../mapping/mapping.service';
-import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
 import { XPathService } from '../xpath/xpath.service';
-import { VisualizationService } from './visualization.service';
+import { TargetRenderService } from './target-render.service';
+import { VisualizationUtilService } from './visualization-util.service';
+
+/** What computing mapping lines needs besides the item itself. */
+interface IMappingLinkContext {
+  sourceParameterMap: Map<string, IDocument>;
+  sourceBody: IDocument;
+  renderIndex: TargetRenderIndex;
+  selectedNodePath: string | null;
+  selectedNodeIsSource: boolean;
+}
 
 /**
  * A collection of the business logic for rendering mapping link lines.
  */
 export class MappingLinksService {
+  /**
+   * Computes the mapping lines for `item` and its descendants. Sources are resolved from the live
+   * mapping tree, so lines follow the expression the user is typing. Each line's target end comes
+   * from `renderIndex`, the snapshot the target tree was built from, so it doesn't move while the user
+   * types; this service makes no rendering decisions of its own.
+   * @param item - the mapping tree, or an item in it, to compute lines for
+   * @param sourceParameterMap - the source parameter documents
+   * @param sourceBody - the source body document
+   * @param renderIndex - the render index of the snapshot the target tree was built from
+   * @param selectedNodePath - the selected node's path, to mark the lines it belongs to
+   * @param selectedNodeIsSource - whether the selected node is on the source side
+   */
   static extractMappingLinks(
     item: MappingTree | MappingItem,
     sourceParameterMap: Map<string, IDocument>,
     sourceBody: IDocument,
+    renderIndex: TargetRenderIndex,
     selectedNodePath: string | null = null,
     selectedNodeIsSource: boolean = false,
+  ): IMappingLink[] {
+    return MappingLinksService.collectMappingLinks(item, {
+      sourceParameterMap,
+      sourceBody,
+      renderIndex,
+      selectedNodePath,
+      selectedNodeIsSource,
+    });
+  }
+
+  private static collectMappingLinks(
+    item: MappingTree | MappingItem,
+    context: IMappingLinkContext,
     parentLineStyle?: MappingLineStyle,
   ): IMappingLink[] {
     const answer = [] as IMappingLink[];
-    const targetNodePath = MappingLinksService.computeVisualTargetNodePath(item).toString();
-    let ownLineStyle =
-      item instanceof FieldItem ? MappingLinksService.classifyContainerLineStyle(item) : MappingLineStyle.REGULAR;
-    if (ownLineStyle === MappingLineStyle.COMPLETE) {
-      if (MappingLinksService.hasExtraSourceChildren(item as FieldItem, sourceParameterMap, sourceBody)) {
-        ownLineStyle = MappingLineStyle.PARTIAL;
-      }
-    }
-    const isFieldInsideInstruction =
-      item instanceof FieldItem && MappingLinksService.isRealInstructionParent(item.parent);
-    const lineStyle =
-      ownLineStyle === MappingLineStyle.REGULAR && !isFieldInsideInstruction
-        ? (parentLineStyle ?? ownLineStyle)
-        : ownLineStyle;
+    const { renderIndex } = context;
+    const targetNodePath = TargetRenderService.getTargetPath(item, renderIndex);
+    const ownLineStyle = MappingLinksService.getOwnLineStyle(item, context);
+    const lineStyle = MappingLinksService.resolveLineStyle(item, ownLineStyle, renderIndex, parentLineStyle);
 
-    const skipOwnLink = WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(item);
-    if (!skipOwnLink && item instanceof MappingItem && isExpressionHolder(item)) {
-      const links = MappingLinksService.doExtractMappingLinks(
-        item,
-        targetNodePath,
-        sourceParameterMap,
-        sourceBody,
-        selectedNodePath,
-        selectedNodeIsSource,
-        lineStyle,
-      );
-      answer.push(...links);
+    if (!renderIndex.isAbsorbed(item) && item instanceof MappingItem && isExpressionHolder(item)) {
+      answer.push(...MappingLinksService.doExtractMappingLinks(item, targetNodePath, context, lineStyle));
     }
     if ('children' in item) {
       const effectiveStyle = item instanceof FieldItem ? ownLineStyle : lineStyle;
       const childLineStyle = effectiveStyle === MappingLineStyle.REGULAR ? undefined : effectiveStyle;
-      item.children.forEach((child) => {
-        const isInlineValueSelector =
-          child instanceof ValueSelector && VisualizationService.isInlineValueSelector(child);
-        const isNonPrimitiveFieldItem =
-          item instanceof FieldItem && !(item.field.ownerDocument instanceof PrimitiveDocument);
-        if (isInlineValueSelector && (isNonPrimitiveFieldItem || item instanceof MappingTree)) {
-          const links = MappingLinksService.doExtractMappingLinks(
-            child,
-            targetNodePath,
-            sourceParameterMap,
-            sourceBody,
-            selectedNodePath,
-            selectedNodeIsSource,
-            lineStyle,
-          );
-          answer.push(...links);
-        } else {
-          const links = MappingLinksService.extractMappingLinks(
-            child,
-            sourceParameterMap,
-            sourceBody,
-            selectedNodePath,
-            selectedNodeIsSource,
-            child instanceof ValueOfSelector ? undefined : childLineStyle,
-          );
-          answer.push(...links);
-        }
-      });
+      answer.push(...MappingLinksService.collectChildLinks(item, targetNodePath, context, lineStyle, childLineStyle));
     }
     return answer;
   }
 
-  /**
-   * Resolves the source `IField`(s) referenced by `expressionHolder`'s XPath expression,
-   * along with the source document each was resolved from. Returns an empty array when the
-   * expression doesn't parse, or when a referenced path can't be resolved to a concrete
-   * field (e.g. a variable reference, or an ambiguous/relative path).
-   */
-  static resolveSourceFields(
-    expressionHolder: IExpressionHolder & MappingItem,
-    sourceParameterMap: Map<string, IDocument>,
-    sourceBody: IDocument,
-  ): { field: IField; document: IDocument }[] {
-    const namespaces = expressionHolder.mappingTree.namespaceMap;
-    const sourceXPath = expressionHolder.expression;
-    const validationResult = XPathService.validate(sourceXPath);
-    if (!validationResult.getExprNode() || validationResult.dataMapperErrors.length > 0) return [];
-    const fieldPaths = XPathService.extractFieldPaths(sourceXPath, expressionHolder.parent.contextPath);
-    const results: { field: IField; document: IDocument }[] = [];
-    for (const xpath of fieldPaths) {
-      const absolutePath = XPathService.toAbsolutePath(xpath);
-      if (
-        absolutePath.documentReferenceName &&
-        MappingService.resolveVariableInScope(absolutePath.documentReferenceName, expressionHolder)
-      ) {
-        continue;
-      }
-      const document = DocumentService.resolveSourceDocument(absolutePath, namespaces, sourceBody, sourceParameterMap);
-      if (!document) continue;
-      const result = DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments);
-      if (result && 'parent' in result) {
-        results.push({ field: result, document });
+  private static getOwnLineStyle(item: MappingTree | MappingItem, context: IMappingLinkContext): MappingLineStyle {
+    if (!(item instanceof FieldItem)) return MappingLineStyle.REGULAR;
+    const lineStyle = MappingLinksService.classifyContainerLineStyle(item, context.renderIndex);
+    return lineStyle === MappingLineStyle.COMPLETE && MappingLinksService.hasExtraSourceChildren(item, context)
+      ? MappingLineStyle.PARTIAL
+      : lineStyle;
+  }
+
+  private static resolveLineStyle(
+    item: MappingTree | MappingItem,
+    ownLineStyle: MappingLineStyle,
+    renderIndex: TargetRenderIndex,
+    parentLineStyle?: MappingLineStyle,
+  ): MappingLineStyle {
+    if (ownLineStyle !== MappingLineStyle.REGULAR) return ownLineStyle;
+    const isFieldInsideInstruction =
+      item instanceof FieldItem && TargetRenderService.isRenderedInstruction(item.parent, renderIndex);
+    return isFieldInsideInstruction ? ownLineStyle : (parentLineStyle ?? ownLineStyle);
+  }
+
+  private static collectChildLinks(
+    item: MappingTree | MappingItem,
+    targetNodePath: string,
+    context: IMappingLinkContext,
+    lineStyle: MappingLineStyle,
+    childLineStyle: MappingLineStyle | undefined,
+  ): IMappingLink[] {
+    const answer = [] as IMappingLink[];
+    for (const child of item.children) {
+      if (child instanceof ValueSelector && MappingLinksService.isDrawnOnParentRow(item, child)) {
+        answer.push(...MappingLinksService.doExtractMappingLinks(child, targetNodePath, context, lineStyle));
+      } else {
+        const inheritedLineStyle = child instanceof ValueOfSelector ? undefined : childLineStyle;
+        answer.push(...MappingLinksService.collectMappingLinks(child, context, inheritedLineStyle));
       }
     }
-    return results;
+    return answer;
+  }
+
+  private static isDrawnOnParentRow(item: MappingTree | MappingItem, child: ValueSelector): boolean {
+    if (!VisualizationUtilService.isInlineValueSelector(child)) return false;
+    return (
+      item instanceof MappingTree ||
+      (item instanceof FieldItem && !(item.field.ownerDocument instanceof PrimitiveDocument))
+    );
   }
 
   private static resolveVariableReferences(expressionHolder: IExpressionHolder & MappingItem): VariableItem[] {
@@ -160,18 +160,12 @@ export class MappingLinksService {
   private static doExtractMappingLinks(
     sourceExpressionItem: IExpressionHolder & MappingItem,
     targetNodePath: string,
-    sourceParameterMap: Map<string, IDocument>,
-    sourceBody: IDocument,
-    selectedNodePath: string | null,
-    selectedNodeIsSource: boolean,
+    context: IMappingLinkContext,
     lineStyle: MappingLineStyle = MappingLineStyle.REGULAR,
   ) {
+    const { sourceParameterMap, sourceBody, selectedNodePath, selectedNodeIsSource } = context;
     const targetDocumentNodeId = DocumentNodeData.formatNodeId(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
-    const resolvedFields = MappingLinksService.resolveSourceFields(
-      sourceExpressionItem,
-      sourceParameterMap,
-      sourceBody,
-    );
+    const resolvedFields = MappingService.resolveSourceFields(sourceExpressionItem, sourceParameterMap, sourceBody);
     const links = resolvedFields.reduce((acc, { field, document }) => {
       const sourceNodePath = MappingLinksService.computeVisualSourceNodePath(field);
       const sourceNodePathString = sourceNodePath.toString();
@@ -256,27 +250,17 @@ export class MappingLinksService {
     return false;
   }
 
-  /**
-   * Like `parent instanceof InstructionItem`, but excludes an auto-optional-if guard: since
-   * that `IfItem` is hidden from the visual tree (see {@link VisualizationService}'s
-   * see-through rendering), a field directly inside one must be classified exactly as if
-   * it weren't wrapped at all.
-   */
-  private static isRealInstructionParent(parent: MappingParentType): boolean {
-    return parent instanceof InstructionItem && !WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(parent);
-  }
-
-  private static classifyContainerLineStyle(item: FieldItem): MappingLineStyle {
-    const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
+  private static classifyContainerLineStyle(item: FieldItem, renderIndex: TargetRenderIndex): MappingLineStyle {
+    const childFieldItems = TargetRenderService.getRenderedChildFields(item, renderIndex);
 
     if (childFieldItems.length === 0 && MappingLinksService.hasCopyOfDescendant(item)) {
       return MappingLineStyle.COPY_OF;
     }
 
     if (childFieldItems.length === 0) return MappingLineStyle.REGULAR;
-    if (MappingLinksService.isRealInstructionParent(item.parent)) return MappingLineStyle.REGULAR;
+    if (TargetRenderService.isRenderedInstruction(item.parent, renderIndex)) return MappingLineStyle.REGULAR;
 
-    const targetChildren = item.field.fields.filter((f) => !MappingLinksService.isWrapperField(f));
+    const targetChildren = item.field.fields.filter((f) => !VisualizationUtilService.isWrapperField(f));
     if (childFieldItems.length < targetChildren.length) return MappingLineStyle.PARTIAL;
 
     const allContainerChildrenCopyOf = childFieldItems
@@ -286,19 +270,15 @@ export class MappingLinksService {
     return allContainerChildrenCopyOf ? MappingLineStyle.COMPLETE : MappingLineStyle.PARTIAL;
   }
 
-  private static hasExtraSourceChildren(
-    item: FieldItem,
-    sourceParameterMap: Map<string, IDocument>,
-    sourceBody: IDocument,
-  ): boolean {
-    const childFieldItems = item.children.filter((c): c is FieldItem => c instanceof FieldItem);
+  private static hasExtraSourceChildren(item: FieldItem, context: IMappingLinkContext): boolean {
+    const childFieldItems = TargetRenderService.getRenderedChildFields(item, context.renderIndex);
     const sourceParents = new Set<IParentType>();
     const mappedSourceChildren = new Set<string>();
 
     for (const child of childFieldItems) {
       const vs = child.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
       if (!vs || !isExpressionHolder(vs)) continue;
-      const resolved = MappingLinksService.resolveSourceFields(vs, sourceParameterMap, sourceBody);
+      const resolved = MappingService.resolveSourceFields(vs, context.sourceParameterMap, context.sourceBody);
       for (const { field } of resolved) {
         sourceParents.add(field.parent);
         mappedSourceChildren.add(field.id);
@@ -309,70 +289,17 @@ export class MappingLinksService {
     const sourceParent = [...sourceParents][0];
     if (!('fields' in sourceParent)) return false;
     const sourceChildren = (sourceParent as IField).fields.filter(
-      (f) => !f.isAttribute && !MappingLinksService.isWrapperField(f),
+      (f) => !f.isAttribute && !VisualizationUtilService.isWrapperField(f),
     );
     return sourceChildren.length > mappedSourceChildren.size;
   }
 
-  /**
-   * Bridges a mapping tree {@link NodePath} (no choice/abstract wrapper segments) to the
-   * visual document tree {@link NodePath} (with wrapper segments) by inserting
-   * intermediate wrapper IDs from the {@link IField} parent chain.
-   *
-   * The mapping tree mirrors the XSLT output structure where `xs:choice` and abstract
-   * element wrappers have no counterpart, while the visual tree renders these wrappers
-   * as nodes with their own path segments. This method reconciles the two so that
-   * mapping link target paths match the connection port paths registered in the DOM.
-   */
-  private static computeVisualTargetNodePath(item: MappingTree | MappingItem): NodePath {
-    if (item instanceof MappingTree) {
-      return item.nodePath;
-    }
-    if (WrapperAutoDetectionService.isEffectivelyAutoOptionalGuard(item)) {
-      // Hidden from the visual tree (see-through rendering) — it has no node/port of its
-      // own, so skip straight to its parent's path rather than inserting its invisible id.
-      return MappingLinksService.computeVisualTargetNodePath(item.parent);
-    }
-    const parentPath = MappingLinksService.computeVisualTargetNodePath(item.parent);
-    if (item instanceof FieldItem) {
-      const wrapperSegments = MappingLinksService.getIntermediateWrapperSegments(item.field);
-      let path = parentPath;
-      for (const segment of wrapperSegments) {
-        path = NodePath.childOf(path, segment);
-      }
-      const nodeId = MappingLinksService.isSelectedWrapperMember(item.field) ? item.field.id : item.id;
-      return NodePath.childOf(path, nodeId);
-    }
-    return NodePath.childOf(parentPath, item.id);
-  }
-
-  private static isWrapperField(node: IParentType): node is IField {
-    return 'wrapperKind' in node && !!node.wrapperKind;
-  }
-
-  private static isSelectedWrapperField(node: IParentType): boolean {
-    if (!MappingLinksService.isWrapperField(node)) return false;
-    if (node.wrapperKind === 'abstract') return node.selectedMemberQName !== undefined;
-    return node.selectedMemberIndex !== undefined;
-  }
-
-  private static isSelectedWrapperMember(field: IField): boolean {
-    return MappingLinksService.isSelectedWrapperField(field.parent);
-  }
-
-  /**
-   * Collects the IDs of consecutive `wrapperKind` ancestor wrapper
-   * fields, ordered from outermost to innermost. Only includes **unselected**
-   * wrappers (no member selected) because selected wrappers are
-   * not rendered as visual nodes — the selected member replaces them in the tree.
-   * Returns an empty array when the field has no unselected wrapper ancestors.
-   */
   private static computeVisualSourceNodePath(field: IField): NodePath {
     if (field instanceof PrimitiveDocument) return field.path;
     const segments: string[] = [];
     let current: IParentType = field;
     while ('parent' in current && current.parent !== current) {
-      if (!MappingLinksService.isSelectedWrapperField(current)) {
+      if (!VisualizationUtilService.isSelectedWrapperField(current)) {
         segments.unshift(current.id);
       }
       current = current.parent;
@@ -382,21 +309,5 @@ export class MappingLinksService {
       path = NodePath.childOf(path, seg);
     }
     return path;
-  }
-
-  private static getIntermediateWrapperSegments(field: IField): string[] {
-    const segments: string[] = [];
-    let current = field.parent;
-    while (MappingLinksService.isWrapperField(current)) {
-      if ((current as IField).maxOccurs !== 1) {
-        return [];
-      }
-      if (!MappingLinksService.isSelectedWrapperField(current)) {
-        segments.push(current.id);
-      }
-      current = current.parent;
-    }
-    segments.reverse();
-    return segments;
   }
 }

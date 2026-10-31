@@ -33,7 +33,7 @@ export interface NodeData {
    * {@link NodePath} representing this node's position in the **visual document tree**.
    * Unselected choice wrappers are rendered nodes and have their own path segment,
    * unlike in the mapping tree where `xs:choice` has no counterpart.
-   * See {@link MappingLinksService.computeVisualTargetNodePath} for the bridge between
+   * See {@link TargetRenderService.computeTargetPath} for the bridge between
    * mapping tree and visual tree paths.
    */
   path: NodePath;
@@ -60,6 +60,62 @@ export interface ExpressionHolderNodeData extends NodeData {
 export interface TargetNodeData extends ExpressionHolderNodeData {
   /** The root mapping tree for the target document. */
   mappingTree: MappingTree;
+  /**
+   * What the target tree renders for the structural snapshot this node was built from. Copied from
+   * the parent like {@link mappingTree}, so subtrees parsed later still apply the same decisions.
+   */
+  renderIndex: TargetRenderIndex;
+}
+
+/**
+ * The source documents a target-render decision is made against: an optional guard is only
+ * see-through while its source resolves to exactly one optional field.
+ */
+export interface ISourceDocumentContext {
+  sourceParameterMap: Map<string, IDocument>;
+  sourceBody: IDocument;
+}
+
+/**
+ * The see-through decisions for one structural snapshot of the {@link MappingTree}: which `xsl:if`
+ * guards are absorbed into their field's row, and the target path the mapping lines of each item
+ * end on.
+ *
+ * Built once per structural snapshot by {@link TargetRenderService.buildIndex} and read by node
+ * creation, mapping links and row actions, so they all agree on which guards are see-through. Row
+ * paths are still built by node creation, so for a selected wrapper member the recorded path can
+ * differ from the row's. Keystrokes don't produce a new snapshot, so while the user types, lines
+ * follow the live expression but end on the snapshot's paths. Values are resolved when the index is
+ * built, because mapping items are shared with the live tree and mutated in place.
+ */
+export class TargetRenderIndex {
+  /** An index without a snapshot, for code that runs without a `DataMapperProvider`, such as unit tests. */
+  static readonly EMPTY = new TargetRenderIndex(new Map(), new Map(), undefined, false);
+
+  /**
+   * @param absorbedFields - each see-through guard, with the field row that absorbs it
+   * @param targetPaths - the rendered target path of each item that has a row or anchors inline selectors
+   * @param sourceContext - a live handle on the source documents the decisions were made with, not a copy
+   * @param hasSnapshot - `false` only for {@link EMPTY}
+   */
+  constructor(
+    private readonly absorbedFields: ReadonlyMap<IfItem, FieldItem>,
+    private readonly targetPaths: ReadonlyMap<MappingItem, string>,
+    readonly sourceContext: ISourceDocumentContext | undefined,
+    readonly hasSnapshot: boolean = true,
+  ) {}
+
+  getAbsorbingField(ifItem: IfItem): FieldItem | undefined {
+    return this.absorbedFields.get(ifItem);
+  }
+
+  isAbsorbed(item: MappingParentType | undefined): boolean {
+    return item instanceof IfItem && this.absorbedFields.has(item);
+  }
+
+  getSnapshotPath(item: MappingItem): string | undefined {
+    return this.targetPaths.get(item);
+  }
 }
 
 /** Union of all valid source-side node types. */
@@ -117,13 +173,15 @@ export class DocumentNodeData implements NodeData {
  * Extends {@link DocumentNodeData} with the root {@link MappingTree}.
  */
 export class TargetDocumentNodeData extends DocumentNodeData implements TargetNodeData {
-  constructor(document: IDocument, mappingTree: MappingTree) {
+  constructor(document: IDocument, mappingTree: MappingTree, renderIndex: TargetRenderIndex = TargetRenderIndex.EMPTY) {
     super(document);
     this.mappingTree = mappingTree;
     this.mapping = mappingTree;
+    this.renderIndex = renderIndex;
   }
   mappingTree: MappingTree;
   mapping: MappingTree;
+  renderIndex: TargetRenderIndex;
 }
 
 /**
@@ -163,8 +221,10 @@ export class TargetFieldNodeData extends FieldNodeData implements TargetNodeData
   ) {
     super(parent, field);
     this.mappingTree = parent.mappingTree;
+    this.renderIndex = parent.renderIndex;
   }
   mappingTree: MappingTree;
+  renderIndex: TargetRenderIndex;
 }
 
 /**
@@ -197,7 +257,7 @@ export class ChoiceFieldNodeData extends FieldNodeData {
  * Note: the mapping tree ({@link MappingItem.nodePath}) does not include choice wrapper
  * segments because the mapping tree mirrors the XSLT output structure. The bridge between
  * visual and mapping tree paths is handled by
- * {@link MappingLinksService.computeVisualTargetNodePath}.
+ * {@link TargetRenderService.computeTargetPath}.
  */
 export class TargetChoiceFieldNodeData extends TargetFieldNodeData {
   /** The choice wrapper field when a member is selected; `undefined` for the unselected wrapper itself. */
@@ -265,6 +325,7 @@ export class MappingNodeData implements TargetNodeData {
     this.path = NodePath.childOf(parent.path, this.id);
     this.isPrimitive = parent.isPrimitive;
     this.mappingTree = parent.mappingTree;
+    this.renderIndex = parent.renderIndex;
   }
 
   title: string;
@@ -274,6 +335,7 @@ export class MappingNodeData implements TargetNodeData {
   isPrimitive: boolean;
   isDocument = false;
   mappingTree: MappingTree;
+  renderIndex: TargetRenderIndex;
 }
 
 /**
@@ -292,7 +354,10 @@ export class FieldItemNodeData extends MappingNodeData {
     this.field = mapping.field;
   }
   public field: IField;
-  /** The hidden {@link IfItem} that auto-wraps this field with an optional guard (`isAutoOptionalIf = true`). Absent when no guard is active. */
+  /**
+   * The see-through optional guard absorbed into this field's row, as decided by the node's
+   * {@link TargetRenderIndex}. Absent when the field has no see-through guard in this snapshot.
+   */
   public autoOptionalIfItem?: IfItem;
 }
 
@@ -334,12 +399,14 @@ export class AddMappingNodeData implements TargetNodeData {
     this.title = field.name;
     this.isPrimitive = parent.isPrimitive;
     this.mappingTree = parent.mappingTree;
+    this.renderIndex = parent.renderIndex;
   }
   id: string;
   isPrimitive: boolean;
   isSource = false;
   isDocument = false;
   mappingTree: MappingTree;
+  renderIndex: TargetRenderIndex;
   path: NodePath;
   title: string;
 }

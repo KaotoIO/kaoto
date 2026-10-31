@@ -22,6 +22,7 @@ import {
 } from '../../stubs/datamapper/data-mapper';
 import { JsonSchemaDocument, JsonSchemaField } from '../document/json-schema/json-schema-document.model';
 import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-document.service';
+import { TargetRenderService } from '../visualization/target-render.service';
 import { MappingService } from './mapping.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
@@ -391,7 +392,7 @@ describe('MappingSerializerService / JSON', () => {
       expect(templateValueOfSelect?.nodeValue).toBe(`xml-to-json($${TO_JSON_TARGET_VARIABLE})`);
     });
 
-    it('should wrap an optional-to-optional JSON mapping in xsl:if and restore isAutoOptionalIf on round trip', () => {
+    it('should wrap an optional-to-optional JSON mapping in xsl:if that is see-through again after a round trip', () => {
       // OrderPerson (target) and Name (source, under Account) are both outside their schema's
       // `required` array, i.e. minOccurs=0 on both sides — this is the auto-optional-if guard's
       // target case, and the lossless JSON XML representation (fn:map/fn:string) consumed by
@@ -415,7 +416,6 @@ describe('MappingSerializerService / JSON', () => {
       rootItem.children.push(fieldItem);
       MappingService.mapToField(sourceNameField, fieldItem);
       const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceNameField, false)!;
-      expect(ifItem.isAutoOptionalIf).toBe(true);
       expect(ifItem.expression).toBe("$Account-x/fn:map/fn:string[@key='Name']");
 
       const xsltString = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
@@ -453,9 +453,13 @@ describe('MappingSerializerService / JSON', () => {
       const deserializedRootItem = deserialized.children[0] as FieldItem;
       const deserializedIfItem = deserializedRootItem.children.find((c) => c instanceof IfItem) as IfItem;
       expect(deserializedIfItem).toBeDefined();
-      expect(deserializedIfItem.isAutoOptionalIf).toBe(true);
       const deserializedFieldItem = deserializedIfItem.children.find((c) => c instanceof FieldItem) as FieldItem;
       expect((deserializedFieldItem.field as JsonSchemaField).key).toBe('OrderPerson');
+      const sourceBody = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const renderIndex = TargetRenderService.buildIndex(deserialized, { sourceParameterMap, sourceBody });
+      expect(renderIndex.getAbsorbingField(deserializedIfItem)).toBe(deserializedFieldItem);
     });
   });
 });

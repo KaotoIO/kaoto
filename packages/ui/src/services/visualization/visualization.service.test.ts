@@ -4,6 +4,7 @@ import {
   DocumentDefinitionType,
   DocumentType,
   IDocument,
+  IField,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import {
@@ -28,6 +29,7 @@ import {
   MappingNodeData,
   NameValidationStatus,
   TargetDocumentNodeData,
+  TargetRenderIndex,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import {
@@ -40,9 +42,12 @@ import {
   getShipOrderToShipOrderXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { expectLinksOnRenderedRows } from '../../stubs/datamapper/target-render-test-helpers';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
+import { MappingLinksService } from './mapping-links.service';
+import { TargetRenderService } from './target-render.service';
 import { VisualizationService } from './visualization.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
@@ -449,91 +454,126 @@ describe('VisualizationService', () => {
     });
   });
 
-  describe('auto-optional-if see-through rendering', () => {
-    beforeEach(() => {
-      targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
-    });
+  describe('optional guard see-through rendering', () => {
+    let itemFieldItem: FieldItem;
 
-    function buildHiddenGuard(): { shipOrderItem: FieldItem; ifItem: IfItem; fieldItem: FieldItem } {
+    beforeEach(() => {
+      tree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
       const shipOrderItem = new FieldItem(tree, targetDoc.fields[0]);
       tree.children.push(shipOrderItem);
-      const orderPersonField = targetDoc.fields[0].fields[1];
-      orderPersonField.minOccurs = 0; // required by schema default — the guard's own invariant requires optional
-      const ifItem = new IfItem(shipOrderItem);
-      ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      ifItem.isAutoOptionalIf = true;
-      const fieldItem = new FieldItem(ifItem, orderPersonField);
-      const selector = new ValueOfSelector(fieldItem);
-      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      fieldItem.children.push(selector);
-      ifItem.children.push(fieldItem);
-      shipOrderItem.children.push(ifItem);
-      return { shipOrderItem, ifItem, fieldItem };
+      const forEachItem = new ForEachItem(shipOrderItem);
+      forEachItem.expression = '/ns0:ShipOrder/Item';
+      shipOrderItem.children.push(forEachItem);
+      itemFieldItem = new FieldItem(forEachItem, childField(targetDoc.fields[0], 'Item'));
+      forEachItem.children.push(itemFieldItem);
+    });
+
+    function childField(parent: IField, name: string): IField {
+      return parent.fields.find((field) => field.name === name)!;
     }
 
-    it('should promote the inner FieldItem directly, set autoOptionalIfItem, and not render the IfItem', () => {
-      const { ifItem, fieldItem } = buildHiddenGuard();
+    function addGuardedNote(test: string, expression: string) {
+      const ifItem = new IfItem(itemFieldItem);
+      ifItem.expression = test;
+      itemFieldItem.children.push(ifItem);
+      const fieldItem = new FieldItem(ifItem, childField(itemFieldItem.field, 'Note'));
+      ifItem.children.push(fieldItem);
+      const selector = new ValueOfSelector(fieldItem);
+      selector.expression = expression;
+      fieldItem.children.push(selector);
+      return { ifItem, fieldItem };
+    }
 
+    function buildRenderIndex() {
+      return TargetRenderService.buildIndex(tree, { sourceParameterMap: paramsMap, sourceBody: sourceDoc });
+    }
+
+    function generateItemChildren(renderIndex: TargetRenderIndex) {
+      targetDocNode = new TargetDocumentNodeData(targetDoc, tree, renderIndex);
       const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
       const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+      const forEachNode = shipOrderChildren.find(
+        (c) => c instanceof MappingNodeData && c.mapping instanceof ForEachItem,
+      ) as MappingNodeData;
+      const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachNode);
+      return VisualizationService.generateNonDocumentNodeDataChildren(forEachChildren[0]);
+    }
 
-      expect(shipOrderChildren.some((c) => c.title === 'if')).toBe(false);
-      const orderPersonNodes = shipOrderChildren.filter((c) => c.title === 'OrderPerson');
-      expect(orderPersonNodes).toHaveLength(1);
-      const orderPersonNode = orderPersonNodes[0] as FieldItemNodeData;
-      expect(orderPersonNode).toBeInstanceOf(FieldItemNodeData);
-      expect(orderPersonNode.mapping).toBe(fieldItem);
-      expect(orderPersonNode.autoOptionalIfItem).toBe(ifItem);
+    it('should render a guard absorbed by the render index as its field row, without an if row', () => {
+      const { ifItem, fieldItem } = addGuardedNote('Note', 'Note');
+      const renderIndex = buildRenderIndex();
+
+      const itemChildren = generateItemChildren(renderIndex);
+
+      expect(renderIndex.isAbsorbed(ifItem)).toBe(true);
+      expect(itemChildren.some((c) => c.title === 'if')).toBe(false);
+      const noteNode = itemChildren.find((c) => c.title === 'Note') as FieldItemNodeData;
+      expect(noteNode).toBeInstanceOf(FieldItemNodeData);
+      expect(noteNode.mapping).toBe(fieldItem);
+      expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+      expectLinksOnRenderedRows(
+        MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, renderIndex),
+        targetDocNode,
+      );
     });
 
-    it('should still render a non-auto IfItem as its own visible node', () => {
-      const { ifItem } = buildHiddenGuard();
-      ifItem.isAutoOptionalIf = false;
+    it('should render a guard whose source is required as a visible if row', () => {
+      const { ifItem, fieldItem } = addGuardedNote('Title', 'Title');
+      const renderIndex = buildRenderIndex();
 
-      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
-      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+      const itemChildren = generateItemChildren(renderIndex);
 
-      const ifNode = shipOrderChildren.find((c) => c.title === 'if') as MappingNodeData;
-      expect(ifNode).toBeDefined();
+      expect(renderIndex.isAbsorbed(ifItem)).toBe(false);
+      expect(itemChildren.some((c) => c.title === 'Note')).toBe(false);
+      const ifNode = itemChildren.find((c) => c.title === 'if') as MappingNodeData;
       expect(ifNode.mapping).toBe(ifItem);
-      expect(shipOrderChildren.some((c) => c.title === 'OrderPerson')).toBe(false);
+      const ifChildren = VisualizationService.generateNonDocumentNodeDataChildren(ifNode);
+      expect(ifChildren).toHaveLength(1);
+      const noteNode = ifChildren[0] as FieldItemNodeData;
+      expect(noteNode.mapping).toBe(fieldItem);
+      expect(noteNode.autoOptionalIfItem).toBeUndefined();
+      expectLinksOnRenderedRows(
+        MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, renderIndex),
+        targetDocNode,
+      );
     });
 
-    it('should self-heal a stale isAutoOptionalIf=true flag and render as a visible node when a sibling has been added under the guard', () => {
-      // Simulates some other action (e.g. adding a node-scoped variable) pushing a second
-      // child under the guard without going through tryAutoOptionalIfWrap's demotion check —
-      // the flag is left stale (still true), but rendering must not hide the extra content.
-      const { ifItem, fieldItem } = buildHiddenGuard();
-      const variable = new VariableItem(ifItem, 'myVar');
-      ifItem.children.push(variable);
+    it('should render a guard as a visible if row when the render index does not absorb it', () => {
+      const { ifItem } = addGuardedNote('Note', 'Note');
 
-      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
-      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+      const itemChildren = generateItemChildren(TargetRenderIndex.EMPTY);
 
-      expect(ifItem.isAutoOptionalIf).toBe(true); // flag itself is left untouched (read-time self-heal only)
-      const ifNode = shipOrderChildren.find((c) => c.title === 'if') as MappingNodeData;
-      expect(ifNode).toBeDefined();
+      const ifNode = itemChildren.find((c) => c.title === 'if') as MappingNodeData;
       expect(ifNode.mapping).toBe(ifItem);
-      const orderPersonNodes = shipOrderChildren.filter((c) => c.title === 'OrderPerson');
-      expect(orderPersonNodes).toHaveLength(0);
+      expect(itemChildren.some((c) => c.title === 'Note')).toBe(false);
+    });
+
+    it('should render the guard as a visible if row once a sibling is added under it', () => {
+      const { ifItem, fieldItem } = addGuardedNote('Note', 'Note');
+      ifItem.children.push(new VariableItem(ifItem, 'myVar'));
+      const renderIndex = buildRenderIndex();
+
+      const itemChildren = generateItemChildren(renderIndex);
+
+      expect(renderIndex.isAbsorbed(ifItem)).toBe(false);
+      const ifNode = itemChildren.find((c) => c.title === 'if') as MappingNodeData;
+      expect(ifNode.mapping).toBe(ifItem);
+      expect(itemChildren.some((c) => c.title === 'Note')).toBe(false);
       expect(fieldItem.parent).toBe(ifItem);
     });
 
-    it('should self-heal when the inner field has been wrapped by another instruction under the guard', () => {
-      // Simulates "wrap with Choose"/"wrap with ForEach" applied to the promoted field: a new
-      // instruction is inserted between the (still-flagged) guard and the field.
-      const { ifItem, fieldItem } = buildHiddenGuard();
+    it('should render the guard as a visible if row once its field is wrapped by another instruction', () => {
+      const { ifItem, fieldItem } = addGuardedNote('Note', 'Note');
       const chooseItem = new ChooseItem(ifItem);
       ifItem.children = [chooseItem];
       fieldItem.parent = chooseItem;
       chooseItem.children.push(fieldItem);
+      const renderIndex = buildRenderIndex();
 
-      const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
-      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+      const itemChildren = generateItemChildren(renderIndex);
 
-      expect(ifItem.isAutoOptionalIf).toBe(true);
-      const ifNode = shipOrderChildren.find((c) => c.title === 'if') as MappingNodeData;
-      expect(ifNode).toBeDefined();
+      expect(renderIndex.isAbsorbed(ifItem)).toBe(false);
+      const ifNode = itemChildren.find((c) => c.title === 'if') as MappingNodeData;
       expect(ifNode.mapping).toBe(ifItem);
     });
   });
@@ -701,37 +741,37 @@ describe('VisualizationService', () => {
       const leafField = targetDoc.fields[0].fields[0]; // e.g. OrderId — a leaf field
       const leafFI = new FieldItem(shipOrderFI, leafField);
       const vs = new ValueOfSelector(leafFI, ValueOfType.VALUE);
-      expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
+      expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(true);
     });
 
     it('should return false for VALUE ValueOfSelector on an expandable field (has children)', () => {
       // ShipOrder has child fields, so value-of on it renders as an explicit tree node
       const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new ValueOfSelector(shipOrderFI, ValueOfType.VALUE);
-      expect(VisualizationService.isInlineValueSelector(vs)).toBe(false);
+      expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(false);
     });
 
     it('should return true for ATTRIBUTE ValueOfSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new ValueOfSelector(fieldItem, ValueOfType.ATTRIBUTE);
-      expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
+      expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(true);
     });
 
     it('should return true for CONTAINER CopyOfSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
-      expect(VisualizationService.isInlineValueSelector(vs)).toBe(true);
+      expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(true);
     });
 
     it('should return false for CONTAINER_NODE CopyOfSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
-      expect(VisualizationService.isInlineValueSelector(vs)).toBe(false);
+      expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(false);
     });
 
     it('should return false for non-ValueSelector MappingItem', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
-      expect(VisualizationService.isInlineValueSelector(fieldItem)).toBe(false);
+      expect(VisualizationUtilService.isInlineValueSelector(fieldItem)).toBe(false);
     });
   });
 

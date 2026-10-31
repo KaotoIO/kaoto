@@ -30,14 +30,15 @@ import {
 } from '../ExpansionPanels/panel-dimensions';
 
 export const TargetPanel: FunctionComponent = () => {
-  const { targetBodyDocument, mappingTree, structuralMappingTree, refreshMappingTree } = useDataMapper();
+  const { targetBodyDocument, mappingTree, structuralMappingTree, targetRenderIndex, refreshMappingTree } =
+    useDataMapper();
 
   // `structuralMappingTree` is the snapshot of `mappingTree` at the last structural change.
   // It is stable across value-only updates (e.g. typing in an XPath field), so `createTree`
   // is only called when nodes are actually added, removed, or moved — not on every keystroke.
   const targetBodyNodeData = useMemo(
-    () => new TargetDocumentNodeData(targetBodyDocument, structuralMappingTree),
-    [targetBodyDocument, structuralMappingTree],
+    () => new TargetDocumentNodeData(targetBodyDocument, structuralMappingTree, targetRenderIndex),
+    [targetBodyDocument, structuralMappingTree, targetRenderIndex],
   );
   const targetBodyTree = useSyncExternalStore(
     useDocumentTreeStore.subscribe,

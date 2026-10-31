@@ -7,6 +7,7 @@ import {
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import { MappingTree } from '../../models/datamapper/mapping';
+import { TargetRenderIndex } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store';
 import { mockRandomValues } from '../../stubs';
 import {
@@ -79,6 +80,7 @@ describe('MappingLinksService : JSON', () => {
         new PrimitiveDocument(
           new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
         ),
+        TargetRenderIndex.EMPTY,
       );
       expect(links).toHaveLength(13);
       expect(links[0].sourceNodePath).toMatch('fj-string-AccountId');
@@ -123,6 +125,7 @@ describe('MappingLinksService : JSON', () => {
         mappingTree,
         paramsMap,
         dummySourceBodyDoc,
+        TargetRenderIndex.EMPTY,
         orderIdPath,
         true,
       );

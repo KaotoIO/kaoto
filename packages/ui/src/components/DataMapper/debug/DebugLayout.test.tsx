@@ -34,8 +34,14 @@ describe('DebugLayout', () => {
   it.skip('should render Documents and mappings', async () => {
     let mappingLinks: IMappingLink[] = [];
     const LoadMappings: FunctionComponent<PropsWithChildren> = ({ children }) => {
-      const { mappingTree, refreshMappingTree, sourceParameterMap, updateDocument, sourceBodyDocument } =
-        useDataMapper();
+      const {
+        mappingTree,
+        refreshMappingTree,
+        sourceParameterMap,
+        updateDocument,
+        sourceBodyDocument,
+        targetRenderIndex,
+      } = useDataMapper();
       useEffect(() => {
         TestUtil.seedDocument(updateDocument, TestUtil.createSourceOrderDoc());
         const targetDoc = TestUtil.createTargetOrderDoc();
@@ -45,8 +51,13 @@ describe('DebugLayout', () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
       useEffect(() => {
-        mappingLinks = MappingLinksService.extractMappingLinks(mappingTree, sourceParameterMap, sourceBodyDocument);
-      }, [mappingTree, sourceBodyDocument, sourceParameterMap]);
+        mappingLinks = MappingLinksService.extractMappingLinks(
+          mappingTree,
+          sourceParameterMap,
+          sourceBodyDocument,
+          targetRenderIndex,
+        );
+      }, [mappingTree, sourceBodyDocument, sourceParameterMap, targetRenderIndex]);
       return <>{children}</>;
     };
     const mockDebug = vi.spyOn(console, 'debug').mockImplementation(() => {});

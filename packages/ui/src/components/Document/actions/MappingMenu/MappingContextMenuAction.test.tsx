@@ -27,7 +27,6 @@ import {
 import { MappingService } from '../../../../services/mapping/mapping.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { MappingActionRegistryService } from '../../../../services/visualization/mapping-action-registry.service';
-import { MappingLinksService } from '../../../../services/visualization/mapping-links.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
 import { useDocumentTreeStore } from '../../../../store/document-tree.store';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
@@ -739,7 +738,6 @@ describe('MappingContextMenuAction', () => {
       targetField.minOccurs = 0;
       const ifItem = new IfItem(mappingTree);
       ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      ifItem.isAutoOptionalIf = true;
       mappingTree.children.push(ifItem);
       const fieldItem = new FieldItem(ifItem, targetField);
       const selector = new ValueOfSelector(fieldItem);
@@ -766,7 +764,7 @@ describe('MappingContextMenuAction', () => {
 
     it('should wrap a simple mapping via "Add optional guard" when the resolved source is also optional', async () => {
       const user = userEvent.setup();
-      vi.spyOn(MappingLinksService, 'resolveSourceFields').mockReturnValue([
+      vi.spyOn(MappingService, 'resolveSourceFields').mockReturnValue([
         { field: { minOccurs: 0 } as never, document: {} as IDocument },
       ]);
       const targetField = targetDoc.fields[0].fields[1];
@@ -791,13 +789,12 @@ describe('MappingContextMenuAction', () => {
       });
       expect(fieldItem.parent).toBeInstanceOf(IfItem);
       const wrappingIf = fieldItem.parent as IfItem;
-      expect(wrappingIf.isAutoOptionalIf).toBe(true);
       expect(wrappingIf.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
     });
 
     it('should show "Add optional guard" disabled (not hidden) when the resolved source is required', async () => {
       const user = userEvent.setup();
-      vi.spyOn(MappingLinksService, 'resolveSourceFields').mockReturnValue([
+      vi.spyOn(MappingService, 'resolveSourceFields').mockReturnValue([
         { field: { minOccurs: 1 } as never, document: {} as IDocument },
       ]);
       const targetField = targetDoc.fields[0].fields[1];
@@ -842,7 +839,7 @@ describe('MappingContextMenuAction', () => {
 
     it('should disable "Add optional guard" once the selector expression is no longer a simple path', async () => {
       const user = userEvent.setup();
-      vi.spyOn(MappingLinksService, 'resolveSourceFields').mockReturnValue([
+      vi.spyOn(MappingService, 'resolveSourceFields').mockReturnValue([
         { field: { minOccurs: 0 } as never, document: {} as IDocument },
       ]);
       const targetField = targetDoc.fields[0].fields[1];

@@ -268,7 +268,7 @@ export class TreeUIService {
    * walk rather than read from `item.nodePath`, so that the substituted segment also propagates to
    * every descendant.
    *
-   * NOTE: do NOT use `MappingLinksService.computeVisualTargetNodePath` here — it applies the
+   * NOTE: do NOT use `TargetRenderService.computeTargetPath` here — it applies the
    * `field.id` substitution to every selected wrapper member, including collection wrappers, which
    * do render at the mapping id. It is for edge-rendering port lookup, where that distinction does
    * not surface.
