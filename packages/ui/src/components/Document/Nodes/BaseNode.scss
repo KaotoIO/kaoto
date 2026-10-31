@@ -97,6 +97,10 @@
     pointer-events: none;
   }
 
+  &__comment-tooltip {
+    white-space: pre-line;
+  }
+
   &__override-indicator {
     padding: var(--pf-t--global--spacer--sm);
     cursor: help;

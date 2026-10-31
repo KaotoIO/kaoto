@@ -39,5 +39,44 @@ div.node-title-container {
 
   &--active-guard {
     color: var(--pf-t--global--color--status--info--default);
+
+    rect {
+      fill: currentcolor;
+      stroke: var(--pf-t--global--color--status--info--hover);
+      stroke-width: 2;
+    }
+
+    text {
+      fill: var(--pf-t--global--icon--color--status--on-info--default);
+    }
+
+    .droppable-invalid & {
+      color: var(--pf-t--global--text--color--disabled);
+
+      rect {
+        stroke: currentcolor;
+      }
+    }
+
+    @media (forced-colors: active) {
+      forced-color-adjust: none;
+      color: canvastext;
+
+      rect {
+        stroke: canvastext;
+      }
+
+      text {
+        fill: canvas;
+      }
+
+      .droppable-invalid & {
+        color: graytext;
+
+        rect {
+          stroke: graytext;
+        }
+      }
+    }
   }
 }

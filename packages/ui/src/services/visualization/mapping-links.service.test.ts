@@ -28,7 +28,6 @@ import { mockRandomValues } from '../../stubs';
 import {
   getChoiceWithAbstractXsd,
   getContactsXsd,
-  getElementRefXsd,
   getFieldSubstitutionXsd,
   getInvoice850Xsd,
   getJsonBodyToShipOrderXslt,
@@ -48,7 +47,10 @@ import {
   getX12850ForEachXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
-import { expectLinksOnRenderedRows } from '../../stubs/datamapper/target-render-test-helpers';
+import {
+  createElementRefCsvDocument,
+  expectLinksOnRenderedRows,
+} from '../../stubs/datamapper/target-render-test-helpers';
 import { QName } from '../../xml-schema-ts/QName';
 import { DocumentUtilService } from '../document/document-util.service';
 import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-document.service';
@@ -1348,16 +1350,8 @@ describe('MappingLinksService', () => {
       DocumentUtilService.resolveTypeFragment(targetRoot);
     });
 
-    const createCsvDoc = (documentType: DocumentType) => {
-      const definition = new DocumentDefinition(documentType, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
-        'element-ref.xsd': getElementRefXsd(),
-      });
-      definition.rootElementChoice = { namespaceUri: '', name: 'CSV' };
-      return XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
-    };
-
     const createGuardedCsvRecordTree = () => {
-      const csvTargetDoc = createCsvDoc(DocumentType.TARGET_BODY);
+      const csvTargetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
       const csvTree = new MappingTree(
         csvTargetDoc.documentType,
         csvTargetDoc.documentId,
@@ -1458,7 +1452,7 @@ describe('MappingLinksService', () => {
     // children) wrapped by a see-through guard must classify exactly as if it weren't wrapped
     // at all (COPY_OF here, not forced REGULAR), since the user never sees the wrapping IfItem.
     it('should classify a sole-copy-of container directly inside a see-through IfItem by its own shape, not REGULAR', () => {
-      const csvSourceDoc = createCsvDoc(DocumentType.SOURCE_BODY);
+      const csvSourceDoc = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
       const { csvTree, guard, recordItem } = createGuardedCsvRecordTree();
       const vs = new CopyOfSelector(recordItem, CopyOfType.CONTAINER);
       vs.expression = '/CSV/CSV_r';
@@ -1478,7 +1472,7 @@ describe('MappingLinksService', () => {
     // visible if, so classification falls back to REGULAR exactly like the visible IfItem case
     // below, instead of the COMPLETE a see-through guard would give.
     it('should keep the guard of a recursive-children container visible, so it classifies as REGULAR, not COMPLETE', () => {
-      const csvSourceDoc = createCsvDoc(DocumentType.SOURCE_BODY);
+      const csvSourceDoc = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
       const { csvTree, guard, recordItem } = createGuardedCsvRecordTree();
       for (const childField of recordItem.field.fields) {
         const childItem = new FieldItem(recordItem, childField);

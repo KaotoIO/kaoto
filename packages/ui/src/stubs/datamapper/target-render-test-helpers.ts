@@ -1,9 +1,32 @@
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+} from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { IfItem, MappingItem, MappingTree } from '../../models/datamapper/mapping';
-import { IMappingLink, TargetDocumentNodeData, TargetRenderIndex } from '../../models/datamapper/visualization';
+import {
+  CopyOfSelector,
+  FieldItem,
+  IfItem,
+  MappingItem,
+  MappingTree,
+  ValueOfSelector,
+} from '../../models/datamapper/mapping';
+import {
+  FieldItemNodeData,
+  IMappingLink,
+  NodeData,
+  TargetDocumentNodeData,
+  TargetRenderIndex,
+} from '../../models/datamapper/visualization';
+import { XmlSchemaDocument } from '../../services/document/xml-schema/xml-schema-document.model';
+import { XmlSchemaDocumentService } from '../../services/document/xml-schema/xml-schema-document.service';
 import { TargetRenderService } from '../../services/visualization/target-render.service';
 import { TreeParsingService } from '../../services/visualization/tree-parsing.service';
+import { VisualizationService } from '../../services/visualization/visualization.service';
+import { getElementRefXsd } from './data-mapper';
 
 /**
  * Asserts that `links` is not empty and that every link ends on a row of the target tree built from
@@ -31,6 +54,78 @@ export const expectNoDecisionChange = (root: MappingTree | MappingItem, renderIn
     const isSeeThrough = !!TargetRenderService.computeSeeThroughField(ifItem, renderIndex.sourceContext);
     expect(isSeeThrough).toBe(renderIndex.isAbsorbed(ifItem));
   }
+};
+
+/**
+ * The target rows of `element-ref.xsd`'s `CSV`, built by the target tree builder against the same
+ * schema on the source side. `STATUS` (Opt) and `CSV_r` (`0+`) are mapped behind see-through
+ * optional guards, and `RPTID` (Opt) is mapped without one.
+ */
+export const createGuardedCsvRows = (): Record<
+  'guardedOptional' | 'guardedRepeating' | 'unguardedOptional',
+  FieldItemNodeData
+> => {
+  const sourceBody = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
+  const targetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
+  const mappingTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+  const csvItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+  mappingTree.children.push(csvItem);
+  mapCsvField(csvItem, 'STATUS', true);
+  mapCsvField(csvItem, 'CSV_r', true);
+  mapCsvField(csvItem, 'RPTID', false);
+
+  const renderIndex = TargetRenderService.buildIndex(mappingTree, { sourceParameterMap: new Map(), sourceBody });
+  const [csvRow] = VisualizationService.generateStructuredDocumentChildren(
+    new TargetDocumentNodeData(targetDoc, mappingTree, renderIndex),
+  );
+  const rows = VisualizationService.generateNonDocumentNodeDataChildren(csvRow);
+  return {
+    guardedOptional: findFieldItemRow(rows, 'STATUS'),
+    guardedRepeating: findFieldItemRow(rows, 'CSV_r'),
+    unguardedOptional: findFieldItemRow(rows, 'RPTID'),
+  };
+};
+
+/**
+ * The `element-ref.xsd` schema with `CSV` as its root element, whose `CSV_r` is a `0+` field and
+ * whose other children are optional, for tests of optional guards.
+ * @param documentType - the side and kind of document to create
+ */
+export const createElementRefCsvDocument = (documentType: DocumentType): XmlSchemaDocument => {
+  const { document } = XmlSchemaDocumentService.createXmlSchemaDocument(
+    new DocumentDefinition(
+      documentType,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      { 'element-ref.xsd': getElementRefXsd() },
+      { namespaceUri: '', name: 'CSV' },
+    ),
+  );
+  if (!document) throw new Error('element-ref.xsd did not produce a document');
+  return document;
+};
+
+const mapCsvField = (csvItem: FieldItem, name: string, isGuarded: boolean): void => {
+  const field = csvItem.field.fields.find((child) => child.name === name);
+  if (!field) throw new Error(`CSV has no field ${name}`);
+  const sourcePath = `/CSV/${name}`;
+  let parent: FieldItem | IfItem = csvItem;
+  if (isGuarded) {
+    parent = new IfItem(csvItem);
+    parent.expression = sourcePath;
+    csvItem.children.push(parent);
+  }
+  const fieldItem = new FieldItem(parent, field);
+  parent.children.push(fieldItem);
+  const selector = field.fields.length > 0 ? new CopyOfSelector(fieldItem) : new ValueOfSelector(fieldItem);
+  selector.expression = sourcePath;
+  fieldItem.children.push(selector);
+};
+
+const findFieldItemRow = (rows: NodeData[], name: string): FieldItemNodeData => {
+  const row = rows.find((node) => node instanceof FieldItemNodeData && node.field.name === name);
+  if (!(row instanceof FieldItemNodeData)) throw new Error(`CSV has no mapped row for ${name}`);
+  return row;
 };
 
 const findRow = (root: DocumentTreeNode, path: string): DocumentTreeNode | undefined => {

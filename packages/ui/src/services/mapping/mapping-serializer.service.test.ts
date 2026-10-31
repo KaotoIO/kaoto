@@ -22,7 +22,6 @@ import {
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import { Types } from '../../models/datamapper/types';
 import {
-  getElementRefXsd,
   getFieldSubstitutionToFieldSubstitutionXslt,
   getFieldSubstitutionXsd,
   getForEachSortToShipOrderXslt,
@@ -55,6 +54,7 @@ import {
   getXslTextNodeXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { createElementRefCsvDocument } from '../../stubs/datamapper/target-render-test-helpers';
 import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { TargetRenderService } from '../visualization/target-render.service';
@@ -1690,20 +1690,9 @@ describe('MappingSerializerService', () => {
   });
 
   describe('auto-optional-if: serialization and deserialization round trip', () => {
-    const createCsvDoc = (documentType: DocumentType) => {
-      const definition = new DocumentDefinition(
-        documentType,
-        DocumentDefinitionType.XML_SCHEMA,
-        BODY_DOCUMENT_ID,
-        { 'element-ref.xsd': getElementRefXsd() },
-        { namespaceUri: '', name: 'CSV' },
-      );
-      return XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
-    };
-
     it('should serialize a value-of guard as a plain xsl:if that is see-through again after a round trip', () => {
-      const localSourceDoc = createCsvDoc(DocumentType.SOURCE_BODY);
-      const localTargetDoc = createCsvDoc(DocumentType.TARGET_BODY);
+      const localSourceDoc = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
+      const localTargetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
       const localParamsMap = TestUtil.createParameterMap();
       const sourceContext = { sourceParameterMap: localParamsMap, sourceBody: localSourceDoc };
       const sourceField = localSourceDoc.fields[0].fields.find((f) => f.name === 'STATUS')!;
@@ -1764,8 +1753,8 @@ describe('MappingSerializerService', () => {
     });
 
     it('should serialize a copy-of guard as a plain xsl:if that is see-through again after a round trip', () => {
-      const localSourceDoc = createCsvDoc(DocumentType.SOURCE_BODY);
-      const localTargetDoc = createCsvDoc(DocumentType.TARGET_BODY);
+      const localSourceDoc = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
+      const localTargetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
       const localParamsMap = TestUtil.createParameterMap();
       const sourceField = localSourceDoc.fields[0].fields.find((f) => f.name === 'CSV_r')!;
       const targetField = localTargetDoc.fields[0].fields.find((f) => f.name === 'CSV_r')!;
@@ -1834,8 +1823,8 @@ describe('MappingSerializerService', () => {
       // instead (exactly what this feature produces), the parent mapping is the IfItem, so the
       // reconstruction was skipped and the guard's shape (IfItem -> FieldItem -> selector)
       // silently collapsed into (IfItem -> selector), which matchSimpleOptionalGuard can't match.
-      const localSourceDoc = createCsvDoc(DocumentType.SOURCE_BODY);
-      const localTargetDoc = createCsvDoc(DocumentType.TARGET_BODY);
+      const localSourceDoc = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
+      const localTargetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
       const localParamsMap = TestUtil.createParameterMap();
       const sourceField = localSourceDoc.fields[0].fields.find((f) => f.name === 'CSV_r')!;
       const targetField = localTargetDoc.fields[0].fields.find((f) => f.name === 'CSV_r')!;

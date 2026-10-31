@@ -13,8 +13,16 @@ import {
   TargetFieldNodeData,
 } from '../../../models/datamapper/visualization';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { createGuardedCsvRows } from '../../../stubs/datamapper/target-render-test-helpers';
 import { QName } from '../../../xml-schema-ts/QName';
-import { formatTypeQName, getEffectiveMaxOccurs, isFieldNode, prepareFieldDetails } from './field-details-utils';
+import {
+  formatTypeQName,
+  getEffectiveMaxOccurs,
+  getOptionalGuardExplanation,
+  isFieldNode,
+  OPTIONAL_GUARD_LABEL,
+  prepareFieldDetails,
+} from './field-details-utils';
 
 describe('field-details-utils', () => {
   afterEach(() => {
@@ -218,7 +226,38 @@ describe('field-details-utils', () => {
     });
   });
 
+  describe('getOptionalGuardExplanation', () => {
+    it('should name the guarding source path and how to always write the field', () => {
+      expect(getOptionalGuardExplanation('/CSV/STATUS')).toEqual(
+        'This field is written only when /CSV/STATUS exists in the source. The guarding if is hidden. ' +
+          'Changing the XPath to anything other than a simple path to an optional source shows the if. ' +
+          'To always write the field: ⋮ → Remove optional guard.',
+      );
+    });
+  });
+
   describe('prepareFieldDetails', () => {
+    it('should explain a see-through optional guard in the row after Max Occurs', () => {
+      const { guardedOptional } = createGuardedCsvRows();
+
+      const details = prepareFieldDetails(guardedOptional.field, {}, guardedOptional);
+
+      const labels = details.map(({ label }) => label);
+      expect(labels.indexOf(OPTIONAL_GUARD_LABEL)).toEqual(labels.indexOf('Max Occurs') + 1);
+      expect(details).toContainEqual({
+        label: OPTIONAL_GUARD_LABEL,
+        value: getOptionalGuardExplanation('/CSV/STATUS'),
+      });
+    });
+
+    it('should not explain an optional guard on a field mapped without one', () => {
+      const { unguardedOptional } = createGuardedCsvRows();
+
+      const details = prepareFieldDetails(unguardedOptional.field, {}, unguardedOptional);
+
+      expect(details.map(({ label }) => label)).not.toContain(OPTIONAL_GUARD_LABEL);
+    });
+
     const createMockField = (overrides: Partial<IField> = {}): IField => {
       return {
         name: 'testField',

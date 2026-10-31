@@ -6,7 +6,7 @@ import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, use
 
 import { IDataTestID } from '../../../models';
 import { MappingItem } from '../../../models/datamapper/mapping';
-import { NodeData } from '../../../models/datamapper/visualization';
+import { FieldItemNodeData, NodeData } from '../../../models/datamapper/visualization';
 import { MappingValidationService } from '../../../services/visualization/mapping-validation.service';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { CommentModal } from '../actions/MappingMenu/Comment/CommentModal';
@@ -80,7 +80,9 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   const isAttributeField = VisualizationUtilService.isAttributeField(nodeData);
   const isDraggable = MappingValidationService.isDraggable(nodeData);
   const isSource = nodeData.isSource;
+  const optionalGuard = nodeData instanceof FieldItemNodeData ? nodeData.autoOptionalIfItem : undefined;
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [isGuardCommentModalOpen, setIsGuardCommentModalOpen] = useState(false);
 
   const handleOpenCommentModal = useCallback(
     (event: React.MouseEvent) => {
@@ -94,6 +96,15 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
 
   const handleCloseCommentModal = useCallback(() => {
     setIsCommentModalOpen(false);
+  }, []);
+
+  const handleOpenGuardCommentModal = useCallback((event: React.MouseEvent) => {
+    event.stopPropagation();
+    setIsGuardCommentModalOpen(true);
+  }, []);
+
+  const handleCloseGuardCommentModal = useCallback(() => {
+    setIsGuardCommentModalOpen(false);
   }, []);
   return (
     <section
@@ -127,6 +138,20 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
         </Icon>
       )}
       {title}
+      {optionalGuard?.comment && onUpdate && (
+        <Tooltip
+          content={<span className="node__comment-tooltip">{`Optional guard comment: ${optionalGuard.comment}`}</span>}
+        >
+          <Icon className="node__spacer" data-testid="guard-comment-indicator-icon">
+            <Button
+              variant="plain"
+              icon={<DocumentComment />}
+              onClick={handleOpenGuardCommentModal}
+              aria-label="Edit optional guard comment"
+            />
+          </Icon>
+        </Tooltip>
+      )}
       {isCollectionField && (
         <Icon className="node__spacer" data-testid="collection-field-icon">
           <Layers />
@@ -168,7 +193,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
         </Icon>
       )}
       {mapping?.comment && mapping && onUpdate && (
-        <Tooltip content={mapping?.comment}>
+        <Tooltip content={<span className="node__comment-tooltip">{mapping?.comment}</span>}>
           <Icon className="node__spacer" data-testid="comment-indicator-icon">
             <Button
               variant="plain"
@@ -188,6 +213,17 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
           onClose={handleCloseCommentModal}
           mapping={mapping}
           onUpdate={onUpdate}
+          showDeleteButton
+          withFormGroup
+        />
+      )}
+      {optionalGuard && onUpdate && (
+        <CommentModal
+          isOpen={isGuardCommentModalOpen}
+          onClose={handleCloseGuardCommentModal}
+          mapping={optionalGuard}
+          onUpdate={onUpdate}
+          title="Edit Optional Guard Comment"
           showDeleteButton
           withFormGroup
         />
