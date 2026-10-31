@@ -53,7 +53,7 @@ export const BeanTreeList: FunctionComponent<BeanTreeListProps> = (props) => {
             key={`${item[props.required[0]] ?? ''}-${index}`}
             id={`${ROW_ID_PREFIX}${index}`}
             data-testid={`${ROW_ID_PREFIX}${index}`}
-            label={item[props.required[1]] ?? ''}
+            label={item.type ?? ''}
             renderIcon={item[props.required[0]] ? () => <BeanBadge name={item[props.required[0]]} /> : undefined}
             onSelect={() => {
               props.onSelected(index);
