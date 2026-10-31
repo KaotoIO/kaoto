@@ -46,6 +46,7 @@ import { VisualizationUtilService } from './visualization-util.service';
  */
 export class TargetRenderService {
   private static readonly warnedItems = new WeakSet<MappingItem>();
+  private static lastGeneration = 0;
 
   /**
    * The see-through rule: an `xsl:if` is see-through when it guards exactly one optional target field
@@ -129,7 +130,8 @@ export class TargetRenderService {
     for (const child of mappingTree.children) {
       visit(child, mappingTree.nodePath);
     }
-    return new TargetRenderIndex(absorbedFields, targetPaths, sourceContext);
+    TargetRenderService.lastGeneration += 1;
+    return new TargetRenderIndex(absorbedFields, targetPaths, sourceContext, TargetRenderService.lastGeneration);
   }
 
   /**
@@ -245,6 +247,16 @@ export class TargetRenderService {
       return nodeData.parent;
     }
     return undefined;
+  }
+
+  /**
+   * The mapping item whose row hosts `fieldItem`'s XPath input: the field itself when its selector is
+   * edited inline, otherwise the selector, which gets a row of its own.
+   * @param fieldItem - the field whose XPath input to find
+   */
+  static getSelectorInputOwner(fieldItem: FieldItem): MappingItem {
+    const selector = fieldItem.soleSelector;
+    return selector && !VisualizationUtilService.isInlineValueSelector(selector) ? selector : fieldItem;
   }
 
   private static isDecisionChanged(item: MappingItem, renderIndex: TargetRenderIndex): boolean {

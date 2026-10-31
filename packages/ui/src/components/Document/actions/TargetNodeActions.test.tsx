@@ -88,6 +88,9 @@ describe('TargetNodeActions', () => {
   describe('XPath commit', () => {
     afterEach(() => {
       vi.restoreAllMocks();
+      act(() => {
+        useDocumentTreeStore.getState().clearXPathInputFocusRequest();
+      });
     });
 
     function renderGuardedNote() {
@@ -114,12 +117,13 @@ describe('TargetNodeActions', () => {
       selector.expression = 'Note';
       noteFieldItem.children.push(selector);
 
-      const renderIndex = TargetRenderService.buildIndex(tree, {
-        sourceParameterMap: new Map<string, IDocument>(),
-        sourceBody: sourceDoc,
-      });
+      const buildRenderIndex = () =>
+        TargetRenderService.buildIndex(tree, {
+          sourceParameterMap: new Map<string, IDocument>(),
+          sourceBody: sourceDoc,
+        });
       const shipOrderNode = VisualizationService.generateStructuredDocumentChildren(
-        new TargetDocumentNodeData(targetDoc, tree, renderIndex),
+        new TargetDocumentNodeData(targetDoc, tree, buildRenderIndex()),
       )[0];
       const forEachNode = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderNode).find(
         (node) => node instanceof MappingNodeData && node.mapping === forEachItem,
@@ -158,19 +162,78 @@ describe('TargetNodeActions', () => {
       ['update', 1, 0],
       ['structural-update', 0, 1],
     ])(
-      'should dispatch the callback matching a "%s" commit result on blur',
+      'should dispatch the callback matching a "%s" commit result on Enter',
       async (result, updateCalls, structuralUpdateCalls) => {
         const commitExpressionSpy = vi.spyOn(MappingActionService, 'commitExpression').mockReturnValue(result);
+        const restoreFocusSpy = vi.spyOn(MappingActionService, 'restoreFocusAfterAbsorb');
         const { selector, nodeData, onUpdate, onStructuralUpdate } = renderGuardedNote();
         const input = await screen.findByTestId('transformation-xpath-input');
 
-        fireEvent.blur(input);
+        fireEvent.keyDown(input, { key: 'Enter' });
 
         expect(commitExpressionSpy).toHaveBeenCalledWith(nodeData, selector);
         expect(onUpdate).toHaveBeenCalledTimes(updateCalls);
         expect(onStructuralUpdate).toHaveBeenCalledTimes(structuralUpdateCalls);
+        expect(restoreFocusSpy).toHaveBeenCalledTimes(structuralUpdateCalls);
       },
     );
+
+    it('should ask for focus to be restored before refreshing the tree structure', async () => {
+      vi.spyOn(MappingActionService, 'commitExpression').mockReturnValue('structural-update');
+      const restoreFocusSpy = vi.spyOn(MappingActionService, 'restoreFocusAfterAbsorb');
+      const { selector, nodeData, onStructuralUpdate } = renderGuardedNote();
+
+      fireEvent.keyDown(await screen.findByTestId('transformation-xpath-input'), { key: 'Enter' });
+
+      expect(restoreFocusSpy).toHaveBeenCalledWith(nodeData, selector);
+      expect(restoreFocusSpy.mock.invocationCallOrder[0]).toBeLessThan(onStructuralUpdate.mock.invocationCallOrder[0]);
+    });
+
+    it('should not ask for focus to be restored when a blur moves focus nowhere', async () => {
+      vi.spyOn(MappingActionService, 'commitExpression').mockReturnValue('structural-update');
+      const restoreFocusSpy = vi.spyOn(MappingActionService, 'restoreFocusAfterAbsorb');
+      const { onStructuralUpdate } = renderGuardedNote();
+
+      fireEvent.blur(await screen.findByTestId('transformation-xpath-input'));
+
+      expect(onStructuralUpdate).toHaveBeenCalledTimes(1);
+      expect(restoreFocusSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not ask for focus to be restored when the blur moves focus to a control outside the row', async () => {
+      vi.spyOn(MappingActionService, 'commitExpression').mockReturnValue('structural-update');
+      const restoreFocusSpy = vi.spyOn(MappingActionService, 'restoreFocusAfterAbsorb');
+      const { onStructuralUpdate } = renderGuardedNote();
+      const otherControl = document.createElement('button');
+      document.body.appendChild(otherControl);
+
+      fireEvent.blur(await screen.findByTestId('transformation-xpath-input'), { relatedTarget: otherControl });
+
+      expect(onStructuralUpdate).toHaveBeenCalledTimes(1);
+      expect(restoreFocusSpy).not.toHaveBeenCalled();
+      otherControl.remove();
+    });
+
+    it('should pass the row render index to the XPath input, so a focus restore request waits for the rebuilt row', async () => {
+      vi.spyOn(document, 'hasFocus').mockReturnValue(true);
+      const { nodeData } = renderGuardedNote();
+      const input = await screen.findByTestId('transformation-xpath-input');
+      const notePath = nodeData.mapping.nodePath.toString();
+
+      act(() => {
+        useDocumentTreeStore.getState().requestXPathInputFocus(notePath, nodeData.renderIndex.generation);
+      });
+
+      expect(input).not.toHaveFocus();
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(notePath);
+
+      act(() => {
+        useDocumentTreeStore.getState().requestXPathInputFocus(notePath, nodeData.renderIndex.generation - 1);
+      });
+
+      expect(input).toHaveFocus();
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBeNull();
+    });
   });
 
   describe('Context menu and delete actions', () => {

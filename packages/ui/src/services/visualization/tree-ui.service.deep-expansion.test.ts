@@ -6,9 +6,15 @@ import {
   IDocument,
   IField,
 } from '../../models/datamapper/document';
+import { DocumentTree, FlattenedNode } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { MappingTree } from '../../models/datamapper/mapping';
-import { FieldItemNodeData, TargetDocumentNodeData, TargetFieldNodeData } from '../../models/datamapper/visualization';
+import { MappingItem, MappingTree } from '../../models/datamapper/mapping';
+import {
+  FieldItemNodeData,
+  MappingNodeData,
+  TargetDocumentNodeData,
+  TargetFieldNodeData,
+} from '../../models/datamapper/visualization';
 import { MappingService } from '../../services/mapping/mapping.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { getFieldSubstitutionXsd, getWideDeepXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
@@ -51,6 +57,49 @@ function parseChild(node: DocumentTreeNode, title: string): DocumentTreeNode {
   const child = node.children.find((candidate) => candidate.nodeData.title === title);
   if (!child) throw new Error(`No row titled '${title}' under ${node.path}`);
   return child;
+}
+
+function findVisibleRow(rows: FlattenedNode[], mapping: MappingItem | undefined): FlattenedNode {
+  const row = rows.find(
+    ({ treeNode }) => treeNode.nodeData instanceof MappingNodeData && treeNode.nodeData.mapping === mapping,
+  );
+  if (!row) throw new Error(`No visible row renders '${mapping?.name}'`);
+  return row;
+}
+
+function createGuardedDeepLeaf() {
+  const targetDoc = createWideDeepTargetDoc();
+  const sourceDoc = createWideDeepDoc(DocumentType.SOURCE_BODY);
+  const mappingTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+  const wideDeepItem = MappingService.createFieldItem(mappingTree, findField(targetDoc, 'WideDeep'));
+  const deepChainItem = MappingService.createFieldItem(wideDeepItem, findField(wideDeepItem.field, 'deep_chain'));
+  const l2Item = MappingService.createFieldItem(deepChainItem, findField(deepChainItem.field, 'L2'));
+  const l3Item = MappingService.createFieldItem(l2Item, findField(l2Item.field, 'L3'));
+  const l4Item = MappingService.createFieldItem(l3Item, findField(l3Item.field, 'L4'));
+  const leafItem = MappingService.createFieldItem(l4Item, findField(l4Item.field, 'L5leaf'));
+  const selector = MappingService.createValueOfSelector(leafItem);
+  leafItem.children.push(selector);
+  const sourceLeaf = findField(sourceDoc, 'WideDeep', 'deep_chain', 'L2', 'L3', 'L4', 'L5leaf');
+  MappingService.mapToField(sourceLeaf, leafItem);
+  const guard = MappingService.tryAutoOptionalIfWrap(leafItem, sourceLeaf, false);
+  const sourceContext = { sourceParameterMap: new Map<string, IDocument>(), sourceBody: sourceDoc };
+  const createTargetTree = () =>
+    TreeUIService.createTree(
+      new TargetDocumentNodeData(targetDoc, mappingTree, TargetRenderService.buildIndex(mappingTree, sourceContext)),
+    );
+  return { leafItem, selector, guard, createTargetTree };
+}
+
+function expandChain(tree: DocumentTree, titles: string[]): DocumentTreeNode {
+  const documentId = tree.documentNodeId;
+  let chainRow = tree.contentRoots[0];
+  for (const title of titles) {
+    chainRow = parseChild(chainRow, title);
+    if (!useDocumentTreeStore.getState().isExpanded(documentId, chainRow.path)) {
+      TreeUIService.toggleNode(documentId, chainRow.path);
+    }
+  }
+  return chainRow;
 }
 
 describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
@@ -829,5 +878,48 @@ describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
     expect(leafRow.nodeData).toBeInstanceOf(FieldItemNodeData);
     expect(leafRow.nodeData).toHaveProperty('autoOptionalIfItem', guard);
     expect(leafRow.path).toBe(TargetRenderService.getTargetPath(leafItem, renderIndex));
+  });
+
+  it('should expand the if row of a guard demoted below the parse frontier so its field row stays visible', () => {
+    const { leafItem, selector, guard, createTargetTree } = createGuardedDeepLeaf();
+    const tree1 = createTargetTree();
+    const documentId = tree1.documentNodeId;
+    const l4Row = expandChain(tree1, ['deep_chain', 'L2', 'L3', 'L4']);
+    const absorbedRow = findVisibleRow(
+      tree1.flatten(useDocumentTreeStore.getState().expansionState[documentId]),
+      leafItem,
+    );
+
+    expect(absorbedRow.treeNode.parent).toBe(l4Row);
+    expect(absorbedRow.treeNode.nodeData).toHaveProperty('autoOptionalIfItem', guard);
+
+    MappingService.updateExpression(selector, `upper-case(${selector.expression})`);
+    const tree2 = createTargetTree();
+
+    const expansionAfter = useDocumentTreeStore.getState().expansionState[documentId];
+    const visibleRows = tree2.flatten(expansionAfter);
+    const ifRow = findVisibleRow(visibleRows, guard);
+    expect(ifRow.treeNode.parent?.path).toBe(l4Row.path);
+    expect(expansionAfter[ifRow.path]).toBe(true);
+    expect(findVisibleRow(visibleRows, leafItem).treeNode.parent).toBe(ifRow.treeNode);
+  });
+
+  it('should not seed the if row of a guard demoted under a collapsed container, so it opens collapsed', () => {
+    const { leafItem, selector, guard, createTargetTree } = createGuardedDeepLeaf();
+    const tree1 = createTargetTree();
+    const documentId = tree1.documentNodeId;
+    const l4Row = parseChild(expandChain(tree1, ['deep_chain', 'L2', 'L3']), 'L4');
+
+    expect(useDocumentTreeStore.getState().isExpanded(documentId, l4Row.path)).toBe(false);
+
+    MappingService.updateExpression(selector, `upper-case(${selector.expression})`);
+    const tree2 = createTargetTree();
+    TreeUIService.toggleNode(documentId, l4Row.path);
+
+    const visibleRows = tree2.flatten(useDocumentTreeStore.getState().expansionState[documentId]);
+    const ifRow = findVisibleRow(visibleRows, guard);
+    expect(ifRow.treeNode.parent?.path).toBe(l4Row.path);
+    expect(useDocumentTreeStore.getState().isExpanded(documentId, ifRow.path)).toBe(false);
+    expect(() => findVisibleRow(visibleRows, leafItem)).toThrow();
   });
 });

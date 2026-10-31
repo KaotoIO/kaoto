@@ -28,6 +28,7 @@ import {
   TARGET_PANEL_MIN_HEIGHT,
   VIRTUOSO_OVERSCAN,
 } from '../ExpansionPanels/panel-dimensions';
+import { getTargetRowKeys } from './target-row-keys';
 
 export const TargetPanel: FunctionComponent = () => {
   const { targetBodyDocument, mappingTree, structuralMappingTree, targetRenderIndex, refreshMappingTree } =
@@ -91,19 +92,22 @@ export const TargetPanel: FunctionComponent = () => {
     [targetBodyNodeData.id],
   );
 
+  const rowKeys = useMemo(() => getTargetRowKeys(flattenedNodes), [flattenedNodes]);
+  const computeItemKey = useCallback((index: number) => rowKeys[index], [rowKeys]);
+
   const renderTargetItem = useCallback(
     (index: number) => {
       const flattenedNode = flattenedNodes[index];
       return (
         <TargetDocumentNodeWithContextMenu
-          key={flattenedNode.path}
+          key={rowKeys[index]}
           treeNode={flattenedNode.treeNode}
           documentNodeId={targetBodyNodeData.id}
           rank={flattenedNode.depth + 1}
         />
       );
     },
-    [flattenedNodes, targetBodyNodeData.id],
+    [flattenedNodes, rowKeys, targetBodyNodeData.id],
   );
 
   // Actions for target body document
@@ -186,6 +190,7 @@ export const TargetPanel: FunctionComponent = () => {
               totalCount={flattenedNodes.length}
               components={virtuosoComponents}
               itemContent={renderTargetItem}
+              computeItemKey={computeItemKey}
               overscan={VIRTUOSO_OVERSCAN}
               totalListHeightChanged={syncConnectionPorts}
             />

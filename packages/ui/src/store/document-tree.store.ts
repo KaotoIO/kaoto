@@ -31,14 +31,27 @@ export interface DocumentTreeState {
    */
   targetXPathInputForFocus: string | null;
 
+  /**
+   * When set, the pending focus request restores focus after a structural rebuild: the input
+   * honors it only once its row was rebuilt from a render index with a higher generation than this
+   * one, and only if focus was lost meanwhile, so it doesn't take focus back from outside the page.
+   * Whoever makes the request makes sure focus isn't moving to a control outside the edited row,
+   * because the lost-focus check can't tell during a blur. A generation number rather than the
+   * index itself keeps the source documents the index refers to out of the store.
+   */
+  xPathInputFocusRestoreAfter: number | null;
+
   /** Set the document's connection ports map with fresh data */
   setNodesConnectionPorts: (documentNodeId: string, ports: TreeConnectionPorts) => void;
 
   /** Toggle expansion state of a node */
   toggleExpansion: (documentNodeId: string, nodePath: string) => void;
 
-  /** Set the document's expansion state with fresh data */
-  setTreeExpansion: (documentNodeId: string, expansionState: TreeExpansionState) => void;
+  /**
+   * Set the document's expansion state with fresh data. A `selectedNodePath` moves the selection
+   * along in the same write, for a rebuild that changed the selected row's path.
+   */
+  setTreeExpansion: (documentNodeId: string, expansionState: TreeExpansionState, selectedNodePath?: string) => void;
 
   /** Get expansion state of a node */
   isExpanded: (documentNodeId: string, nodePath: string) => boolean;
@@ -49,8 +62,12 @@ export interface DocumentTreeState {
   clearSelection: () => void;
   isNodeSelected: (nodePath: string, isSource: boolean) => boolean;
 
-  /** Request focus on the XPath input for the given mapping-tree node path. */
-  requestXPathInputFocus: (nodePath: string) => void;
+  /**
+   * Request focus on the XPath input for the given mapping-tree node path. With `restoreAfter`, the
+   * generation of the render index the rows were built from, the request only restores focus that the
+   * structural rebuild from that index takes away.
+   */
+  requestXPathInputFocus: (nodePath: string, restoreAfter?: number) => void;
 
   /** Clear the focus request after the input has received focus. */
   clearXPathInputFocusRequest: () => void;
@@ -81,6 +98,7 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
       selectedNodePath: null,
       selectedNodeIsSource: false,
       targetXPathInputForFocus: null,
+      xPathInputFocusRestoreAfter: null,
       addingVariableToNodePath: null,
       renamingVariableId: null,
       openMappingMenuId: null,
@@ -111,10 +129,11 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
         }));
       },
 
-      setTreeExpansion: (documentNodeId: string, expansionState: TreeExpansionState) => {
+      setTreeExpansion: (documentNodeId: string, expansionState: TreeExpansionState, selectedNodePath?: string) => {
         set((state) => ({
           expansionState: { ...state.expansionState, [documentNodeId]: expansionState },
           expansionStateArray: { ...state.expansionStateArray, [documentNodeId]: Object.keys(expansionState) },
+          ...(selectedNodePath === undefined ? {} : { selectedNodePath }),
         }));
       },
 
@@ -142,12 +161,12 @@ export const useDocumentTreeStore = createWithEqualityFn<DocumentTreeState>()(
         return get().selectedNodePath === nodePath && get().selectedNodeIsSource === isSource;
       },
 
-      requestXPathInputFocus: (mappingNodePath: string) => {
-        set({ targetXPathInputForFocus: mappingNodePath });
+      requestXPathInputFocus: (mappingNodePath: string, restoreAfter?: number) => {
+        set({ targetXPathInputForFocus: mappingNodePath, xPathInputFocusRestoreAfter: restoreAfter ?? null });
       },
 
       clearXPathInputFocusRequest: () => {
-        set({ targetXPathInputForFocus: null });
+        set({ targetXPathInputForFocus: null, xPathInputFocusRestoreAfter: null });
       },
 
       shouldFocusXPathInput: (mappingNodePath: string) => {

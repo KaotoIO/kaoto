@@ -123,6 +123,12 @@ export function getShipOrderToShipOrderCollectionIndexXslt(): string {
 export function getNestedConditionalsToShipOrderXslt(): string {
   return readStubFile('./xml/NestedConditionalsToShipOrder.xsl');
 }
+export function getShipOrderToShipOrderOptionalNoteXslt(): string {
+  return readStubFile('./xml/ShipOrderToShipOrderOptionalNote.xsl');
+}
+export function getShipOrderToShipOrderConditionalNoteXslt(): string {
+  return readStubFile('./xml/ShipOrderToShipOrderConditionalNote.xsl');
+}
 export function getShipOrderWithCurrentXslt(): string {
   return readStubFile('./xml/ShipOrderWithCurrent.xsl');
 }

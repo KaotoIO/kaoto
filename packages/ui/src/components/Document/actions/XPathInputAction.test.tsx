@@ -1,9 +1,15 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import type { MockInstance } from 'vitest';
 
-import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IDocument } from '../../../models/datamapper/document';
 import { MappingTree, ValueOfSelector, ValueSelector } from '../../../models/datamapper/mapping';
-import { TargetDocumentNodeData } from '../../../models/datamapper/visualization';
+import {
+  ISourceDocumentContext,
+  TargetDocumentNodeData,
+  TargetRenderIndex,
+} from '../../../models/datamapper/visualization';
 import { XmlSchemaDocument } from '../../../services/document/xml-schema/xml-schema-document.model';
+import { TargetRenderService } from '../../../services/visualization/target-render.service';
 import { useDocumentTreeStore } from '../../../store/document-tree.store';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { XPathInputAction } from './XPathInputAction';
@@ -127,8 +133,202 @@ describe('XPathInputAction', () => {
     expect(onCommitMock).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ['a control outside its row', 'Elsewhere', true],
+    ['a control in its row', 'In the row', false],
+  ])('should tell onCommit whether a blur to %s leaves the row', (_label, focusTargetName, isFocusLeavingRow) => {
+    const onCommitMock = vi.fn();
+    render(
+      <>
+        <div role="treeitem" aria-selected={false}>
+          <XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} onCommit={onCommitMock} />
+          <button type="button">In the row</button>
+        </div>
+        <button type="button">Elsewhere</button>
+      </>,
+    );
+    const input = screen.getByTestId('transformation-xpath-input');
+
+    fireEvent.change(input, { target: { value: '/ShipOrder' } });
+    fireEvent.blur(input, { relatedTarget: screen.getByRole('button', { name: focusTargetName }) });
+
+    expect(onCommitMock).toHaveBeenCalledExactlyOnceWith(isFocusLeavingRow);
+  });
+
+  it('should report a blur that moves focus nowhere as leaving the row', () => {
+    const onCommitMock = vi.fn();
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} onCommit={onCommitMock} />);
+    const input = screen.getByTestId('transformation-xpath-input');
+
+    fireEvent.change(input, { target: { value: '/ShipOrder' } });
+    fireEvent.blur(input);
+
+    expect(onCommitMock).toHaveBeenCalledExactlyOnceWith(true);
+  });
+
   it('should not fail on blur when no onCommit is supplied', () => {
     render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
     expect(() => fireEvent.blur(screen.getByTestId('transformation-xpath-input'))).not.toThrow();
+  });
+
+  it('should call onCommit on Enter, not on other keys', () => {
+    const onCommitMock = vi.fn();
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} onCommit={onCommitMock} />);
+    const input = screen.getByTestId('transformation-xpath-input');
+
+    fireEvent.change(input, { target: { value: '/ShipOrder' } });
+    fireEvent.keyDown(input, { key: 'a' });
+    expect(onCommitMock).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onCommitMock).toHaveBeenCalledExactlyOnceWith(false);
+  });
+
+  it('should not call onCommit on an Enter that confirms an IME composition', () => {
+    const onCommitMock = vi.fn();
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} onCommit={onCommitMock} />);
+    const input = screen.getByTestId('transformation-xpath-input');
+
+    fireEvent.change(input, { target: { value: '/ShipOrder' } });
+    fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+    expect(onCommitMock).not.toHaveBeenCalled();
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onCommitMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should commit once for an Enter followed by a blur, and again for a blur after a further change', () => {
+    const onCommitMock = vi.fn();
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} onCommit={onCommitMock} />);
+    const input = screen.getByTestId('transformation-xpath-input');
+
+    fireEvent.change(input, { target: { value: '/ShipOrder' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    fireEvent.blur(input);
+    expect(onCommitMock).toHaveBeenCalledTimes(1);
+
+    fireEvent.change(input, { target: { value: '/ShipOrder/OrderPerson' } });
+    fireEvent.blur(input);
+    expect(onCommitMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('should commit a typed value again after the expression was changed and committed elsewhere', () => {
+    const onCommitMock = vi.fn();
+    render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} onCommit={onCommitMock} />);
+    const input = screen.getByTestId('transformation-xpath-input');
+
+    fireEvent.change(input, { target: { value: '/ShipOrder' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onCommitMock).toHaveBeenCalledTimes(1);
+
+    mapping.expression = '/ShipOrder/OrderPerson';
+    fireEvent.change(input, { target: { value: '/ShipOrder' } });
+    fireEvent.blur(input);
+    expect(onCommitMock).toHaveBeenCalledTimes(2);
+  });
+
+  describe('focus restoration after a structural rebuild', () => {
+    let previousRenderIndex: TargetRenderIndex;
+    let rebuiltRenderIndex: TargetRenderIndex;
+    let hasFocusSpy: MockInstance<typeof document.hasFocus>;
+
+    const xPathInput = (renderIndex: TargetRenderIndex) => (
+      <XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} renderIndex={renderIndex} />
+    );
+
+    const xPathInputNextToOtherControl = (renderIndex: TargetRenderIndex) => (
+      <>
+        <button type="button">Other control</button>
+        {xPathInput(renderIndex)}
+      </>
+    );
+
+    const requestFocusRestore = () => {
+      useDocumentTreeStore.getState().requestXPathInputFocus(tree.nodePath.toString(), previousRenderIndex.generation);
+    };
+
+    const expectNoFocusRequest = () => {
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBeNull();
+      expect(useDocumentTreeStore.getState().xPathInputFocusRestoreAfter).toBeNull();
+    };
+
+    beforeEach(() => {
+      const sourceContext: ISourceDocumentContext = {
+        sourceParameterMap: new Map<string, IDocument>(),
+        sourceBody: TestUtil.createSourceOrderDoc(),
+      };
+      previousRenderIndex = TargetRenderService.buildIndex(tree, sourceContext);
+      rebuiltRenderIndex = TargetRenderService.buildIndex(tree, sourceContext);
+      hasFocusSpy = vi.spyOn(document, 'hasFocus').mockReturnValue(true);
+    });
+
+    afterEach(() => {
+      hasFocusSpy.mockRestore();
+    });
+
+    it('should wait while the row still comes from the render index the request was made against', () => {
+      requestFocusRestore();
+
+      render(xPathInput(previousRenderIndex));
+
+      expect(screen.getByTestId('transformation-xpath-input')).not.toHaveFocus();
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(tree.nodePath.toString());
+      expect(useDocumentTreeStore.getState().xPathInputFocusRestoreAfter).toBe(previousRenderIndex.generation);
+    });
+
+    it('should not take a focus restore request without a render index to tell the rebuilt row by', () => {
+      requestFocusRestore();
+
+      render(<XPathInputAction nodeData={docData} mapping={mapping} onUpdate={vi.fn()} />);
+
+      expect(screen.getByTestId('transformation-xpath-input')).not.toHaveFocus();
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(tree.nodePath.toString());
+    });
+
+    it('should focus the rebuilt row when focus was lost, and clear the request', () => {
+      requestFocusRestore();
+      const { rerender } = render(xPathInput(previousRenderIndex));
+      expect(document.activeElement).toBe(document.body);
+
+      rerender(xPathInput(rebuiltRenderIndex));
+
+      expect(screen.getByTestId('transformation-xpath-input')).toHaveFocus();
+      expectNoFocusRequest();
+    });
+
+    it('should leave focus on another control, and clear the request', () => {
+      requestFocusRestore();
+      const { rerender } = render(xPathInputNextToOtherControl(previousRenderIndex));
+      const otherControl = screen.getByRole('button', { name: 'Other control' });
+      otherControl.focus();
+
+      rerender(xPathInputNextToOtherControl(rebuiltRenderIndex));
+
+      expect(otherControl).toHaveFocus();
+      expectNoFocusRequest();
+    });
+
+    it('should not take focus while the page does not have it, and clear the request', () => {
+      hasFocusSpy.mockReturnValue(false);
+      requestFocusRestore();
+      const { rerender } = render(xPathInput(previousRenderIndex));
+
+      rerender(xPathInput(rebuiltRenderIndex));
+
+      expect(screen.getByTestId('transformation-xpath-input')).not.toHaveFocus();
+      expectNoFocusRequest();
+    });
+
+    it('should focus right away on a plain request, even taking focus from another control', () => {
+      render(xPathInputNextToOtherControl(previousRenderIndex));
+      screen.getByRole('button', { name: 'Other control' }).focus();
+
+      act(() => {
+        useDocumentTreeStore.getState().requestXPathInputFocus(tree.nodePath.toString());
+      });
+
+      expect(screen.getByTestId('transformation-xpath-input')).toHaveFocus();
+      expectNoFocusRequest();
+    });
   });
 });

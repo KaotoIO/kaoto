@@ -1,6 +1,9 @@
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IDocument } from '../models/datamapper/document';
 import { DocumentTree } from '../models/datamapper/document-tree';
-import { DocumentNodeData } from '../models/datamapper/visualization';
+import { MappingTree } from '../models/datamapper/mapping';
+import { DocumentNodeData, TargetRenderIndex } from '../models/datamapper/visualization';
 import { XmlSchemaDocument } from '../services/document/xml-schema/xml-schema-document.model';
+import { TargetRenderService } from '../services/visualization/target-render.service';
 import { TestUtil } from '../stubs/datamapper/data-mapper';
 import { TreeConnectionPorts, useDocumentTreeStore } from './document-tree.store';
 
@@ -8,6 +11,12 @@ describe('useDocumentTreeStore', () => {
   let sourceDoc: XmlSchemaDocument;
   let sourceDocNode: DocumentNodeData;
   let tree: DocumentTree;
+
+  const buildRenderIndex = (): TargetRenderIndex =>
+    TargetRenderService.buildIndex(
+      new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA),
+      { sourceParameterMap: new Map<string, IDocument>(), sourceBody: sourceDoc },
+    );
 
   beforeEach(() => {
     sourceDoc = TestUtil.createSourceOrderDoc();
@@ -22,6 +31,7 @@ describe('useDocumentTreeStore', () => {
       selectedNodePath: null,
       selectedNodeIsSource: false,
       targetXPathInputForFocus: null,
+      xPathInputFocusRestoreAfter: null,
     });
   });
 
@@ -50,6 +60,37 @@ describe('useDocumentTreeStore', () => {
 
       expect(state.expansionState[documentNodeId]).toEqual({ path3: true });
       expect(state.expansionStateArray[documentNodeId]).toEqual(['path3']);
+    });
+
+    it('should move the selection to the given selected node path in the same write', () => {
+      const documentNodeId = 'test-doc-id';
+      const selectedPath = 'targetBody:Body://fx-ShipOrder-1234/if-9012/fx-Note-5678';
+      const movedPath = 'targetBody:Body://fx-ShipOrder-1234/fx-Note-5678';
+      useDocumentTreeStore.getState().setSelectedNode(selectedPath, false);
+      const listener = vi.fn();
+      const unsubscribe = useDocumentTreeStore.subscribe(listener);
+
+      useDocumentTreeStore.getState().setTreeExpansion(documentNodeId, { path1: true }, movedPath);
+      unsubscribe();
+      const state = useDocumentTreeStore.getState();
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(state.expansionState[documentNodeId]).toEqual({ path1: true });
+      expect(state.selectedNodePath).toBe(movedPath);
+      expect(state.selectedNodeIsSource).toBe(false);
+    });
+
+    it('should keep the selection when no selected node path is given', () => {
+      const documentNodeId = 'test-doc-id';
+      const selectedPath = 'targetBody:Body://fx-ShipOrder-1234/fx-Note-5678';
+      useDocumentTreeStore.getState().setSelectedNode(selectedPath, false);
+
+      useDocumentTreeStore.getState().setTreeExpansion(documentNodeId, { path1: true });
+      const state = useDocumentTreeStore.getState();
+
+      expect(state.expansionState[documentNodeId]).toEqual({ path1: true });
+      expect(state.selectedNodePath).toBe(selectedPath);
+      expect(state.selectedNodeIsSource).toBe(false);
     });
   });
 
@@ -183,6 +224,38 @@ describe('useDocumentTreeStore', () => {
 
       expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBeNull();
       expect(useDocumentTreeStore.getState().shouldFocusXPathInput(mappingNodePath)).toBe(false);
+    });
+
+    it('should keep the render index generation a focus restore request was made against', () => {
+      const mappingNodePath = 'targetBody:Body://fx-ShipOrder-1234/if-9012/fx-Note-5678';
+      const renderIndex = buildRenderIndex();
+
+      useDocumentTreeStore.getState().requestXPathInputFocus(mappingNodePath, renderIndex.generation);
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(mappingNodePath);
+      expect(useDocumentTreeStore.getState().xPathInputFocusRestoreAfter).toBe(renderIndex.generation);
+      expect(useDocumentTreeStore.getState().shouldFocusXPathInput(mappingNodePath)).toBe(true);
+    });
+
+    it('should drop the render index generation of an earlier focus restore request on a plain focus request', () => {
+      const mappingNodePath1 = 'targetBody:Body://fx-ShipOrder-1234/if-9012/fx-Note-5678';
+      const mappingNodePath2 = 'targetBody:Body://fx-ShipOrder-1234/fx-OrderPerson-3456';
+      useDocumentTreeStore.getState().requestXPathInputFocus(mappingNodePath1, buildRenderIndex().generation);
+
+      useDocumentTreeStore.getState().requestXPathInputFocus(mappingNodePath2);
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(mappingNodePath2);
+      expect(useDocumentTreeStore.getState().xPathInputFocusRestoreAfter).toBeNull();
+    });
+
+    it('should clear the render index generation together with the focus restore request', () => {
+      const mappingNodePath = 'targetBody:Body://fx-ShipOrder-1234/if-9012/fx-Note-5678';
+      useDocumentTreeStore.getState().requestXPathInputFocus(mappingNodePath, buildRenderIndex().generation);
+
+      useDocumentTreeStore.getState().clearXPathInputFocusRequest();
+
+      expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBeNull();
+      expect(useDocumentTreeStore.getState().xPathInputFocusRestoreAfter).toBeNull();
     });
   });
 

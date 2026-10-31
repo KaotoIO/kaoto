@@ -102,8 +102,8 @@ export class MappingActionService {
   }
 
   /**
-   * Settles an XPath edit when the user commits it: on blur or when the XPath editor closes. The
-   * expression itself was already written on every keystroke; what remains is the
+   * Settles an XPath edit when the user commits it: on blur, on Enter, or when the XPath editor
+   * closes. The expression itself was already written on every keystroke; what remains is the
    * optional guard of the edited row, which the target tree kept unchanged while the user typed.
    *
    * If the row shows a see-through guard and the committed path is a simple path to an optional
@@ -123,6 +123,30 @@ export class MappingActionService {
     const resynced = MappingActionService.resyncOptionalGuard(nodeData, expressionItem);
     if (TargetRenderService.hasDecisionChanged(expressionItem, nodeData.renderIndex)) return 'structural-update';
     return resynced ? 'update' : 'none';
+  }
+
+  /**
+   * When committing an `if` row's XPath makes that `if` see-through, the row the user was editing
+   * disappears with the rebuild. Asks the XPath input of the field that absorbs the `if` to take focus
+   * after the rebuild, but only if focus was lost meanwhile, so focus isn't taken back from outside
+   * the page.
+   *
+   * Call it only when focus isn't moving to a control that survives the rebuild, one outside the
+   * edited row. During a blur the browser hasn't moved focus yet, so the lost-focus check can't
+   * tell; a caller on a blur decides from where the blur sends focus, as `TargetNodeActions` does.
+   *
+   * Only a field whose own row hosts its XPath input is asked: that row takes the `if` row's place,
+   * so it is mounted after the rebuild. A selector edited in a row of its own may not be mounted
+   * then (its field collapsed, beyond the parse frontier or outside the visible window), and a request
+   * that no input takes must not fire later, when that row scrolls into view.
+   * @param nodeData - the row whose XPath was committed
+   * @param expressionItem - the expression holder that was edited
+   */
+  static restoreFocusAfterAbsorb(nodeData: TargetNodeData, expressionItem: IExpressionHolder & MappingItem) {
+    if (!(expressionItem instanceof IfItem)) return;
+    const field = TargetRenderService.computeSeeThroughField(expressionItem, nodeData.renderIndex.sourceContext);
+    if (!field || TargetRenderService.getSelectorInputOwner(field) !== field) return;
+    useDocumentTreeStore.getState().requestXPathInputFocus(field.nodePath.toString(), nodeData.renderIndex.generation);
   }
 
   private static resyncOptionalGuard(nodeData: TargetNodeData, expressionItem: IExpressionHolder & MappingItem) {

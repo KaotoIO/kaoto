@@ -66,7 +66,7 @@ export interface IMappingActionCallbacks {
 }
 
 /**
- * What committing an XPath edit (blur or closing the XPath editor) requires from the
+ * What committing an XPath edit (blur, Enter or closing the XPath editor) requires from the
  * caller: `'structural-update'` when a see-through decision changed and the target tree must be
  * rebuilt, `'update'` when only the model changed and must be written to the host, and `'none'`
  * when nothing beyond the per-keystroke writes happened.

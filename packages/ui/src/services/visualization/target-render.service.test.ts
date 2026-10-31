@@ -455,6 +455,15 @@ describe('TargetRenderService', () => {
       expect(renderIndex.hasSnapshot).toBe(true);
       expect(renderIndex.sourceContext).toBe(sourceContext);
     });
+
+    it('should give every index it builds a higher generation than the one before', () => {
+      const rebuiltRenderIndex = buildIndex();
+
+      expect(rebuiltRenderIndex.generation).toBeGreaterThan(renderIndex.generation);
+      expect(renderIndex.generation).toBeGreaterThan(0);
+      expect(TargetRenderIndex.EMPTY.generation).toBe(0);
+      expect(TargetRenderIndex.EMPTY.hasSnapshot).toBe(false);
+    });
   });
 
   describe('hasDecisionChanged()', () => {
@@ -770,6 +779,28 @@ describe('TargetRenderService', () => {
 
     it('should not return a field row for the document row', () => {
       expect(TargetRenderService.findGuardOwner(documentNode, mappingTree)).toBeUndefined();
+    });
+  });
+
+  describe('getSelectorInputOwner()', () => {
+    it('should return the field when its selector is edited inline on the field row', () => {
+      const { fieldItem } = mapField(itemItem, noteField, BODY_NOTE);
+
+      expect(TargetRenderService.getSelectorInputOwner(fieldItem)).toBe(fieldItem);
+    });
+
+    it('should return a container copy-of, which has a row of its own', () => {
+      const copyOf = new CopyOfSelector(itemItem, CopyOfType.CONTAINER_NODE);
+      copyOf.expression = '/ns0:ShipOrder/Item/node()';
+      itemItem.children.push(copyOf);
+
+      expect(TargetRenderService.getSelectorInputOwner(itemItem)).toBe(copyOf);
+    });
+
+    it('should return the field when it has no single selector', () => {
+      mapField(itemItem, noteField, BODY_NOTE);
+
+      expect(TargetRenderService.getSelectorInputOwner(itemItem)).toBe(itemItem);
     });
   });
 });

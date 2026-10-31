@@ -2077,6 +2077,75 @@ describe('MappingActionService', () => {
       });
     });
 
+    describe('restoreFocusAfterAbsorb()', () => {
+      beforeEach(() => {
+        useDocumentTreeStore.getState().clearXPathInputFocusRequest();
+      });
+
+      function expectNoFocusRequest() {
+        const { targetXPathInputForFocus, xPathInputFocusRestoreAfter } = useDocumentTreeStore.getState();
+        expect(targetXPathInputForFocus).toBeNull();
+        expect(xPathInputFocusRestoreAfter).toBeNull();
+      }
+
+      it('should ask the field row that absorbs a committed if to take focus once the tree is rebuilt', () => {
+        const { ifItem } = addNote("Note != ''", 'Note');
+        const ifNode = findIfNode(renderItemChildren(buildRenderIndex()));
+        MappingService.updateExpression(ifItem, 'Note');
+        expect(MappingActionService.commitExpression(ifNode, ifItem)).toBe('structural-update');
+
+        MappingActionService.restoreFocusAfterAbsorb(ifNode, ifItem);
+
+        const rebuiltNoteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+        const { targetXPathInputForFocus, xPathInputFocusRestoreAfter } = useDocumentTreeStore.getState();
+        expect(rebuiltNoteNode.autoOptionalIfItem).toBe(ifItem);
+        expect(targetXPathInputForFocus).toBe(rebuiltNoteNode.mapping.nodePath.toString());
+        expect(xPathInputFocusRestoreAfter).toBe(ifNode.renderIndex.generation);
+      });
+
+      it('should not ask for focus when the absorbing container is edited in a copy-of row of its own, which may not be mounted', () => {
+        const adt = setUpAdtIn();
+        const { ifItem, pidFieldItem } = addGuardedPid(adt.hl7Item);
+        ifItem.expression = 'exists(/HL7/PID)';
+        const copyOf = new CopyOfSelector(pidFieldItem, CopyOfType.CONTAINER_NODE);
+        copyOf.expression = '/HL7/PID/node()';
+        pidFieldItem.children.push(copyOf);
+        const ifNode = adt
+          .renderHl7Children()
+          .find((node) => node instanceof MappingNodeData && node.mapping === ifItem) as MappingNodeData;
+        MappingService.updateExpression(ifItem, '/HL7/PID');
+
+        MappingActionService.restoreFocusAfterAbsorb(ifNode, ifItem);
+
+        const { pidNode } = renderPidSelectorNode(adt.renderHl7Children(), copyOf);
+        expect(pidNode.autoOptionalIfItem).toBe(ifItem);
+        expectNoFocusRequest();
+      });
+
+      it.each([
+        ['a test that is not a simple path', "Note != ''", 'Note'],
+        ['a test whose source is required', 'Title', 'Title'],
+      ])('should not ask for focus for an if row with %s, which stays visible', (_label, test, expression) => {
+        const { ifItem } = addNote(test, expression);
+        const ifNode = findIfNode(renderItemChildren(buildRenderIndex()));
+
+        MappingActionService.restoreFocusAfterAbsorb(ifNode, ifItem);
+
+        expectNoFocusRequest();
+      });
+
+      it('should not ask for focus when the committed expression is not an if, even when its commit absorbs one', () => {
+        const { selector } = addNote('Note', 'normalize-space(Note)');
+        const noteNode = renderNoteNodeUnderIf(buildRenderIndex());
+        MappingService.updateExpression(selector, 'Note');
+        expect(MappingActionService.commitExpression(noteNode, selector)).toBe('structural-update');
+
+        MappingActionService.restoreFocusAfterAbsorb(noteNode, selector);
+
+        expectNoFocusRequest();
+      });
+    });
+
     describe('deleteMappingItem()', () => {
       it('should remove the guard together with the mapping of a guarded field row', () => {
         const { ifItem } = addNote('Note', 'Note');
