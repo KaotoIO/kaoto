@@ -29,6 +29,9 @@ import { BaseNode } from './Nodes/BaseNode';
 import { NodeTitle } from './NodeTitle/NodeTitle';
 import { VariableInputPlaceholder } from './Variables/VariableInputPlaceholder';
 
+const ROW_CONTROLS_SELECTOR =
+  'input, textarea, select, button, [contenteditable], .node__expand, .name-input-placeholder';
+
 type DocumentNodeProps = {
   treeNode: DocumentTreeNode;
   documentNodeId: string;
@@ -115,18 +118,20 @@ export const TargetDocumentNode: FunctionComponent<DocumentNodeProps> = memo(
       [toggleSelectedNode, nodePathString],
     );
 
-    const handleDoubleClickField = useCallback(() => {
-      const allowValueSelector = MappingActionRegistryService.getAllowedActions(nodeData).includes(
-        MappingActionKind.ValueSelector,
-      );
-
-      if (!allowValueSelector) {
-        return;
-      }
-
-      MappingActionService.applyValueOfSelector(nodeData);
-      handleStructuralUpdate();
-    }, [nodeData, handleStructuralUpdate]);
+    const handleDoubleClickField = useCallback(
+      (event: MouseEvent) => {
+        const target = event.target;
+        if (!(target instanceof Element) || !event.currentTarget.contains(target)) return;
+        if (target.closest(ROW_CONTROLS_SELECTOR)) return;
+        const valueSelector = MappingActionRegistryService.getMappingContextMenuItems(nodeData).find(
+          (item) => item.key === MappingActionKind.ValueSelector,
+        );
+        if (!valueSelector || valueSelector.isDisabled?.(nodeData)) return;
+        MappingActionService.applyValueOfSelector(nodeData);
+        handleStructuralUpdate();
+      },
+      [nodeData, handleStructuralUpdate],
+    );
 
     const handleKeyDown = useCallback(
       (event: KeyboardEvent) => {

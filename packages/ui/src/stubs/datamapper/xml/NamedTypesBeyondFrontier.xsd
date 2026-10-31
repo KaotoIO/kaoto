@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Synthetic XSD for value-of availability on named types that the initial tree parse leaves unresolved.
+
+  Shape: Customer → filler_01..filler_09 (×9 FillerType siblings, each with 10 leaf children = 90 L2 nodes)
+                  + Details (→ Address, BillingAddress, Balance, Price).
+
+  With INITIAL_FIELD_COUNTS=100 the budget is consumed by the fillers before the parse frontier
+  reaches the children of Details, so their named types are not adopted until the user expands them:
+  - Address (nillable AddressType): fields=[xsi:nil] plus a ref to a type with element children
+  - BillingAddress (AddressType): no fields plus a ref to a type with element children
+  - Balance (nillable AmountType): fields=[xsi:nil] plus a ref to a simpleContent type with an attribute
+  - Price (AmountType): no fields plus a ref to a simpleContent type with an attribute
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="FillerType">
+    <xs:sequence>
+      <xs:element name="f01" type="xs:string" minOccurs="0"/>
+      <xs:element name="f02" type="xs:string" minOccurs="0"/>
+      <xs:element name="f03" type="xs:string" minOccurs="0"/>
+      <xs:element name="f04" type="xs:string" minOccurs="0"/>
+      <xs:element name="f05" type="xs:string" minOccurs="0"/>
+      <xs:element name="f06" type="xs:string" minOccurs="0"/>
+      <xs:element name="f07" type="xs:string" minOccurs="0"/>
+      <xs:element name="f08" type="xs:string" minOccurs="0"/>
+      <xs:element name="f09" type="xs:string" minOccurs="0"/>
+      <xs:element name="f10" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AddressType">
+    <xs:sequence>
+      <xs:element name="Street" type="xs:string"/>
+      <xs:element name="City" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AmountType">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="currency" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:element name="Customer">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="filler_01" type="FillerType"/>
+        <xs:element name="filler_02" type="FillerType"/>
+        <xs:element name="filler_03" type="FillerType"/>
+        <xs:element name="filler_04" type="FillerType"/>
+        <xs:element name="filler_05" type="FillerType"/>
+        <xs:element name="filler_06" type="FillerType"/>
+        <xs:element name="filler_07" type="FillerType"/>
+        <xs:element name="filler_08" type="FillerType"/>
+        <xs:element name="filler_09" type="FillerType"/>
+        <xs:element name="Details">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Address" type="AddressType" nillable="true"/>
+              <xs:element name="BillingAddress" type="AddressType"/>
+              <xs:element name="Balance" type="AmountType" nillable="true"/>
+              <xs:element name="Price" type="AmountType"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

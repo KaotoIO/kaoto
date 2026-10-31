@@ -21,7 +21,7 @@ import { QName } from '../../xml-schema-ts/QName';
 import { TreeParsingService } from '../visualization/tree-parsing.service';
 import { VisualizationUtilService } from '../visualization/visualization-util.service';
 import { DocumentUtilService } from './document-util.service';
-import { XmlSchemaField } from './xml-schema/xml-schema-document.model';
+import { XmlSchemaField, XmlSchemaTypeFragment } from './xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema/xml-schema-document.service';
 import { XmlSchemaTypesService } from './xml-schema/xml-schema-types.service';
 
@@ -258,6 +258,115 @@ describe('DocumentUtilService', () => {
 
       expect(() => DocumentUtilService.adoptTypeFragment(field, fragment)).not.toThrow();
       expect(field.fields).toHaveLength(0);
+    });
+  });
+
+  describe('collectTypeFragments()', () => {
+    it('should return empty lists for a field without refs', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const field = new XmlSchemaField(doc, 'testField', false);
+
+      const result = DocumentUtilService.collectTypeFragments(field);
+
+      expect(result.fragments).toEqual([]);
+      expect(result.unresolvedRefs).toEqual([]);
+    });
+
+    it('should collect nested fragments in adoption order without changing the field, the document or the fragments', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const outerChild = new XmlSchemaField(doc, 'outerChild', false);
+      const innerChild = new XmlSchemaField(doc, 'innerChild', false);
+      const outer: XmlSchemaTypeFragment = { fields: [outerChild], namedTypeFragmentRefs: ['Inner'] };
+      const inner: XmlSchemaTypeFragment = { fields: [innerChild], namedTypeFragmentRefs: [] };
+      doc.namedTypeFragments['Outer'] = outer;
+      doc.namedTypeFragments['Inner'] = inner;
+      const field = new XmlSchemaField(doc, 'testField', false);
+      field.namedTypeFragmentRefs = ['Outer'];
+      const totalFieldCount = doc.totalFieldCount;
+      const fragmentKeys = Object.keys(doc.namedTypeFragments);
+
+      const result = DocumentUtilService.collectTypeFragments(field);
+
+      expect(result.fragments).toHaveLength(2);
+      expect(result.fragments[0]).toBe(outer);
+      expect(result.fragments[1]).toBe(inner);
+      expect(result.unresolvedRefs).toEqual([]);
+      expect(field.fields).toHaveLength(0);
+      expect(field.namedTypeFragmentRefs).toEqual(['Outer']);
+      expect(field.originalField).toBeUndefined();
+      expect(doc.totalFieldCount).toBe(totalFieldCount);
+      expect(Object.keys(doc.namedTypeFragments)).toEqual(fragmentKeys);
+      expect(outer.fields).toHaveLength(1);
+      expect(outer.fields[0]).toBe(outerChild);
+      expect(outer.namedTypeFragmentRefs).toEqual(['Inner']);
+      expect(inner.fields).toHaveLength(1);
+      expect(inner.fields[0]).toBe(innerChild);
+      expect(inner.namedTypeFragmentRefs).toEqual([]);
+    });
+
+    it('should list missing refs at the top level and nested, and still return the fragments that exist', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const outer: XmlSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: ['MissingNested'] };
+      doc.namedTypeFragments['Outer'] = outer;
+      const field = new XmlSchemaField(doc, 'testField', false);
+      field.namedTypeFragmentRefs = ['MissingTop', 'Outer'];
+
+      const result = DocumentUtilService.collectTypeFragments(field);
+
+      expect(result.fragments).toHaveLength(1);
+      expect(result.fragments[0]).toBe(outer);
+      expect(result.unresolvedRefs).toEqual(['MissingTop', 'MissingNested']);
+    });
+
+    it('should return a fragment that refers to itself once', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const self: XmlSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: ['Self'] };
+      doc.namedTypeFragments['Self'] = self;
+      const field = new XmlSchemaField(doc, 'testField', false);
+      field.namedTypeFragmentRefs = ['Self'];
+
+      const result = DocumentUtilService.collectTypeFragments(field);
+
+      expect(result.fragments).toHaveLength(1);
+      expect(result.fragments[0]).toBe(self);
+      expect(result.unresolvedRefs).toEqual([]);
+    });
+
+    it('should return each of two fragments that refer to each other once', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const first: XmlSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: ['Second'] };
+      const second: XmlSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: ['First'] };
+      doc.namedTypeFragments['First'] = first;
+      doc.namedTypeFragments['Second'] = second;
+      const field = new XmlSchemaField(doc, 'testField', false);
+      field.namedTypeFragmentRefs = ['First'];
+
+      const result = DocumentUtilService.collectTypeFragments(field);
+
+      expect(result.fragments).toHaveLength(2);
+      expect(result.fragments[0]).toBe(first);
+      expect(result.fragments[1]).toBe(second);
+      expect(result.unresolvedRefs).toEqual([]);
+    });
+
+    it('should return a fragment reached through two refs once', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shared: XmlSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: [] };
+      const left: XmlSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: ['Shared'] };
+      const right: XmlSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: ['Shared'] };
+      doc.namedTypeFragments['Shared'] = shared;
+      doc.namedTypeFragments['Left'] = left;
+      doc.namedTypeFragments['Right'] = right;
+      const field = new XmlSchemaField(doc, 'testField', false);
+      field.namedTypeFragmentRefs = ['Left', 'Right'];
+
+      const result = DocumentUtilService.collectTypeFragments(field);
+
+      expect(result.fragments).toHaveLength(3);
+      expect(result.fragments[0]).toBe(left);
+      expect(result.fragments[1]).toBe(shared);
+      expect(result.fragments[2]).toBe(right);
+      expect(result.unresolvedRefs).toEqual([]);
     });
   });
 

@@ -1,14 +1,16 @@
-import { DocumentDefinitionType } from '../../models/datamapper/document';
 import {
   ChooseItem,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
   IfItem,
+  InstructionItem,
   MappingItem,
+  MappingTree,
   OtherwiseItem,
   UnknownMappingItem,
   ValueSelector,
+  VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
 import {
@@ -23,11 +25,13 @@ import {
   ForEachCapableNodeData,
   MappingNodeData,
   TargetDocumentNodeData,
+  TargetFieldNodeData,
   TargetNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
+import { MappingService } from '../mapping/mapping.service';
 import { FieldCandidateService } from './field-candidate.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationUtilService } from './visualization-util.service';
@@ -64,6 +68,34 @@ export class MappingActionRegistryService {
 
   private static isContextMenuAction(def: IMappingAction): def is IMappingContextMenuAction {
     return 'getLabel' in def;
+  }
+
+  /**
+   * Whether the element or document that receives the output of this instruction row can hold text: a field
+   * without element children, or the root of a primitive target. Variable content is not authored at all
+   * ({@link isInVariable}).
+   */
+  private static outputParentAcceptsText(n: MappingNodeData): boolean {
+    const outputParent = MappingService.findOutputParent(n.mapping);
+    if (outputParent instanceof FieldItem) return !DocumentService.hasElementChildren(outputParent.field);
+    return outputParent instanceof MappingTree && n.isPrimitive;
+  }
+
+  /**
+   * Whether the row is a variable or sits inside one. The DataMapper does not author variable content yet: a
+   * variable has content only when imported XSLT gives it one, and giving content to a variable that uses
+   * `select` makes the serializer drop the expression. A row without a mapping is judged by the nearest row
+   * above it that has one.
+   */
+  private static isInVariable(n: TargetNodeData): boolean {
+    let row = n;
+    while (!row.mapping && row instanceof TargetFieldNodeData) row = row.parent;
+    let current = row.mapping;
+    while (current instanceof MappingItem) {
+      if (current instanceof VariableItem) return true;
+      current = current.parent;
+    }
+    return false;
   }
 
   private static readonly ACTION_REGISTRY: (IMappingAction | IMappingContextMenuAction)[] = [
@@ -136,29 +168,26 @@ export class MappingActionRegistryService {
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
         if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
+        if (MappingActionRegistryService.isInVariable(n)) return false;
         // Check element-children constraint for both unmapped field nodes (TargetFieldNodeData)
         // and mapped field nodes (FieldItemNodeData). The check must happen before the
         // isMappingNode branch because FieldItemNodeData IS a MappingNodeData — once a child
         // mapping is created on a container, the parent becomes FieldItemNodeData, which would
         // otherwise bypass this guard.
         const field = VisualizationUtilService.getField(n);
-        if (field) {
-          const isJson = n.mappingTree?.documentDefinitionType === DocumentDefinitionType.JSON_SCHEMA;
-          // For JSON documents, value-of is invalid on any container field.
-          // For XML, it is invalid on fields that have element (non-attribute) children.
-          const hasInvalidChildren = isJson
-            ? DocumentService.hasChildren(field)
-            : DocumentService.hasElementChildren(field);
-          if (hasInvalidChildren) return false;
-        }
+        if (field && DocumentService.hasElementChildren(field)) return false;
         if (!VisualizationUtilService.isMappingNode(n)) return true;
-        return !MappingActionRegistryService.mappingIsOneOf(
+        const canHoldValueOf = !MappingActionRegistryService.mappingIsOneOf(
           ValueSelector,
           ForEachItem,
           ForEachGroupItem,
           ChooseItem,
           UnknownMappingItem,
         )(n);
+        return (
+          canHoldValueOf &&
+          (!(n.mapping instanceof InstructionItem) || MappingActionRegistryService.outputParentAcceptsText(n))
+        );
       },
       isDisabled: (n) => MappingActionService.hasValueOfSelector(n),
     },
@@ -173,7 +202,8 @@ export class MappingActionRegistryService {
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
         if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
-        if (n.mappingTree?.documentDefinitionType === DocumentDefinitionType.JSON_SCHEMA) return false;
+        if (MappingActionRegistryService.isInVariable(n)) return false;
+        if (!DocumentService.isCopyOfSupported(n.mappingTree?.documentDefinitionType)) return false;
         if (!VisualizationUtilService.isMappingNode(n)) return true;
         return !MappingActionRegistryService.mappingIsOneOf(
           ValueSelector,

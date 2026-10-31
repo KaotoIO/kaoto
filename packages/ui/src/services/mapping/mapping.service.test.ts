@@ -11,6 +11,7 @@ import {
   CopyOfSelector,
   CopyOfType,
   FieldItem,
+  ForEachGroupItem,
   ForEachItem,
   IfItem,
   MappingTree,
@@ -1371,6 +1372,43 @@ describe('MappingService', () => {
 
       expect(variable.expression).toBe('newExpr');
       expect(variable.rawElement).toBeUndefined();
+    });
+  });
+
+  describe('findOutputParent()', () => {
+    it('should return the field item that an item sits in directly', () => {
+      const shipOrder = new FieldItem(tree, targetDoc.fields[0]);
+      const ifItem = new IfItem(shipOrder);
+
+      expect(MappingService.findOutputParent(ifItem)).toBe(shipOrder);
+    });
+
+    it('should cross every instruction, loops included, up to the enclosing field item', () => {
+      const shipOrder = new FieldItem(tree, targetDoc.fields[0]);
+      const outerIf = new IfItem(shipOrder);
+      const forEach = new ForEachItem(outerIf);
+      const forEachGroup = new ForEachGroupItem(forEach);
+      const choose = new ChooseItem(forEachGroup);
+      const ifInWhen = new IfItem(new WhenItem(choose));
+      const ifInOtherwise = new IfItem(new OtherwiseItem(choose));
+
+      expect(MappingService.findOutputParent(ifInWhen)).toBe(shipOrder);
+      expect(MappingService.findOutputParent(ifInOtherwise)).toBe(shipOrder);
+      expect(MappingService.findEnclosingFieldItem(ifInWhen, 'instructions')).toBeUndefined();
+    });
+
+    it('should stop at a variable', () => {
+      const shipOrder = new FieldItem(tree, targetDoc.fields[0]);
+      const variable = new VariableItem(shipOrder, 'var1');
+      const ifItem = new IfItem(variable);
+
+      expect(MappingService.findOutputParent(ifItem)).toBe(variable);
+    });
+
+    it('should return the mapping tree for an instruction at the document root', () => {
+      const ifItem = new IfItem(tree);
+
+      expect(MappingService.findOutputParent(ifItem)).toBe(tree);
     });
   });
 

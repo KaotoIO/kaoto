@@ -21,6 +21,7 @@ import {
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { DocumentService } from './document.service';
+import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocument } from './json-schema/json-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema/xml-schema-document.model';
 
@@ -597,6 +598,140 @@ describe('DocumentService', () => {
       const attrChild2 = new XmlSchemaField(containerField, 'name', true); // isAttribute = true
       containerField.fields = [attrChild1, attrChild2];
       expect(DocumentService.hasElementChildren(containerField)).toBeFalsy();
+    });
+
+    const findField = (fields: IField[], name: string): IField => {
+      const field = fields.find((f) => ('key' in f ? f.key === name : f.name === name));
+      if (!field) throw new Error(`Field '${name}' not found`);
+      return field;
+    };
+
+    const expectUnresolved = (field: IField, ownFieldCount: number) => {
+      expect(field.fields).toHaveLength(ownFieldCount);
+      expect(field.namedTypeFragmentRefs).toHaveLength(1);
+      expect(field.originalField).toBeUndefined();
+    };
+
+    it('should read attribute-only simpleContent named types without resolving them', () => {
+      const doc = TestUtil.createExtensionSimpleDoc();
+      const product = findField(doc.fields, 'Product');
+      const nameField = findField(product.fields, 'name');
+      const priceField = findField(product.fields, 'price');
+      const totalFieldCount = doc.totalFieldCount;
+
+      for (const field of [nameField, priceField]) {
+        expectUnresolved(field, 0);
+        expect(DocumentService.hasElementChildren(field)).toBe(false);
+        expectUnresolved(field, 0);
+      }
+      expect(doc.totalFieldCount).toBe(totalFieldCount);
+
+      for (const field of [nameField, priceField]) {
+        DocumentUtilService.resolveTypeFragment(field);
+        expect(field.namedTypeFragmentRefs).toHaveLength(0);
+        expect(field.fields.length).toBeGreaterThan(0);
+        expect(field.fields.every((child) => child.isAttribute)).toBe(true);
+        expect(DocumentService.hasElementChildren(field)).toBe(false);
+      }
+      expect(DocumentService.hasElementChildren(product)).toBe(true);
+    });
+
+    it('should read nillable and plain named types beyond the parse frontier without resolving them', () => {
+      const doc = TestUtil.createNamedTypesBeyondFrontierDoc();
+      const details = findField(findField(doc.fields, 'Customer').fields, 'Details');
+      const address = findField(details.fields, 'Address');
+      const billingAddress = findField(details.fields, 'BillingAddress');
+      const balance = findField(details.fields, 'Balance');
+      const price = findField(details.fields, 'Price');
+
+      const expectUnresolvedRows = () => {
+        for (const nillable of [address, balance]) {
+          expectUnresolved(nillable, 1);
+          expect(nillable.fields[0].isAttribute).toBe(true);
+        }
+        for (const plain of [billingAddress, price]) {
+          expectUnresolved(plain, 0);
+        }
+      };
+      const expectAnswers = () => {
+        expect(DocumentService.hasElementChildren(address)).toBe(true);
+        expect(DocumentService.hasElementChildren(billingAddress)).toBe(true);
+        expect(DocumentService.hasElementChildren(balance)).toBe(false);
+        expect(DocumentService.hasElementChildren(price)).toBe(false);
+      };
+      const totalFieldCount = doc.totalFieldCount;
+
+      expectUnresolvedRows();
+      expectAnswers();
+      expectUnresolvedRows();
+      expect(doc.totalFieldCount).toBe(totalFieldCount);
+
+      for (const field of [address, billingAddress, balance, price]) {
+        DocumentUtilService.resolveTypeFragment(field);
+        expect(field.namedTypeFragmentRefs).toHaveLength(0);
+      }
+      expectAnswers();
+    });
+
+    it('should count a type override to a type the schema does not define as having element children', () => {
+      const doc = TestUtil.createNamedTypesBeyondFrontierDoc([
+        {
+          schemaPath: '/Customer/Details/Price',
+          type: 'UnknownType',
+          originalType: 'AmountType',
+          variant: FieldOverrideVariant.FORCE,
+        },
+      ]);
+      const price = findField(findField(findField(doc.fields, 'Customer').fields, 'Details').fields, 'Price');
+
+      expect(price.typeQName?.getLocalPart()).toBe('UnknownType');
+      expect(price.fields).toHaveLength(0);
+      expect(price.namedTypeFragmentRefs).toHaveLength(1);
+      expect(doc.namedTypeFragments[price.namedTypeFragmentRefs[0]]).toBeUndefined();
+      expect(DocumentService.hasElementChildren(price)).toBe(true);
+    });
+
+    it('should decide JSON fields by their type, before and after resolving them', () => {
+      const doc = TestUtil.createFieldsBeyondFrontierJsonDoc();
+      const root = doc.fields[0];
+      const details = findField(root.fields, 'details');
+      const metadata = findField(details.fields, 'metadata');
+      const tags = findField(details.fields, 'tags');
+      const code = findField(details.fields, 'code');
+      const address = findField(details.fields, 'address');
+      const note = findField(details.fields, 'note');
+      const nameField = findField(details.fields, 'name');
+
+      expect(metadata.type).toBe(Types.Container);
+      expect(metadata.fields).toHaveLength(0);
+      expect(metadata.namedTypeFragmentRefs).toHaveLength(0);
+      expect(tags.type).toBe(Types.Array);
+      expect(tags.fields).toHaveLength(0);
+      expect(code.type).toBe(Types.String);
+      expect(code.namedTypeFragmentRefs).toHaveLength(1);
+      expect(address.type).toBe(Types.Container);
+      expect(address.namedTypeFragmentRefs).toHaveLength(1);
+      expect(note.type).toBe(Types.AnyType);
+
+      for (const field of [root, details, metadata, tags, address]) {
+        expect(DocumentService.hasElementChildren(field)).toBe(true);
+      }
+      for (const field of [code, note, nameField]) {
+        expect(DocumentService.hasElementChildren(field)).toBe(false);
+      }
+      DocumentUtilService.resolveTypeFragment(code);
+      expect(code.namedTypeFragmentRefs).toHaveLength(0);
+      expect(DocumentService.hasElementChildren(code)).toBe(false);
+    });
+  });
+
+  describe('isCopyOfSupported()', () => {
+    it.each([
+      [DocumentDefinitionType.XML_SCHEMA, true],
+      [DocumentDefinitionType.Primitive, true],
+      [DocumentDefinitionType.JSON_SCHEMA, false],
+    ])('should answer %s with %s', (definitionType, expected) => {
+      expect(DocumentService.isCopyOfSupported(definitionType)).toBe(expected);
     });
   });
 

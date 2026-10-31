@@ -12,6 +12,7 @@ import {
   IDocument,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
+import { IFieldTypeOverride } from '../../models/datamapper/metadata';
 import { JsonSchemaDocumentService } from '../../services/document/json-schema/json-schema-document.service';
 import { XmlSchemaDocumentService } from '../../services/document/xml-schema/xml-schema-document.service';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../utils';
@@ -85,6 +86,9 @@ export function getCartToShipOrderXslt(): string {
 }
 export function getShipOrderToShipOrderXslt(): string {
   return readStubFile('./xml/ShipOrderToShipOrder.xsl');
+}
+export function getShipOrderValueOfInContainerXslt(): string {
+  return readStubFile('./xml/ShipOrderValueOfInContainer.xsl');
 }
 export function getConditionalMappingsToShipOrderXslt(): string {
   return readStubFile('./xml/ConditionalMappingsToShipOrder.xsl');
@@ -172,6 +176,9 @@ export function getCustomerJsonSchema(): string {
 }
 export function getOrderJsonSchema(): string {
   return readStubFile('./json/Order.schema.json');
+}
+export function getFieldsBeyondFrontierJsonSchema(): string {
+  return readStubFile('./json/FieldsBeyondFrontier.schema.json');
 }
 export function getMainWithRefJsonSchema(): string {
   return readStubFile('./json/MainWithRef.schema.json');
@@ -295,6 +302,9 @@ export function getConstraintsXsd(): string {
 }
 export function getWideDeepXsd(): string {
   return readStubFile('./xml/WideDeep.xsd');
+}
+export function getNamedTypesBeyondFrontierXsd(): string {
+  return readStubFile('./xml/NamedTypesBeyondFrontier.xsd');
 }
 export function getFieldSubstitutionXsd(): string {
   return readStubFile('./xml/FieldSubstitution.xsd');
@@ -444,6 +454,56 @@ export class TestUtil {
       BODY_DOCUMENT_ID,
       {
         'shipOrder.json': getShipOrderJsonSchema(),
+      },
+    );
+    const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+    if (result.validationStatus !== 'success' || !result.document) {
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
+    }
+    return result.document;
+  }
+
+  static createExtensionSimpleDoc() {
+    const definition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'extensionSimple.xsd': getExtensionSimpleXsd(),
+      },
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    if (result.validationStatus !== 'success' || !result.document) {
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
+    }
+    return result.document;
+  }
+
+  static createNamedTypesBeyondFrontierDoc(fieldTypeOverrides?: IFieldTypeOverride[]) {
+    const definition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'namedTypesBeyondFrontier.xsd': getNamedTypesBeyondFrontierXsd(),
+      },
+      undefined,
+      fieldTypeOverrides,
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    if (result.validationStatus !== 'success' || !result.document) {
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
+    }
+    return result.document;
+  }
+
+  static createFieldsBeyondFrontierJsonDoc() {
+    const definition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.JSON_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'fieldsBeyondFrontier.schema.json': getFieldsBeyondFrontierJsonSchema(),
       },
     );
     const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);

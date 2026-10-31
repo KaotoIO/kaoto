@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/schemas/fields-beyond-frontier.json",
+  "description": "Synthetic schema for value-of availability on JSON fields that the initial tree parse leaves unresolved: nine Filler siblings (ten leaves each) use up INITIAL_FIELD_COUNTS=100 before the parse frontier reaches the children of details.",
+  "type": "object",
+  "properties": {
+    "filler01": { "$ref": "#/definitions/Filler" },
+    "filler02": { "$ref": "#/definitions/Filler" },
+    "filler03": { "$ref": "#/definitions/Filler" },
+    "filler04": { "$ref": "#/definitions/Filler" },
+    "filler05": { "$ref": "#/definitions/Filler" },
+    "filler06": { "$ref": "#/definitions/Filler" },
+    "filler07": { "$ref": "#/definitions/Filler" },
+    "filler08": { "$ref": "#/definitions/Filler" },
+    "filler09": { "$ref": "#/definitions/Filler" },
+    "details": {
+      "type": "object",
+      "properties": {
+        "metadata": { "type": "object" },
+        "tags": { "type": "array" },
+        "code": { "$ref": "#/definitions/Code" },
+        "address": { "$ref": "#/definitions/Address" },
+        "note": {},
+        "name": { "type": "string" }
+      }
+    }
+  },
+  "definitions": {
+    "Filler": {
+      "type": "object",
+      "properties": {
+        "f01": { "type": "string" },
+        "f02": { "type": "string" },
+        "f03": { "type": "string" },
+        "f04": { "type": "string" },
+        "f05": { "type": "string" },
+        "f06": { "type": "string" },
+        "f07": { "type": "string" },
+        "f08": { "type": "string" },
+        "f09": { "type": "string" },
+        "f10": { "type": "string" }
+      }
+    },
+    "Code": { "type": "string" },
+    "Address": {
+      "type": "object",
+      "properties": {
+        "street": { "type": "string" }
+      }
+    }
+  }
+}

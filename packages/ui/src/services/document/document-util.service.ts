@@ -138,6 +138,36 @@ export class DocumentUtilService {
   }
 
   /**
+   * Collects the type fragments that {@link resolveTypeFragment} would adopt into the field, including nested fragment
+   * references, in the order it adopts them, without changing the field or the document. Use it to inspect a field's
+   * schema content where resolving is not allowed, such as during render. Each reference is followed once, so repeated
+   * and cyclic references are collected once.
+   * @param field - The field whose type fragment references are followed
+   * @returns The referenced fragments, and the references that have no fragment in {@link IDocument.namedTypeFragments}
+   */
+  static collectTypeFragments(field: IField): { fragments: ITypeFragment[]; unresolvedRefs: string[] } {
+    const doc = DocumentUtilService.getOwnerDocument(field);
+    const visited = new Set<string>();
+    const fragments: ITypeFragment[] = [];
+    const unresolvedRefs: string[] = [];
+    const collect = (refs: string[]) => {
+      for (const ref of refs) {
+        if (visited.has(ref)) continue;
+        visited.add(ref);
+        const fragment = doc.namedTypeFragments[ref];
+        if (!fragment) {
+          unresolvedRefs.push(ref);
+          continue;
+        }
+        fragments.push(fragment);
+        collect(fragment.namedTypeFragmentRefs);
+      }
+    };
+    collect(field.namedTypeFragmentRefs);
+    return { fragments, unresolvedRefs };
+  }
+
+  /**
    * Builds the ancestor chain of a field, walking up through parent references to the document root.
    * @param field - The field to build the ancestor stack for
    * @param includeItself - If true, the field itself is prepended to the returned array

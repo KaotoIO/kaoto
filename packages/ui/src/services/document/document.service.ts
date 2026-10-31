@@ -489,16 +489,37 @@ export class DocumentService {
    * Returns true if the field has element (non-attribute) child fields.
    * Used to determine whether `xsl:value-of` is valid: value-of is not appropriate
    * for container fields with element children (mixed content is not supported).
-   * Conservatively returns true for unexpanded fields with named type fragment refs.
+   * For XML it reads only state that is complete right after parsing, so resolving the field does not change the
+   * answer: the element children of named types that have not been adopted yet are read through
+   * {@link DocumentUtilService.collectTypeFragments} without resolving them, and a type that cannot be found counts as
+   * having element children. `xs:any` wildcards are not modeled by the parser and do not count. For JSON the field type
+   * decides: object and array fields count as having element children even when the schema declares no properties or
+   * items, because their XML representation (`map`/`array`) cannot hold text.
    * @param field - The field to inspect
    * @returns true if the field has or can have element children, false otherwise
    */
   static hasElementChildren(field: IField): boolean {
     if (field.isAttribute) return false;
-    if (field.fields.some((f) => !f.isAttribute)) return true;
-    // Unexpanded named-type field: conservatively treat as having element children
-    if (field.namedTypeFragmentRefs.length > 0 && field.fields.length === 0) return true;
-    return false;
+    if (field.ownerDocument.definitionType === DocumentDefinitionType.JSON_SCHEMA) {
+      return field.type === Types.Container || field.type === Types.Array;
+    }
+    if (field.fields.some((child) => !child.isAttribute)) return true;
+    const { fragments, unresolvedRefs } = DocumentUtilService.collectTypeFragments(field);
+    return (
+      unresolvedRefs.length > 0 || fragments.some((fragment) => fragment.fields.some((child) => !child.isAttribute))
+    );
+  }
+
+  /**
+   * Returns true if `xsl:copy-of` can write into a target document of the given definition type.
+   * A JSON document is written through its XML representation (`map`, `array`, `string`, ...), where
+   * the JSON key is a `key` attribute rather than a qualified element name, so a copied source node
+   * cannot stand for one of its fields.
+   * @param targetDefinitionType - The definition type of the target document
+   * @returns false for JSON Schema documents, true otherwise
+   */
+  static isCopyOfSupported(targetDefinitionType: DocumentDefinitionType): boolean {
+    return targetDefinitionType !== DocumentDefinitionType.JSON_SCHEMA;
   }
 
   private static isRepeating(field: IField): boolean {

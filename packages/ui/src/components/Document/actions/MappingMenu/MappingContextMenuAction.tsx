@@ -33,12 +33,11 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
   nodeData,
   onUpdate,
 }) => {
-  const openMappingMenuId = useDocumentTreeStore((state) => state.openMappingMenuId);
+  const isActionMenuOpen = useDocumentTreeStore((state) => state.openMappingMenuId === nodeData.id);
   const setOpenMappingMenuId = useDocumentTreeStore((state) => state.setOpenMappingMenuId);
-  const isActionMenuOpen = openMappingMenuId === nodeData.id;
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const menuItems = useMemo(() => MappingActionRegistryService.getMappingContextMenuItems(nodeData), [nodeData]);
+  const menuItems = MappingActionRegistryService.getMappingContextMenuItems(nodeData);
 
   const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
 
@@ -54,35 +53,29 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
     [onUpdate, modalActions],
   );
 
-  const { ungrouped, groups } = useMemo(() => {
-    const ungroupedItems: IMappingContextMenuAction[] = [];
-    const groupMap = new Map<MappingActionGroup, IMappingContextMenuAction[]>();
-    for (const item of menuItems) {
-      if (item.group) {
-        const existing = groupMap.get(item.group);
-        if (existing) {
-          existing.push(item);
-        } else {
-          groupMap.set(item.group, [item]);
-        }
+  const ungrouped: IMappingContextMenuAction[] = [];
+  const groups = new Map<MappingActionGroup, IMappingContextMenuAction[]>();
+  for (const item of menuItems) {
+    if (item.group) {
+      const existing = groups.get(item.group);
+      if (existing) {
+        existing.push(item);
       } else {
-        ungroupedItems.push(item);
+        groups.set(item.group, [item]);
       }
+    } else {
+      ungrouped.push(item);
     }
-    return { ungrouped: ungroupedItems, groups: groupMap };
-  }, [menuItems]);
+  }
 
-  const onSelectAction = useCallback(
-    (event: MouseEvent | undefined, itemId: string | number | undefined) => {
-      event?.stopPropagation();
-      const item = menuItems.find((mi) => mi.key === itemId);
-      if (item) {
-        item.apply(nodeData, callbacks);
-        setOpenMappingMenuId(null);
-      }
-    },
-    [menuItems, nodeData, callbacks, setOpenMappingMenuId],
-  );
+  const onSelectAction = (event: MouseEvent | undefined, itemId: string | number | undefined) => {
+    event?.stopPropagation();
+    const item = menuItems.find((mi) => mi.key === itemId);
+    if (item) {
+      item.apply(nodeData, callbacks);
+      setOpenMappingMenuId(null);
+    }
+  };
 
   const onToggleClick = useCallback(
     (event: MouseEvent) => {

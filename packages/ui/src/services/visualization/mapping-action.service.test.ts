@@ -14,12 +14,15 @@ import {
   ForEachGroupItem,
   ForEachItem,
   IfItem,
+  MappingItem,
   MappingTree,
+  OtherwiseItem,
   UnknownMappingItem,
   ValueOfSelector,
   ValueOfType,
   ValueSelector,
   VariableItem,
+  WhenItem,
 } from '../../models/datamapper/mapping';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import { Types } from '../../models/datamapper/types';
@@ -29,6 +32,7 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
+  NodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
@@ -41,11 +45,13 @@ import { useDocumentTreeStore } from '../../store/document-tree.store';
 import {
   getConditionalMappingsToShipOrderXslt,
   getShipOrderToShipOrderXslt,
+  getShipOrderValueOfInContainerXslt,
   getUnknownApplyTemplateXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
 import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
+import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
 import { MappingActionRegistryService } from './mapping-action-registry.service';
@@ -332,7 +338,57 @@ describe('MappingActionService', () => {
       });
     });
 
-    describe('getMappingContextMenuItems() ValueSelector isAllowed', () => {
+    describe('ValueSelector action availability', () => {
+      const childrenOf = (row: NodeData) => VisualizationService.generateNonDocumentNodeDataChildren(row);
+
+      const rootRows = (doc: IDocument, mappingTree: MappingTree) =>
+        VisualizationService.generateStructuredDocumentChildren(new TargetDocumentNodeData(doc, mappingTree));
+
+      const findRow = (rows: NodeData[], title: string): TargetNodeData => {
+        const row = rows.find((r) => r.title === title);
+        if (!row) throw new Error(`Row '${title}' not found`);
+        return row as TargetNodeData;
+      };
+
+      const findFieldRow = (rows: NodeData[], title: string): TargetFieldNodeData => {
+        const row = rows.find((r) => r.title === title);
+        if (!(row instanceof TargetFieldNodeData)) throw new Error(`Unmapped field row '${title}' not found`);
+        return row;
+      };
+
+      const findJsonRow = (rows: NodeData[], key: string): TargetFieldNodeData | FieldItemNodeData => {
+        const row = rows.find(
+          (r) =>
+            (r instanceof TargetFieldNodeData || r instanceof FieldItemNodeData) &&
+            'key' in r.field &&
+            r.field.key === key,
+        );
+        if (!(row instanceof TargetFieldNodeData || row instanceof FieldItemNodeData)) {
+          throw new Error(`JSON row '${key}' not found`);
+        }
+        return row;
+      };
+
+      const findMappingRow = (
+        rows: NodeData[],
+        type: abstract new (...args: never[]) => MappingItem,
+      ): MappingNodeData => {
+        const row = rows.find((r) => r instanceof MappingNodeData && r.mapping instanceof type);
+        if (!(row instanceof MappingNodeData)) throw new Error('Mapping row not found');
+        return row;
+      };
+
+      const expectActionAllowed = (row: TargetNodeData, kind: MappingActionKind, allowed: boolean) => {
+        expect(MappingActionRegistryService.getAllowedActions(row).includes(kind)).toBe(allowed);
+        expect(MappingActionRegistryService.getMappingContextMenuItems(row).some((item) => item.key === kind)).toBe(
+          allowed,
+        );
+      };
+
+      const expectValueSelectorAllowed = (row: TargetNodeData, allowed: boolean) => {
+        expectActionAllowed(row, MappingActionKind.ValueSelector, allowed);
+      };
+
       it('should allow ValueSelector for a leaf (no-children) field', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
@@ -411,6 +467,195 @@ describe('MappingActionService', () => {
         expect(MappingActionRegistryService.getAllowedActions(orderPersonNode)).toContain(
           MappingActionKind.ValueSelector,
         );
+      });
+
+      it('should allow ValueSelector on unexpanded attribute-only simpleContent rows, before and after expanding them', () => {
+        const extensionDoc = TestUtil.createExtensionSimpleDoc();
+        const extensionTree = new MappingTree(
+          extensionDoc.documentType,
+          extensionDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const productRows = childrenOf(rootRows(extensionDoc, extensionTree)[0]);
+
+        for (const title of ['name', 'price']) {
+          const row = findFieldRow(productRows, title);
+          expect(row.field.fields).toHaveLength(0);
+          expect(row.field.namedTypeFragmentRefs).toHaveLength(1);
+          expectValueSelectorAllowed(row, true);
+          expect(row.field.fields).toHaveLength(0);
+          expect(row.field.namedTypeFragmentRefs).toHaveLength(1);
+
+          childrenOf(row);
+          expect(row.field.namedTypeFragmentRefs).toHaveLength(0);
+          expectValueSelectorAllowed(row, true);
+        }
+      });
+
+      it('should judge named-type rows beyond the parse frontier the same before and after expanding them', () => {
+        const frontierDoc = TestUtil.createNamedTypesBeyondFrontierDoc();
+        const frontierTree = new MappingTree(
+          frontierDoc.documentType,
+          frontierDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const customerRows = childrenOf(rootRows(frontierDoc, frontierTree)[0]);
+        const detailsRows = childrenOf(findFieldRow(customerRows, 'Details'));
+        const expected: [string, boolean][] = [
+          ['Address', false],
+          ['BillingAddress', false],
+          ['Balance', true],
+          ['Price', true],
+        ];
+
+        for (const [title, allowed] of expected) {
+          const row = findFieldRow(detailsRows, title);
+          expect(row.field.namedTypeFragmentRefs).toHaveLength(1);
+          expectValueSelectorAllowed(row, allowed);
+          expect(row.field.namedTypeFragmentRefs).toHaveLength(1);
+
+          childrenOf(row);
+          expect(row.field.namedTypeFragmentRefs).toHaveLength(0);
+          expectValueSelectorAllowed(row, allowed);
+        }
+      });
+
+      it('should judge JSON rows by their type', () => {
+        const jsonDoc = TestUtil.createFieldsBeyondFrontierJsonDoc();
+        const jsonTree = new MappingTree(jsonDoc.documentType, jsonDoc.documentId, DocumentDefinitionType.JSON_SCHEMA);
+        const detailsRows = childrenOf(findJsonRow(childrenOf(rootRows(jsonDoc, jsonTree)[0]), 'details'));
+
+        expectValueSelectorAllowed(findJsonRow(detailsRows, 'metadata'), false);
+        expectValueSelectorAllowed(findJsonRow(detailsRows, 'tags'), false);
+        expectValueSelectorAllowed(findJsonRow(detailsRows, 'code'), true);
+        expectValueSelectorAllowed(findJsonRow(detailsRows, 'note'), true);
+
+        const shipOrderJsonDoc = TestUtil.createJSONTargetOrderDoc();
+        const shipOrderJsonTree = new MappingTree(
+          shipOrderJsonDoc.documentType,
+          shipOrderJsonDoc.documentId,
+          DocumentDefinitionType.JSON_SCHEMA,
+        );
+        const shipOrderJsonRows = childrenOf(rootRows(shipOrderJsonDoc, shipOrderJsonTree)[0]);
+        expectValueSelectorAllowed(findJsonRow(shipOrderJsonRows, 'Item'), false);
+      });
+
+      it('should not offer a second value-of on a container that already holds one, and keep the existing one deletable', () => {
+        MappingSerializerService.deserialize(getShipOrderValueOfInContainerXslt(), targetDoc, tree, paramsMap);
+        const shipToRow = childrenOf(rootRows(targetDoc, tree)[0]).find((r) => r.title === 'ShipTo');
+        if (!(shipToRow instanceof FieldItemNodeData)) throw new Error('Mapped ShipTo row not found');
+
+        expectValueSelectorAllowed(shipToRow, false);
+        const valueOfRow = findMappingRow(childrenOf(shipToRow), ValueOfSelector);
+        expect(MappingActionRegistryService.getAllowedActions(valueOfRow)).toContain(MappingActionKind.Delete);
+      });
+
+      describe('condition rows', () => {
+        const shipOrderRows = () => childrenOf(rootRows(targetDoc, tree)[0]);
+
+        it('should judge an inner "if" by the field it sits in', () => {
+          MappingActionService.applyInnerIf(findFieldRow(shipOrderRows(), 'ShipTo'));
+          MappingActionService.applyInnerIf(findFieldRow(shipOrderRows(), 'OrderPerson'));
+
+          const rows = shipOrderRows();
+          expectValueSelectorAllowed(findMappingRow(childrenOf(findRow(rows, 'ShipTo')), IfItem), false);
+          expectValueSelectorAllowed(findMappingRow(childrenOf(findRow(rows, 'OrderPerson')), IfItem), true);
+        });
+
+        it('should judge "when" and "otherwise" by the field the "choose" sits in', () => {
+          const nameRow = findFieldRow(childrenOf(findFieldRow(shipOrderRows(), 'ShipTo')), 'Name');
+          MappingActionService.applyChooseWhenOtherwise(nameRow);
+
+          const chooseRow = findMappingRow(childrenOf(findRow(shipOrderRows(), 'ShipTo')), ChooseItem);
+          const chooseChildren = childrenOf(chooseRow);
+          expectValueSelectorAllowed(findMappingRow(chooseChildren, WhenItem), false);
+          expectValueSelectorAllowed(findMappingRow(chooseChildren, OtherwiseItem), false);
+        });
+
+        it('should judge an "if" inside a loop by the field the loop writes into', () => {
+          MappingActionService.applyForEach(findFieldRow(shipOrderRows(), 'Item'));
+          const forEachRow = findMappingRow(shipOrderRows(), ForEachItem);
+          MappingActionService.applyIf(findRow(childrenOf(forEachRow), 'Item'));
+
+          const ifRow = findMappingRow(childrenOf(findMappingRow(shipOrderRows(), ForEachItem)), IfItem);
+          expectValueSelectorAllowed(ifRow, false);
+        });
+
+        it('should disallow ValueSelector on an "if" at the root of a structured document', () => {
+          MappingActionService.applyIf(findFieldRow(rootRows(targetDoc, tree), 'ShipOrder'));
+
+          expectValueSelectorAllowed(findMappingRow(rootRows(targetDoc, tree), IfItem), false);
+        });
+
+        it('should allow ValueSelector on an "if" at the root of a primitive document', () => {
+          const primitiveDoc = new PrimitiveDocument(
+            new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+          );
+          const primitiveTree = new MappingTree(
+            primitiveDoc.documentType,
+            primitiveDoc.documentId,
+            DocumentDefinitionType.Primitive,
+          );
+          MappingActionService.applyIf(new TargetDocumentNodeData(primitiveDoc, primitiveTree));
+
+          const primitiveRows = VisualizationService.generatePrimitiveDocumentChildren(
+            new TargetDocumentNodeData(primitiveDoc, primitiveTree),
+          );
+          expectValueSelectorAllowed(findMappingRow(primitiveRows, IfItem), true);
+        });
+
+        it('should judge an inner "if" on JSON rows by the field type', () => {
+          const jsonDoc = TestUtil.createJSONTargetOrderDoc();
+          const jsonTree = new MappingTree(
+            jsonDoc.documentType,
+            jsonDoc.documentId,
+            DocumentDefinitionType.JSON_SCHEMA,
+          );
+          const jsonRootRows = () => childrenOf(rootRows(jsonDoc, jsonTree)[0]);
+          MappingActionService.applyInnerIf(findJsonRow(jsonRootRows(), 'ShipTo'));
+          MappingActionService.applyInnerIf(findJsonRow(jsonRootRows(), 'OrderPerson'));
+
+          const rows = jsonRootRows();
+          expectValueSelectorAllowed(findMappingRow(childrenOf(findJsonRow(rows, 'ShipTo')), IfItem), false);
+          expectValueSelectorAllowed(findMappingRow(childrenOf(findJsonRow(rows, 'OrderPerson')), IfItem), true);
+        });
+      });
+
+      describe('variables', () => {
+        const shipOrderRow = () => findRow(rootRows(targetDoc, tree), 'ShipOrder');
+
+        it('should offer neither ValueSelector nor CopyOfSelector on a variable row', () => {
+          const shipOrderItem = MappingActionService.getOrCreateFieldItem(shipOrderRow());
+          MappingService.addVariable(shipOrderItem, 'var1', '/ns0:ShipOrder/OrderPerson');
+
+          const variableRow = findMappingRow(childrenOf(shipOrderRow()), VariableItem);
+          expectActionAllowed(variableRow, MappingActionKind.ValueSelector, false);
+          expectActionAllowed(variableRow, MappingActionKind.CopyOfSelector, false);
+        });
+
+        it('should offer neither ValueSelector nor CopyOfSelector on the rows of an imported variable content', () => {
+          const shipOrderRows = childrenOf(shipOrderRow());
+          const orderPersonField = findFieldRow(shipOrderRows, 'OrderPerson').field;
+          const shipToField = findFieldRow(shipOrderRows, 'ShipTo').field;
+          const variable = MappingService.addVariable(
+            MappingActionService.getOrCreateFieldItem(shipOrderRow()),
+            'var1',
+          );
+          MappingService.createFieldItem(variable, orderPersonField);
+          MappingService.createFieldItem(variable, shipToField);
+          variable.children.push(new IfItem(variable));
+
+          const variableRows = childrenOf(findMappingRow(childrenOf(shipOrderRow()), VariableItem));
+          const rowsInVariable = [
+            findRow(variableRows, 'OrderPerson'),
+            findFieldRow(childrenOf(findRow(variableRows, 'ShipTo')), 'Name'),
+            findMappingRow(variableRows, IfItem),
+          ];
+          for (const row of rowsInVariable) {
+            expectActionAllowed(row, MappingActionKind.ValueSelector, false);
+            expectActionAllowed(row, MappingActionKind.CopyOfSelector, false);
+          }
+        });
       });
     });
 
@@ -981,6 +1226,24 @@ describe('MappingActionService', () => {
 
         const ifNode = shipOrderChildren[1] as MappingNodeData;
         expect(MappingActionRegistryService.getAllowedActions(ifNode)).not.toContain(MappingActionKind.Sort);
+      });
+    });
+
+    describe('ValueSelector action availability', () => {
+      it('should disallow ValueSelector on a mapped container row', () => {
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
+        const shipToNode = shipOrderChildren.find((c) => c.title === 'ShipTo');
+        if (!(shipToNode instanceof FieldItemNodeData)) throw new Error('Mapped ShipTo row not found');
+
+        expect(MappingActionRegistryService.getAllowedActions(shipToNode)).not.toContain(
+          MappingActionKind.ValueSelector,
+        );
+        expect(
+          MappingActionRegistryService.getMappingContextMenuItems(shipToNode).some(
+            (item) => item.key === MappingActionKind.ValueSelector,
+          ),
+        ).toBe(false);
       });
     });
 

@@ -13,6 +13,7 @@ import {
 import { MappingService } from '../../../../services/mapping/mapping.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { MappingActionRegistryService } from '../../../../services/visualization/mapping-action-registry.service';
+import { VisualizationService } from '../../../../services/visualization/visualization.service';
 import { useDocumentTreeStore } from '../../../../store/document-tree.store';
 import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import {
@@ -58,6 +59,68 @@ describe('MappingContextMenuAction', () => {
     });
     expect(onUpdateMock.mock.calls).toHaveLength(1);
     expect(spyOnApply.mock.calls).toHaveLength(1);
+  });
+
+  it('should not offer ValueSelector on a field with element children', async () => {
+    const user = userEvent.setup();
+    const shipOrderRow = VisualizationService.generateStructuredDocumentChildren(documentNodeData)[0];
+    const shipToRow = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderRow).find(
+      (row) => row.title === 'ShipTo',
+    );
+    if (!(shipToRow instanceof TargetFieldNodeData)) throw new Error('ShipTo row not found');
+    render(<MappingContextMenuAction nodeData={shipToRow} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+
+    await user.click(screen.getByTestId('transformation-actions-menu-toggle'));
+    const copyOfItem = await screen.findByTestId('transformation-actions-copy-of');
+    expect(copyOfItem.getElementsByTagName('button')[0]).not.toBeDisabled();
+    expect(screen.queryByTestId('transformation-actions-selector')).not.toBeInTheDocument();
+  });
+
+  it('should reflect in-place model changes when reopened for the same node', async () => {
+    const user = userEvent.setup();
+    const chooseItem = new ChooseItem(mappingTree, targetDoc.fields[0]);
+    mappingTree.children.push(chooseItem);
+    const nodeData = new MappingNodeData(documentNodeData, chooseItem);
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />, { wrapper: dataMapperWrapper });
+
+    await user.click(screen.getByTestId('transformation-actions-menu-toggle'));
+    const otherwiseItem = await screen.findByTestId('transformation-actions-otherwise');
+    await user.click(otherwiseItem.getElementsByTagName('button')[0]);
+    await waitFor(() => {
+      expect(screen.getByTestId('transformation-actions-menu-toggle').getAttribute('aria-expanded')).toBe('false');
+    });
+
+    await user.click(screen.getByTestId('transformation-actions-menu-toggle'));
+    await screen.findByTestId('transformation-actions-when');
+    expect(screen.queryByTestId('transformation-actions-otherwise')).not.toBeInTheDocument();
+  });
+
+  it('should not evaluate the menu of other rows when one opens', async () => {
+    const user = userEvent.setup();
+    const shipOrderRow = VisualizationService.generateStructuredDocumentChildren(documentNodeData)[0];
+    const rows = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderRow);
+    const orderPersonRow = rows.find((row) => row.title === 'OrderPerson');
+    const shipToRow = rows.find((row) => row.title === 'ShipTo');
+    if (!(orderPersonRow instanceof TargetFieldNodeData) || !(shipToRow instanceof TargetFieldNodeData)) {
+      throw new Error('ShipOrder rows not found');
+    }
+    render(
+      <>
+        <MappingContextMenuAction nodeData={orderPersonRow} onUpdate={vi.fn()} />
+        <MappingContextMenuAction nodeData={shipToRow} onUpdate={vi.fn()} />
+      </>,
+      { wrapper: dataMapperWrapper },
+    );
+    const getMenuItemsSpy = vi.spyOn(MappingActionRegistryService, 'getMappingContextMenuItems');
+
+    const [orderPersonToggle] = screen.getAllByTestId('transformation-actions-menu-toggle');
+    await user.click(orderPersonToggle);
+    await waitFor(() => {
+      expect(orderPersonToggle.getAttribute('aria-expanded')).toBe('true');
+    });
+
+    expect(getMenuItemsSpy).toHaveBeenCalledWith(orderPersonRow);
+    expect(getMenuItemsSpy).not.toHaveBeenCalledWith(shipToRow);
   });
 
   it('should apply If', async () => {
