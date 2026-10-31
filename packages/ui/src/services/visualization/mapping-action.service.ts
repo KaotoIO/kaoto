@@ -11,9 +11,11 @@ import {
   MappingItem,
   MappingParentType,
   MappingTree,
+  OtherwiseItem,
   ValueOfSelector,
   ValueSelector,
   VariableItem,
+  WhenItem,
 } from '../../models/datamapper/mapping';
 import { XPathCommitResult } from '../../models/datamapper/mapping-action';
 import { Types } from '../../models/datamapper/types';
@@ -84,8 +86,8 @@ export class MappingActionService {
   /**
    * Removes the see-through optional guard that `nodeData`'s row absorbed, keeping the field in the
    * guard's place. The guard's comment moves onto the field, ahead of the field's own comment since
-   * it belonged to the outer element, so removing a guard never loses it. Deleting a row's mapping
-   * removes the row's guard through here.
+   * it belonged to the outer element, so removing a guard never loses it. Every guard removal goes
+   * through here: deleting a row's mapping, "Remove optional guard" and the for-each wraps.
    * @param nodeData - the field row whose guard to remove
    * @returns the field item, or `undefined` when the row has no see-through guard
    */
@@ -137,6 +139,10 @@ export class MappingActionService {
    * Wraps or adds an {@link IfItem} condition to the node's mapping.
    * For document nodes, adds the if directly to the mapping tree.
    * For field and mapping nodes, creates the field item if needed before wrapping.
+   * On a field row with a see-through optional guard, the guard itself becomes the visible `if`: its
+   * test `X` turns into `exists(X)`, which means the same in an `xsl:if` but isn't a simple path, so
+   * the see-through rule doesn't hide it again, also after a reload. The user extends that condition
+   * instead of getting a second `if`; setting the test back to `X` hides it again.
    * @param nodeData - The target node to apply the condition to.
    */
   static applyIf(nodeData: TargetNodeData) {
@@ -146,6 +152,9 @@ export class MappingActionService {
     } else if (nodeData instanceof AddMappingNodeData) {
       const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
       MappingService.wrapWithIf(fieldItem);
+    } else if (nodeData instanceof FieldItemNodeData && nodeData.autoOptionalIfItem) {
+      const guard = nodeData.autoOptionalIfItem;
+      guard.expression = `exists(${guard.expression})`;
     } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
       const createdFieldItem =
         nodeData instanceof TargetFieldNodeData ? MappingActionService.getOrCreateFieldItem(nodeData) : undefined;
@@ -178,6 +187,11 @@ export class MappingActionService {
    * Wraps or adds a {@link ChooseItem} with `when`/`otherwise` branches to the node's mapping.
    * No-op if the node already contains a `ChooseItem`.
    * For field and mapping nodes, creates the field item if needed before wrapping.
+   * On a field row with a see-through optional guard, the guard's test becomes the first `when`'s
+   * test and the guard is removed ({@link removeOptionalGuard}), so the existence check is explicit
+   * and editable, and the `otherwise` branch is a real fallback for an absent source. The guard's
+   * comment stays with the `when` branch's field; the `otherwise` copy keeps the field's own comment,
+   * since the guard's comment describes the opposite case.
    * @param nodeData - The target node to apply the choose/when/otherwise structure to.
    */
   static applyChooseWhenOtherwise(nodeData: TargetNodeData) {
@@ -192,12 +206,31 @@ export class MappingActionService {
     } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
       if (nodeData.mapping?.children.some((c) => c instanceof ChooseItem)) return;
 
+      if (nodeData instanceof FieldItemNodeData && nodeData.autoOptionalIfItem) {
+        MappingActionService.wrapGuardedFieldWithChoose(nodeData, nodeData.autoOptionalIfItem);
+        return;
+      }
       const createdFieldItem =
         nodeData instanceof TargetFieldNodeData ? MappingActionService.getOrCreateFieldItem(nodeData) : undefined;
       const mapping = nodeData.mapping ?? createdFieldItem;
       if (!mapping) return;
       MappingService.wrapWithChooseWhenOtherwise(mapping);
     }
+  }
+
+  /**
+   * {@link MappingService.wrapWithChooseWhenOtherwise} always puts the field into a new `when` and a
+   * copy of it into a new `otherwise`, which the casts rely on.
+   */
+  private static wrapGuardedFieldWithChoose(nodeData: FieldItemNodeData, guard: IfItem) {
+    const guardTest = guard.expression;
+    const fieldComment = nodeData.mapping.comment;
+    const field = MappingActionService.removeOptionalGuard(nodeData) ?? nodeData.mapping;
+    MappingService.wrapWithChooseWhenOtherwise(field);
+    const whenItem = field.parent as WhenItem;
+    whenItem.expression = guardTest;
+    const otherwiseItem = (whenItem.parent as ChooseItem).otherwise as OtherwiseItem;
+    otherwiseItem.children[0].comment = fieldComment;
   }
 
   /**
@@ -251,30 +284,36 @@ export class MappingActionService {
 
   /**
    * Wraps the target field's mapping item with a {@link ForEachItem}.
-   * Creates the field item first if it does not yet exist.
+   * Creates the field item first if it does not yet exist. A see-through optional guard is removed
+   * first ({@link removeOptionalGuard}), since the loop already writes nothing when its source is absent.
    * @param nodeData - The target field node to wrap.
    */
   static applyForEach(nodeData: ForEachCapableNodeData) {
+    if (nodeData instanceof FieldItemNodeData) MappingActionService.removeOptionalGuard(nodeData);
     const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
     MappingService.wrapWithForEach(fieldItem);
   }
 
   /**
    * Wraps the target field's mapping item with a {@link ForEachGroupItem}.
-   * Creates the field item first if it does not yet exist.
+   * Creates the field item first if it does not yet exist. A see-through optional guard is removed
+   * first ({@link removeOptionalGuard}), since the loop already writes nothing when its source is absent.
    * @param nodeData - The target field node to wrap.
    */
   static applyForEachGroup(nodeData: ForEachCapableNodeData) {
+    if (nodeData instanceof FieldItemNodeData) MappingActionService.removeOptionalGuard(nodeData);
     const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
     MappingService.wrapWithForEachGroup(fieldItem);
   }
 
   /**
    * Wraps the target field with a {@link ForEachItem} whose select expression is `current-group()`.
-   * Only meaningful inside a `for-each-group` context.
+   * Only meaningful inside a `for-each-group` context. A see-through optional guard is removed
+   * first ({@link removeOptionalGuard}), since the loop already writes nothing when its source is absent.
    * @param nodeData - The target field node to wrap.
    */
   static applyForEachCurrentGroup(nodeData: ForEachCapableNodeData) {
+    if (nodeData instanceof FieldItemNodeData) MappingActionService.removeOptionalGuard(nodeData);
     const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
     MappingService.wrapWithForEach(fieldItem);
     const forEachItem = fieldItem.parent;

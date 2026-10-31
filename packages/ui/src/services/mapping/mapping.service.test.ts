@@ -896,6 +896,38 @@ describe('MappingService', () => {
     });
   });
 
+  describe('wrapWithChooseWhenOtherwise()', () => {
+    let itemItem: FieldItem;
+    let noteField: IField;
+    let noteItem: FieldItem;
+
+    beforeEach(() => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const rootItem = MappingService.createFieldItem(manualTree, targetDoc.fields[0]);
+      itemItem = MappingService.createFieldItem(rootItem, targetDoc.fields[0].fields[3]);
+      noteField = itemItem.field.fields[1];
+      noteItem = MappingService.createFieldItem(itemItem, noteField);
+    });
+
+    it('should make the choose produce the field of a wrapped field item by default', () => {
+      MappingService.wrapWithChooseWhenOtherwise(noteItem);
+
+      const chooseItem = itemItem.children[0] as ChooseItem;
+      expect(itemItem.children).toHaveLength(1);
+      expect(chooseItem).toBeInstanceOf(ChooseItem);
+      expect(chooseItem.field).toBe(noteField);
+      expect(chooseItem.when[0].children[0]).toBe(noteItem);
+      const otherwiseNoteItem = chooseItem.otherwise?.children[0] as FieldItem;
+      expect(otherwiseNoteItem).toBeInstanceOf(FieldItem);
+      expect(otherwiseNoteItem).not.toBe(noteItem);
+      expect(otherwiseNoteItem.field).toBe(noteField);
+    });
+  });
+
   describe('wrapWithFunction()', () => {
     it('should wrap with xpath function', () => {
       const concatFx = XPathService.getXPathFunctionDefinitions()[FunctionGroup.String]?.find(

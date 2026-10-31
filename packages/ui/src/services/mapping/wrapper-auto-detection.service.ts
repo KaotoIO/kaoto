@@ -283,8 +283,9 @@ export class WrapperAutoDetectionService {
    * The target-side half of "can this field carry a see-through guard": not already under an
    * `IfItem`, optional on the target, and mapped by a single selector whose source path is simple —
    * the shape {@link matchSimpleOptionalGuard} recognises once the guard is in place. Shared by
-   * {@link shouldWrapWithOptionalGuard} (drag-and-drop) and the "Add optional guard" menu action,
-   * which `MappingActionService.addOptionalGuard` re-checks before wrapping.
+   * {@link shouldWrapWithOptionalGuard} (drag-and-drop) and the "Add optional guard" menu action
+   * ({@link TargetRenderService.canAddOptionalGuard}), which `MappingActionService.addOptionalGuard`
+   * re-checks before wrapping.
    * @param fieldItem - the target field item to inspect
    * @returns the selector whose `sourcePath` becomes the guard's `test`, or `undefined`
    */

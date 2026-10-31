@@ -3,13 +3,16 @@ import userEvent from '@testing-library/user-event';
 
 import {
   BODY_DOCUMENT_ID,
+  DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
   IDocument,
+  IField,
 } from '../../../../models/datamapper/document';
 import {
   ChooseItem,
   FieldItem,
+  ForEachGroupItem,
   ForEachItem,
   IfItem,
   MappingTree,
@@ -20,33 +23,73 @@ import { MappingActionGroup } from '../../../../models/datamapper/mapping-action
 import {
   AddMappingNodeData,
   FieldItemNodeData,
+  ISourceDocumentContext,
   MappingNodeData,
+  NodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
+  TargetNodeData,
 } from '../../../../models/datamapper/visualization';
+import { XmlSchemaDocumentService } from '../../../../services/document/xml-schema/xml-schema-document.service';
 import { MappingService } from '../../../../services/mapping/mapping.service';
 import { MappingActionService } from '../../../../services/visualization/mapping-action.service';
 import { MappingActionRegistryService } from '../../../../services/visualization/mapping-action-registry.service';
+import { TargetRenderService } from '../../../../services/visualization/target-render.service';
 import { VisualizationService } from '../../../../services/visualization/visualization.service';
 import { useDocumentTreeStore } from '../../../../store/document-tree.store';
-import { TestUtil } from '../../../../stubs/datamapper/data-mapper';
+import { getAdtInXsd, TestUtil } from '../../../../stubs/datamapper/data-mapper';
 import {
   createDataMapperContext,
   createDataMapperContextWrapper,
 } from '../../../../stubs/datamapper/data-mapper-context';
 import { MappingContextMenuAction } from './MappingContextMenuAction';
 
+const SHIP_ORDER_NS = 'io.kaoto.datamapper.poc.test';
+const BODY_NOTE = '/ns0:ShipOrder/Item/Note';
+const BODY_TITLE = '/ns0:ShipOrder/Item/Title';
+
+const findField = (parent: IDocument | IField, name: string): IField => {
+  const field = parent.fields.find((child) => child.name === name);
+  if (!field) throw new Error(`No field named '${name}'`);
+  return field;
+};
+
+const createAdtDocument = (documentType: DocumentType): IDocument => {
+  const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+    new DocumentDefinition(documentType, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+      'ADT_IN.xsd': getAdtInXsd(),
+    }),
+  );
+  if (!result.document) throw new Error('Failed to create the ADT_IN document');
+  return result.document;
+};
+
+const findFieldRow = (nodes: NodeData[], fieldItem: FieldItem): FieldItemNodeData | undefined => {
+  for (const node of nodes) {
+    if (node instanceof FieldItemNodeData && node.mapping === fieldItem) return node;
+    if (node instanceof MappingNodeData) {
+      const row = findFieldRow(VisualizationService.generateNonDocumentNodeDataChildren(node), fieldItem);
+      if (row) return row;
+    }
+  }
+  return undefined;
+};
+
+const getFieldRow = (documentNode: TargetDocumentNodeData, fieldItem: FieldItem): FieldItemNodeData => {
+  const row = findFieldRow(VisualizationService.generateStructuredDocumentChildren(documentNode), fieldItem);
+  if (!row) throw new Error(`No row renders '${fieldItem.field.name}'`);
+  return row;
+};
+
 describe('MappingContextMenuAction', () => {
   let targetDoc: ReturnType<typeof TestUtil.createTargetOrderDoc>;
   let mappingTree: MappingTree;
   let documentNodeData: TargetDocumentNodeData;
-  let dataMapperWrapper: ReturnType<typeof createDataMapperContextWrapper>;
 
   beforeEach(() => {
     targetDoc = TestUtil.createTargetOrderDoc();
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     documentNodeData = new TargetDocumentNodeData(targetDoc, mappingTree);
-    dataMapperWrapper = createDataMapperContextWrapper(createDataMapperContext({ mappingTree }));
   });
 
   afterEach(() => {
@@ -63,7 +106,7 @@ describe('MappingContextMenuAction', () => {
     const nodeData = new TargetFieldNodeData(documentNodeData, leafField, new FieldItem(mappingTree, leafField));
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingActionService, 'applyValueOfSelector');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const selectorItem = await screen.findByTestId('transformation-actions-selector');
@@ -82,7 +125,7 @@ describe('MappingContextMenuAction', () => {
       (row) => row.title === 'ShipTo',
     );
     if (!(shipToRow instanceof TargetFieldNodeData)) throw new Error('ShipTo row not found');
-    render(<MappingContextMenuAction nodeData={shipToRow} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+    render(<MappingContextMenuAction nodeData={shipToRow} onUpdate={vi.fn()} />);
 
     await user.click(screen.getByTestId('transformation-actions-menu-toggle'));
     const copyOfItem = await screen.findByTestId('transformation-actions-copy-of');
@@ -95,7 +138,7 @@ describe('MappingContextMenuAction', () => {
     const chooseItem = new ChooseItem(mappingTree, targetDoc.fields[0]);
     mappingTree.children.push(chooseItem);
     const nodeData = new MappingNodeData(documentNodeData, chooseItem);
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />, { wrapper: dataMapperWrapper });
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />);
 
     await user.click(screen.getByTestId('transformation-actions-menu-toggle'));
     const otherwiseItem = await screen.findByTestId('transformation-actions-otherwise');
@@ -123,7 +166,6 @@ describe('MappingContextMenuAction', () => {
         <MappingContextMenuAction nodeData={orderPersonRow} onUpdate={vi.fn()} />
         <MappingContextMenuAction nodeData={shipToRow} onUpdate={vi.fn()} />
       </>,
-      { wrapper: dataMapperWrapper },
     );
     const getMenuItemsSpy = vi.spyOn(MappingActionRegistryService, 'getMappingContextMenuItems');
 
@@ -146,7 +188,7 @@ describe('MappingContextMenuAction', () => {
     );
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingActionService, 'applyIf');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const wrapFlyout = await screen.findByTestId(
@@ -171,7 +213,7 @@ describe('MappingContextMenuAction', () => {
     );
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const wrapFlyout = await screen.findByTestId(
@@ -192,7 +234,7 @@ describe('MappingContextMenuAction', () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingService, 'addWhen');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const whenItem = await screen.findByTestId('transformation-actions-when');
@@ -210,7 +252,7 @@ describe('MappingContextMenuAction', () => {
     const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingService, 'addOtherwise');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const otherwiseItem = await screen.findByTestId('transformation-actions-otherwise');
@@ -232,7 +274,7 @@ describe('MappingContextMenuAction', () => {
     );
     const onUpdateMock = vi.fn();
     const spyOnApply = vi.spyOn(MappingActionService, 'applyForEach');
-    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
+    render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
     const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
     await user.click(actionToggle);
     const wrapFlyout = await screen.findByTestId(
@@ -255,9 +297,7 @@ describe('MappingContextMenuAction', () => {
       new FieldItem(mappingTree, targetDoc.fields[0].fields[3]),
     );
 
-    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />, {
-      wrapper: dataMapperWrapper,
-    });
+    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />);
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
     const clickEvent = createEvent.click(actionToggle);
@@ -276,9 +316,7 @@ describe('MappingContextMenuAction', () => {
     const leafField = targetDoc.fields[0].fields[1];
     const nodeData = new TargetFieldNodeData(documentNodeData, leafField, new FieldItem(mappingTree, leafField));
 
-    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />, {
-      wrapper: dataMapperWrapper,
-    });
+    const wrapper = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={() => {}} />);
 
     await user.click(wrapper.getByTestId('transformation-actions-menu-toggle'));
 
@@ -300,7 +338,6 @@ describe('MappingContextMenuAction', () => {
     const nodeData = new AddMappingNodeData(documentNodeData, targetDoc.fields[0].fields[3]);
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
-      { wrapper: dataMapperWrapper },
     );
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
@@ -327,7 +364,6 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingActionService, 'applyIf');
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
-      { wrapper: dataMapperWrapper },
     );
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
@@ -354,7 +390,6 @@ describe('MappingContextMenuAction', () => {
     const spyOnApply = vi.spyOn(MappingActionService, 'applyChooseWhenOtherwise');
     const wrapper = render(
       <MappingContextMenuAction nodeData={nodeData} dropdownLabel="Add Mapping Instruction" onUpdate={onUpdateSpy} />,
-      { wrapper: dataMapperWrapper },
     );
 
     const actionToggle = wrapper.getByTestId('transformation-actions-menu-toggle');
@@ -384,9 +419,7 @@ describe('MappingContextMenuAction', () => {
           new FieldItem(mappingTree, targetDoc.fields[0]),
         );
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
-          wrapper: dataMapperWrapper,
-        });
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -404,9 +437,7 @@ describe('MappingContextMenuAction', () => {
         fieldItem.comment = 'Existing comment';
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
-          wrapper: dataMapperWrapper,
-        });
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
@@ -427,9 +458,7 @@ describe('MappingContextMenuAction', () => {
           new FieldItem(mappingTree, targetDoc.fields[0]),
         );
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
-          wrapper: dataMapperWrapper,
-        });
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -450,9 +479,7 @@ describe('MappingContextMenuAction', () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
-          wrapper: dataMapperWrapper,
-        });
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -471,9 +498,7 @@ describe('MappingContextMenuAction', () => {
         fieldItem.comment = 'Test comment';
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
-          wrapper: dataMapperWrapper,
-        });
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -495,9 +520,7 @@ describe('MappingContextMenuAction', () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
-          wrapper: dataMapperWrapper,
-        });
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -527,9 +550,7 @@ describe('MappingContextMenuAction', () => {
         const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
         const nodeData = new TargetFieldNodeData(documentNodeData, targetDoc.fields[0], fieldItem);
         const onUpdateMock = vi.fn();
-        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
-          wrapper: dataMapperWrapper,
-        });
+        render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />);
 
         // Open the dropdown menu
         const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
@@ -563,7 +584,9 @@ describe('MappingContextMenuAction', () => {
       const forEachItem = new ForEachItem(mappingTree);
       const nodeData = new MappingNodeData(documentNodeData, forEachItem);
       const onUpdateMock = vi.fn();
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, {
+        wrapper: createDataMapperContextWrapper(createDataMapperContext({ mappingTree })),
+      });
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -581,13 +604,47 @@ describe('MappingContextMenuAction', () => {
       sort.expression = 'Title';
       forEachItem.sortItems = [sort];
       const nodeData = new MappingNodeData(documentNodeData, forEachItem);
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
 
       const sortAction = await screen.findByTestId('transformation-actions-sort');
       expect(sortAction).toHaveTextContent('Edit Sort');
+    });
+  });
+
+  describe('For-each-group Functionality', () => {
+    it('should open the for-each-group configuration from a for-each-group row', async () => {
+      const user = userEvent.setup();
+      const nodeData = new MappingNodeData(documentNodeData, new ForEachGroupItem(mappingTree));
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, {
+        wrapper: createDataMapperContextWrapper(createDataMapperContext({ mappingTree })),
+      });
+
+      await user.click(screen.getByTestId('transformation-actions-menu-toggle'));
+      const configItem = await screen.findByTestId('transformation-actions-foreach-group-config');
+      expect(configItem).toHaveTextContent('Configure for-each-group');
+      await user.click(configItem.getElementsByTagName('button')[0]);
+
+      expect(await screen.findByTestId('for-each-group-modal')).toBeInTheDocument();
+    });
+
+    it('should open the field picker from "Add field" in a for-each-group under a container field', async () => {
+      const user = userEvent.setup();
+      const shipOrderItem = new FieldItem(mappingTree, targetDoc.fields[0]);
+      mappingTree.children.push(shipOrderItem);
+      const forEachGroupItem = new ForEachGroupItem(shipOrderItem);
+      shipOrderItem.children.push(forEachGroupItem);
+      const nodeData = new MappingNodeData(documentNodeData, forEachGroupItem);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+
+      await user.click(screen.getByTestId('transformation-actions-menu-toggle'));
+      const addFieldItem = await screen.findByTestId('transformation-actions-add-field');
+      expect(addFieldItem).toHaveTextContent('Add field');
+      await user.click(addFieldItem.getElementsByTagName('button')[0]);
+
+      expect(await screen.findByTestId('add-field-in-instruction-modal')).toBeInTheDocument();
     });
   });
 
@@ -615,7 +672,6 @@ describe('MappingContextMenuAction', () => {
           <MappingContextMenuAction nodeData={nodeData1} onUpdate={vi.fn()} />
           <MappingContextMenuAction nodeData={nodeData2} onUpdate={vi.fn()} />
         </>,
-        { wrapper: dataMapperWrapper },
       );
 
       const [firstToggle, secondToggle] = screen.getAllByTestId('transformation-actions-menu-toggle');
@@ -633,6 +689,47 @@ describe('MappingContextMenuAction', () => {
     });
   });
 
+  describe('Menu entries', () => {
+    let nodeData: TargetFieldNodeData;
+
+    beforeEach(() => {
+      nodeData = new TargetFieldNodeData(
+        documentNodeData,
+        targetDoc.fields[0],
+        new FieldItem(mappingTree, targetDoc.fields[0]),
+      );
+    });
+
+    it('should not compute the entries until the menu is opened', async () => {
+      const user = userEvent.setup();
+      const getMenuItemsSpy = vi.spyOn(MappingActionRegistryService, 'getMappingContextMenuItems');
+      const { rerender } = render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+      rerender(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+
+      expect(getMenuItemsSpy).not.toHaveBeenCalled();
+
+      await user.click(screen.getByTestId('transformation-actions-menu-toggle'));
+
+      expect(await screen.findByTestId('transformation-actions-comment')).toBeInTheDocument();
+      expect(getMenuItemsSpy).toHaveBeenCalledWith(nodeData);
+    });
+
+    it('should remove the entries once the menu is closed', async () => {
+      const user = userEvent.setup();
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
+      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
+      await user.click(actionToggle);
+      expect(await screen.findByTestId('transformation-actions-comment')).toBeInTheDocument();
+
+      await user.click(actionToggle);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('transformation-actions-comment')).not.toBeInTheDocument();
+      });
+      expect(actionToggle.getAttribute('aria-expanded')).toBe('false');
+    });
+  });
+
   describe('Flyout Submenus', () => {
     it('should render "Wrap with Instruction" flyout when wrap actions are allowed', async () => {
       const user = userEvent.setup();
@@ -641,7 +738,7 @@ describe('MappingContextMenuAction', () => {
         targetDoc.fields[0],
         new FieldItem(mappingTree, targetDoc.fields[0]),
       );
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
 
       const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -658,7 +755,7 @@ describe('MappingContextMenuAction', () => {
         targetDoc.fields[0],
         new FieldItem(mappingTree, targetDoc.fields[0]),
       );
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
 
       const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -676,7 +773,7 @@ describe('MappingContextMenuAction', () => {
       const user = userEvent.setup();
       const forEachItem = new ForEachItem(mappingTree);
       const nodeData = new MappingNodeData(documentNodeData, forEachItem);
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
 
       const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -696,7 +793,7 @@ describe('MappingContextMenuAction', () => {
       // Use a leaf element field: value-of is not allowed on fields with element children
       const leafField = targetDoc.fields[0].fields[1];
       const nodeData = new TargetFieldNodeData(documentNodeData, leafField, new FieldItem(mappingTree, leafField));
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
 
       const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -708,7 +805,7 @@ describe('MappingContextMenuAction', () => {
     it('should not render flyout parent when all group actions are filtered out', async () => {
       const user = userEvent.setup();
       const nodeData = new MappingNodeData(documentNodeData, new ChooseItem(mappingTree, targetDoc.fields[0]));
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />);
 
       const actionToggle = await screen.findByTestId('transformation-actions-menu-toggle');
       await user.click(actionToggle);
@@ -728,136 +825,131 @@ describe('MappingContextMenuAction', () => {
   });
 
   describe('optional guard actions', () => {
-    afterEach(() => {
-      vi.restoreAllMocks();
+    let sourceContext: ISourceDocumentContext;
+    let itemItem: FieldItem;
+    let noteField: IField;
+
+    beforeEach(() => {
+      sourceContext = { sourceParameterMap: new Map<string, IDocument>(), sourceBody: TestUtil.createSourceOrderDoc() };
+      mappingTree.namespaceMap = { ns0: SHIP_ORDER_NS };
+      const shipOrderItem = MappingService.createFieldItem(mappingTree, findField(targetDoc, 'ShipOrder'));
+      itemItem = MappingService.createFieldItem(shipOrderItem, findField(shipOrderItem.field, 'Item'));
+      noteField = findField(itemItem.field, 'Note');
     });
 
-    it('should remove the hidden guard via "Remove optional guard"', async () => {
+    const addIf = (test: string) => {
+      const ifItem = new IfItem(itemItem);
+      ifItem.expression = test;
+      itemItem.children.push(ifItem);
+      return ifItem;
+    };
+
+    const mapNote = (parent: FieldItem | IfItem, expression: string) => {
+      const noteItem = MappingService.createFieldItem(parent, noteField);
+      const selector = new ValueOfSelector(noteItem);
+      selector.expression = expression;
+      noteItem.children.push(selector);
+      return noteItem;
+    };
+
+    const getNoteRow = (noteItem: FieldItem) =>
+      getFieldRow(
+        new TargetDocumentNodeData(targetDoc, mappingTree, TargetRenderService.buildIndex(mappingTree, sourceContext)),
+        noteItem,
+      );
+
+    const openMenu = async (nodeData: TargetNodeData, onUpdate: () => void = vi.fn()) => {
       const user = userEvent.setup();
-      const targetField = targetDoc.fields[0].fields[1];
-      targetField.minOccurs = 0;
-      const ifItem = new IfItem(mappingTree);
-      ifItem.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      mappingTree.children.push(ifItem);
-      const fieldItem = new FieldItem(ifItem, targetField);
-      const selector = new ValueOfSelector(fieldItem);
-      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      fieldItem.children.push(selector);
-      ifItem.children.push(fieldItem);
+      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdate} />);
+      await user.click(screen.getByTestId('transformation-actions-menu-toggle'));
+      await screen.findByTestId('transformation-actions-comment');
+      return user;
+    };
 
-      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
-      nodeData.autoOptionalIfItem = ifItem;
-
+    it('should offer "Add optional guard" for an optional field mapped from an optional source, and wrap it in a guard the tree absorbs', async () => {
+      const noteItem = mapNote(itemItem, BODY_NOTE);
       const onUpdateMock = vi.fn();
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
-      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-      await user.click(actionToggle);
-      const removeGuardItem = await screen.findByTestId('transformation-actions-remove-optional-guard');
-      await user.click(removeGuardItem.getElementsByTagName('button')[0]);
+      const user = await openMenu(getNoteRow(noteItem), onUpdateMock);
 
-      await waitFor(() => {
-        expect(onUpdateMock.mock.calls).toHaveLength(1);
-      });
-      expect(mappingTree.children).toEqual([fieldItem]);
-      expect(fieldItem.parent).toBe(mappingTree);
-    });
-
-    it('should wrap a simple mapping via "Add optional guard" when the resolved source is also optional', async () => {
-      const user = userEvent.setup();
-      vi.spyOn(MappingService, 'resolveSourceFields').mockReturnValue([
-        { field: { minOccurs: 0 } as never, document: {} as IDocument },
-      ]);
-      const targetField = targetDoc.fields[0].fields[1];
-      targetField.minOccurs = 0;
-      const fieldItem = new FieldItem(mappingTree, targetField);
-      const selector = new ValueOfSelector(fieldItem);
-      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      fieldItem.children.push(selector);
-      mappingTree.children.push(fieldItem);
-
-      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
-
-      const onUpdateMock = vi.fn();
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={onUpdateMock} />, { wrapper: dataMapperWrapper });
-      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-      await user.click(actionToggle);
-      const addGuardItem = await screen.findByTestId('transformation-actions-add-optional-guard');
+      expect(screen.queryByTestId('transformation-actions-remove-optional-guard')).not.toBeInTheDocument();
+      const addGuardItem = screen.getByTestId('transformation-actions-add-optional-guard');
       await user.click(addGuardItem.getElementsByTagName('button')[0]);
 
       await waitFor(() => {
         expect(onUpdateMock.mock.calls).toHaveLength(1);
       });
-      expect(fieldItem.parent).toBeInstanceOf(IfItem);
-      const wrappingIf = fieldItem.parent as IfItem;
-      expect(wrappingIf.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+      const guard = noteItem.parent as IfItem;
+      expect(guard).toBeInstanceOf(IfItem);
+      expect(guard.expression).toBe(BODY_NOTE);
+      expect(TargetRenderService.buildIndex(mappingTree, sourceContext).getAbsorbingField(guard)).toBe(noteItem);
     });
 
-    it('should show "Add optional guard" disabled (not hidden) when the resolved source is required', async () => {
-      const user = userEvent.setup();
-      vi.spyOn(MappingService, 'resolveSourceFields').mockReturnValue([
-        { field: { minOccurs: 1 } as never, document: {} as IDocument },
-      ]);
-      const targetField = targetDoc.fields[0].fields[1];
-      targetField.minOccurs = 0;
-      const fieldItem = new FieldItem(mappingTree, targetField);
-      const selector = new ValueOfSelector(fieldItem);
-      selector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      fieldItem.children.push(selector);
-      mappingTree.children.push(fieldItem);
+    it('should not offer "Add optional guard" when the source is required', async () => {
+      await openMenu(getNoteRow(mapNote(itemItem, BODY_TITLE)));
 
-      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
-
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
-      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-      await user.click(actionToggle);
-      const addGuardItem = await screen.findByTestId('transformation-actions-add-optional-guard');
-
-      // Still visible — the target is optional and not already guarded — but disabled
-      // because the resolved source turned out to be required.
-      expect(addGuardItem.getElementsByTagName('button')[0]).toBeDisabled();
+      expect(screen.queryByTestId('transformation-actions-add-optional-guard')).not.toBeInTheDocument();
     });
 
-    it('should show "Add optional guard" disabled (not hidden) for a container field with recursive children', async () => {
-      const user = userEvent.setup();
-      const targetField = targetDoc.fields[0].fields[1];
-      targetField.minOccurs = 0;
-      const fieldItem = new FieldItem(mappingTree, targetField);
-      // Recursive child mapping instead of a sole selector — there's no single expression
-      // to resolve a source from, so this can never be a "simple field reference."
-      fieldItem.children.push(new FieldItem(fieldItem, targetField));
-      mappingTree.children.push(fieldItem);
+    it('should not offer "Add optional guard" when the selector is not a simple path', async () => {
+      await openMenu(getNoteRow(mapNote(itemItem, `upper-case(${BODY_NOTE})`)));
 
-      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
-
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
-      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-      await user.click(actionToggle);
-      const addGuardItem = await screen.findByTestId('transformation-actions-add-optional-guard');
-
-      expect(addGuardItem.getElementsByTagName('button')[0]).toBeDisabled();
+      expect(screen.queryByTestId('transformation-actions-add-optional-guard')).not.toBeInTheDocument();
     });
 
-    it('should disable "Add optional guard" once the selector expression is no longer a simple path', async () => {
-      const user = userEvent.setup();
-      vi.spyOn(MappingService, 'resolveSourceFields').mockReturnValue([
-        { field: { minOccurs: 0 } as never, document: {} as IDocument },
-      ]);
-      const targetField = targetDoc.fields[0].fields[1];
-      targetField.minOccurs = 0;
-      const fieldItem = new FieldItem(mappingTree, targetField);
-      const selector = new ValueOfSelector(fieldItem);
-      selector.expression = "concat(/ns0:ShipOrder/ns0:OrderPerson, '!')";
-      fieldItem.children.push(selector);
-      mappingTree.children.push(fieldItem);
+    it('should not offer either optional guard action for a field under a visible if', async () => {
+      const ifItem = addIf(`${BODY_NOTE} != ''`);
+      const noteRow = getNoteRow(mapNote(ifItem, BODY_NOTE));
+      expect(noteRow.renderIndex.isAbsorbed(ifItem)).toBe(false);
 
-      const nodeData = new FieldItemNodeData(documentNodeData, fieldItem);
+      await openMenu(noteRow);
 
-      render(<MappingContextMenuAction nodeData={nodeData} onUpdate={vi.fn()} />, { wrapper: dataMapperWrapper });
-      const actionToggle = screen.getByTestId('transformation-actions-menu-toggle');
-      await user.click(actionToggle);
-      const addGuardItem = await screen.findByTestId('transformation-actions-add-optional-guard');
+      expect(screen.queryByTestId('transformation-actions-add-optional-guard')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('transformation-actions-remove-optional-guard')).not.toBeInTheDocument();
+    });
 
-      expect(addGuardItem.getElementsByTagName('button')[0]).toBeDisabled();
+    it('should not offer "Add optional guard" for an optional container mapped by child fields instead of a single selector', async () => {
+      const adtSourceDoc = createAdtDocument(DocumentType.SOURCE_BODY);
+      const adtTargetDoc = createAdtDocument(DocumentType.TARGET_BODY);
+      const adtTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const hl7Item = MappingService.createFieldItem(adtTree, findField(adtTargetDoc, 'HL7'));
+      const pidItem = MappingService.createFieldItem(hl7Item, findField(hl7Item.field, 'PID'));
+      MappingService.generateAutoChildMappings(
+        findField(findField(adtSourceDoc, 'HL7'), 'PID'),
+        pidItem.field,
+        pidItem,
+      );
+      expect(pidItem.field.minOccurs).toBe(0);
+      expect(pidItem.children.length).toBeGreaterThan(0);
+      expect(pidItem.soleSelector).toBeUndefined();
+      const renderIndex = TargetRenderService.buildIndex(adtTree, {
+        sourceParameterMap: new Map<string, IDocument>(),
+        sourceBody: adtSourceDoc,
+      });
+
+      await openMenu(getFieldRow(new TargetDocumentNodeData(adtTargetDoc, adtTree, renderIndex), pidItem));
+
+      expect(screen.queryByTestId('transformation-actions-add-optional-guard')).not.toBeInTheDocument();
+    });
+
+    it('should offer only "Remove optional guard" for a row whose guard is absorbed, and keep the guard comment on the field', async () => {
+      const guard = addIf(BODY_NOTE);
+      guard.comment = 'Only when the item has a note';
+      const noteItem = mapNote(guard, BODY_NOTE);
+      const noteRow = getNoteRow(noteItem);
+      expect(noteRow.autoOptionalIfItem).toBe(guard);
+      const onUpdateMock = vi.fn();
+      const user = await openMenu(noteRow, onUpdateMock);
+
+      expect(screen.queryByTestId('transformation-actions-add-optional-guard')).not.toBeInTheDocument();
+      const removeGuardItem = screen.getByTestId('transformation-actions-remove-optional-guard');
+      await user.click(removeGuardItem.getElementsByTagName('button')[0]);
+
+      await waitFor(() => {
+        expect(onUpdateMock.mock.calls).toHaveLength(1);
+      });
+      expect(itemItem.children).toEqual([noteItem]);
+      expect(noteItem.parent).toBe(itemItem);
+      expect(noteItem.comment).toBe('Only when the item has a note');
     });
   });
 });

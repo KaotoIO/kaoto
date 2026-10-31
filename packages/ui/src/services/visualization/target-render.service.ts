@@ -90,6 +90,18 @@ export class TargetRenderService {
   }
 
   /**
+   * Whether "Add optional guard" would give `nodeData`'s field a see-through guard: the target side
+   * ({@link WrapperAutoDetectionService.getHiddenGuardSelector}: not under an `if`, an optional
+   * target, a single simple selector) and an optional source, checked against the source documents
+   * of the node's snapshot. The menu shows the action only when this holds.
+   * @param nodeData - the field row the action would apply to
+   */
+  static canAddOptionalGuard(nodeData: FieldItemNodeData): boolean {
+    const selector = WrapperAutoDetectionService.getHiddenGuardSelector(nodeData.mapping);
+    return !!selector && TargetRenderService.isOptionalSourceSelector(selector, nodeData.renderIndex.sourceContext);
+  }
+
+  /**
    * Makes the render decisions for one structural snapshot: every see-through guard with the field
    * it is absorbed into, and the target path the lines of every other item end on. Values are
    * resolved now, because the items are shared with the live tree and mutated in place while the

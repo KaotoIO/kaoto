@@ -413,6 +413,18 @@ describe('MappingActionService — instruction wrapping', () => {
         expect(forEachNode.title).toBe('for-each');
         expect((forEachNode.mapping as ForEachItem).expression).toBe('current-group()');
       });
+
+      it('should map an unmapped field before wrapping it with for-each current-group()', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+
+        MappingActionService.applyForEachCurrentGroup(shipOrderChildren[3] as TargetFieldNodeData);
+
+        const forEachItem = (tree.children[0] as FieldItem).children[0] as ForEachItem;
+        expect(forEachItem).toBeInstanceOf(ForEachItem);
+        expect(forEachItem.expression).toBe('current-group()');
+        expect((forEachItem.children[0] as FieldItem).field.name).toBe('Item');
+      });
     });
 
     describe('applyInnerForEach()', () => {

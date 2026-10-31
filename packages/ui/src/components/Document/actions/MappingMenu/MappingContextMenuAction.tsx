@@ -10,7 +10,6 @@ import {
 } from '@patternfly/react-core';
 import { Fragment, FunctionComponent, MouseEvent, useCallback, useMemo, useRef } from 'react';
 
-import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { MappingItem } from '../../../../models/datamapper/mapping';
 import {
   IMappingActionCallbacks,
@@ -29,24 +28,82 @@ type MappingContextMenuProps = {
   onUpdate: () => void;
 };
 
+type MappingContextMenuItemsProps = {
+  nodeData: TargetNodeData;
+  onSelect: (item: IMappingContextMenuAction, event?: MouseEvent) => void;
+};
+
+/**
+ * The menu's entries. The popper mounts them only while the menu is shown, including its close
+ * transition, so the registry's checks — among them the source lookup of "Add optional guard" — run
+ * once per opening instead of on every render of every row, and a closing menu keeps its entries.
+ * Selection is handled here too, since the entries exist only while this component is mounted.
+ */
+const MappingContextMenuItems: FunctionComponent<MappingContextMenuItemsProps> = ({ nodeData, onSelect }) => {
+  const { ungrouped, groups } = useMemo(() => {
+    const ungroupedItems: IMappingContextMenuAction[] = [];
+    const groupMap = new Map<MappingActionGroup, IMappingContextMenuAction[]>();
+    for (const item of MappingActionRegistryService.getMappingContextMenuItems(nodeData)) {
+      if (item.group) {
+        const existing = groupMap.get(item.group);
+        if (existing) {
+          existing.push(item);
+        } else {
+          groupMap.set(item.group, [item]);
+        }
+      } else {
+        ungroupedItems.push(item);
+      }
+    }
+    return { ungrouped: ungroupedItems, groups: groupMap };
+  }, [nodeData]);
+
+  const renderItem = (item: IMappingContextMenuAction) => (
+    <MenuItem
+      key={item.key}
+      itemId={item.key}
+      isDisabled={item.isDisabled?.(nodeData)}
+      data-testid={item.testId}
+      onClick={(event?: MouseEvent) => {
+        onSelect(item, event);
+      }}
+    >
+      {item.getLabel(nodeData)}
+    </MenuItem>
+  );
+
+  return (
+    <MenuList>
+      {ungrouped.map(renderItem)}
+
+      {[...groups.entries()].map(([group, groupItems]) => (
+        <MenuItem
+          key={group}
+          data-testid={`transformation-actions-group-${group}`}
+          flyoutMenu={
+            <Menu>
+              <MenuContent>
+                <MenuList>{groupItems.map(renderItem)}</MenuList>
+              </MenuContent>
+            </Menu>
+          }
+        >
+          {group}
+        </MenuItem>
+      ))}
+    </MenuList>
+  );
+};
+
 export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps> = ({
   dropdownLabel,
   nodeData,
   onUpdate,
 }) => {
-  const { sourceParameterMap, sourceBodyDocument } = useDataMapper();
   const isActionMenuOpen = useDocumentTreeStore((state) => state.openMappingMenuId === nodeData.id);
   const setOpenMappingMenuId = useDocumentTreeStore((state) => state.setOpenMappingMenuId);
   const menuRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
-  const sourceContext = useMemo(
-    () => ({ sourceParameterMap, sourceBody: sourceBodyDocument }),
-    [sourceParameterMap, sourceBodyDocument],
-  );
-  const menuItems = useMemo(
-    () => MappingActionRegistryService.getMappingContextMenuItems(nodeData, sourceContext),
-    [nodeData, sourceContext],
-  );
 
   const mappingItem = nodeData.mapping instanceof MappingItem ? nodeData.mapping : undefined;
 
@@ -62,29 +119,14 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
     [onUpdate, modalActions],
   );
 
-  const ungrouped: IMappingContextMenuAction[] = [];
-  const groups = new Map<MappingActionGroup, IMappingContextMenuAction[]>();
-  for (const item of menuItems) {
-    if (item.group) {
-      const existing = groups.get(item.group);
-      if (existing) {
-        existing.push(item);
-      } else {
-        groups.set(item.group, [item]);
-      }
-    } else {
-      ungrouped.push(item);
-    }
-  }
-
-  const onSelectAction = (event: MouseEvent | undefined, itemId: string | number | undefined) => {
-    event?.stopPropagation();
-    const item = menuItems.find((mi) => mi.key === itemId);
-    if (item) {
+  const onSelectItem = useCallback(
+    (item: IMappingContextMenuAction, event?: MouseEvent) => {
+      event?.stopPropagation();
       item.apply(nodeData, callbacks);
       setOpenMappingMenuId(null);
-    }
-  };
+    },
+    [nodeData, callbacks, setOpenMappingMenuId],
+  );
 
   const onToggleClick = useCallback(
     (event: MouseEvent) => {
@@ -103,47 +145,9 @@ export const MappingContextMenuAction: FunctionComponent<MappingContextMenuProps
             setOpenMappingMenuId(isOpen ? nodeData.id : null);
           }}
           menu={
-            <Menu ref={menuRef} containsFlyout onSelect={onSelectAction}>
+            <Menu ref={menuRef} containsFlyout>
               <MenuContent>
-                <MenuList>
-                  {ungrouped.map((item) => (
-                    <MenuItem
-                      key={item.key}
-                      itemId={item.key}
-                      isDisabled={isActionMenuOpen && item.isDisabled?.(nodeData, sourceContext)}
-                      data-testid={item.testId}
-                    >
-                      {item.getLabel(nodeData)}
-                    </MenuItem>
-                  ))}
-
-                  {[...groups.entries()].map(([group, groupItems]) => (
-                    <MenuItem
-                      key={group}
-                      data-testid={`transformation-actions-group-${group}`}
-                      flyoutMenu={
-                        <Menu onSelect={onSelectAction}>
-                          <MenuContent>
-                            <MenuList>
-                              {groupItems.map((item) => (
-                                <MenuItem
-                                  key={item.key}
-                                  itemId={item.key}
-                                  isDisabled={isActionMenuOpen && item.isDisabled?.(nodeData, sourceContext)}
-                                  data-testid={item.testId}
-                                >
-                                  {item.getLabel(nodeData)}
-                                </MenuItem>
-                              ))}
-                            </MenuList>
-                          </MenuContent>
-                        </Menu>
-                      }
-                    >
-                      {group}
-                    </MenuItem>
-                  ))}
-                </MenuList>
+                <MappingContextMenuItems nodeData={nodeData} onSelect={onSelectItem} />
               </MenuContent>
             </Menu>
           }

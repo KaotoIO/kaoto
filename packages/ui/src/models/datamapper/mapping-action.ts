@@ -1,4 +1,4 @@
-import type { ISourceDocumentContext, TargetNodeData } from './visualization';
+import type { TargetNodeData } from './visualization';
 
 /**
  * Enumeration of actions that can be performed on a target mapping node.
@@ -80,8 +80,8 @@ export type XPathCommitResult = 'none' | 'update' | 'structural-update';
  */
 export interface IMappingAction {
   key: MappingActionKind;
-  isAllowed: (nodeData: TargetNodeData, sourceContext?: ISourceDocumentContext) => boolean;
-  isDisabled?: (nodeData: TargetNodeData, sourceContext?: ISourceDocumentContext) => boolean;
+  isAllowed: (nodeData: TargetNodeData) => boolean;
+  isDisabled?: (nodeData: TargetNodeData) => boolean;
 }
 
 /**

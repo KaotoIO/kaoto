@@ -2209,6 +2209,164 @@ describe('MappingActionService', () => {
         expect(itemFieldItem.children).toEqual([ifItem]);
       });
     });
+
+    describe('"Remove optional guard" action', () => {
+      it('should move the guard comment onto the field, ahead of the field comment', () => {
+        const { ifItem, noteFieldItem } = addNote('Note', 'Note');
+        ifItem.comment = 'Guard comment';
+        noteFieldItem.comment = 'Field comment';
+        const noteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+        const removeGuardAction = MappingActionRegistryService.getMappingContextMenuItems(noteNode).find(
+          (item) => item.key === MappingActionKind.RemoveOptionalGuard,
+        );
+        const onUpdate = vi.fn();
+        expect(removeGuardAction).toBeDefined();
+
+        removeGuardAction?.apply(noteNode, { onUpdate, openModal: vi.fn() });
+
+        expect(onUpdate).toHaveBeenCalledTimes(1);
+        expect(itemFieldItem.children).toEqual([noteFieldItem]);
+        expect(noteFieldItem.parent).toBe(itemFieldItem);
+        expect(noteFieldItem.comment).toBe('Guard comment\nField comment');
+      });
+    });
+
+    describe('applyIf()', () => {
+      it('should turn the guard of a guarded field row into a visible if that tests exists() of its source', () => {
+        const { ifItem, noteFieldItem } = addNote('Note', 'Note');
+        const noteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+        expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+
+        MappingActionService.applyIf(noteNode);
+
+        expect(itemFieldItem.children).toEqual([ifItem]);
+        expect(ifItem.children).toEqual([noteFieldItem]);
+        expect(ifItem.expression).toBe('exists(Note)');
+        const renderIndex = buildRenderIndex();
+        expect(renderIndex.isAbsorbed(ifItem)).toBe(false);
+        expect(renderNoteNodeUnderIf(renderIndex).autoOptionalIfItem).toBeUndefined();
+      });
+
+      it('should hide the revealed guard again when its test is committed back to the plain path', () => {
+        const { ifItem } = addNote('Note', 'Note');
+        MappingActionService.applyIf(findNoteNode(renderItemChildren(buildRenderIndex())));
+        const ifNode = findIfNode(renderItemChildren(buildRenderIndex()));
+        expect(ifNode.mapping).toBe(ifItem);
+
+        MappingService.updateExpression(ifItem, 'Note');
+
+        expect(MappingActionService.commitExpression(ifNode, ifItem)).toBe('structural-update');
+        expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(true);
+      });
+    });
+
+    describe('applyChooseWhenOtherwise()', () => {
+      it('should still wrap the field of a row whose guard no longer wraps only it', () => {
+        const { ifItem, noteFieldItem } = addNote('Note', 'Note');
+        const noteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+        ifItem.children.push(new FieldItem(ifItem, childField(itemFieldItem.field, 'Title')));
+
+        MappingActionService.applyChooseWhenOtherwise(noteNode);
+
+        const chooseItem = ifItem.children[0] as ChooseItem;
+        expect(chooseItem).toBeInstanceOf(ChooseItem);
+        expect(chooseItem.when[0].expression).toBe('Note');
+        expect(chooseItem.when[0].children).toEqual([noteFieldItem]);
+      });
+
+      it.each([
+        ['with a comment of its own', 'Field comment', 'Guard comment\nField comment'],
+        ['without a comment of its own', undefined, 'Guard comment'],
+      ])(
+        'should turn the guard of a guarded field row %s into the test of the first when',
+        (_label, fieldComment, whenFieldComment) => {
+          const { ifItem, noteFieldItem } = addNote('Note', 'Note');
+          ifItem.comment = 'Guard comment';
+          noteFieldItem.comment = fieldComment;
+          const noteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+          expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+
+          MappingActionService.applyChooseWhenOtherwise(noteNode);
+
+          const chooseItem = itemFieldItem.children[0] as ChooseItem;
+          expect(itemFieldItem.children).toHaveLength(1);
+          expect(chooseItem).toBeInstanceOf(ChooseItem);
+          expect(chooseItem.field).toBe(noteFieldItem.field);
+          expect(chooseItem.when).toHaveLength(1);
+          expect(chooseItem.when[0].expression).toBe('Note');
+          expect(chooseItem.when[0].children).toEqual([noteFieldItem]);
+          expect(noteFieldItem.comment).toBe(whenFieldComment);
+          const otherwiseNoteFieldItem = chooseItem.otherwise?.children[0] as FieldItem;
+          expect(otherwiseNoteFieldItem).toBeInstanceOf(FieldItem);
+          expect(otherwiseNoteFieldItem).not.toBe(noteFieldItem);
+          expect(otherwiseNoteFieldItem.field).toBe(noteFieldItem.field);
+          expect(otherwiseNoteFieldItem.comment).toBe(fieldComment);
+          expect(chooseItem.otherwise?.children).toEqual([otherwiseNoteFieldItem]);
+        },
+      );
+    });
+
+    describe('for-each wraps', () => {
+      function addGuardedNk1Loop(hl7Item: FieldItem) {
+        const ifItem = new IfItem(hl7Item);
+        ifItem.expression = '/HL7/NK1Loop';
+        hl7Item.children.push(ifItem);
+        const loopFieldItem = new FieldItem(ifItem, childField(hl7Item.field, 'NK1Loop'));
+        ifItem.children.push(loopFieldItem);
+        const copyOf = new CopyOfSelector(loopFieldItem);
+        copyOf.expression = '/HL7/NK1Loop';
+        loopFieldItem.children.push(copyOf);
+        return { ifItem, loopFieldItem };
+      }
+
+      it.each<[string, (nodeData: FieldItemNodeData) => void, typeof ForEachItem | typeof ForEachGroupItem, string]>([
+        [
+          'applyForEach',
+          (nodeData) => {
+            MappingActionService.applyForEach(nodeData);
+          },
+          ForEachItem,
+          '',
+        ],
+        [
+          'applyForEachGroup',
+          (nodeData) => {
+            MappingActionService.applyForEachGroup(nodeData);
+          },
+          ForEachGroupItem,
+          '',
+        ],
+        [
+          'applyForEachCurrentGroup',
+          (nodeData) => {
+            MappingActionService.applyForEachCurrentGroup(nodeData);
+          },
+          ForEachItem,
+          'current-group()',
+        ],
+      ])(
+        'should remove the guard of a guarded field row and keep its comment on the field when %s wraps it',
+        (_label, applyLoop, loopType, loopExpression) => {
+          const adt = setUpAdtIn();
+          const { ifItem, loopFieldItem } = addGuardedNk1Loop(adt.hl7Item);
+          ifItem.comment = 'Only when the message has next of kin';
+          const loopNode = adt
+            .renderHl7Children()
+            .find((node) => node instanceof FieldItemNodeData && node.mapping === loopFieldItem) as FieldItemNodeData;
+          expect(loopNode.autoOptionalIfItem).toBe(ifItem);
+
+          applyLoop(loopNode);
+
+          const loopItem = adt.hl7Item.children[0] as ForEachItem | ForEachGroupItem;
+          expect(adt.hl7Item.children).toHaveLength(1);
+          expect(loopItem).toBeInstanceOf(loopType);
+          expect(loopItem.expression).toBe(loopExpression);
+          expect(loopItem.children).toEqual([loopFieldItem]);
+          expect(loopFieldItem.parent).toBe(loopItem);
+          expect(loopFieldItem.comment).toBe('Only when the message has next of kin');
+        },
+      );
+    });
   });
 
   describe('ACTION_REGISTRY apply smoke tests', () => {

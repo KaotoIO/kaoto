@@ -25,6 +25,7 @@ import {
   FieldItemNodeData,
   ISourceDocumentContext,
   MappingNodeData,
+  NodeData,
   TargetDocumentNodeData,
   TargetRenderIndex,
 } from '../../models/datamapper/visualization';
@@ -39,6 +40,7 @@ import { JsonSchemaField } from '../document/json-schema/json-schema-document.mo
 import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { TargetRenderService } from './target-render.service';
+import { VisualizationService } from './visualization.service';
 
 const SHIP_ORDER_NS = 'io.kaoto.datamapper.poc.test';
 const CART_NS = 'kaoto.datamapper.test';
@@ -88,6 +90,17 @@ const collectIfItems = (item: MappingTree | MappingItem): IfItem[] => {
 };
 
 const targetPath = (...items: MappingItem[]): string => `targetBody:Body://${items.map((item) => item.id).join('/')}`;
+
+const findFieldRow = (nodes: NodeData[], fieldItem: FieldItem): FieldItemNodeData | undefined => {
+  for (const node of nodes) {
+    if (node instanceof FieldItemNodeData && node.mapping === fieldItem) return node;
+    if (node instanceof MappingNodeData) {
+      const row = findFieldRow(VisualizationService.generateNonDocumentNodeDataChildren(node), fieldItem);
+      if (row) return row;
+    }
+  }
+  return undefined;
+};
 
 const createJsonFixture = (accountSchema: string) => {
   const targetDoc = TestUtil.createJSONTargetOrderDoc();
@@ -281,6 +294,55 @@ describe('TargetRenderService', () => {
       const { selector } = mapField(itemItem, noteField, BODY_NOTE);
 
       expect(TargetRenderService.isOptionalSourceSelector(selector, undefined)).toBe(false);
+    });
+  });
+
+  describe('canAddOptionalGuard()', () => {
+    const getFieldRow = (fieldItem: FieldItem, renderIndex: TargetRenderIndex = buildIndex()): FieldItemNodeData => {
+      const documentNode = new TargetDocumentNodeData(targetDoc, mappingTree, renderIndex);
+      const row = findFieldRow(VisualizationService.generateStructuredDocumentChildren(documentNode), fieldItem);
+      if (!row) throw new Error(`No row renders '${fieldItem.field.name}'`);
+      return row;
+    };
+
+    it('should accept an optional field mapped by a simple path to an optional source', () => {
+      const { fieldItem } = mapField(itemItem, noteField, BODY_NOTE);
+
+      expect(TargetRenderService.canAddOptionalGuard(getFieldRow(fieldItem))).toBe(true);
+    });
+
+    it('should reject a field whose source is required', () => {
+      const { fieldItem } = mapField(itemItem, noteField, BODY_TITLE);
+
+      expect(TargetRenderService.canAddOptionalGuard(getFieldRow(fieldItem))).toBe(false);
+    });
+
+    it('should reject a field whose selector is not a simple path', () => {
+      const { fieldItem } = mapField(itemItem, noteField, `upper-case(${BODY_NOTE})`);
+
+      expect(TargetRenderService.canAddOptionalGuard(getFieldRow(fieldItem))).toBe(false);
+    });
+
+    it('should reject a field under a visible if', () => {
+      const { guard, fieldItem } = addGuard(itemItem, noteField, `${BODY_NOTE} != ''`, BODY_NOTE);
+      const renderIndex = buildIndex();
+      expect(renderIndex.isAbsorbed(guard)).toBe(false);
+
+      expect(TargetRenderService.canAddOptionalGuard(getFieldRow(fieldItem, renderIndex))).toBe(false);
+    });
+
+    it('should reject a field whose target is required', () => {
+      const { fieldItem } = mapField(itemItem, findField(itemItem.field, 'Title'), BODY_NOTE);
+
+      expect(TargetRenderService.canAddOptionalGuard(getFieldRow(fieldItem))).toBe(false);
+    });
+
+    it('should reject a field whose row was built without source documents', () => {
+      const { fieldItem } = mapField(itemItem, noteField, BODY_NOTE);
+      const row = getFieldRow(fieldItem, TargetRenderIndex.EMPTY);
+      expect(row.renderIndex.sourceContext).toBeUndefined();
+
+      expect(TargetRenderService.canAddOptionalGuard(row)).toBe(false);
     });
   });
 

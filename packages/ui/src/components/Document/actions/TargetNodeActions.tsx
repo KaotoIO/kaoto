@@ -3,7 +3,6 @@ import './TargetNodeActions.scss';
 import { ActionListGroup } from '@patternfly/react-core';
 import { FunctionComponent, useCallback } from 'react';
 
-import { useDataMapper } from '../../../hooks/useDataMapper';
 import { MappingActionKind } from '../../../models/datamapper/mapping-action';
 import { TargetNodeData } from '../../../models/datamapper/visualization';
 import { MappingActionService } from '../../../services/visualization/mapping-action.service';
@@ -27,14 +26,9 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({
   onUpdate,
   onStructuralUpdate,
 }) => {
-  const { sourceParameterMap, sourceBodyDocument } = useDataMapper();
   const expressionItem = VisualizationService.getExpressionItemForNode(nodeData);
-  const allowedActions = new Set(
-    MappingActionRegistryService.getAllowedActions(nodeData, {
-      sourceParameterMap,
-      sourceBody: sourceBodyDocument,
-    }),
-  );
+  const isContextMenuAllowed = MappingActionRegistryService.isActionAllowed(nodeData, MappingActionKind.ContextMenu);
+  const isDeleteAllowed = MappingActionRegistryService.isActionAllowed(nodeData, MappingActionKind.Delete);
 
   /**
    * Runs once the user finishes editing the XPath (input blur or editor modal close) rather than
@@ -66,12 +60,8 @@ export const TargetNodeActions: FunctionComponent<TargetNodeActionsProps> = ({
           />
         </>
       )}
-      {allowedActions.has(MappingActionKind.ContextMenu) && (
-        <MappingContextMenuAction nodeData={nodeData} onUpdate={onStructuralUpdate} />
-      )}
-      {allowedActions.has(MappingActionKind.Delete) && (
-        <DeleteMappingItemAction nodeData={nodeData} onDelete={onStructuralUpdate} />
-      )}
+      {isContextMenuAllowed && <MappingContextMenuAction nodeData={nodeData} onUpdate={onStructuralUpdate} />}
+      {isDeleteAllowed && <DeleteMappingItemAction nodeData={nodeData} onDelete={onStructuralUpdate} />}
     </ActionListGroup>
   );
 };

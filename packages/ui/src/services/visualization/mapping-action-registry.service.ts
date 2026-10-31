@@ -23,7 +23,6 @@ import {
   AddMappingNodeData,
   FieldItemNodeData,
   ForEachCapableNodeData,
-  ISourceDocumentContext,
   MappingNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
@@ -33,7 +32,6 @@ import {
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
 import { MappingService } from '../mapping/mapping.service';
-import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
 import { FieldCandidateService } from './field-candidate.service';
 import { MappingActionService } from './mapping-action.service';
 import { TargetRenderService } from './target-render.service';
@@ -487,9 +485,7 @@ export class MappingActionRegistryService {
       testId: 'transformation-actions-remove-optional-guard',
       getLabel: () => 'Remove optional guard',
       apply: (n, { onUpdate }) => {
-        if (n instanceof FieldItemNodeData && n.autoOptionalIfItem) {
-          MappingService.unwrapItem(n.autoOptionalIfItem);
-        }
+        if (n instanceof FieldItemNodeData) MappingActionService.removeOptionalGuard(n);
         onUpdate();
       },
       isAllowed: (n) => n instanceof FieldItemNodeData && !!n.autoOptionalIfItem,
@@ -502,23 +498,8 @@ export class MappingActionRegistryService {
         if (n instanceof FieldItemNodeData) MappingActionService.addOptionalGuard(n);
         onUpdate();
       },
-      // Visible whenever the target is optional and not already guarded — independent of
-      // whether the mapping's current shape/source can actually support a guard yet, so a
-      // recursive container (no sole selector to resolve) or an unconfirmed source shows up
-      // disabled instead of silently vanishing from the menu.
-      isAllowed: (n) => {
-        if (!(n instanceof FieldItemNodeData) || n.autoOptionalIfItem) return false;
-        if (n.mapping.parent instanceof IfItem) return false;
-        return n.field.minOccurs === 0;
-      },
-      // Disabled unless the field has a single, simple (bare field reference) selector whose
-      // source can be resolved and confirmed optional too.
-      isDisabled: (n, sourceContext) => {
-        if (!(n instanceof FieldItemNodeData)) return true;
-        const selector = WrapperAutoDetectionService.getHiddenGuardSelector(n.mapping);
-        if (!selector || !sourceContext) return true;
-        return !TargetRenderService.isOptionalSourceSelector(selector, sourceContext);
-      },
+      isAllowed: (n) =>
+        n instanceof FieldItemNodeData && !n.autoOptionalIfItem && TargetRenderService.canAddOptionalGuard(n),
     },
   ];
 
@@ -530,10 +511,21 @@ export class MappingActionRegistryService {
    * @param nodeData - The target node whose capabilities are evaluated.
    * @returns An array of allowed action identifiers for this node.
    */
-  static getAllowedActions(nodeData: TargetNodeData, sourceContext?: ISourceDocumentContext): MappingActionKind[] {
-    return MappingActionRegistryService.ACTION_REGISTRY.filter((def) => def.isAllowed(nodeData, sourceContext)).map(
-      (def) => def.key,
-    );
+  static getAllowedActions(nodeData: TargetNodeData): MappingActionKind[] {
+    return MappingActionRegistryService.ACTION_REGISTRY.filter((def) => def.isAllowed(nodeData)).map((def) => def.key);
+  }
+
+  /**
+   * Whether the single action `kind` is permitted for `nodeData`. Cheaper than
+   * {@link getAllowedActions} for a caller that needs only a few kinds on every render, because it
+   * doesn't evaluate the other actions' checks, such as the source lookup of "Add optional guard".
+   *
+   * @param nodeData - The target node whose capability is evaluated.
+   * @param kind - The action to check.
+   * @returns `true` if the action is permitted for this node.
+   */
+  static isActionAllowed(nodeData: TargetNodeData, kind: MappingActionKind): boolean {
+    return MappingActionRegistryService.ACTION_REGISTRY.some((def) => def.key === kind && def.isAllowed(nodeData));
   }
 
   /**
@@ -543,13 +535,10 @@ export class MappingActionRegistryService {
    * @param nodeData - The target node whose menu items are evaluated.
    * @returns An array of allowed context menu action definitions.
    */
-  static getMappingContextMenuItems(
-    nodeData: TargetNodeData,
-    sourceContext?: ISourceDocumentContext,
-  ): IMappingContextMenuAction[] {
+  static getMappingContextMenuItems(nodeData: TargetNodeData): IMappingContextMenuAction[] {
     return MappingActionRegistryService.ACTION_REGISTRY.filter(
       (def): def is IMappingContextMenuAction =>
-        MappingActionRegistryService.isContextMenuAction(def) && def.isAllowed(nodeData, sourceContext),
+        MappingActionRegistryService.isContextMenuAction(def) && def.isAllowed(nodeData),
     );
   }
 }
