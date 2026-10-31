@@ -1,10 +1,12 @@
 import './RestDslEditorPage.scss';
 
-import { CodeSnippet } from '@carbon/react';
+import { Add } from '@carbon/icons-react';
+import { CodeSnippet, MenuButton, MenuItem } from '@carbon/react';
 import { Rest } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider, FilteredFieldProvider, getCamelRandomId, KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { EditorEmptyState, useKeyedModal } from '../../components/EditorShell';
 import { Loading } from '../../components/Loading';
 import { ResizableSplitPanels } from '../../components/ResizableSplitPanels/ResizableSplitPanels';
 import { SuggestionRegistrar } from '../../components/Visualization/Canvas/Form/suggestions/SuggestionsProvider';
@@ -20,6 +22,7 @@ import { RestDslFormHeader } from './components/RestDslFormHeader';
 import { restFormFieldFactory } from './components/restFormFieldFactory';
 import { IRestTreeSelection, RestTree } from './components/RestTree';
 import { RestTreeToolbar } from './components/RestTreeToolbar';
+import { restToTree } from './rest-to-tree';
 
 const DEFAULT_TREE_PANEL_WIDTH_PERCENT = 30;
 const DEFAULT_REST_METHOD_URI = 'direct';
@@ -81,20 +84,9 @@ export const RestDslEditorPage: FunctionComponent = () => {
 
   const [treeVersion, setTreeVersion] = useState(0);
 
-  const [isAddMethodModalOpen, setIsAddMethodModalOpen] = useState(false);
-  const [addMethodModalKey, setAddMethodModalKey] = useState(0);
+  /** Add Operation modal: remounts with an empty form on every open */
+  const addMethodModal = useKeyedModal();
   const launcherButtonRef = useRef<HTMLButtonElement>(null);
-
-  /** Opens the Add Operation modal, resetting its form each time */
-  const openAddMethodModal = useCallback(() => {
-    setAddMethodModalKey((key) => key + 1);
-    setIsAddMethodModalOpen(true);
-  }, []);
-
-  /** Closes the Add Operation modal */
-  const closeAddMethodModal = useCallback(() => {
-    setIsAddMethodModalOpen(false);
-  }, []);
 
   /** Handles changes to individual properties in the form editor */
   const handleOnChangeIndividualProp = useCallback(
@@ -170,6 +162,18 @@ export const RestDslEditorPage: FunctionComponent = () => {
     [selectedEntity, updateEntitiesFromCamelResource],
   );
 
+  /** Selects the first node of the tree, the same one the tree shows at the top */
+  const handleSelectFirst = useCallback(() => {
+    const [firstNode] = restToTree(restRelatedEntities);
+    if (!firstNode) return;
+
+    setSelectedElement({
+      entityId: firstNode.entityId,
+      modelPath: firstNode.modelPath,
+      ids: { primaryNodeId: firstNode.primaryNodeId },
+    });
+  }, [restRelatedEntities]);
+
   /** Deletes the selected REST entity or method */
   const handleDelete = useCallback(() => {
     if (!selectedEntity || !selectedElement) return;
@@ -204,14 +208,37 @@ export const RestDslEditorPage: FunctionComponent = () => {
               launcherButtonRef={launcherButtonRef}
               onAddRestConfiguration={handleAddRestConfiguration}
               onAddRest={handleAddRest}
-              onAddMethodClick={openAddMethodModal}
+              onAddMethodClick={addMethodModal.open}
               onDelete={handleDelete}
             />
           </RestTree>
         }
         rightPanel={
           <div className="rest-right-panel">
-            {!entityId && <div>Select an entity from the list to edit its configuration</div>}
+            {!entityId && (
+              <EditorEmptyState
+                hasItems={restRelatedEntities.length > 0}
+                singular="entity"
+                plural="entities"
+                onSelectFirst={handleSelectFirst}
+                data-testid="rest-editor-empty-state"
+              >
+                <MenuButton kind="tertiary" label="Add" data-testid="rest-empty-state-add-menu">
+                  <MenuItem
+                    label="Add Configuration"
+                    renderIcon={Add}
+                    onClick={handleAddRestConfiguration}
+                    data-testid="rest-empty-state-add-configuration-btn"
+                  />
+                  <MenuItem
+                    label="Add Service"
+                    renderIcon={Add}
+                    onClick={handleAddRest}
+                    data-testid="rest-empty-state-add-service-btn"
+                  />
+                </MenuButton>
+              </EditorEmptyState>
+            )}
             {selectedElement && (
               <>
                 <div className="form-rest-title">
@@ -253,18 +280,18 @@ export const RestDslEditorPage: FunctionComponent = () => {
       />
 
       {/*
-       * Render the modal only after it has first been opened (addMethodModalKey > 0).
+       * Render the modal only after it has first been opened (addMethodModal.shouldRender).
        * ComposedModal restores focus to launcherButtonRef whenever it is mounted while
        * closed, so mounting it eagerly would steal focus to the Actions trigger on page
        * load. Once mounted it stays mounted (page sibling, not under the keyed RestTree),
        * so Carbon restores focus natively on Cancel, Escape and Add.
        */}
-      {addMethodModalKey > 0 && (
+      {addMethodModal.shouldRender && (
         <AddMethodModal
-          key={addMethodModalKey}
-          open={isAddMethodModalOpen}
+          key={addMethodModal.modalKey}
+          open={addMethodModal.isOpen}
           launcherButtonRef={launcherButtonRef}
-          onClose={closeAddMethodModal}
+          onClose={addMethodModal.close}
           onAddMethod={handleAddMethod}
         />
       )}

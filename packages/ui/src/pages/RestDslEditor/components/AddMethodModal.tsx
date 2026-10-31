@@ -1,7 +1,7 @@
-import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { CanvasFormTabsProvider, isDefined, KaotoForm, KaotoFormApi } from '@kaoto/forms';
 import { FunctionComponent, RefObject, useCallback, useRef, useState } from 'react';
 
+import { EditorModal } from '../../../components/EditorShell';
 import { customFieldsFactoryfactory } from '../../../components/Visualization/Canvas/Form/fields/custom-fields-factory';
 import { ADD_METHOD_SCHEMA, AddMethodFormModel } from './add-method-schema';
 
@@ -45,35 +45,23 @@ export const AddMethodModal: FunctionComponent<AddMethodModalProps> = ({
   };
 
   return (
-    <ComposedModal
+    <EditorModal
       open={open}
+      title="Add REST Method"
+      testId="add-method-modal"
       launcherButtonRef={launcherButtonRef}
-      size="sm"
       onClose={onClose}
-      data-testid="add-method-modal"
+      onSubmit={handleAdd}
     >
-      <ModalHeader title="Add REST Method" />
-
-      <ModalBody>
-        <CanvasFormTabsProvider tab="All">
-          <KaotoForm
-            schema={ADD_METHOD_SCHEMA}
-            model={formModel}
-            onChangeProp={onChangeProp}
-            ref={formRef}
-            customFieldsFactory={customFieldsFactoryfactory}
-          />
-        </CanvasFormTabsProvider>
-      </ModalBody>
-
-      <ModalFooter>
-        <Button kind="secondary" onClick={onClose} data-testid="add-method-modal-cancel-btn">
-          Cancel
-        </Button>
-        <Button kind="primary" onClick={handleAdd} data-testid="add-method-modal-add-btn">
-          Add
-        </Button>
-      </ModalFooter>
-    </ComposedModal>
+      <CanvasFormTabsProvider tab="All">
+        <KaotoForm
+          schema={ADD_METHOD_SCHEMA}
+          model={formModel}
+          onChangeProp={onChangeProp}
+          ref={formRef}
+          customFieldsFactory={customFieldsFactoryfactory}
+        />
+      </CanvasFormTabsProvider>
+    </EditorModal>
   );
 };

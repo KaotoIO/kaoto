@@ -82,6 +82,8 @@ describe('Test for node bean reference and configuration support', () => {
 
     cy.openBeans();
     // Remove the bean
+    cy.get('[data-testid="metadata-row-1"]').click();
+    cy.contains('button', 'Actions').click();
     cy.get('[data-testid="metadata-delete-1-btn"]').click();
     cy.get('[data-testid="metadata-row-1"]').should('not.exist');
     cy.openDesignPage();

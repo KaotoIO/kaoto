@@ -305,7 +305,7 @@ describe('RestDslEditorPage', () => {
       expect(screen.getByText('/orders')).toBeTruthy();
 
       await waitFor(() => {
-        expect(screen.getByText('Select an entity from the list to edit its configuration')).toBeTruthy();
+        expect(screen.getByText('Select an entity to show its properties')).toBeTruthy();
       });
     });
 
@@ -335,7 +335,48 @@ describe('RestDslEditorPage', () => {
 
       expect(screen.getByText('/orders')).toBeTruthy();
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
-      expect(screen.getByText('Select an entity from the list to edit its configuration')).toBeTruthy();
+      expect(screen.getByText('Select an entity to show its properties')).toBeTruthy();
+    });
+  });
+
+  describe('Empty state', () => {
+    it('should invite to create entities, and add a service from the empty state menu', async () => {
+      await renderPage('');
+
+      expect(screen.getByText('There are no entities defined')).toBeTruthy();
+      expect(screen.getByText('Start creating some entities here')).toBeTruthy();
+
+      fireEvent.click(within(screen.getByTestId('rest-empty-state-add-menu')).getByRole('button', { name: 'Add' }));
+      fireEvent.click(await screen.findByTestId('rest-empty-state-add-service-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Edit/)).toBeTruthy();
+      });
+    });
+
+    it('should ask to select an entity when there are entities but none is selected', async () => {
+      await renderPage(`
+- rest:
+    id: rest-1
+      `);
+
+      expect(screen.getByText('There are no entities selected')).toBeTruthy();
+      expect(screen.getByText('Select an entity to show its properties')).toBeTruthy();
+      expect(screen.queryByTestId('rest-empty-state-add-menu')).toBeNull();
+    });
+
+    it('should show the form of the first entity from the empty state button', async () => {
+      await renderPage(`
+- rest:
+    id: rest-1
+      `);
+
+      fireEvent.click(screen.getByTestId('rest-editor-empty-state-select-first-btn'));
+
+      await waitFor(() => {
+        expect(screen.getByText(/Edit/)).toBeTruthy();
+      });
+      expect(screen.queryByTestId('rest-editor-empty-state')).toBeNull();
     });
   });
 
