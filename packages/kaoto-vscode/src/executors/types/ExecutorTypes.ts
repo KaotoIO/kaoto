@@ -65,5 +65,7 @@ export interface InfraRunningServiceDetails {
 	host?: string;
 	port?: number;
 	url?: string;
+	uiUrl?: string;
+	uiSupported?: boolean;
 	serviceData?: Record<string, unknown>;
 }

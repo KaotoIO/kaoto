@@ -72,6 +72,16 @@ suite('InfrastructureItem — contextValue', function () {
 		const item = new InfrastructureItem(makeService({ isExternal: true, url: 'localhost:5432' }));
 		assert.strictEqual(item.contextValue, 'infrastructure-service-external-has-url');
 	});
+
+	test('service with url, port and uiUrl → appends "-has-ui-url" last', function () {
+		const item = new InfrastructureItem(makeService({ url: 'localhost:9092', port: 9092, uiUrl: 'http://localhost:8080' }));
+		assert.strictEqual(item.contextValue, 'infrastructure-service-has-url-has-port-has-ui-url');
+	});
+
+	test('service with uiSupported but no uiUrl → no "-has-ui-url"', function () {
+		const item = new InfrastructureItem(makeService({ uiSupported: true }));
+		assert.notInclude(item.contextValue, '-has-ui-url');
+	});
 });
 
 // ─── Icon ─────────────────────────────────────────────────────────────────────
@@ -143,6 +153,21 @@ suite('InfrastructureItem — description', function () {
 		const item = new InfrastructureItem(makeService({ status: 'stopping' }));
 		assert.strictEqual(item.description, 'Stopping...');
 	});
+
+	test('service with uiSupported true and no uiUrl → description includes "· UI available but not running"', function () {
+		const item = new InfrastructureItem(makeService({ status: 'running', uiSupported: true }));
+		assert.include(item.description as string, '· UI available but not running');
+	});
+
+	test('service with uiUrl present → description does not include ui-available text', function () {
+		const item = new InfrastructureItem(makeService({ status: 'running', port: 9092, uiUrl: 'http://localhost:8080' }));
+		assert.notInclude(item.description as string, 'UI available');
+	});
+
+	test('service with uiSupported false and no uiUrl → description unchanged', function () {
+		const item = new InfrastructureItem(makeService({ status: 'running', port: 9092, uiSupported: false }));
+		assert.strictEqual(item.description as string, ':9092');
+	});
 });
 
 // ─── Tooltip ──────────────────────────────────────────────────────────────────
@@ -178,5 +203,20 @@ suite('InfrastructureItem — tooltip', function () {
 	test('service with no args omits "Args:" line', function () {
 		const item = new InfrastructureItem(makeService({ args: [] }));
 		assert.notInclude(item.tooltip as string, 'Args:');
+	});
+
+	test('service with uiUrl → tooltip includes "UI: http://localhost:8080"', function () {
+		const item = new InfrastructureItem(makeService({ uiUrl: 'http://localhost:8080' }));
+		assert.include(item.tooltip as string, 'UI: http://localhost:8080');
+	});
+
+	test('service with uiSupported true and no uiUrl → tooltip includes "UI: available but not running"', function () {
+		const item = new InfrastructureItem(makeService({ uiSupported: true }));
+		assert.include(item.tooltip as string, 'UI: available but not running');
+	});
+
+	test('service with neither uiUrl nor uiSupported → tooltip has no "UI:" line', function () {
+		const item = new InfrastructureItem(makeService());
+		assert.notInclude(item.tooltip as string, 'UI:');
 	});
 });

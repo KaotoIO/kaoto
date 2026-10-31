@@ -574,6 +574,12 @@
         "category": "Kaoto"
       },
       {
+        "command": "kaoto.infrastructure.openUi",
+        "title": "Open UI in Browser",
+        "category": "Kaoto",
+        "icon": "$(globe)"
+      },
+      {
         "command": "kaoto.openapi.refresh",
         "title": "Refresh",
         "category": "Kaoto",
@@ -799,6 +805,10 @@
         {
           "command": "kaoto.infrastructure.copyPort",
           "when": "false"
+        },
+        {
+          "command": "kaoto.infrastructure.openUi",
+          "when": "false"
         }
       ],
       "editor/title": [
@@ -997,6 +1007,11 @@
           "command": "kaoto.infrastructure.copyPort",
           "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-port.*/ && config.kaoto.infrastructure.enabled",
           "group": "navigation@2"
+        },
+        {
+          "command": "kaoto.infrastructure.openUi",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/ && config.kaoto.infrastructure.enabled",
+          "group": "navigation@3"
         },
         {
           "command": "kaoto.openapi.showSource",

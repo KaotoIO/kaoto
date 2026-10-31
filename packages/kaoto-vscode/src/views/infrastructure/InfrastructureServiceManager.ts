@@ -182,6 +182,8 @@ export class InfrastructureServiceManager implements Disposable {
 					description: cliService.description ?? currentService.description,
 					port: cliService.port ?? currentService.port,
 					url: cliService.url ?? currentService.url,
+					uiUrl: cliService.uiUrl ?? currentService.uiUrl,
+					uiSupported: cliService.uiSupported ?? currentService.uiSupported,
 					status: 'running',
 					// Keep isExternal as it was - don't change managed services to external
 				});
@@ -197,6 +199,8 @@ export class InfrastructureServiceManager implements Disposable {
 						description: cliService.description,
 						port: cliService.port,
 						url: cliService.url,
+						uiUrl: cliService.uiUrl,
+						uiSupported: cliService.uiSupported,
 						args: [],
 						terminalName: terminalName,
 						status: 'running',
