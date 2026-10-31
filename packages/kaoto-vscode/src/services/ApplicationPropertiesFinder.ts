@@ -15,7 +15,7 @@
  */
 import vscode from 'vscode';
 import path from 'path'; // NOSONAR
-import { Suggestion } from '@kaoto/kaoto';
+import { Suggestion } from '@kaoto/forms';
 
 export async function findAllApplicationPropertiesFiles(start: vscode.Uri | string): Promise<vscode.Uri[]> {
 	const startUri = typeof start === 'string' ? vscode.Uri.file(start) : start;

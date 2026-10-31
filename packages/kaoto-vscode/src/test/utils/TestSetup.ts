@@ -37,6 +37,18 @@ export async function getExtensionContext(): Promise<vscode.ExtensionContext> {
 }
 
 /**
+ * Root of the extension under test, where its packaged assets live.
+ * Do not use process.cwd(): on Windows the extension host runs from the VS Code install folder.
+ */
+export function getExtensionUri(): vscode.Uri {
+	const extension = vscode.extensions.getExtension('redhat.vscode-kaoto');
+	if (!extension) {
+		throw new Error('Extension not found');
+	}
+	return extension.extensionUri;
+}
+
+/**
  * Absolute path of the workspace folder opened for the tests.
  * It is a per-run copy of the fixture folder, see .vscode-test.mjs
  */

@@ -50,14 +50,14 @@ export const kaotoLocators = {
 	/** Main Kaoto webview canvas & editor state */
 	KaotoEditor: {
 		/**
-		 * Root element the Kaoto editor envelope renders into
-		 * (see `src/webview/KaotoEditorEnvelopeApp.ts`).
+		 * Root element the Kaoto editor renders into
+		 * (see `packages/ui/src/webview/start.tsx`).
 		 *
 		 * Present in the Kaoto webview for every supported file type, and absent from
 		 * both the workbench DOM and any other extension webview (such as "What's New").
 		 * Used to prove that `switchToFrame()` really landed in the Kaoto editor.
 		 */
-		envelopeApp: `#envelope-app`,
+		root: `#kaoto-editor`,
 		emptyCanvas: `//div[@data-testid='visualization-empty-state']`,
 		topology: `//div[@data-test-id='topology']`,
 		designTabLink: `a[data-testid="design-tab"]`,
@@ -236,7 +236,7 @@ export const locators: LocatorDiff['locators'] = {
 
 	KaotoEditor: {
 		constructor: By.xpath(`//div[@data-testid='visualization-empty-state']`),
-		envelopeApp: By.css(`#envelope-app`),
+		root: By.css(`#kaoto-editor`),
 		emptyCanvas: By.xpath(`//div[@data-testid='visualization-empty-state']`),
 		topology: By.xpath(`//div[@data-test-id='topology']`),
 		designTabLink: By.css(`a[data-testid="design-tab"]`),
