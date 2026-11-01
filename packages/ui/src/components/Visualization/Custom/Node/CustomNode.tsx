@@ -21,7 +21,6 @@ import {
   useAnchor,
   useDndDrop,
   useDragNode,
-  withContextMenu,
   withSelection,
 } from '@patternfly/react-topology';
 import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
@@ -38,6 +37,7 @@ import { useCanvasToolbarTarget } from '../../Canvas/hooks/use-canvas-toolbar-ta
 import { CanvasNodeOverlays } from '../../Overlay/CanvasElementOverlays';
 import { useCanvasOverlays } from '../../Overlay/use-canvas-overlays';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
+import { withNodeContextMenu } from '../ContextMenu/withNodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useGraphLayout } from '../hooks/use-graph-layout.hook';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
@@ -357,4 +357,4 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }: Cu
 
 export const CustomNodeObserver = observer(CustomNode);
 
-export const CustomNodeWithSelection = withSelection()(withContextMenu(NodeContextMenuFn)(CustomNodeObserver));
+export const CustomNodeWithSelection = withSelection()(withNodeContextMenu(NodeContextMenuFn)(CustomNodeObserver));
