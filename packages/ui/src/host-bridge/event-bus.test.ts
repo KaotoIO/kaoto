@@ -88,7 +88,7 @@ describe('local host bridge endpoint', () => {
     const otherEndpoint = vi.fn();
     const otherEvent = vi.fn();
     second.on('editor:ready', otherEndpoint);
-    first.on('editor:document:saveRequested', otherEvent);
+    first.on('editor:document:changed', otherEvent);
     first.emit('editor:ready', null);
     expect(otherEndpoint).not.toHaveBeenCalled();
     expect(otherEvent).not.toHaveBeenCalled();
@@ -147,13 +147,13 @@ describe('local host bridge endpoint', () => {
     const editor = createEventBus({ role: 'editor', onError: vi.fn() });
     const listener = vi.fn();
     host.on('editor:ready', listener);
-    host.on('host:document:saved', listener);
+    host.on('host:theme:changed', listener);
     const invalid = expect.objectContaining({ code: 'INVALID_MESSAGE' });
     expect(() => {
       host.emit('editor:ready', null);
     }).toThrow(invalid);
     expect(() => {
-      host.emit('host:document:saved', { revision: -1, isDirty: false });
+      host.emit('host:theme:changed', { theme: 'auto' } as never);
     }).toThrow(invalid);
     for (const name of ['unknown', 'toString', '__proto__']) {
       expect(() => {
@@ -194,9 +194,7 @@ const requestExamples = {
       reason: 'init',
       fileUri: 'file:///route.camel.yaml',
       content: '',
-      isDirty: false,
       readonly: false,
-      saveAcknowledgements: true,
     },
     response: { applied: true, revision: 0 },
     invalidRequest: { reason: 'init', fileUri: 'file:///route.camel.yaml', content: '' },
@@ -209,30 +207,6 @@ const requestExamples = {
     response: { content: '', revision: 1 },
     invalidRequest: {},
     invalidResponse: { content: '', revision: 1.5 },
-  },
-  'editor:document:validate': {
-    sender: 'host',
-    timeoutMs: 5000,
-    payload: null,
-    response: { notifications: [notification] },
-    invalidRequest: false,
-    invalidResponse: { notifications: [{ message: 'bad', severity: 'fatal' }] },
-  },
-  'editor:preview:get': {
-    sender: 'host',
-    timeoutMs: 5000,
-    payload: null,
-    response: { svg: null },
-    invalidRequest: '',
-    invalidResponse: { svg: undefined },
-  },
-  'editor:undoRedo:apply': {
-    sender: 'host',
-    timeoutMs: 5000,
-    payload: { command: 'undo' },
-    response: null,
-    invalidRequest: { command: 'reset' },
-    invalidResponse: {},
   },
   'host:undoRedo:apply': {
     sender: 'editor',
@@ -352,13 +326,6 @@ const eventExamples = {
     payload: { content: '', revision: 0 },
     invalid: { content: '', revision: -1 },
   },
-  'host:document:saved': { sender: 'host', payload: { revision: 1, isDirty: false }, invalid: { revision: 1 } },
-  'host:document:dirtyChanged': {
-    sender: 'host',
-    payload: { revision: 2, isDirty: true },
-    invalid: { isDirty: 'true', revision: 2 },
-  },
-  'editor:document:saveRequested': { sender: 'editor', payload: null, invalid: false },
   'editor:settings:updated': { sender: 'host', payload: settings, invalid: { ...settings, settingsVersion: -1 } },
   'host:theme:changed': { sender: 'host', payload: { theme: 'high-contrast-light' }, invalid: { theme: 'auto' } },
   'editor:notifications:set': {
@@ -420,27 +387,11 @@ describe('bridge catalog validation', () => {
     peer.dispose();
   });
 
-  it.each(['hostUpdate', 'revert', 'saveEcho'] as const)('validates the %s document update', (reason) => {
-    const payload = {
-      reason,
-      fileUri: 'vscode-test-web:/route.camel.yaml',
-      content: '',
-      ...(reason === 'saveEcho' ? { revision: 3 } : {}),
-    };
+  it('validates a host document update and rejects unknown reasons', () => {
+    const payload = { reason: 'hostUpdate', fileUri: 'vscode-test-web:/route.camel.yaml', content: '' };
     expect(requestCatalog['editor:document:setContent'].isRequest(payload)).toBe(true);
     expect(requestCatalog['editor:document:setContent'].isRequest({ ...payload, content: undefined })).toBe(false);
-  });
-
-  it('requires a boolean dirty state when initialization promises save acknowledgements', () => {
-    const payload = requestExamples['editor:document:setContent'].payload;
-    expect(requestCatalog['editor:document:setContent'].isRequest({ ...payload, isDirty: null })).toBe(false);
-    expect(
-      requestCatalog['editor:document:setContent'].isRequest({
-        ...payload,
-        isDirty: null,
-        saveAcknowledgements: false,
-      }),
-    ).toBe(true);
+    expect(requestCatalog['editor:document:setContent'].isRequest({ ...payload, reason: 'revert' })).toBe(false);
   });
 
   it('rejects incomplete settings and invalid domain enum values', () => {
@@ -465,7 +416,8 @@ describe('bridge catalog validation', () => {
   });
 
   it('checks notification ranges and optional DTO fields', () => {
-    const validate = requestCatalog['editor:document:validate'].isResponse;
+    const validate = (value: { notifications: unknown[] }) =>
+      eventCatalog['editor:notifications:set'].isPayload({ path: 'route.camel.yaml', ...value });
     for (const range of [
       { start: { line: -1, character: 0 }, end: { line: 0, character: 0 } },
       { start: { line: 0, character: 0.5 }, end: { line: 0, character: 1 } },

@@ -616,7 +616,7 @@ describe('untrusted frames', () => {
   });
 
   it.each([
-    { name: 'editor:preview:get', ok: true, payload: { svg: null } },
+    { name: 'editor:document:setContent', ok: true, payload: { applied: true, revision: 0 } },
     { name: 'editor:document:getContent', ok: true, payload: { content: '', revision: -1 } },
     { name: 'editor:document:getContent', ok: true, payload: undefined },
     { name: 'editor:document:getContent', ok: false, error: { code: 'ENOENT', message: 'missing' } },
@@ -777,7 +777,7 @@ describe('transport boundaries', () => {
       const first = fixture.bus.request('editor:document:getContent', null);
       const firstRejection = expectRejection(first, 'IO_ERROR');
       fixture.failSend(fail);
-      const secondRejection = expectRejection(fixture.bus.request('editor:preview:get', null), 'IO_ERROR');
+      const secondRejection = expectRejection(fixture.bus.request('editor:document:getContent', null), 'IO_ERROR');
       await Promise.all([firstRejection, secondRejection]);
       expect(fixture.onError).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ code: 'IO_ERROR' }));
       expect(fixture.transport.dispose).toHaveBeenCalledTimes(1);

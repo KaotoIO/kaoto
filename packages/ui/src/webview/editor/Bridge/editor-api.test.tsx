@@ -1,32 +1,20 @@
-import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { act, renderHook } from '@testing-library/react';
-import { createElement, createRef, PropsWithChildren } from 'react';
-import { MockInstance } from 'vitest';
+import { createRef } from 'react';
 
 import { createPostMessageBridge } from '../../../host-bridge/bridge';
 import { BridgeError, IEventBus } from '../../../host-bridge/contracts';
 import { createEventBus } from '../../../host-bridge/event-bus';
 import { createMemoryTransports } from '../../../host-bridge/transports/memory';
 import { useSourceCodeStore } from '../../../store';
-import { EventNotifier } from '../../../utils';
 import { bindEditorDocument, type SourceCodeBridgeProviderRef, useEditorApi } from './editor-api';
 
 describe('useEditorApi', () => {
   const mockSetCodeAndNotify = vi.fn();
   let originalSetCodeAndNotify: typeof mockSetCodeAndNotify;
-  let controller: Visualization;
-  let fromModelSpy: MockInstance<Visualization['fromModel']>;
 
-  /** Renders the hook inside a real topology controller, used by useUndoRedo */
-  const renderEditorApi = () => {
-    const wrapper = ({ children }: PropsWithChildren) => createElement(VisualizationProvider, { controller }, children);
-    return renderHook(() => useEditorApi(), { wrapper });
-  };
+  const renderEditorApi = () => renderHook(() => useEditorApi());
 
   beforeEach(() => {
-    controller = new Visualization();
-    controller.fromModel({ graph: { id: 'graph', type: 'graph' } });
-
     originalSetCodeAndNotify = useSourceCodeStore.getState().setCodeAndNotify as typeof mockSetCodeAndNotify;
     act(() => {
       /* Start from a pristine store and an empty undo/redo history */
@@ -34,7 +22,6 @@ describe('useEditorApi', () => {
       useSourceCodeStore.temporal.setState({ pastStates: [], futureStates: [] });
     });
     vi.clearAllMocks();
-    fromModelSpy = vi.spyOn(controller, 'fromModel');
   });
 
   afterEach(() => {
@@ -124,14 +111,6 @@ describe('useEditorApi', () => {
     expect(clearSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should return undefined for getPreview', async () => {
-    const { result } = renderEditorApi();
-
-    const preview = await result.current.editorApi.getPreview();
-
-    expect(preview).toBeUndefined();
-  });
-
   it('should clear pastState when loading the store for the first time', async () => {
     const clearSpy = vi.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
 
@@ -145,56 +124,6 @@ describe('useEditorApi', () => {
 
     expect(clearSpy).toHaveBeenCalledTimes(1);
   });
-
-  it('should call undo when the editor is asked to undo', async () => {
-    const eventNotifierSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
-    const storeUndoSpy = vi.spyOn(useSourceCodeStore.temporal.getState(), 'undo');
-
-    const { result } = renderEditorApi();
-
-    await act(async () => {
-      await result.current.editorApi.undo();
-    });
-
-    expect(fromModelSpy).toHaveBeenCalledWith({
-      nodes: [],
-      edges: [],
-    });
-    expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', expect.objectContaining({ code: '' }));
-    expect(storeUndoSpy).toHaveBeenCalled();
-  });
-
-  it('should call redo when the editor is asked to redo', async () => {
-    const eventNotifierSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
-    const storeRedoSpy = vi.spyOn(useSourceCodeStore.temporal.getState(), 'redo');
-
-    const { result } = renderEditorApi();
-
-    await act(async () => {
-      await result.current.editorApi.redo();
-    });
-
-    expect(fromModelSpy).toHaveBeenCalledWith({
-      nodes: [],
-      edges: [],
-    });
-    expect(eventNotifierSpy).toHaveBeenCalledWith('code:updated', expect.objectContaining({ code: '' }));
-    expect(storeRedoSpy).toHaveBeenCalled();
-  });
-
-  it('should validate and return an empty array', async () => {
-    const { result } = renderEditorApi();
-
-    const validationResult = await result.current.editorApi.validate();
-
-    expect(validationResult).toEqual([]);
-  });
-
-  it('should resolve setTheme without errors', async () => {
-    const { result } = renderEditorApi();
-
-    await expect(result.current.editorApi.setTheme('light')).resolves.toBeUndefined();
-  });
 });
 
 describe('editor document binding', () => {
@@ -207,9 +136,7 @@ describe('editor document binding', () => {
     reason: 'init',
     fileUri: 'route.camel.yaml',
     content: '',
-    isDirty: null,
     readonly: false,
-    saveAcknowledgements: false,
   } as const;
 
   beforeEach(async () => {
@@ -227,17 +154,6 @@ describe('editor document binding', () => {
         binding.notifyChange(next);
       }),
       getContent: vi.fn(async () => content),
-      getPreview: vi.fn(async () => undefined),
-      validate: vi.fn(async () => []),
-      undo: vi.fn(async () => {
-        content = 'undo';
-        binding.notifyChange(content);
-      }),
-      redo: vi.fn(async () => {
-        content = 'redo';
-        binding.notifyChange(content);
-      }),
-      setTheme: vi.fn(async () => {}),
     };
     binding = bindEditorDocument(editor, ref);
   });
@@ -253,12 +169,12 @@ describe('editor document binding', () => {
     await expect(host.request('editor:document:setContent', init)).rejects.toMatchObject({ code: 'NOT_READY' });
   });
 
-  it('delegates native undo with the current revision without emitting another edit', async () => {
+  it('delegates undo to the host with the current revision without emitting another edit', async () => {
     const changed = vi.fn();
     const apply = vi.fn(async () => null);
     host.on('editor:document:changed', changed);
     host.onRequest('host:undoRedo:apply', apply);
-    await host.request('editor:document:setContent', { ...init, nativeUndoRedo: true });
+    await host.request('editor:document:setContent', init);
     content = 'edited';
     binding.notifyChange(content);
     await vi.waitFor(() => {
@@ -267,25 +183,20 @@ describe('editor document binding', () => {
     changed.mockClear();
     await binding.applyHistory('undo');
     expect(apply).toHaveBeenCalledWith({ command: 'undo', revision: 1 }, expect.anything());
-    expect(ref.current!.undo).not.toHaveBeenCalled();
     expect(content).toBe('edited');
     await host.request('editor:document:setContent', { reason: 'hostUpdate', fileUri: init.fileUri, content: '' });
     expect(content).toBe('');
     expect(changed).not.toHaveBeenCalled();
   });
 
-  it('rejects local history requests in native mode and releases busy state after a host failure', async () => {
+  it('releases the busy state after a host history failure', async () => {
     const apply = vi.fn(async () => {
       throw new BridgeError('NOT_READY', 'Another document is active');
     });
     host.onRequest('host:undoRedo:apply', apply);
-    await host.request('editor:document:setContent', { ...init, nativeUndoRedo: true });
-    await expect(host.request('editor:undoRedo:apply', { command: 'undo' })).rejects.toMatchObject({
-      code: 'UNSUPPORTED_REQUEST',
-    });
+    await host.request('editor:document:setContent', init);
     await expect(binding.applyHistory('undo')).rejects.toMatchObject({ code: 'NOT_READY' });
     expect(binding.getState().historyPending).toBe(false);
-    expect(ref.current!.undo).not.toHaveBeenCalled();
     expect(content).toBe('');
   });
 
@@ -309,19 +220,11 @@ describe('editor document binding', () => {
     });
   });
 
-  it('ignores repeated init and stale save echoes without applying content again', async () => {
+  it('ignores a repeated init without applying content again', async () => {
     await host.request('editor:document:setContent', init);
     content = 'newer';
     binding.notifyChange(content);
     await expect(host.request('editor:document:setContent', init)).resolves.toEqual({ applied: false, revision: 1 });
-    await expect(
-      host.request('editor:document:setContent', {
-        reason: 'saveEcho',
-        fileUri: init.fileUri,
-        content: '',
-        revision: 0,
-      }),
-    ).resolves.toEqual({ applied: false, revision: 1 });
     expect(ref.current!.setContent).toHaveBeenCalledTimes(1);
     expect(content).toBe('newer');
   });
@@ -338,7 +241,7 @@ describe('editor document binding', () => {
     expect(content).toBe('A');
   });
 
-  it('serializes content, snapshots, validation, preview and undo/redo', async () => {
+  it('serializes content updates and snapshots', async () => {
     await host.request('editor:document:setContent', init);
     const pendingWrite = deferred<void>();
     vi.mocked(ref.current!.setContent).mockImplementationOnce(async (_path, next) => {
@@ -351,22 +254,12 @@ describe('editor document binding', () => {
       content: 'queued',
     });
     const snapshot = host.request('editor:document:getContent', null);
-    const validation = host.request('editor:document:validate', null);
-    const preview = host.request('editor:preview:get', null);
-    const undo = host.request('editor:undoRedo:apply', { command: 'undo' });
     await vi.waitFor(() => {
       expect(ref.current!.setContent).toHaveBeenCalledTimes(2);
     });
-    expect(ref.current!.validate).not.toHaveBeenCalled();
-    expect(ref.current!.undo).not.toHaveBeenCalled();
     pendingWrite.resolve();
     await write;
     await expect(snapshot).resolves.toEqual({ content: 'queued', revision: 1 });
-    await expect(validation).resolves.toEqual({ notifications: [] });
-    await expect(preview).resolves.toEqual({ svg: null });
-    await undo;
-    await host.request('editor:undoRedo:apply', { command: 'redo' });
-    await expect(host.request('editor:document:getContent', null)).resolves.toEqual({ content: 'redo', revision: 3 });
   });
 
   it('keeps initialization disabled after a failed load and permits a deliberate retry', async () => {
@@ -396,9 +289,9 @@ describe('editor document binding', () => {
     content = 'unsaved';
     binding.notifyChange(content);
     binding.suspend(new BridgeError('NOT_CONNECTED', 'Host disconnected'));
-    await expect(host.request('editor:undoRedo:apply', { command: 'undo' })).rejects.toMatchObject({
-      code: 'NOT_CONNECTED',
-    });
+    await expect(
+      host.request('editor:document:setContent', { reason: 'hostUpdate', fileUri: init.fileUri, content: 'external' }),
+    ).rejects.toMatchObject({ code: 'NOT_CONNECTED' });
     expect(content).toBe('unsaved');
     expect(binding.getState().initialized).toBe(true);
   });

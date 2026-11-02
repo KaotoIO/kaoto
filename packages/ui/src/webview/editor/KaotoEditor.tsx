@@ -16,7 +16,7 @@ import {
   SettingsSnapshot,
 } from '../../host-bridge/contracts';
 import { HostBridgeProvider } from '../../host-bridge/react/context';
-import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../../models';
+import { CatalogKind, ColorScheme, FileTypes, FileTypesResponse, StepUpdateAction } from '../../models';
 import { DefaultSettingsAdapter } from '../../models/settings';
 import { KaotoResourceProvider } from '../../providers';
 import { EntitiesProvider } from '../../providers/entities.provider';
@@ -73,20 +73,38 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
 
   const documentState: EditorDocumentState = useSyncExternalStore(subscribe, getDocumentState);
 
-  // Subscribe to settings updates
+  // The host theme stands in for the system theme when the color scheme is Auto
+  const colorSchemeRef = useRef(settingsAdapter.getSettings().colorScheme);
+  const hostThemeRef = useRef<ColorScheme.Light | ColorScheme.Dark>(undefined);
+  const applyColorScheme = useCallback(() => {
+    const scheme = colorSchemeRef.current;
+    setColorScheme(scheme === ColorScheme.Auto && hostThemeRef.current ? hostThemeRef.current : scheme);
+  }, []);
+
+  // Subscribe to settings and theme updates
   useEffect(() => {
-    const unsubscribe = bus.on('editor:settings:updated', (snapshot: SettingsSnapshot) => {
-      if (snapshot.settingsVersion <= settingsVersionRef.current) return;
-      settingsVersionRef.current = snapshot.settingsVersion;
-      const adapter = new DefaultSettingsAdapter(snapshot.settings);
-      setColorScheme(adapter.getSettings().colorScheme);
-      setSettingsAdapter(adapter);
-    });
+    const unsubscribers = [
+      bus.on('editor:settings:updated', (snapshot: SettingsSnapshot) => {
+        if (snapshot.settingsVersion <= settingsVersionRef.current) return;
+        settingsVersionRef.current = snapshot.settingsVersion;
+        const adapter = new DefaultSettingsAdapter(snapshot.settings);
+        colorSchemeRef.current = adapter.getSettings().colorScheme;
+        applyColorScheme();
+        setSettingsAdapter(adapter);
+      }),
+      bus.on('host:theme:changed', ({ theme }) => {
+        hostThemeRef.current = theme === 'dark' || theme === 'high-contrast' ? ColorScheme.Dark : ColorScheme.Light;
+        applyColorScheme();
+      }),
+    ];
     // Apply initial color scheme
-    setColorScheme(settingsAdapter.getSettings().colorScheme);
-    return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bus]);
+    applyColorScheme();
+    return () => {
+      unsubscribers.forEach((unsubscribe) => {
+        unsubscribe();
+      });
+    };
+  }, [applyColorScheme, bus]);
 
   // Dispose bus on unmount (with Strict Mode guard)
   const mountsRef = useRef(0);
@@ -108,7 +126,7 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
 
   const settings = settingsAdapter.getSettings();
 
-  // History controls (native undo/redo delegated to host)
+  // History controls: the host owns the document history
   const applyHistory = useCallback(
     (command: 'undo' | 'redo') => {
       void docRef.current?.applyHistory(command).catch((error: unknown) => {
@@ -121,18 +139,16 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
     [bus],
   );
 
-  const history = documentState.nativeUndoRedo
-    ? {
-        undo: () => {
-          applyHistory('undo');
-        },
-        redo: () => {
-          applyHistory('redo');
-        },
-        canUndo: !documentState.historyPending,
-        canRedo: !documentState.historyPending,
-      }
-    : undefined;
+  const history = {
+    undo: () => {
+      applyHistory('undo');
+    },
+    redo: () => {
+      applyHistory('redo');
+    },
+    canUndo: !documentState.historyPending,
+    canRedo: !documentState.historyPending,
+  };
 
   // Bridge callbacks
   const sendReady = useCallback(() => {

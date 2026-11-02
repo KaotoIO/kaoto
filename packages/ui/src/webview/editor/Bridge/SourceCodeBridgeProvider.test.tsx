@@ -7,6 +7,8 @@ import { EventNotifier } from '../../../utils/event-notifier';
 import { SourceCodeBridgeProviderRef } from './editor-api';
 import { SourceCodeBridgeProvider } from './SourceCodeBridgeProvider';
 
+const history = { undo: vi.fn(), redo: vi.fn(), canUndo: true, canRedo: true };
+
 describe('SourceCodeBridgeProvider', () => {
   const mockCamelRoute = `
     - from:
@@ -18,7 +20,7 @@ describe('SourceCodeBridgeProvider', () => {
 
   it('should render children', () => {
     const { getByText } = render(
-      <SourceCodeBridgeProvider onNewEdit={vi.fn()}>
+      <SourceCodeBridgeProvider history={history} onNewEdit={vi.fn()}>
         <p>Test Child</p>
       </SourceCodeBridgeProvider>,
     );
@@ -26,8 +28,7 @@ describe('SourceCodeBridgeProvider', () => {
     expect(getByText('Test Child')).toBeInTheDocument();
   });
 
-  it('pauses local history in host mode and restores tracking on unmount', () => {
-    const history = { undo: vi.fn(), redo: vi.fn(), canUndo: true, canRedo: true };
+  it('pauses the local history while the host owns it and restores tracking on unmount', () => {
     const { unmount } = render(<SourceCodeBridgeProvider history={history} onNewEdit={vi.fn()} />);
     act(() => {
       useSourceCodeStore.getState().setSourceCode('canvas change');
@@ -43,7 +44,7 @@ describe('SourceCodeBridgeProvider', () => {
     const mockOnNewEdit = vi.fn().mockResolvedValue(undefined);
 
     render(
-      <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
+      <SourceCodeBridgeProvider history={history} onNewEdit={mockOnNewEdit}>
         <p>Love letter</p>
       </SourceCodeBridgeProvider>,
     );
@@ -59,7 +60,7 @@ describe('SourceCodeBridgeProvider', () => {
     const mockOnNewEdit = vi.fn().mockResolvedValue(undefined);
 
     render(
-      <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
+      <SourceCodeBridgeProvider history={history} onNewEdit={mockOnNewEdit}>
         <p>Love letter</p>
       </SourceCodeBridgeProvider>,
     );
@@ -75,7 +76,7 @@ describe('SourceCodeBridgeProvider', () => {
     const mockOnNewEdit = vi.fn().mockResolvedValue(undefined);
 
     render(
-      <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
+      <SourceCodeBridgeProvider history={history} onNewEdit={mockOnNewEdit}>
         <p>Love letter</p>
       </SourceCodeBridgeProvider>,
     );
@@ -103,7 +104,7 @@ describe('SourceCodeBridgeProvider', () => {
     const mockOnNewEdit = vi.fn().mockRejectedValue(new Error('edit boom'));
 
     render(
-      <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
+      <SourceCodeBridgeProvider history={history} onNewEdit={mockOnNewEdit}>
         <p>Complaint letter</p>
       </SourceCodeBridgeProvider>,
     );
@@ -129,7 +130,7 @@ describe('SourceCodeBridgeProvider', () => {
     vi.spyOn(eventNotifierInstance, 'subscribe').mockReturnValueOnce(unsubscribeFromSourceCodeMock);
 
     const { unmount } = render(
-      <SourceCodeBridgeProvider onNewEdit={async () => {}}>
+      <SourceCodeBridgeProvider history={history} onNewEdit={async () => {}}>
         <p>Tax statement letter</p>
       </SourceCodeBridgeProvider>,
     );
@@ -145,7 +146,7 @@ describe('SourceCodeBridgeProvider', () => {
   it('reports the first source edit after empty host initialization', async () => {
     const ref = createRef<SourceCodeBridgeProviderRef>();
     const onNewEdit = vi.fn().mockResolvedValue(undefined);
-    render(<SourceCodeBridgeProvider ref={ref} onNewEdit={onNewEdit} />);
+    render(<SourceCodeBridgeProvider history={history} ref={ref} onNewEdit={onNewEdit} />);
     await act(async () => {
       await ref.current!.setContent('empty.camel.yaml', '');
     });
@@ -162,7 +163,7 @@ describe('SourceCodeBridgeProvider', () => {
       useLayoutEffect(() => {
         void ref.current!.setContent('empty.camel.yaml', '');
       }, []);
-      return <SourceCodeBridgeProvider ref={ref} onNewEdit={onNewEdit} />;
+      return <SourceCodeBridgeProvider history={history} ref={ref} onNewEdit={onNewEdit} />;
     };
     render(<Host />);
     act(() => {
@@ -173,7 +174,7 @@ describe('SourceCodeBridgeProvider', () => {
 
   it('publishes matching entity and source notifications only once', () => {
     const onNewEdit = vi.fn().mockResolvedValue(undefined);
-    render(<SourceCodeBridgeProvider onNewEdit={onNewEdit} />);
+    render(<SourceCodeBridgeProvider history={history} onNewEdit={onNewEdit} />);
     act(() => {
       EventNotifier.getInstance().next('entities:updated', mockCamelRoute);
       EventNotifier.getInstance().next('code:updated', { code: mockCamelRoute });
@@ -203,7 +204,7 @@ describe('SourceCodeBridgeProvider', () => {
 
     render(
       <SourceCodeSync>
-        <SourceCodeBridgeProvider onNewEdit={mockOnNewEdit}>
+        <SourceCodeBridgeProvider history={history} onNewEdit={mockOnNewEdit}>
           <p>Mounting letter</p>
         </SourceCodeBridgeProvider>
       </SourceCodeSync>,
@@ -217,7 +218,7 @@ const EnvelopeProviderTestingBed: FunctionComponent = () => {
   const envelopeRef = useRef<SourceCodeBridgeProviderRef>(null);
 
   return (
-    <SourceCodeBridgeProvider ref={envelopeRef} onNewEdit={vi.fn()}>
+    <SourceCodeBridgeProvider history={history} ref={envelopeRef} onNewEdit={vi.fn()}>
       <button
         type="button"
         onClick={() => {

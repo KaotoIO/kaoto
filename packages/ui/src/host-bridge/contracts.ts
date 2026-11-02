@@ -76,21 +76,12 @@ export type SetContentRequest =
       reason: 'init';
       fileUri: string;
       content: string;
-      isDirty: boolean | null;
       readonly: boolean;
-      saveAcknowledgements: boolean;
-      nativeUndoRedo?: boolean;
     }
   | {
-      reason: 'hostUpdate' | 'revert';
+      reason: 'hostUpdate';
       fileUri: string;
       content: string;
-    }
-  | {
-      reason: 'saveEcho';
-      fileUri: string;
-      content: string;
-      revision: number;
     };
 
 export interface SettingsSnapshot {
@@ -122,9 +113,6 @@ export interface SuggestionDto {
 export type KaotoRequests = {
   'editor:document:setContent': SetContentRequest;
   'editor:document:getContent': null;
-  'editor:document:validate': null;
-  'editor:preview:get': null;
-  'editor:undoRedo:apply': { command: 'undo' | 'redo' };
   'host:undoRedo:apply': { command: 'undo' | 'redo'; revision: number };
   'editor:settings:get': null;
   'editor:metadata:get': { key: string };
@@ -142,9 +130,6 @@ export type KaotoRequests = {
 export type KaotoResponses = {
   'editor:document:setContent': { applied: boolean; revision: number };
   'editor:document:getContent': ContentSnapshot;
-  'editor:document:validate': { notifications: ValidationNotification[] };
-  'editor:preview:get': { svg: string | null };
-  'editor:undoRedo:apply': null;
   'host:undoRedo:apply': null;
   'editor:settings:get': SettingsSnapshot;
   'editor:metadata:get': { value: JsonValue };
@@ -162,9 +147,6 @@ export type KaotoResponses = {
 export type KaotoEvents = {
   'editor:ready': null;
   'editor:document:changed': ContentSnapshot;
-  'host:document:saved': { revision: number; isDirty: boolean };
-  'host:document:dirtyChanged': { isDirty: boolean; revision: number };
-  'editor:document:saveRequested': null;
   'editor:settings:updated': SettingsSnapshot;
   'host:theme:changed': { theme: 'light' | 'dark' | 'high-contrast' | 'high-contrast-light' };
   'editor:notifications:set': { path: string; notifications: ValidationNotification[] };
@@ -239,26 +221,15 @@ const initialContent = object<Extract<SetContentRequest, { reason: 'init' }>>({
   reason: oneOf('init'),
   fileUri: string,
   content: string,
-  isDirty: nullable(boolean),
   readonly: boolean,
-  saveAcknowledgements: boolean,
-  nativeUndoRedo: optional(boolean),
 });
-const hostContent = object<Extract<SetContentRequest, { reason: 'hostUpdate' | 'revert' }>>({
-  reason: oneOf('hostUpdate', 'revert'),
+const hostContent = object<Extract<SetContentRequest, { reason: 'hostUpdate' }>>({
+  reason: oneOf('hostUpdate'),
   fileUri: string,
   content: string,
-});
-const savedContent = object<Extract<SetContentRequest, { reason: 'saveEcho' }>>({
-  reason: oneOf('saveEcho'),
-  fileUri: string,
-  content: string,
-  revision: integer,
 });
 const setContent: Validator<SetContentRequest> = (value): value is SetContentRequest =>
-  (initialContent(value) && (!value.saveAcknowledgements || typeof value.isDirty === 'boolean')) ||
-  hostContent(value) ||
-  savedContent(value);
+  initialContent(value) || hostContent(value);
 
 const settingsSnapshot = object<SettingsSnapshot>({
   settingsVersion: integer,
@@ -332,9 +303,6 @@ export const requestCatalog: {
 } = {
   'editor:document:setContent': request('host', setContent, object({ applied: boolean, revision: integer })),
   'editor:document:getContent': request('host', nil, contentSnapshot),
-  'editor:document:validate': request('host', nil, object({ notifications })),
-  'editor:preview:get': request('host', nil, object({ svg: nullable(string) })),
-  'editor:undoRedo:apply': request('host', object({ command: oneOf('undo', 'redo') }), nil),
   'host:undoRedo:apply': request('editor', object({ command: oneOf('undo', 'redo'), revision: integer }), nil),
   'editor:settings:get': request('editor', nil, settingsSnapshot),
   'editor:metadata:get': request('editor', object({ key: string }), object({ value: isJsonValue })),
@@ -389,13 +357,9 @@ const catalogKind = oneOf(
   CatalogKind.TestFunction,
   CatalogKind.TestValidationMatcher,
 );
-const dirtyState = object({ revision: integer, isDirty: boolean });
 export const eventCatalog: { readonly [E in keyof KaotoEvents]: EventDefinition<KaotoEvents[E]> } = {
   'editor:ready': event('editor', nil),
   'editor:document:changed': event('editor', contentSnapshot),
-  'host:document:saved': event('host', dirtyState),
-  'host:document:dirtyChanged': event('host', dirtyState),
-  'editor:document:saveRequested': event('editor', nil),
   'editor:settings:updated': event('host', settingsSnapshot),
   'host:theme:changed': event(
     'host',
