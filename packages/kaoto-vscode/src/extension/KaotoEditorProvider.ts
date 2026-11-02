@@ -314,11 +314,9 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		);
 		panel.webview.options = {
 			enableScripts: true,
-			localResourceRoots: [
-				// Vite emits lazy chunks and fonts beneath the webview directory.
-				vscode.Uri.joinPath(this.context.extensionUri, 'dist'),
-				vscode.workspace.getWorkspaceFolder(document.uri)?.uri ?? vscode.Uri.joinPath(document.uri, '..'),
-			],
+			// Only the bundled editor loads by URI: Vite emits lazy chunks and fonts beneath the webview directory.
+			// Workspace files reach the editor through editor:resource:* requests, so the workspace stays out of reach.
+			localResourceRoots: [vscode.Uri.joinPath(this.context.extensionUri, 'dist')],
 		};
 		try {
 			const html = await this.html(document.uri, panel.webview);
