@@ -1,0 +1,13 @@
+.flow-export-image-spinner {
+  animation: flow-export-image-spin 1s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes flow-export-image-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
