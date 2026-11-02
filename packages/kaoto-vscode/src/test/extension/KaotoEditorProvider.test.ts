@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { equal, ok, rejects } from 'node:assert/strict';
+import { deepStrictEqual, equal, ok, rejects } from 'node:assert/strict';
 import { mkdtemp } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
@@ -535,6 +535,7 @@ suite('Native Kaoto text document provider', () => {
 		ok(fixture.panel.webview.html.includes('Loading Kaoto'));
 		ok(fixture.panel.webview.html.includes('class="kaoto-loading"'));
 		ok(!fixture.panel.webview.html.includes('__KAOTO_'));
+		deepStrictEqual(fixture.panel.webview.options.localResourceRoots?.map(String), [vscode.Uri.joinPath(getExtensionUri(), 'dist').toString()]);
 		await fixture.bus.request('editor:resource:save', { path: 'schema.xsd', content: 'context' });
 		equal(await read(vscode.Uri.joinPath(root, 'schema.xsd')), 'context');
 	});
