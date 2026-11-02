@@ -14,7 +14,7 @@ export interface IMappingLinksContext {
 export const MappingLinksContext = createContext<IMappingLinksContext | undefined>(undefined);
 
 export const MappingLinksProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
-  const { mappingTree, sourceParameterMap, sourceBodyDocument } = useDataMapper();
+  const { mappingTree, sourceParameterMap, sourceBodyDocument, targetRenderIndex } = useDataMapper();
   const mappingLinkCanvasRef = useRef<HTMLDivElement | null>(null);
 
   // Subscribe to store for selection state (needed to recompute mapping links)
@@ -27,10 +27,11 @@ export const MappingLinksProvider: FunctionComponent<PropsWithChildren> = ({ chi
         mappingTree,
         sourceParameterMap,
         sourceBodyDocument,
+        targetRenderIndex,
         selectedNodePath,
         selectedNodeIsSource,
       ),
-    [mappingTree, selectedNodePath, selectedNodeIsSource, sourceBodyDocument, sourceParameterMap],
+    [mappingTree, selectedNodePath, selectedNodeIsSource, sourceBodyDocument, sourceParameterMap, targetRenderIndex],
   );
 
   const isNodeInSelectedMapping = useCallback(

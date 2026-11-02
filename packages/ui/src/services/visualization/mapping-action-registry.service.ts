@@ -34,6 +34,7 @@ import { DocumentService } from '../document/document.service';
 import { MappingService } from '../mapping/mapping.service';
 import { FieldCandidateService } from './field-candidate.service';
 import { MappingActionService } from './mapping-action.service';
+import { TargetRenderService } from './target-render.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
 /**
@@ -479,6 +480,27 @@ export class MappingActionRegistryService {
         return true;
       },
     },
+    {
+      key: MappingActionKind.RemoveOptionalGuard,
+      testId: 'transformation-actions-remove-optional-guard',
+      getLabel: () => 'Remove optional guard',
+      apply: (n, { onUpdate }) => {
+        if (n instanceof FieldItemNodeData) MappingActionService.removeOptionalGuard(n);
+        onUpdate();
+      },
+      isAllowed: (n) => n instanceof FieldItemNodeData && !!n.autoOptionalIfItem,
+    },
+    {
+      key: MappingActionKind.AddOptionalGuard,
+      testId: 'transformation-actions-add-optional-guard',
+      getLabel: () => 'Add optional guard',
+      apply: (n, { onUpdate }) => {
+        if (n instanceof FieldItemNodeData) MappingActionService.addOptionalGuard(n);
+        onUpdate();
+      },
+      isAllowed: (n) =>
+        n instanceof FieldItemNodeData && !n.autoOptionalIfItem && TargetRenderService.canAddOptionalGuard(n),
+    },
   ];
 
   /**
@@ -491,6 +513,19 @@ export class MappingActionRegistryService {
    */
   static getAllowedActions(nodeData: TargetNodeData): MappingActionKind[] {
     return MappingActionRegistryService.ACTION_REGISTRY.filter((def) => def.isAllowed(nodeData)).map((def) => def.key);
+  }
+
+  /**
+   * Whether the single action `kind` is permitted for `nodeData`. Cheaper than
+   * {@link getAllowedActions} for a caller that needs only a few kinds on every render, because it
+   * doesn't evaluate the other actions' checks, such as the source lookup of "Add optional guard".
+   *
+   * @param nodeData - The target node whose capability is evaluated.
+   * @param kind - The action to check.
+   * @returns `true` if the action is permitted for this node.
+   */
+  static isActionAllowed(nodeData: TargetNodeData, kind: MappingActionKind): boolean {
+    return MappingActionRegistryService.ACTION_REGISTRY.some((def) => def.key === kind && def.isAllowed(nodeData));
   }
 
   /**

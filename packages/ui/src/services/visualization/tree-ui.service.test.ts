@@ -3,20 +3,33 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  IDocument,
+  IField,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
-import { MappingTree } from '../../models/datamapper/mapping';
+import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
+import {
+  CopyOfType,
+  FieldItem,
+  IfItem,
+  MappingParentType,
+  MappingTree,
+  VariableItem,
+} from '../../models/datamapper/mapping';
 import {
   DocumentNodeData,
   FieldItemNodeData,
+  MappingNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
 } from '../../models/datamapper/visualization';
 import { MappingService } from '../../services/mapping/mapping.service';
-import { useDocumentTreeStore } from '../../store/document-tree.store';
-import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { TreeExpansionState, useDocumentTreeStore } from '../../store/document-tree.store';
+import { getAdtInXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
+import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { TargetRenderService } from './target-render.service';
 import { TreeParsingService } from './tree-parsing.service';
 import { TreeUIService } from './tree-ui.service';
 
@@ -522,6 +535,380 @@ describe('TreeUIService', () => {
       expect(newContentRoot.nodeData).toBeInstanceOf(FieldItemNodeData);
       expect(newContentRoot.path).not.toBe(contentRoot.path);
       expect(store.isExpanded(documentId, newContentRoot.path)).toBe(false);
+    });
+  });
+
+  describe('rows moved under an if row or out of it', () => {
+    let adtSourceDoc: IDocument;
+    let adtTargetDoc: IDocument;
+    let adtMappingTree: MappingTree;
+    let hl7Item: FieldItem;
+
+    const createAdtDocument = (documentType: DocumentType): IDocument => {
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+        new DocumentDefinition(documentType, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+          'ADT_IN.xsd': getAdtInXsd(),
+        }),
+      );
+      if (!result.document) throw new Error('Failed to create the ADT_IN document');
+      return result.document;
+    };
+
+    const findField = (parent: IDocument | IField, name: string): IField => {
+      const field = parent.fields.find((child) => child.name === name);
+      if (!field) throw new Error(`No field named '${name}'`);
+      return field;
+    };
+
+    const mapSegment = (name: string) => {
+      const sourceField = findField(findField(adtSourceDoc, 'HL7'), name);
+      const fieldItem = MappingService.createFieldItem(hl7Item, findField(hl7Item.field, name));
+      MappingService.mapToFieldWithValueType(sourceField, fieldItem, CopyOfType.CONTAINER);
+      return { sourceField, fieldItem };
+    };
+
+    const mapGuardedPid = () => {
+      const { sourceField, fieldItem: pidItem } = mapSegment('PID');
+      const selector = pidItem.soleSelector;
+      const guard = MappingService.tryAutoOptionalIfWrap(pidItem, sourceField, false);
+      if (!selector || !guard) throw new Error('PID is not mapped by a guarded copy-of');
+      return { pidItem, selector, guard };
+    };
+
+    const createTargetTree = (): DocumentTree => {
+      const renderIndex = TargetRenderService.buildIndex(adtMappingTree, {
+        sourceParameterMap: new Map<string, IDocument>(),
+        sourceBody: adtSourceDoc,
+      });
+      return TreeUIService.createTree(new TargetDocumentNodeData(adtTargetDoc, adtMappingTree, renderIndex));
+    };
+
+    const findRow = (tree: DocumentTree, mapping: MappingParentType): DocumentTreeNode => {
+      const visit = (node: DocumentTreeNode): DocumentTreeNode | undefined => {
+        if (node.nodeData instanceof MappingNodeData && node.nodeData.mapping === mapping) return node;
+        for (const child of node.children) {
+          const row = visit(child);
+          if (row) return row;
+        }
+        return undefined;
+      };
+      const row = visit(tree.root);
+      if (!row) throw new Error(`No row renders ${mapping.nodePath.toString()}`);
+      return row;
+    };
+
+    const findChild = (row: DocumentTreeNode, title: string): DocumentTreeNode => {
+      const child = row.children.find((candidate) => candidate.nodeData.title === title);
+      if (!child) throw new Error(`No row titled '${title}' under ${row.path}`);
+      return child;
+    };
+
+    const getExpansion = (tree: DocumentTree): TreeExpansionState =>
+      useDocumentTreeStore.getState().expansionState[tree.documentNodeId];
+
+    const keysUnder = (expansion: TreeExpansionState, path: string): string[] =>
+      Object.keys(expansion).filter((key) => key === path || key.startsWith(`${path}/`));
+
+    beforeEach(() => {
+      adtSourceDoc = createAdtDocument(DocumentType.SOURCE_BODY);
+      adtTargetDoc = createAdtDocument(DocumentType.TARGET_BODY);
+      adtMappingTree = new MappingTree(
+        adtTargetDoc.documentType,
+        adtTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      hl7Item = MappingService.createFieldItem(adtMappingTree, findField(adtTargetDoc, 'HL7'));
+      useDocumentTreeStore.setState({
+        expansionState: {},
+        expansionStateArray: {},
+        selectedNodePath: null,
+        selectedNodeIsSource: false,
+      });
+    });
+
+    it('should move the expansion of a guarded field and its subtree under the if row a demoted guard shows as', () => {
+      const { pidItem, selector, guard } = mapGuardedPid();
+      const tree1 = createTargetTree();
+      const pidRow = findRow(tree1, pidItem);
+      const field01Path = findChild(pidRow, 'field_01').path;
+      TreeUIService.toggleNode(tree1.documentNodeId, field01Path);
+      const expansionBefore = { ...getExpansion(tree1) };
+      const movedKeys = keysUnder(expansionBefore, pidRow.path);
+
+      expect(pidRow.nodeData).toHaveProperty('autoOptionalIfItem', guard);
+      expect(movedKeys).toEqual(expect.arrayContaining([pidRow.path, field01Path]));
+      expect(expansionBefore[pidRow.path]).toBe(true);
+      expect(expansionBefore[field01Path]).toBe(true);
+
+      MappingService.updateExpression(selector, '/HL7/PID[1]');
+      const tree2 = createTargetTree();
+
+      const ifRow = findRow(tree2, guard);
+      const movedPidPath = findRow(tree2, pidItem).path;
+      const expansionAfter = getExpansion(tree2);
+      expect(movedPidPath).toBe(`${ifRow.path}/${pidItem.id}`);
+      expect(expansionAfter[ifRow.path]).toBe(true);
+      for (const oldKey of movedKeys) {
+        expect(expansionAfter[movedPidPath + oldKey.slice(pidRow.path.length)]).toBe(expansionBefore[oldKey]);
+      }
+      expect(keysUnder(expansionAfter, pidRow.path)).toHaveLength(0);
+      expect(tree2.flatten(expansionAfter).map((row) => row.path)).toContain(
+        movedPidPath + field01Path.slice(pidRow.path.length),
+      );
+    });
+
+    it('should move the expansion back to the field row when the guard is promoted again', () => {
+      const { pidItem, selector } = mapGuardedPid();
+      const tree1 = createTargetTree();
+      const documentId = tree1.documentNodeId;
+      const pidPath = findRow(tree1, pidItem).path;
+      const field01Path = findChild(findRow(tree1, pidItem), 'field_01').path;
+      TreeUIService.toggleNode(documentId, field01Path);
+      MappingService.updateExpression(selector, '/HL7/PID[1]');
+      const demotedPidPath = findRow(createTargetTree(), pidItem).path;
+
+      expect(useDocumentTreeStore.getState().isExpanded(documentId, demotedPidPath)).toBe(true);
+
+      TreeUIService.toggleNode(documentId, demotedPidPath);
+      MappingService.updateExpression(selector, '/HL7/PID');
+      const tree3 = createTargetTree();
+
+      const expansionAfter = getExpansion(tree3);
+      expect(findRow(tree3, pidItem).path).toBe(pidPath);
+      expect(expansionAfter[pidPath]).toBe(false);
+      expect(expansionAfter[field01Path]).toBe(true);
+      expect(keysUnder(expansionAfter, demotedPidPath)).toHaveLength(0);
+    });
+
+    it('should move the expansion of a mapped field the user wraps in an if', () => {
+      const { fieldItem: mshItem } = mapSegment('MSH');
+      const tree1 = createTargetTree();
+      const documentId = tree1.documentNodeId;
+      const mshRow = findRow(tree1, mshItem);
+      const field01Path = findChild(mshRow, 'field_01').path;
+      const field15Path = findChild(mshRow, 'field_15').path;
+
+      expect(useDocumentTreeStore.getState().isExpanded(documentId, field01Path)).toBe(true);
+      expect(useDocumentTreeStore.getState().isExpanded(documentId, field15Path)).toBe(false);
+
+      TreeUIService.toggleNode(documentId, field01Path);
+      TreeUIService.toggleNode(documentId, field15Path);
+      MappingService.wrapWithIf(mshItem);
+      const tree2 = createTargetTree();
+
+      const ifRow = findRow(tree2, mshItem.parent);
+      const movedMshPath = findRow(tree2, mshItem).path;
+      const expansionAfter = getExpansion(tree2);
+      expect(mshItem.parent).toBeInstanceOf(IfItem);
+      expect(movedMshPath).toBe(`${ifRow.path}/${mshItem.id}`);
+      expect(expansionAfter[ifRow.path]).toBe(true);
+      expect(expansionAfter[movedMshPath + field01Path.slice(mshRow.path.length)]).toBe(false);
+      expect(expansionAfter[movedMshPath + field15Path.slice(mshRow.path.length)]).toBe(true);
+      expect(keysUnder(expansionAfter, mshRow.path)).toHaveLength(0);
+    });
+
+    it('should keep the if row of a demoted guard collapsed when the user collapsed it before', () => {
+      const { pidItem, selector, guard } = mapGuardedPid();
+      const documentId = createTargetTree().documentNodeId;
+      MappingService.updateExpression(selector, '/HL7/PID[1]');
+      const ifPath = findRow(createTargetTree(), guard).path;
+
+      expect(useDocumentTreeStore.getState().isExpanded(documentId, ifPath)).toBe(true);
+
+      TreeUIService.toggleNode(documentId, ifPath);
+      MappingService.updateExpression(selector, '/HL7/PID');
+      createTargetTree();
+      MappingService.updateExpression(selector, '/HL7/PID[1]');
+      const tree4 = createTargetTree();
+
+      const expansionAfter = getExpansion(tree4);
+      expect(findRow(tree4, guard).path).toBe(ifPath);
+      expect(expansionAfter[ifPath]).toBe(false);
+      expect(tree4.flatten(expansionAfter).map((row) => row.path)).not.toContain(findRow(tree4, pidItem).path);
+    });
+
+    it.each([
+      ['the field row', undefined],
+      ['a row under the field', 'field_01'],
+    ])('should keep the selection on %s at its new path when the guard is demoted', (_label, childTitle) => {
+      const { pidItem, selector } = mapGuardedPid();
+      const pidRow = findRow(createTargetTree(), pidItem);
+      const selectedRow = childTitle ? findChild(pidRow, childTitle) : pidRow;
+      useDocumentTreeStore.getState().setSelectedNode(selectedRow.path, false);
+
+      MappingService.updateExpression(selector, '/HL7/PID[1]');
+      const movedPidPath = findRow(createTargetTree(), pidItem).path;
+
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(
+        movedPidPath + selectedRow.path.slice(pidRow.path.length),
+      );
+      expect(useDocumentTreeStore.getState().selectedNodeIsSource).toBe(false);
+    });
+
+    it('should move the selection from an if row to its field row when the guard is promoted', () => {
+      const { pidItem, selector, guard } = mapGuardedPid();
+      MappingService.updateExpression(selector, '/HL7/PID[1]');
+      useDocumentTreeStore.getState().setSelectedNode(findRow(createTargetTree(), guard).path, false);
+
+      MappingService.updateExpression(selector, '/HL7/PID');
+      const pidRow = findRow(createTargetTree(), pidItem);
+
+      expect(pidRow.nodeData).toHaveProperty('autoOptionalIfItem', guard);
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(pidRow.path);
+      expect(useDocumentTreeStore.getState().selectedNodeIsSource).toBe(false);
+    });
+
+    it('should move the selection of a mapped field inside a container the user wraps in an if', () => {
+      const mshItem = MappingService.createFieldItem(hl7Item, findField(hl7Item.field, 'MSH'));
+      const mshRow = findRow(createTargetTree(), mshItem);
+      const field01Item = MappingService.createFieldItem(
+        mshItem,
+        (findChild(mshRow, 'field_01').nodeData as TargetFieldNodeData).field,
+      );
+      const field01Path = findRow(createTargetTree(), field01Item).path;
+      useDocumentTreeStore.getState().setSelectedNode(field01Path, false);
+
+      MappingService.wrapWithIf(mshItem);
+      const tree = createTargetTree();
+
+      const movedField01Path = findRow(tree, field01Item).path;
+      expect(movedField01Path).toBe(`${findRow(tree, mshItem.parent).path}/${mshItem.id}/${field01Item.id}`);
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(movedField01Path);
+    });
+
+    it('should move the selection to the row of a field that gets mapped', () => {
+      const unmappedMshPath = findChild(findRow(createTargetTree(), hl7Item), 'MSH').path;
+      useDocumentTreeStore.getState().setSelectedNode(unmappedMshPath, false);
+
+      const { fieldItem: mshItem } = mapSegment('MSH');
+      const tree = createTargetTree();
+
+      const mshPath = findRow(tree, mshItem).path;
+      expect(mshPath).not.toBe(unmappedMshPath);
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(mshPath);
+    });
+
+    it('should move the selection to the row of a field that gets mapped behind a new guard', () => {
+      const unmappedPidPath = findChild(findRow(createTargetTree(), hl7Item), 'PID').path;
+      useDocumentTreeStore.getState().setSelectedNode(unmappedPidPath, false);
+
+      const { pidItem, guard } = mapGuardedPid();
+      const tree = createTargetTree();
+
+      expect(pidItem.parent).toBe(guard);
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(findRow(tree, pidItem).path);
+    });
+
+    it('should move the selection to the row of a field mapped together with its parent under a mapped field', () => {
+      const unmappedMshRow = findChild(findRow(createTargetTree(), hl7Item), 'MSH');
+      const unmappedField01Row = findChild(unmappedMshRow, 'field_01');
+      useDocumentTreeStore.getState().setSelectedNode(unmappedField01Row.path, false);
+
+      const mshItem = MappingService.createFieldItem(hl7Item, (unmappedMshRow.nodeData as TargetFieldNodeData).field);
+      const field01Item = MappingService.createFieldItem(
+        mshItem,
+        (unmappedField01Row.nodeData as TargetFieldNodeData).field,
+      );
+      const tree = createTargetTree();
+
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(findRow(tree, field01Item).path);
+    });
+
+    it('should not move the selection of a field inside a variable onto the unmapped row of its field', () => {
+      const variable = new VariableItem(hl7Item, 'segment');
+      hl7Item.children.push(variable);
+      const variableMshItem = new FieldItem(variable, findField(hl7Item.field, 'MSH'));
+      variable.children.push(variableMshItem);
+      const variableMshPath = findRow(createTargetTree(), variableMshItem).path;
+      useDocumentTreeStore.getState().setSelectedNode(variableMshPath, false);
+
+      variable.children = [];
+      createTargetTree();
+
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(variableMshPath);
+    });
+
+    it('should not move the selection of a field removed with its parent from inside a variable', () => {
+      const variable = new VariableItem(adtMappingTree, 'message');
+      adtMappingTree.children.push(variable);
+      const variableHl7Item = new FieldItem(variable, hl7Item.field);
+      variable.children.push(variableHl7Item);
+      const variableMshItem = new FieldItem(variableHl7Item, findField(hl7Item.field, 'MSH'));
+      variableHl7Item.children.push(variableMshItem);
+      const variableMshPath = findRow(createTargetTree(), variableMshItem).path;
+      useDocumentTreeStore.getState().setSelectedNode(variableMshPath, false);
+
+      variable.children = [];
+      createTargetTree();
+
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(variableMshPath);
+    });
+
+    it('should move the selection to the row of a field mapped together with its parent at the document root', () => {
+      adtMappingTree.children = [];
+      const unmappedMshPath = findChild(createTargetTree().contentRoots[0], 'MSH').path;
+      useDocumentTreeStore.getState().setSelectedNode(unmappedMshPath, false);
+
+      adtMappingTree.children.push(hl7Item);
+      const { fieldItem: mshItem } = mapSegment('MSH');
+      const tree = createTargetTree();
+
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(findRow(tree, mshItem).path);
+    });
+
+    it('should move the expansion of a row to the row of its field once it gets mapped', () => {
+      const tree1 = createTargetTree();
+      const documentId = tree1.documentNodeId;
+      const unmappedMshPath = findChild(findRow(tree1, hl7Item), 'MSH').path;
+      const wasExpanded = useDocumentTreeStore.getState().isExpanded(documentId, unmappedMshPath);
+      TreeUIService.toggleNode(documentId, unmappedMshPath);
+
+      const { fieldItem: mshItem } = mapSegment('MSH');
+      const tree2 = createTargetTree();
+
+      expect(useDocumentTreeStore.getState().isExpanded(documentId, findRow(tree2, mshItem).path)).toBe(!wasExpanded);
+      expect(keysUnder(getExpansion(tree2), unmappedMshPath)).toHaveLength(0);
+    });
+
+    it('should move the selection to the unmapped row of a field whose mapping is deleted', () => {
+      mapSegment('PID');
+      const { fieldItem: mshItem } = mapSegment('MSH');
+      const mshPath = findRow(createTargetTree(), mshItem).path;
+      useDocumentTreeStore.getState().setSelectedNode(mshPath, false);
+
+      MappingService.deleteMappingItem(mshItem);
+      const tree = createTargetTree();
+
+      const unmappedMshPath = findChild(findRow(tree, hl7Item), 'MSH').path;
+      expect(unmappedMshPath).not.toBe(mshPath);
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(unmappedMshPath);
+    });
+
+    it('should keep the selection of a row that the moves leave in place', () => {
+      const { fieldItem: mshItem } = mapSegment('MSH');
+      const { selector } = mapGuardedPid();
+      const mshPath = findRow(createTargetTree(), mshItem).path;
+      useDocumentTreeStore.getState().setSelectedNode(mshPath, false);
+
+      MappingService.updateExpression(selector, '/HL7/PID[1]');
+      const tree = createTargetTree();
+
+      expect(findRow(tree, mshItem).path).toBe(mshPath);
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(mshPath);
+    });
+
+    it('should leave a source selection alone when the guard is demoted', () => {
+      const { selector } = mapGuardedPid();
+      createTargetTree();
+      const sourceTree = TreeUIService.createTree(new DocumentNodeData(adtSourceDoc));
+      const sourcePidPath = findChild(sourceTree.contentRoots[0], 'PID').path;
+      useDocumentTreeStore.getState().setSelectedNode(sourcePidPath, true);
+
+      MappingService.updateExpression(selector, '/HL7/PID[1]');
+      createTargetTree();
+
+      expect(useDocumentTreeStore.getState().selectedNodePath).toBe(sourcePidPath);
+      expect(useDocumentTreeStore.getState().selectedNodeIsSource).toBe(true);
     });
   });
 });

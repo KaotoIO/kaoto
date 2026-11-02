@@ -1,9 +1,15 @@
 import { IField, IParentType } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { FieldItem, MappingItem, MappingTree } from '../../models/datamapper/mapping';
+import {
+  FieldItem,
+  InstructionItem,
+  MappingItem,
+  MappingParentType,
+  MappingTree,
+} from '../../models/datamapper/mapping';
 import { NodePath } from '../../models/datamapper/nodepath';
-import { DocumentNodeData, TargetDocumentNodeData } from '../../models/datamapper/visualization';
+import { DocumentNodeData, TargetDocumentNodeData, TargetRenderIndex } from '../../models/datamapper/visualization';
 import { TreeExpansionState, useDocumentTreeStore } from '../../store/document-tree.store';
 import { processTreeNode } from '../../utils';
 import { TreeParsingService } from './tree-parsing.service';
@@ -32,12 +38,20 @@ import { TreeParsingService } from './tree-parsing.service';
  *    present in old → absent in new). `FieldItem` objects are stable across rebuilds —
  *    `refreshMappingTree` re-parents the same instances — so identity comparison gives exact
  *    pairs. The mapped (new) path is derived by `collectFieldItems` (the mapping id, or the
- *    member's `field.id` for a substituted non-collection member); the unmapped (old) path is
- *    reconstructed by `computeOldUnmappedPath` (using `field.id`, and the wrapper id for a
- *    substituted non-collection member). The map is applied via `applyPathMigration` using
- *    prefix replacement, so entire subtrees are migrated in one pass regardless of depth.
+ *    member's `field.id` for a substituted non-collection member); the unmapped (old) path comes
+ *    from `computeUnmappedPath`: the row path of the nearest field item above it plus the field's
+ *    own segment, since instruction rows never show unmapped fields. The map is applied via
+ *    `applyPathMigration` using prefix replacement, so entire subtrees are migrated in one pass
+ *    regardless of depth.
  *    Source and parameter panels have no MappingTree and are skipped entirely (path map
  *    will be empty).
+ *
+ *    A `FieldItem` present in both snapshots whose visual path changed has moved: a guard around
+ *    it was shown or hidden, or it was wrapped in an instruction. Its old path maps to its new one,
+ *    and an ancestor row inserted above it under an expanded parent, such as the `if` a demoted
+ *    guard shows as, is seeded expanded unless the store already has an entry for it, so the moved
+ *    row stays visible. The snapshot skips the segments of guards the {@link TargetRenderIndex}
+ *    absorbs, because those have no row. The selected node path moves with the same map.
  *
  *    **Known gap:** if-wrapping of a selected wrapper member inserts a new segment into an
  *    already-mapped path that cannot be expressed as a simple prefix substitution. This case
@@ -65,7 +79,7 @@ export class TreeUIService {
    * `refreshMappingTree` creates a new tree shell). A direct diff of old vs new MappingTree
    * objects would therefore always see the same items on both sides. By snapshotting the
    * FieldItem set at tree-creation time we can compare against the next call's MappingTree
-   * and correctly detect which items were added or removed since the previous render.
+   * and correctly detect which items were added, removed or moved since the previous render.
    */
   private static readonly fieldItemSnapshots: Map<string, Map<FieldItem, string>> = new Map();
 
@@ -74,11 +88,13 @@ export class TreeUIService {
    *
    * When a tree already exists for the same document node ID (i.e., a rebuild):
    * 1. For target documents, `buildPathMap` diffs the previous FieldItem snapshot against the
-   *    new MappingTree to produce a full-path substitution map for create/remove transitions,
-   *    then `applyPathMigration` rewrites the current expansion state in-memory.
+   *    new MappingTree to produce a full-path substitution map for create, remove and move
+   *    transitions, then `applyPathMigration` rewrites the current expansion state in-memory and
+   *    `seedMovedAncestors` expands the rows a move inserted above a moved row.
    *    Source/parameter panels skip this step.
    * 2. The new tree is stored; `reconcileExpansion` does a verbatim carry-over + prune + frontier
-   *    overlay and the result is written via a single `setTreeExpansion` call.
+   *    overlay and the result is written via a single `setTreeExpansion` call, which also moves the
+   *    selected target row to its new path (`migrateSelection`).
    */
   static createTree(documentNodeData: DocumentNodeData): DocumentTree {
     const id = documentNodeData.id;
@@ -102,21 +118,28 @@ export class TreeUIService {
     // oldSnapshot captures the FieldItems as of the PREVIOUS createTree call, before any
     // subsequent mutations to the MappingTree object.
     let pathMap: Map<string, string>;
+    let movedPaths: [string, string][] = [];
     if (documentNodeData instanceof TargetDocumentNodeData && oldSnapshot) {
-      const newSnapshot = TreeUIService.collectFieldItems(documentNodeData.mappingTree);
-      pathMap = TreeUIService.buildPathMap(oldSnapshot, newSnapshot);
+      const newSnapshot = TreeUIService.collectFieldItems(documentNodeData.mappingTree, documentNodeData.renderIndex);
+      movedPaths = TreeUIService.collectMovedPaths(oldSnapshot, newSnapshot);
+      pathMap = TreeUIService.buildPathMap(oldSnapshot, newSnapshot, movedPaths);
       // Store the new snapshot for the next diff.
       this.fieldItemSnapshots.set(id, newSnapshot);
     } else {
       pathMap = new Map();
       // First build for this ID — take an initial snapshot for the next diff.
       if (documentNodeData instanceof TargetDocumentNodeData) {
-        this.fieldItemSnapshots.set(id, TreeUIService.collectFieldItems(documentNodeData.mappingTree));
+        this.fieldItemSnapshots.set(
+          id,
+          TreeUIService.collectFieldItems(documentNodeData.mappingTree, documentNodeData.renderIndex),
+        );
       }
     }
 
-    const migratedExpansion =
-      pathMap.size > 0 ? TreeUIService.applyPathMigration(currentExpansion, pathMap) : currentExpansion;
+    const migratedExpansion = TreeUIService.seedMovedAncestors(
+      pathMap.size > 0 ? TreeUIService.applyPathMigration(currentExpansion, pathMap) : currentExpansion,
+      movedPaths,
+    );
 
     this.trees.set(id, tree);
 
@@ -124,8 +147,9 @@ export class TreeUIService {
     // frontier overlay sees them, then do verbatim carry-over + prune + overlay.
     TreeUIService.reparseExpandedNodes(tree, migratedExpansion);
     const newExpansion = TreeUIService.reconcileExpansion(tree, migratedExpansion);
+    const selectedNodePath = TreeUIService.migrateSelection(documentNodeData, pathMap, movedPaths);
     // Single atomic store write — React never sees a half-migrated intermediate state.
-    useDocumentTreeStore.getState().setTreeExpansion(tree.documentNodeId, newExpansion);
+    useDocumentTreeStore.getState().setTreeExpansion(tree.documentNodeId, newExpansion, selectedNodePath);
 
     return tree;
   }
@@ -268,7 +292,9 @@ export class TreeUIService {
    * walk rather than read from `item.nodePath`, so that the substituted segment also propagates to
    * every descendant.
    *
-   * NOTE: do NOT use `MappingLinksService.computeVisualTargetNodePath` here — it applies the
+   * Guards the {@link TargetRenderIndex} absorbs have no row and add no segment.
+   *
+   * NOTE: do NOT use `TargetRenderService.computeTargetPath` here — it applies the
    * `field.id` substitution to every selected wrapper member, including collection wrappers, which
    * do render at the mapping id. It is for edge-rendering port lookup, where that distinction does
    * not surface.
@@ -277,9 +303,15 @@ export class TreeUIService {
    * identify which FieldItems were added or removed since the previous render — even if the
    * MappingTree object was mutated in place between renders.
    */
-  private static collectFieldItems(tree: MappingTree): Map<FieldItem, string> {
+  private static collectFieldItems(tree: MappingTree, renderIndex: TargetRenderIndex): Map<FieldItem, string> {
     const result = new Map<FieldItem, string>();
     const visit = (item: MappingItem, parentPath: NodePath): void => {
+      if (renderIndex.isAbsorbed(item)) {
+        for (const child of item.children) {
+          visit(child, parentPath);
+        }
+        return;
+      }
       const segment =
         item instanceof FieldItem && TreeUIService.isNonCollectionSelectedWrapper(item.field.parent)
           ? item.field.id
@@ -299,30 +331,37 @@ export class TreeUIService {
   }
 
   /**
-   * Diff two FieldItem snapshots and return a full-path substitution map:
-   * old visual path → new visual path for every {@link FieldItem} that appears in one
-   * snapshot but not the other.
+   * Diff two FieldItem snapshots and return a full-path substitution map: old visual path → new
+   * visual path for every {@link FieldItem} that was created or removed (it appears in one snapshot
+   * but not the other) or moved (it appears in both at a different visual path, see
+   * `collectMovedPaths`).
    *
    * **Why object identity works:** `refreshMappingTree` re-parents the *same* `FieldItem`
    * instances into the new tree rather than recreating them, so a `FieldItem` present in
    * the old snapshot but absent from the new snapshot (or vice versa) unambiguously
-   * identifies a create or remove transition.
+   * identifies a create or remove transition, and one present in both gives the exact pair of a
+   * move, with nothing to reconstruct. A moved item whose new path the pair of a moved ancestor
+   * already produces is left out, so moving a container doesn't add a pair for every descendant.
    *
    * Visual paths (not mapping-tree paths) are used because expansion state keys are keyed on
    * visual paths: the new (mapped) path comes from the `collectFieldItems` snapshot; the old
-   * (unmapped) path is reconstructed by `computeOldUnmappedPath`.
+   * (unmapped) path comes from `computeUnmappedPath`.
    *
    * **Known gap:** if-wrapping of a selected wrapper member changes the visual path of an
    * already-mapped node in a way that cannot be expressed as a prefix substitution. Expansion
    * keys under if-wrapped nodes will be lost when the wrapping is added. This is accepted as
    * a known limitation for a future improvement.
    */
-  private static buildPathMap(oldItems: Map<FieldItem, string>, newItems: Map<FieldItem, string>): Map<string, string> {
+  private static buildPathMap(
+    oldItems: Map<FieldItem, string>,
+    newItems: Map<FieldItem, string>,
+    movedPaths: [string, string][],
+  ): Map<string, string> {
     const pathMap = new Map<string, string>();
 
     // Create transition: FieldItem absent in old, present in new. Before the FieldItem existed the
-    // field was a TargetFieldNodeData; computeOldUnmappedPath reconstructs that old path, and the
-    // item's snapshot path is the new (mapped) path.
+    // field was a TargetFieldNodeData; computeUnmappedPath gives that old path, and the item's
+    // snapshot path is the new (mapped) path.
     TreeUIService.collectUnambiguousTransitions(
       newItems,
       oldItems,
@@ -331,7 +370,7 @@ export class TreeUIService {
     );
 
     // Remove transition: FieldItem present in old, absent in new. The item's snapshot path is the
-    // old (mapped) path, and computeOldUnmappedPath gives the reverted TargetFieldNodeData path.
+    // old (mapped) path, and computeUnmappedPath gives the reverted TargetFieldNodeData path.
     TreeUIService.collectUnambiguousTransitions(
       oldItems,
       newItems,
@@ -339,7 +378,95 @@ export class TreeUIService {
       pathMap,
     );
 
+    for (const [oldPath, newPath] of movedPaths) {
+      if (pathMap.has(oldPath) || TreeUIService.isMovedWithAncestor(oldPath, newPath, pathMap)) continue;
+      pathMap.set(oldPath, newPath);
+    }
+
     return pathMap;
+  }
+
+  /**
+   * The `[oldPath, newPath]` pairs of every {@link FieldItem} present in both snapshots whose visual
+   * path changed, e.g. because a guard around it was shown or hidden or it was wrapped.
+   */
+  private static collectMovedPaths(
+    oldItems: Map<FieldItem, string>,
+    newItems: Map<FieldItem, string>,
+  ): [string, string][] {
+    const moved: [string, string][] = [];
+    for (const [item, newPath] of newItems) {
+      const oldPath = oldItems.get(item);
+      if (oldPath !== undefined && oldPath !== newPath) moved.push([oldPath, newPath]);
+    }
+    return moved;
+  }
+
+  /**
+   * Seeds the ancestor rows a move inserted above a moved row as expanded, so the moved row stays
+   * visible — e.g. the `if` row a demoted guard now shows as, which would otherwise start collapsed
+   * below the parse frontier. Only rows that gained ancestors under their unchanged, expanded parent
+   * are considered. A row moved along with a moved ancestor never qualifies, since its old parent's
+   * path changed too. The parent's row is parsed, so the inserted rows exist, while under a collapsed
+   * parent an inserted row seeded expanded would show an open chevron without children once the user
+   * expands the parent. An existing entry is never overwritten, so a container the user collapsed
+   * stays collapsed.
+   */
+  private static seedMovedAncestors(expansion: TreeExpansionState, movedPaths: [string, string][]): TreeExpansionState {
+    const seeded: TreeExpansionState = { ...expansion };
+    for (const [oldPath, newPath] of movedPaths) {
+      const oldParent = TreeUIService.getParentPath(oldPath);
+      const gainedAncestors =
+        newPath.startsWith(`${oldParent}/`) && TreeUIService.getDepth(newPath) > TreeUIService.getDepth(oldPath);
+      if (!gainedAncestors || expansion[oldParent] !== true) continue;
+      let ancestor = TreeUIService.getParentPath(newPath);
+      while (ancestor.length > oldParent.length) {
+        if (!(ancestor in seeded)) seeded[ancestor] = true;
+        ancestor = TreeUIService.getParentPath(ancestor);
+      }
+    }
+    return seeded;
+  }
+
+  /**
+   * The selected target node's path after the rebuild, or `undefined` when it doesn't change. A
+   * selected `if` that got absorbed into its field hands the selection to the field's row.
+   */
+  private static migrateSelection(
+    documentNodeData: DocumentNodeData,
+    pathMap: Map<string, string>,
+    movedPaths: [string, string][],
+  ): string | undefined {
+    if (!(documentNodeData instanceof TargetDocumentNodeData)) return undefined;
+    const { selectedNodePath, selectedNodeIsSource } = useDocumentTreeStore.getState();
+    if (!selectedNodePath || selectedNodeIsSource) return undefined;
+    const [migratedPath] = Object.keys(TreeUIService.applyPathMigration({ [selectedNodePath]: true }, pathMap));
+    if (migratedPath !== selectedNodePath) return migratedPath;
+    for (const [oldPath, newPath] of movedPaths) {
+      const isAbsorbedParent =
+        TreeUIService.getParentPath(oldPath) === selectedNodePath &&
+        TreeUIService.getDepth(newPath) < TreeUIService.getDepth(oldPath);
+      if (isAbsorbedParent) return newPath;
+    }
+    return undefined;
+  }
+
+  private static getParentPath(path: string): string {
+    return path.slice(0, path.lastIndexOf('/'));
+  }
+
+  private static isMovedWithAncestor(oldPath: string, newPath: string, pathMap: Map<string, string>): boolean {
+    let ancestor = oldPath;
+    while (ancestor.includes('/')) {
+      ancestor = TreeUIService.getParentPath(ancestor);
+      const migratedAncestor = pathMap.get(ancestor);
+      if (migratedAncestor !== undefined) return newPath === `${migratedAncestor}${oldPath.slice(ancestor.length)}`;
+    }
+    return false;
+  }
+
+  private static getDepth(path: string): number {
+    return path.split('/').length;
   }
 
   /**
@@ -360,7 +487,8 @@ export class TreeUIService {
     const counterpartCounts = new Map<string, number>();
     for (const [item] of source) {
       if (other.has(item)) continue;
-      const counterpart = TreeUIService.computeOldUnmappedPath(item);
+      const counterpart = TreeUIService.computeUnmappedPath(item, other);
+      if (counterpart === undefined) continue;
       counterparts.set(item, counterpart);
       counterpartCounts.set(counterpart, (counterpartCounts.get(counterpart) ?? 0) + 1);
     }
@@ -391,7 +519,7 @@ export class TreeUIService {
    *
    * This is the condition under which the visual path of the member and of the wrapper diverge
    * from the mapping tree, and it must be applied symmetrically: `collectFieldItems` substitutes
-   * the member's `field.id` for the mapping id on the new side, and `computeOldUnmappedPath`
+   * the member's `field.id` for the mapping id on the new side, and `computeUnmappedPath`
    * substitutes the wrapper's id on the old side. Collection wrappers (`maxOccurs !== 1`) render
    * each member at its own per-instance path, so neither substitution applies there.
    */
@@ -400,46 +528,32 @@ export class TreeUIService {
   }
 
   /**
-   * Reconstruct the visual path a {@link FieldItem}'s field would have if it were still an
-   * unmapped `TargetFieldNodeData`. Walks up `item.field.parent` and uses `field.id` at every
-   * level — exactly how `TargetFieldNodeData` builds its path from `FieldNodeData`.
+   * The path of the row `item`'s field has while it has no mapping, in the tree of `otherItems`, the
+   * snapshot without `item`, or `undefined` when there is none. That row sits under the row of the
+   * nearest field item above `item`, passing through instructions such as an `if` or a `for-each`,
+   * whose rows never show unmapped fields, so its path is that row's path plus the field's own
+   * segment; rebuilding it from the schema would miss the mapping ids in the segments of mapped
+   * ancestors. When that field item was created or removed together with `item`, its own unmapped
+   * path is used, and a field directly under the document root sits under the document's row.
+   * Inside anything else, such as a content-form variable, the field's unmapped row exists
+   * independently of `item`, so there is no counterpart.
    *
-   * Two wrapper cases are handled so the reconstructed path matches the expansion key that
-   * actually existed before selection / after revert:
-   * - A **substituted member** (its parent is a selected wrapper, e.g. `Car` under a selected
-   *   `AbstractVehicle`) is rendered at the wrapper's own path segment, not the member's. Before
-   *   selection the visible node WAS the (unselected) wrapper, so its key used the wrapper id.
-   *   We therefore emit the wrapper's id in place of the member's, and skip the wrapper level.
-   * - Other **selected wrapper ancestors** higher up are skipped entirely (transparent nodes).
-   *
-   * Used for both create (unmapped→mapped) and remove (mapped→unmapped) transitions; both want
-   * the same wrapper-based path, since the pre-selection and post-revert visual node is the wrapper.
+   * The segment is the field's id, except for the member of a selected wrapper that collapses onto
+   * one member: before the member was mapped, or after it is removed, the row is the wrapper's.
+   * @param item - the field item that was created or removed
+   * @param otherItems - the snapshot in which `item` doesn't exist, mapped to visual paths
    */
-  private static computeOldUnmappedPath(item: FieldItem): string {
-    const segments: string[] = [];
-    let current: IParentType = item.field;
-    let isLeaf = true;
-    while ('parent' in current && current.parent !== current) {
-      const parent: IParentType = current.parent;
-      if (isLeaf && TreeUIService.isNonCollectionSelectedWrapper(parent)) {
-        // Substituted member of a NON-collection wrapper (maxOccurs=1): before selection /
-        // after revert the visible node is the (unselected) wrapper, so the leaf segment is the
-        // wrapper's id, not the member's. Collection wrappers (maxOccurs!==1) render each member
-        // at its own per-instance path, so this substitution must not apply there.
-        segments.unshift(parent.id);
-      } else if (!TreeUIService.isSelectedWrapper(current)) {
-        // Skip selected wrapper fields — they are transparent in the visual tree.
-        segments.unshift(current.id);
-      }
-      current = parent;
-      isLeaf = false;
+  private static computeUnmappedPath(item: FieldItem, otherItems: Map<FieldItem, string>): string | undefined {
+    let parent: MappingParentType = item.parent;
+    while (parent instanceof InstructionItem) {
+      parent = parent.parent;
     }
-    // At the top we have the document root — use item.mappingTree.nodePath for the base.
-    let path = item.mappingTree.nodePath;
-    for (const seg of segments) {
-      path = NodePath.childOf(path, seg);
-    }
-    return path.toString();
+    const fieldParent = item.field.parent;
+    const segment = TreeUIService.isNonCollectionSelectedWrapper(fieldParent) ? fieldParent.id : item.field.id;
+    if (parent instanceof MappingTree) return NodePath.childOf(parent.nodePath, segment).toString();
+    if (!(parent instanceof FieldItem)) return undefined;
+    const anchorPath = otherItems.get(parent) ?? TreeUIService.computeUnmappedPath(parent, otherItems);
+    return anchorPath === undefined ? undefined : `${anchorPath}/${segment}`;
   }
 
   /**

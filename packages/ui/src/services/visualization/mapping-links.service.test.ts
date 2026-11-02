@@ -13,6 +13,7 @@ import {
   CopyOfSelector,
   CopyOfType,
   FieldItem,
+  ForEachItem,
   IfItem,
   MappingTree,
   OtherwiseItem,
@@ -21,7 +22,7 @@ import {
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { variableNodePath, VARIABLES_DOCUMENT_ID } from '../../models/datamapper/nodepath';
-import { MappingLineStyle } from '../../models/datamapper/visualization';
+import { MappingLineStyle, TargetDocumentNodeData, TargetRenderIndex } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store';
 import { mockRandomValues } from '../../stubs';
 import {
@@ -46,15 +47,22 @@ import {
   getX12850ForEachXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import {
+  createElementRefCsvDocument,
+  createElementRefSingleRowCsvDocument,
+  expectLinksOnRenderedRows,
+} from '../../stubs/datamapper/target-render-test-helpers';
 import { QName } from '../../xml-schema-ts/QName';
 import { DocumentUtilService } from '../document/document-util.service';
 import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-document.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { XPathService } from '../xpath/xpath.service';
 import { ValidatedXPathParseResult } from '../xpath/xpath-model';
 import { MappingLinksService } from './mapping-links.service';
+import { TargetRenderService } from './target-render.service';
 
 describe('MappingLinksService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -74,9 +82,12 @@ describe('MappingLinksService', () => {
     MappingSerializerService.deserialize(getShipOrderToShipOrderXslt(), targetDoc, tree, paramsMap);
   });
 
+  const buildRenderIndex = (mappingTree: MappingTree, sourceBody: IDocument) =>
+    TargetRenderService.buildIndex(mappingTree, { sourceParameterMap: paramsMap, sourceBody });
+
   describe('extractMappingLinks()', () => {
     it('should return IMappingLink[]', () => {
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(11);
       expect(links[0].sourceNodePath).toMatch('OrderId');
       expect(links[0].targetNodePath).toMatch('OrderId');
@@ -119,13 +130,87 @@ describe('MappingLinksService', () => {
       selector.expression = '/ns0:ShipOrder/@OrderId | /ns0:ShipOrder/ns0:OrderPerson';
       orderPerson.children.push(selector);
 
-      const links = MappingLinksService.extractMappingLinks(emptyTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(emptyTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
 
       expect(links).toHaveLength(2);
       expect(links[0].sourceNodePath).toMatch('OrderId');
       expect(links[1].sourceNodePath).toMatch('OrderPerson');
       expect(links[0].targetNodePath).toMatch('OrderPerson');
       expect(links[1].targetNodePath).toMatch('OrderPerson');
+    });
+
+    describe('with a see-through optional guard', () => {
+      const createGuardedNoteTree = () => {
+        const guardTree = new MappingTree(
+          targetDoc.documentType,
+          targetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        guardTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+        const targetRoot = targetDoc.fields[0];
+        const targetItem = targetRoot.fields.find((f: IField) => f.name === 'Item')!;
+        const targetNote = targetItem.fields.find((f: IField) => f.name === 'Note')!;
+
+        const rootItem = new FieldItem(guardTree, targetRoot);
+        guardTree.children.push(rootItem);
+        const forEach = new ForEachItem(rootItem);
+        forEach.expression = '/ns0:ShipOrder/Item';
+        rootItem.children.push(forEach);
+        const itemItem = new FieldItem(forEach, targetItem);
+        forEach.children.push(itemItem);
+        const guard = new IfItem(itemItem);
+        guard.expression = 'Note';
+        itemItem.children.push(guard);
+        const noteItem = new FieldItem(guard, targetNote);
+        guard.children.push(noteItem);
+        const selector = new ValueOfSelector(noteItem);
+        selector.expression = 'Note';
+        noteItem.children.push(selector);
+        return { guardTree, guard, noteItem, selector };
+      };
+
+      it('should draw only one link (not two) for the guarded field', () => {
+        // A visible if produces two links — one for the if's own test expression, one for the
+        // inner selector. A see-through guard draws only the latter, landing directly on the
+        // field's path rather than an invisible `/if-...` segment.
+        const { guardTree, guard, noteItem } = createGuardedNoteTree();
+        const renderIndex = buildRenderIndex(guardTree, sourceDoc);
+        expect(renderIndex.getAbsorbingField(guard)).toBe(noteItem);
+
+        const links = MappingLinksService.extractMappingLinks(guardTree, paramsMap, sourceDoc, renderIndex);
+        const noteLinks = links.filter((l) => l.sourceNodePath.includes('Note'));
+
+        expect(noteLinks).toHaveLength(1);
+        expect(noteLinks[0].targetNodePath).toMatch('fx-Note');
+        expect(noteLinks[0].targetNodePath).not.toMatch('/if-');
+      });
+
+      it('should keep lines on rendered rows when the guarded field is edited without a structural refresh', () => {
+        const { guardTree, guard, noteItem, selector } = createGuardedNoteTree();
+        const renderIndex = buildRenderIndex(guardTree, sourceDoc);
+        expect(renderIndex.getAbsorbingField(guard)).toBe(noteItem);
+
+        MappingService.updateExpression(selector, 'Note ');
+        const links = MappingLinksService.extractMappingLinks(guardTree, paramsMap, sourceDoc, renderIndex);
+        const noteLinks = links.filter((l) => l.sourceNodePath.includes('Note'));
+
+        expect(TargetRenderService.computeSeeThroughField(guard, renderIndex.sourceContext)).toBeUndefined();
+        expectLinksOnRenderedRows(links, new TargetDocumentNodeData(targetDoc, guardTree, renderIndex));
+        expect(noteLinks).toHaveLength(1);
+        expect(noteLinks[0].targetNodePath).toBe(renderIndex.getSnapshotPath(noteItem));
+      });
+
+      it('should draw the guard as a visible if with its own line when the render index has no snapshot', () => {
+        const { guardTree, guard, noteItem } = createGuardedNoteTree();
+
+        const links = MappingLinksService.extractMappingLinks(guardTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
+        const noteLinks = links.filter((l) => l.sourceNodePath.includes('Note'));
+
+        expectLinksOnRenderedRows(links, new TargetDocumentNodeData(targetDoc, guardTree, TargetRenderIndex.EMPTY));
+        expect(noteLinks).toHaveLength(2);
+        expect(noteLinks[0].targetNodePath).toBe(guard.nodePath.toString());
+        expect(noteLinks[1].targetNodePath).toBe(noteItem.nodePath.toString());
+      });
     });
 
     it('should generate mapping links for the cached type fragments field', () => {
@@ -145,7 +230,7 @@ describe('MappingLinksService', () => {
       targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(getX12837PXslt(), targetDoc, tree, paramsMap);
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(14);
       expect(links[0].sourceNodePath).toMatch('fx-GS-02');
       expect(links[0].targetNodePath).toMatch('fx-From');
@@ -194,19 +279,19 @@ describe('MappingLinksService', () => {
       targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(getX12850ForEachXslt(), targetDoc, tree, paramsMap);
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links.find((l) => l.sourceNodePath === 'sourceBody:X12-850.dfdl.xsd://')).toBeUndefined();
     });
 
     it('should generate mapping links for multiple for-each on a same target collection', () => {
       MappingSerializerService.deserialize(getShipOrderToShipOrderMultipleForEachXslt(), targetDoc, tree, paramsMap);
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(10);
     });
 
     it('should generate mapping links for multiple field item on a same target collection', () => {
       MappingSerializerService.deserialize(getShipOrderToShipOrderCollectionIndexXslt(), targetDoc, tree, paramsMap);
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(8);
     });
 
@@ -229,7 +314,12 @@ describe('MappingLinksService', () => {
       const emptyParamsMap = new Map<string, IDocument>();
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(getJsonBodyToShipOrderXslt(), targetDoc, tree, emptyParamsMap);
-      const links = MappingLinksService.extractMappingLinks(tree, emptyParamsMap, jsonSourceDoc);
+      const links = MappingLinksService.extractMappingLinks(
+        tree,
+        emptyParamsMap,
+        jsonSourceDoc,
+        TargetRenderIndex.EMPTY,
+      );
       expect(links.length).toBeGreaterThan(0);
       expect(links.some((l) => l.sourceNodePath.includes('OrderPerson'))).toBe(true);
     });
@@ -261,7 +351,7 @@ describe('MappingLinksService', () => {
       );
       MappingSerializerService.deserialize(getOrgToContactsXslt(), contactsTargetDoc, tree, paramsMap);
 
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, orgSourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, orgSourceDoc, TargetRenderIndex.EMPTY);
 
       expect(links.length).toBeGreaterThan(0);
 
@@ -285,7 +375,7 @@ describe('MappingLinksService', () => {
       tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       MappingSerializerService.deserialize(getShipOrderWithCurrentXslt(), targetDoc, tree, paramsMap);
 
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
 
       expect(links).toHaveLength(7);
       expect(links[0].sourceNodePath).toMatch('OrderPerson');
@@ -314,7 +404,14 @@ describe('MappingLinksService', () => {
       const store = useDocumentTreeStore.getState();
       store.setSelectedNode(orderIdPath, true);
 
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, orderIdPath, true);
+      const links = MappingLinksService.extractMappingLinks(
+        tree,
+        paramsMap,
+        sourceDoc,
+        TargetRenderIndex.EMPTY,
+        orderIdPath,
+        true,
+      );
       expect(MappingLinksService.isNodeInSelectedMapping(links, orderIdPath)).toBeTruthy();
       expect(MappingLinksService.isNodeInSelectedMapping(links, shipToNamePath)).toBeFalsy();
 
@@ -323,10 +420,17 @@ describe('MappingLinksService', () => {
     });
 
     it('should select links by target node path when selectedNodeIsSource is false', () => {
-      const allLinks = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const allLinks = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const firstTargetPath = allLinks[0].targetNodePath;
 
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, firstTargetPath, false);
+      const links = MappingLinksService.extractMappingLinks(
+        tree,
+        paramsMap,
+        sourceDoc,
+        TargetRenderIndex.EMPTY,
+        firstTargetPath,
+        false,
+      );
       const selectedLinks = links.filter((l) => l.isSelected);
 
       expect(selectedLinks.length).toBeGreaterThan(0);
@@ -371,7 +475,7 @@ describe('MappingLinksService', () => {
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       emailItem.children.push(valueSelector);
 
-      const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toBe(
         `targetBody:Body://${rootItem.id}/${personItem.id}/outer-choice/inner-choice/${emailItem.id}`,
@@ -417,7 +521,7 @@ describe('MappingLinksService', () => {
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       emailItem.children.push(valueSelector);
 
-      const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toBe(`targetBody:Body://${rootItem.id}/${personItem.id}/${emailField.id}`);
     });
@@ -459,7 +563,7 @@ describe('MappingLinksService', () => {
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       emailItem.children.push(valueSelector);
 
-      const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(choiceTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toBe(
         `targetBody:Body://${rootItem.id}/${personItem.id}/inner-choice/${emailItem.id}`,
@@ -510,7 +614,12 @@ describe('MappingLinksService', () => {
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       subjectItem.children.push(valueSelector);
 
-      const links = MappingLinksService.extractMappingLinks(choiceAbsTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(
+        choiceAbsTree,
+        paramsMap,
+        sourceDoc,
+        TargetRenderIndex.EMPTY,
+      );
       expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toBe(
         `targetBody:Body://${rootItem.id}/${largeItem.id}/${emailItem.id}/${subjectItem.id}`,
@@ -561,7 +670,7 @@ describe('MappingLinksService', () => {
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       keyItem.children.push(valueSelector);
 
-      const links = MappingLinksService.extractMappingLinks(seqTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(seqTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toBe(
         `targetBody:Body://${rootItem.id}/${seqInChoiceItem.id}/${sequenceField.id}/${keyItem.id}`,
@@ -611,7 +720,7 @@ describe('MappingLinksService', () => {
       valueSelector.expression = '/ns0:Zoo/ns0:Cat/ns0:indoor';
       orderIdItem.children.push(valueSelector);
 
-      const links = MappingLinksService.extractMappingLinks(abstractTree, paramsMap, zooDoc);
+      const links = MappingLinksService.extractMappingLinks(abstractTree, paramsMap, zooDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(1);
       expect(links[0].sourceNodePath).toContain(catField.id);
       expect(links[0].sourceNodePath).toContain(indoorField.id);
@@ -644,7 +753,7 @@ describe('MappingLinksService', () => {
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       indoorItem.children.push(valueSelector);
 
-      const links = MappingLinksService.extractMappingLinks(zooTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(zooTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).toContain(catField.id);
       expect(links[0].targetNodePath).toContain(indoorField.id);
@@ -678,7 +787,7 @@ describe('MappingLinksService', () => {
       valueSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       indoorItem.children.push(valueSelector);
 
-      const links = MappingLinksService.extractMappingLinks(zooTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(zooTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(1);
       expect(links[0].targetNodePath).not.toContain(abstractAnimalField.id);
       expect(links[0].targetNodePath).toContain(catField.id);
@@ -691,7 +800,7 @@ describe('MappingLinksService', () => {
       // No parserResult → getExprNode() returns undefined (treated as invalid)
       const validateSpy = vi.spyOn(XPathService, 'validate').mockReturnValue(mockValidationResult);
 
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(0);
 
       validateSpy.mockRestore();
@@ -709,15 +818,45 @@ describe('MappingLinksService', () => {
       DocumentUtilService.resolveTypeFragment(targetRoot);
     });
 
+    const createItemWithGuardedNote = (directMappings: [string, string][]) => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetItem = targetRoot.fields.find((f: IField) => f.name === 'Item')!;
+      const mapChild = (parent: FieldItem | IfItem, targetName: string, sourceName: string) => {
+        const childItem = new FieldItem(parent, targetItem.fields.find((f: IField) => f.name === targetName)!);
+        parent.children.push(childItem);
+        const vs = new ValueOfSelector(childItem);
+        vs.expression = `/ns0:ShipOrder/Item/${sourceName}`;
+        childItem.children.push(vs);
+      };
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const itemItem = new FieldItem(rootItem, targetItem);
+      rootItem.children.push(itemItem);
+      const guard = new IfItem(itemItem);
+      guard.expression = '/ns0:ShipOrder/Item/Note';
+      itemItem.children.push(guard);
+      mapChild(guard, 'Note', 'Note');
+      for (const [targetName, sourceName] of directMappings) {
+        mapChild(itemItem, targetName, sourceName);
+      }
+      return { manualTree, guard };
+    };
+
     it('should classify copy-of mapping as COPY_OF', () => {
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const shipToLink = links.find((l) => l.sourceNodePath.includes('ShipTo'));
       expect(shipToLink).toBeDefined();
       expect(shipToLink!.lineStyle).toBe(MappingLineStyle.COPY_OF);
     });
 
     it('should classify links inside InstructionItem as REGULAR', () => {
-      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(tree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const itemChildLinks = links.filter((l) => /for-each-.*fx-(Title|Quantity|Price)/.exec(l.targetNodePath));
       expect(itemChildLinks).toHaveLength(3);
       itemChildLinks.forEach((link) => {
@@ -749,7 +888,7 @@ describe('MappingLinksService', () => {
         childItem.children.push(vs);
       }
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(4);
       links.forEach((link) => {
         expect(link.lineStyle).toBe(MappingLineStyle.COMPLETE);
@@ -785,7 +924,7 @@ describe('MappingLinksService', () => {
         childItem.children.push(vs);
       });
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(4);
       links.forEach((link) => {
         expect(link.lineStyle).toBe(MappingLineStyle.COMPLETE);
@@ -817,7 +956,7 @@ describe('MappingLinksService', () => {
         childItem.children.push(vs);
       }
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(3);
       links.forEach((link) => {
         expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
@@ -854,7 +993,12 @@ describe('MappingLinksService', () => {
           childItem.children.push(vs);
         }
 
-        const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+        const links = MappingLinksService.extractMappingLinks(
+          manualTree,
+          paramsMap,
+          sourceDoc,
+          TargetRenderIndex.EMPTY,
+        );
         expect(links).toHaveLength(4);
         links.forEach((link) => {
           expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
@@ -898,13 +1042,68 @@ describe('MappingLinksService', () => {
           childItem.children.push(vs);
         });
 
-        const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+        const links = MappingLinksService.extractMappingLinks(
+          manualTree,
+          paramsMap,
+          sourceDoc,
+          TargetRenderIndex.EMPTY,
+        );
         expect(links).toHaveLength(4);
         links.forEach((link) => {
           expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
         });
       } finally {
         sourceShipTo.fields.pop();
+      }
+    });
+
+    it('should classify container with a child mapped through a see-through guard as COMPLETE', () => {
+      const { manualTree, guard } = createItemWithGuardedNote([
+        ['Title', 'Title'],
+        ['Quantity', 'Quantity'],
+        ['Price', 'Price'],
+      ]);
+      const singleItemSourceDoc = TestUtil.createSingleItemSourceOrderDoc();
+      const renderIndex = buildRenderIndex(manualTree, singleItemSourceDoc);
+      expect(renderIndex.isAbsorbed(guard)).toBe(true);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, singleItemSourceDoc, renderIndex);
+      expect(links).toHaveLength(4);
+      for (const link of links) {
+        expect(link.lineStyle).toBe(MappingLineStyle.COMPLETE);
+      }
+    });
+
+    it('should classify container with an unmapped child as PARTIAL despite a see-through guard', () => {
+      const { manualTree, guard } = createItemWithGuardedNote([
+        ['Title', 'Title'],
+        ['Quantity', 'Quantity'],
+      ]);
+      const singleItemSourceDoc = TestUtil.createSingleItemSourceOrderDoc();
+      const renderIndex = buildRenderIndex(manualTree, singleItemSourceDoc);
+      expect(renderIndex.isAbsorbed(guard)).toBe(true);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, singleItemSourceDoc, renderIndex);
+      expect(links).toHaveLength(3);
+      for (const link of links) {
+        expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
+      }
+    });
+
+    it('should downgrade COMPLETE to PARTIAL when a source child is unmapped despite a see-through guard', () => {
+      const { manualTree, guard } = createItemWithGuardedNote([
+        ['Title', 'Title'],
+        ['Quantity', 'Price'],
+        ['Price', 'Price'],
+      ]);
+      const singleItemSourceDoc = TestUtil.createSingleItemSourceOrderDoc();
+      const renderIndex = buildRenderIndex(manualTree, singleItemSourceDoc);
+      expect(renderIndex.isAbsorbed(guard)).toBe(true);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, singleItemSourceDoc, renderIndex);
+      expect(links).toHaveLength(4);
+      for (const link of links) {
+        expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
       }
     });
 
@@ -926,7 +1125,7 @@ describe('MappingLinksService', () => {
       vs.expression = '/ns0:ShipOrder/ShipTo';
       shipToItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links).toHaveLength(1);
       expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
       expect(links[0].targetNodePath).toContain(vs.id);
@@ -947,7 +1146,7 @@ describe('MappingLinksService', () => {
       copyOf.expression = '/ns0:ShipOrder/ShipTo';
       manualTree.children.push(copyOf);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const valueOfLink = links.find((link) => link.sourceNodePath.includes('OrderId'))!;
       const copyOfLink = links.find((link) => link.sourceNodePath.includes('ShipTo'))!;
 
@@ -977,7 +1176,7 @@ describe('MappingLinksService', () => {
       valueOf.expression = '/ns0:ShipOrder/ns0:OrderPerson';
       shipToItem.children.push(valueOf);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const copyOfLink = links.find((link) => link.sourceNodePath.includes('ShipTo'))!;
       const valueOfLink = links.find((link) => link.sourceNodePath.includes('OrderPerson'))!;
 
@@ -1008,7 +1207,7 @@ describe('MappingLinksService', () => {
       vs.expression = '$myVar';
       fieldItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
       expect(varLinks).toHaveLength(1);
       expect(varLinks[0].sourceNodePath).toBe(`Var:${VARIABLES_DOCUMENT_ID}://${variable.id}`);
@@ -1032,7 +1231,7 @@ describe('MappingLinksService', () => {
       vs.expression = `$${paramName}`;
       fieldItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
       expect(varLinks).toHaveLength(0);
     });
@@ -1057,7 +1256,7 @@ describe('MappingLinksService', () => {
       vs.expression = `$${paramName}`;
       fieldItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
       const fieldLinks = links.filter((l) => l.sourceDocumentNodeId !== VARIABLES_DOCUMENT_ID);
       expect(varLinks).toHaveLength(1);
@@ -1085,7 +1284,7 @@ describe('MappingLinksService', () => {
       vs.expression = 'concat($a, $b)';
       fieldItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
       expect(varLinks).toHaveLength(2);
       expect(varLinks.map((l) => l.sourceNodePath).sort()).toEqual(
@@ -1118,7 +1317,7 @@ describe('MappingLinksService', () => {
       const manualTree = buildTreeWithExpression('$myVar');
       manualTree.children.unshift(new VariableItem(manualTree, 'myVar'));
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
 
       expect(varLinks).toHaveLength(1);
@@ -1128,7 +1327,7 @@ describe('MappingLinksService', () => {
     it('should anchor parameter links to the parameters section', () => {
       const manualTree = buildTreeWithExpression('$sourceParam1/ns0:ShipOrder/ns0:OrderPerson');
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
 
       expect(links).toHaveLength(1);
       expect(links[0].sourceSectionAnchor).toBe(PARAMETERS_SECTION_ANCHOR);
@@ -1137,7 +1336,7 @@ describe('MappingLinksService', () => {
     it('should leave source body links unanchored', () => {
       const manualTree = buildTreeWithExpression('/ns0:ShipOrder/ns0:OrderPerson');
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
 
       expect(links).toHaveLength(1);
       expect(links[0].sourceSectionAnchor).toBeUndefined();
@@ -1154,6 +1353,27 @@ describe('MappingLinksService', () => {
       targetRoot = targetDoc.fields[0];
       DocumentUtilService.resolveTypeFragment(targetRoot);
     });
+
+    const createGuardedCsvRecordTree = () => {
+      const csvTargetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
+      const csvTree = new MappingTree(
+        csvTargetDoc.documentType,
+        csvTargetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const csvField = csvTargetDoc.fields[0];
+      const recordField = csvField.fields.find((f: IField) => f.name === 'CSV_r')!;
+      DocumentUtilService.resolveTypeFragment(recordField);
+
+      const rootItem = new FieldItem(csvTree, csvField);
+      csvTree.children.push(rootItem);
+      const guard = new IfItem(rootItem);
+      guard.expression = '/CSV/CSV_r';
+      rootItem.children.push(guard);
+      const recordItem = new FieldItem(guard, recordField);
+      guard.children.push(recordItem);
+      return { csvTree, guard, recordItem };
+    };
 
     // N1 — bug #1: FieldItem → WhenItem → CopyOfSelector  →  COPY_OF
     it('should classify copy-of under WhenItem as COPY_OF', () => {
@@ -1177,7 +1397,7 @@ describe('MappingLinksService', () => {
       vs.expression = '/ns0:ShipOrder/ShipTo';
       whenItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
     });
 
@@ -1202,7 +1422,7 @@ describe('MappingLinksService', () => {
       vs.expression = '/ns0:ShipOrder/ShipTo';
       otherwiseItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
     });
 
@@ -1228,8 +1448,86 @@ describe('MappingLinksService', () => {
       vs.expression = '/ns0:ShipOrder/ShipTo';
       ifItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
+    });
+
+    // See-through guard: a container FieldItem with a sole CopyOfSelector (not recursive
+    // children) wrapped by a see-through guard must classify exactly as if it weren't wrapped
+    // at all (COPY_OF here, not forced REGULAR), since the user never sees the wrapping IfItem.
+    it('should classify a sole-copy-of container directly inside a see-through IfItem by its own shape, not REGULAR', () => {
+      const csvSourceDoc = createElementRefSingleRowCsvDocument(DocumentType.SOURCE_BODY);
+      const { csvTree, guard, recordItem } = createGuardedCsvRecordTree();
+      const vs = new CopyOfSelector(recordItem, CopyOfType.CONTAINER);
+      vs.expression = '/CSV/CSV_r';
+      recordItem.children.push(vs);
+      const renderIndex = buildRenderIndex(csvTree, csvSourceDoc);
+      expect(renderIndex.isAbsorbed(guard)).toBe(true);
+
+      const links = MappingLinksService.extractMappingLinks(csvTree, paramsMap, csvSourceDoc, renderIndex);
+      const recordLink = links.find((l) => l.targetNodePath.endsWith(recordItem.id));
+      expect(recordLink).toBeDefined();
+      expect(recordLink!.targetNodePath).not.toMatch('/if-');
+      expect(recordLink!.lineStyle).toBe(MappingLineStyle.COPY_OF);
+    });
+
+    // A container with RECURSIVE FieldItem children never matches the see-through shape (only a
+    // sole selector does), even when its target and source are both optional. Its guard stays a
+    // visible if, so classification falls back to REGULAR exactly like the visible IfItem case
+    // below, instead of the COMPLETE a see-through guard would give.
+    it('should keep the guard of a recursive-children container visible, so it classifies as REGULAR, not COMPLETE', () => {
+      const csvSourceDoc = createElementRefSingleRowCsvDocument(DocumentType.SOURCE_BODY);
+      const { csvTree, guard, recordItem } = createGuardedCsvRecordTree();
+      for (const childField of recordItem.field.fields) {
+        const childItem = new FieldItem(recordItem, childField);
+        recordItem.children.push(childItem);
+        const vs = new ValueOfSelector(childItem);
+        vs.expression = `/CSV/CSV_r/${childField.name}`;
+        childItem.children.push(vs);
+      }
+      const renderIndex = buildRenderIndex(csvTree, csvSourceDoc);
+      expect(renderIndex.isAbsorbed(guard)).toBe(false);
+
+      const links = MappingLinksService.extractMappingLinks(csvTree, paramsMap, csvSourceDoc, renderIndex);
+      const idLink = links.find((l) => l.targetNodePath.includes('fx-ID'));
+      expect(idLink).toBeDefined();
+      expect(idLink!.targetNodePath).toMatch('/if-');
+      expect(idLink!.lineStyle).toBe(MappingLineStyle.REGULAR);
+    });
+
+    it('should still force REGULAR for a container inside a visible IfItem', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(targetShipTo);
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      DocumentUtilService.resolveTypeFragment(sourceShipTo);
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const ifItem = new IfItem(rootItem);
+      ifItem.expression = '/ns0:ShipOrder/ShipTo';
+      rootItem.children.push(ifItem);
+      const shipToItem = new FieldItem(ifItem, targetShipTo);
+      ifItem.children.push(shipToItem);
+      for (const childField of targetShipTo.fields) {
+        const childItem = new FieldItem(shipToItem, childField);
+        shipToItem.children.push(childItem);
+        const vs = new ValueOfSelector(childItem);
+        vs.expression = `/ns0:ShipOrder/ShipTo/${childField.name}`;
+        childItem.children.push(vs);
+      }
+      const renderIndex = buildRenderIndex(manualTree, sourceDoc);
+      expect(renderIndex.isAbsorbed(ifItem)).toBe(false);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, renderIndex);
+      const nameLink = links.find((l) => l.targetNodePath.includes('fx-Name'));
+      expect(nameLink).toBeDefined();
+      expect(nameLink!.lineStyle).toBe(MappingLineStyle.REGULAR);
     });
 
     // N4 — bug #1: FieldItem → ChooseItem → WhenItem → CopyOfSelector  →  COPY_OF
@@ -1256,7 +1554,7 @@ describe('MappingLinksService', () => {
       vs.expression = '/ns0:ShipOrder/ShipTo';
       whenItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       expect(links[0].lineStyle).toBe(MappingLineStyle.COPY_OF);
     });
 
@@ -1291,7 +1589,7 @@ describe('MappingLinksService', () => {
       vs2.expression = '/ns0:ShipOrder/ShipTo';
       otherwiseItem.children.push(vs2);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const shipToLinks = links.filter((l) => l.targetNodePath.includes(shipToItem.id));
       expect(shipToLinks.length).toBeGreaterThan(0);
       shipToLinks.forEach((link) => {
@@ -1332,7 +1630,7 @@ describe('MappingLinksService', () => {
       copyOf.expression = '/ns0:ShipOrder/ShipTo/Name';
       nameItem.children.push(copyOf);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const shipToLink = links.find(
         (l) => l.targetNodePath.includes(shipToItem.id) && !l.targetNodePath.includes(nameItem.id),
       );
@@ -1393,7 +1691,12 @@ describe('MappingLinksService', () => {
           if (!firstLeafItem) firstLeafItem = leafItem;
         }
 
-        const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+        const links = MappingLinksService.extractMappingLinks(
+          manualTree,
+          paramsMap,
+          sourceDoc,
+          TargetRenderIndex.EMPTY,
+        );
         const leafLink = links.find((l) => l.targetNodePath.includes(firstLeafItem!.id));
         expect(leafLink).toBeDefined();
         expect(leafLink!.lineStyle).toBe(MappingLineStyle.COMPLETE);
@@ -1458,7 +1761,12 @@ describe('MappingLinksService', () => {
         vs3.expression = `/ns0:ShipOrder/ShipTo/${sourceName.name}`;
         leafItem.children.push(vs3);
 
-        const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+        const links = MappingLinksService.extractMappingLinks(
+          manualTree,
+          paramsMap,
+          sourceDoc,
+          TargetRenderIndex.EMPTY,
+        );
         const leafLink = links.find((l) => l.targetNodePath.includes(leafItem.id));
         expect(leafLink).toBeDefined();
         expect(leafLink!.lineStyle).toBe(MappingLineStyle.PARTIAL);
@@ -1489,7 +1797,7 @@ describe('MappingLinksService', () => {
       vs.expression = '/ns0:ShipOrder/ShipTo/Name';
       whenItem.children.push(vs);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const shipToLinks = links.filter((l) => l.targetNodePath.includes(shipToItem.id));
       expect(shipToLinks.length).toBeGreaterThan(0);
       shipToLinks.forEach((link) => {

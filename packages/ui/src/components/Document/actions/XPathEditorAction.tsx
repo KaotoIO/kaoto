@@ -10,15 +10,18 @@ type XPathEditorProps = {
   nodeData: ExpressionHolderNodeData;
   mapping: IExpressionHolder & MappingItem;
   onUpdate: () => void;
+  /** Called once editing finishes (on modal close), for work that shouldn't run on every keystroke. */
+  onCommit?: () => void;
 };
-export const XPathEditorAction: FunctionComponent<XPathEditorProps> = ({ nodeData, mapping, onUpdate }) => {
+export const XPathEditorAction: FunctionComponent<XPathEditorProps> = ({ nodeData, mapping, onUpdate, onCommit }) => {
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(false);
   const launchXPathEditor = useCallback(() => {
     setIsEditorOpen(true);
   }, []);
   const closeXPathEditor = useCallback(() => {
     setIsEditorOpen(false);
-  }, []);
+    onCommit?.();
+  }, [onCommit]);
 
   return (
     <ActionListItem key="xpath-editor">

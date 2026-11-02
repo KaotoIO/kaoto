@@ -28,16 +28,18 @@ import {
   TARGET_PANEL_MIN_HEIGHT,
   VIRTUOSO_OVERSCAN,
 } from '../ExpansionPanels/panel-dimensions';
+import { getTargetRowKeys } from './target-row-keys';
 
 export const TargetPanel: FunctionComponent = () => {
-  const { targetBodyDocument, mappingTree, structuralMappingTree, refreshMappingTree } = useDataMapper();
+  const { targetBodyDocument, mappingTree, structuralMappingTree, targetRenderIndex, refreshMappingTree } =
+    useDataMapper();
 
   // `structuralMappingTree` is the snapshot of `mappingTree` at the last structural change.
   // It is stable across value-only updates (e.g. typing in an XPath field), so `createTree`
   // is only called when nodes are actually added, removed, or moved — not on every keystroke.
   const targetBodyNodeData = useMemo(
-    () => new TargetDocumentNodeData(targetBodyDocument, structuralMappingTree),
-    [targetBodyDocument, structuralMappingTree],
+    () => new TargetDocumentNodeData(targetBodyDocument, structuralMappingTree, targetRenderIndex),
+    [targetBodyDocument, structuralMappingTree, targetRenderIndex],
   );
   const targetBodyTree = useSyncExternalStore(
     useDocumentTreeStore.subscribe,
@@ -90,19 +92,22 @@ export const TargetPanel: FunctionComponent = () => {
     [targetBodyNodeData.id],
   );
 
+  const rowKeys = useMemo(() => getTargetRowKeys(flattenedNodes), [flattenedNodes]);
+  const computeItemKey = useCallback((index: number) => rowKeys[index], [rowKeys]);
+
   const renderTargetItem = useCallback(
     (index: number) => {
       const flattenedNode = flattenedNodes[index];
       return (
         <TargetDocumentNodeWithContextMenu
-          key={flattenedNode.path}
+          key={rowKeys[index]}
           treeNode={flattenedNode.treeNode}
           documentNodeId={targetBodyNodeData.id}
           rank={flattenedNode.depth + 1}
         />
       );
     },
-    [flattenedNodes, targetBodyNodeData.id],
+    [flattenedNodes, rowKeys, targetBodyNodeData.id],
   );
 
   // Actions for target body document
@@ -185,6 +190,7 @@ export const TargetPanel: FunctionComponent = () => {
               totalCount={flattenedNodes.length}
               components={virtuosoComponents}
               itemContent={renderTargetItem}
+              computeItemKey={computeItemKey}
               overscan={VIRTUOSO_OVERSCAN}
               totalListHeightChanged={syncConnectionPorts}
             />

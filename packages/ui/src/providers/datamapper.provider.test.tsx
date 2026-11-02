@@ -2,6 +2,7 @@ import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import { act, useContext, useEffect } from 'react';
 import type { Mock } from 'vitest';
 
+import { TargetPanel } from '../components/View/TargetPanel';
 import { useDataMapper } from '../hooks/useDataMapper';
 import { SendAlertProps } from '../models/datamapper';
 import {
@@ -15,12 +16,16 @@ import {
 } from '../models/datamapper/document';
 import { FieldItem, ForEachItem, MappingTree, ValueOfSelector, ValueSelector } from '../models/datamapper/mapping';
 import { CanvasView } from '../models/datamapper/view';
+import { TargetDocumentNodeData } from '../models/datamapper/visualization';
 import { DocumentService } from '../services/document/document.service';
+import { JsonSchemaField } from '../services/document/json-schema/json-schema-document.model';
 import { MappingService } from '../services/mapping/mapping.service';
 import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
 import { MappingLinksService } from '../services/visualization/mapping-links.service';
+import { TreeUIService } from '../services/visualization/tree-ui.service';
 import {
   getAccountJsonSchema,
+  getAccountNameRequiredJsonSchema,
   getCartJsonSchema,
   getChoiceWithAbstractXsd,
   getFieldSubstitutionXsd,
@@ -1981,6 +1986,131 @@ describe('DataMapperProvider', () => {
       expect(extractMappingLinksSpy).toHaveBeenCalledTimes(callCountAfterMount + 1);
 
       extractMappingLinksSpy.mockRestore();
+    });
+  });
+
+  describe('targetRenderIndex', () => {
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <DataMapperProvider>{children}</DataMapperProvider>
+    );
+
+    const createAccountDoc = (schema: string) =>
+      TestUtil.createParamOrderDoc('Account', DocumentDefinitionType.JSON_SCHEMA, schema);
+
+    const findJsonField = (parent: IField, key: string): IField => {
+      const field = parent.fields.find((child) => child instanceof JsonSchemaField && child.key === key);
+      if (!field) throw new Error(`No JSON field keyed '${key}'`);
+      return field;
+    };
+
+    it('should keep the targetRenderIndex identity when refreshMappingTree is called without { structural: true }', () => {
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+      const initialIndex = result.current.targetRenderIndex;
+
+      act(() => {
+        result.current.refreshMappingTree();
+      });
+
+      expect(result.current.targetRenderIndex).toBe(initialIndex);
+    });
+
+    it('should rebuild the targetRenderIndex when refreshMappingTree is called with { structural: true }', () => {
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+      const initialIndex = result.current.targetRenderIndex;
+
+      act(() => {
+        result.current.refreshMappingTree({ structural: true });
+      });
+
+      expect(result.current.targetRenderIndex).not.toBe(initialIndex);
+    });
+
+    it('should re-decide an optional guard when its source document is replaced by one that requires the source', () => {
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+      const targetDoc = TestUtil.createJSONTargetOrderDoc();
+      const accountDoc = createAccountDoc(getAccountJsonSchema());
+      act(() => {
+        result.current.updateDocument(targetDoc, targetDoc.definition, BODY_DOCUMENT_ID);
+      });
+      act(() => {
+        result.current.updateDocument(accountDoc, accountDoc.definition, accountDoc.documentId);
+      });
+
+      const rootField = targetDoc.fields[0];
+      const rootItem = MappingService.createFieldItem(result.current.mappingTree, rootField);
+      const orderPersonItem = MappingService.createFieldItem(rootItem, findJsonField(rootField, 'OrderPerson'));
+      const nameField = findJsonField(accountDoc.fields[0], 'Name');
+      MappingService.mapToField(nameField, orderPersonItem);
+      const guard = MappingService.tryAutoOptionalIfWrap(orderPersonItem, nameField, false);
+      act(() => {
+        result.current.refreshMappingTree({ structural: true });
+      });
+
+      expect(result.current.targetRenderIndex.isAbsorbed(guard)).toBe(true);
+
+      const requiredAccountDoc = createAccountDoc(getAccountNameRequiredJsonSchema());
+      const accountReferenceId = accountDoc.getReferenceId(result.current.mappingTree.namespaceMap);
+      act(() => {
+        result.current.updateDocument(requiredAccountDoc, requiredAccountDoc.definition, accountReferenceId);
+      });
+
+      expect(result.current.mappingTree.children).toContain(rootItem);
+      expect(rootItem.children).toContain(guard);
+      expect(orderPersonItem.parent).toBe(guard);
+      expect(result.current.targetRenderIndex.isAbsorbed(guard)).toBe(false);
+    });
+
+    it('should hand the targetRenderIndex to MappingLinksService.extractMappingLinks()', () => {
+      const extractMappingLinksSpy = vi.spyOn(MappingLinksService, 'extractMappingLinks');
+      const linksWrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>
+          <MappingLinksProvider>{children}</MappingLinksProvider>
+        </DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper: linksWrapper });
+      const initialIndex = result.current.targetRenderIndex;
+
+      expect(extractMappingLinksSpy.mock.lastCall?.[3]).toBe(initialIndex);
+
+      act(() => {
+        result.current.refreshMappingTree({ structural: true });
+      });
+
+      expect(result.current.targetRenderIndex).not.toBe(initialIndex);
+      expect(extractMappingLinksSpy.mock.lastCall?.[3]).toBe(result.current.targetRenderIndex);
+
+      extractMappingLinksSpy.mockRestore();
+    });
+
+    it('should build the TargetPanel tree with the targetRenderIndex', () => {
+      const createTreeSpy = vi.spyOn(TreeUIService, 'createTree');
+      const panelWrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider>
+          <MappingLinksProvider>
+            <TargetPanel />
+            {children}
+          </MappingLinksProvider>
+        </DataMapperProvider>
+      );
+      const getLastTreeRenderIndex = () => {
+        const nodeData = createTreeSpy.mock.lastCall?.[0];
+        return nodeData instanceof TargetDocumentNodeData ? nodeData.renderIndex : undefined;
+      };
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper: panelWrapper });
+      const initialIndex = result.current.targetRenderIndex;
+
+      expect(getLastTreeRenderIndex()).toBe(initialIndex);
+
+      act(() => {
+        result.current.refreshMappingTree({ structural: true });
+      });
+
+      expect(result.current.targetRenderIndex).not.toBe(initialIndex);
+      expect(getLastTreeRenderIndex()).toBe(result.current.targetRenderIndex);
+
+      createTreeSpy.mockRestore();
     });
   });
 });

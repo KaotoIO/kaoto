@@ -29,6 +29,7 @@ import {
 } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { createGuardedCsvRows } from '../../../stubs/datamapper/target-render-test-helpers';
 import { NodeTitle } from './NodeTitle';
 
 describe('NodeTitle', () => {
@@ -148,7 +149,7 @@ describe('NodeTitle', () => {
 
     render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
 
-    const element = screen.getByLabelText('Optional');
+    const element = screen.getByRole('img', { name: 'Optional' });
     expect(element).toBeVisible();
   });
 
@@ -162,7 +163,7 @@ describe('NodeTitle', () => {
 
     render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
 
-    const element = screen.getByLabelText('Repeat0');
+    const element = screen.getByRole('img', { name: 'Repeat0' });
     expect(element).toBeVisible();
   });
 
@@ -176,7 +177,7 @@ describe('NodeTitle', () => {
 
     render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
 
-    const element = screen.getByLabelText('Repeat1');
+    const element = screen.getByRole('img', { name: 'Repeat1' });
     expect(element).toBeVisible();
   });
 
@@ -342,6 +343,33 @@ describe('NodeTitle', () => {
       },
       { timeout: 1000 },
     );
+  });
+
+  describe('optional guard on the occurrence badges', () => {
+    it.each([
+      ['Opt', 'guardedOptional', 'Optional, written only when its source exists', '/CSV/STATUS'],
+      ['0+', 'guardedRepeating', 'Repeating, optional, written only when its source exists', '/CSV/CSV_r'],
+    ] as const)('should mark, name and explain a guarded %s badge', async (_badge, row, name, guardTest) => {
+      const user = userEvent.setup();
+      render(<NodeTitle nodeData={createGuardedCsvRows()[row]} isDocument={false} rank={0} />);
+
+      const badge = screen.getByRole('img', { name });
+      expect(badge).toHaveClass('datamapper-marker-field--active-guard');
+      await user.hover(badge);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        `Optional guard: This field is written only when ${guardTest} exists in the source.`,
+      );
+    });
+
+    it('should keep the plain Opt badge, without a tooltip, on an optional field without a guard', async () => {
+      const user = userEvent.setup();
+      render(<NodeTitle nodeData={createGuardedCsvRows().unguardedOptional} isDocument={false} rank={0} />);
+
+      const badge = screen.getByRole('img', { name: 'Optional' });
+      expect(badge).not.toHaveClass('datamapper-marker-field--active-guard');
+      await user.hover(badge);
+      await expect(screen.findByRole('tooltip', undefined, { timeout: 600 })).rejects.toThrow();
+    });
   });
 
   describe('copy-of label on FieldNodeTitle', () => {

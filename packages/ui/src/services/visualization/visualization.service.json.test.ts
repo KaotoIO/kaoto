@@ -29,6 +29,7 @@ import { JsonSchemaDocument } from '../document/json-schema/json-schema-document
 import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-document.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
+import { TargetRenderService } from './target-render.service';
 import { VisualizationService } from './visualization.service';
 
 describe('VisualizationService / JSON', () => {
@@ -121,16 +122,22 @@ describe('VisualizationService / JSON', () => {
       targetMapChildren[1] as TargetNodeData,
     );
     // Both Account.Name and ShipOrder.OrderPerson are optional, so engageMapping auto-wraps
-    // this field-to-field mapping with a hidden `xsl:if` guard (IfItem.isAutoOptionalIf).
+    // this field-to-field mapping with an `xsl:if` guard, which the target tree shows see-through.
     const ifItem = mappingTree.children[0].children[0] as IfItem;
     expect(ifItem).toBeInstanceOf(IfItem);
-    expect(ifItem.isAutoOptionalIf).toBe(true);
     expect(ifItem.expression).toBe("$Account-x/fn:map/fn:string[@key='Name']");
     const valueSelector = ifItem.children[0].children[0] as ValueSelector;
     expect(valueSelector.expression).toBe("$Account-x/fn:map/fn:string[@key='Name']");
+    const sourceBodyDoc = new PrimitiveDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+    );
+    const renderIndex = TargetRenderService.buildIndex(mappingTree, { sourceParameterMap, sourceBody: sourceBodyDoc });
+    expect(renderIndex.isAbsorbed(ifItem)).toBe(true);
 
+    targetDocNode = new TargetDocumentNodeData(targetDoc, mappingTree, renderIndex);
     targetChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
     targetMapChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetChildren[0]);
+    expect((targetMapChildren[1] as FieldItemNodeData).autoOptionalIfItem).toBe(ifItem);
     itemArrayChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetMapChildren[3]);
     MappingActionService.applyForEach(itemArrayChildren[0] as TargetFieldNodeData);
 

@@ -7,14 +7,13 @@ import {
   CopyOfType,
   FieldItem,
   IExpressionHolder,
+  IfItem,
   InstructionItem,
   isExpressionHolder,
   MappingItem,
   MappingParentType,
   MappingTree,
   UnknownMappingItem,
-  ValueOfSelector,
-  ValueOfType,
   ValueSelector,
   VariableItem,
 } from '../../models/datamapper/mapping';
@@ -160,7 +159,7 @@ export class VisualizationService {
   static generatePrimitiveDocumentChildren(document: DocumentNodeData): NodeData[] {
     if (!(document instanceof TargetDocumentNodeData) || !document.mapping?.children) return [];
     return document.mapping.children
-      .filter((child) => !VisualizationService.isInlineValueSelector(child))
+      .filter((child) => !VisualizationUtilService.isInlineValueSelector(child))
       .map((child) => VisualizationService.createNodeDataFromMappingItem(document, child));
   }
 
@@ -308,7 +307,9 @@ export class VisualizationService {
       m instanceof UnknownMappingItem || m instanceof VariableItem || isCopyOfContainerNode(m);
     if (parent.isPrimitive) {
       filterPriorityMappingItem = (m) =>
-        m instanceof UnknownMappingItem || VisualizationService.isInlineValueSelector(m) || isCopyOfContainerNode(m);
+        m instanceof UnknownMappingItem ||
+        VisualizationUtilService.isInlineValueSelector(m) ||
+        isCopyOfContainerNode(m);
     }
     for (const m of mappings.filter(filterPriorityMappingItem)) {
       answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m));
@@ -345,12 +346,16 @@ export class VisualizationService {
     mappings: MappingItem[] | undefined,
   ): void {
     if (!mappings || VisualizationService.isUnconfiguredTargetWrapper(parent, mappings)) return;
-    const rendered = new Set(answer.filter((n): n is TargetNodeData => 'mapping' in n).map((n) => n.mapping));
+    const rendered = new Set<MappingParentType | undefined>();
+    for (const n of answer.filter((x): x is TargetNodeData => 'mapping' in x)) {
+      rendered.add(n.mapping);
+      if (n instanceof FieldItemNodeData && n.autoOptionalIfItem) rendered.add(n.autoOptionalIfItem);
+    }
     for (const m of mappings) {
       if (
         !rendered.has(m) &&
         !(m instanceof FieldItem) &&
-        !VisualizationService.isInlineValueSelector(m) &&
+        !VisualizationUtilService.isInlineValueSelector(m) &&
         !(m instanceof VariableItem) &&
         !(m instanceof UnknownMappingItem)
       ) {
@@ -505,6 +510,15 @@ export class VisualizationService {
   }
 
   private static createNodeDataFromMappingItem(parent: TargetNodeData, mapping: MappingItem): MappingNodeData {
+    if (mapping instanceof IfItem) {
+      const absorbingField = parent.renderIndex.getAbsorbingField(mapping);
+      if (absorbingField) {
+        const wrapperField = VisualizationService.findWrapperFieldForFieldItem(absorbingField);
+        const nodeData = new FieldItemNodeData(parent, absorbingField, wrapperField);
+        nodeData.autoOptionalIfItem = mapping;
+        return nodeData;
+      }
+    }
     if (mapping instanceof FieldItem) {
       const wrapperField = VisualizationService.findWrapperFieldForFieldItem(mapping);
       return new FieldItemNodeData(parent, mapping, wrapperField);
@@ -531,7 +545,7 @@ export class VisualizationService {
     return (
       nodeData instanceof TargetDocumentNodeData &&
       nodeData.isPrimitive &&
-      nodeData.mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m))
+      nodeData.mapping.children.some((m) => !VisualizationUtilService.isInlineValueSelector(m))
     );
   }
 
@@ -546,7 +560,7 @@ export class VisualizationService {
     if (!(mapping instanceof FieldItem)) return false;
     return (
       DocumentService.hasChildren(nodeData.field) ||
-      mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m))
+      mapping.children.some((m) => !VisualizationUtilService.isInlineValueSelector(m))
     );
   }
 
@@ -561,7 +575,7 @@ export class VisualizationService {
     if (nodeData.wrapperField && nodeData.field === nodeData.wrapperField) return false;
     return (
       DocumentService.hasChildren(nodeData.field) ||
-      nodeData.mapping.children.some((m) => !VisualizationService.isInlineValueSelector(m))
+      nodeData.mapping.children.some((m) => !VisualizationUtilService.isInlineValueSelector(m))
     );
   }
 
@@ -589,16 +603,9 @@ export class VisualizationService {
     return VisualizationService.getFieldValueSelector(nodeData);
   }
 
-  static isInlineValueSelector(item: MappingItem): item is ValueSelector {
-    if (item instanceof CopyOfSelector) return item.valueType !== CopyOfType.CONTAINER_NODE;
-    if (!(item instanceof ValueOfSelector)) return false;
-    if (item.valueType === ValueOfType.ATTRIBUTE) return true;
-    return !(item.parent instanceof FieldItem && DocumentService.hasChildren(item.parent.field));
-  }
-
   private static getFieldValueSelector(nodeData: TargetNodeData) {
     if (nodeData.mapping instanceof FieldItem || nodeData.mapping instanceof MappingTree) {
-      return nodeData.mapping.children.find((c) => VisualizationService.isInlineValueSelector(c)) as
+      return nodeData.mapping.children.find((c) => VisualizationUtilService.isInlineValueSelector(c)) as
         | ValueSelector
         | undefined;
     }

@@ -6,14 +6,18 @@ import {
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
+  IExpressionHolder,
   IfItem,
   MappingItem,
   MappingParentType,
   MappingTree,
+  OtherwiseItem,
   ValueOfSelector,
   ValueSelector,
   VariableItem,
+  WhenItem,
 } from '../../models/datamapper/mapping';
+import { XPathCommitResult } from '../../models/datamapper/mapping-action';
 import { Types } from '../../models/datamapper/types';
 import {
   AddMappingNodeData,
@@ -34,6 +38,8 @@ import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
 import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingService } from '../mapping/mapping.service';
+import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
+import { TargetRenderService } from './target-render.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
 /**
@@ -64,20 +70,103 @@ export class MappingActionService {
   }
 
   /**
-   * Removes the mapping item associated with the node from the mapping tree.
+   * Removes the mapping item associated with the node from the mapping tree. A see-through optional
+   * guard the row absorbed is removed first ({@link removeOptionalGuard}), so deleting a mapping never
+   * leaves its guard behind as an empty `if`; an `if` that is visible is the user's own and is kept.
    * No-op if the node has no mapping.
    * @param nodeData - The target node whose mapping should be deleted.
    */
   static deleteMappingItem(nodeData: TargetNodeData) {
-    if (nodeData.mapping) {
-      MappingService.deleteMappingItem(nodeData.mapping);
-    }
+    if (!nodeData.mapping) return;
+    const guardOwner = TargetRenderService.findGuardOwner(nodeData, nodeData.mapping);
+    if (guardOwner) MappingActionService.removeOptionalGuard(guardOwner);
+    MappingService.deleteMappingItem(nodeData.mapping);
+  }
+
+  /**
+   * Removes the see-through optional guard that `nodeData`'s row absorbed, keeping the field in the
+   * guard's place. The guard's comment moves onto the field, ahead of the field's own comment since
+   * it belonged to the outer element, so removing a guard never loses it. Every guard removal goes
+   * through here: deleting a row's mapping, "Remove optional guard" and the for-each wraps.
+   * @param nodeData - the field row whose guard to remove
+   * @returns the field item, or `undefined` when the row has no see-through guard
+   */
+  static removeOptionalGuard(nodeData: FieldItemNodeData): FieldItem | undefined {
+    const guard = nodeData.autoOptionalIfItem;
+    if (!guard) return undefined;
+    const field = nodeData.mapping;
+    if (MappingService.unwrapItem(guard) !== field) return undefined;
+    const comments = [guard.comment, field.comment].filter((comment): comment is string => !!comment);
+    field.comment = comments.length > 0 ? comments.join('\n') : undefined;
+    return field;
+  }
+
+  /**
+   * Settles an XPath edit when the user commits it: on blur, on Enter, or when the XPath editor
+   * closes. The expression itself was already written on every keystroke; what remains is the
+   * optional guard of the edited row, which the target tree kept unchanged while the user typed.
+   *
+   * If the row shows a see-through guard and the committed path is a simple path to an optional
+   * source, the guard's test follows the new path, so the guard stays see-through. Any other path
+   * leaves the guard untouched, and the rebuilt tree shows it as a regular `if`. A visible `if` is
+   * never edited here. Whether the tree must be rebuilt is decided by
+   * {@link TargetRenderService.hasDecisionChanged}, which also covers a visible `if` whose test the
+   * edit now matches exactly, and a `for-each` whose `select` the edit changed.
+   * @param nodeData - the row whose XPath was edited
+   * @param expressionItem - the expression holder that was edited
+   * @returns what the caller must refresh
+   */
+  static commitExpression(
+    nodeData: TargetNodeData,
+    expressionItem: IExpressionHolder & MappingItem,
+  ): XPathCommitResult {
+    const resynced = MappingActionService.resyncOptionalGuard(nodeData, expressionItem);
+    if (TargetRenderService.hasDecisionChanged(expressionItem, nodeData.renderIndex)) return 'structural-update';
+    return resynced ? 'update' : 'none';
+  }
+
+  /**
+   * When committing an `if` row's XPath makes that `if` see-through, the row the user was editing
+   * disappears with the rebuild. Asks the XPath input of the field that absorbs the `if` to take focus
+   * after the rebuild, but only if focus was lost meanwhile, so focus isn't taken back from outside
+   * the page.
+   *
+   * Call it only when focus isn't moving to a control that survives the rebuild, one outside the
+   * edited row. During a blur the browser hasn't moved focus yet, so the lost-focus check can't
+   * tell; a caller on a blur decides from where the blur sends focus, as `TargetNodeActions` does.
+   *
+   * Only a field whose own row hosts its XPath input is asked: that row takes the `if` row's place,
+   * so it is mounted after the rebuild. A selector edited in a row of its own may not be mounted
+   * then (its field collapsed, beyond the parse frontier or outside the visible window), and a request
+   * that no input takes must not fire later, when that row scrolls into view.
+   * @param nodeData - the row whose XPath was committed
+   * @param expressionItem - the expression holder that was edited
+   */
+  static restoreFocusAfterAbsorb(nodeData: TargetNodeData, expressionItem: IExpressionHolder & MappingItem) {
+    if (!(expressionItem instanceof IfItem)) return;
+    const field = TargetRenderService.computeSeeThroughField(expressionItem, nodeData.renderIndex.sourceContext);
+    if (!field || TargetRenderService.getSelectorInputOwner(field) !== field) return;
+    useDocumentTreeStore.getState().requestXPathInputFocus(field.nodePath.toString(), nodeData.renderIndex.generation);
+  }
+
+  private static resyncOptionalGuard(nodeData: TargetNodeData, expressionItem: IExpressionHolder & MappingItem) {
+    const guard = TargetRenderService.findGuardOwner(nodeData, expressionItem)?.autoOptionalIfItem;
+    if (!guard) return false;
+    const path = expressionItem instanceof ValueSelector ? expressionItem.sourcePath : expressionItem.expression;
+    if (path === guard.expression) return false;
+    if (!TargetRenderService.computeSeeThroughField(guard, nodeData.renderIndex.sourceContext, path)) return false;
+    guard.expression = path;
+    return true;
   }
 
   /**
    * Wraps or adds an {@link IfItem} condition to the node's mapping.
    * For document nodes, adds the if directly to the mapping tree.
    * For field and mapping nodes, creates the field item if needed before wrapping.
+   * On a field row with a see-through optional guard, the guard itself becomes the visible `if`: its
+   * test `X` turns into `exists(X)`, which means the same in an `xsl:if` but isn't a simple path, so
+   * the see-through rule doesn't hide it again, also after a reload. The user extends that condition
+   * instead of getting a second `if`; setting the test back to `X` hides it again.
    * @param nodeData - The target node to apply the condition to.
    */
   static applyIf(nodeData: TargetNodeData) {
@@ -87,6 +176,9 @@ export class MappingActionService {
     } else if (nodeData instanceof AddMappingNodeData) {
       const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
       MappingService.wrapWithIf(fieldItem);
+    } else if (nodeData instanceof FieldItemNodeData && nodeData.autoOptionalIfItem) {
+      const guard = nodeData.autoOptionalIfItem;
+      guard.expression = `exists(${guard.expression})`;
     } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
       const createdFieldItem =
         nodeData instanceof TargetFieldNodeData ? MappingActionService.getOrCreateFieldItem(nodeData) : undefined;
@@ -97,9 +189,33 @@ export class MappingActionService {
   }
 
   /**
+   * Manually wraps a field's single selector with an optional guard, using the selector's
+   * {@link ValueSelector.sourcePath} as the `test`. No-op unless
+   * {@link WrapperAutoDetectionService.getHiddenGuardSelector} accepts the field, so the guard always
+   * has the shape {@link WrapperAutoDetectionService.matchSimpleOptionalGuard} recognises, regardless
+   * of whether the caller gated on it first. The target tree shows it see-through once its source is
+   * confirmed optional ({@link TargetRenderService}).
+   * @param nodeData - the field node to wrap
+   */
+  static addOptionalGuard(nodeData: FieldItemNodeData): void {
+    const fieldItem = nodeData.mapping;
+    const selector = WrapperAutoDetectionService.getHiddenGuardSelector(fieldItem);
+    if (!selector) return;
+
+    MappingService.wrapWithIf(fieldItem);
+    const ifItem = fieldItem.parent as IfItem;
+    ifItem.expression = selector.sourcePath;
+  }
+
+  /**
    * Wraps or adds a {@link ChooseItem} with `when`/`otherwise` branches to the node's mapping.
    * No-op if the node already contains a `ChooseItem`.
    * For field and mapping nodes, creates the field item if needed before wrapping.
+   * On a field row with a see-through optional guard, the guard's test becomes the first `when`'s
+   * test and the guard is removed ({@link removeOptionalGuard}), so the existence check is explicit
+   * and editable, and the `otherwise` branch is a real fallback for an absent source. The guard's
+   * comment stays with the `when` branch's field; the `otherwise` copy keeps the field's own comment,
+   * since the guard's comment describes the opposite case.
    * @param nodeData - The target node to apply the choose/when/otherwise structure to.
    */
   static applyChooseWhenOtherwise(nodeData: TargetNodeData) {
@@ -114,12 +230,31 @@ export class MappingActionService {
     } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
       if (nodeData.mapping?.children.some((c) => c instanceof ChooseItem)) return;
 
+      if (nodeData instanceof FieldItemNodeData && nodeData.autoOptionalIfItem) {
+        MappingActionService.wrapGuardedFieldWithChoose(nodeData, nodeData.autoOptionalIfItem);
+        return;
+      }
       const createdFieldItem =
         nodeData instanceof TargetFieldNodeData ? MappingActionService.getOrCreateFieldItem(nodeData) : undefined;
       const mapping = nodeData.mapping ?? createdFieldItem;
       if (!mapping) return;
       MappingService.wrapWithChooseWhenOtherwise(mapping);
     }
+  }
+
+  /**
+   * {@link MappingService.wrapWithChooseWhenOtherwise} always puts the field into a new `when` and a
+   * copy of it into a new `otherwise`, which the casts rely on.
+   */
+  private static wrapGuardedFieldWithChoose(nodeData: FieldItemNodeData, guard: IfItem) {
+    const guardTest = guard.expression;
+    const fieldComment = nodeData.mapping.comment;
+    const field = MappingActionService.removeOptionalGuard(nodeData) ?? nodeData.mapping;
+    MappingService.wrapWithChooseWhenOtherwise(field);
+    const whenItem = field.parent as WhenItem;
+    whenItem.expression = guardTest;
+    const otherwiseItem = (whenItem.parent as ChooseItem).otherwise as OtherwiseItem;
+    otherwiseItem.children[0].comment = fieldComment;
   }
 
   /**
@@ -173,30 +308,36 @@ export class MappingActionService {
 
   /**
    * Wraps the target field's mapping item with a {@link ForEachItem}.
-   * Creates the field item first if it does not yet exist.
+   * Creates the field item first if it does not yet exist. A see-through optional guard is removed
+   * first ({@link removeOptionalGuard}), since the loop already writes nothing when its source is absent.
    * @param nodeData - The target field node to wrap.
    */
   static applyForEach(nodeData: ForEachCapableNodeData) {
+    if (nodeData instanceof FieldItemNodeData) MappingActionService.removeOptionalGuard(nodeData);
     const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
     MappingService.wrapWithForEach(fieldItem);
   }
 
   /**
    * Wraps the target field's mapping item with a {@link ForEachGroupItem}.
-   * Creates the field item first if it does not yet exist.
+   * Creates the field item first if it does not yet exist. A see-through optional guard is removed
+   * first ({@link removeOptionalGuard}), since the loop already writes nothing when its source is absent.
    * @param nodeData - The target field node to wrap.
    */
   static applyForEachGroup(nodeData: ForEachCapableNodeData) {
+    if (nodeData instanceof FieldItemNodeData) MappingActionService.removeOptionalGuard(nodeData);
     const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
     MappingService.wrapWithForEachGroup(fieldItem);
   }
 
   /**
    * Wraps the target field with a {@link ForEachItem} whose select expression is `current-group()`.
-   * Only meaningful inside a `for-each-group` context.
+   * Only meaningful inside a `for-each-group` context. A see-through optional guard is removed
+   * first ({@link removeOptionalGuard}), since the loop already writes nothing when its source is absent.
    * @param nodeData - The target field node to wrap.
    */
   static applyForEachCurrentGroup(nodeData: ForEachCapableNodeData) {
+    if (nodeData instanceof FieldItemNodeData) MappingActionService.removeOptionalGuard(nodeData);
     const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
     MappingService.wrapWithForEach(fieldItem);
     const forEachItem = fieldItem.parent;
@@ -334,13 +475,23 @@ export class MappingActionService {
    * @param mappingTree - The root mapping tree.
    * @param sourceNode - The source node being mapped from.
    * @param targetNode - The target node being mapped to.
-   * @returns `true` when the mapping tree's shape changed (a {@link MappingItem} such as a
-   * `FieldItem`/`ForEachItem`/`ChooseItem` was added, removed, or replaced), `false` when only
-   * an already-materialized target's value/copy-of expression was extended — e.g. dropping a
-   * second source onto a field that's already mapped. Selectors never have their own tree node,
-   * so mutating one on an existing target is never structural.
+   * @returns `true` when the target tree must be rebuilt: the mapping tree's shape changed (a
+   * {@link MappingItem} such as a `FieldItem`/`ForEachItem`/`ChooseItem` or an optional guard was
+   * added, removed, or replaced), or the drop changed whether an optional guard is see-through
+   * ({@link TargetRenderService.hasDecisionChanged}) — e.g. a second source dropped onto a guarded
+   * field appends to its selector, so the guard shows as a regular `if`. `false` when only an
+   * expression changed and every row stays as it is.
    */
   static engageMapping(mappingTree: MappingTree, sourceNode: SourceNodeDataType, targetNode: TargetNodeData): boolean {
+    if (MappingActionService.applyEngageMapping(mappingTree, sourceNode, targetNode)) return true;
+    return TargetRenderService.hasDecisionChanged(targetNode.mapping ?? mappingTree, targetNode.renderIndex);
+  }
+
+  private static applyEngageMapping(
+    mappingTree: MappingTree,
+    sourceNode: SourceNodeDataType,
+    targetNode: TargetNodeData,
+  ): boolean {
     if (sourceNode instanceof SourceVariableNodeData) {
       return MappingActionService.engageVariableMapping(sourceNode, targetNode, mappingTree);
     }
@@ -357,11 +508,11 @@ export class MappingActionService {
 
     if (VisualizationUtilService.isFieldNode(targetNode)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
-      const hadExistingContent = MappingActionService.hasMappingContent(item);
-      MappingActionService.removeParentContainerCopyOf(item);
-      MappingService.mapToField(sourceField, item);
-      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceField, hadExistingContent);
-      return targetWasUnmapped || !!wrapped;
+      const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(item, sourceField, () => {
+        MappingActionService.removeParentContainerCopyOf(item);
+        MappingService.mapToField(sourceField, item);
+      });
+      return targetWasUnmapped || wrapOrGuardChanged;
     } else if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceField);
       return false;
@@ -489,10 +640,10 @@ export class MappingActionService {
 
     if (anyTypeInvolved && (!sourceHasChildren || !targetHasChildren)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
-      const hadExistingContent = MappingActionService.hasMappingContent(item);
-      MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, CopyOfType.CONTAINER_NODE);
-      const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode, hadExistingContent);
-      return { handled: true, structural: structural || !!wrapped };
+      const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(item, sourceFieldFromNode, () => {
+        MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, CopyOfType.CONTAINER_NODE);
+      });
+      return { handled: true, structural: structural || wrapOrGuardChanged };
     }
 
     if (!sourceHasChildren || !targetHasChildren) {
@@ -500,7 +651,6 @@ export class MappingActionService {
     }
 
     const item = MappingActionService.getOrCreateFieldItem(targetNode);
-    const hadExistingContent = MappingActionService.hasMappingContent(item);
     const bothCollections =
       VisualizationUtilService.isCollectionField(sourceNode) && VisualizationUtilService.isCollectionField(targetNode);
 
@@ -515,9 +665,26 @@ export class MappingActionService {
     // generateAutoChildMappings (the non-copy-of branch of applyContainerMapping) always adds new
     // child FieldItems, so it's structural regardless of whether `item` itself pre-existed.
     const canUseCopyOf = FieldMatchingService.canUseCopyOf(sourceFieldFromNode, targetFieldFromNode);
-    MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
-    const wrapped = MappingService.tryAutoOptionalIfWrap(item, sourceFieldFromNode, hadExistingContent);
-    return { handled: true, structural: structural || !canUseCopyOf || !!wrapped };
+    const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(item, sourceFieldFromNode, () => {
+      MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
+    });
+    return { handled: true, structural: structural || !canUseCopyOf || wrapOrGuardChanged };
+  }
+
+  /**
+   * Shared tail for every call site that engages a mapping onto a {@link FieldItem}: samples
+   * {@link hasMappingContent} before `mutate` runs (afterwards new and pre-existing content can no
+   * longer be told apart), runs `mutate`, then lets {@link MappingService.tryAutoOptionalIfWrap}
+   * wrap the field in an optional guard. A drop onto a field that already has a see-through guard
+   * appends to its selector, because {@link XPathService.addSource} always appends, so the guard no
+   * longer matches and shows as a regular `if`; {@link engageMapping} reports that through
+   * {@link TargetRenderService.hasDecisionChanged}.
+   * @returns whether a guard was created, which changes the tree's shape
+   */
+  private static applyFieldMappingWithGuard(item: MappingItem, sourceField: IField, mutate: () => void): boolean {
+    const hadExistingContent = MappingActionService.hasMappingContent(item);
+    mutate();
+    return !!MappingService.tryAutoOptionalIfWrap(item, sourceField, hadExistingContent);
   }
 
   /**
@@ -739,7 +906,7 @@ export class MappingActionService {
    * the immediate parent is the guard, and scanning its children finds nothing.
    */
   private static removeParentContainerCopyOf(item: MappingItem): void {
-    const container = MappingService.findEnclosingFieldItem(item, 'instructions');
+    const container = MappingService.findEnclosingFieldItem(item);
     if (!(container instanceof FieldItem)) return;
     container.children = container.children.filter(
       (c) => !(c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),

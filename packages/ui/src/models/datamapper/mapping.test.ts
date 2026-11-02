@@ -124,13 +124,14 @@ describe('mapping.ts', () => {
       expect(cloned).not.toBe(item);
     });
 
-    it('clone() should copy isAutoOptionalIf flag', () => {
+    it('clone() should copy the expression of a guard without carrying any guard flag', () => {
       const item = new IfItem(tree);
-      item.isAutoOptionalIf = true;
+      item.expression = '/ns0:ShipOrder/ns0:OrderPerson';
 
       const cloned = item.clone();
 
-      expect(cloned.isAutoOptionalIf).toBe(true);
+      expect(cloned.expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+      expect(cloned).not.toHaveProperty('isAutoOptionalIf');
     });
 
     it('clone() should reparent cloned children to the cloned parent', () => {

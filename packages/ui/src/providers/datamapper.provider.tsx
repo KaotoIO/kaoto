@@ -41,10 +41,12 @@ import {
 import { MappingTree, VariableItem } from '../models/datamapper/mapping';
 import { NS_XML_SCHEMA, NS_XPATH_FUNCTIONS, NS_XSL } from '../models/datamapper/standard-namespaces';
 import { CanvasView } from '../models/datamapper/view';
+import { TargetRenderIndex } from '../models/datamapper/visualization';
 import { DataMapperSettingsService } from '../services/datamapper-settings.service';
 import { DocumentService } from '../services/document/document.service';
 import { MappingService } from '../services/mapping/mapping.service';
 import { MappingSerializerService } from '../services/mapping/mapping-serializer.service';
+import { TargetRenderService } from '../services/visualization/target-render.service';
 
 export interface IDataMapperContext {
   isLoading: boolean;
@@ -70,6 +72,13 @@ export interface IDataMapperContext {
    * drive expensive rebuilds — such as `TargetPanel`'s `createTree` call — can depend on this
    * instead of `mappingTree` to avoid rebuilding on every keystroke. */
   structuralMappingTree: MappingTree;
+  /**
+   * The see-through decisions for {@link structuralMappingTree} and the current source documents:
+   * which optional guards are absorbed into their field's row, and the target path each item's
+   * mapping lines end on. Rebuilt with each structural snapshot and each source change, never per
+   * keystroke, so the target tree and the mapping lines agree on which guards are see-through.
+   */
+  targetRenderIndex: TargetRenderIndex;
   refreshMappingTree(options?: {
     structural?: boolean;
     targetDefinitionType?: DocumentDefinitionType;
@@ -423,6 +432,11 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   // (scope-restricted DnD validation is tracked in a separate issue)
   const variables = useMemo(() => MappingService.getAllVariables(mappingTree), [mappingTree]);
 
+  const targetRenderIndex = useMemo(
+    () => TargetRenderService.buildIndex(structuralMappingTree, { sourceParameterMap, sourceBody: sourceBodyDocument }),
+    [structuralMappingTree, sourceParameterMap, sourceBodyDocument],
+  );
+
   const value = useMemo(() => {
     return {
       isLoading,
@@ -440,6 +454,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       updateDocument,
       mappingTree,
       structuralMappingTree,
+      targetRenderIndex,
       refreshMappingTree,
       resetMappingTree,
       variables,
@@ -463,6 +478,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     updateDocument,
     mappingTree,
     structuralMappingTree,
+    targetRenderIndex,
     refreshMappingTree,
     resetMappingTree,
     variables,

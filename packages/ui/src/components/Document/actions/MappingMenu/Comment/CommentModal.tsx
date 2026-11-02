@@ -18,6 +18,8 @@ interface CommentModalProps {
   showDeleteButton?: boolean;
   /** Whether to wrap TextArea in FormGroup (default: false) */
   withFormGroup?: boolean;
+  /** Title of the modal, also used as its accessible name (default: "Add Comment" or "Edit Comment") */
+  title?: string;
 }
 
 export const CommentModal: FunctionComponent<CommentModalProps> = ({
@@ -27,6 +29,7 @@ export const CommentModal: FunctionComponent<CommentModalProps> = ({
   onUpdate,
   showDeleteButton = true,
   withFormGroup = false,
+  title,
 }) => {
   const comment = mapping.comment || '';
   const [commentText, setCommentText] = useState(isOpen ? comment : '');
@@ -120,9 +123,9 @@ export const CommentModal: FunctionComponent<CommentModalProps> = ({
       variant={ModalVariant.small}
       onClose={handleClose}
       data-testid="comment-modal"
-      aria-label="Comment Editor Modal"
+      aria-label={title ?? 'Comment Editor Modal'}
     >
-      <ModalHeader title={isEditingExistingComment ? 'Edit Comment' : 'Add Comment'} />
+      <ModalHeader title={title ?? (isEditingExistingComment ? 'Edit Comment' : 'Add Comment')} />
       <ModalBody>
         {withFormGroup ? (
           <FormGroup label="Comment" fieldId="comment-textarea">

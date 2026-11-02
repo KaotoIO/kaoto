@@ -23,6 +23,21 @@ export interface LabelValuePair {
   value: string;
 }
 
+/** Label of the field details row that explains a see-through optional guard. */
+export const OPTIONAL_GUARD_LABEL = 'Optional guard';
+
+/**
+ * Explains a see-through optional guard. The guarded occurrence badge shows it on hover, and the
+ * field details popover shows it as a row, which is how keyboard users reach it: the badge isn't
+ * focusable.
+ * @param guardTest - the guard's test, the source path whose existence decides whether the field is
+ *   written
+ */
+export const getOptionalGuardExplanation = (guardTest: string): string =>
+  `This field is written only when ${guardTest} exists in the source. The guarding if is hidden. ` +
+  'Changing the XPath to anything other than a simple path to an optional source shows the if. ' +
+  'To always write the field: ⋮ → Remove optional guard.';
+
 export const formatTypeQName = (typeQName: QName | null): string => {
   if (!typeQName) return 'N/A';
 
@@ -112,6 +127,7 @@ export const prepareFieldDetails = (
 ): LabelValuePair[] => {
   const overrideDisplay = getOverrideDisplayInfo(field, namespaceMap);
   const effectiveMaxOccurs = getEffectiveMaxOccurs(field, nodeData);
+  const optionalGuard = nodeData instanceof FieldItemNodeData ? nodeData.autoOptionalIfItem : undefined;
 
   const rows = [
     { label: 'Category', value: field.type },
@@ -123,6 +139,10 @@ export const prepareFieldDetails = (
     {
       label: 'Max Occurs',
       value: effectiveMaxOccurs !== null && effectiveMaxOccurs !== undefined ? String(effectiveMaxOccurs) : null,
+    },
+    {
+      label: OPTIONAL_GUARD_LABEL,
+      value: optionalGuard ? getOptionalGuardExplanation(optionalGuard.expression) : null,
     },
     { label: 'Namespace', value: field.namespaceURI },
     { label: 'Attribute', value: field.isAttribute ? 'yes' : null },

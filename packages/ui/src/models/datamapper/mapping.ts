@@ -50,7 +50,7 @@ export abstract class MappingItem {
   /**
    * {@link NodePath} representing this item's position in the **mapping tree** (XSLT output
    * structure). `xs:choice` is a schema compositor — not an XML element — so choice wrapper
-   * segments are never included. Use {@link MappingLinksService.computeVisualTargetNodePath}
+   * segments are never included. Use {@link TargetRenderService.computeTargetPath}
    * to obtain the corresponding visual document tree path that includes choice wrapper segments.
    */
   get nodePath(): NodePath {
@@ -158,14 +158,12 @@ export class IfItem extends InstructionItem implements IExpressionHolder {
     super(parent, 'if');
   }
   expression = '';
-  isAutoOptionalIf = false;
   doClone() {
     return new IfItem(this.parent);
   }
   clone() {
     const cloned = super.clone() as IfItem;
     cloned.expression = this.expression;
-    cloned.isAutoOptionalIf = this.isAutoOptionalIf;
     return cloned;
   }
 }

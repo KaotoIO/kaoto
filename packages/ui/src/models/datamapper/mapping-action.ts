@@ -29,6 +29,8 @@ export enum MappingActionKind {
   InnerForEachCurrentGroup = 'innerForEachCurrentGroup',
   Duplicate = 'duplicate',
   AddField = 'addField',
+  RemoveOptionalGuard = 'removeOptionalGuard',
+  AddOptionalGuard = 'addOptionalGuard',
 }
 
 /**
@@ -62,6 +64,14 @@ export interface IMappingActionCallbacks {
   onUpdate: () => void;
   openModal: (kind: MappingActionKind) => void;
 }
+
+/**
+ * What committing an XPath edit (blur, Enter or closing the XPath editor) requires from the
+ * caller: `'structural-update'` when a see-through decision changed and the target tree must be
+ * rebuilt, `'update'` when only the model changed and must be written to the host, and `'none'`
+ * when nothing beyond the per-keystroke writes happened.
+ */
+export type XPathCommitResult = 'none' | 'update' | 'structural-update';
 
 /**
  * Base definition for a mapping action in the action registry.

@@ -30,6 +30,28 @@ describe('CommentModal', () => {
     });
   });
 
+  describe('Title', () => {
+    it('should use the given title as the header and the accessible name', () => {
+      render(
+        <CommentModal
+          isOpen
+          onClose={onCloseMock}
+          mapping={mapping}
+          onUpdate={onUpdateMock}
+          title="Edit Optional Guard Comment"
+        />,
+      );
+      expect(screen.getByRole('dialog', { name: 'Edit Optional Guard Comment' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Edit Optional Guard Comment' })).toBeInTheDocument();
+    });
+
+    it('should keep the default header and accessible name without a title', () => {
+      render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);
+      expect(screen.getByRole('dialog', { name: 'Comment Editor Modal' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { name: 'Add Comment' })).toBeInTheDocument();
+    });
+  });
+
   describe('Adding New Comment', () => {
     it('should display "Add Comment" title when mapping has no comment', () => {
       render(<CommentModal isOpen onClose={onCloseMock} mapping={mapping} onUpdate={onUpdateMock} />);

@@ -10,11 +10,12 @@ import {
 } from '../../models/datamapper/document';
 import { MappingTree } from '../../models/datamapper/mapping';
 import { CanvasView } from '../../models/datamapper/view';
+import { TargetRenderIndex } from '../../models/datamapper/visualization';
 import { DataMapperContext, IDataMapperContext } from '../../providers/datamapper.provider';
 
 /**
  * Creates a complete {@link IDataMapperContext} for tests, using the same defaults as `DataMapperProvider`
- * (primitive body documents, empty mapping tree) and `vi.fn()` for every callback.
+ * (primitive body documents, empty mapping tree, empty target render index) and `vi.fn()` for every callback.
  * Pass only the members a test cares about.
  */
 export const createDataMapperContext = (overrides: Partial<IDataMapperContext> = {}): IDataMapperContext => {
@@ -42,6 +43,7 @@ export const createDataMapperContext = (overrides: Partial<IDataMapperContext> =
     setSourceParametersExpanded: vi.fn(),
     mappingTree,
     structuralMappingTree: mappingTree,
+    targetRenderIndex: TargetRenderIndex.EMPTY,
     refreshMappingTree: vi.fn(),
     resetMappingTree: vi.fn(),
     variables: [],

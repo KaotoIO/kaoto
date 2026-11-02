@@ -1325,7 +1325,7 @@ describe('VisualizationService / choice fields', () => {
         (c) => c instanceof FieldItem && c.field === memberField,
       ) as FieldItem;
       // Visual path includes choice wrapper segment; mapping path does not.
-      // MappingLinksService.computeVisualTargetNodePath bridges this gap for line rendering.
+      // TargetRenderService.computeTargetPath bridges this gap for line rendering.
       expect(contactEmailNode.path.pathSegments).toContain(choiceField.id);
       expect(mappingFieldItem.nodePath.pathSegments).not.toContain(choiceField.id);
     });
@@ -1415,7 +1415,7 @@ describe('VisualizationService / choice fields', () => {
       expect(freshEmailAddressNode).toBeInstanceOf(FieldItemNodeData);
 
       // Visual path includes choice wrapper segment; mapping path does not.
-      // MappingLinksService.computeVisualTargetNodePath bridges this gap for line rendering.
+      // TargetRenderService.computeTargetPath bridges this gap for line rendering.
       expect((freshEmailAddressNode as FieldItemNodeData).path.pathSegments).toContain(nestedChoiceField.id);
       expect(emailAddressItem.nodePath.pathSegments).not.toContain(nestedChoiceField.id);
     });
@@ -1509,7 +1509,7 @@ describe('VisualizationService / choice fields', () => {
       expect(freshNestedDirect1).toBeInstanceOf(FieldItemNodeData);
 
       // Visual path includes both choice wrapper segments; mapping path includes neither.
-      // MappingLinksService.computeVisualTargetNodePath bridges this gap for line rendering.
+      // TargetRenderService.computeTargetPath bridges this gap for line rendering.
       expect((freshNestedDirect1 as FieldItemNodeData).path.pathSegments).toContain(freshOuterChoice.id);
       expect((freshNestedDirect1 as FieldItemNodeData).path.pathSegments).toContain(freshInnerChoice.id);
       expect(nestedDirect1Item.nodePath.pathSegments).not.toContain(freshOuterChoice.id);

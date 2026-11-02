@@ -13,19 +13,23 @@ import {
   ForEachItem,
   IfItem,
   MappingTree,
+  ValueOfSelector,
   ValueSelector,
   VariableItem,
 } from '../../models/datamapper/mapping';
 import {
+  ChoiceFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
   NodeData,
+  SourceNodeDataType,
   SourceVariableNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
+  TargetRenderIndex,
 } from '../../models/datamapper/visualization';
 import {
   getAdtInXsd,
@@ -37,11 +41,13 @@ import {
   getShipOrderToShipOrderInvalidForEachXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { expectNoDecisionChange } from '../../stubs/datamapper/target-render-test-helpers';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
+import { TargetRenderService } from './target-render.service';
 import { VisualizationService } from './visualization.service';
 
 describe('MappingActionService — mapping engagement', () => {
@@ -59,6 +65,35 @@ describe('MappingActionService — mapping engagement', () => {
     paramsMap = TestUtil.createParameterMap();
     tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
   });
+
+  function childField(parent: IField, name: string): IField {
+    return parent.fields.find((field) => field.name === name)!;
+  }
+
+  function buildRenderIndex(mappingTree: MappingTree = tree, sourceBody: IDocument = sourceDoc) {
+    return TargetRenderService.buildIndex(mappingTree, { sourceParameterMap: paramsMap, sourceBody });
+  }
+
+  function buildItemLoop(): FieldItem {
+    tree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+    const shipOrderItem = new FieldItem(tree, targetDoc.fields[0]);
+    tree.children.push(shipOrderItem);
+    const forEachItem = new ForEachItem(shipOrderItem);
+    forEachItem.expression = '/ns0:ShipOrder/Item';
+    shipOrderItem.children.push(forEachItem);
+    const itemFieldItem = new FieldItem(forEachItem, childField(targetDoc.fields[0], 'Item'));
+    forEachItem.children.push(itemFieldItem);
+    return itemFieldItem;
+  }
+
+  function mapField(parent: FieldItem | IfItem, field: IField, expression: string): FieldItem {
+    const fieldItem = new FieldItem(parent, field);
+    parent.children.push(fieldItem);
+    const selector = new ValueOfSelector(fieldItem);
+    selector.expression = expression;
+    fieldItem.children.push(selector);
+    return fieldItem;
+  }
 
   describe('without pre-populated mappings', () => {
     beforeEach(() => {
@@ -173,6 +208,18 @@ describe('MappingActionService — mapping engagement', () => {
         expect(tree.children[0] instanceof ValueSelector).toBeTruthy();
         const selector = tree.children[0] as ValueSelector;
         expect(selector.expression).toBe('/ns0:ShipOrder');
+      });
+
+      it('should report only the first drop onto the document as structural', () => {
+        const sourceShipOrder = VisualizationService.generateStructuredDocumentChildren(
+          sourceDocNode,
+        )[0] as FieldNodeData;
+
+        expect(MappingActionService.engageMapping(tree, sourceShipOrder, targetDocNode)).toBe(true);
+        expect(MappingActionService.engageMapping(tree, sourceShipOrder, targetDocNode)).toBe(false);
+
+        expect(tree.children).toHaveLength(1);
+        expect(tree.children[0]).toBeInstanceOf(ValueSelector);
       });
 
       it('should engage mapping to a field', () => {
@@ -648,34 +695,166 @@ describe('MappingActionService — mapping engagement', () => {
       function findByName(children: NodeData[], name: string) {
         return children.find((c) => 'field' in c && (c.field as IField).name === name);
       }
-      /**
-       * Guarding a field nests its node one level deeper, under the `if` rather than directly
-       * under ShipOrder, so a follow-up drop has to target it where the panel now renders it.
-       */
-      function findTargetFieldNode(name: string) {
-        const children = targetShipOrderChildren();
-        const nested = children.flatMap((child) => VisualizationService.generateNonDocumentNodeDataChildren(child));
-        return (findByName(children, name) ?? findByName(nested, name)) as TargetFieldNodeData;
+      function findIfNode(children: NodeData[]) {
+        return children.find((c) => c instanceof MappingNodeData && c.mapping instanceof IfItem) as MappingNodeData;
+      }
+      function sourceItemField(name: string) {
+        const sourceItem = findByName(sourceShipOrderChildren(), 'Item') as FieldNodeData;
+        return findByName(VisualizationService.generateNonDocumentNodeDataChildren(sourceItem), name) as FieldNodeData;
+      }
+      function targetItemChildren(renderIndex: TargetRenderIndex) {
+        const shipOrderNode = VisualizationService.generateStructuredDocumentChildren(
+          new TargetDocumentNodeData(targetDoc, tree, renderIndex),
+        )[0];
+        const forEachNode = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderNode).find(
+          (c) => c instanceof MappingNodeData && c.mapping instanceof ForEachItem,
+        ) as MappingNodeData;
+        const itemNode = VisualizationService.generateNonDocumentNodeDataChildren(forEachNode)[0];
+        return VisualizationService.generateNonDocumentNodeDataChildren(itemNode);
+      }
+      function targetItemFieldItem() {
+        const shipOrderFieldItem = tree.children[0] as FieldItem;
+        const forEachItem = shipOrderFieldItem.children.find((c) => c instanceof ForEachItem) as ForEachItem;
+        return forEachItem.children[0] as FieldItem;
+      }
+      function dropNoteIntoItemLoop() {
+        MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'Item') as FieldNodeData,
+          findByName(targetShipOrderChildren(), 'Item') as TargetFieldNodeData,
+        );
+        return MappingActionService.engageMapping(
+          tree,
+          sourceItemField('Note'),
+          findByName(targetItemChildren(buildRenderIndex()), 'Note') as TargetFieldNodeData,
+        );
+      }
+      function setUpAdtIn() {
+        const createDocument = (documentType: DocumentType) =>
+          XmlSchemaDocumentService.createXmlSchemaDocument(
+            new DocumentDefinition(documentType, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+              'ADT_IN.xsd': getAdtInXsd(),
+            }),
+          ).document!;
+        const adtSourceDoc = createDocument(DocumentType.SOURCE_BODY);
+        const adtTargetDoc = createDocument(DocumentType.TARGET_BODY);
+        const adtTree = new MappingTree(
+          adtTargetDoc.documentType,
+          adtTargetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const hl7Children = (documentNode: DocumentNodeData) =>
+          VisualizationService.generateNonDocumentNodeDataChildren(
+            VisualizationService.generateStructuredDocumentChildren(documentNode)[0],
+          );
+        return {
+          adtTargetDoc,
+          adtTree,
+          sourceField: (name: string) =>
+            findByName(hl7Children(new DocumentNodeData(adtSourceDoc)), name) as FieldNodeData,
+          targetNode: (name: string, renderIndex: TargetRenderIndex = TargetRenderIndex.EMPTY) =>
+            findByName(hl7Children(new TargetDocumentNodeData(adtTargetDoc, adtTree, renderIndex)), name) as
+              | TargetFieldNodeData
+              | FieldItemNodeData,
+          buildRenderIndex: () => buildRenderIndex(adtTree, adtSourceDoc),
+        };
       }
 
-      it('should wrap an optional terminal field drop with a hidden IfItem (value-of)', () => {
-        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
-        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
-        sourceOrderPerson.minOccurs = 0;
-        targetOrderPerson.minOccurs = 0;
+      it('should guard an optional terminal field drop with an if the render index shows see-through', () => {
+        const structural = dropNoteIntoItemLoop();
 
-        const sourceItem = findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData;
-        const targetItem = findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData;
-
-        const structural = MappingActionService.engageMapping(tree, sourceItem, targetItem);
-
-        const shipOrderFieldItem = tree.children[0] as FieldItem;
-        const ifItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
-        expect(ifItem).toBeDefined();
-        expect(ifItem.isAutoOptionalIf).toBe(true);
-        const fieldItem = ifItem.children.find((c) => c instanceof FieldItem) as FieldItem;
-        expect(fieldItem.field.name).toBe('OrderPerson');
+        const ifItem = targetItemFieldItem().children.find((c) => c instanceof IfItem) as IfItem;
         expect(structural).toBe(true);
+        expect(ifItem.expression).toBe('Note');
+        expect((ifItem.children[0] as FieldItem).field.name).toBe('Note');
+        const renderIndex = buildRenderIndex();
+        expect(renderIndex.isAbsorbed(ifItem)).toBe(true);
+        const noteNode = findByName(targetItemChildren(renderIndex), 'Note') as FieldItemNodeData;
+        expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+      });
+
+      it.each([
+        ['the same source', 'Note', 'Note, Note'],
+        ['a different source', 'Title', 'Note, Title'],
+      ])(
+        'should report a drop of %s onto a guarded field as structural and show the guard as a regular if',
+        (_label, sourceName, expectedExpression) => {
+          dropNoteIntoItemLoop();
+          const renderIndex = buildRenderIndex();
+          const ifItem = targetItemFieldItem().children.find((c) => c instanceof IfItem) as IfItem;
+          const noteNode = findByName(targetItemChildren(renderIndex), 'Note') as FieldItemNodeData;
+          expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+
+          const structural = MappingActionService.engageMapping(tree, sourceItemField(sourceName), noteNode);
+
+          expect(structural).toBe(true);
+          expect(ifItem.children).toEqual([noteNode.mapping]);
+          expect((noteNode.mapping.children[0] as ValueSelector).expression).toBe(expectedExpression);
+          expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(false);
+        },
+      );
+
+      it.each<[string, () => SourceNodeDataType]>([
+        ['a variable', () => new SourceVariableNodeData(new VariableItem(tree, 'myVar'))],
+        [
+          'a selected choice member',
+          () => {
+            const title = sourceItemField('Title');
+            const member = new ChoiceFieldNodeData(title.parent, title.field);
+            member.choiceField = title.field;
+            return member;
+          },
+        ],
+      ])('should report a drop of %s onto a guarded field as structural', (_label, createSourceNode) => {
+        dropNoteIntoItemLoop();
+        const renderIndex = buildRenderIndex();
+        const ifItem = targetItemFieldItem().children.find((c) => c instanceof IfItem) as IfItem;
+        const noteNode = findByName(targetItemChildren(renderIndex), 'Note') as FieldItemNodeData;
+        expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+
+        const structural = MappingActionService.engageMapping(tree, createSourceNode(), noteNode);
+
+        expect(structural).toBe(true);
+        expect(ifItem.children).toEqual([noteNode.mapping]);
+        expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(false);
+      });
+
+      it('should report a drop onto the for-each row as structural when it changes how a guard in the loop resolves', () => {
+        dropNoteIntoItemLoop();
+        const renderIndex = buildRenderIndex();
+        const ifItem = targetItemFieldItem().children.find((c) => c instanceof IfItem) as IfItem;
+        expect(renderIndex.isAbsorbed(ifItem)).toBe(true);
+        const shipOrderNode = VisualizationService.generateStructuredDocumentChildren(
+          new TargetDocumentNodeData(targetDoc, tree, renderIndex),
+        )[0];
+        const forEachNode = VisualizationService.generateNonDocumentNodeDataChildren(shipOrderNode).find(
+          (c) => c instanceof MappingNodeData && c.mapping instanceof ForEachItem,
+        ) as MappingNodeData;
+
+        const structural = MappingActionService.engageMapping(
+          tree,
+          findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData,
+          forEachNode,
+        );
+
+        expect(structural).toBe(true);
+        expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(false);
+      });
+
+      it('should keep a user if visible and not report a drop of a required source onto its row as structural', () => {
+        const itemFieldItem = buildItemLoop();
+        mapField(itemFieldItem, childField(itemFieldItem.field, 'Note'), 'Title');
+        MappingActionService.applyIf(findByName(targetItemChildren(buildRenderIndex()), 'Note') as FieldItemNodeData);
+        const renderIndex = buildRenderIndex();
+        const ifNode = findIfNode(targetItemChildren(renderIndex));
+        const ifItem = ifNode.mapping as IfItem;
+        expect(renderIndex.isAbsorbed(ifItem)).toBe(false);
+
+        const structural = MappingActionService.engageMapping(tree, sourceItemField('Title'), ifNode);
+
+        expect(structural).toBe(false);
+        expect(ifItem.expression).toBe('Title');
+        expectNoDecisionChange(tree, renderIndex);
       });
 
       it('should clear the container copy-of when re-mapping a child that sits under a guard', () => {
@@ -727,30 +906,76 @@ describe('MappingActionService — mapping engagement', () => {
         expect(shipToItem.children.some((c) => c instanceof CopyOfSelector)).toBe(false);
       });
 
-      it('should unwrap the guard when a second source is dropped onto an already-guarded field', () => {
-        const sourceOrderPerson = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
-        const sourceOrderId = sourceDoc.fields[0].fields.find((f) => f.name === 'OrderId')!;
-        const targetOrderPerson = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
-        sourceOrderPerson.minOccurs = 0;
-        sourceOrderId.minOccurs = 0;
-        targetOrderPerson.minOccurs = 0;
+      it('should report a drop onto the copy-of row of a guarded field as structural', () => {
+        const adt = setUpAdtIn();
+        const hl7Field = adt.adtTargetDoc.fields[0];
+        const hl7Item = new FieldItem(adt.adtTree, hl7Field);
+        adt.adtTree.children.push(hl7Item);
+        const ifItem = new IfItem(hl7Item);
+        ifItem.expression = '/HL7/PID';
+        hl7Item.children.push(ifItem);
+        const pidItem = new FieldItem(ifItem, childField(hl7Field, 'PID'));
+        ifItem.children.push(pidItem);
+        const copyOf = new CopyOfSelector(pidItem, CopyOfType.CONTAINER_NODE);
+        copyOf.expression = '/HL7/PID/node()';
+        pidItem.children.push(copyOf);
+        const renderIndex = adt.buildRenderIndex();
+        const pidNode = adt.targetNode('PID', renderIndex) as FieldItemNodeData;
+        const copyOfNode = VisualizationService.generateNonDocumentNodeDataChildren(pidNode)[0] as MappingNodeData;
+        expect(pidNode.autoOptionalIfItem).toBe(ifItem);
+        expect(copyOfNode.mapping).toBe(copyOf);
 
-        const targetItem = findByName(targetShipOrderChildren(), 'OrderPerson') as TargetFieldNodeData;
+        const structural = MappingActionService.engageMapping(adt.adtTree, adt.sourceField('PID'), copyOfNode);
+
+        expect(structural).toBe(true);
+        expect(copyOf.expression).toBe('/HL7/PID/node(), /HL7/PID');
+        expect(adt.buildRenderIndex().isAbsorbed(ifItem)).toBe(false);
+      });
+
+      it('should report a drop onto a field under a visible if as structural once the if matches it', () => {
         MappingActionService.engageMapping(
           tree,
-          findByName(sourceShipOrderChildren(), 'OrderPerson') as FieldNodeData,
-          targetItem,
+          findByName(sourceShipOrderChildren(), 'Item') as FieldNodeData,
+          findByName(targetShipOrderChildren(), 'Item') as TargetFieldNodeData,
         );
+        MappingActionService.applyIf(findByName(targetItemChildren(buildRenderIndex()), 'Note') as TargetFieldNodeData);
+        const ifTestIndex = buildRenderIndex();
+        const ifNode = findIfNode(targetItemChildren(ifTestIndex));
+        const ifItem = ifNode.mapping as IfItem;
 
-        // Only the selector's expression is extended, so the tree shape is unchanged and the
-        // target panel must not rebuild — see engageMapping's @returns contract.
-        const structural = MappingActionService.engageMapping(
-          tree,
-          findByName(sourceShipOrderChildren(), 'OrderId') as FieldNodeData,
-          findTargetFieldNode('OrderPerson'),
-        );
+        const ifTestStructural = MappingActionService.engageMapping(tree, sourceItemField('Note'), ifNode);
+
+        expect(ifTestStructural).toBe(false);
+        expect(ifItem.expression).toBe('Note');
+        expectNoDecisionChange(tree, ifTestIndex);
+
+        const renderIndex = buildRenderIndex();
+        const noteNode = VisualizationService.generateNonDocumentNodeDataChildren(
+          findIfNode(targetItemChildren(renderIndex)),
+        )[0] as FieldItemNodeData;
+        expect(renderIndex.isAbsorbed(ifItem)).toBe(false);
+
+        const structural = MappingActionService.engageMapping(tree, sourceItemField('Note'), noteNode);
+
+        expect(structural).toBe(true);
+        expect(ifItem.expression).toBe('Note');
+        expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(true);
+      });
+
+      it('should not report a drop onto an if row whose test stays ineligible as structural', () => {
+        const itemFieldItem = buildItemLoop();
+        const ifItem = new IfItem(itemFieldItem);
+        ifItem.expression = "Note != ''";
+        itemFieldItem.children.push(ifItem);
+        mapField(ifItem, childField(itemFieldItem.field, 'Note'), 'Note');
+        const renderIndex = buildRenderIndex();
+        const ifNode = findIfNode(targetItemChildren(renderIndex));
+
+        const structural = MappingActionService.engageMapping(tree, sourceItemField('Note'), ifNode);
 
         expect(structural).toBe(false);
+        expect(ifItem.expression).toBe("Note != '', Note");
+        expectNoDecisionChange(tree, renderIndex);
       });
 
       it('should not guard a field that is already mapped from a required source', () => {
@@ -777,47 +1002,40 @@ describe('MappingActionService — mapping engagement', () => {
         expect(shipOrderFieldItem.children.some((c) => c instanceof IfItem)).toBe(false);
       });
 
-      it('should wrap an optional container field drop (copy-of) with a hidden IfItem', () => {
-        const sourceShipTo = sourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
-        const targetShipTo = targetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
-        sourceShipTo.minOccurs = 0;
-        targetShipTo.minOccurs = 0;
+      it('should guard an optional container field drop (copy-of) with an if the render index shows see-through', () => {
+        const adt = setUpAdtIn();
 
-        const sourceItem = findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData;
-        const targetItem = findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData;
+        const structural = MappingActionService.engageMapping(
+          adt.adtTree,
+          adt.sourceField('PID'),
+          adt.targetNode('PID'),
+        );
 
-        MappingActionService.engageMapping(tree, sourceItem, targetItem);
-
-        const shipOrderFieldItem = tree.children[0] as FieldItem;
-        const ifItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
-        expect(ifItem).toBeDefined();
-        expect(ifItem.isAutoOptionalIf).toBe(true);
+        const hl7Item = adt.adtTree.children[0] as FieldItem;
+        const ifItem = hl7Item.children.find((c) => c instanceof IfItem) as IfItem;
+        expect(structural).toBe(true);
+        expect(ifItem.expression).toBe('/HL7/PID');
         const fieldItem = ifItem.children.find((c) => c instanceof FieldItem) as FieldItem;
-        expect(fieldItem.field.name).toBe('ShipTo');
+        expect(fieldItem.field.name).toBe('PID');
         expect(
           fieldItem.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),
         ).toBe(true);
+        expect(adt.buildRenderIndex().isAbsorbed(ifItem)).toBe(true);
       });
 
-      it('should wrap an optional container field drop (recursive auto-children) with a VISIBLE IfItem', () => {
-        const sourceShipTo = sourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
-        const targetShipTo = targetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
-        sourceShipTo.minOccurs = 0;
-        targetShipTo.minOccurs = 0;
+      it('should guard an optional container field drop (recursive auto-children) with an if the render index keeps visible', () => {
         vi.spyOn(FieldMatchingService, 'canUseCopyOf').mockReturnValue(false);
+        const adt = setUpAdtIn();
 
-        const sourceItem = findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData;
-        const targetItem = findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData;
+        MappingActionService.engageMapping(adt.adtTree, adt.sourceField('PID'), adt.targetNode('PID'));
 
-        MappingActionService.engageMapping(tree, sourceItem, targetItem);
-
-        const shipOrderFieldItem = tree.children[0] as FieldItem;
-        const ifItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
-        expect(ifItem).toBeDefined();
-        expect(ifItem.isAutoOptionalIf).toBe(false);
+        const hl7Item = adt.adtTree.children[0] as FieldItem;
+        const ifItem = hl7Item.children.find((c) => c instanceof IfItem) as IfItem;
         const fieldItem = ifItem.children.find((c) => c instanceof FieldItem) as FieldItem;
-        expect(fieldItem.field.name).toBe('ShipTo');
-        expect(fieldItem.children.filter((c) => c instanceof FieldItem).length).toBeGreaterThan(0);
+        expect(fieldItem.field.name).toBe('PID');
+        expect(fieldItem.soleSelector).toBeUndefined();
+        expect(fieldItem.children.length).toBeGreaterThan(0);
+        expect(adt.buildRenderIndex().isAbsorbed(ifItem)).toBe(false);
       });
 
       it('should NOT wrap when the source field is required even though the target is optional', () => {
@@ -856,41 +1074,24 @@ describe('MappingActionService — mapping engagement', () => {
         );
       });
 
-      it('should wrap only the optional-to-optional child independently inside an already-wrapped optional container', () => {
-        const sourceShipTo = sourceDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
-        const targetShipTo = targetDoc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
-        sourceShipTo.minOccurs = 0;
-        targetShipTo.minOccurs = 0;
-        const sourceName = sourceShipTo.fields.find((f) => f.name === 'Name')!;
-        const targetName = targetShipTo.fields.find((f) => f.name === 'Name')!;
-        sourceName.minOccurs = 0;
-        targetName.minOccurs = 0;
-        // Address is left required (schema default) on both sides as the contrasting case.
+      it('should guard each optional child independently inside an optional container that is guarded itself', () => {
         vi.spyOn(FieldMatchingService, 'canUseCopyOf').mockReturnValue(false);
+        const adt = setUpAdtIn();
 
-        const sourceItem = findByName(sourceShipOrderChildren(), 'ShipTo') as FieldNodeData;
-        const targetItem = findByName(targetShipOrderChildren(), 'ShipTo') as TargetFieldNodeData;
+        MappingActionService.engageMapping(adt.adtTree, adt.sourceField('PID'), adt.targetNode('PID'));
 
-        MappingActionService.engageMapping(tree, sourceItem, targetItem);
-
-        const shipOrderFieldItem = tree.children[0] as FieldItem;
-        const outerIfItem = shipOrderFieldItem.children.find((c) => c instanceof IfItem) as IfItem;
-        // The container itself has recursive children, so its own guard is a visible if.
-        expect(outerIfItem.isAutoOptionalIf).toBe(false);
-        const shipToFieldItem = outerIfItem.children.find((c) => c instanceof FieldItem) as FieldItem;
-
-        const nameIfItem = shipToFieldItem.children.find(
-          (c) => c instanceof IfItem && (c.children[0] as FieldItem)?.field.name === 'Name',
-        ) as IfItem;
-        expect(nameIfItem).toBeDefined();
-        expect(nameIfItem.isAutoOptionalIf).toBe(true);
-
-        expect(shipToFieldItem.children.some((c) => c instanceof FieldItem && c.field.name === 'Address')).toBe(true);
-        expect(
-          shipToFieldItem.children.some(
-            (c) => c instanceof IfItem && (c.children[0] as FieldItem)?.field.name === 'Address',
-          ),
-        ).toBe(false);
+        const hl7Item = adt.adtTree.children[0] as FieldItem;
+        const pidIfItem = hl7Item.children.find((c) => c instanceof IfItem) as IfItem;
+        const pidFieldItem = pidIfItem.children[0] as FieldItem;
+        const fieldIfItem = pidFieldItem.children[0] as IfItem;
+        const fieldFieldItem = fieldIfItem.children[0] as FieldItem;
+        const componentIfItem = fieldFieldItem.children[0] as IfItem;
+        expect(fieldFieldItem.field.name).toBe('field_01');
+        expect(componentIfItem.expression).toBe('/HL7/PID/field_01/comp_01');
+        const renderIndex = adt.buildRenderIndex();
+        expect(renderIndex.isAbsorbed(pidIfItem)).toBe(false);
+        expect(renderIndex.isAbsorbed(fieldIfItem)).toBe(false);
+        expect(renderIndex.isAbsorbed(componentIfItem)).toBe(true);
       });
 
       it('should create a ForEach for optional collection-to-collection mapping without any additional xsl:if', () => {
@@ -939,7 +1140,7 @@ describe('MappingActionService — mapping engagement', () => {
           (c) => c instanceof IfItem && (c.children[0] as FieldItem)?.field.name === 'Note',
         ) as IfItem;
         expect(noteIfItem).toBeDefined();
-        expect(noteIfItem.isAutoOptionalIf).toBe(true);
+        expect(buildRenderIndex(tree, orderInfoDoc).isAbsorbed(noteIfItem)).toBe(true);
 
         expect(innerFieldItem.children.some((c) => c instanceof FieldItem && c.field.name === 'Title')).toBe(true);
         expect(
@@ -1125,6 +1326,48 @@ describe('MappingActionService — mapping engagement', () => {
         expect(valueSelector).toBeDefined();
         expect(valueSelector.expression).toBe('.');
       });
+    });
+  });
+
+  describe('addOptionalGuard()', () => {
+    function toFieldItemNodeData(fieldItem: FieldItem) {
+      return new FieldItemNodeData(new TargetDocumentNodeData(targetDoc, tree), fieldItem);
+    }
+
+    it('should wrap an optional field with a simple selector in a guard the render index shows see-through', () => {
+      const itemFieldItem = buildItemLoop();
+      const fieldItem = mapField(itemFieldItem, childField(itemFieldItem.field, 'Note'), 'Note');
+
+      MappingActionService.addOptionalGuard(toFieldItemNodeData(fieldItem));
+
+      expect(fieldItem.parent).toBeInstanceOf(IfItem);
+      const ifItem = fieldItem.parent as IfItem;
+      expect(ifItem.parent).toBe(itemFieldItem);
+      expect(ifItem.expression).toBe('Note');
+      expect(buildRenderIndex().isAbsorbed(ifItem)).toBe(true);
+    });
+
+    it('should not wrap a required target field', () => {
+      const shipOrderItem = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(shipOrderItem);
+      const fieldItem = mapField(
+        shipOrderItem,
+        childField(targetDoc.fields[0], 'OrderPerson'),
+        '/ns0:ShipOrder/ns0:OrderPerson',
+      );
+
+      MappingActionService.addOptionalGuard(toFieldItemNodeData(fieldItem));
+
+      expect(fieldItem.parent).toBe(shipOrderItem);
+    });
+
+    it('should not wrap a field whose selector is not a simple path', () => {
+      const itemFieldItem = buildItemLoop();
+      const fieldItem = mapField(itemFieldItem, childField(itemFieldItem.field, 'Note'), "concat(Note, '!')");
+
+      MappingActionService.addOptionalGuard(toFieldItemNodeData(fieldItem));
+
+      expect(fieldItem.parent).toBe(itemFieldItem);
     });
   });
 });

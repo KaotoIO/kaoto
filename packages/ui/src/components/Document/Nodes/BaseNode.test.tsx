@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { Mock } from 'vitest';
 
 import { DocumentDefinitionType, FieldOverrideVariant, IField, NodePath, Types } from '../../../models/datamapper';
@@ -8,16 +9,24 @@ import {
   DocumentType,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
-import { MappingTree, UnknownMappingItem, ValueOfSelector, VariableItem } from '../../../models/datamapper/mapping';
+import {
+  IfItem,
+  MappingTree,
+  UnknownMappingItem,
+  ValueOfSelector,
+  VariableItem,
+} from '../../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
   DocumentNodeData,
+  FieldItemNodeData,
   FieldNodeData,
   NodeData,
   TargetDocumentNodeData,
   UnknownMappingNodeData,
   VariableNodeData,
 } from '../../../models/datamapper/visualization';
+import { createGuardedCsvRows } from '../../../stubs/datamapper/target-render-test-helpers';
 import { QName } from '../../../xml-schema-ts/QName';
 import { BaseNode } from './BaseNode';
 
@@ -589,6 +598,73 @@ describe('BaseNode', () => {
         // Modal should be closed
         expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Optional guard comment', () => {
+    let guardedRow: FieldItemNodeData;
+    let guard: IfItem;
+    let mockOnUpdate: Mock;
+
+    beforeEach(() => {
+      guardedRow = createGuardedCsvRows().guardedOptional;
+      if (!guardedRow.autoOptionalIfItem) throw new Error('STATUS should carry a see-through guard');
+      guard = guardedRow.autoOptionalIfItem;
+      mockOnUpdate = vi.fn();
+    });
+
+    const renderGuardedRow = () =>
+      render(
+        <BaseNode
+          nodeData={guardedRow}
+          title="STATUS"
+          data-testid="STATUS"
+          mapping={guardedRow.mapping}
+          onUpdate={mockOnUpdate}
+        />,
+      );
+
+    it('should show the guard comment with an indicator of its own, apart from the field comment', async () => {
+      guard.comment = 'Guard note';
+      guardedRow.mapping.comment = 'Field note';
+      renderGuardedRow();
+
+      expect(screen.getByTestId('guard-comment-indicator-icon')).toBeInTheDocument();
+      expect(screen.getByTestId('comment-indicator-icon')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Edit comment' })).toBeInTheDocument();
+      await userEvent.hover(screen.getByRole('button', { name: 'Edit optional guard comment' }));
+      const tooltip = await screen.findByRole('tooltip');
+      expect(tooltip).toHaveTextContent('Optional guard comment: Guard note');
+      expect(tooltip.querySelector('.node__comment-tooltip')).toHaveTextContent('Optional guard comment: Guard note');
+    });
+
+    it('should edit the guard comment, not the field comment, from the guard indicator', () => {
+      guard.comment = 'Guard note';
+      guardedRow.mapping.comment = 'Field note';
+      renderGuardedRow();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Edit optional guard comment' }));
+      expect(screen.getByRole('dialog', { name: 'Edit Optional Guard Comment' })).toBeInTheDocument();
+      fireEvent.change(screen.getByTestId('comment-textarea'), { target: { value: 'Updated guard note' } });
+      fireEvent.click(screen.getByTestId('update-comment-btn'));
+
+      expect(guard.comment).toBe('Updated guard note');
+      expect(guardedRow.mapping.comment).toBe('Field note');
+      expect(mockOnUpdate).toHaveBeenCalledTimes(1);
+      expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
+    });
+
+    it('should not show a guard comment indicator when the guard has no comment', () => {
+      renderGuardedRow();
+
+      expect(screen.queryByTestId('guard-comment-indicator-icon')).not.toBeInTheDocument();
+    });
+
+    it('should not show a guard comment indicator without an update callback', () => {
+      guard.comment = 'Guard note';
+      render(<BaseNode nodeData={guardedRow} title="STATUS" data-testid="STATUS" mapping={guardedRow.mapping} />);
+
+      expect(screen.queryByTestId('guard-comment-indicator-icon')).not.toBeInTheDocument();
     });
   });
 });
