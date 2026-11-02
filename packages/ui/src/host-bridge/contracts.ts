@@ -148,7 +148,6 @@ export type KaotoEvents = {
   'editor:ready': null;
   'editor:document:changed': ContentSnapshot;
   'host:settings:updated': SettingsSnapshot;
-  'host:theme:changed': { theme: 'light' | 'dark' | 'high-contrast' | 'high-contrast-light' };
   'editor:validation:updated': { path: string; notifications: ValidationNotification[] };
   'editor:step:updated': { action: StepUpdateAction; stepType: CatalogKind; stepName: string };
   'editor:notification:raised': { message: string; type: 'info' | 'warning' | 'error' };
@@ -362,10 +361,6 @@ export const eventCatalog: { readonly [E in keyof KaotoEvents]: EventDefinition<
   'editor:ready': event('editor', nil),
   'editor:document:changed': event('editor', contentSnapshot),
   'host:settings:updated': event('host', settingsSnapshot),
-  'host:theme:changed': event(
-    'host',
-    object({ theme: oneOf('light', 'dark', 'high-contrast', 'high-contrast-light') }),
-  ),
   'editor:validation:updated': event('editor', object({ path: string, notifications })),
   'editor:step:updated': event(
     'editor',

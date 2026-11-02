@@ -536,6 +536,35 @@ suite('Native Kaoto text document provider', () => {
 		}
 	});
 
+	test('follows the VS Code theme when the Kaoto color theme is auto', async function () {
+		this.timeout(20_000);
+		const kaoto = vscode.workspace.getConfiguration('kaoto');
+		const workbench = vscode.workspace.getConfiguration('workbench');
+		const previousScheme = kaoto.inspect<string>('colorTheme')?.globalValue;
+		const previousTheme = workbench.inspect<string>('colorTheme')?.globalValue;
+		await kaoto.update('colorTheme', 'auto', vscode.ConfigurationTarget.Global);
+		await workbench.update('colorTheme', 'Default Light Modern', vscode.ConfigurationTarget.Global);
+		try {
+			await open();
+			const schemes: string[] = [];
+			subscriptions.push({ dispose: fixture.bus.on('host:settings:updated', ({ settings }) => schemes.push(String(settings.colorScheme))) });
+
+			await workbench.update('colorTheme', 'Default Dark Modern', vscode.ConfigurationTarget.Global);
+			await eventually(
+				() => schemes.at(-1) === 'dark',
+				() => `Expected the dark scheme after switching to a dark theme, got ${JSON.stringify(schemes)}`,
+			);
+			await workbench.update('colorTheme', 'Default Light Modern', vscode.ConfigurationTarget.Global);
+			await eventually(
+				() => schemes.at(-1) === 'light',
+				() => `Expected the light scheme after switching to a light theme, got ${JSON.stringify(schemes)}`,
+			);
+		} finally {
+			await workbench.update('colorTheme', previousTheme, vscode.ConfigurationTarget.Global);
+			await kaoto.update('colorTheme', previousScheme, vscode.ConfigurationTarget.Global);
+		}
+	});
+
 	test('rejects a second graphical panel for the same document', async () => {
 		await open();
 		const other = editorFixture();

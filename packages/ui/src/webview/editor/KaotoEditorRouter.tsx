@@ -12,7 +12,7 @@ export const kaotoEditorRouter = createHashRouter([
     children: [
       {
         index: true,
-        lazy: async () => import('../../pages/Design/router-exports-multiplying-architecture'),
+        lazy: async () => import('../../pages/Design/router-exports-embedded'),
       },
       {
         path: Links.Beans,

@@ -7,9 +7,8 @@ import { SourceCodeBridgeProviderRef, useEditorApi } from './editor-api';
 
 interface SourceCodeBridgeProviderProps extends PropsWithChildren {
   /**
-   * Delegation for WorkspaceChannelApi.kogitoWorkspace_newEdit(edit) to signal to the Channel
-   * that a change has taken place.
-   * @param edit An object representing the unique change.
+   * Reports a change made in the editor, so the host can apply it to the document.
+   * @param edit The new content of the document.
    */
   onNewEdit: (edit: string) => Promise<void>;
   /** Undo and redo are delegated to the host, which owns the document history. */

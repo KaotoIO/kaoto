@@ -636,7 +636,7 @@ describe('untrusted frames', () => {
 
   it.each([
     { name: 'editor:ready', payload: null, sessionId: 'foreign' },
-    { name: 'host:theme:changed', payload: { theme: 'dark' } },
+    { name: 'host:settings:updated', payload: { settingsVersion: 0 } },
     { name: 'editor:ready', payload: {} },
     { name: 'toString', payload: null },
     { name: 'editor:ready', payload: null, version: 2 },
@@ -644,7 +644,7 @@ describe('untrusted frames', () => {
     const fixture = supplied();
     const listener = vi.fn();
     fixture.bus.on('editor:ready', listener);
-    fixture.bus.on('host:theme:changed', listener);
+    fixture.bus.on('host:settings:updated', listener);
     await fixture.establish();
     fixture.receive({ ...header, kind: 'event', sessionId: fixture.session(), ...fields });
     expect(listener).not.toHaveBeenCalled();

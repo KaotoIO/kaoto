@@ -42,7 +42,7 @@ suite('Kaoto host services', () => {
 		documentUri = vscode.Uri.joinPath(root, 'project/src/main/resources/camel/route.camel.yaml');
 		await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(documentUri, '..'));
 		await write(documentUri, '- route: {}');
-		services = new KaotoHostServices(() => documentUri);
+		services = new KaotoHostServices(documentUri);
 		// Associate the owned temporary directory without replacing the runner's workspace.
 		vscode.workspace.getWorkspaceFolder = (uri) =>
 			uri.toString() === root.toString() || uri.toString().startsWith(root.toString() + '/')
@@ -143,18 +143,9 @@ suite('Kaoto host services', () => {
 		equal(await services.deleteResource('delete.xsd'), false);
 	});
 
-	test('uses the current document identity after Save As', async () => {
-		await services.saveResourceContent('schema.xsd', 'old');
-		documentUri = vscode.Uri.joinPath(root, 'copy/route.camel.yaml');
-		await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(documentUri, '..'));
-		await services.saveResourceContent('schema.xsd', 'new');
-		equal(await read(vscode.Uri.joinPath(root, 'copy/schema.xsd')), 'new');
-		equal(await read(vscode.Uri.joinPath(root, 'project/src/main/resources/schema.xsd')), 'old');
-	});
-
 	test('uses an injected desktop classpath resolver', async () => {
 		services.dispose();
-		services = new KaotoHostServices(() => documentUri, { findClasspathRoot: () => root });
+		services = new KaotoHostServices(documentUri, { findClasspathRoot: () => root });
 		await services.saveResourceContent('injected.txt', 'desktop');
 		equal(await read(vscode.Uri.joinPath(root, 'injected.txt')), 'desktop');
 	});
@@ -169,12 +160,12 @@ suite('Kaoto host services', () => {
 
 	test('preserves selected catalog type and falls back to the default catalog on discovery failures', async () => {
 		services.dispose();
-		services = new KaotoHostServices(() => documentUri, { getSelectedCatalog: async () => ({ name: 'Citrus test catalog', runtime: 'Citrus' }) });
+		services = new KaotoHostServices(documentUri, { getSelectedCatalog: async () => ({ name: 'Citrus test catalog', runtime: 'Citrus' }) });
 		const settings = await services.getVSCodeKaotoSettings();
 		equal(settings.testingCatalogName, 'Citrus test catalog');
 		equal(settings.runtimeCatalogName, '');
 		services.dispose();
-		services = new KaotoHostServices(() => documentUri, {
+		services = new KaotoHostServices(documentUri, {
 			getSelectedCatalog: async () => {
 				throw new Error('catalog unavailable');
 			},
@@ -191,26 +182,24 @@ suite('Kaoto host services', () => {
 		await services.onStepUpdated(StepUpdateAction.Add, CatalogKind.Component, 'log');
 	});
 
-	test('keeps injected Maven discovery results and failures tied to the current document', async () => {
-		services.dispose();
-		services = new KaotoHostServices(() => documentUri, {
-			getRuntimeInfoFromMavenContext: async (uri) => {
+	test('keeps injected Maven discovery results and failures tied to its document', async () => {
+		const desktop = {
+			getRuntimeInfoFromMavenContext: async (uri: vscode.Uri) => {
 				if (uri.path.endsWith('/failed.camel.yaml')) {
 					throw new Error('Maven discovery failed');
 				}
 				return { runtime: uri.path.endsWith('/copy.camel.yaml') ? 'quarkus' : 'main', camelVersion: '4.14.7' };
 			},
-		});
-		deepStrictEqual(await services.getRuntimeInfoFromMavenContext(), { runtime: 'main', camelVersion: '4.14.7' });
-		documentUri = vscode.Uri.joinPath(root, 'copy.camel.yaml');
-		deepStrictEqual(await services.getRuntimeInfoFromMavenContext(), { runtime: 'quarkus', camelVersion: '4.14.7' });
-		documentUri = vscode.Uri.joinPath(root, 'failed.camel.yaml');
-		await rejects(services.getRuntimeInfoFromMavenContext(), /Maven discovery failed/);
+		};
+		const servicesFor = (name: string) => new KaotoHostServices(vscode.Uri.joinPath(root, name), desktop);
+		deepStrictEqual(await servicesFor('route.camel.yaml').getRuntimeInfoFromMavenContext(), { runtime: 'main', camelVersion: '4.14.7' });
+		deepStrictEqual(await servicesFor('copy.camel.yaml').getRuntimeInfoFromMavenContext(), { runtime: 'quarkus', camelVersion: '4.14.7' });
+		await rejects(servicesFor('failed.camel.yaml').getRuntimeInfoFromMavenContext(), /Maven discovery failed/);
 	});
 
 	test('delegates environment suggestions with the current document URI', async () => {
 		services.dispose();
-		services = new KaotoHostServices(() => documentUri, {
+		services = new KaotoHostServices(documentUri, {
 			getEnvironmentSuggestions: async (word, _context, uri) => [{ value: word, description: uri.toString() }],
 		});
 		deepStrictEqual(await services.getSuggestions('env', 'TEST', { propertyName: 'uri', inputValue: '' }), [
@@ -218,11 +207,11 @@ suite('Kaoto host services', () => {
 		]);
 	});
 
-	test('disposes step tracking on rebind and closes the current document once', async () => {
+	test('releases step tracking for its document once when disposed', async () => {
 		services.dispose();
 		const tracked = new Set<string>();
 		const released: string[] = [];
-		services = new KaotoHostServices(() => documentUri, {
+		services = new KaotoHostServices(documentUri, {
 			onStepUpdated: (uri) => {
 				tracked.add(uri.toString());
 			},
@@ -231,15 +220,14 @@ suite('Kaoto host services', () => {
 				released.push(uri.toString());
 			},
 		});
-		const oldUri = documentUri.toString();
 		await services.onStepUpdated(StepUpdateAction.Add, CatalogKind.Component, 'log');
-		documentUri = vscode.Uri.joinPath(root, 'new.camel.yaml');
 		await services.onStepUpdated(StepUpdateAction.Replace, CatalogKind.Component, 'timer');
 		deepStrictEqual([...tracked], [documentUri.toString()]);
 		services.dispose();
 		services.dispose();
 		deepStrictEqual([...tracked], []);
-		deepStrictEqual(released, [oldUri, documentUri.toString()]);
+		deepStrictEqual(released, [documentUri.toString()]);
+		await rejects(services.onStepUpdated(StepUpdateAction.Remove, CatalogKind.Component, 'log'), { code: 'DISPOSED' });
 	});
 
 	test('preserves scheme and authority for metadata and resources in a virtual workspace', async () => {
@@ -363,6 +351,8 @@ suite('Kaoto host services', () => {
 		vscode.workspace.getWorkspaceFolder = (uri) =>
 			uri.scheme === remoteRoot.scheme ? { uri: remoteRoot, name: 'Remote', index: 1 } : originalGetWorkspaceFolder(uri);
 		documentUri = vscode.Uri.joinPath(remoteRoot, 'project/src/main/resources/camel/route.camel.yaml');
+		services.dispose();
+		services = new KaotoHostServices(documentUri);
 	}
 });
 

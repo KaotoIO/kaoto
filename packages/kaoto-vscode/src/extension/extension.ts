@@ -71,7 +71,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		},
 		disposeFor: (uri) => StepsOnSaveManager.instance.disposeFor(uri),
 	};
-	const editors = registerKaotoEditorProvider(context, (getUri) => new KaotoHostServices(getUri, desktopOperations));
+	const editors = registerKaotoEditorProvider(context, (documentUri) => new KaotoHostServices(documentUri, desktopOperations));
 
 	const portManager = new PortManager();
 

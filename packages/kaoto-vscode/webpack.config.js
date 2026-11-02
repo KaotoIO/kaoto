@@ -22,7 +22,7 @@ const getEnvConfig = (env) => {
   }
 };
 
-const commonConfig = (env, buildInfoDefines) => {
+const commonConfig = (env) => {
   const { transpileOnly, minimize, sourceMaps, mode, live } = getEnvConfig(env);
 
   console.info(`Webpack :: ts-loader :: transpileOnly: ${transpileOnly}`);
@@ -138,13 +138,9 @@ const commonConfig = (env, buildInfoDefines) => {
   };
 };
 
-const webpack = async (env) => {
-  // @kaoto/kaoto is bundled from its sources, so its build metadata (src/version.ts) must be provided here
-  const { getBuildInfoDefines } = await import('../../scripts/build-info.mjs');
-  const buildInfoDefines = await getBuildInfoDefines();
-
+const webpack = (env) => {
   return [
-    merge(commonConfig(env, buildInfoDefines), {
+    merge(commonConfig(env), {
       target: 'node',
       entry: {
         'extension/extension': './src/extension/extension.ts',
@@ -158,7 +154,7 @@ const webpack = async (env) => {
         }),
       ],
     }),
-    merge(commonConfig(env, buildInfoDefines), {
+    merge(commonConfig(env), {
       target: 'webworker',
       entry: {
         'extension/extensionWeb': './src/extension/extensionWeb.ts',

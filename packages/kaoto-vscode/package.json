@@ -1105,7 +1105,7 @@
           },
           "kaoto.colorTheme": {
             "type": "string",
-            "markdownDescription": "Choose the color theme for the UI. `auto` will follow VS Code theme, `light` and `dark` will set that theme regardless of VS Code theme.\n\nIt requires to reopen the Kaoto editors to be effective.",
+            "markdownDescription": "Choose the color theme for the UI. `auto` follows the VS Code theme, including when it changes, while `light` and `dark` set that theme regardless of the VS Code theme.",
             "default": "auto",
             "enum": [
               "auto",

@@ -66,31 +66,35 @@ describe('KaotoEditor', () => {
     editorBridge.dispose();
   });
 
-  it.each([
-    { colorScheme: ColorScheme.Auto, theme: 'dark', dark: true },
-    { colorScheme: ColorScheme.Auto, theme: 'high-contrast-light', dark: false },
-    { colorScheme: ColorScheme.Light, theme: 'dark', dark: false },
-  ] as const)(
-    'applies the $theme host theme when the color scheme is $colorScheme',
-    async ({ colorScheme, theme, dark }) => {
-      const { host, editor } = createMemoryTransports();
-      const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
-      const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
-      const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
-      const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
-      await Promise.all([hostBridge.connect(), editorBridge.connect()]);
-      const initialSettings = { ...defaultSettings, settings: { ...defaultSettings.settings, colorScheme } };
-      render(<KaotoEditor bus={editorBus} initialSettings={initialSettings} init={defaultInit} />);
+  it('applies the color scheme from the host settings and follows its updates', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+    const withScheme = (settingsVersion: number, colorScheme: ColorScheme): SettingsSnapshot => ({
+      settingsVersion,
+      settings: { ...defaultSettings.settings, colorScheme },
+    });
+    render(<KaotoEditor bus={editorBus} initialSettings={withScheme(0, ColorScheme.Dark)} init={defaultInit} />);
+    await waitFor(() => {
+      expect(isDarkModeEnabled()).toBe(true);
+    });
 
-      hostBus.emit('host:theme:changed', { theme });
+    hostBus.emit('host:settings:updated', withScheme(1, ColorScheme.Light));
+    await waitFor(() => {
+      expect(isDarkModeEnabled()).toBe(false);
+    });
 
-      await waitFor(() => {
-        expect(isDarkModeEnabled()).toBe(dark);
-      });
-      hostBridge.dispose();
-      editorBridge.dispose();
-    },
-  );
+    // A stale snapshot does not undo a newer one
+    hostBus.emit('host:settings:updated', withScheme(1, ColorScheme.Dark));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(isDarkModeEnabled()).toBe(false);
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
 
   it('disposes the bus on unmount', async () => {
     const bus = createEventBus({ role: 'editor', onError: vi.fn() });
