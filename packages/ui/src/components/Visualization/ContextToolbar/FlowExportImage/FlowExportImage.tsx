@@ -1,4 +1,6 @@
-import { Image as ImageIcon } from '@carbon/icons-react';
+import './FlowExportImage.scss';
+
+import { Image as ImageIcon, Renew } from '@carbon/icons-react';
 import { Button } from '@patternfly/react-core';
 import { useContext, useState } from 'react';
 
@@ -27,12 +29,13 @@ export const FlowExportImage = () => {
   return (
     <>
       <Button
-        icon={<ImageIcon />}
+        icon={isExporting ? <Renew className="flow-export-image-spinner" /> : <ImageIcon />}
+        aria-label="Export as image"
+        aria-busy={isExporting}
         onClick={onClick}
         variant="control"
         data-testid="exportImageButton"
         isDisabled={isExporting}
-        isLoading={isExporting}
       />
 
       {isExporting && !isResolving && (
