@@ -215,20 +215,18 @@ describe('connected host bridge', () => {
 
 describe('request deadlines and cancellation', () => {
   it.each([
-    ['host', 'host:document:getContent', null, 5000],
-    ['editor', 'editor:suggestions:get', { topic: 'bean', word: '', context: {} }, 2000],
-    ['editor', 'editor:maven:getRuntimeInfo', null, 60000],
-  ] as const)('uses the %s deadline for %s', async (role, name, payload, deadline) => {
+    ['editor:metadata:get', { key: 'beans' }, 5000],
+    ['editor:suggestions:get', { topic: 'bean', word: '', context: {} }, 2000],
+    ['editor:maven:getRuntimeInfo', null, 60000],
+  ] as const)('uses the editor deadline for %s', async (name, payload, deadline) => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
-    const pairValue = pair();
-    const caller = pairValue[role];
-    const receiver = role === 'host' ? pairValue.editor : pairValue.host;
+    const { editor: caller, host: receiver, connect } = pair();
     let signal: AbortSignal | undefined;
     receiver.onRequest(name, (_payload, context) => {
       signal = context.signal;
       return new Promise(() => {});
     });
-    await pairValue.connect();
+    await connect();
     const pending = caller.request(name, payload);
     const settled = vi.fn();
     void pending.then(settled, settled);
@@ -254,6 +252,19 @@ describe('request deadlines and cancellation', () => {
     expect(vi.getTimerCount()).toBe(0);
     controller.abort();
     await rejection;
+  });
+
+  it('keeps a document snapshot pending while the editor is busy', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
+    const { host, editor, connect } = pair();
+    const snapshot = deferred<{ content: string; revision: number }>();
+    editor.onRequest('host:document:getContent', () => snapshot.promise);
+    await connect();
+    const pending = host.request('host:document:getContent', null);
+    await vi.advanceTimersByTimeAsync(120000);
+    expect(vi.getTimerCount()).toBe(0);
+    snapshot.resolve({ content: '- route: {}', revision: 1 });
+    await expect(pending).resolves.toEqual({ content: '- route: {}', revision: 1 });
   });
 
   it('honors a positive timeout override and removes its abort listener', async () => {
@@ -468,6 +479,31 @@ describe('handshake and session ownership', () => {
     const rejection = expectRejection(bridge.connect(), 'TIMEOUT');
     await vi.advanceTimersByTimeAsync(handshakeTimeoutMs ?? 5000);
     await rejection;
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('waits without a deadline and accepts an editor that connects late', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
+    const host = createEventBus({ role: 'host', onError: vi.fn() });
+    const editor = createEventBus({ role: 'editor', onError: vi.fn() });
+    const transports = createMemoryTransports();
+    const hostBridge = createPostMessageBridge({ bus: host, transport: transports.host, handshakeTimeoutMs: null });
+    const editorBridge = createPostMessageBridge({ bus: editor, transport: transports.editor });
+    cleanup.push(
+      () => {
+        hostBridge.dispose();
+        editorBridge.dispose();
+      },
+      () => {
+        host.dispose();
+        editor.dispose();
+      },
+    );
+    const hostConnection = hostBridge.connect();
+    expect(vi.getTimerCount()).toBe(0);
+    await vi.advanceTimersByTimeAsync(60_000);
+
+    await Promise.all([hostConnection, editorBridge.connect()]);
     expect(vi.getTimerCount()).toBe(0);
   });
 

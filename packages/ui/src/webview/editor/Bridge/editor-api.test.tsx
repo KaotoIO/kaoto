@@ -284,6 +284,26 @@ describe('editor document binding', () => {
     }
   });
 
+  it('does not time out while applying a slow initial document', async () => {
+    vi.useFakeTimers();
+    try {
+      const applied = deferred<void>();
+      vi.mocked(ref.current!.setContent).mockImplementationOnce(async (_path, next) => {
+        await applied.promise;
+        content = next;
+      });
+      binding.ready();
+      const init$ = host.request('host:document:setContent', init);
+      await vi.advanceTimersByTimeAsync(10_000);
+      expect(binding.getState().error).toBeUndefined();
+      applied.resolve();
+      await expect(init$).resolves.toEqual({ applied: true, revision: 0 });
+      expect(binding.getState().initialized).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('suspends mutations on disconnect while retaining the content and revision', async () => {
     await host.request('host:document:setContent', init);
     content = 'unsaved';

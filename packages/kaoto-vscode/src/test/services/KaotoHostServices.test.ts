@@ -167,7 +167,7 @@ suite('Kaoto host services', () => {
 		deepStrictEqual(JSON.parse(JSON.stringify(settings)), { ...settings });
 	});
 
-	test('preserves selected catalog type and propagates discovery failures for native callers', async () => {
+	test('preserves selected catalog type and falls back to the default catalog on discovery failures', async () => {
 		services.dispose();
 		services = new KaotoHostServices(() => documentUri, { getSelectedCatalog: async () => ({ name: 'Citrus test catalog', runtime: 'Citrus' }) });
 		const settings = await services.getVSCodeKaotoSettings();
@@ -179,7 +179,9 @@ suite('Kaoto host services', () => {
 				throw new Error('catalog unavailable');
 			},
 		});
-		await rejects(services.getVSCodeKaotoSettings(), /catalog unavailable/);
+		const fallback = await services.getVSCodeKaotoSettings();
+		equal(fallback.runtimeCatalogName, '');
+		equal(fallback.testingCatalogName, '');
 	});
 
 	test('rejects absent Maven and environment operations immediately in worker mode', async function () {

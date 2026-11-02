@@ -31,6 +31,7 @@ import {
 	KAOTO_REST_APICURIO_REGISTRY_URL_SETTING_ID,
 	KAOTO_REST_CUSTOM_MEDIA_TYPES_SETTING_ID,
 } from '../constants';
+import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { readKameletsFromDirectory } from './KameletFileReader';
 import { getSuggestions } from './SuggestionRegistry';
 
@@ -72,8 +73,18 @@ export class KaotoHostServices implements vscode.Disposable {
 		return vscode.workspace.getConfiguration().get<string>(KAOTO_CATALOG_URL_SETTING_ID) || undefined;
 	}
 
+	/** Without a catalog the editor uses its default one, so a discovery error must not keep it from opening. */
+	private async selectedCatalog() {
+		try {
+			return await this.desktop.getSelectedCatalog?.(this.documentUri);
+		} catch (error) {
+			KaotoOutputChannel.logError('Could not determine the Camel catalog for the Kaoto editor', error);
+			return undefined;
+		}
+	}
+
 	async getVSCodeKaotoSettings(): Promise<ISettingsModel> {
-		const catalog = await this.desktop.getSelectedCatalog?.(this.documentUri);
+		const catalog = await this.selectedCatalog();
 		const config = vscode.workspace.getConfiguration();
 		const theme = config.get<ColorScheme | null>(KAOTO_COLOR_THEME_SETTING_ID);
 		const dark =

@@ -189,7 +189,7 @@ const notification = {
 const requestExamples = {
   'host:document:setContent': {
     sender: 'host',
-    timeoutMs: 5000,
+    timeoutMs: null,
     payload: {
       reason: 'init',
       fileUri: 'file:///route.camel.yaml',
@@ -202,7 +202,7 @@ const requestExamples = {
   },
   'host:document:getContent': {
     sender: 'host',
-    timeoutMs: 5000,
+    timeoutMs: null,
     payload: null,
     response: { content: '', revision: 1 },
     invalidRequest: {},

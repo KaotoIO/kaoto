@@ -23,7 +23,8 @@ import { memoryClosures } from './transports/memory-closures';
 export interface BridgeOptions {
   bus: IEventBus;
   transport: MessageTransport;
-  handshakeTimeoutMs?: number;
+  /** `null` waits for as long as the bridge lives. A host can do that because the editor retries on its own. */
+  handshakeTimeoutMs?: number | null;
 }
 export interface BridgeConnection {
   connect(): Promise<void>;
@@ -73,7 +74,8 @@ export function createPostMessageBridge({
   transport,
   handshakeTimeoutMs = 5000,
 }: BridgeOptions): BridgeConnection {
-  if (!validDuration(handshakeTimeoutMs)) throw new BridgeError('INVALID_MESSAGE', 'Invalid handshake deadline');
+  if (handshakeTimeoutMs !== null && !validDuration(handshakeTimeoutMs))
+    throw new BridgeError('INVALID_MESSAGE', 'Invalid handshake deadline');
   const endpoint = getEndpoint(bus);
   let sessionId: string | undefined;
   let bootId: string | undefined;
@@ -392,9 +394,10 @@ export function createPostMessageBridge({
         resolveConnection = resolve;
         rejectConnection = reject;
       });
-      handshakeTimer = setTimeout(() => {
-        close(new BridgeError('TIMEOUT', 'The bridge handshake timed out'));
-      }, handshakeTimeoutMs);
+      if (handshakeTimeoutMs !== null)
+        handshakeTimer = setTimeout(() => {
+          close(new BridgeError('TIMEOUT', 'The bridge handshake timed out'));
+        }, handshakeTimeoutMs);
       try {
         unsubscribe = transport.onMessage(receive);
         unsubscribeClose = memoryClosures.get(transport)?.(dispose) ?? noop;
@@ -410,7 +413,7 @@ export function createPostMessageBridge({
                 void send(hello);
               }
             },
-            Math.min(250, handshakeTimeoutMs),
+            Math.min(250, handshakeTimeoutMs ?? 250),
           );
         }
       } catch (error) {
