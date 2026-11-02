@@ -12,7 +12,15 @@ This file covers extension-specific development topics.
 
 #### Desktop
 
-Open the monorepo `kaoto` folder in VS Code, then run the **`Run Extension`** launch configuration from the Run and Debug panel. A new VS Code window opens with `[Extension Development Host]` in its title bar.
+Open the monorepo `kaoto` folder in VS Code, then pick one of these launch configurations from the Run and Debug panel. A new VS Code window opens with `[Extension Development Host]` in its title bar.
+
+| Launch configuration                                   | Webview source                                              | Use it to                                             |
+| ------------------------------------------------------ | ----------------------------------------------------------- | ----------------------------------------------------- |
+| **Extension (desktop) · webview from Vite dev server** | Vite dev server on `http://127.0.0.1:5273`, with hot reload | Iterate on the Kaoto UI inside VS Code                |
+| **Extension (desktop) · prebuilt webview**             | `build:webview:dev` output, built once before launch        | Debug the extension against a bundled webview         |
+| **Extension (web) · prebuilt webview**                 | Same bundle, in the web extension host                      | Check the browser (github.dev) build of the extension |
+
+The Vite dev server uses port 5273 so it does not collide with `yarn start` (5173). The port is strict: if another checkout already runs the dev server, the launch fails instead of picking another port.
 
 #### Web (browser)
 
@@ -34,7 +42,7 @@ The extension depends on `@kaoto/kaoto` via `workspace:*`, so within the monorep
    ```bash
    yarn workspace @kaoto/kaoto build:lib
    ```
-2. Then build and launch the extension as normal (`yarn workspace vscode-kaoto run build:dev` + Run Extension).
+2. Then build and launch the extension as normal (`yarn workspace vscode-kaoto run build:dev` + **Extension (desktop) · prebuilt webview**).
 
 No manual `yarn link` is needed — the workspace resolution handles it.
 

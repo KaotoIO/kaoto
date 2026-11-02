@@ -13,6 +13,9 @@ const { basePath, files: catalogFiles } = getCatalogFiles();
 
 const vscodeDevUrl = process.env['KAOTO_DEV_URL'];
 const vscodeDevServer = vscodeDevUrl ? new URL(vscodeDevUrl) : undefined;
+if (vscodeDevServer && !vscodeDevServer.port) {
+  throw new Error(`KAOTO_DEV_URL must include a port, got ${vscodeDevUrl}`);
+}
 
 export default defineConfig({
   plugins: [react(), camelCatalogPlugin(basePath, catalogFiles)],
@@ -26,7 +29,9 @@ export default defineConfig({
   server: {
     allowedHosts: ['.openshiftapps.com', 'kaotoio.github.io'],
     host: vscodeDevServer?.hostname,
-    port: vscodeDevServer ? Number(vscodeDevServer.port || 5173) : undefined,
+    // The VS Code dev server uses its own port (5273, see .vscode/tasks.json) so it never collides with `yarn start`
+    // on 5173. strictPort makes a second checkout fail fast instead of silently serving its webview from another port.
+    port: vscodeDevServer ? Number(vscodeDevServer.port) : undefined,
     // Asset imports must resolve to Vite, not to the VS Code webview origin.
     origin: vscodeDevUrl,
     strictPort: Boolean(vscodeDevUrl),
