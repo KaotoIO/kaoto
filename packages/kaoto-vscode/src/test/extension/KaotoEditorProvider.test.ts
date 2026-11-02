@@ -378,6 +378,30 @@ suite('Native Kaoto text document provider', () => {
 		ok(!document.isDirty);
 	});
 
+	test('sends only the newest source edit once the canvas is free', async () => {
+		await open();
+		const started = deferred<void>();
+		const finish = deferred<void>();
+		fixture.applying = async () => {
+			fixture.applying = undefined;
+			started.resolve();
+			await finish.promise;
+		};
+		try {
+			await editSource('t');
+			await started.promise;
+			await editSource('ti');
+			await editSource('tim');
+			await editSource('timer');
+		} finally {
+			finish.resolve();
+		}
+		await eventually(() => fixture.content.content === 'timer');
+		await fixture.flush();
+		const updates = fixture.requests.filter(({ reason }) => reason !== 'init').map(({ content }) => content);
+		equal(JSON.stringify(updates), JSON.stringify(['t', 'timer']));
+	});
+
 	test('a newer source edit wins over a pending canvas snapshot', async () => {
 		await open();
 		fixture.edit('A', 1);
@@ -588,6 +612,8 @@ function editorFixture() {
 		requests: [] as SetContentRequest[],
 		content: { content: '', revision: 0 } as ContentSnapshot,
 		getSnapshot: (): ContentSnapshot | Promise<ContentSnapshot> => ({ ...value.content }),
+		/** Lets a test hold the canvas while it applies a host update. */
+		applying: undefined as (() => Promise<void>) | undefined,
 		receive: (message: unknown) => incoming.fire(message),
 		panel: {
 			active: true,
@@ -606,8 +632,11 @@ function editorFixture() {
 			},
 		} as unknown as vscode.WebviewPanel,
 		connect: async () => {
-			value.bus.onRequest('host:document:setContent', (request) => {
+			value.bus.onRequest('host:document:setContent', async (request) => {
 				value.requests.push(request);
+				if (request.reason !== 'init') {
+					await value.applying?.();
+				}
 				value.content = { content: request.content, revision: request.reason === 'init' ? 0 : value.content.revision + 1 };
 				if (request.reason === 'init') {
 					init.resolve();
