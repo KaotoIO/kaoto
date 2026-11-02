@@ -34,6 +34,7 @@ import { getProcessorIcon } from '../../../../utils/processor-icon';
 import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasNode, LayoutType } from '../../Canvas/canvas.models';
+import { getDragPreviewTransform } from '../../Canvas/CanvasUtils';
 import { useCanvasToolbarTarget } from '../../Canvas/hooks/use-canvas-toolbar-target';
 import { CanvasNodeOverlays } from '../../Overlay/CanvasElementOverlays';
 import { useCanvasOverlays } from '../../Overlay/use-canvas-overlays';
@@ -52,6 +53,8 @@ import {
 } from './CustomNodeUtils';
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
+
+const FOCUS_RING_OFFSET = 3.5;
 
 interface CustomNodeProps extends DefaultNodeProps {
   element: GraphElement<ElementModel, CanvasNode['data']>;
@@ -267,6 +270,18 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
             bounds={{ x: (box.width - 60) / 2, y: (box.height - 60) / 2, width: 60, height: 60 }}
             vertical={layout === LayoutType.DagreVertical}
           />
+          {showMainNodeContainer && (
+            <rect
+              className="custom-node__focus-ring"
+              aria-hidden="true"
+              x={(box.width - 60) / 2 - FOCUS_RING_OFFSET}
+              y={(box.height - 60) / 2 - FOCUS_RING_OFFSET}
+              width={60 + 2 * FOCUS_RING_OFFSET}
+              height={60 + 2 * FOCUS_RING_OFFSET}
+              transform={isDraggedNode ? getDragPreviewTransform(box.width, box.height) : undefined}
+              opacity={isDraggedNode ? 0.5 : undefined}
+            />
+          )}
           {/** The original node (appears when nothing is dragging, it also acts as the dragged node when node drag action is performed.
            * When a group/container is being dragged, the within-group nodes are hidden but the rest of the nodes show this original node.
            */}

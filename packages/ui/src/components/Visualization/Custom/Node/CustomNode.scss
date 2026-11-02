@@ -14,12 +14,20 @@
     /*
      * Keyboard focus ring — uses :focus (not :focus-visible) because Chromium
      * does not set :focus-visible on SVG <g> elements focused via .focus().
-     * These nodes are only reached via the arrow-key hook, never by mouse.
-     * Only the main icon container gets the ring — not the floating badge.
+     * Paint in SVG behind the badges. Raising HTML badges with z-index inside
+     * foreignObject can detach them from SVG transforms in Safari.
      */
-    &:focus &__container__image {
-      outline: 3px solid var(--pf-t--global--color--brand--default);
-      outline-offset: 2px;
+    &__focus-ring {
+      fill: none;
+      stroke: var(--pf-t--global--color--brand--default);
+      stroke-width: 3px;
+      rx: calc(var(--custom-node-BorderRadius) + 3.5px);
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    &:focus > &__focus-ring {
+      visibility: visible;
     }
 
     &__container {

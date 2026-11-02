@@ -1,4 +1,4 @@
-import { action, BaseEdge, NodeModel } from '@patternfly/react-topology';
+import { action, BaseEdge, NodeModel, Rect } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
@@ -68,6 +68,25 @@ describe('CustomNode', () => {
 
     return { ...result, vizNode, element, controller };
   };
+
+  it('keeps the SVG focus ring behind the badges and centered on the icon when bounds change', async () => {
+    const { element, vizNode } = await renderCustomNode();
+    const node = screen.getByTestId(`custom-node__${vizNode.id}`);
+    const ring = node.querySelector(':scope > rect.custom-node__focus-ring');
+    expect(ring).toBeInTheDocument();
+    expect(ring).toHaveAttribute('aria-hidden', 'true');
+    expect(ring).toHaveAttribute('x', '11.5');
+    expect(ring).toHaveAttribute('y', '4');
+    expect(ring).toHaveAttribute('width', '67');
+    expect(ring).toHaveAttribute('height', '67');
+    expect(ring!.compareDocumentPosition(node.querySelector('foreignObject')!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    act(() => {
+      element.setBounds(new Rect(40, 60, 120, 100));
+    });
+    expect(ring).toHaveAttribute('x', '26.5');
+    expect(ring).toHaveAttribute('y', '16.5');
+  });
 
   it('updates the production node when visualization data disappears and returns', async () => {
     const { element, vizNode } = await renderCustomNode({ withSelection: true });
