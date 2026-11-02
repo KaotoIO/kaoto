@@ -48,7 +48,10 @@ const getDetailsNameInput = () => {
 };
 
 function openAddModal() {
-  fireEvent.click(screen.getByText('Actions'));
+  // The menu may still be open after a previous action: only toggle it when the item is not available
+  if (!screen.queryByTestId('metadata-add-beans-btn')) {
+    fireEvent.click(screen.getByText('Actions'));
+  }
   fireEvent.click(screen.getByTestId('metadata-add-beans-btn'));
 }
 
