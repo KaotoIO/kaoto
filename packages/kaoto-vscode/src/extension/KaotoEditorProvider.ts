@@ -89,8 +89,12 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				if (event.reason === undefined && content === state.mirroredContent) {
 					return;
 				}
-				state.sourceVersion++;
+				const version = ++state.sourceVersion;
 				void this.enqueue(state, async () => {
+					// Latest wins: while the canvas applies one edit, the keystrokes after it collapse into the newest one.
+					if (version !== state.sourceVersion) {
+						return;
+					}
 					const session = this.session(state);
 					const epoch = session.epoch;
 					await session.whenReady.promise;
