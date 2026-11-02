@@ -211,6 +211,36 @@ describe('Canvas', () => {
     expect(fakeNode).toHaveFocus();
   });
 
+  it('should focus the canvas instead of the selected node when clicking the background', async () => {
+    const { container, controller } = await renderCanvas();
+    const canvas = container.querySelector('[id="canvas-main"]')!;
+    // Topology does not render SVG nodes in this test environment.
+    const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    node.setAttribute('data-testid', 'custom-node__route.from');
+    node.setAttribute('tabindex', '-1');
+    canvas.appendChild(node);
+    const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    canvas.appendChild(background);
+
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
+    });
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    fireEvent.click(background);
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+    expect(canvas).toHaveFocus();
+  });
+
   it('should schedule a graph.fit(80) upon loading', async () => {
     // Cannot use renderCanvas() here: fitSpy and layoutSpy must be installed on controller.getGraph()
     // *after* render but *before* runAllTimersAsync — a timing requirement the helper does not support.

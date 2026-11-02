@@ -226,15 +226,13 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     });
   }, [catalogModalContext, controller, settingsAdapter]);
 
-  const handleCanvasClick = useCallback(
-    (event: React.MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (target.tagName === 'rect') {
-        clearSelection();
-      }
-    },
-    [clearSelection],
-  );
+  const handleCanvasClick = useCallback((event: React.MouseEvent) => {
+    const target = event.target as HTMLElement;
+    if (target.tagName === 'rect') {
+      setSelectedIds([]);
+      document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.focus({ preventScroll: true });
+    }
+  }, []);
 
   useArrowKeyNavigation();
 
