@@ -12,7 +12,8 @@ interface SourceCodeBridgeProviderProps extends PropsWithChildren {
    * @param edit An object representing the unique change.
    */
   onNewEdit: (edit: string) => Promise<void>;
-  history?: UndoRedoActions;
+  /** Undo and redo are delegated to the host, which owns the document history. */
+  history: UndoRedoActions;
 }
 
 export const SourceCodeBridgeProvider = forwardRef<SourceCodeBridgeProviderRef, SourceCodeBridgeProviderProps>(
@@ -20,10 +21,9 @@ export const SourceCodeBridgeProvider = forwardRef<SourceCodeBridgeProviderRef, 
     const eventNotifier = EventNotifier.getInstance();
     const { editorApi, sourceCodeRef, initializedRef } = useEditorApi();
     const receivedContent = useRef(false);
-    const hostHistory = history !== undefined;
 
+    // The local history store would only duplicate the host history
     useEffect(() => {
-      if (!hostHistory) return;
       const temporal = useSourceCodeStore.temporal.getState();
       const wasTracking = temporal.isTracking;
       temporal.pause();
@@ -31,7 +31,7 @@ export const SourceCodeBridgeProvider = forwardRef<SourceCodeBridgeProviderRef, 
       return () => {
         if (wasTracking) temporal.resume();
       };
-    }, [hostHistory]);
+    }, []);
 
     /**
      * Subscribe to the `entities:updated` event to update the File content.

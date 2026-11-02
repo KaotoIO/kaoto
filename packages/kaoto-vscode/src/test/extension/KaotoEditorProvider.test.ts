@@ -15,12 +15,12 @@
  * limitations under the License.
  */
 
-import { deepStrictEqual, equal, ok, rejects } from 'node:assert/strict';
+import { equal, ok, rejects } from 'node:assert/strict';
 import { mkdtemp } from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
-import { createEventBus, createPostMessageBridge, type ContentSnapshot, type KaotoEvents, type SetContentRequest } from '@kaoto/kaoto/host-bridge';
+import { createEventBus, createPostMessageBridge, type ContentSnapshot, type SetContentRequest } from '@kaoto/kaoto/host-bridge';
 import { KaotoEditorProvider } from '../../extension/KaotoEditorProvider';
 import { getExtensionUri } from '../utils/TestSetup';
 
@@ -103,7 +103,7 @@ suite('Native Kaoto text document provider', () => {
 		await open();
 		equal(fixture.content.content, 'already edited');
 		equal(fixture.requests[0].reason, 'init');
-		ok(fixture.requests[0].reason === 'init' && fixture.requests[0].isDirty);
+		ok(document.isDirty);
 		equal(await read(document.uri), 'original');
 	});
 
@@ -133,8 +133,8 @@ suite('Native Kaoto text document provider', () => {
 		await editSource('saved before ready');
 		ok(await document.save());
 		await fixture.connect();
-		await eventually(() => fixture.content.content === 'saved before ready' && fixture.dirty.at(-1)?.isDirty === false);
-		deepStrictEqual(fixture.saved, []);
+		await eventually(() => fixture.content.content === 'saved before ready');
+		ok(!document.isDirty);
 	});
 
 	test('canvas edits dirty the shared source without saving or echoing them', async () => {
@@ -173,17 +173,16 @@ suite('Native Kaoto text document provider', () => {
 				await vscode.commands.executeCommand('undo');
 			}
 			await eventually(
-				() => document.getText() === 'original' && !tab.isDirty && fixture.dirty.at(-1)?.isDirty === false,
-				() => JSON.stringify({ content: document.getText(), documentDirty: document.isDirty, tabDirty: tab.isDirty, canvas: fixture.dirty.at(-1) }),
+				() => document.getText() === 'original' && !tab.isDirty && fixture.content.content === 'original',
+				() => JSON.stringify({ content: document.getText(), documentDirty: document.isDirty, tabDirty: tab.isDirty, canvas: fixture.content }),
 			);
 			equal(writes, 0, 'Undo must not save the file');
-			deepStrictEqual(fixture.saved, []);
 			if (origin === 'canvas') {
 				await fixture.bus.request('host:undoRedo:apply', { command: 'redo', revision: fixture.content.revision });
 			} else {
 				await vscode.commands.executeCommand('redo');
 			}
-			await eventually(() => document.getText() === 'edited' && tab.isDirty && fixture.dirty.at(-1)?.isDirty === true);
+			await eventually(() => document.getText() === 'edited' && tab.isDirty && fixture.content.content === 'edited');
 		});
 	}
 
@@ -207,14 +206,19 @@ suite('Native Kaoto text document provider', () => {
 		const tab = vscode.window.tabGroups.activeTabGroup.activeTab!;
 		fixture.edit('saved edit', 1);
 		await eventually(() => document.getText() === 'saved edit');
+		let writes = 0;
+		writeFile = async (uri, bytes) => {
+			writes++;
+			await originalWrite(uri, bytes);
+		};
 		ok(await document.save());
-		await eventually(() => fixture.saved.length === 1 && !tab.isDirty);
+		await eventually(() => !tab.isDirty);
 		await fixture.bus.request('host:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
-		await eventually(() => document.getText() === 'original' && tab.isDirty && fixture.dirty.at(-1)?.isDirty === true);
+		await eventually(() => document.getText() === 'original' && tab.isDirty && fixture.content.content === 'original');
 		equal(await read(document.uri), 'saved edit');
 		await fixture.bus.request('host:undoRedo:apply', { command: 'redo', revision: fixture.content.revision });
-		await eventually(() => document.getText() === 'saved edit' && !tab.isDirty && fixture.dirty.at(-1)?.isDirty === false);
-		equal(fixture.saved.length, 1, 'History navigation must not save again');
+		await eventually(() => document.getText() === 'saved edit' && !tab.isDirty && fixture.content.content === 'saved edit');
+		equal(writes, 1, 'History navigation must not save again');
 	});
 
 	test('undoes interleaved canvas and source edits in native order', async () => {
@@ -227,7 +231,7 @@ suite('Native Kaoto text document provider', () => {
 		await fixture.bus.request('host:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
 		await eventually(() => document.getText() === 'canvas edit' && fixture.content.content === 'canvas edit');
 		await fixture.bus.request('host:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
-		await eventually(() => document.getText() === 'original' && !document.isDirty && fixture.dirty.at(-1)?.isDirty === false);
+		await eventually(() => document.getText() === 'original' && !document.isDirty && fixture.content.content === 'original');
 	});
 
 	test('rejects a history request from an outdated canvas revision', async () => {
@@ -256,11 +260,11 @@ suite('Native Kaoto text document provider', () => {
 		equal(edits.length, 1);
 		ok(new vscode.Range(0, 4, 0, 7).contains(edits[0].range));
 		ok(await document.save());
-		await eventually(() => fixture.saved.length === 1);
-		deepStrictEqual(fixture.saved[0], { revision: 1, isDirty: false });
+		equal(await read(document.uri), 'id: changed\r\nnext: unchanged\r\n');
+		ok(!document.isDirty);
 	});
 
-	test('acknowledges a save using the native document encoding', async () => {
+	test('saves canvas edits using the native document encoding', async () => {
 		const uri = vscode.Uri.joinPath(root, 'route.yaml');
 		await originalWrite(uri, await vscode.workspace.encode('id: ursprünglicher-wert', { encoding: 'utf16le' }));
 		await open();
@@ -268,13 +272,12 @@ suite('Native Kaoto text document provider', () => {
 		fixture.edit('id: geändert', 1);
 		await eventually(() => document.isDirty);
 		ok(await document.save());
-		await eventually(() => fixture.saved.length === 1);
 		equal(await vscode.workspace.decode(await vscode.workspace.fs.readFile(uri), { encoding: document.encoding }), 'id: geändert');
-		deepStrictEqual(fixture.saved[0], { revision: 1, isDirty: false });
+		ok(!document.isDirty);
 	});
 
 	for (const origin of ['canvas', 'source'] as const) {
-		test(`saving a ${origin} edit clears the shared dirty state after persistence`, async () => {
+		test(`saving a ${origin} edit clears the dirty state after persistence`, async () => {
 			await open();
 			if (origin === 'canvas') {
 				fixture.edit('edited', 1);
@@ -283,11 +286,8 @@ suite('Native Kaoto text document provider', () => {
 			}
 			await eventually(() => document.isDirty && document.getText() === 'edited' && fixture.content.content === 'edited');
 			ok(await document.save());
-			await eventually(() => fixture.saved.length === 1);
 			equal(await read(document.uri), 'edited');
 			ok(!document.isDirty);
-			deepStrictEqual(fixture.saved[0], { revision: 1, isDirty: false });
-			deepStrictEqual(fixture.dirty.at(-1), { revision: 1, isDirty: false });
 		});
 	}
 
@@ -299,8 +299,7 @@ suite('Native Kaoto text document provider', () => {
 		ok(await document.save());
 		equal(await read(document.uri), 'latest canvas edit');
 		equal(document.getText(), 'latest canvas edit');
-		await eventually(() => fixture.saved.length === 1);
-		deepStrictEqual(fixture.saved[0], { revision: 2, isDirty: false });
+		ok(!document.isDirty);
 	});
 
 	for (const origin of ['canvas', 'source'] as const) {
@@ -320,7 +319,6 @@ suite('Native Kaoto text document provider', () => {
 			const saving = document.save();
 			try {
 				await started.promise;
-				equal(fixture.saved.length, 0);
 				if (origin === 'canvas') {
 					fixture.edit('B', 5);
 				} else {
@@ -329,10 +327,9 @@ suite('Native Kaoto text document provider', () => {
 				await eventually(() => document.getText() === 'B' && fixture.content.content === 'B');
 				finish.resolve();
 				await saving;
-				await eventually(() => fixture.saved.length === 1);
 				equal(await read(document.uri), 'A');
 				ok(tab.isDirty);
-				deepStrictEqual(fixture.saved[0], { revision: 4, isDirty: true });
+				equal(document.getText(), 'B');
 			} finally {
 				finish.resolve();
 				await saving;
@@ -348,13 +345,11 @@ suite('Native Kaoto text document provider', () => {
 			throw vscode.FileSystemError.NoPermissions();
 		};
 		equal(await document.save(), false);
-		deepStrictEqual(fixture.saved, []);
 		ok(document.isDirty);
-		ok(fixture.dirty.at(-1)?.isDirty);
 		equal(await read(document.uri), 'original');
 		writeFile = originalWrite;
 		ok(await document.save());
-		await eventually(() => fixture.saved.length === 1);
+		equal(await read(document.uri), 'edited');
 		ok(!document.isDirty);
 	});
 
@@ -370,11 +365,9 @@ suite('Native Kaoto text document provider', () => {
 			}),
 		);
 		ok(await document.save());
-		await eventually(() => fixture.content.content === 'formatted' && fixture.saved.length === 1);
+		await eventually(() => fixture.content.content === 'formatted');
 		equal(await read(document.uri), 'formatted');
 		ok(!document.isDirty);
-		equal(fixture.saved[0].revision, fixture.content.revision);
-		equal(fixture.saved[0].isDirty, false);
 	});
 
 	test('external disk updates refresh a clean canvas without making it dirty', async () => {
@@ -383,7 +376,6 @@ suite('Native Kaoto text document provider', () => {
 		fileChanges.fire([{ type: vscode.FileChangeType.Changed, uri: document.uri }]);
 		await eventually(() => document.getText() === 'external edit' && fixture.content.content === 'external edit');
 		ok(!document.isDirty);
-		equal(fixture.dirty.at(-1)?.isDirty, false);
 	});
 
 	test('a newer source edit wins over a pending canvas snapshot', async () => {
@@ -412,8 +404,10 @@ suite('Native Kaoto text document provider', () => {
 		}
 	});
 
-	test('correlates the persisted revision when a canvas edit supersedes the save snapshot', async () => {
+	test('persists the save snapshot when a canvas edit supersedes it', async () => {
 		await open();
+		await vscode.window.showTextDocument(document);
+		const tab = vscode.window.tabGroups.activeTabGroup.activeTab!;
 		fixture.edit('A', 1);
 		await eventually(() => document.isDirty);
 		fixture.getSnapshot = async () => {
@@ -436,9 +430,9 @@ suite('Native Kaoto text document provider', () => {
 			await eventually(() => document.getText() === 'C');
 			finish.resolve();
 			await saving;
-			await eventually(() => fixture.saved.length === 1);
 			equal(await read(document.uri), 'B');
-			deepStrictEqual(fixture.saved[0], { revision: 2, isDirty: true });
+			equal(document.getText(), 'C');
+			ok(tab.isDirty);
 		} finally {
 			finish.resolve();
 			await saving;
@@ -454,7 +448,6 @@ suite('Native Kaoto text document provider', () => {
 		await open();
 		equal(fixture.content.content, 'edited with canvas closed');
 		ok(document.isDirty);
-		ok(fixture.requests[0].reason === 'init' && fixture.requests[0].isDirty);
 	});
 
 	test('closing the canvas flushes edits queued behind a pending save snapshot', async () => {
@@ -477,31 +470,6 @@ suite('Native Kaoto text document provider', () => {
 			await open();
 			equal(document.getText(), 'B');
 			equal(fixture.content.content, 'B');
-		} finally {
-			finish.resolve();
-			await saving;
-		}
-	});
-
-	test('a fresh webview session does not receive an older save acknowledgement', async () => {
-		await open();
-		fixture.edit('A', 1);
-		await eventually(() => document.isDirty);
-		const started = deferred<void>();
-		const finish = deferred<void>();
-		writeFile = async (uri, bytes) => {
-			started.resolve();
-			await finish.promise;
-			await originalWrite(uri, bytes);
-		};
-		const saving = document.save();
-		try {
-			await started.promise;
-			await fixture.reload();
-			finish.resolve();
-			await saving;
-			await eventually(() => fixture.dirty.at(-1)?.isDirty === false);
-			deepStrictEqual(fixture.saved, []);
 		} finally {
 			finish.resolve();
 			await saving;
@@ -563,7 +531,6 @@ suite('Native Kaoto text document provider', () => {
 			ok(!document.isDirty);
 			ok(other.isDirty);
 			equal(await read(otherUri), 'other original');
-			deepStrictEqual(otherFixture.saved, []);
 		} finally {
 			otherFixture.dispose();
 		}
@@ -585,13 +552,11 @@ function editorFixture() {
 	const closed = new vscode.EventEmitter<void>();
 	const viewState = new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>();
 	let receive: ((message: unknown) => void) | undefined;
-	let init = deferred<void>();
+	const init = deferred<void>();
 	const value = {
 		bus: createEventBus({ role: 'editor', onError: () => {} }),
 		bridge: undefined as ReturnType<typeof createPostMessageBridge> | undefined,
 		requests: [] as SetContentRequest[],
-		saved: [] as KaotoEvents['host:document:saved'][],
-		dirty: [] as KaotoEvents['host:document:dirtyChanged'][],
 		content: { content: '', revision: 0 } as ContentSnapshot,
 		getSnapshot: (): ContentSnapshot | Promise<ContentSnapshot> => ({ ...value.content }),
 		receive: (message: unknown) => incoming.fire(message),
@@ -621,8 +586,6 @@ function editorFixture() {
 				return { applied: true, revision: value.content.revision };
 			});
 			value.bus.onRequest('editor:document:getContent', () => value.getSnapshot());
-			value.bus.on('host:document:saved', (event) => value.saved.push(event));
-			value.bus.on('host:document:dirtyChanged', (event) => value.dirty.push(event));
 			value.bridge = createPostMessageBridge({
 				bus: value.bus,
 				transport: {
@@ -647,12 +610,6 @@ function editorFixture() {
 		edit: (content: string, revision: number) => {
 			value.content = { content, revision };
 			value.bus.emit('editor:document:changed', value.content);
-		},
-		reload: async () => {
-			value.bus.dispose();
-			init = deferred<void>();
-			value.bus = createEventBus({ role: 'editor', onError: () => {} });
-			await value.connect();
 		},
 		flush: () => new Promise<void>((resolve) => setTimeout(resolve, 0)),
 		dispose: () => {

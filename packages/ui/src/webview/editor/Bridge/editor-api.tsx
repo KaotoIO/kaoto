@@ -1,30 +1,17 @@
 import { type RefObject, useCallback, useMemo, useRef } from 'react';
 
-import { useUndoRedo } from '../../../hooks/undo-redo.hook';
-import {
-  BridgeError,
-  IEventBus,
-  KaotoEvents,
-  SetContentRequest,
-  ValidationNotification,
-} from '../../../host-bridge/contracts';
+import { BridgeError, IEventBus, SetContentRequest } from '../../../host-bridge/contracts';
 import { useSourceCodeStore } from '../../../store';
 
 export interface SourceCodeBridgeProviderRef {
   setContent: (path: string, content: string) => Promise<void>;
   getContent: () => Promise<string>;
-  getPreview: () => Promise<string | undefined>;
-  validate: () => Promise<ValidationNotification[]>;
-  undo: () => Promise<void>;
-  redo: () => Promise<void>;
-  setTheme: (theme: KaotoEvents['host:theme:changed']['theme']) => Promise<void>;
 }
 
 export const useEditorApi = () => {
   const sourceCodeRef = useRef<string>('');
   const initializedRef = useRef(false);
   const setCodeAndNotify = useSourceCodeStore((state) => state.setCodeAndNotify);
-  const { undo, redo } = useUndoRedo();
 
   /**
    * Callback is exposed to the Channel that is called when a new file is opened.
@@ -85,19 +72,8 @@ export const useEditorApi = () => {
        * the editorContent, which is the state that has the kaoto yaml.
        */
       getContent: () => Promise.resolve(sourceCodeRef.current),
-      getPreview: () => Promise.resolve(undefined),
-      undo: (): Promise<void> => {
-        undo();
-        return Promise.resolve();
-      },
-      redo: (): Promise<void> => {
-        redo();
-        return Promise.resolve();
-      },
-      validate: () => Promise.resolve([]),
-      setTheme: () => Promise.resolve(),
     }),
-    [redo, setContent, undo],
+    [setContent],
   );
 
   const output = useMemo(() => {
@@ -114,7 +90,6 @@ export const useEditorApi = () => {
 export interface EditorDocumentState {
   initialized: boolean;
   readonly: boolean;
-  nativeUndoRedo?: boolean;
   historyPending?: boolean;
   error?: Error;
 }
@@ -168,11 +143,6 @@ export function bindEditorDocument(
   const setContent = async (request: SetContentRequest, signal: AbortSignal) => {
     const api = requireApi(request.reason === 'init');
     if (request.reason === 'init' && state.initialized) return { applied: false, revision };
-    if (request.reason === 'saveEcho') {
-      if (request.revision > revision)
-        throw new BridgeError('INVALID_MESSAGE', 'Save echo refers to a future revision');
-      return { applied: false, revision };
-    }
     if (state.initialized && (await api.getContent()) === request.content) return { applied: false, revision };
     requireApi(request.reason === 'init');
     if (signal.aborted) throw new BridgeError('CANCELLED', 'The document request was cancelled');
@@ -183,7 +153,7 @@ export function bindEditorDocument(
       lastContent = request.content;
       if (request.reason === 'init') {
         clearTimeout(initializationTimer);
-        updateState({ initialized: true, readonly: request.readonly, nativeUndoRedo: request.nativeUndoRedo });
+        updateState({ initialized: true, readonly: request.readonly });
       } else {
         revision++;
       }
@@ -206,31 +176,13 @@ export function bindEditorDocument(
         return { content: await content, revision: snapshotRevision };
       }, signal),
     ),
-    bus.onRequest('editor:document:validate', (_request, { signal }) =>
-      enqueue(async () => ({ notifications: await requireApi().validate() }), signal),
-    ),
-    bus.onRequest('editor:preview:get', (_request, { signal }) =>
-      enqueue(async () => ({ svg: (await requireApi().getPreview()) ?? null }), signal),
-    ),
-    bus.onRequest('editor:undoRedo:apply', ({ command }, { signal }) =>
-      enqueue(async () => {
-        const api = requireApi();
-        if (state.readonly) throw new BridgeError('NOT_READY', 'The editor document is read-only');
-        if (state.nativeUndoRedo) throw new BridgeError('UNSUPPORTED_REQUEST', 'The host owns document history');
-        await api[command]();
-        return null;
-      }, signal),
-    ),
-    bus.on('host:theme:changed', ({ theme }) => {
-      void ref.current?.setTheme(theme);
-    }),
   ];
 
   return {
     getState: () => state,
     async applyHistory(command: 'undo' | 'redo') {
       requireApi();
-      if (!state.nativeUndoRedo || state.readonly || state.historyPending) {
+      if (state.readonly || state.historyPending) {
         throw new BridgeError('NOT_READY', 'Host history is not available');
       }
       updateState({ ...state, historyPending: true });

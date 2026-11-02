@@ -41,8 +41,6 @@ interface DocumentState {
 	document: vscode.TextDocument;
 	content: string;
 	revision: number;
-	lastSave?: { session: EditorSession; epoch: number; revision: number; content: string };
-	savedContent?: string;
 	sourceVersion: number;
 	mirroredContent?: string;
 	readonly: boolean;
@@ -84,25 +82,15 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		this.listeners = [
 			vscode.workspace.onDidChangeTextDocument((event) => {
 				const state = this.documents.get(event.document.uri.toString());
-				if (!state) {
-					return;
-				}
-				if (!event.contentChanges.length) {
-					this.notifyDirty(state);
+				if (!state || !event.contentChanges.length) {
 					return;
 				}
 				const content = event.document.getText();
 				if (event.reason === undefined && content === state.mirroredContent) {
-					this.notifyDirty(state);
 					return;
 				}
-				const cleanChange = !event.document.isDirty;
 				state.sourceVersion++;
 				void this.enqueue(state, async () => {
-					// Content events can precede the dirty-state event. Only persisted text can update the saved baseline.
-					if (cleanChange && content === (await this.readSavedContent(state.document).catch(report))) {
-						state.savedContent = content;
-					}
 					const session = this.session(state);
 					const epoch = session.epoch;
 					await session.whenReady.promise;
@@ -117,7 +105,6 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 						state.content = content;
 						state.revision = result.revision;
 					}
-					this.notifyDirty(state);
 				}).catch(report);
 			}),
 			vscode.workspace.onWillSaveTextDocument((event) => {
@@ -125,35 +112,6 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				if (state?.session?.initialized) {
 					event.waitUntil(this.prepareSave(state));
 				}
-			}),
-			vscode.workspace.onDidSaveTextDocument((document) => {
-				const state = this.documents.get(document.uri.toString());
-				if (!state) {
-					return;
-				}
-				const saved = state.lastSave;
-				const encoding = document.encoding;
-				void this.enqueue(state, async () => {
-					// onDidSave can expose a newer text version as clean while an older version was written.
-					const content = await this.readSavedContent(document, encoding);
-					if (state.disposed) {
-						return;
-					}
-					state.savedContent = content;
-					const session = state.session;
-					if (session?.initialized && session === saved?.session && session.epoch === saved.epoch) {
-						let revision: number | undefined;
-						if (this.normalizedContent(state) === content) {
-							revision = state.revision;
-						} else if (saved.content === content) {
-							revision = saved.revision;
-						}
-						if (revision !== undefined) {
-							session.bus.emit('host:document:saved', { revision, isDirty: this.isDirty(state) });
-						}
-					}
-					this.notifyDirty(state);
-				}).catch(report);
 			}),
 			vscode.workspace.onDidChangeConfiguration((event) => {
 				if (event.affectsConfiguration('kaoto')) {
@@ -214,7 +172,6 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		const state: DocumentState = {
 			document,
 			content: document.getText(),
-			savedContent: document.isDirty ? undefined : document.getText(),
 			revision: 0,
 			sourceVersion: 0,
 			readonly: vscode.workspace.fs.isWritableFileSystem(document.uri.scheme) === false,
@@ -316,11 +273,6 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 					this.changed(state, snapshot);
 				}
 			}),
-			session.bus.on('editor:document:saveRequested', () => {
-				if (session.initialized) {
-					void vscode.commands.executeCommand('workbench.action.files.save', document.uri).then(undefined, report);
-				}
-			}),
 			session.bus.on('editor:step:updated', ({ action, stepType, stepName }) => {
 				void state.services.onStepUpdated(action, stepType, stepName).catch(report);
 			}),
@@ -383,12 +335,11 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		try {
 			await this.enqueue(state, async () => {
 				const version = state.sourceVersion;
-				const { session, epoch } = await this.snapshot(state, cancellation.token);
+				await this.snapshot(state, cancellation.token);
 				// A source edit that arrived during the snapshot must not be overwritten.
 				if (version === state.sourceVersion) {
 					await this.updateSource(state);
 				}
-				state.lastSave = { session, epoch, revision: state.revision, content: this.normalizedContent(state) };
 			});
 		} finally {
 			cancellation.dispose();
@@ -406,10 +357,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				reason: 'init',
 				fileUri: state.document.uri.toString(),
 				content: state.content,
-				isDirty: this.isDirty(state),
 				readonly: state.readonly,
-				saveAcknowledgements: true,
-				nativeUndoRedo: true,
 			});
 			this.requireSession(state, session, epoch);
 			state.revision = result.revision;
@@ -430,7 +378,6 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		}
 		state.content = snapshot.content;
 		state.revision = snapshot.revision;
-		this.notifyDirty(state);
 		this.syncSource(state);
 	}
 	private syncSource(state: DocumentState): void {
@@ -476,18 +423,6 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 	}
 	private normalizedContent(state: DocumentState): string {
 		return state.content.replace(/\r\n|\r|\n/g, state.document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n');
-	}
-	private async readSavedContent(document: vscode.TextDocument, encoding = document.encoding): Promise<string> {
-		return vscode.workspace.decode(await vscode.workspace.fs.readFile(document.uri), { encoding });
-	}
-	private isDirty(state: DocumentState): boolean {
-		const content = state.document.getText();
-		return state.document.isDirty || this.normalizedContent(state) !== content || (state.savedContent !== undefined && state.savedContent !== content);
-	}
-	private notifyDirty(state: DocumentState): void {
-		if (state.session?.initialized) {
-			state.session.bus.emit('host:document:dirtyChanged', { revision: state.revision, isDirty: this.isDirty(state) });
-		}
 	}
 	private async snapshot(state: DocumentState, token: vscode.CancellationToken) {
 		checkCancellation(token);

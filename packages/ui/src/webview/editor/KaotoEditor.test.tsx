@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createPostMessageBridge } from '../../host-bridge/bridge';
@@ -11,6 +11,7 @@ import {
   NodeLabelType,
   NodeToolbarTrigger,
 } from '../../models/settings/settings.model';
+import { isDarkModeEnabled } from '../../utils/color-scheme';
 import { KaotoEditor, type KaotoEditorInit } from './KaotoEditor';
 
 const defaultInit: KaotoEditorInit = {
@@ -57,16 +58,39 @@ describe('KaotoEditor', () => {
         reason: 'init',
         fileUri: 'file:///route.camel.yaml',
         content: '- route: {}',
-        isDirty: false,
         readonly: false,
-        saveAcknowledgements: true,
-        nativeUndoRedo: true,
       }),
     ).resolves.toEqual(expect.objectContaining({ revision: expect.any(Number) }));
 
     hostBridge.dispose();
     editorBridge.dispose();
   });
+
+  it.each([
+    { colorScheme: ColorScheme.Auto, theme: 'dark', dark: true },
+    { colorScheme: ColorScheme.Auto, theme: 'high-contrast-light', dark: false },
+    { colorScheme: ColorScheme.Light, theme: 'dark', dark: false },
+  ] as const)(
+    'applies the $theme host theme when the color scheme is $colorScheme',
+    async ({ colorScheme, theme, dark }) => {
+      const { host, editor } = createMemoryTransports();
+      const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+      const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+      const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+      const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+      await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+      const initialSettings = { ...defaultSettings, settings: { ...defaultSettings.settings, colorScheme } };
+      render(<KaotoEditor bus={editorBus} initialSettings={initialSettings} init={defaultInit} />);
+
+      hostBus.emit('host:theme:changed', { theme });
+
+      await waitFor(() => {
+        expect(isDarkModeEnabled()).toBe(dark);
+      });
+      hostBridge.dispose();
+      editorBridge.dispose();
+    },
+  );
 
   it('disposes the bus on unmount', async () => {
     const bus = createEventBus({ role: 'editor', onError: vi.fn() });
