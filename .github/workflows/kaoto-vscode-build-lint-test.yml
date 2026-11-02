@@ -42,10 +42,7 @@ jobs:
       - name: Build UI lib
         run: yarn workspace @kaoto/kaoto build:lib
 
-      - name: Build VS Code webview
-        run: yarn workspace @kaoto/kaoto build:webview
-
-      - name: Build and lint extension
+      - name: Build webview, build and lint extension
         run: yarn workspace vscode-kaoto build:prod
 
       - name: Build and lint UI tests

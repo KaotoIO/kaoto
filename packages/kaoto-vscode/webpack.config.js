@@ -1,5 +1,6 @@
 const { merge } = require('webpack-merge');
 const CopyPlugin = require('copy-webpack-plugin');
+const fs = require('fs'); // NOSONAR
 const path = require('path'); // NOSONAR
 
 const getEnvConfig = (env) => {
@@ -138,7 +139,17 @@ const commonConfig = (env) => {
   };
 };
 
+const webviewDist = path.resolve(__dirname, '../ui/dist-webview');
+
 const webpack = (env) => {
+  // Live mode serves the webview from the Vite dev server, so a development build may skip the bundle.
+  // build:prod always builds it first, so a release never ships without one.
+  if (env.dev && !fs.existsSync(webviewDist)) {
+    console.warn(
+      `Webpack :: ${webviewDist} is missing; only the Vite dev server launch can show the editor. ` +
+        'Run `yarn workspace @kaoto/kaoto build:webview:dev` to use a prebuilt webview.',
+    );
+  }
   return [
     merge(commonConfig(env), {
       target: 'node',
@@ -148,7 +159,7 @@ const webpack = (env) => {
       plugins: [
         new CopyPlugin({
           patterns: [
-            { from: path.resolve(__dirname, '../ui/dist-webview'), to: 'webview', info: { minimized: true } },
+            { from: webviewDist, to: 'webview', info: { minimized: true }, noErrorOnMissing: Boolean(env.dev) },
             { from: path.resolve(__dirname, 'assets/kaoto-host-shim.js'), to: 'webview/kaoto-host-shim.js' },
           ],
         }),

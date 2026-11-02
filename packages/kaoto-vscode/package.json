@@ -14,7 +14,7 @@
   "homepage": "https://kaoto.io/",
   "author": "The Kaoto Team",
   "scripts": {
-    "build:prod": "rimraf dist && yarn run compile && yarn run lint",
+    "build:prod": "yarn workspace @kaoto/kaoto build:webview && rimraf dist && yarn run compile && yarn run lint",
     "build:dev": "rimraf dist && yarn run watch && yarn run lint",
     "build:test:unit": "tsc --project tsconfig.unit-tests.json && vite build --config vite.config.unit-tests.mjs",
     "build:vsix": "yarn vsce package --no-dependencies --yarn",
