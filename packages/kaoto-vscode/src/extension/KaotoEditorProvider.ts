@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import type { SuggestionRequestContext } from '@kaoto/forms';
 import {
 	BridgeError,
 	createEventBus,
@@ -33,6 +32,7 @@ import type { FileTypes } from '@kaoto/kaoto/models';
 import * as vscode from 'vscode';
 import { KAOTO_EDITOR_VIEW_TYPE } from '../constants';
 import { KaotoHostServices } from '../services/KaotoHostServices';
+import type { SuggestionRequestContext } from '../services/SuggestionRegistry';
 import { KaotoOutputChannel } from './KaotoOutputChannel';
 
 export type KaotoHostServicesFactory = (getDocumentUri: () => vscode.Uri) => KaotoHostServices;

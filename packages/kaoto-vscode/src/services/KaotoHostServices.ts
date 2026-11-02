@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { BridgeError } from '@kaoto/kaoto/host-bridge';
 import type { CatalogKind, FileTypesResponse, ISettingsModel, RuntimeMavenInformation, StepUpdateAction } from '@kaoto/kaoto/models';
 import { CanvasLayoutDirection, ColorScheme, FileTypes, NodeLabelType, NodeToolbarTrigger, SettingsModel } from '@kaoto/kaoto/models';
@@ -33,7 +32,7 @@ import {
 } from '../constants';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { readKameletsFromDirectory } from './KameletFileReader';
-import { getSuggestions } from './SuggestionRegistry';
+import { getSuggestions, type Suggestion, type SuggestionRequestContext } from './SuggestionRegistry';
 
 export interface KaotoDesktopOperations {
 	getSelectedCatalog?: (uri: vscode.Uri) => Promise<{ name: string; runtime: string } | undefined>;
