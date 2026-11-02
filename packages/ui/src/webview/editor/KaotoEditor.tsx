@@ -84,7 +84,7 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
   // Subscribe to settings and theme updates
   useEffect(() => {
     const unsubscribers = [
-      bus.on('editor:settings:updated', (snapshot: SettingsSnapshot) => {
+      bus.on('host:settings:updated', (snapshot: SettingsSnapshot) => {
         if (snapshot.settingsVersion <= settingsVersionRef.current) return;
         settingsVersionRef.current = snapshot.settingsVersion;
         const adapter = new DefaultSettingsAdapter(snapshot.settings);
@@ -130,7 +130,7 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
   const applyHistory = useCallback(
     (command: 'undo' | 'redo') => {
       void docRef.current?.applyHistory(command).catch((error: unknown) => {
-        bus.emit('host:notification:show', {
+        bus.emit('editor:notification:raised', {
           type: 'error',
           message: error instanceof Error ? error.message : 'Could not apply document history',
         });
@@ -233,7 +233,7 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
     ): Promise<string[] | string | undefined> => {
       return (
         (
-          await request('host:ui:pickFile', {
+          await request('editor:file:pick', {
             include,
             ...(exclude === undefined ? {} : { exclude }),
             ...(options === undefined

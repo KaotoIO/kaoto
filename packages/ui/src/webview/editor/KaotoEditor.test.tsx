@@ -54,7 +54,7 @@ describe('KaotoEditor', () => {
     rerender(<KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={{ ...defaultInit }} />);
 
     await expect(
-      hostBus.request('editor:document:setContent', {
+      hostBus.request('host:document:setContent', {
         reason: 'init',
         fileUri: 'file:///route.camel.yaml',
         content: '- route: {}',

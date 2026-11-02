@@ -8,10 +8,10 @@ export function useHostNotifications() {
   return useMemo(
     () => ({
       sendNotifications: (path: string, notifications: ValidationNotification[]): void => {
-        bus.emit('editor:notifications:set', { path, notifications });
+        bus.emit('editor:validation:updated', { path, notifications });
       },
       showNotification: (message: string, type: 'info' | 'warning' | 'error'): void => {
-        bus.emit('host:notification:show', { message, type });
+        bus.emit('editor:notification:raised', { message, type });
       },
     }),
     [bus],

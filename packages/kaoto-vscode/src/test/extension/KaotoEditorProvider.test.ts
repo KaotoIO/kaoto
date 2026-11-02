@@ -167,7 +167,7 @@ suite('Native Kaoto text document provider', () => {
 			}
 			await eventually(() => document.isDirty && fixture.content.content === 'edited');
 			if (origin === 'canvas') {
-				await fixture.bus.request('host:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
+				await fixture.bus.request('editor:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
 			} else {
 				await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
 				await vscode.commands.executeCommand('undo');
@@ -178,7 +178,7 @@ suite('Native Kaoto text document provider', () => {
 			);
 			equal(writes, 0, 'Undo must not save the file');
 			if (origin === 'canvas') {
-				await fixture.bus.request('host:undoRedo:apply', { command: 'redo', revision: fixture.content.revision });
+				await fixture.bus.request('editor:undoRedo:apply', { command: 'redo', revision: fixture.content.revision });
 			} else {
 				await vscode.commands.executeCommand('redo');
 			}
@@ -195,7 +195,7 @@ suite('Native Kaoto text document provider', () => {
 		const other = await vscode.workspace.openTextDocument(otherUri);
 		await vscode.window.showTextDocument(other);
 		await editSource('other edited', other);
-		await rejects(fixture.bus.request('host:undoRedo:apply', { command: 'undo', revision: 1 }), { code: 'NOT_READY' });
+		await rejects(fixture.bus.request('editor:undoRedo:apply', { command: 'undo', revision: 1 }), { code: 'NOT_READY' });
 		equal(other.getText(), 'other edited');
 		equal(document.getText(), 'edited');
 	});
@@ -213,10 +213,10 @@ suite('Native Kaoto text document provider', () => {
 		};
 		ok(await document.save());
 		await eventually(() => !tab.isDirty);
-		await fixture.bus.request('host:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
+		await fixture.bus.request('editor:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
 		await eventually(() => document.getText() === 'original' && tab.isDirty && fixture.content.content === 'original');
 		equal(await read(document.uri), 'saved edit');
-		await fixture.bus.request('host:undoRedo:apply', { command: 'redo', revision: fixture.content.revision });
+		await fixture.bus.request('editor:undoRedo:apply', { command: 'redo', revision: fixture.content.revision });
 		await eventually(() => document.getText() === 'saved edit' && !tab.isDirty && fixture.content.content === 'saved edit');
 		equal(writes, 1, 'History navigation must not save again');
 	});
@@ -228,9 +228,9 @@ suite('Native Kaoto text document provider', () => {
 		await eventually(() => document.getText() === 'canvas edit');
 		await editSource('source edit');
 		await eventually(() => fixture.content.content === 'source edit');
-		await fixture.bus.request('host:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
+		await fixture.bus.request('editor:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
 		await eventually(() => document.getText() === 'canvas edit' && fixture.content.content === 'canvas edit');
-		await fixture.bus.request('host:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
+		await fixture.bus.request('editor:undoRedo:apply', { command: 'undo', revision: fixture.content.revision });
 		await eventually(() => document.getText() === 'original' && !document.isDirty && fixture.content.content === 'original');
 	});
 
@@ -239,7 +239,7 @@ suite('Native Kaoto text document provider', () => {
 		await vscode.window.showTextDocument(document);
 		fixture.edit('edited', 1);
 		await eventually(() => document.getText() === 'edited');
-		await rejects(fixture.bus.request('host:undoRedo:apply', { command: 'undo', revision: 0 }), { code: 'NOT_READY' });
+		await rejects(fixture.bus.request('editor:undoRedo:apply', { command: 'undo', revision: 0 }), { code: 'NOT_READY' });
 		equal(document.getText(), 'edited');
 	});
 
@@ -577,7 +577,7 @@ function editorFixture() {
 			},
 		} as unknown as vscode.WebviewPanel,
 		connect: async () => {
-			value.bus.onRequest('editor:document:setContent', (request) => {
+			value.bus.onRequest('host:document:setContent', (request) => {
 				value.requests.push(request);
 				value.content = { content: request.content, revision: request.reason === 'init' ? 0 : value.content.revision + 1 };
 				if (request.reason === 'init') {
@@ -585,7 +585,7 @@ function editorFixture() {
 				}
 				return { applied: true, revision: value.content.revision };
 			});
-			value.bus.onRequest('editor:document:getContent', () => value.getSnapshot());
+			value.bus.onRequest('host:document:getContent', () => value.getSnapshot());
 			value.bridge = createPostMessageBridge({
 				bus: value.bus,
 				transport: {

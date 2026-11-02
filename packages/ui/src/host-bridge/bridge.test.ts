@@ -73,8 +73,8 @@ describe('connected host bridge', () => {
   it('addresses the peer and rejects pending work on disposal', async () => {
     const { host, editor, hostBridge, connect } = pair();
     await connect();
-    editor.onRequest('editor:document:getContent', () => new Promise(() => {}));
-    const pending = host.request('editor:document:getContent', null);
+    editor.onRequest('host:document:getContent', () => new Promise(() => {}));
+    const pending = host.request('host:document:getContent', null);
     const rejection = expectRejection(pending, 'DISPOSED');
     hostBridge.dispose();
     await rejection;
@@ -82,10 +82,10 @@ describe('connected host bridge', () => {
 
   it('returns the peer handler result', async () => {
     const { host, editor, connect } = pair();
-    editor.onRequest('editor:document:getContent', () => ({ content: 'route', revision: 2 }));
+    editor.onRequest('host:document:getContent', () => ({ content: 'route', revision: 2 }));
     host.onRequest('editor:metadata:get', ({ key }) => ({ value: key }));
     await connect();
-    await expect(host.request('editor:document:getContent', null)).resolves.toEqual({ content: 'route', revision: 2 });
+    await expect(host.request('host:document:getContent', null)).resolves.toEqual({ content: 'route', revision: 2 });
     await expect(editor.request('editor:metadata:get', { key: 'filePath' })).resolves.toEqual({ value: 'filePath' });
   });
 
@@ -143,13 +143,13 @@ describe('connected host bridge', () => {
   it('rejects missing handlers and preserves structured handler failures', async () => {
     const { host, editor, connect } = pair();
     await connect();
-    await expect(host.request('editor:document:getContent', null)).rejects.toMatchObject({
+    await expect(host.request('host:document:getContent', null)).rejects.toMatchObject({
       code: 'UNSUPPORTED_REQUEST',
     });
-    editor.onRequest('editor:document:getContent', () => {
+    editor.onRequest('host:document:getContent', () => {
       throw new BridgeError('NOT_READY', 'Editor is loading');
     });
-    await expect(host.request('editor:document:getContent', null)).rejects.toMatchObject({
+    await expect(host.request('host:document:getContent', null)).rejects.toMatchObject({
       code: 'NOT_READY',
       message: 'Editor is loading',
     });
@@ -164,10 +164,10 @@ describe('connected host bridge', () => {
 
   it('rejects invalid handler results instead of returning successful malformed data', async () => {
     const { host, editor, connect } = pair();
-    editor.onRequest('editor:document:getContent', () => ({ content: 'route', revision: -1 }));
+    editor.onRequest('host:document:getContent', () => ({ content: 'route', revision: -1 }));
     host.onRequest('editor:metadata:get', () => ({ value: () => null }) as never);
     await connect();
-    await expect(host.request('editor:document:getContent', null)).rejects.toMatchObject({ code: 'INVALID_MESSAGE' });
+    await expect(host.request('host:document:getContent', null)).rejects.toMatchObject({ code: 'INVALID_MESSAGE' });
     await expect(editor.request('editor:metadata:get', { key: 'invalid' })).rejects.toMatchObject({
       code: 'INVALID_MESSAGE',
     });
@@ -176,14 +176,14 @@ describe('connected host bridge', () => {
   it('retains an accepted handler after it is unregistered', async () => {
     const { host, editor, connect } = pair();
     const result = deferred<{ content: string; revision: number }>();
-    const unregister = editor.onRequest('editor:document:getContent', () => result.promise);
+    const unregister = editor.onRequest('host:document:getContent', () => result.promise);
     await connect();
-    const pending = host.request('editor:document:getContent', null);
+    const pending = host.request('host:document:getContent', null);
     await tick();
     unregister();
     result.resolve({ content: 'accepted', revision: 1 });
     await expect(pending).resolves.toEqual({ content: 'accepted', revision: 1 });
-    await expect(host.request('editor:document:getContent', null)).rejects.toMatchObject({
+    await expect(host.request('host:document:getContent', null)).rejects.toMatchObject({
       code: 'UNSUPPORTED_REQUEST',
     });
   });
@@ -194,12 +194,12 @@ describe('connected host bridge', () => {
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
       const { host, editor, hostBridge, connect, transports } = pair();
       let signal: AbortSignal | undefined;
-      editor.onRequest('editor:document:getContent', (_payload, context) => {
+      editor.onRequest('host:document:getContent', (_payload, context) => {
         signal = context.signal;
         return new Promise(() => {});
       });
       await connect();
-      const pending = host.request('editor:document:getContent', null);
+      const pending = host.request('host:document:getContent', null);
       const rejection = expectRejection(pending, 'DISPOSED');
       await tick();
       expect(signal?.aborted).toBe(false);
@@ -215,7 +215,7 @@ describe('connected host bridge', () => {
 
 describe('request deadlines and cancellation', () => {
   it.each([
-    ['host', 'editor:document:getContent', null, 5000],
+    ['host', 'host:document:getContent', null, 5000],
     ['editor', 'editor:suggestions:get', { topic: 'bean', word: '', context: {} }, 2000],
     ['editor', 'editor:maven:getRuntimeInfo', null, 60000],
   ] as const)('uses the %s deadline for %s', async (role, name, payload, deadline) => {
@@ -245,10 +245,10 @@ describe('request deadlines and cancellation', () => {
   it.each([undefined, null])('keeps file picking pending without an automatic deadline (%s)', async (timeoutMs) => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
     const { host, editor, connect } = pair();
-    host.onRequest('host:ui:pickFile', () => new Promise(() => {}));
+    host.onRequest('editor:file:pick', () => new Promise(() => {}));
     await connect();
     const controller = new AbortController();
-    const pending = editor.request('host:ui:pickFile', { include: '**/*' }, { timeoutMs, signal: controller.signal });
+    const pending = editor.request('editor:file:pick', { include: '**/*' }, { timeoutMs, signal: controller.signal });
     const rejection = expectRejection(pending, 'CANCELLED');
     await vi.advanceTimersByTimeAsync(120000);
     expect(vi.getTimerCount()).toBe(0);
@@ -259,12 +259,12 @@ describe('request deadlines and cancellation', () => {
   it('honors a positive timeout override and removes its abort listener', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
     const { host, editor, connect } = pair();
-    editor.onRequest('editor:document:getContent', () => new Promise(() => {}));
+    editor.onRequest('host:document:getContent', () => new Promise(() => {}));
     await connect();
     const controller = new AbortController();
     const remove = vi.spyOn(controller.signal, 'removeEventListener');
     const rejection = expectRejection(
-      host.request('editor:document:getContent', null, { timeoutMs: 15, signal: controller.signal }),
+      host.request('host:document:getContent', null, { timeoutMs: 15, signal: controller.signal }),
       'TIMEOUT',
     );
     await vi.advanceTimersByTimeAsync(15);
@@ -276,9 +276,9 @@ describe('request deadlines and cancellation', () => {
   it.each([0, -1, Infinity, NaN])('rejects invalid timeout %s before invoking a handler', async (timeoutMs) => {
     const { host, editor, connect } = pair();
     const handler = vi.fn(() => ({ content: '', revision: 0 }));
-    editor.onRequest('editor:document:getContent', handler);
+    editor.onRequest('host:document:getContent', handler);
     await connect();
-    await expect(host.request('editor:document:getContent', null, { timeoutMs })).rejects.toMatchObject({
+    await expect(host.request('host:document:getContent', null, { timeoutMs })).rejects.toMatchObject({
       code: 'INVALID_MESSAGE',
     });
     expect(handler).not.toHaveBeenCalled();
@@ -287,13 +287,13 @@ describe('request deadlines and cancellation', () => {
   it('does not send a request whose signal was already aborted', async () => {
     const { host, editor, connect } = pair();
     const handler = vi.fn(() => ({ content: '', revision: 0 }));
-    editor.onRequest('editor:document:getContent', handler);
+    editor.onRequest('host:document:getContent', handler);
     await connect();
     const controller = new AbortController();
     controller.abort();
-    await expect(host.request('editor:document:getContent', null, { signal: controller.signal })).rejects.toMatchObject(
-      { code: 'CANCELLED' },
-    );
+    await expect(host.request('host:document:getContent', null, { signal: controller.signal })).rejects.toMatchObject({
+      code: 'CANCELLED',
+    });
     expect(handler).not.toHaveBeenCalled();
   });
 
@@ -477,7 +477,7 @@ describe('handshake and session ownership', () => {
     const originalSession = fixture.session();
     fixture.receive({ ...header, kind: 'hello', editorBootId: 'boot-1' });
     expect(fixture.session()).toBe(originalSession);
-    const pending = fixture.bus.request('editor:document:getContent', null);
+    const pending = fixture.bus.request('host:document:getContent', null);
     const rejection = expectRejection(pending, 'DISPOSED');
     let signal: AbortSignal | undefined;
     fixture.bus.onRequest('editor:metadata:set', (_payload, context) => {
@@ -576,7 +576,7 @@ describe('handshake and session ownership', () => {
 describe('untrusted frames', () => {
   it.each([
     { name: 'unknown', payload: null },
-    { name: 'editor:document:getContent', payload: null },
+    { name: 'host:document:getContent', payload: null },
     { name: 'editor:metadata:set', payload: { key: 'value', value: undefined } },
     { name: 'editor:metadata:set', payload: { key: 'value', value: () => 1 } },
   ])('rejects an identifiable invalid request %s without invoking a handler', async ({ name, payload }) => {
@@ -616,15 +616,15 @@ describe('untrusted frames', () => {
   });
 
   it.each([
-    { name: 'editor:document:setContent', ok: true, payload: { applied: true, revision: 0 } },
-    { name: 'editor:document:getContent', ok: true, payload: { content: '', revision: -1 } },
-    { name: 'editor:document:getContent', ok: true, payload: undefined },
-    { name: 'editor:document:getContent', ok: false, error: { code: 'ENOENT', message: 'missing' } },
-    { name: 'editor:document:getContent', payload: { content: '', revision: 0 } },
+    { name: 'host:document:setContent', ok: true, payload: { applied: true, revision: 0 } },
+    { name: 'host:document:getContent', ok: true, payload: { content: '', revision: -1 } },
+    { name: 'host:document:getContent', ok: true, payload: undefined },
+    { name: 'host:document:getContent', ok: false, error: { code: 'ENOENT', message: 'missing' } },
+    { name: 'host:document:getContent', payload: { content: '', revision: 0 } },
   ])('rejects a matching malformed response %s', async (fields) => {
     const fixture = supplied();
     await fixture.establish();
-    const pending = fixture.bus.request('editor:document:getContent', null);
+    const pending = fixture.bus.request('host:document:getContent', null);
     const rejection = expectRejection(pending, 'INVALID_MESSAGE');
     const request = lastRequest(fixture.sent);
     fixture.receive({ ...header, kind: 'response', sessionId: fixture.session(), id: request.id, ...fields });
@@ -634,7 +634,7 @@ describe('untrusted frames', () => {
   it('ignores duplicate and stale responses without settling another request', async () => {
     const fixture = supplied();
     await fixture.establish();
-    const first = fixture.bus.request('editor:document:getContent', null);
+    const first = fixture.bus.request('host:document:getContent', null);
     const request = lastRequest(fixture.sent);
     const response = {
       ...header,
@@ -647,7 +647,7 @@ describe('untrusted frames', () => {
     };
     fixture.receive(response);
     await expect(first).resolves.toEqual({ content: 'first', revision: 1 });
-    const second = fixture.bus.request('editor:document:getContent', null);
+    const second = fixture.bus.request('host:document:getContent', null);
     const next = lastRequest(fixture.sent);
     const settled = vi.fn();
     void second.then(settled);
@@ -740,18 +740,18 @@ describe('transport boundaries', () => {
     fixture.failSend(() => {
       throw new Error('Send failed');
     });
-    await expect(fixture.bus.request('editor:document:getContent', null)).rejects.toMatchObject({ code: 'IO_ERROR' });
+    await expect(fixture.bus.request('host:document:getContent', null)).rejects.toMatchObject({ code: 'IO_ERROR' });
     expect(fixture.transport.dispose).toHaveBeenCalledTimes(1);
   });
 
   it('releases request timers and abort listeners on a successful response', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
     const { host, editor, connect } = pair();
-    editor.onRequest('editor:document:getContent', () => ({ content: '', revision: 0 }));
+    editor.onRequest('host:document:getContent', () => ({ content: '', revision: 0 }));
     await connect();
     const controller = new AbortController();
     const remove = vi.spyOn(controller.signal, 'removeEventListener');
-    await expect(host.request('editor:document:getContent', null, { signal: controller.signal })).resolves.toEqual({
+    await expect(host.request('host:document:getContent', null, { signal: controller.signal })).resolves.toEqual({
       content: '',
       revision: 0,
     });
@@ -774,10 +774,10 @@ describe('transport boundaries', () => {
       vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] });
       const fixture = supplied();
       await fixture.establish();
-      const first = fixture.bus.request('editor:document:getContent', null);
+      const first = fixture.bus.request('host:document:getContent', null);
       const firstRejection = expectRejection(first, 'IO_ERROR');
       fixture.failSend(fail);
-      const secondRejection = expectRejection(fixture.bus.request('editor:document:getContent', null), 'IO_ERROR');
+      const secondRejection = expectRejection(fixture.bus.request('host:document:getContent', null), 'IO_ERROR');
       await Promise.all([firstRejection, secondRejection]);
       expect(fixture.onError).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ code: 'IO_ERROR' }));
       expect(fixture.transport.dispose).toHaveBeenCalledTimes(1);
