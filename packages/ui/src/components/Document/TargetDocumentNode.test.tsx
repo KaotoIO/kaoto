@@ -1,5 +1,6 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
+import type { MockInstance } from 'vitest';
 
 import {
   BODY_DOCUMENT_ID,
@@ -7,23 +8,29 @@ import {
   DocumentDefinitionType,
   DocumentInitializationModel,
   DocumentType,
+  IDocument,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { FieldItem, MappingTree, VariableItem } from '../../models/datamapper/mapping';
+import { FieldItem, IfItem, MappingItem, MappingTree, VariableItem } from '../../models/datamapper/mapping';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import {
   AddMappingNodeData,
   DocumentNodeData,
   FieldItemNodeData,
+  MappingNodeData,
+  NodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
+  TargetFieldNodeData,
+  TargetNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
 import { MappingService } from '../../services/mapping/mapping.service';
+import { MappingSerializerService } from '../../services/mapping/mapping-serializer.service';
 import { MappingActionService } from '../../services/visualization/mapping-action.service';
 import { MappingActionRegistryService } from '../../services/visualization/mapping-action-registry.service';
 import { TreeParsingService } from '../../services/visualization/tree-parsing.service';
@@ -31,7 +38,8 @@ import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { VisualizationService } from '../../services/visualization/visualization.service';
 import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
 import { useDocumentTreeStore } from '../../store';
-import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { getShipOrderToShipOrderXslt, TestUtil } from '../../stubs/datamapper/data-mapper';
+import { createDataMapperContext, createDataMapperContextWrapper } from '../../stubs/datamapper/data-mapper-context';
 import { TargetDocumentNode } from './TargetDocumentNode';
 
 describe('TargetDocumentNode', () => {
@@ -731,55 +739,318 @@ describe('TargetDocumentNode', () => {
       expect(nodeContainer).toHaveAttribute('data-selected', 'true');
     });
 
-    it('should call applyValueOfSelector and handleUpdate on double click', () => {
-      const document = new PrimitiveDocument(
-        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
-      );
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
+    describe('double-click', () => {
+      const renderRow = (treeNode: DocumentTreeNode, documentNodeData: TargetDocumentNodeData) => {
+        const context = createDataMapperContext({
+          mappingTree: documentNodeData.mappingTree,
+          targetBodyDocument: documentNodeData.document,
+        });
+        const DataMapperWrapper = createDataMapperContextWrapper(context);
+        const sharedTreeWrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
+          <DataMapperWrapper>
+            <MappingLinksProvider>{children}</MappingLinksProvider>
+          </DataMapperWrapper>
+        );
+        render(<TargetDocumentNode treeNode={treeNode} documentNodeId={documentNodeData.id} rank={1} />, {
+          wrapper: sharedTreeWrapper,
+        });
+        return { context, row: screen.getByTestId(`node-target-${treeNode.nodeData.id}`) };
+      };
 
-      const getAllowedActionsSpy = vi
-        .spyOn(MappingActionRegistryService, 'getAllowedActions')
-        .mockReturnValue([MappingActionKind.ValueSelector]);
-      const applyValueOfSelectorSpy = vi.spyOn(MappingActionService, 'applyValueOfSelector');
+      const parseTargetTree = (document: IDocument, mappingTree: MappingTree) => {
+        const documentNodeData = new TargetDocumentNodeData(document, mappingTree);
+        const tree = new DocumentTree(documentNodeData);
+        TreeParsingService.parseTree(tree);
+        return { documentNodeData, tree };
+      };
 
-      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, { wrapper });
+      const searchTree = (
+        node: DocumentTreeNode,
+        predicate: (nodeData: NodeData) => boolean,
+      ): DocumentTreeNode | undefined => {
+        if (predicate(node.nodeData)) return node;
+        for (const child of node.children) {
+          const found = searchTree(child, predicate);
+          if (found) return found;
+        }
+        return undefined;
+      };
 
-      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
-      expect(nodeContainer).toBeInTheDocument();
+      const findTreeNode = (node: DocumentTreeNode, predicate: (nodeData: NodeData) => boolean): DocumentTreeNode => {
+        const found = searchTree(node, predicate);
+        if (!found) throw new Error('Tree node not found');
+        return found;
+      };
 
-      fireEvent.doubleClick(nodeContainer);
+      const byTitle = (title: string) => (nodeData: NodeData) => nodeData.title === title;
 
-      expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
-      expect(applyValueOfSelectorSpy).toHaveBeenCalledWith(documentNodeData);
-      expect(applyValueOfSelectorSpy).toHaveBeenCalledTimes(1);
+      const byMappingUnder =
+        (type: abstract new (...args: never[]) => MappingItem, fieldName: string) => (nodeData: NodeData) =>
+          nodeData instanceof MappingNodeData &&
+          nodeData.mapping instanceof type &&
+          nodeData.mapping.parent instanceof FieldItem &&
+          nodeData.mapping.parent.field.name === fieldName;
 
-      getAllowedActionsSpy.mockRestore();
-      applyValueOfSelectorSpy.mockRestore();
-    });
+      const createShipOrderTree = () => {
+        const document = TestUtil.createTargetOrderDoc();
+        const mappingTree = new MappingTree(
+          document.documentType,
+          document.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        return { document, mappingTree };
+      };
 
-    it('should not call applyValueOfSelector when allowValueSelector is false', () => {
-      const document = new PrimitiveDocument(
-        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
-      );
-      const documentNodeData = new DocumentNodeData(document);
-      const tree = new DocumentTree(documentNodeData);
+      const findFieldRowData = (document: IDocument, mappingTree: MappingTree, title: string) => {
+        const shipOrderRows = VisualizationService.generateNonDocumentNodeDataChildren(
+          VisualizationService.generateStructuredDocumentChildren(new TargetDocumentNodeData(document, mappingTree))[0],
+        );
+        const row = shipOrderRows.find((r) => r.title === title);
+        if (!(row instanceof TargetFieldNodeData)) throw new Error(`Unmapped row '${title}' not found`);
+        return row;
+      };
 
-      const getAllowedActionsSpy = vi.spyOn(MappingActionRegistryService, 'getAllowedActions').mockReturnValue([]);
-      const applyValueOfSelectorSpy = vi.spyOn(MappingActionService, 'applyValueOfSelector');
+      let getMenuItemsSpy: MockInstance<typeof MappingActionRegistryService.getMappingContextMenuItems>;
+      let applyValueOfSelectorSpy: MockInstance<typeof MappingActionService.applyValueOfSelector>;
 
-      render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, { wrapper });
+      beforeEach(() => {
+        getMenuItemsSpy = vi.spyOn(MappingActionRegistryService, 'getMappingContextMenuItems');
+        applyValueOfSelectorSpy = vi.spyOn(MappingActionService, 'applyValueOfSelector');
+      });
 
-      const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
-      expect(nodeContainer).toBeInTheDocument();
+      afterEach(() => {
+        getMenuItemsSpy.mockRestore();
+        applyValueOfSelectorSpy.mockRestore();
+        useDocumentTreeStore.getState().setAddingVariableTo(null);
+      });
 
-      fireEvent.doubleClick(nodeContainer);
+      it('should call applyValueOfSelector and handleUpdate on double click', () => {
+        const document = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
+        const documentNodeData = new DocumentNodeData(document);
+        const tree = new DocumentTree(documentNodeData);
 
-      expect(getAllowedActionsSpy).toHaveBeenCalledWith(documentNodeData);
-      expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+        render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, { wrapper });
 
-      getAllowedActionsSpy.mockRestore();
-      applyValueOfSelectorSpy.mockRestore();
+        const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
+        expect(nodeContainer).toBeInTheDocument();
+        getMenuItemsSpy.mockClear();
+
+        fireEvent.doubleClick(nodeContainer);
+
+        expect(getMenuItemsSpy).toHaveBeenCalledWith(documentNodeData);
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledWith(documentNodeData);
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('should not call applyValueOfSelector when the value-of menu item is not available', () => {
+        const document = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
+        const documentNodeData = new DocumentNodeData(document);
+        const tree = new DocumentTree(documentNodeData);
+        getMenuItemsSpy.mockReturnValue([]);
+
+        render(<TargetDocumentNode treeNode={tree.root} documentNodeId={documentNodeData.id} rank={0} />, { wrapper });
+
+        const nodeContainer = screen.getByTestId(`node-target-${documentNodeData.id}`);
+        expect(nodeContainer).toBeInTheDocument();
+
+        fireEvent.doubleClick(nodeContainer);
+
+        expect(getMenuItemsSpy).toHaveBeenCalledWith(documentNodeData);
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+      });
+
+      it('should not add a value-of on a container row, and should on the title of a leaf row', () => {
+        const { document, mappingTree } = createShipOrderTree();
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const shipToNode = findTreeNode(tree.root, byTitle('ShipTo'));
+        const shipTo = renderRow(shipToNode, documentNodeData);
+        getMenuItemsSpy.mockClear();
+
+        fireEvent.doubleClick(shipTo.row);
+
+        expect(getMenuItemsSpy).toHaveBeenCalledWith(shipToNode.nodeData);
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+        expect(shipTo.context.refreshMappingTree).not.toHaveBeenCalled();
+
+        const orderPersonNode = findTreeNode(tree.root, byTitle('OrderPerson'));
+        const orderPerson = renderRow(orderPersonNode, documentNodeData);
+        fireEvent.doubleClick(within(orderPerson.row).getByText('OrderPerson'));
+
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledTimes(1);
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledWith(orderPersonNode.nodeData);
+        expect(orderPerson.context.refreshMappingTree).toHaveBeenCalledWith({ structural: true });
+      });
+
+      it('should not add a second value-of on a row whose value-of item is disabled', () => {
+        const { document, mappingTree } = createShipOrderTree();
+        MappingSerializerService.deserialize(
+          getShipOrderToShipOrderXslt(),
+          document,
+          mappingTree,
+          new Map<string, IDocument>(),
+        );
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const orderPersonNode = findTreeNode(tree.root, byTitle('OrderPerson'));
+        const orderPersonNodeData = orderPersonNode.nodeData as TargetNodeData;
+        expect(orderPersonNodeData).toBeInstanceOf(FieldItemNodeData);
+        const valueSelectorItem = MappingActionRegistryService.getMappingContextMenuItems(orderPersonNodeData).find(
+          (item) => item.key === MappingActionKind.ValueSelector,
+        );
+        expect(valueSelectorItem?.isDisabled?.(orderPersonNodeData)).toBe(true);
+        const orderPerson = renderRow(orderPersonNode, documentNodeData);
+
+        fireEvent.doubleClick(within(orderPerson.row).getByText('OrderPerson'));
+
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+        expect(orderPerson.context.refreshMappingTree).not.toHaveBeenCalled();
+      });
+
+      it('should judge unexpanded named-type rows beyond the parse frontier, and ignore the expand chevron', () => {
+        const document = TestUtil.createNamedTypesBeyondFrontierDoc();
+        const mappingTree = new MappingTree(
+          document.documentType,
+          document.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const addressNode = findTreeNode(tree.root, byTitle('Address'));
+        const priceNode = findTreeNode(tree.root, byTitle('Price'));
+        for (const node of [addressNode, priceNode]) {
+          expect(node.nodeData).toBeInstanceOf(TargetFieldNodeData);
+          expect((node.nodeData as TargetFieldNodeData).field.namedTypeFragmentRefs).toHaveLength(1);
+        }
+
+        const address = renderRow(addressNode, documentNodeData);
+        getMenuItemsSpy.mockClear();
+        fireEvent.doubleClick(within(address.row).getByText('Address'));
+        expect(getMenuItemsSpy).toHaveBeenCalledWith(addressNode.nodeData);
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+
+        const price = renderRow(priceNode, documentNodeData);
+        fireEvent.doubleClick(screen.getByTestId('collapse-icon-Price'));
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+
+        fireEvent.doubleClick(within(price.row).getByText('Price'));
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledTimes(1);
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledWith(priceNode.nodeData);
+      });
+
+      it('should ignore double-clicks in the expand column of a row that cannot expand', () => {
+        const { document, mappingTree } = createShipOrderTree();
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const orderPersonNode = findTreeNode(tree.root, byTitle('OrderPerson'));
+        const orderPerson = renderRow(orderPersonNode, documentNodeData);
+        const spacer = orderPerson.row.querySelector('.node__expand[aria-hidden="true"]');
+        if (!spacer) throw new Error('Expand spacer not rendered');
+
+        fireEvent.doubleClick(spacer);
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+
+        fireEvent.doubleClick(within(orderPerson.row).getByText('OrderPerson'));
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('should judge unexpanded JSON rows beyond the parse frontier by their type', () => {
+        const document = TestUtil.createFieldsBeyondFrontierJsonDoc();
+        const mappingTree = new MappingTree(
+          document.documentType,
+          document.documentId,
+          DocumentDefinitionType.JSON_SCHEMA,
+        );
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const byKey = (key: string) => (nodeData: NodeData) =>
+          nodeData instanceof TargetFieldNodeData && 'key' in nodeData.field && nodeData.field.key === key;
+        const codeNode = findTreeNode(tree.root, byKey('code'));
+        const addressNode = findTreeNode(tree.root, byKey('address'));
+        const metadataNode = findTreeNode(tree.root, byKey('metadata'));
+        for (const node of [codeNode, addressNode]) {
+          expect((node.nodeData as TargetFieldNodeData).field.namedTypeFragmentRefs).toHaveLength(1);
+        }
+
+        const metadata = renderRow(metadataNode, documentNodeData);
+        getMenuItemsSpy.mockClear();
+        fireEvent.doubleClick(metadata.row);
+        expect(getMenuItemsSpy).toHaveBeenCalledWith(metadataNode.nodeData);
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+
+        const code = renderRow(codeNode, documentNodeData);
+        fireEvent.doubleClick(code.row);
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledTimes(1);
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledWith(codeNode.nodeData);
+      });
+
+      it('should not add a value-of on an "if" row inside a container', () => {
+        const { document, mappingTree } = createShipOrderTree();
+        MappingActionService.applyInnerIf(findFieldRowData(document, mappingTree, 'ShipTo'));
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const ifNode = findTreeNode(tree.root, byMappingUnder(IfItem, 'ShipTo'));
+        const ifRow = renderRow(ifNode, documentNodeData);
+        getMenuItemsSpy.mockClear();
+
+        fireEvent.doubleClick(within(ifRow.row).getByText('if'));
+
+        expect(getMenuItemsSpy).toHaveBeenCalledWith(ifNode.nodeData);
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+      });
+
+      it('should ignore double-clicks in the controls and dialogs of an "if" row under a leaf', () => {
+        const { document, mappingTree } = createShipOrderTree();
+        MappingActionService.applyInnerIf(findFieldRowData(document, mappingTree, 'OrderPerson'));
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const ifNode = findTreeNode(tree.root, byMappingUnder(IfItem, 'OrderPerson'));
+        if (!(ifNode.nodeData instanceof MappingNodeData)) throw new Error('if row not found');
+        ifNode.nodeData.mapping.comment = 'check the person';
+        const { row } = renderRow(ifNode, documentNodeData);
+
+        fireEvent.doubleClick(within(row).getByTestId('transformation-xpath-input'));
+        fireEvent.doubleClick(within(row).getByTestId(`edit-xpath-button-${ifNode.nodeData.id}`));
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+
+        fireEvent.click(within(row).getByRole('button', { name: 'Edit comment' }));
+        fireEvent.doubleClick(screen.getByTestId('comment-textarea'));
+        fireEvent.doubleClick(screen.getByRole('dialog'));
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+
+        fireEvent.doubleClick(within(row).getByText('if'));
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledTimes(1);
+        expect(applyValueOfSelectorSpy).toHaveBeenCalledWith(ifNode.nodeData);
+      });
+
+      it('should ignore double-clicks in the inline "Add variable" editor of a row', () => {
+        const { document, mappingTree } = createShipOrderTree();
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const orderPersonNode = findTreeNode(tree.root, byTitle('OrderPerson'));
+        useDocumentTreeStore.getState().setAddingVariableTo(orderPersonNode.nodeData.path.toString());
+        const { row } = renderRow(orderPersonNode, documentNodeData);
+        const variableEditor = row.querySelector('.name-input-placeholder');
+        if (!variableEditor) throw new Error('Add variable editor not rendered');
+
+        fireEvent.doubleClick(variableEditor);
+
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+      });
+
+      it('should not add a value-of on the title of a variable row, which would drop its select expression', () => {
+        const { document, mappingTree } = createShipOrderTree();
+        const shipOrderItem = MappingService.createFieldItem(mappingTree, document.fields[0]);
+        const variable = MappingService.addVariable(shipOrderItem, 'var1', '/ns0:ShipOrder/OrderPerson');
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const variableNode = findTreeNode(tree.root, (nodeData) => nodeData instanceof VariableNodeData);
+        const { context, row } = renderRow(variableNode, documentNodeData);
+        getMenuItemsSpy.mockClear();
+
+        fireEvent.doubleClick(within(row).getByText('var1'));
+
+        expect(getMenuItemsSpy).toHaveBeenCalledWith(variableNode.nodeData);
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+        expect(context.refreshMappingTree).not.toHaveBeenCalled();
+        expect(variable.children).toHaveLength(0);
+        expect(variable.expression).toBe('/ns0:ShipOrder/OrderPerson');
+      });
     });
   });
 

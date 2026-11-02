@@ -166,6 +166,19 @@ export class MappingService {
   }
 
   /**
+   * The nearest ancestor of `item` that is not an instruction: the field item, variable or mapping tree
+   * whose content receives the item's output. Unlike {@link findEnclosingFieldItem}, loops are crossed
+   * too, because `xsl:for-each` and `xsl:for-each-group` write their body into the enclosing element just
+   * like `xsl:if` and `xsl:choose`; the question here is where output lands, not which field is the context.
+   * @param item - the item to walk up from
+   */
+  static findOutputParent(item: MappingItem): MappingParentType {
+    let current: MappingParentType = item.parent;
+    while (current instanceof InstructionItem) current = current.parent;
+    return current;
+  }
+
+  /**
    * Removes all mappings for the specified document. When the document is a {@link DocumentType.PARAM},
    * the 3rd argument {@link documentReferenceId} should indicate the parameter's document reference ID.
    * Note that it could be different from document ID. For example, JSON document has a suffix `-x`.

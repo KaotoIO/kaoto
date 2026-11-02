@@ -484,10 +484,7 @@ export class VisualizationService {
   }
 
   private static findWrapperFieldForFieldItem(fieldItem: FieldItem): IField | undefined {
-    let current: MappingParentType = fieldItem.parent;
-    while (current instanceof InstructionItem) {
-      current = current.parent;
-    }
+    const current = MappingService.findOutputParent(fieldItem);
     let fieldsToSearch: IField[];
     if (current instanceof FieldItem) {
       fieldsToSearch = current.field.fields;
