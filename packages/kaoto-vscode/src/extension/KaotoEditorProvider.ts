@@ -35,7 +35,7 @@ import { KaotoHostServices } from '../services/KaotoHostServices';
 import type { SuggestionRequestContext } from '../services/SuggestionRegistry';
 import { KaotoOutputChannel } from './KaotoOutputChannel';
 
-export type KaotoHostServicesFactory = (getDocumentUri: () => vscode.Uri) => KaotoHostServices;
+export type KaotoHostServicesFactory = (documentUri: vscode.Uri) => KaotoHostServices;
 
 interface DocumentState {
 	document: vscode.TextDocument;
@@ -77,7 +77,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 
 	constructor(
 		private readonly context: Pick<vscode.ExtensionContext, 'extensionUri'>,
-		private readonly factory: KaotoHostServicesFactory = (getUri) => new KaotoHostServices(getUri),
+		private readonly factory: KaotoHostServicesFactory = (documentUri) => new KaotoHostServices(documentUri),
 	) {
 		this.listeners = [
 			vscode.workspace.onDidChangeTextDocument((event) => {
@@ -118,12 +118,8 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 					this.pushSettings();
 				}
 			}),
+			// The settings resolve the Auto color scheme against the VS Code theme
 			vscode.window.onDidChangeActiveColorTheme(() => {
-				for (const state of this.documents.values()) {
-					if (state.session?.initialized) {
-						state.session.bus.emit('host:theme:changed', { theme: themeName() });
-					}
-				}
 				this.pushSettings();
 			}),
 		];
@@ -176,7 +172,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			sourceVersion: 0,
 			readonly: vscode.workspace.fs.isWritableFileSystem(document.uri.scheme) === false,
 			disposed: false,
-			services: this.factory(() => document.uri),
+			services: this.factory(document.uri),
 			queue: Promise.resolve(),
 			diagnostics: new Set(),
 		};
@@ -364,7 +360,6 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			state.revision = result.revision;
 			session.initialized = true;
 			session.whenReady.resolve();
-			session.bus.emit('host:theme:changed', { theme: themeName() });
 		} catch (error) {
 			if (session.epoch === epoch) {
 				session.whenReady.reject(error);
@@ -587,6 +582,8 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		const template = new TextDecoder().decode(
 			await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this.context.extensionUri, 'assets/kaoto-editor.html')),
 		);
+		// connect-src allows http(s) because the editor fetches user-configured remote resources: a custom Camel
+		// catalog URL, the Apicurio registry and OpenAPI documents to import. Styles stay 'unsafe-inline' because the UI libraries inject them.
 		const csp = `default-src 'none'; script-src ${webview.cspSource} 'nonce-${nonce}' 'unsafe-eval'; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data: blob: https:; font-src ${webview.cspSource} data:; connect-src ${webview.cspSource} https: http: data: blob:; worker-src ${webview.cspSource} blob:;`;
 		return template
 			.replaceAll('__KAOTO_CSP__', escapeAttribute(csp))
@@ -646,6 +643,10 @@ function readiness() {
 	return { promise, resolve, reject };
 }
 function report(error: unknown): void {
+	// Closing or reloading the editor rejects the operations still in flight; that is expected, not a failure.
+	if (error instanceof BridgeError && error.code === 'DISPOSED') {
+		return;
+	}
 	KaotoOutputChannel.logError('Kaoto editor operation failed', error);
 }
 function escapeAttribute(value: string): string {
@@ -660,16 +661,3 @@ function replaceDevHtmlToken(html: string, token: string, replacement: string): 
 	}
 	return html.replaceAll(token, replacement);
 }
-function themeName(): KaotoEventsTheme {
-	switch (vscode.window.activeColorTheme.kind) {
-		case vscode.ColorThemeKind.Dark:
-			return 'dark';
-		case vscode.ColorThemeKind.HighContrast:
-			return 'high-contrast';
-		case vscode.ColorThemeKind.HighContrastLight:
-			return 'high-contrast-light';
-		default:
-			return 'light';
-	}
-}
-type KaotoEventsTheme = 'light' | 'dark' | 'high-contrast' | 'high-contrast-light';

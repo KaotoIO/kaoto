@@ -491,19 +491,6 @@ suite('Kaoto settings', function () {
 		});
 	});
 
-	suite('Deprecated Methods', function () {
-		test('should handle getCatalogURL for backward compatibility', async function () {
-			// This deprecated method should return custom catalog URL or undefined
-			const config = vscode.workspace.getConfiguration();
-			const catalogUrl = config.get<string>(KAOTO_CATALOG_URL_SETTING_ID);
-
-			// Should be string or undefined
-			if (catalogUrl !== undefined && catalogUrl !== null) {
-				expect(typeof catalogUrl).to.be.oneOf(['string', 'object']);
-			}
-		});
-	});
-
 	// Settings Model Construction tests removed - these were testing hardcoded values
 	// Real settings should be tested through VS Code configuration API
 

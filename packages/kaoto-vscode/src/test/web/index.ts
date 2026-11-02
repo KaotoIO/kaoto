@@ -46,8 +46,8 @@ async function services(): Promise<void> {
 	const workspace = vscode.workspace.workspaceFolders![0].uri;
 	assert(workspace.scheme !== 'file', 'Probe must use a virtual workspace');
 	const owned = vscode.Uri.joinPath(workspace, `kdp007-services-${Date.now()}`);
-	let documentUri = vscode.Uri.joinPath(owned, 'src/main/resources/camel/route.camel.yaml');
-	const service = new KaotoHostServices(() => documentUri);
+	const documentUri = vscode.Uri.joinPath(owned, 'src/main/resources/camel/route.camel.yaml');
+	let service = new KaotoHostServices(documentUri);
 	const unsupported = async (request: () => Promise<unknown>) => {
 		try {
 			await request();
@@ -79,10 +79,12 @@ async function services(): Promise<void> {
 		await unsupported(() => service.getRuntimeInfoFromMavenContext());
 		await unsupported(() => service.getSuggestions('env', '', { propertyName: 'uri', inputValue: '' }));
 		await service.onStepUpdated(StepUpdateAction.Add, CatalogKind.Component, 'log');
-		documentUri = vscode.Uri.joinPath(owned, 'copy/route.camel.yaml');
-		await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(documentUri, '..'));
+		const copyUri = vscode.Uri.joinPath(owned, 'copy/route.camel.yaml');
+		await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(copyUri, '..'));
+		service.dispose();
+		service = new KaotoHostServices(copyUri);
 		await service.saveResourceContent('schema.xsd', 'copy');
-		assert((await read(vscode.Uri.joinPath(owned, 'copy/schema.xsd'))) === 'copy', 'Save As must use the current URI');
+		assert((await read(vscode.Uri.joinPath(owned, 'copy/schema.xsd'))) === 'copy', 'A saved copy must use its own URI');
 		assert((await service.deleteResource('schema.xsd')) === true, 'Resource deletion must succeed');
 		assert((await service.isResourceExist('schema.xsd')) === false, 'Deleted resource must be absent');
 		await write(vscode.Uri.joinPath(owned, '.kaoto'), '{ malformed');

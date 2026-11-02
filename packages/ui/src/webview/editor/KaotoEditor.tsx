@@ -16,7 +16,7 @@ import {
   SettingsSnapshot,
 } from '../../host-bridge/contracts';
 import { HostBridgeProvider } from '../../host-bridge/react/context';
-import { CatalogKind, ColorScheme, FileTypes, FileTypesResponse, StepUpdateAction } from '../../models';
+import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../../models';
 import { DefaultSettingsAdapter } from '../../models/settings';
 import { KaotoResourceProvider } from '../../providers';
 import { EntitiesProvider } from '../../providers/entities.provider';
@@ -73,38 +73,21 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
 
   const documentState: EditorDocumentState = useSyncExternalStore(subscribe, getDocumentState);
 
-  // The host theme stands in for the system theme when the color scheme is Auto
-  const colorSchemeRef = useRef(settingsAdapter.getSettings().colorScheme);
-  const hostThemeRef = useRef<ColorScheme.Light | ColorScheme.Dark>(undefined);
-  const applyColorScheme = useCallback(() => {
-    const scheme = colorSchemeRef.current;
-    setColorScheme(scheme === ColorScheme.Auto && hostThemeRef.current ? hostThemeRef.current : scheme);
-  }, []);
-
-  // Subscribe to settings and theme updates
+  // The host resolves Auto against the VS Code theme and sends new settings when that theme changes
   useEffect(() => {
-    const unsubscribers = [
+    setColorScheme(settingsAdapter.getSettings().colorScheme);
+  }, [settingsAdapter]);
+
+  // Subscribe to settings updates
+  useEffect(
+    () =>
       bus.on('host:settings:updated', (snapshot: SettingsSnapshot) => {
         if (snapshot.settingsVersion <= settingsVersionRef.current) return;
         settingsVersionRef.current = snapshot.settingsVersion;
-        const adapter = new DefaultSettingsAdapter(snapshot.settings);
-        colorSchemeRef.current = adapter.getSettings().colorScheme;
-        applyColorScheme();
-        setSettingsAdapter(adapter);
+        setSettingsAdapter(new DefaultSettingsAdapter(snapshot.settings));
       }),
-      bus.on('host:theme:changed', ({ theme }) => {
-        hostThemeRef.current = theme === 'dark' || theme === 'high-contrast' ? ColorScheme.Dark : ColorScheme.Light;
-        applyColorScheme();
-      }),
-    ];
-    // Apply initial color scheme
-    applyColorScheme();
-    return () => {
-      unsubscribers.forEach((unsubscribe) => {
-        unsubscribe();
-      });
-    };
-  }, [applyColorScheme, bus]);
+    [bus],
+  );
 
   // Dispose bus on unmount (with Strict Mode guard)
   const mountsRef = useRef(0);

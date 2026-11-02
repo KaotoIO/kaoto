@@ -46,30 +46,19 @@ export interface KaotoDesktopOperations {
 
 /** Shared host operations. Desktop integrations are supplied by the document owner. */
 export class KaotoHostServices implements vscode.Disposable {
-	private ownedUri: vscode.Uri;
 	private disposed = false;
 
+	/** A text document keeps its URI for its whole life; Save As opens a new document with its own services. */
 	constructor(
-		private readonly getDocumentUri: () => vscode.Uri,
+		private readonly uri: vscode.Uri,
 		private readonly desktop: KaotoDesktopOperations = {},
-	) {
-		this.ownedUri = getDocumentUri();
-	}
+	) {}
 
 	private get documentUri(): vscode.Uri {
 		if (this.disposed) {
 			throw new BridgeError('DISPOSED', 'Host services have been disposed');
 		}
-		const uri = this.getDocumentUri();
-		if (uri.toString() !== this.ownedUri.toString()) {
-			this.desktop.disposeFor?.(this.ownedUri);
-			this.ownedUri = uri;
-		}
-		return uri;
-	}
-
-	async getCatalogURL(): Promise<string | undefined> {
-		return vscode.workspace.getConfiguration().get<string>(KAOTO_CATALOG_URL_SETTING_ID) || undefined;
+		return this.uri;
 	}
 
 	/** Without a catalog the editor uses its default one, so a discovery error must not keep it from opening. */
@@ -248,9 +237,8 @@ export class KaotoHostServices implements vscode.Disposable {
 		if (this.disposed) {
 			return;
 		}
-		const uri = this.documentUri;
 		this.disposed = true;
-		this.desktop.disposeFor?.(uri);
+		this.desktop.disposeFor?.(this.uri);
 	}
 
 	/**

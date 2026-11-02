@@ -128,7 +128,7 @@ describe('local host bridge endpoint', () => {
     const unregister = bus.onRequest('editor:metadata:set', () => null);
     bus.dispose();
     expect(() => {
-      bus.emit('host:theme:changed', { theme: 'dark' });
+      bus.emit('editor:ready', null);
     }).toThrow(expect.objectContaining({ code: 'DISPOSED' }));
     expect(() => bus.on('editor:ready', vi.fn())).toThrow(expect.objectContaining({ code: 'DISPOSED' }));
     expect(() => bus.onRequest('editor:metadata:set', () => null)).toThrow(
@@ -147,13 +147,13 @@ describe('local host bridge endpoint', () => {
     const editor = createEventBus({ role: 'editor', onError: vi.fn() });
     const listener = vi.fn();
     host.on('editor:ready', listener);
-    host.on('host:theme:changed', listener);
+    host.on('host:settings:updated', listener);
     const invalid = expect.objectContaining({ code: 'INVALID_MESSAGE' });
     expect(() => {
       host.emit('editor:ready', null);
     }).toThrow(invalid);
     expect(() => {
-      host.emit('host:theme:changed', { theme: 'auto' } as never);
+      host.emit('host:settings:updated', { settingsVersion: -1 } as never);
     }).toThrow(invalid);
     for (const name of ['unknown', 'toString', '__proto__']) {
       expect(() => {
@@ -327,7 +327,6 @@ const eventExamples = {
     invalid: { content: '', revision: -1 },
   },
   'host:settings:updated': { sender: 'host', payload: settings, invalid: { ...settings, settingsVersion: -1 } },
-  'host:theme:changed': { sender: 'host', payload: { theme: 'high-contrast-light' }, invalid: { theme: 'auto' } },
   'editor:validation:updated': {
     sender: 'editor',
     payload: { path: 'route.camel.yaml', notifications: [notification] },

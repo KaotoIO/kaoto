@@ -84,7 +84,7 @@ export const KaotoEditorLayout = () => {
   }, [resource]);
 
   return (
-    <div className="shell" data-envelope-context="vscode">
+    <div className="shell">
       <Tabs
         inset={TAB_INSET}
         isFilled
