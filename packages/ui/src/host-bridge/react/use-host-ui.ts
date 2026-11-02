@@ -13,7 +13,7 @@ export function useHostUI() {
         options?: FilePickerOptions,
       ): Promise<string[] | string | undefined> =>
         bus
-          .request('host:ui:pickFile', {
+          .request('editor:file:pick', {
             include,
             ...(exclude !== undefined ? { exclude } : {}),
             ...(options !== undefined ? { options } : {}),

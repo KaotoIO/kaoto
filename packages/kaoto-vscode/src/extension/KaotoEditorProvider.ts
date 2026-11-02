@@ -95,7 +95,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 					const epoch = session.epoch;
 					await session.whenReady.promise;
 					this.requireSession(state, session, epoch);
-					const result = await session.bus.request('editor:document:setContent', {
+					const result = await session.bus.request('host:document:setContent', {
 						reason: 'hostUpdate',
 						fileUri: state.document.uri.toString(),
 						content,
@@ -276,7 +276,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			session.bus.on('editor:step:updated', ({ action, stepType, stepName }) => {
 				void state.services.onStepUpdated(action, stepType, stepName).catch(report);
 			}),
-			session.bus.on('host:notification:show', ({ message, type }) => {
+			session.bus.on('editor:notification:raised', ({ message, type }) => {
 				let show = vscode.window.showInformationMessage;
 				if (type === 'error') {
 					show = vscode.window.showErrorMessage;
@@ -285,7 +285,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				}
 				void show(message);
 			}),
-			session.bus.on('editor:notifications:set', ({ path, notifications }) => {
+			session.bus.on('editor:validation:updated', ({ path, notifications }) => {
 				let uri = document.uri;
 				if (path) {
 					uri = /^[a-z][a-z\d+.-]*:/i.test(path) ? vscode.Uri.parse(path) : vscode.Uri.joinPath(document.uri, '..', path);
@@ -353,7 +353,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		session.initializing = true;
 		const epoch = session.epoch;
 		try {
-			const result = await session.bus.request('editor:document:setContent', {
+			const result = await session.bus.request('host:document:setContent', {
 				reason: 'init',
 				fileUri: state.document.uri.toString(),
 				content: state.content,
@@ -430,7 +430,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		const epoch = session.epoch;
 		await session.whenReady.promise;
 		this.requireSession(state, session, epoch);
-		const snapshot = await this.request(session.bus, 'editor:document:getContent', null, token);
+		const snapshot = await this.request(session.bus, 'host:document:getContent', null, token);
 		this.requireSession(state, session, epoch);
 		if (snapshot.revision >= state.revision) {
 			state.content = snapshot.content;
@@ -502,7 +502,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			);
 		};
 		on('editor:settings:get', () => this.settings(state, session));
-		on('host:undoRedo:apply', ({ command, revision }) => this.applyDocumentHistory(state, command, revision));
+		on('editor:undoRedo:apply', ({ command, revision }) => this.applyDocumentHistory(state, command, revision));
 		on('editor:metadata:get', async ({ key }) => ({ value: (await services.getMetadata<JsonValue>(key)) ?? null }));
 		on('editor:metadata:set', async ({ key, value }) => {
 			await services.setMetadata(key, value);
@@ -516,7 +516,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		on('editor:resource:exists', async ({ path }) => ({ exists: await services.isResourceExist(path) }));
 		on('editor:resource:delete', async ({ path }) => ({ success: await services.deleteResource(path) }));
 		on('editor:resource:getByType', async ({ fileType }) => ({ resources: await services.getResourcesContentByType(fileType as FileTypes) }));
-		on('host:ui:pickFile', async ({ include, exclude, options }) => ({
+		on('editor:file:pick', async ({ include, exclude, options }) => ({
 			selection: (await services.askUserForFileSelection(include, exclude, options ? { ...options } : undefined)) ?? null,
 		}));
 		on('editor:suggestions:get', async ({ topic, word, context }) => ({
@@ -545,7 +545,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			void this.settings(state, session)
 				.then((snapshot) => {
 					if (!session.stopped && session.epoch === epoch) {
-						session.bus.emit('editor:settings:updated', snapshot);
+						session.bus.emit('host:settings:updated', snapshot);
 					}
 				})
 				.catch(report);

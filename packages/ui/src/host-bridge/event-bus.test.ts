@@ -33,7 +33,7 @@ describe('local host bridge endpoint', () => {
 
   it('rejects an unconnected peer request', async () => {
     const bus = createEventBus({ role: 'host', onError: vi.fn() });
-    await expect(bus.request('editor:document:getContent', null)).rejects.toMatchObject({ code: 'NOT_CONNECTED' });
+    await expect(bus.request('host:document:getContent', null)).rejects.toMatchObject({ code: 'NOT_CONNECTED' });
     bus.dispose();
   });
 
@@ -117,7 +117,7 @@ describe('local host bridge endpoint', () => {
     bus.onRequest('editor:metadata:get', handler);
     unsubscribe();
     expect(() => bus.onRequest('editor:metadata:get', handler)).toThrow();
-    await expect(bus.request('editor:document:getContent', null)).rejects.toMatchObject({ code: 'NOT_CONNECTED' });
+    await expect(bus.request('host:document:getContent', null)).rejects.toMatchObject({ code: 'NOT_CONNECTED' });
     expect(handler).not.toHaveBeenCalled();
     bus.dispose();
   });
@@ -134,7 +134,7 @@ describe('local host bridge endpoint', () => {
     expect(() => bus.onRequest('editor:metadata:set', () => null)).toThrow(
       expect.objectContaining({ code: 'DISPOSED' }),
     );
-    await expect(bus.request('editor:document:getContent', null)).rejects.toMatchObject({ code: 'DISPOSED' });
+    await expect(bus.request('host:document:getContent', null)).rejects.toMatchObject({ code: 'DISPOSED' });
     expect(() => {
       unsubscribe();
       unregister();
@@ -163,7 +163,7 @@ describe('local host bridge endpoint', () => {
       expect(() => host.onRequest(name as keyof KaotoRequests, () => null)).toThrow(invalid);
       await expect(host.request(name as keyof KaotoRequests, null)).rejects.toMatchObject({ code: 'INVALID_MESSAGE' });
     }
-    expect(() => host.onRequest('editor:document:getContent', () => ({ content: '', revision: 0 }))).toThrow(invalid);
+    expect(() => host.onRequest('host:document:getContent', () => ({ content: '', revision: 0 }))).toThrow(invalid);
     await expect(host.request('editor:metadata:get', { key: 'filePath' })).rejects.toMatchObject({
       code: 'INVALID_MESSAGE',
     });
@@ -187,7 +187,7 @@ const notification = {
 };
 
 const requestExamples = {
-  'editor:document:setContent': {
+  'host:document:setContent': {
     sender: 'host',
     timeoutMs: 5000,
     payload: {
@@ -200,7 +200,7 @@ const requestExamples = {
     invalidRequest: { reason: 'init', fileUri: 'file:///route.camel.yaml', content: '' },
     invalidResponse: { applied: true, revision: -1 },
   },
-  'editor:document:getContent': {
+  'host:document:getContent': {
     sender: 'host',
     timeoutMs: 5000,
     payload: null,
@@ -208,7 +208,7 @@ const requestExamples = {
     invalidRequest: {},
     invalidResponse: { content: '', revision: 1.5 },
   },
-  'host:undoRedo:apply': {
+  'editor:undoRedo:apply': {
     sender: 'editor',
     timeoutMs: 5000,
     payload: { command: 'undo', revision: 1 },
@@ -280,7 +280,7 @@ const requestExamples = {
     invalidRequest: { fileType: 'routes' },
     invalidResponse: { resources: [{ path: 'source.kamelet.yaml', content: '' }] },
   },
-  'host:ui:pickFile': {
+  'editor:file:pick': {
     sender: 'editor',
     timeoutMs: null,
     payload: {
@@ -326,9 +326,9 @@ const eventExamples = {
     payload: { content: '', revision: 0 },
     invalid: { content: '', revision: -1 },
   },
-  'editor:settings:updated': { sender: 'host', payload: settings, invalid: { ...settings, settingsVersion: -1 } },
+  'host:settings:updated': { sender: 'host', payload: settings, invalid: { ...settings, settingsVersion: -1 } },
   'host:theme:changed': { sender: 'host', payload: { theme: 'high-contrast-light' }, invalid: { theme: 'auto' } },
-  'editor:notifications:set': {
+  'editor:validation:updated': {
     sender: 'editor',
     payload: { path: 'route.camel.yaml', notifications: [notification] },
     invalid: { path: 'route.camel.yaml', notifications: [{ message: 'bad' }] },
@@ -338,7 +338,7 @@ const eventExamples = {
     payload: { action: StepUpdateAction.Add, stepType: CatalogKind.Component, stepName: 'timer' },
     invalid: { action: 'update', stepType: 'component', stepName: 'timer' },
   },
-  'host:notification:show': {
+  'editor:notification:raised': {
     sender: 'editor',
     payload: { message: 'Saved', type: 'info' },
     invalid: { message: 'Saved', type: 'success' },
@@ -346,6 +346,13 @@ const eventExamples = {
 } satisfies { [E in keyof KaotoEvents]: { sender: 'host' | 'editor'; payload: KaotoEvents[E]; invalid: unknown } };
 
 describe('bridge catalog validation', () => {
+  it.each([...Object.entries(requestCatalog), ...Object.entries(eventCatalog)])(
+    'names %s after the side that sends it',
+    (name, definition) => {
+      expect(name.startsWith(`${definition.sender}:`)).toBe(true);
+    },
+  );
+
   it.each(Object.entries(requestExamples))('enforces caller and handler roles for %s', async (name, example) => {
     const request = name as keyof KaotoRequests;
     const caller = createEventBus({ role: example.sender, onError: vi.fn() });
@@ -389,13 +396,13 @@ describe('bridge catalog validation', () => {
 
   it('validates a host document update and rejects unknown reasons', () => {
     const payload = { reason: 'hostUpdate', fileUri: 'vscode-test-web:/route.camel.yaml', content: '' };
-    expect(requestCatalog['editor:document:setContent'].isRequest(payload)).toBe(true);
-    expect(requestCatalog['editor:document:setContent'].isRequest({ ...payload, content: undefined })).toBe(false);
-    expect(requestCatalog['editor:document:setContent'].isRequest({ ...payload, reason: 'revert' })).toBe(false);
+    expect(requestCatalog['host:document:setContent'].isRequest(payload)).toBe(true);
+    expect(requestCatalog['host:document:setContent'].isRequest({ ...payload, content: undefined })).toBe(false);
+    expect(requestCatalog['host:document:setContent'].isRequest({ ...payload, reason: 'revert' })).toBe(false);
   });
 
   it('rejects incomplete settings and invalid domain enum values', () => {
-    const validator = eventCatalog['editor:settings:updated'].isPayload;
+    const validator = eventCatalog['host:settings:updated'].isPayload;
     for (const key of Object.keys(settings.settings)) {
       const incomplete: Record<string, unknown> = { ...settings.settings };
       delete incomplete[key];
@@ -417,7 +424,7 @@ describe('bridge catalog validation', () => {
 
   it('checks notification ranges and optional DTO fields', () => {
     const validate = (value: { notifications: unknown[] }) =>
-      eventCatalog['editor:notifications:set'].isPayload({ path: 'route.camel.yaml', ...value });
+      eventCatalog['editor:validation:updated'].isPayload({ path: 'route.camel.yaml', ...value });
     for (const range of [
       { start: { line: -1, character: 0 }, end: { line: 0, character: 0 } },
       { start: { line: 0, character: 0.5 }, end: { line: 0, character: 1 } },
@@ -426,8 +433,8 @@ describe('bridge catalog validation', () => {
     ])
       expect(validate({ notifications: [{ ...notification, range }] })).toBe(false);
     expect(validate({ notifications: [{ message: '', severity: 'info' }] })).toBe(true);
-    expect(requestCatalog['host:ui:pickFile'].isRequest({ include: '**/*' })).toBe(true);
-    expect(requestCatalog['host:ui:pickFile'].isRequest({ include: '**/*', options: { title: 0 } })).toBe(false);
+    expect(requestCatalog['editor:file:pick'].isRequest({ include: '**/*' })).toBe(true);
+    expect(requestCatalog['editor:file:pick'].isRequest({ include: '**/*', options: { title: 0 } })).toBe(false);
     expect(
       requestCatalog['editor:suggestions:get'].isResponse({ suggestions: [{ value: 'bean', group: false }] }),
     ).toBe(false);
@@ -437,7 +444,7 @@ describe('bridge catalog validation', () => {
       }),
     ).toBe(false);
     for (const selection of [null, 'schema.xsd', []]) {
-      expect(requestCatalog['host:ui:pickFile'].isResponse({ selection })).toBe(true);
+      expect(requestCatalog['editor:file:pick'].isResponse({ selection })).toBe(true);
     }
     expect(requestCatalog['editor:maven:getRuntimeInfo'].isResponse({ runtimeInfo: null })).toBe(true);
   });
@@ -487,9 +494,9 @@ describe('plain JSON validation', () => {
 // Compiled by the UI typecheck, never executed. Payload and result types must follow the request key.
 async function checkContractTypes(bus: IEventBus) {
   // @ts-expect-error getContent has no input object
-  void bus.request('editor:document:getContent', {});
+  void bus.request('host:document:getContent', {});
   // @ts-expect-error callers cannot override a request's result type
-  void bus.request<'editor:document:getContent', string>('editor:document:getContent', null);
+  void bus.request<'host:document:getContent', string>('host:document:getContent', null);
   // @ts-expect-error no undefined event payloads
   bus.emit('editor:ready', undefined);
   // @ts-expect-error only catalog events exist
@@ -497,8 +504,8 @@ async function checkContractTypes(bus: IEventBus) {
   // @ts-expect-error functions cannot be metadata values
   void bus.request('editor:metadata:set', { key: 'bad', value: () => null });
   // @ts-expect-error request handlers must return the associated response
-  bus.onRequest('editor:document:getContent', () => 'source');
-  expectTypeOf(await bus.request('editor:document:getContent', null)).toEqualTypeOf<{
+  bus.onRequest('host:document:getContent', () => 'source');
+  expectTypeOf(await bus.request('host:document:getContent', null)).toEqualTypeOf<{
     content: string;
     revision: number;
   }>();

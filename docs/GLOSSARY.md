@@ -393,11 +393,66 @@ messages; it knows nothing about the protocol.
 
 ### Event bus
 
-The typed events and requests that application code uses on each side, independent of the transport underneath.
+The typed [events](#event) and [requests](#request) that application code uses on each side, independent of the
+transport underneath.
 
 **Code:** `IEventBus`, `createEventBus`.
 
 **Deprecated aliases:** *Channel API*.
+
+---
+
+### Request
+
+A message that asks the other side to do or return something, and waits for a response. Either side can send
+requests: the editor asks the host for files and metadata, the host asks the editor for the document content.
+Each request has a timeout, 5 seconds unless the catalog says otherwise.
+
+**Code:** `bus.request(name, payload)` sends; `bus.onRequest(name, handler)` answers. `requestCatalog` declares
+every request with its sender, timeout and payload validators.
+
+**Deprecated aliases:** a KIE channel or envelope API method that returns a `Promise`.
+
+---
+
+### Response
+
+The single reply to a request, sent by the other side. It carries the request's `id` and `name`, and either a
+payload (`ok: true`) or a `BridgeError` with a code such as `TIMEOUT` or `NOT_READY` (`ok: false`).
+
+---
+
+### Event
+
+A one-way message with no response, such as `editor:ready` or `host:theme:changed`. Either side can send events.
+
+**Code:** `bus.emit(name, payload)` sends; `bus.on(name, listener)` listens. `eventCatalog` declares every event
+with its sender and payload validator.
+
+**Deprecated aliases:** *notification* and *shared value* (KIE API methods returning `void` or a
+`SharedValueProvider`).
+
+---
+
+### Message name
+
+Every request and event has one declared sender, and its name starts with that sender:
+`<sender>:<subject>:<action>`. The other side always answers or listens.
+
+| Name | Read it as |
+|------|------------|
+| `editor:file:pick` | The editor asks the host to show a file picker. |
+| `host:document:getContent` | The host asks the editor for the current content. |
+| `editor:document:changed` | The editor announces a canvas edit. |
+| `host:settings:updated` | The host announces new settings. |
+
+Requests end with an imperative (`get`, `set`, `pick`, `apply`), events with a past tense (`changed`, `updated`,
+`raised`) or a state (`ready`).
+
+So in code, when the prefix matches the side the file belongs to, that line sends; otherwise it answers or
+listens. In a log, a `request` or `event` frame comes from the side in its prefix, and a `response` comes from
+the other side, matched to its request by `id`. The bus enforces the declared sender: sending from the wrong side,
+or answering on the wrong side, throws `INVALID_MESSAGE`.
 
 ---
 

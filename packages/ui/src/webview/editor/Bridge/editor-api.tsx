@@ -166,10 +166,10 @@ export function bindEditorDocument(
     }
   };
   const unsubscribers = [
-    bus.onRequest('editor:document:setContent', (request, { signal }) =>
+    bus.onRequest('host:document:setContent', (request, { signal }) =>
       enqueue(() => setContent(request, signal), signal),
     ),
-    bus.onRequest('editor:document:getContent', (_request, { signal }) =>
+    bus.onRequest('host:document:getContent', (_request, { signal }) =>
       enqueue(async () => {
         const content = requireApi().getContent();
         const snapshotRevision = revision;
@@ -187,7 +187,7 @@ export function bindEditorDocument(
       }
       updateState({ ...state, historyPending: true });
       try {
-        await bus.request('host:undoRedo:apply', { command, revision });
+        await bus.request('editor:undoRedo:apply', { command, revision });
       } finally {
         updateState({ ...state, historyPending: false });
       }

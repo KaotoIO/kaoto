@@ -111,9 +111,9 @@ export interface SuggestionDto {
 }
 
 export type KaotoRequests = {
-  'editor:document:setContent': SetContentRequest;
-  'editor:document:getContent': null;
-  'host:undoRedo:apply': { command: 'undo' | 'redo'; revision: number };
+  'host:document:setContent': SetContentRequest;
+  'host:document:getContent': null;
+  'editor:undoRedo:apply': { command: 'undo' | 'redo'; revision: number };
   'editor:settings:get': null;
   'editor:metadata:get': { key: string };
   'editor:metadata:set': { key: string; value: JsonValue };
@@ -122,15 +122,15 @@ export type KaotoRequests = {
   'editor:resource:exists': { path: string };
   'editor:resource:delete': { path: string };
   'editor:resource:getByType': { fileType: 'kamelets' };
-  'host:ui:pickFile': { include: string; exclude?: string; options?: FilePickerOptions };
+  'editor:file:pick': { include: string; exclude?: string; options?: FilePickerOptions };
   'editor:suggestions:get': { topic: string; word: string; context: JsonObject };
   'editor:maven:getRuntimeInfo': null;
 };
 
 export type KaotoResponses = {
-  'editor:document:setContent': { applied: boolean; revision: number };
-  'editor:document:getContent': ContentSnapshot;
-  'host:undoRedo:apply': null;
+  'host:document:setContent': { applied: boolean; revision: number };
+  'host:document:getContent': ContentSnapshot;
+  'editor:undoRedo:apply': null;
   'editor:settings:get': SettingsSnapshot;
   'editor:metadata:get': { value: JsonValue };
   'editor:metadata:set': null;
@@ -139,7 +139,7 @@ export type KaotoResponses = {
   'editor:resource:exists': { exists: boolean };
   'editor:resource:delete': { success: boolean };
   'editor:resource:getByType': { resources: FileTypesResponse[] };
-  'host:ui:pickFile': { selection: string[] | string | null };
+  'editor:file:pick': { selection: string[] | string | null };
   'editor:suggestions:get': { suggestions: SuggestionDto[] };
   'editor:maven:getRuntimeInfo': { runtimeInfo: RuntimeMavenInformation | null };
 };
@@ -147,11 +147,11 @@ export type KaotoResponses = {
 export type KaotoEvents = {
   'editor:ready': null;
   'editor:document:changed': ContentSnapshot;
-  'editor:settings:updated': SettingsSnapshot;
+  'host:settings:updated': SettingsSnapshot;
   'host:theme:changed': { theme: 'light' | 'dark' | 'high-contrast' | 'high-contrast-light' };
-  'editor:notifications:set': { path: string; notifications: ValidationNotification[] };
+  'editor:validation:updated': { path: string; notifications: ValidationNotification[] };
   'editor:step:updated': { action: StepUpdateAction; stepType: CatalogKind; stepName: string };
-  'host:notification:show': { message: string; type: 'info' | 'warning' | 'error' };
+  'editor:notification:raised': { message: string; type: 'info' | 'warning' | 'error' };
 };
 
 /** Validate before serialization so JSON conversion cannot silently discard data. */
@@ -297,13 +297,13 @@ function request<Request, Response>(
   return { sender, timeoutMs, isRequest: json(isRequest), isResponse: json(isResponse) };
 }
 
-/** Names describe the subject, so callers must use the declared sender, not the prefix. */
+/** Every name starts with its sender (`editor:` or `host:`); the other side answers or listens. */
 export const requestCatalog: {
   readonly [R in keyof KaotoRequests]: RequestDefinition<KaotoRequests[R], KaotoResponses[R]>;
 } = {
-  'editor:document:setContent': request('host', setContent, object({ applied: boolean, revision: integer })),
-  'editor:document:getContent': request('host', nil, contentSnapshot),
-  'host:undoRedo:apply': request('editor', object({ command: oneOf('undo', 'redo'), revision: integer }), nil),
+  'host:document:setContent': request('host', setContent, object({ applied: boolean, revision: integer })),
+  'host:document:getContent': request('host', nil, contentSnapshot),
+  'editor:undoRedo:apply': request('editor', object({ command: oneOf('undo', 'redo'), revision: integer }), nil),
   'editor:settings:get': request('editor', nil, settingsSnapshot),
   'editor:metadata:get': request('editor', object({ key: string }), object({ value: isJsonValue })),
   'editor:metadata:set': request('editor', object({ key: string, value: isJsonValue }), nil),
@@ -316,7 +316,7 @@ export const requestCatalog: {
     object({ fileType: oneOf(FileTypes.Kamelets) }),
     object({ resources: arrayOf(object<FileTypesResponse>({ filename: string, content: string })) }),
   ),
-  'host:ui:pickFile': request(
+  'editor:file:pick': request(
     'editor',
     object({ include: string, exclude: optional(string), options: optional(pickerOptions) }),
     object({ selection }),
@@ -360,12 +360,12 @@ const catalogKind = oneOf(
 export const eventCatalog: { readonly [E in keyof KaotoEvents]: EventDefinition<KaotoEvents[E]> } = {
   'editor:ready': event('editor', nil),
   'editor:document:changed': event('editor', contentSnapshot),
-  'editor:settings:updated': event('host', settingsSnapshot),
+  'host:settings:updated': event('host', settingsSnapshot),
   'host:theme:changed': event(
     'host',
     object({ theme: oneOf('light', 'dark', 'high-contrast', 'high-contrast-light') }),
   ),
-  'editor:notifications:set': event('editor', object({ path: string, notifications })),
+  'editor:validation:updated': event('editor', object({ path: string, notifications })),
   'editor:step:updated': event(
     'editor',
     object({
@@ -374,7 +374,7 @@ export const eventCatalog: { readonly [E in keyof KaotoEvents]: EventDefinition<
       stepName: string,
     }),
   ),
-  'host:notification:show': event('editor', object({ message: string, type: severity })),
+  'editor:notification:raised': event('editor', object({ message: string, type: severity })),
 };
 
 export function isEventName(name: unknown): name is keyof KaotoEvents {
