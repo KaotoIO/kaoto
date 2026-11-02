@@ -14,10 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Suggestion } from '@kaoto/forms';
 import { expect } from 'chai';
 import path from 'path';
-import { filterSuggestionsByWord, getEnvironmentSuggestions, getSuggestions } from '../../services/SuggestionRegistry';
+import { filterSuggestionsByWord, getEnvironmentSuggestions, getSuggestions, type Suggestion } from '../../services/SuggestionRegistry';
 import { getTestWorkspaceFolder } from '../utils/TestSetup';
 
 suite('Channel API', () => {

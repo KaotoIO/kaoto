@@ -15,9 +15,18 @@
  * limitations under the License.
  */
 
-import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
+import type { SuggestionDto } from '@kaoto/kaoto/host-bridge';
 import { Uri } from 'vscode';
 import { findAllApplicationPropertiesFiles, parseMultipleApplicationPropertiesFiles } from './ApplicationPropertiesFinder';
+
+export type Suggestion = SuggestionDto;
+
+/** The context the editor's form fields send with `editor:suggestions:get`. */
+export type SuggestionRequestContext = {
+	propertyName: string;
+	inputValue: string | number;
+	cursorPosition?: number | null;
+};
 
 export type SuggestionProviderFunction = (word: string, context: SuggestionRequestContext, fsPath?: string | Uri) => Suggestion[] | Promise<Suggestion[]>;
 
