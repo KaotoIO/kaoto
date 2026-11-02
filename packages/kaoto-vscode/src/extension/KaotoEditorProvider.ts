@@ -203,10 +203,11 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				}
 			},
 		});
-		const isDevMode = !!viteDevUrl();
 		session.bridge = createPostMessageBridge({
 			bus: session.bus,
-			handshakeTimeoutMs: isDevMode ? 60_000 : undefined,
+			// Loading the webview can be slow (remote hosts, a cold disk, the first Vite compile). The editor times out
+			// and offers Retry, so the host waits for as long as the panel lives and accepts a late or repeated hello.
+			handshakeTimeoutMs: null,
 			transport: {
 				send: async (message) => {
 					// Only validated outgoing welcome messages identify a new editor session.

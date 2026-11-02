@@ -301,8 +301,9 @@ function request<Request, Response>(
 export const requestCatalog: {
   readonly [R in keyof KaotoRequests]: RequestDefinition<KaotoRequests[R], KaotoResponses[R]>;
 } = {
-  'host:document:setContent': request('host', setContent, object({ applied: boolean, revision: integer })),
-  'host:document:getContent': request('host', nil, contentSnapshot),
+  // Parsing a large document can take a while, and a timed-out init would leave the two sides disagreeing.
+  'host:document:setContent': request('host', setContent, object({ applied: boolean, revision: integer }), null),
+  'host:document:getContent': request('host', nil, contentSnapshot, null),
   'editor:undoRedo:apply': request('editor', object({ command: oneOf('undo', 'redo'), revision: integer }), nil),
   'editor:settings:get': request('editor', nil, settingsSnapshot),
   'editor:metadata:get': request('editor', object({ key: string }), object({ value: isJsonValue })),

@@ -143,6 +143,8 @@ export function bindEditorDocument(
   const setContent = async (request: SetContentRequest, signal: AbortSignal) => {
     const api = requireApi(request.reason === 'init');
     if (request.reason === 'init' && state.initialized) return { applied: false, revision };
+    // The host answered; a large document may take longer to apply than the startup deadline.
+    if (request.reason === 'init') clearTimeout(initializationTimer);
     if (state.initialized && (await api.getContent()) === request.content) return { applied: false, revision };
     requireApi(request.reason === 'init');
     if (signal.aborted) throw new BridgeError('CANCELLED', 'The document request was cancelled');
