@@ -830,7 +830,10 @@ describe('MappingContextMenuAction', () => {
     let noteField: IField;
 
     beforeEach(() => {
-      sourceContext = { sourceParameterMap: new Map<string, IDocument>(), sourceBody: TestUtil.createSourceOrderDoc() };
+      sourceContext = {
+        sourceParameterMap: new Map<string, IDocument>(),
+        sourceBody: TestUtil.createSingleItemSourceOrderDoc(),
+      };
       mappingTree.namespaceMap = { ns0: SHIP_ORDER_NS };
       const shipOrderItem = MappingService.createFieldItem(mappingTree, findField(targetDoc, 'ShipOrder'));
       itemItem = MappingService.createFieldItem(shipOrderItem, findField(shipOrderItem.field, 'Item'));
@@ -886,6 +889,13 @@ describe('MappingContextMenuAction', () => {
 
     it('should not offer "Add optional guard" when the source is required', async () => {
       await openMenu(getNoteRow(mapNote(itemItem, BODY_TITLE)));
+
+      expect(screen.queryByTestId('transformation-actions-add-optional-guard')).not.toBeInTheDocument();
+    });
+
+    it('should not offer "Add optional guard" when the source path goes through a collection the field does not iterate', async () => {
+      sourceContext = { sourceParameterMap: new Map<string, IDocument>(), sourceBody: TestUtil.createSourceOrderDoc() };
+      await openMenu(getNoteRow(mapNote(itemItem, BODY_NOTE)));
 
       expect(screen.queryByTestId('transformation-actions-add-optional-guard')).not.toBeInTheDocument();
     });

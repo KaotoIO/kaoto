@@ -49,6 +49,7 @@ import {
 } from '../../stubs/datamapper/data-mapper';
 import {
   createElementRefCsvDocument,
+  createElementRefSingleRowCsvDocument,
   expectLinksOnRenderedRows,
 } from '../../stubs/datamapper/target-render-test-helpers';
 import { QName } from '../../xml-schema-ts/QName';
@@ -1062,10 +1063,11 @@ describe('MappingLinksService', () => {
         ['Quantity', 'Quantity'],
         ['Price', 'Price'],
       ]);
-      const renderIndex = buildRenderIndex(manualTree, sourceDoc);
+      const singleItemSourceDoc = TestUtil.createSingleItemSourceOrderDoc();
+      const renderIndex = buildRenderIndex(manualTree, singleItemSourceDoc);
       expect(renderIndex.isAbsorbed(guard)).toBe(true);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, renderIndex);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, singleItemSourceDoc, renderIndex);
       expect(links).toHaveLength(4);
       for (const link of links) {
         expect(link.lineStyle).toBe(MappingLineStyle.COMPLETE);
@@ -1077,10 +1079,11 @@ describe('MappingLinksService', () => {
         ['Title', 'Title'],
         ['Quantity', 'Quantity'],
       ]);
-      const renderIndex = buildRenderIndex(manualTree, sourceDoc);
+      const singleItemSourceDoc = TestUtil.createSingleItemSourceOrderDoc();
+      const renderIndex = buildRenderIndex(manualTree, singleItemSourceDoc);
       expect(renderIndex.isAbsorbed(guard)).toBe(true);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, renderIndex);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, singleItemSourceDoc, renderIndex);
       expect(links).toHaveLength(3);
       for (const link of links) {
         expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
@@ -1093,10 +1096,11 @@ describe('MappingLinksService', () => {
         ['Quantity', 'Price'],
         ['Price', 'Price'],
       ]);
-      const renderIndex = buildRenderIndex(manualTree, sourceDoc);
+      const singleItemSourceDoc = TestUtil.createSingleItemSourceOrderDoc();
+      const renderIndex = buildRenderIndex(manualTree, singleItemSourceDoc);
       expect(renderIndex.isAbsorbed(guard)).toBe(true);
 
-      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, renderIndex);
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, singleItemSourceDoc, renderIndex);
       expect(links).toHaveLength(4);
       for (const link of links) {
         expect(link.lineStyle).toBe(MappingLineStyle.PARTIAL);
@@ -1452,7 +1456,7 @@ describe('MappingLinksService', () => {
     // children) wrapped by a see-through guard must classify exactly as if it weren't wrapped
     // at all (COPY_OF here, not forced REGULAR), since the user never sees the wrapping IfItem.
     it('should classify a sole-copy-of container directly inside a see-through IfItem by its own shape, not REGULAR', () => {
-      const csvSourceDoc = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
+      const csvSourceDoc = createElementRefSingleRowCsvDocument(DocumentType.SOURCE_BODY);
       const { csvTree, guard, recordItem } = createGuardedCsvRecordTree();
       const vs = new CopyOfSelector(recordItem, CopyOfType.CONTAINER);
       vs.expression = '/CSV/CSV_r';
@@ -1472,7 +1476,7 @@ describe('MappingLinksService', () => {
     // visible if, so classification falls back to REGULAR exactly like the visible IfItem case
     // below, instead of the COMPLETE a see-through guard would give.
     it('should keep the guard of a recursive-children container visible, so it classifies as REGULAR, not COMPLETE', () => {
-      const csvSourceDoc = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
+      const csvSourceDoc = createElementRefSingleRowCsvDocument(DocumentType.SOURCE_BODY);
       const { csvTree, guard, recordItem } = createGuardedCsvRecordTree();
       for (const childField of recordItem.field.fields) {
         const childItem = new FieldItem(recordItem, childField);

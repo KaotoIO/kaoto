@@ -107,7 +107,10 @@ describe('getTargetRowKeys()', () => {
 
   beforeEach(() => {
     targetDoc = TestUtil.createTargetOrderDoc();
-    sourceContext = { sourceParameterMap: new Map<string, IDocument>(), sourceBody: TestUtil.createSourceOrderDoc() };
+    sourceContext = {
+      sourceParameterMap: new Map<string, IDocument>(),
+      sourceBody: TestUtil.createSingleItemSourceOrderDoc(),
+    };
     mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     mappingTree.namespaceMap = { ns0: SHIP_ORDER_NS };
     shipOrderItem = MappingService.createFieldItem(mappingTree, findField(targetDoc, 'ShipOrder'));

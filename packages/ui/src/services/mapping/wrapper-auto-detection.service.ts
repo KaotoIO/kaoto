@@ -12,7 +12,10 @@ import {
 } from '../../models/datamapper/mapping';
 import { IChoiceSelection, IFieldSubstitution } from '../../models/datamapper/metadata';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
+import { PathExpression } from '../../models/datamapper/xpath';
 import { QName } from '../../xml-schema-ts/QName';
+import { DocumentService } from '../document/document.service';
+import { DocumentUtilService } from '../document/document-util.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { ensureNamespaceRegistered, formatWithPrefix } from '../namespace-util';
 import { SchemaPathService } from '../schema-path.service';
@@ -248,6 +251,10 @@ export class WrapperAutoDetectionService {
    * optional-to-optional field gets an `xsl:if` guard, so that what gets created is what the target
    * tree can recognise again.
    *
+   * The source is judged by the path the guard's test gets, relative to the field's context
+   * ({@link isOptionalSourcePath}): an optional field under a repeating source parent is an optional
+   * source within a `for-each` over that parent, and a collection anywhere else.
+   *
    * A field mapped by a single selector is only guarded when that selector is a bare path. Because
    * `XPathService.addSource` appends, a field that already carried a mapping reads as `"A, B"` here
    * and is not guarded — the guard's test would otherwise gate output it does not own. A freshly
@@ -267,10 +274,13 @@ export class WrapperAutoDetectionService {
     sourceField: PrimitiveDocument | IField,
     hadExistingContent: boolean,
   ): boolean {
-    if (fieldItem.parent instanceof IfItem) return false;
-    if (fieldItem.field.minOccurs !== 0 || !WrapperAutoDetectionService.isOptionalSourceField(sourceField)) {
-      return false;
-    }
+    if (fieldItem.parent instanceof IfItem || fieldItem.field.minOccurs !== 0) return false;
+    const sourcePath = XPathService.toPathExpression(
+      fieldItem.mappingTree.namespaceMap,
+      sourceField,
+      fieldItem.parent.contextPath,
+    );
+    if (!WrapperAutoDetectionService.isOptionalSourcePath(sourceField, sourcePath)) return false;
     if (fieldItem.children.length === 0) return false;
 
     if (fieldItem.soleSelector) {
@@ -296,14 +306,50 @@ export class WrapperAutoDetectionService {
   }
 
   /**
-   * The single "is this source field optional" rule, shared by drag-and-drop creation
+   * The single "is this source optional" rule, shared by drag-and-drop creation
    * ({@link shouldWrapWithOptionalGuard}) and the target tree's see-through rule
    * ({@link TargetRenderService.isOptionalSourceSelector}), so the two cannot drift apart on what
-   * counts as an optional source. A schemaless document root has no real occurrence semantics
-   * despite `minOccurs` defaulting to 0, so it is never treated as optional.
+   * counts as an optional source.
+   *
+   * A source is optional when its path selects at most one node in its context and that node may be
+   * absent: the field the path ends on has `minOccurs` 0, and no step the path evaluates repeats
+   * ({@link DocumentService.isCollectionField}). A relative path evaluates only its own steps, from
+   * the context node; leading `..` steps climb to ancestors, which are single. An absolute path
+   * evaluates every step from the document root. So inside a `for-each` over `Item`, `Note` selects
+   * the current item's note and is optional, while `$cart/Cart/Item/Note` selects the notes of all
+   * items and is not. A path that selects the context node or one of its ancestors always finds it,
+   * and a path that climbs with `..` after a child step is not analysed; neither is optional.
+   *
+   * A schemaless document root has no real occurrence semantics despite `minOccurs` defaulting to 0,
+   * so it is never treated as optional.
+   * @param sourceField - the source field `path` ends on
+   * @param path - the source path; a relative one is relative to the context it is evaluated in
    */
-  static isOptionalSourceField(sourceField: PrimitiveDocument | IField): boolean {
-    return !(sourceField instanceof PrimitiveDocument) && sourceField.minOccurs === 0;
+  static isOptionalSourcePath(sourceField: PrimitiveDocument | IField, path: PathExpression): boolean {
+    if (sourceField instanceof PrimitiveDocument || sourceField.minOccurs !== 0) return false;
+    const evaluatedStepCount = WrapperAutoDetectionService.countEvaluatedSteps(path);
+    return !!evaluatedStepCount && !WrapperAutoDetectionService.hasRepeatingStep(sourceField, evaluatedStepCount);
+  }
+
+  private static countEvaluatedSteps(path: PathExpression): number | undefined {
+    const segments = path.pathSegments;
+    if (!path.isRelative) return segments.length;
+    const firstChildStep = segments.findIndex((segment) => segment.name !== '..');
+    if (firstChildStep === -1) return 0;
+    const childSteps = segments.slice(firstChildStep);
+    return childSteps.some((segment) => segment.name === '..') ? undefined : childSteps.length;
+  }
+
+  private static hasRepeatingStep(sourceField: IField, stepCount: number): boolean {
+    let remainingSteps = stepCount;
+    for (const field of DocumentUtilService.getFieldStack(sourceField, true)) {
+      if (!field.wrapperKind) {
+        if (remainingSteps === 0) return false;
+        remainingSteps--;
+      }
+      if (DocumentService.isCollectionField(field)) return true;
+    }
+    return false;
   }
 
   /**

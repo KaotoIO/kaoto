@@ -984,6 +984,7 @@ describe('MappingService', () => {
 
   describe('tryAutoOptionalIfWrap()', () => {
     let manualTree: MappingTree;
+    let rootItem: FieldItem;
     let itemItem: FieldItem;
     let fieldItem: FieldItem;
     let sourceField: IField;
@@ -995,10 +996,13 @@ describe('MappingService', () => {
       // Item/Note is minOccurs="0" in ShipOrder.xsd and Item/Title is required, on both docs.
       sourceField = sourceDoc.fields[0].fields[3].fields[1];
       targetField = targetDoc.fields[0].fields[3].fields[1];
-      const rootItem = new FieldItem(manualTree, targetDoc.fields[0]);
+      rootItem = new FieldItem(manualTree, targetDoc.fields[0]);
       manualTree.children.push(rootItem);
-      itemItem = new FieldItem(rootItem, targetDoc.fields[0].fields[3]);
-      rootItem.children.push(itemItem);
+      const forEach = new ForEachItem(rootItem);
+      forEach.expression = '/ns0:ShipOrder/Item';
+      rootItem.children.push(forEach);
+      itemItem = new FieldItem(forEach, targetDoc.fields[0].fields[3]);
+      forEach.children.push(itemItem);
       fieldItem = new FieldItem(itemItem, targetField);
       itemItem.children.push(fieldItem);
     });
@@ -1009,9 +1013,21 @@ describe('MappingService', () => {
       const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false);
 
       expect(ifItem).toBeInstanceOf(IfItem);
-      expect(ifItem!.expression).toBe('/ns0:ShipOrder/Item/Note');
+      expect(ifItem!.expression).toBe('Note');
       expect(fieldItem.parent).toBe(ifItem);
       expect(itemItem.children).toEqual([ifItem]);
+    });
+
+    it('should not wrap when the source path goes through a collection the field does not iterate', () => {
+      const unloopedItem = new FieldItem(rootItem, targetDoc.fields[0].fields[3]);
+      rootItem.children.push(unloopedItem);
+      const unloopedNote = new FieldItem(unloopedItem, targetField);
+      unloopedItem.children.push(unloopedNote);
+      MappingService.mapToField(sourceField, unloopedNote);
+
+      expect(MappingService.tryAutoOptionalIfWrap(unloopedNote, sourceField, false)).toBeUndefined();
+      expect(unloopedNote.parent).toBe(unloopedItem);
+      expect((unloopedNote.children[0] as ValueOfSelector).expression).toBe('/ns0:ShipOrder/Item/Note');
     });
 
     it('should not wrap when the target field is required', () => {
@@ -1069,7 +1085,7 @@ describe('MappingService', () => {
       const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false);
 
       expect(ifItem).toBeInstanceOf(IfItem);
-      expect(ifItem!.expression).toBe('/ns0:ShipOrder/Item/Note');
+      expect(ifItem!.expression).toBe('Note');
       expect(fieldItem.parent).toBe(ifItem);
     });
 
@@ -1090,7 +1106,7 @@ describe('MappingService', () => {
 
       expect(MappingService.tryAutoOptionalIfWrap(fieldItem, secondSourceField, true)).toBeUndefined();
       expect(fieldItem.parent).toBe(ifItem);
-      expect(ifItem?.expression).toBe('/ns0:ShipOrder/Item/Note');
+      expect(ifItem?.expression).toBe('Note');
     });
 
     it('should not wrap when the field already carries a mapping from another source', () => {
@@ -2009,8 +2025,11 @@ describe('MappingService', () => {
 
       const rootItem = new FieldItem(manualTree, targetRoot);
       manualTree.children.push(rootItem);
-      const itemItem = new FieldItem(rootItem, targetItem);
-      rootItem.children.push(itemItem);
+      const forEach = new ForEachItem(rootItem);
+      forEach.expression = '/ns0:ShipOrder/Item';
+      rootItem.children.push(forEach);
+      const itemItem = new FieldItem(forEach, targetItem);
+      forEach.children.push(itemItem);
 
       MappingService.generateAutoChildMappings(sourceItem, targetItem, itemItem);
 
@@ -2018,13 +2037,37 @@ describe('MappingService', () => {
         (c) => c instanceof IfItem && (c.children[0] as FieldItem)?.field === targetNote,
       ) as IfItem;
       expect(noteIfItem).toBeDefined();
-      expect(noteIfItem.expression).toBe('/ns0:ShipOrder/Item/Note');
+      expect(noteIfItem.expression).toBe('Note');
       expect(itemItem.children.filter((c) => c instanceof FieldItem)).toHaveLength(3);
 
       const otherChildren = itemItem.children.filter((c): c is FieldItem => c instanceof FieldItem);
       otherChildren.forEach((fi) => {
         expect(fi.children.find((c) => c instanceof ValueOfSelector)).toBeDefined();
       });
+    });
+
+    it('generateAutoChildMappings should not guard an optional child whose source path goes through a collection the target does not iterate', () => {
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+
+      const targetItem = targetRoot.fields.find((f: IField) => f.name === 'Item')!;
+      DocumentUtilService.resolveTypeFragment(targetItem);
+      const sourceItem = sourceRoot.fields.find((f: IField) => f.name === 'Item')!;
+      DocumentUtilService.resolveTypeFragment(sourceItem);
+
+      const rootItem = new FieldItem(manualTree, targetRoot);
+      manualTree.children.push(rootItem);
+      const itemItem = new FieldItem(rootItem, targetItem);
+      rootItem.children.push(itemItem);
+
+      MappingService.generateAutoChildMappings(sourceItem, targetItem, itemItem);
+
+      expect(itemItem.children.some((c) => c instanceof IfItem)).toBe(false);
+      expect(itemItem.children.filter((c) => c instanceof FieldItem)).toHaveLength(4);
     });
 
     it('generateAutoChildMappings should recurse into nested containers', () => {

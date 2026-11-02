@@ -22,15 +22,26 @@
                     </Price>
                 </Item>
             </xsl:for-each>
+            <xsl:for-each select="$cart/ns0:Cart/Item">
+                <Item xmlns="">
+                    <xsl:if test="Title">
+                        <Note>
+                            <xsl:value-of select="Title"/>
+                        </Note>
+                    </xsl:if>
+                </Item>
+            </xsl:for-each>
+            <xsl:for-each select="$cart/ns0:Cart/Item">
+                <Item xmlns="">
+                    <!-- Write the note only when the cart item has one -->
+                    <xsl:if test="Note">
+                        <Note>
+                            <xsl:value-of select="Note"/>
+                        </Note>
+                    </xsl:if>
+                </Item>
+            </xsl:for-each>
             <Item xmlns="">
-                <xsl:if test="$cart/ns0:Cart/Item/Title">
-                    <Note>
-                        <xsl:value-of select="$cart/ns0:Cart/Item/Title"/>
-                    </Note>
-                </xsl:if>
-            </Item>
-            <Item xmlns="">
-                <!-- Write the note only when the cart item has one -->
                 <xsl:if test="$cart/ns0:Cart/Item/Note">
                     <Note>
                         <xsl:value-of select="$cart/ns0:Cart/Item/Note"/>

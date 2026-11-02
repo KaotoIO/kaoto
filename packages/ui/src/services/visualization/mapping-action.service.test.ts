@@ -1997,20 +1997,21 @@ describe('MappingActionService', () => {
         expectNoDecisionChange(tree, renderIndex);
       });
 
-      it('should re-sync the guard test and return update for a simple path to another optional source', () => {
+      it('should re-sync the guard test and return update for another simple path to an optional source', () => {
         const { ifItem, selector } = addNote('Note', 'Note');
         const renderIndex = buildRenderIndex();
         const noteNode = findNoteNode(renderItemChildren(renderIndex));
 
-        MappingService.updateExpression(selector, '/ns0:ShipOrder/Item/Note');
+        MappingService.updateExpression(selector, './Note');
 
         expect(MappingActionService.commitExpression(noteNode, selector)).toBe('update');
-        expect(ifItem.expression).toBe('/ns0:ShipOrder/Item/Note');
+        expect(ifItem.expression).toBe('./Note');
         expectNoDecisionChange(tree, renderIndex);
       });
 
       it.each([
         ['a simple path to a required source', 'Title'],
+        ['a path through the collection the for-each iterates', '/ns0:ShipOrder/Item/Note'],
         ['a path that is not simple', "concat(Note, '!')"],
         ['an empty path', ''],
       ])('should leave the guard test unchanged and return structural-update for %s', (_label, expression) => {
@@ -2191,12 +2192,12 @@ describe('MappingActionService', () => {
         forEachItem.expression = '/HL7/NK1Loop';
         adt.hl7Item.children.push(forEachItem);
         const ifItem = new IfItem(forEachItem);
-        ifItem.expression = '.';
+        ifItem.expression = '/HL7/PID';
         forEachItem.children.push(ifItem);
         const loopFieldItem = new FieldItem(ifItem, childField(adt.hl7Item.field, 'NK1Loop'));
         ifItem.children.push(loopFieldItem);
         const copyOf = new CopyOfSelector(loopFieldItem);
-        copyOf.expression = '.';
+        copyOf.expression = '/HL7/PID';
         loopFieldItem.children.push(copyOf);
         const forEachNode = adt
           .renderHl7Children()
@@ -2378,12 +2379,12 @@ describe('MappingActionService', () => {
     describe('for-each wraps', () => {
       function addGuardedNk1Loop(hl7Item: FieldItem) {
         const ifItem = new IfItem(hl7Item);
-        ifItem.expression = '/HL7/NK1Loop';
+        ifItem.expression = '/HL7/PID';
         hl7Item.children.push(ifItem);
         const loopFieldItem = new FieldItem(ifItem, childField(hl7Item.field, 'NK1Loop'));
         ifItem.children.push(loopFieldItem);
         const copyOf = new CopyOfSelector(loopFieldItem);
-        copyOf.expression = '/HL7/NK1Loop';
+        copyOf.expression = '/HL7/PID';
         loopFieldItem.children.push(copyOf);
         return { ifItem, loopFieldItem };
       }

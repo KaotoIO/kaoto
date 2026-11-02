@@ -245,7 +245,7 @@ describe('TargetNodeActions', () => {
     });
 
     function createShipOrderNodes() {
-      const sourceDoc = TestUtil.createSourceOrderDoc();
+      const sourceDoc = TestUtil.createSingleItemSourceOrderDoc();
       const targetDoc = TestUtil.createTargetOrderDoc();
       const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       tree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };

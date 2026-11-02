@@ -57,6 +57,9 @@ function readStubFile(relativePath: string): string {
 export function getShipOrderXsd(): string {
   return readStubFile('./xml/ShipOrder.xsd');
 }
+export function getShipOrderSingleItemXsd(): string {
+  return readStubFile('./xml/ShipOrderSingleItem.xsd');
+}
 export function getCartXsd(): string {
   return readStubFile('./xml/Cart.xsd');
 }
@@ -255,6 +258,9 @@ export function getAdtOutXsd(): string {
 export function getElementRefXsd(): string {
   return readStubFile('./xml/element-ref.xsd');
 }
+export function getElementRefSingleRowXsd(): string {
+  return readStubFile('./xml/element-ref-single-row.xsd');
+}
 export function getAccountLcXsd(): string {
   return readStubFile('./xml/account-lc.xsd');
 }
@@ -396,12 +402,25 @@ export function getSchemaTestToSchemaTestXslt(): string {
 
 export class TestUtil {
   static createSourceOrderDoc() {
+    return TestUtil.createSourceBodyDoc('shipOrder.xsd', getShipOrderXsd());
+  }
+
+  /**
+   * A source `ShipOrder` whose `Item` occurs once, so a path such as `/ns0:ShipOrder/Item/Note` selects
+   * at most one node and is an optional source outside any `for-each`, unlike in
+   * {@link createSourceOrderDoc}, where `Item` repeats.
+   */
+  static createSingleItemSourceOrderDoc() {
+    return TestUtil.createSourceBodyDoc('shipOrderSingleItem.xsd', getShipOrderSingleItemXsd());
+  }
+
+  private static createSourceBodyDoc(fileName: string, content: string) {
     const definition = new DocumentDefinition(
       DocumentType.SOURCE_BODY,
       DocumentDefinitionType.XML_SCHEMA,
       BODY_DOCUMENT_ID,
       {
-        'shipOrder.xsd': getShipOrderXsd(),
+        [fileName]: content,
       },
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);

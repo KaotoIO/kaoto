@@ -26,7 +26,7 @@ import { XmlSchemaDocumentService } from '../../services/document/xml-schema/xml
 import { TargetRenderService } from '../../services/visualization/target-render.service';
 import { TreeParsingService } from '../../services/visualization/tree-parsing.service';
 import { VisualizationService } from '../../services/visualization/visualization.service';
-import { getElementRefXsd } from './data-mapper';
+import { getElementRefSingleRowXsd, getElementRefXsd } from './data-mapper';
 
 /**
  * Asserts that `links` is not empty and that every link ends on a row of the target tree built from
@@ -57,15 +57,16 @@ export const expectNoDecisionChange = (root: MappingTree | MappingItem, renderIn
 };
 
 /**
- * The target rows of `element-ref.xsd`'s `CSV`, built by the target tree builder against the same
- * schema on the source side. `STATUS` (Opt) and `CSV_r` (`0+`) are mapped behind see-through
- * optional guards, and `RPTID` (Opt) is mapped without one.
+ * The target rows of `element-ref.xsd`'s `CSV`, built by the target tree builder against its
+ * single-row variant on the source side ({@link createElementRefSingleRowCsvDocument}), so that each
+ * guarded source is a single optional node. `STATUS` (Opt) and `CSV_r` (`0+`) are mapped behind
+ * see-through optional guards, and `RPTID` (Opt) is mapped without one.
  */
 export const createGuardedCsvRows = (): Record<
   'guardedOptional' | 'guardedRepeating' | 'unguardedOptional',
   FieldItemNodeData
 > => {
-  const sourceBody = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
+  const sourceBody = createElementRefSingleRowCsvDocument(DocumentType.SOURCE_BODY);
   const targetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
   const mappingTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
   const csvItem = new FieldItem(mappingTree, targetDoc.fields[0]);
@@ -91,17 +92,29 @@ export const createGuardedCsvRows = (): Record<
  * whose other children are optional, for tests of optional guards.
  * @param documentType - the side and kind of document to create
  */
-export const createElementRefCsvDocument = (documentType: DocumentType): XmlSchemaDocument => {
+export const createElementRefCsvDocument = (documentType: DocumentType): XmlSchemaDocument =>
+  createCsvDocument(documentType, 'element-ref.xsd', getElementRefXsd());
+
+/**
+ * The single-row variant of `element-ref.xsd`, with `CSV` as its root element: `CSV_r` is optional
+ * and occurs at most once, so a path to it is an optional source. On the source side it feeds the
+ * `0+` `CSV_r` of {@link createElementRefCsvDocument} from a single optional row.
+ * @param documentType - the side and kind of document to create
+ */
+export const createElementRefSingleRowCsvDocument = (documentType: DocumentType): XmlSchemaDocument =>
+  createCsvDocument(documentType, 'element-ref-single-row.xsd', getElementRefSingleRowXsd());
+
+const createCsvDocument = (documentType: DocumentType, fileName: string, content: string): XmlSchemaDocument => {
   const { document } = XmlSchemaDocumentService.createXmlSchemaDocument(
     new DocumentDefinition(
       documentType,
       DocumentDefinitionType.XML_SCHEMA,
       BODY_DOCUMENT_ID,
-      { 'element-ref.xsd': getElementRefXsd() },
+      { [fileName]: content },
       { namespaceUri: '', name: 'CSV' },
     ),
   );
-  if (!document) throw new Error('element-ref.xsd did not produce a document');
+  if (!document) throw new Error(`${fileName} did not produce a document`);
   return document;
 };
 

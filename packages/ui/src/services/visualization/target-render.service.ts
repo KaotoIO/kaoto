@@ -51,8 +51,9 @@ export class TargetRenderService {
   /**
    * The see-through rule: an `xsl:if` is see-through when it guards exactly one optional target field
    * mapped by a single simple path equal to its test
-   * ({@link WrapperAutoDetectionService.matchSimpleOptionalGuard}), and that path resolves to exactly
-   * one optional source field ({@link isOptionalSourceSelector}). Comments play no part in it.
+   * ({@link WrapperAutoDetectionService.matchSimpleOptionalGuard}), and that path is an optional
+   * source: it resolves to exactly one source field and selects at most one node in its context
+   * ({@link isOptionalSourceSelector}). Comments play no part in it.
    * @param ifItem - the `xsl:if` to evaluate
    * @param sourceContext - the source documents to resolve against; without them nothing is optional
    * @param test - a candidate test to evaluate instead of the `if`'s own, without writing it
@@ -70,10 +71,11 @@ export class TargetRenderService {
   }
 
   /**
-   * Whether `selector` resolves to exactly one source field and that field is optional, by the same
-   * {@link WrapperAutoDetectionService.isOptionalSourceField} rule drag-and-drop applies to the
-   * dropped field. An expression that doesn't resolve to exactly one field is treated as not
-   * optional, because its optionality can't be confirmed.
+   * Whether `selector` resolves to exactly one source field and its path is an optional source, by
+   * the same {@link WrapperAutoDetectionService.isOptionalSourcePath} rule drag-and-drop applies to
+   * the dropped field: the path selects at most one node in the selector's context, and that node may
+   * be absent. An expression that doesn't resolve to exactly one field is treated as not optional,
+   * because its optionality can't be confirmed.
    * @param selector - the field's single selector
    * @param sourceContext - the source documents to resolve against; without them nothing is optional
    */
@@ -87,7 +89,9 @@ export class TargetRenderService {
       sourceContext.sourceParameterMap,
       sourceContext.sourceBody,
     );
-    return resolved.length === 1 && WrapperAutoDetectionService.isOptionalSourceField(resolved[0].field);
+    return (
+      resolved.length === 1 && WrapperAutoDetectionService.isOptionalSourcePath(resolved[0].field, resolved[0].path)
+    );
   }
 
   /**

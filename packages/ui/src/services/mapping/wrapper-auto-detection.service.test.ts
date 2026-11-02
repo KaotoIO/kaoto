@@ -13,20 +13,26 @@ import {
   CopyOfSelector,
   CopyOfType,
   FieldItem,
+  ForEachItem,
   IfItem,
   MappingTree,
   ValueOfSelector,
 } from '../../models/datamapper/mapping';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
+import { PathExpression } from '../../models/datamapper/xpath';
 import {
+  getCartJsonSchema,
   getChoiceWithAbstractXsd,
   getFieldSubstitutionXsd,
   getNonAbstractSubstitutionXsd,
   getSchemaTestXsd,
+  getTestDocumentXsd,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { JsonSchemaField } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { XPathService } from '../xpath/xpath.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import { WrapperAutoDetectionService } from './wrapper-auto-detection.service';
 
@@ -727,6 +733,7 @@ describe('WrapperAutoDetectionService', () => {
     }
 
     describe('shouldWrapWithOptionalGuard()', () => {
+      const LOOP_NOTE_PATH = 'Note';
       let sourceDoc: IDocument;
       let sourceField: IField;
       let fieldItem: FieldItem;
@@ -734,8 +741,11 @@ describe('WrapperAutoDetectionService', () => {
       beforeEach(() => {
         sourceDoc = TestUtil.createSourceOrderDoc();
         sourceField = sourceDoc.fields[0].fields[3].fields[1]; // Item/Note
-        fieldItem = new FieldItem(tree, targetField);
-        tree.children.push(fieldItem);
+        const forEach = new ForEachItem(tree);
+        forEach.expression = '/ns0:ShipOrder/Item';
+        tree.children.push(forEach);
+        fieldItem = new FieldItem(forEach, targetField);
+        forEach.children.push(fieldItem);
       });
 
       function mapFrom(expression: string, item: FieldItem = fieldItem) {
@@ -745,36 +755,36 @@ describe('WrapperAutoDetectionService', () => {
       }
 
       it('should return true for a sole selector holding a bare path', () => {
-        mapFrom(NOTE_PATH);
+        mapFrom(LOOP_NOTE_PATH);
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(true);
       });
 
       it('should return true for a CopyOfType.CONTAINER_NODE selector despite its /node() suffix', () => {
         const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
-        selector.expression = `${NOTE_PATH}/node()`;
+        selector.expression = `${LOOP_NOTE_PATH}/node()`;
         fieldItem.children.push(selector);
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(true);
       });
 
       it('should return false when the selector already carries another source', () => {
-        mapFrom(`/ns0:ShipOrder/Item/Title, ${NOTE_PATH}`);
+        mapFrom(`Title, ${LOOP_NOTE_PATH}`);
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(false);
       });
 
       it('should return false when the selector is not a bare path', () => {
-        mapFrom(`concat(${NOTE_PATH}, "!")`);
+        mapFrom(`concat(${LOOP_NOTE_PATH}, "!")`);
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(false);
       });
 
       it('should return false when the field is already wrapped by an IfItem', () => {
-        mapFrom(NOTE_PATH);
+        mapFrom(LOOP_NOTE_PATH);
         fieldItem.parent = new IfItem(tree);
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(false);
       });
 
       it('should return false when the target field is required', () => {
         const requiredItem = new FieldItem(tree, requiredTargetField);
-        mapFrom(NOTE_PATH, requiredItem);
+        mapFrom(LOOP_NOTE_PATH, requiredItem);
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(requiredItem, sourceField, false)).toBe(false);
       });
 
@@ -784,8 +794,15 @@ describe('WrapperAutoDetectionService', () => {
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, requiredSource, false)).toBe(false);
       });
 
+      it('should return false when the source path goes through a collection the field does not iterate', () => {
+        const unloopedItem = new FieldItem(tree, targetField);
+        tree.children.push(unloopedItem);
+        mapFrom(NOTE_PATH, unloopedItem);
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(unloopedItem, sourceField, false)).toBe(false);
+      });
+
       it('should return false for a PrimitiveDocument source, even though its minOccurs defaults to 0', () => {
-        mapFrom(NOTE_PATH);
+        mapFrom(LOOP_NOTE_PATH);
         const primitiveDoc = new PrimitiveDocument(
           new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'Body'),
         );
@@ -832,18 +849,141 @@ describe('WrapperAutoDetectionService', () => {
       });
     });
 
-    describe('isOptionalSourceField()', () => {
+    describe('isOptionalSourcePath()', () => {
+      let sourceDoc: IDocument;
+      let itemSource: IField;
+      let noteSource: IField;
+      let itemContext: PathExpression;
+
+      const findChild = (parent: IField, name: string): IField => {
+        const child = parent.fields.find((field) => field.name === name);
+        if (!child) throw new Error(`${parent.name} has no field ${name}`);
+        return child;
+      };
+
+      const parsePath = (expression: string, contextPath?: PathExpression): PathExpression => {
+        const [path] = XPathService.extractFieldPaths(expression, contextPath);
+        return path;
+      };
+
+      beforeEach(() => {
+        sourceDoc = TestUtil.createSourceOrderDoc();
+        itemSource = sourceDoc.fields[0].fields[3];
+        noteSource = itemSource.fields[1];
+        itemContext = XPathService.toPathExpression({}, itemSource);
+      });
+
       it('should follow the source schema and never treat a PrimitiveDocument as optional', () => {
-        const sourceDoc = TestUtil.createSourceOrderDoc();
-        const noteSource = sourceDoc.fields[0].fields[3].fields[1];
         const orderPersonSource = sourceDoc.fields[0].fields[1];
         const primitiveDoc = new PrimitiveDocument(
           new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, 'Body'),
         );
 
-        expect(WrapperAutoDetectionService.isOptionalSourceField(noteSource)).toBe(true);
-        expect(WrapperAutoDetectionService.isOptionalSourceField(orderPersonSource)).toBe(false);
-        expect(WrapperAutoDetectionService.isOptionalSourceField(primitiveDoc)).toBe(false);
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(
+            noteSource,
+            XPathService.toPathExpression({}, noteSource, itemContext),
+          ),
+        ).toBe(true);
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(
+            orderPersonSource,
+            XPathService.toPathExpression({}, orderPersonSource),
+          ),
+        ).toBe(false);
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(
+            primitiveDoc,
+            XPathService.toPathExpression({}, primitiveDoc),
+          ),
+        ).toBe(false);
+      });
+
+      it('should evaluate a relative path from its context and an absolute path from the document root', () => {
+        expect(WrapperAutoDetectionService.isOptionalSourcePath(noteSource, parsePath('Note', itemContext))).toBe(true);
+        expect(WrapperAutoDetectionService.isOptionalSourcePath(noteSource, parsePath('./Note', itemContext))).toBe(
+          true,
+        );
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(
+            noteSource,
+            parsePath('/ns0:ShipOrder/Item/Note', itemContext),
+          ),
+        ).toBe(false);
+      });
+
+      it('should reject a path whose leading parent steps lead back into a collection', () => {
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(noteSource, parsePath('../Item/Note', itemContext)),
+        ).toBe(false);
+      });
+
+      it('should reject a path that climbs with a parent step after a child step', () => {
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(noteSource, parsePath('Note/../Note', itemContext)),
+        ).toBe(false);
+      });
+
+      it('should reject a path that selects an ancestor of the context, which always exists', () => {
+        const shipOrderSource = sourceDoc.fields[0];
+        shipOrderSource.minOccurs = 0;
+
+        expect(WrapperAutoDetectionService.isOptionalSourcePath(shipOrderSource, parsePath('..', itemContext))).toBe(
+          false,
+        );
+      });
+
+      it('should reject a repeating source field', () => {
+        itemSource.minOccurs = 0;
+
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(itemSource, XPathService.toPathExpression({}, itemSource)),
+        ).toBe(false);
+      });
+
+      it('should treat a member of a choice as repeating exactly when the choice repeats', () => {
+        const testDocument = createTargetDoc(getTestDocumentXsd(), 'TestDocument.xsd').fields[0];
+        const singleChoiceWrapper = findChild(testDocument, 'ChoiceElement').fields[0];
+        const choiceMember = findChild(singleChoiceWrapper, 'Choice1');
+        choiceMember.minOccurs = 0;
+        const collectionChoice = findChild(testDocument, 'CollectionChoiceElement');
+        const collectionChoiceWrapper = collectionChoice.fields[0];
+        const emailField = findChild(collectionChoiceWrapper, 'Email');
+        emailField.minOccurs = 0;
+        const choiceContext = XPathService.toPathExpression({}, collectionChoice);
+
+        expect(singleChoiceWrapper.wrapperKind).toBe('choice');
+        expect(collectionChoiceWrapper.wrapperKind).toBe('choice');
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(
+            choiceMember,
+            XPathService.toPathExpression({}, choiceMember),
+          ),
+        ).toBe(true);
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(
+            emailField,
+            XPathService.toPathExpression({}, emailField, choiceContext),
+          ),
+        ).toBe(false);
+      });
+
+      it('should reject a JSON array item field outside a for-each over the array', () => {
+        const cartDoc = TestUtil.createParamOrderDoc('cart', DocumentDefinitionType.JSON_SCHEMA, getCartJsonSchema());
+        const cartItem = cartDoc.fields[0].fields[0];
+        const cartNote = cartItem.fields.find((field) => field instanceof JsonSchemaField && field.key === 'Note');
+        if (!cartNote) throw new Error('The JSON cart item has no Note');
+        const cartItemContext = XPathService.toPathExpression({}, cartItem);
+
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(cartNote, XPathService.toPathExpression({}, cartNote)),
+        ).toBe(false);
+        expect(
+          WrapperAutoDetectionService.isOptionalSourcePath(
+            cartNote,
+            XPathService.toPathExpression({}, cartNote, cartItemContext),
+          ),
+        ).toBe(true);
       });
     });
 

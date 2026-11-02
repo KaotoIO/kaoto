@@ -54,7 +54,10 @@ import {
   getXslTextNodeXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
-import { createElementRefCsvDocument } from '../../stubs/datamapper/target-render-test-helpers';
+import {
+  createElementRefCsvDocument,
+  createElementRefSingleRowCsvDocument,
+} from '../../stubs/datamapper/target-render-test-helpers';
 import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { TargetRenderService } from '../visualization/target-render.service';
@@ -1753,7 +1756,7 @@ describe('MappingSerializerService', () => {
     });
 
     it('should serialize a copy-of guard as a plain xsl:if that is see-through again after a round trip', () => {
-      const localSourceDoc = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
+      const localSourceDoc = createElementRefSingleRowCsvDocument(DocumentType.SOURCE_BODY);
       const localTargetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
       const localParamsMap = TestUtil.createParameterMap();
       const sourceField = localSourceDoc.fields[0].fields.find((f) => f.name === 'CSV_r')!;
@@ -1823,7 +1826,7 @@ describe('MappingSerializerService', () => {
       // instead (exactly what this feature produces), the parent mapping is the IfItem, so the
       // reconstruction was skipped and the guard's shape (IfItem -> FieldItem -> selector)
       // silently collapsed into (IfItem -> selector), which matchSimpleOptionalGuard can't match.
-      const localSourceDoc = createElementRefCsvDocument(DocumentType.SOURCE_BODY);
+      const localSourceDoc = createElementRefSingleRowCsvDocument(DocumentType.SOURCE_BODY);
       const localTargetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
       const localParamsMap = TestUtil.createParameterMap();
       const sourceField = localSourceDoc.fields[0].fields.find((f) => f.name === 'CSV_r')!;

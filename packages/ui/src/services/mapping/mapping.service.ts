@@ -958,7 +958,8 @@ export class MappingService {
 
   /**
    * Resolves the source `IField`(s) referenced by `expressionHolder`'s XPath expression,
-   * along with the source document each was resolved from. Returns an empty array when the
+   * along with the source document each was resolved from and the path that refers to it, relative
+   * to the expression's context when the path is relative. Returns an empty array when the
    * expression doesn't parse, or when a referenced path can't be resolved to a concrete
    * field (e.g. a variable reference, or an ambiguous/relative path).
    */
@@ -966,13 +967,13 @@ export class MappingService {
     expressionHolder: IExpressionHolder & MappingItem,
     sourceParameterMap: Map<string, IDocument>,
     sourceBody: IDocument,
-  ): { field: IField; document: IDocument }[] {
+  ): { field: IField; document: IDocument; path: PathExpression }[] {
     const namespaces = expressionHolder.mappingTree.namespaceMap;
     const sourceXPath = expressionHolder.expression;
     const validationResult = XPathService.validate(sourceXPath);
     if (!validationResult.getExprNode() || validationResult.dataMapperErrors.length > 0) return [];
     const fieldPaths = XPathService.extractFieldPaths(sourceXPath, expressionHolder.parent.contextPath);
-    const results: { field: IField; document: IDocument }[] = [];
+    const results: { field: IField; document: IDocument; path: PathExpression }[] = [];
     for (const xpath of fieldPaths) {
       const absolutePath = XPathService.toAbsolutePath(xpath);
       if (
@@ -985,7 +986,7 @@ export class MappingService {
       if (!document) continue;
       const result = DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments);
       if (result && 'parent' in result) {
-        results.push({ field: result, document });
+        results.push({ field: result, document, path: xpath });
       }
     }
     return results;
