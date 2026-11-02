@@ -37,7 +37,7 @@ export const ComponentMode: FunctionComponent<{ vizNode?: IVisualizationNode }> 
       { name: 'toD', text: 'Dynamic', icon: ToDIcon, tooltip: tooltips.toD },
       { name: 'poll', text: 'Poll', icon: PollIcon, tooltip: tooltips.poll },
     ],
-    [ToIcon, ToDIcon, PollIcon, tooltips],
+    [tooltips],
   );
 
   const selectedIndex = processors.findIndex((p) => p.name === processorName);
