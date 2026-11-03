@@ -744,6 +744,19 @@ describe('CamelRouteResource', () => {
   });
 
   describe('toString', () => {
+    it('rejects serialization errors without throwing synchronously', async () => {
+      const resource = new CamelRouteResource();
+      const error = new Error('Unable to serialize route');
+      vi.spyOn(resource, 'toJSON').mockImplementationOnce(() => {
+        throw error;
+      });
+
+      const result = resource.toSourceCode();
+
+      expect(result).toBeInstanceOf(Promise);
+      await expect(result).rejects.toBe(error);
+    });
+
     it('should serialize to YAML string', async () => {
       const resource = new CamelRouteResource([camelRouteJson]);
       await resource.initialize();

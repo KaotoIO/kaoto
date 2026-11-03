@@ -49,6 +49,6 @@ export const SuggestionRegistrar: FunctionComponent<PropsWithChildren> = ({ chil
   return <>{children}</>;
 };
 
-const GET_SUGGESTIONS_NOOP: IMetadataApi['getSuggestions'] = async () => {
-  return [];
+const GET_SUGGESTIONS_NOOP: IMetadataApi['getSuggestions'] = () => {
+  return Promise.resolve([]);
 };

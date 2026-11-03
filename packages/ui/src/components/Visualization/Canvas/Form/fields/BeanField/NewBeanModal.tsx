@@ -39,7 +39,7 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = ({
   const [beanModel, setBeanModel] = useState<unknown>({ name: beanName, type: javaType });
   const formRef = useRef<KaotoFormApi>(null);
 
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = useCallback(() => {
     // validation updates the bean model, so we need to clone it to avoid creating the bean with default values
     const beanModelTmp = cloneDeep(beanModel);
     const valid = formRef.current?.validate();

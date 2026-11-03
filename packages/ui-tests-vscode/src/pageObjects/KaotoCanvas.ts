@@ -108,7 +108,7 @@ export class KaotoCanvas extends AbstractElement {
 	 * Used to verify Node Label setting is applied.
 	 */
 	static async findNodeLabelText(driver: WebDriver, nodeTestId: string, timeout = 10_000): Promise<WebElement> {
-		return driver.wait(
+		return await driver.wait(
 			until.elementLocated(By.xpath(kaotoLocators.KaotoNode.labelText(nodeTestId))),
 			timeout,
 			`Label text for node '${nodeTestId}' was not found`,

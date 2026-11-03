@@ -9,7 +9,7 @@ import { ExportDocumentPreviewModal } from './ExportDocumentPreviewModal';
 export const ExportDocument: FunctionComponent = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const onOpenPreview = async () => {
+  const onOpenPreview = () => {
     setIsModalOpen(true);
   };
 

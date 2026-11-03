@@ -79,7 +79,7 @@ export const camelEntityToTile = async (processorDef: ICamelProcessorDefinition)
   return entityTile;
 };
 
-export const kameletToTile = async (kameletDef: IKameletDefinition): Promise<ITile> => {
+export const kameletToTile = (kameletDef: IKameletDefinition): Promise<ITile> => {
   const headerTags: string[] = ['Kamelet'];
   if (kameletDef.metadata.annotations?.[KameletKnownAnnotations.SupportLevel]) {
     headerTags.push(kameletDef.metadata.annotations[KameletKnownAnnotations.SupportLevel]);
@@ -95,7 +95,7 @@ export const kameletToTile = async (kameletDef: IKameletDefinition): Promise<ITi
   const kameletProvider = kameletDef.metadata.annotations?.[KameletKnownAnnotations.Provider];
   const provider = kameletProvider === 'Apache Software Foundation' ? 'Community' : kameletProvider;
 
-  return {
+  return Promise.resolve({
     type: CatalogKind.Kamelet,
     name: kameletDef.metadata.name,
     title: kameletDef.spec.definition.title,
@@ -105,7 +105,7 @@ export const kameletToTile = async (kameletDef: IKameletDefinition): Promise<ITi
     provider,
     version,
     iconUrl,
-  };
+  });
 };
 
 export const citrusComponentToTile = async (componentDefinition: ICitrusComponentDefinition): Promise<ITile> => {

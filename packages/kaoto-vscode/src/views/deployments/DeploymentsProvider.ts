@@ -84,37 +84,39 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 		return element;
 	}
 
-	async getChildren(element?: TreeItem): Promise<TreeItem[]> {
+	getChildren(element?: TreeItem): Promise<TreeItem[]> {
 		if (!element) {
-			return [new RootItem('Localhost', 'desktop-download', this.CONTEXT_LOCALHOST_ITEM)];
+			return Promise.resolve([new RootItem('Localhost', 'desktop-download', this.CONTEXT_LOCALHOST_ITEM)]);
 		}
 
 		if (element.contextValue === this.CONTEXT_LOCALHOST_ITEM) {
-			return Array.from(this.localhostData.entries()).map(([key, data]) => {
-				const k = PortFileKey.fromString(key);
-				return new ParentItem(
-					this.getDisplayName(k.file),
-					data.routes.length ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None,
-					this.CONTEXT_INTEGRATION_LOCALHOST_ITEM,
-					k.port,
-					basename(k.file),
-					data.associatedFile,
-				);
-			});
+			return Promise.resolve(
+				Array.from(this.localhostData.entries()).map(([key, data]) => {
+					const k = PortFileKey.fromString(key);
+					return new ParentItem(
+						this.getDisplayName(k.file),
+						data.routes.length ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None,
+						this.CONTEXT_INTEGRATION_LOCALHOST_ITEM,
+						k.port,
+						basename(k.file),
+						data.associatedFile,
+					);
+				}),
+			);
 		}
 
 		if (element.contextValue === this.CONTEXT_INTEGRATION_LOCALHOST_ITEM) {
 			const parentItem = element as ParentItem;
 			const key = new PortFileKey(parentItem.port, parentItem.description as string); // description stores a file name
 			const data = this.localhostData.get(key.toString());
-			return (
+			return Promise.resolve(
 				data?.routes.map(
 					(route) => new ChildItem(parentItem, route.routeId, TreeItemCollapsibleState.None, this.CONTEXT_ROUTE_LOCALHOST_ITEM, route),
-				) || []
+				) || [],
 			);
 		}
 
-		return [];
+		return Promise.resolve([]);
 	}
 
 	private async updateData(): Promise<void> {

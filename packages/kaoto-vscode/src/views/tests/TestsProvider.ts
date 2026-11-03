@@ -75,7 +75,7 @@ export class TestsProvider extends AbstractFolderTreeProvider<TestFolder> {
 		return new TestFolder(name, folderUri, isUnderMavenRoot, isMavenRoot, isWorkspaceRoot);
 	}
 
-	protected async toTreeItemForFile(file: Uri, isUnderMavenRoot: boolean, _isTopLevelWithinWorkspace: boolean): Promise<TreeItem> {
+	protected toTreeItemForFile(file: Uri, isUnderMavenRoot: boolean, _isTopLevelWithinWorkspace: boolean): Promise<TreeItem> {
 		const fileName = basename(file.fsPath);
 
 		// Handle testing properties files - simple tree item with default icon
@@ -85,13 +85,13 @@ export class TestsProvider extends AbstractFolderTreeProvider<TestFolder> {
 			item.tooltip = file.fsPath;
 			item.command = { command: 'vscode.open', title: 'Open File', arguments: [file] };
 			item.contextValue = 'testing-properties-file';
-			return item;
+			return Promise.resolve(item);
 		}
 
 		// Check if we have a cached item for this file
 		const cachedTest = this.testItemCache.get(file.fsPath);
 		if (cachedTest) {
-			return cachedTest;
+			return Promise.resolve(cachedTest);
 		}
 
 		// Create new test item, restore any persisted result, and cache it
@@ -102,7 +102,7 @@ export class TestsProvider extends AbstractFolderTreeProvider<TestFolder> {
 		}
 
 		this.testItemCache.set(file.fsPath, test);
-		return test;
+		return Promise.resolve(test);
 	}
 
 	protected isFolderItem(element: TreeItem): element is TestFolder {

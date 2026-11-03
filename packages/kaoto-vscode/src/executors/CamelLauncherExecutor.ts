@@ -23,15 +23,15 @@ export class CamelLauncherExecutor extends BaseExecutor {
 		return this.jarPath;
 	}
 
-	async isAvailable(): Promise<boolean> {
+	isAvailable(): Promise<boolean> {
 		if (!existsSync(this.jarPath)) {
-			return false;
+			return Promise.resolve(false);
 		}
 		try {
 			execSync('java -version', { stdio: 'pipe' });
-			return true;
+			return Promise.resolve(true);
 		} catch {
-			return false;
+			return Promise.resolve(false);
 		}
 	}
 }

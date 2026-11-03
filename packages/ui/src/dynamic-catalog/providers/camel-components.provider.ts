@@ -10,12 +10,12 @@ abstract class BaseCamelProvider<T = unknown> implements ICatalogProvider<T> {
 
   constructor(private readonly entities: Record<string, T> = {}) {}
 
-  async fetch(key: string): Promise<T | undefined> {
-    return this.entities[key];
+  fetch(key: string): Promise<T | undefined> {
+    return Promise.resolve(this.entities[key]);
   }
 
-  async fetchAll(): Promise<Record<string, T>> {
-    return this.entities;
+  fetchAll(): Promise<Record<string, T>> {
+    return Promise.resolve(this.entities);
   }
 }
 

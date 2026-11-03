@@ -106,12 +106,12 @@ export class JBangExecutor extends BaseExecutor {
 		return version; // equal
 	}
 
-	async isAvailable(): Promise<boolean> {
+	isAvailable(): Promise<boolean> {
 		try {
 			execSync(`${JBangExecutor.JBANG_EXECUTABLE} version`, { stdio: 'pipe' });
-			return true;
+			return Promise.resolve(true);
 		} catch {
-			return false;
+			return Promise.resolve(false);
 		}
 	}
 }

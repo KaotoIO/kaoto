@@ -166,56 +166,58 @@ export class OpenApiImportService {
 	 * @throws {OpenApiValidationError} If the input is invalid or options are misconfigured
 	 * @throws {OpenApiParseError} If parsing fails
 	 */
-	async parseOpenApi(openApiString: string, options: OpenApiImportOptions = {}): Promise<Array<RouteDefinition | Rest>> {
-		const { shouldGenerateRest = false, shouldGenerateRoutes = true, sourceIdentifier } = options;
+	parseOpenApi(openApiString: string, options: OpenApiImportOptions = {}): Promise<Array<RouteDefinition | Rest>> {
+		return new Promise((resolve) => {
+			const { shouldGenerateRest = false, shouldGenerateRoutes = true, sourceIdentifier } = options;
 
-		// Validate input
-		if (!openApiString?.trim()) {
-			throw new OpenApiValidationError('OpenAPI specification string cannot be empty');
-		}
-
-		if (!shouldGenerateRest && !shouldGenerateRoutes) {
-			throw new OpenApiValidationError('At least one of shouldGenerateRest or shouldGenerateRoutes must be true');
-		}
-
-		try {
-			// Parse and validate OpenAPI spec
-			const openApi = this.parseOpenApiSpec(openApiString);
-
-			// Initialize spec reference and clear cache for this parsing session
-			this.currentSpec = openApi;
-			this.referenceCache.clear();
-
-			// Extract operations
-			const operations = this.extractOperations(openApi);
-
-			if (operations.length === 0) {
-				throw new OpenApiValidationError('No operations found in OpenAPI specification');
+			// Validate input
+			if (!openApiString?.trim()) {
+				throw new OpenApiValidationError('OpenAPI specification string cannot be empty');
 			}
 
-			// Build result array
-			const result: Array<RouteDefinition | Rest> = [];
-
-			// Generate REST definition if requested
-			if (shouldGenerateRest) {
-				const restId = `rest-${Date.now()}`;
-				const rest = this.buildRestDefinition(operations, restId, sourceIdentifier);
-				result.push(rest);
+			if (!shouldGenerateRest && !shouldGenerateRoutes) {
+				throw new OpenApiValidationError('At least one of shouldGenerateRest or shouldGenerateRoutes must be true');
 			}
 
-			// Generate route definitions if requested
-			if (shouldGenerateRoutes) {
-				const routes = this.buildRouteDefinitions(operations);
-				result.push(...routes);
-			}
+			try {
+				// Parse and validate OpenAPI spec
+				const openApi = this.parseOpenApiSpec(openApiString);
 
-			return result;
-		} catch (error) {
-			if (error instanceof OpenApiParseError || error instanceof OpenApiValidationError) {
-				throw error;
+				// Initialize spec reference and clear cache for this parsing session
+				this.currentSpec = openApi;
+				this.referenceCache.clear();
+
+				// Extract operations
+				const operations = this.extractOperations(openApi);
+
+				if (operations.length === 0) {
+					throw new OpenApiValidationError('No operations found in OpenAPI specification');
+				}
+
+				// Build result array
+				const result: Array<RouteDefinition | Rest> = [];
+
+				// Generate REST definition if requested
+				if (shouldGenerateRest) {
+					const restId = `rest-${Date.now()}`;
+					const rest = this.buildRestDefinition(operations, restId, sourceIdentifier);
+					result.push(rest);
+				}
+
+				// Generate route definitions if requested
+				if (shouldGenerateRoutes) {
+					const routes = this.buildRouteDefinitions(operations);
+					result.push(...routes);
+				}
+
+				resolve(result);
+			} catch (error) {
+				if (error instanceof OpenApiParseError || error instanceof OpenApiValidationError) {
+					throw error;
+				}
+				throw new OpenApiParseError('Failed to process OpenAPI specification', error instanceof Error ? error : undefined);
 			}
-			throw new OpenApiParseError('Failed to process OpenAPI specification', error instanceof Error ? error : undefined);
-		}
+		});
 	}
 
 	/**

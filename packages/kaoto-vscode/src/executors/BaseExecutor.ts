@@ -32,8 +32,8 @@ export abstract class BaseExecutor implements ICamelExecutor {
 	 * Default implementation returns the static config from construction.
 	 * Subclasses override to compute dynamic prefix args per execution.
 	 */
-	protected async buildCommandBuilderConfig(_context?: CommandContext): Promise<CommandBuilderConfig> {
-		return this.defaultBuilderConfig;
+	protected buildCommandBuilderConfig(_context?: CommandContext): Promise<CommandBuilderConfig> {
+		return Promise.resolve(this.defaultBuilderConfig);
 	}
 
 	abstract isAvailable(): Promise<boolean>;
