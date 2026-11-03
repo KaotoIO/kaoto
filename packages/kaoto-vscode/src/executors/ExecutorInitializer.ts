@@ -84,13 +84,12 @@ export async function ensureExecutorAvailable(
 		}
 	} catch (error) {
 		const isLauncherNotFound = error instanceof Error && error.name === 'LauncherNotFoundError';
+		const errorMessage = error instanceof Error ? error.message : String(error);
 
 		if (isLauncherNotFound) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
 			KaotoOutputChannel.logWarning(errorMessage);
 			vscode.window.showWarningMessage(errorMessage);
 		} else {
-			const errorMessage = error instanceof Error ? error.message : String(error);
 			KaotoOutputChannel.logError('Failed to setup executor', error);
 			vscode.window.showWarningMessage(`Failed to setup executor: ${errorMessage}. It will be configured when first needed.`);
 		}
