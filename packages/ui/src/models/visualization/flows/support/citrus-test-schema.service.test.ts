@@ -23,6 +23,10 @@ describe('CitrusTestSchemaService', () => {
   });
 
   describe('getTestActionName', () => {
+    afterEach(() => {
+      CitrusTestSchemaService.clearKindMap();
+    });
+
     it('should retry the kind-map build after a shared failure', async () => {
       CitrusTestSchemaService.clearKindMap();
       const catalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestAction)!;
@@ -80,10 +84,6 @@ describe('CitrusTestSchemaService', () => {
       } finally {
         getAll.mockRestore();
       }
-    });
-
-    afterEach(() => {
-      CitrusTestSchemaService.clearKindMap();
     });
 
     it('should get test action name for simple action models', async () => {
