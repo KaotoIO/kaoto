@@ -540,6 +540,11 @@ describe('getClassNameOnly', () => {
     ['boolean', 'boolean'],
     ['String', 'String'],
     ['java.lang.String', 'String'],
+    ['java.lang.String[]', 'String'],
+    ['java.lang.String$Inner', 'String'],
+    ['java.lang.String_suffix', 'String'],
+    ['java.lang.Outer.Inner', 'Inner'],
+    ['java.lang.Outer.lowercase', 'Outer'],
     ['java.util.Set<java.nio.file.OpenOption>', 'Set'],
     ['java.util.Map<java.lang.String, java.lang.String>', 'Map'],
     [
@@ -562,5 +567,33 @@ describe('getClassNameOnly', () => {
     const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
     expect(getClassNameOnlyFunctionExportedForTesting(invalidName)).toEqual(invalidName);
     expect(consoleSpy).toHaveBeenCalledWith('[WARN] Not able to parse this fully qualified name: ' + invalidName);
+  });
+
+  it.each(['\n', '\r', '\u2028', '\u2029'])('should reject a type containing %j', (lineBreak) => {
+    const invalidName = `java.lang.String${lineBreak}invalid`;
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    expect(getClassNameOnlyFunctionExportedForTesting(invalidName)).toEqual(invalidName);
+  });
+
+  it.each(['java.lang.A', 'java..lang.String', '.java.lang.String', 'java.lang.string', ''])(
+    'should preserve an unrecognized type %p',
+    (invalidName) => {
+      vi.spyOn(console, 'log').mockImplementation(() => {});
+
+      expect(getClassNameOnlyFunctionExportedForTesting(invalidName)).toEqual(invalidName);
+    },
+  );
+
+  it('should reject a long malformed type without excessive backtracking', () => {
+    const invalidName = `java.lang.${'A'.repeat(100_000)}\ninvalid`;
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    const start = performance.now();
+    const result = getClassNameOnlyFunctionExportedForTesting(invalidName);
+    const elapsed = performance.now() - start;
+
+    expect(result).toEqual(invalidName);
+    expect(elapsed).toBeLessThan(1_000);
   });
 });
