@@ -72,7 +72,9 @@ Running a single test group or a prebuilt VSIX is described in that package's RE
   - `registrars/TestsRegistrar.ts` — tests view, run and init commands
   - `registrars/InfrastructureRegistrar.ts` — infrastructure view, start/stop/logs/copy commands
   - `registrars/OpenApiRegistrar.ts` — OpenAPI view and import command
+  - `registrars/LanguageServerRegistrar.ts` — starts the Camel Language Server when the first Camel file opens, and applies the `kaoto.lsp.*` settings
   - `registrars/TrackingEvent.ts` — shared `sendCommandTrackingEvent` helper
+- **`src/lsp/`** — Camel Language Server client: `CamelLanguageServerManager` (Java check, server JAR, language client, status bar), `CamelLspServerDownloader` (downloads the release pinned in the `camelLanguageServer` group of `package.json` and checks its SHA-256), `CamelLspDocumentFilter` (the files sent to the server)
 - **`src/services/`** — Stateful domain services: `ApicurioRegistryService`, `CamelLauncherDownloader`, `KaotoCatalogService`, `OpenApiImportService`, `RedHatMavenNotificationService`, `ApplicationPropertiesFinder`, `KameletFileReader`, `MavenRuntimeDetector`, `PortManager`, `StepsOnSaveManager`, `SuggestionRegistry`, `TestFolderResolver`
 - **`src/tasks/`** — Camel task definitions for the VS Code task system
 - **`src/types/`** — Shared TypeScript types and enums
@@ -82,7 +84,7 @@ Running a single test group or a prebuilt VSIX is described in that package's RE
 
 ### Test layout
 
-- **`src/test/`** — Unit tests (mirrors source structure): `commands/`, `executors/`, `extension/`, `services/`, `utils/`, `views/`, `webview/`
+- **`src/test/`** — Unit tests (mirrors source structure): `commands/`, `executors/`, `extension/`, `lsp/`, `services/`, `utils/`, `views/`, `webview/`
 - **[`packages/ui-tests-vscode`](../ui-tests-vscode/)** — UI/integration tests (ExTester) that run against the packaged VSIX
 
 ### Build
@@ -111,3 +113,4 @@ Running a single test group or a prebuilt VSIX is described in that package's RE
 | `@kaoto/kaoto`                   | Main Kaoto editor library          |
 | PatternFly React                 | UI components                      |
 | Camel JBang / Camel Launcher CLI | Running and deploying integrations |
+| `vscode-languageclient`          | Camel Language Server client       |
