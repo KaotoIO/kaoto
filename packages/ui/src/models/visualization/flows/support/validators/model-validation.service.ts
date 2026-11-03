@@ -93,16 +93,17 @@ export class ModelValidationService {
   ): Promise<IValidationResult[]> {
     if (!Array.isArray(schema.anyOf)) return [];
 
-    const answer: IValidationResult[] = [];
     let parsedModel = model;
     const languageNames = await ExpressionService.getLanguageNames();
-    for (const anyOfSchema of schema.anyOf) {
-      if (isDefined(anyOfSchema.format) && anyOfSchema.format === 'expression') {
-        parsedModel = ExpressionService.parseExpressionModel(languageNames, model);
-      }
-      answer.push(...(await this.validateRequiredProperties(anyOfSchema, parsedModel, parentPath, definitions)));
-    }
-    return answer;
+    const results = await Promise.all(
+      schema.anyOf.map((anyOfSchema) => {
+        if (isDefined(anyOfSchema.format) && anyOfSchema.format === 'expression') {
+          parsedModel = ExpressionService.parseExpressionModel(languageNames, model);
+        }
+        return this.validateRequiredProperties(anyOfSchema, parsedModel, parentPath, definitions);
+      }),
+    );
+    return results.flat();
   }
 
   private static async validateOneOf(
@@ -114,11 +115,10 @@ export class ModelValidationService {
   ): Promise<IValidationResult[]> {
     if (!Array.isArray(schema.oneOf)) return [];
 
-    const answer: IValidationResult[] = [];
-    for (const oneOfSchema of schema.oneOf) {
-      answer.push(...(await this.validateRequiredProperties(oneOfSchema, model, parentPath, definitions)));
-    }
-    return answer;
+    const results = await Promise.all(
+      schema.oneOf.map((oneOfSchema) => this.validateRequiredProperties(oneOfSchema, model, parentPath, definitions)),
+    );
+    return results.flat();
   }
 
   private static async validateRef(
@@ -143,33 +143,38 @@ export class ModelValidationService {
   ): Promise<IValidationResult[]> {
     if (!schema.properties) return [];
 
-    const answer: IValidationResult[] = [];
-    for (const [propertyName, propertyValue] of Object.entries(schema.properties)) {
-      const propertySchema = propertyValue as KaotoSchemaDefinition['schema'];
-      const path = parentPath ? `${parentPath}.${propertyName}` : propertyName;
+    const results = await Promise.all(
+      Object.entries(schema.properties).map(async ([propertyName, propertyValue]) => {
+        const answer: IValidationResult[] = [];
+        const propertySchema = propertyValue as KaotoSchemaDefinition['schema'];
+        const path = parentPath ? `${parentPath}.${propertyName}` : propertyName;
 
-      if (isMissingRequired(schema, model, propertyName, propertySchema)) {
-        answer.push({
-          level: 'error',
-          type: 'missingRequired',
-          parentPath,
-          propertyName,
-          message: `Missing required property ${propertyName}`,
-        });
-        continue;
-      }
+        if (isMissingRequired(schema, model, propertyName, propertySchema)) {
+          answer.push({
+            level: 'error',
+            type: 'missingRequired',
+            parentPath,
+            propertyName,
+            message: `Missing required property ${propertyName}`,
+          });
+          return answer;
+        }
 
-      if (model?.[propertyName] && propertySchema.$ref) {
-        const resolvedPropertySchema = resolveSchemaWithRef(propertySchema, definitions!);
-        answer.push(
-          ...(await this.validateRequiredProperties(resolvedPropertySchema, model[propertyName], path, definitions)),
-        );
-      }
+        if (model?.[propertyName] && propertySchema.$ref) {
+          const resolvedPropertySchema = resolveSchemaWithRef(propertySchema, definitions!);
+          answer.push(
+            ...(await this.validateRequiredProperties(resolvedPropertySchema, model[propertyName], path, definitions)),
+          );
+        }
 
-      if (propertySchema.type === 'object' && model) {
-        answer.push(...(await this.validateRequiredProperties(propertySchema, model[propertyName], path, definitions)));
-      }
-    }
-    return answer;
+        if (propertySchema.type === 'object' && model) {
+          answer.push(
+            ...(await this.validateRequiredProperties(propertySchema, model[propertyName], path, definitions)),
+          );
+        }
+        return answer;
+      }),
+    );
+    return results.flat();
   }
 }

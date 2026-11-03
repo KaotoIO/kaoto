@@ -503,20 +503,19 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
     const actionsPath = path === this.getRootPath() ? 'actions' : path;
 
-    const vizNodes: IVisualizationNode[] = [];
-    for (let index = 0; index < actions.length; index++) {
-      const action = actions[index];
-      const actionName = await CitrusTestSchemaService.getTestActionName(action);
-      const vizNode = await this.getVizNodeFromStep(action, `${actionsPath}.${index}.${actionName}`, actionName);
-
+    const vizNodes = await Promise.all(
+      actions.map(async (action, index) => {
+        const actionName = await CitrusTestSchemaService.getTestActionName(action);
+        return this.getVizNodeFromStep(action, `${actionsPath}.${index}.${actionName}`, actionName);
+      }),
+    );
+    vizNodes.forEach((vizNode, index) => {
       if (index > 0) {
         const previousVizNode = vizNodes[index - 1];
         previousVizNode.setNextNode(vizNode);
         vizNode.setPreviousNode(previousVizNode);
       }
-
-      vizNodes.push(vizNode);
-    }
+    });
 
     /** Empty steps branch placeholder */
     const placeholderPath = `${actionsPath}.${vizNodes.length}.placeholder`;
@@ -612,13 +611,12 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   protected async getChildrenFromArrayClause(path: string): Promise<IVisualizationNode[]> {
     const actions: TestActions[] = getValue(this.test, path, []);
 
-    const children: IVisualizationNode[] = [];
-    for (let index = 0; index < actions.length; index++) {
-      const action = actions[index];
-      const actionName = await CitrusTestSchemaService.getTestActionName(action);
-      const vizNode = await this.getVizNodeFromStep(action, `${path}.${index}.${actionName}`, actionName);
-      children.push(vizNode);
-    }
+    const children = await Promise.all(
+      actions.map(async (action, index) => {
+        const actionName = await CitrusTestSchemaService.getTestActionName(action);
+        return this.getVizNodeFromStep(action, `${path}.${index}.${actionName}`, actionName);
+      }),
+    );
 
     /** Empty steps branch placeholder */
     const placeholderPath = `${path}.${children.length}.placeholder`;
