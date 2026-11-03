@@ -262,7 +262,8 @@ export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelAp
 			const targetFile = path.resolve(classpathRoot, relativePath);
 			await vscode.workspace.fs.stat(vscode.Uri.file(targetFile));
 			return true;
-		} catch (ex) {
+		} catch {
+			// Missing or inaccessible resources are treated as unavailable by this existence check.
 			return false;
 		}
 	}
