@@ -19,7 +19,8 @@ export interface IPropertiesTableFilter<T> {
 }
 
 const simpleClassNameRegex = /^[A-Za-z0-9]+$/;
-const fullyQualifiedClassNameRegex = /^(\w+(?:\.\w+)*)\.([A-Z][a-zA-Z0-9]+)(<)?.*$/;
+const fullyQualifiedClassNameRegex = /^(\w+(?:\.\w+)*)\.([A-Z][a-zA-Z0-9]+)/;
+const singleLineRegex = /^.*$/;
 
 /**
  * Get class name from fully qualified name
@@ -36,7 +37,8 @@ const getClassNameOnly = (fullyQualifiedName: string): string => {
     // it is already class name only
     return fullyQualifiedName;
   }
-  const regex = fullyQualifiedClassNameRegex.exec(fullyQualifiedName);
+  // Validate line breaks separately to avoid backtracking between the class name and a trailing wildcard.
+  const regex = singleLineRegex.test(fullyQualifiedName) ? fullyQualifiedClassNameRegex.exec(fullyQualifiedName) : null;
   if (regex && regex.length > 0) {
     return regex[2];
   } else {
