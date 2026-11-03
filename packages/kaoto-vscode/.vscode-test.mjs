@@ -23,8 +23,10 @@ fs.cpSync(path.join(projectRoot, fixtureName), workspaceFolder, { recursive: tru
 
 // A workspace file keeps workspace-scoped settings written by the tests out of the fixture.
 // The folders[0].path must be absolute because the file is not next to the folder.
+// The Camel Language Server is disabled: opening the fixture's Camel files would download and start it.
 const tempWorkspace = path.join(runRoot, 'kaoto-unit-tests.code-workspace');
-fs.writeFileSync(tempWorkspace, JSON.stringify({ folders: [{ path: workspaceFolder }], settings: {} }, null, '\t'));
+const workspaceSettings = { 'kaoto.lsp.enabled': false };
+fs.writeFileSync(tempWorkspace, JSON.stringify({ folders: [{ path: workspaceFolder }], settings: workspaceSettings }, null, '\t'));
 
 // A fresh user data dir drops global settings left by an earlier run and does not collide with
 // a VS Code test instance an interrupted run left behind. CI keeps the default
