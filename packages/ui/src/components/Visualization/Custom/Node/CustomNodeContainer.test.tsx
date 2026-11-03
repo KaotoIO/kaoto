@@ -50,10 +50,18 @@ describe('CustomNodeContainer', () => {
     };
     const { container, rerender } = render(
       <svg>
-        <CustomNodeContainer {...props} />
+        <CustomNodeContainer {...props}>
+          <rect data-testid="focus-ring" />
+        </CustomNodeContainer>
       </svg>,
     );
-    const preview = container.querySelector('foreignObject');
+    const content = container.querySelector('foreignObject');
+    const preview = content?.parentElement;
+    const ring = screen.getByTestId('focus-ring');
+    expect(ring.parentElement).toBe(preview);
+    expect(content).not.toHaveAttribute('opacity');
+    expect(ring).not.toHaveAttribute('opacity');
+    expect(ring.compareDocumentPosition(content!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     const transform = preview?.getAttribute('transform');
     const offsets = transform?.match(/^translate\(-120, 80\) translate\(([^,]+), ([^)]+)\) scale\(0\.7\)$/);
     expect(offsets).not.toBeNull();

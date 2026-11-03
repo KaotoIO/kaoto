@@ -1,7 +1,7 @@
 import { Error as ErrorIcon, Layers } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
-import { ElementType, FunctionComponent, Ref } from 'react';
+import { ElementType, FunctionComponent, ReactNode, Ref } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
 import { getDragPreviewTransform } from '../../Canvas/CanvasUtils';
@@ -23,6 +23,7 @@ export interface CustomNodeContainerProps {
   processorDescription?: string;
   isDisabled: boolean;
   isDragging?: boolean;
+  children?: ReactNode;
 }
 
 export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = ({
@@ -41,54 +42,56 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   processorDescription,
   isDisabled,
   isDragging = false,
+  children,
 }) => (
-  <foreignObject
-    data-nodelabel={dataNodelabel}
-    width={width}
-    height={height}
-    ref={foreignObjectRef}
-    // Keep drag effects on SVG: HTML transforms/opacity inside foreignObject can hide previews in Safari.
+  <g
+    className="custom-node__visual"
+    // Composite the focus ring and HTML badges together so the ring cannot show through a translucent badge.
+    // Keep transforms and opacity on SVG for Safari.
     transform={isDragging ? [transform, getDragPreviewTransform(width, height)].filter(Boolean).join(' ') : transform}
     opacity={isDragging ? 0.5 : undefined}
   >
-    <div data-testid={dataTestId} className={clsx('custom-node__container', containerClassNames)}>
-      <div
-        role="img"
-        aria-label={vizNode.data.description?.trim() || vizNode.data.name}
-        className="custom-node__container__image"
-      >
-        {vizNode.data.iconUrl && (
-          // aria-hidden: the parent div[role="img"] already labels the container; the img is presentational here
-          <img src={vizNode.data.iconUrl} aria-hidden="true" alt="" />
-        )}
+    {children}
+    <foreignObject data-nodelabel={dataNodelabel} width={width} height={height} ref={foreignObjectRef}>
+      <div data-testid={dataTestId} className={clsx('custom-node__container', containerClassNames)}>
+        <div
+          role="img"
+          aria-label={vizNode.data.description?.trim() || vizNode.data.name}
+          className="custom-node__container__image"
+        >
+          {vizNode.data.iconUrl && (
+            // aria-hidden: the parent div[role="img"] already labels the container; the img is presentational here
+            <img src={vizNode.data.iconUrl} aria-hidden="true" alt="" />
+          )}
 
-        {isCollapsed && childCount > 0 && (
-          <FloatingCircle
-            className={clsx('step-icon step-icon__processor', { 'step-icon-collection': hasGroupChildren })}
-          >
-            {hasGroupChildren && (
-              <Icon size="sm" aria-label="contains nested collections">
-                <Layers />
+          {isCollapsed && childCount > 0 && (
+            <FloatingCircle
+              className={clsx('step-icon step-icon__processor', { 'step-icon-collection': hasGroupChildren })}
+            >
+              {hasGroupChildren && (
+                <Icon size="sm" aria-label="contains nested collections">
+                  <Layers />
+                </Icon>
+              )}
+              <span title={`${childCount}`}>{childCount}</span>
+            </FloatingCircle>
+          )}
+          {ProcessorIcon && (
+            <FloatingCircle className="step-icon step-icon__processor">
+              <Icon status="info" size="lg">
+                <ProcessorIcon title={processorDescription} />
               </Icon>
-            )}
-            <span title={`${childCount}`}>{childCount}</span>
-          </FloatingCircle>
-        )}
-        {ProcessorIcon && (
-          <FloatingCircle className="step-icon step-icon__processor">
-            <Icon status="info" size="lg">
-              <ProcessorIcon title={processorDescription} />
-            </Icon>
-          </FloatingCircle>
-        )}
-        {isDisabled && (
-          <FloatingCircle className="step-icon step-icon__disabled">
-            <Icon status="danger" size="lg">
-              <ErrorIcon />
-            </Icon>
-          </FloatingCircle>
-        )}
+            </FloatingCircle>
+          )}
+          {isDisabled && (
+            <FloatingCircle className="step-icon step-icon__disabled">
+              <Icon status="danger" size="lg">
+                <ErrorIcon />
+              </Icon>
+            </FloatingCircle>
+          )}
+        </div>
       </div>
-    </div>
-  </foreignObject>
+    </foreignObject>
+  </g>
 );

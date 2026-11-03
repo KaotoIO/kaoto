@@ -26,7 +26,7 @@
       visibility: hidden;
     }
 
-    &:focus > &__focus-ring {
+    &:focus > &__visual > &__focus-ring {
       visibility: visible;
     }
 

@@ -72,7 +72,7 @@ describe('CustomNode', () => {
   it('keeps the SVG focus ring behind the badges and centered on the icon when bounds change', async () => {
     const { element, vizNode } = await renderCustomNode();
     const node = screen.getByTestId(`custom-node__${vizNode.id}`);
-    const ring = node.querySelector(':scope > rect.custom-node__focus-ring');
+    const ring = node.querySelector(':scope > g > rect.custom-node__focus-ring');
     expect(ring).toBeInTheDocument();
     expect(ring).toHaveAttribute('aria-hidden', 'true');
     expect(ring).toHaveAttribute('x', '11.5');
