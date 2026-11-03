@@ -385,7 +385,7 @@ Cypress.Commands.add('allowClipboardAccess', () => {
 Cypress.Commands.add('assertValueCopiedToClipboard', (value) => {
   cy.window().then(async (win) => {
     if (win.navigator?.clipboard?.read) {
-      // Return the promise so Cypress awaits the clipboard read before the command resolves.
+      // Await the clipboard read before the command resolves.
       // Otherwise the read floats and may resolve against a later copy's content, throwing an
       // uncaught AssertionError (the Chromium-only "deeply equal" failure seen in CI).
       await win.navigator?.clipboard?.read().then(async (text: ClipboardItems) => {
@@ -411,7 +411,6 @@ Cypress.Commands.add('assertValueCopiedToClipboard', (value) => {
           }
         }
       });
-      return;
     } else {
       // For browsers without clipboard API support, skip the assertion
       cy.log('Clipboard API not available - skipping clipboard assertion');

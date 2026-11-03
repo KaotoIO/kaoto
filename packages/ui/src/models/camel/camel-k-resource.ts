@@ -119,8 +119,10 @@ export abstract class CamelKResource implements KaotoResource {
   }
 
   toSourceCode(): Promise<string> {
-    return new Promise((resolve) => {
-      resolve(stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '');
-    });
+    try {
+      return Promise.resolve(stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '');
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 }

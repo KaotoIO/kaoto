@@ -142,4 +142,16 @@ describe('PipeResource', () => {
 
     expect(output).toContain('apiVersion: camel.apache.org/v1');
   });
+
+  it('rejects serialization failures without throwing synchronously', async () => {
+    const resource = new PipeResource(pipeJson);
+    const error = new Error('Serialization failed');
+    vi.spyOn(resource, 'toJSON').mockImplementationOnce(() => {
+      throw error;
+    });
+
+    const result = resource.toSourceCode();
+
+    await expect(result).rejects.toBe(error);
+  });
 });
