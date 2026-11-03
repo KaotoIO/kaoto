@@ -1,6 +1,7 @@
 {
   "extensions.ignoreRecommendations": true,
   "git.openRepositoryInParentFolders": "never",
+  "kaoto.lsp.enabled": false,
   "redhat.telemetry.enabled": false,
   "window.openFoldersInNewWindow": "off",
   "window.zoomLevel": -3,
