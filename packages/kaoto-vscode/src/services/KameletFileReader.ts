@@ -40,18 +40,19 @@ export async function readKameletsFromDirectory(directory: string | vscode.Uri):
 		return [];
 	}
 
-	const resources: FileTypesResponse[] = [];
-	for (const [name, type] of entries) {
-		if (type !== vscode.FileType.File || !name.endsWith('.kamelet.yaml')) {
-			continue;
-		}
-		const fileUri = vscode.Uri.joinPath(dir, name);
-		try {
-			const content = new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri));
-			resources.push({ filename: name, content });
-		} catch (ex) {
-			KaotoOutputChannel.logError(`Cannot read kamelet file: ${fileUri.fsPath}`, ex);
-		}
-	}
-	return resources;
+	const resources = await Promise.all(
+		entries
+			.filter(([name, type]) => type === vscode.FileType.File && name.endsWith('.kamelet.yaml'))
+			.map(async ([name]) => {
+				const fileUri = vscode.Uri.joinPath(dir, name);
+				try {
+					const content = new TextDecoder().decode(await vscode.workspace.fs.readFile(fileUri));
+					return { filename: name, content };
+				} catch (ex) {
+					KaotoOutputChannel.logError(`Cannot read kamelet file: ${fileUri.fsPath}`, ex);
+					return undefined;
+				}
+			}),
+	);
+	return resources.filter((resource): resource is FileTypesResponse => resource !== undefined);
 }

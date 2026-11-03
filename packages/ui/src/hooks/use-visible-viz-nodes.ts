@@ -34,13 +34,10 @@ export function useVisibleVizNodes(
     let cancelled = false;
 
     const resolve = async () => {
-      const nodes: IVisualizationNode[] = [];
-      for (const entity of entities) {
-        if (visibleFlows[entity.id]) {
-          const vizNode = await entity.toVizNode();
-          nodes.push(vizNode);
-        }
-      }
+      const visibleEntities = entities.filter((entity) => visibleFlows[entity.id]);
+      // Keep an empty selection synchronous so consumers can mount their export listeners immediately.
+      const nodes =
+        visibleEntities.length > 0 ? await Promise.all(visibleEntities.map((entity) => entity.toVizNode())) : [];
       if (!cancelled) {
         setResolved({ entities, visibleFlows, vizNodes: nodes });
       }

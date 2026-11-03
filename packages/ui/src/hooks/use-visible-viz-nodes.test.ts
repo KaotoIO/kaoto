@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 
 import { BaseVisualEntity, IVisualizationNode } from '../models/visualization/base-visual-entity';
 import { IVisibleFlows } from '../utils/init-visible-flows';
@@ -9,6 +9,14 @@ function mockEntity(id: string, vizNode: IVisualizationNode): BaseVisualEntity {
     id,
     toVizNode: vi.fn().mockResolvedValue(vizNode),
   } as unknown as BaseVisualEntity;
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
 }
 
 describe('useVisibleVizNodes', () => {
@@ -43,6 +51,44 @@ describe('useVisibleVizNodes', () => {
     expect(result.current.isResolving).toBe(false);
     expect(e1.toVizNode).toHaveBeenCalled();
     expect(e2.toVizNode).toHaveBeenCalled();
+  });
+
+  it('resolves visible entities concurrently while preserving their order', async () => {
+    const first = deferred<IVisualizationNode>();
+    const second = deferred<IVisualizationNode>();
+    const e1 = { id: 'e1', toVizNode: vi.fn(() => first.promise) } as unknown as BaseVisualEntity;
+    const e2 = { id: 'e2', toVizNode: vi.fn(() => second.promise) } as unknown as BaseVisualEntity;
+    const entities = [e1, e2];
+    const visibleFlows = { e1: true, e2: true };
+    const { result } = renderHook(() => useVisibleVizNodes(entities, visibleFlows));
+
+    try {
+      expect(e2.toVizNode).toHaveBeenCalled();
+      await act(async () => {
+        second.resolve(nodeB);
+      });
+      expect(result.current.isResolving).toBe(true);
+      expect(result.current.vizNodes).toEqual([]);
+    } finally {
+      await act(async () => {
+        first.resolve(nodeA);
+        second.resolve(nodeB);
+      });
+    }
+
+    await waitFor(() => {
+      expect(result.current.vizNodes).toEqual([nodeA, nodeB]);
+    });
+    expect(result.current.isResolving).toBe(false);
+  });
+
+  it('settles immediately when no entities are visible so export listeners can mount', () => {
+    const entities = [mockEntity('e1', nodeA)];
+    const visibleFlows = {};
+    const { result } = renderHook(() => useVisibleVizNodes(entities, visibleFlows));
+
+    expect(result.current.isResolving).toBe(false);
+    expect(result.current.vizNodes).toEqual([]);
   });
 
   it('skips entities that are not visible', async () => {

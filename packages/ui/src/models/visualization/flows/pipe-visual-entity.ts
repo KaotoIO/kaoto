@@ -325,20 +325,16 @@ export class PipeVisualEntity implements BaseVisualEntity {
   }
 
   private async getVizNodesFromSteps(steps: PipeStep[] = []): Promise<IVisualizationNode[]> {
-    const vizNodes: IVisualizationNode[] = [];
-    for (let index = 0; index < steps.length; index++) {
-      const kamelet = steps[index];
-      const path = `steps.${index}`;
-      const vizNode = await this.getVizNodeFromStep(kamelet, path);
-
-      const previousVizNode = vizNodes[vizNodes.length - 1];
+    const vizNodes = await Promise.all(
+      steps.map((kamelet, index) => this.getVizNodeFromStep(kamelet, `steps.${index}`)),
+    );
+    vizNodes.forEach((vizNode, index) => {
+      const previousVizNode = vizNodes[index - 1];
       if (previousVizNode !== undefined) {
         previousVizNode.setNextNode(vizNode);
         vizNode.setPreviousNode(previousVizNode);
       }
-
-      vizNodes.push(vizNode);
-    }
+    });
     return vizNodes;
   }
 

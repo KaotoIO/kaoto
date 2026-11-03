@@ -71,9 +71,7 @@ export class NodeEnrichmentService {
         await NodeEnrichmentService.enrichNodeFromCatalog(node, NodeEnrichmentService.deriveCatalogKind(node));
       }
 
-      for (const child of node.getChildren() ?? []) {
-        await visit(child);
-      }
+      await Promise.all((node.getChildren() ?? []).map((child) => visit(child)));
     };
 
     await visit(root);

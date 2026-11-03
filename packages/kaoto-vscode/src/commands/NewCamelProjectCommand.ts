@@ -59,9 +59,11 @@ export class NewCamelProjectCommand {
 
 			// if not exist, init .vscode with tasks.json and launch.json config files
 			await workspace.fs.createDirectory(Uri.file(path.join(outputFolder.fsPath, '.vscode')));
-			for (const filename of ['tasks', 'launch']) {
-				await this.copyFile(`../../resources/maven-export/${runtime}/${filename}.json`, path.join(outputFolder.fsPath, `.vscode/${filename}.json`));
-			}
+			await Promise.all(
+				['tasks', 'launch'].map((filename) =>
+					this.copyFile(`../../resources/maven-export/${runtime}/${filename}.json`, path.join(outputFolder.fsPath, `.vscode/${filename}.json`)),
+				),
+			);
 
 			// Copy relevant Kaoto metadata and schema/XSLT resources into exported project
 			try {
