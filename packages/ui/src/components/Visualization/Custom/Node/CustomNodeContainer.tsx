@@ -13,6 +13,7 @@ export interface CustomNodeContainerProps {
   dataNodelabel?: string;
   foreignObjectRef?: Ref<SVGForeignObjectElement>;
   transform?: string;
+  className?: string;
   dataTestId: string;
   containerClassNames?: Record<string, boolean>;
   vizNode: IVisualizationNode;
@@ -32,6 +33,7 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   dataNodelabel,
   foreignObjectRef,
   transform,
+  className,
   dataTestId,
   containerClassNames = {},
   vizNode,
@@ -45,7 +47,7 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
   children,
 }) => (
   <g
-    className="custom-node__visual"
+    className={clsx('custom-node__visual', className)}
     // Composite the focus ring and HTML badges together so the ring cannot show through a translucent badge.
     // Keep transforms and opacity on SVG for Safari.
     transform={isDragging ? [transform, getDragPreviewTransform(width, height)].filter(Boolean).join(' ') : transform}

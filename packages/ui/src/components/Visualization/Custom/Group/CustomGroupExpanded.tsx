@@ -315,6 +315,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                 height={CanvasDefaults.DEFAULT_NODE_HEIGHT}
                 dataNodelabel={label}
                 transform={`translate(${dragGroupProps.dragEvent!.x - 20}, ${dragGroupProps.dragEvent!.y - 20})`}
+                className="custom-node"
                 dataTestId={groupVizNode.id}
                 vizNode={groupVizNode}
                 isCollapsed={element.isCollapsed()}
