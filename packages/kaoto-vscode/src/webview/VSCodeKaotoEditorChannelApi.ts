@@ -14,16 +14,8 @@ import {
 	Suggestion,
 	SuggestionRequestContext,
 } from '@kaoto/kaoto/models';
-import { BackendProxy } from '@kie-tools-core/backend/dist/api';
-import { I18n } from '@kie-tools-core/i18n/dist/core';
 import { DefaultVsCodeKieEditorChannelApiImpl } from '@kie-tools-core/vscode-extension/dist/DefaultVsCodeKieEditorChannelApiImpl';
-import { VsCodeI18n } from '@kie-tools-core/vscode-extension/dist/i18n';
-import { VsCodeNotificationsChannelApiImpl } from '@kie-tools-core/vscode-extension/dist/notifications/VsCodeNotificationsChannelApiImpl';
-import { VsCodeKieEditorController } from '@kie-tools-core/vscode-extension/dist/VsCodeKieEditorController';
 import { VsCodeKieEditorCustomDocument } from '@kie-tools-core/vscode-extension/dist/VsCodeKieEditorCustomDocument';
-import { VsCodeWorkspaceChannelApiImpl } from '@kie-tools-core/vscode-extension/dist/workspace/VsCodeWorkspaceChannelApiImpl';
-import { JavaCodeCompletionApi } from '@kie-tools-core/vscode-java-code-completion/dist/api';
-import { ResourceContentService } from '@kie-tools-core/workspace/dist/api';
 import * as path from 'path'; // NOSONAR
 import * as vscode from 'vscode';
 import {
@@ -49,18 +41,9 @@ import { KaotoCatalogService } from '../services/KaotoCatalogService';
 export class VSCodeKaotoEditorChannelApi extends DefaultVsCodeKieEditorChannelApiImpl implements KaotoEditorChannelApi {
 	private readonly currentEditedDocument: vscode.TextDocument | VsCodeKieEditorCustomDocument;
 
-	constructor(
-		/* NOSONAR — parameter count is dictated by the parent class DefaultVsCodeKieEditorChannelApiImpl */
-		editor: VsCodeKieEditorController,
-		resourceContentService: ResourceContentService,
-		workspaceApi: VsCodeWorkspaceChannelApiImpl,
-		backendProxy: BackendProxy,
-		notificationsApi: VsCodeNotificationsChannelApiImpl,
-		javaCodeCompletionApi: JavaCodeCompletionApi,
-		viewType: string,
-		i18n: I18n<VsCodeI18n>,
-	) {
-		super(editor, resourceContentService, workspaceApi, backendProxy, notificationsApi, javaCodeCompletionApi, viewType, i18n);
+	constructor(...args: ConstructorParameters<typeof DefaultVsCodeKieEditorChannelApiImpl>) {
+		super(...args);
+		const [editor] = args;
 		this.currentEditedDocument = editor.document.document;
 
 		// Dispose watcher when the webview/editor is closed
