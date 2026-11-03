@@ -88,7 +88,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
     const doesHaveWarnings = !isDisabled && !!validationText;
     const { childCount, hasGroupChildren } = getVizNodeChildrenInfo(groupVizNode);
     const boxRef = useRef<Rect | null>(null);
-    const [isFocused, setIsFocused] = useState(false);
 
     useAnchor((element: Node) => {
       return new TargetAnchor(element);
@@ -233,26 +232,10 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           aria-label={label ?? groupVizNode.id}
           aria-pressed={selected}
           onClick={onSelect}
-          onFocus={(event) => {
-            if (event.target === event.currentTarget) setIsFocused(true);
-          }}
-          onBlur={(event) => {
-            if (event.target === event.currentTarget) setIsFocused(false);
-          }}
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
           <CanvasNodeOverlays overlays={overlays} bounds={boxRef.current} />
-          {!isDraggingGroup && (
-            <rect
-              className="custom-group__focus-ring"
-              aria-hidden="true"
-              x={boxRef.current.x - FOCUS_RING_OFFSET}
-              y={boxRef.current.y - FOCUS_RING_OFFSET}
-              width={boxRef.current.width + 2 * FOCUS_RING_OFFSET}
-              height={boxRef.current.height + 2 * FOCUS_RING_OFFSET}
-            />
-          )}
           <rect
             ref={dndDropRef}
             className="custom-group__drop-area"
@@ -267,6 +250,14 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}
           {/** WebKit can omit foreignObject backgrounds with direct opacity; composite its SVG wrapper instead. */}
           <g opacity={isDraggingGroup || refreshGroup ? 0.5 : undefined}>
+            <rect
+              className="custom-group__focus-ring"
+              aria-hidden="true"
+              x={boxRef.current.x - FOCUS_RING_OFFSET}
+              y={boxRef.current.y - FOCUS_RING_OFFSET}
+              width={boxRef.current.width + 2 * FOCUS_RING_OFFSET}
+              height={boxRef.current.height + 2 * FOCUS_RING_OFFSET}
+            />
             <foreignObject
               className="custom-group__body"
               data-nodelabel={label}
@@ -337,19 +328,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                 processorDescription={processorDescription}
                 isDisabled={isDisabled}
                 isDragging
-              >
-                {/* The preview is portaled into TOP_LAYER, outside the focused group's DOM subtree. */}
-                {isFocused && (
-                  <rect
-                    className="custom-group__drag-focus-ring"
-                    aria-hidden="true"
-                    x={(CanvasDefaults.DEFAULT_NODE_WIDTH - 60) / 2 - FOCUS_RING_OFFSET}
-                    y={(CanvasDefaults.DEFAULT_NODE_HEIGHT - 60) / 2 - FOCUS_RING_OFFSET}
-                    width={60 + 2 * FOCUS_RING_OFFSET}
-                    height={60 + 2 * FOCUS_RING_OFFSET}
-                  />
-                )}
-              </CustomNodeContainer>
+              />
             </Layer>
           )}
 

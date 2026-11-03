@@ -289,14 +289,16 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
               isDisabled={isDisabled}
               isDragging={isDraggedNode}
             >
-              <rect
-                className="custom-node__focus-ring"
-                aria-hidden="true"
-                x={(box.width - 60) / 2 - FOCUS_RING_OFFSET}
-                y={(box.height - 60) / 2 - FOCUS_RING_OFFSET}
-                width={60 + 2 * FOCUS_RING_OFFSET}
-                height={60 + 2 * FOCUS_RING_OFFSET}
-              />
+              {!isDraggingNode && (
+                <rect
+                  className="custom-node__focus-ring"
+                  aria-hidden="true"
+                  x={(box.width - 60) / 2 - FOCUS_RING_OFFSET}
+                  y={(box.height - 60) / 2 - FOCUS_RING_OFFSET}
+                  width={60 + 2 * FOCUS_RING_OFFSET}
+                  height={60 + 2 * FOCUS_RING_OFFSET}
+                />
+              )}
             </CustomNodeContainer>
           )}
 
@@ -317,7 +319,16 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
               processorDescription={processorDescription}
               isDisabled={isDisabled}
               isDragging={isDraggedNode}
-            />
+            >
+              <rect
+                className="custom-node__focus-ring"
+                aria-hidden="true"
+                x={(box.width - 60) / 2 - FOCUS_RING_OFFSET}
+                y={(box.height - 60) / 2 - FOCUS_RING_OFFSET}
+                width={60 + 2 * FOCUS_RING_OFFSET}
+                height={60 + 2 * FOCUS_RING_OFFSET}
+              />
+            </CustomNodeContainer>
           )}
 
           {/** This label, appears for the node which are not dragging */}
