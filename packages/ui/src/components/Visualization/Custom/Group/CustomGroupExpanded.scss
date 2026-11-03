@@ -138,13 +138,20 @@
 
     // Paint the focus ring in SVG. An HTML outline overflowing foreignObject
     // can leave trails when Safari repaints the moved group (WebKit bug 207421).
-    &__focus-ring {
+    &__focus-ring,
+    &__drag-focus-ring {
       fill: none;
       stroke: var(--pf-t--global--color--brand--default);
       stroke-width: 3px;
       rx: calc(var(--custom-node-BorderRadius) + 3.5px);
       pointer-events: none;
       visibility: hidden;
+    }
+
+    &__drag-focus-ring {
+      // The portaled preview does not inherit the group's custom radius variable.
+      rx: 13.5px;
+      visibility: visible;
     }
 
     // SVG groups focused through keyboard navigation need :focus in Chromium.
