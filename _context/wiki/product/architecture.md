@@ -101,3 +101,19 @@ Camel YAML DSL has many optional fields, legacy aliases, and URI shorthand forms
 ### Placeholders as first-class nodes
 
 Placeholder nodes (`isPlaceholder: true`) are regular `IVisualizationNode` instances in the tree, not a separate UI concept. This lets the same canvas interaction code (click to insert, drag-and-drop) work uniformly for both real nodes and insertion points. A placeholder is replaced by a real node when the user selects a component from the catalog.
+
+### SVG `foreignObject` rendering in Safari
+
+The canvas combines SVG positioning and scaling with HTML content embedded through `foreignObject`. Changes to the embedded HTML's CSS can affect how Safari renders that content within the surrounding SVG transforms. Consider this boundary whenever changing embedded content, stacking, positioning, or visual decorations, not only keyboard focus styles.
+
+**Observed failure:** While addressing overlapping focus outlines in [#4310](https://github.com/KaotoIO/kaoto/issues/4310), raising HTML corner badges with `z-index` caused a macOS Safari regression: badges appeared at the canvas origin instead of following the node position and scale. This is a concrete failure in this canvas implementation, not a blanket prohibition of `z-index` inside `foreignObject`. Do not assume other CSS properties cause the same failure without reproducing it.
+
+**Implementation guidance:** Review both SVG paint order and HTML stacking when changing overlapping elements. For purely graphical decorations, consider rendering them directly in SVG so their positioning and scaling stay in the SVG coordinate system. Preserve the relevant node and drag-preview transforms; decorative elements should not intercept pointer events.
+
+**Example:** [PR #4311](https://github.com/KaotoIO/kaoto/pull/4311) implements the focus ring as an SVG `rect` painted before the node's `foreignObject`, keeping it behind the HTML badges without raising their stacking order. The ring is hidden until the node has focus and uses `pointer-events: none`. See `CustomNode.tsx` and `CustomNode.scss` under `packages/ui/src/components/Visualization/Custom/Node/` in that PR for the implementation; the PR was still open when this note was added.
+
+**Browser validation for changes at this boundary:**
+
+- Check that embedded content remains positioned and scaled with its node during zoom, pan, and drag previews, in horizontal and vertical layouts.
+- Check overlapping content and decorations, including different badge types and keyboard focus states, for visibility and correct paint order.
+- Validate in Chromium and macOS Safari. DOM tests cannot establish visual paint order or browser compositing behavior. WebKit fixtures help isolate regressions, but do not replace testing the full application in macOS Safari. For #4311, the regression was reproduced and the SVG approach checked in a Linux WebKit fixture.
