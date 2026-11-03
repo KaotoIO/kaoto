@@ -138,8 +138,9 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
     docRef.current?.ready();
   }, []);
 
-  const sendNewEdit = useCallback(async (content: string) => {
+  const sendNewEdit = useCallback((content: string) => {
     docRef.current?.notifyChange(content);
+    return Promise.resolve();
   }, []);
 
   const request = useCallback(
@@ -249,8 +250,9 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
   );
 
   const onStepUpdated = useCallback(
-    async (action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void> => {
+    (action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void> => {
       bus.emit('editor:step:updated', { action, stepType, stepName });
+      return Promise.resolve();
     },
     [bus],
   );
@@ -274,7 +276,7 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
           )}
         </div>
       )}
-      {!documentState.initialized && !documentState.error && <output role="status">Loading document…</output>}
+      {!documentState.initialized && !documentState.error && <output>Loading document…</output>}
       <div
         inert={
           !documentState.initialized ||

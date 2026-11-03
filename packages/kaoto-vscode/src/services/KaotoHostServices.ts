@@ -181,16 +181,9 @@ export class KaotoHostServices implements vscode.Disposable {
 			uri.scheme === 'file' && this.desktop.resolveKameletDirectories
 				? this.desktop.resolveKameletDirectories(configured, uri)
 				: configured.map((directory) => this.resolveKameletDirectory(directory, uri));
-		const resources: FileTypesResponse[] = [];
-		const seen = new Set<string>();
-		for (const directory of directories) {
-			if (seen.has(directory.toString())) {
-				continue;
-			}
-			seen.add(directory.toString());
-			resources.push(...(await readKameletsFromDirectory(directory)));
-		}
-		return resources;
+		const unique = [...new Map(directories.map((directory) => [directory.toString(), directory])).values()];
+		const perDirectory = await Promise.all(unique.map((directory) => readKameletsFromDirectory(directory)));
+		return perDirectory.flat();
 	}
 
 	async askUserForFileSelection(include: string, exclude?: string, options?: Record<string, unknown>): Promise<string[] | string | undefined> {
