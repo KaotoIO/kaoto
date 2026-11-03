@@ -32,36 +32,37 @@ export class NewCamelProjectCommand {
 			return;
 		}
 		const input = await this.askForGAV();
-		if (input) {
-			const outputFolder = await this.showDialogToPickFolder();
-			if (!outputFolder) {
-				return;
+		if (!input) {
+			return;
+		}
+		const outputFolder = await this.showDialogToPickFolder();
+		if (!outputFolder) {
+			return;
+		}
+
+		// if the chosen output folder is different from the first folder from the current workspace warns the user about potentially deleting files in the selected folder.
+		// executing the command from the same folder does not delete files.
+		const currentWorkspace = workspace.getWorkspaceFolder(uri);
+		if (currentWorkspace) {
+			if (!arePathsEqual(currentWorkspace.uri.fsPath, outputFolder.fsPath)) {
+				const userChoice = await confirmDestructiveActionInSelectedFolder(outputFolder.fsPath);
+				if (userChoice === undefined) {
+					// project creation canceled
+					return;
+				}
+			}
+			const result = await CamelCommandAPI.export(uri.fsPath, input, runtime, outputFolder.fsPath, cwd, true);
+			const camelExportTask = CamelTaskFactory.createSilent('Create a Camel project', result, currentWorkspace);
+			await camelExportTask.executeAndWaitWithProgress('Creating a new Camel project...');
+
+			// if not exist, init .vscode with tasks.json and launch.json config files
+			await workspace.fs.createDirectory(Uri.file(path.join(outputFolder.fsPath, '.vscode')));
+			for (const filename of ['tasks', 'launch']) {
+				await this.copyFile(`../../resources/maven-export/${runtime}/${filename}.json`, path.join(outputFolder.fsPath, `.vscode/${filename}.json`));
 			}
 
-			// if the chosen output folder is different from the first folder from the current workspace warns the user about potentially deleting files in the selected folder.
-			// executing the command from the same folder does not delete files.
-			const currentWorkspace = workspace.getWorkspaceFolder(uri);
-			if (currentWorkspace) {
-				if (!arePathsEqual(currentWorkspace.uri.fsPath, outputFolder.fsPath)) {
-					const userChoice = await confirmDestructiveActionInSelectedFolder(outputFolder.fsPath);
-					if (userChoice === undefined) {
-						// project creation canceled
-						return;
-					}
-				}
-				const result = await CamelCommandAPI.export(uri.fsPath, input, runtime, outputFolder.fsPath, cwd, true);
-				const camelExportTask = CamelTaskFactory.createSilent('Create a Camel project', result, currentWorkspace);
-				await camelExportTask.executeAndWaitWithProgress('Creating a new Camel project...');
-
-				// if not exist, init .vscode with tasks.json and launch.json config files
-				await workspace.fs.createDirectory(Uri.file(path.join(outputFolder.fsPath, '.vscode')));
-				for (const filename of ['tasks', 'launch']) {
-					await this.copyFile(`../../resources/maven-export/${runtime}/${filename}.json`, path.join(outputFolder.fsPath, `.vscode/${filename}.json`));
-				}
-
-				// open the newly created project in a new vscode instance
-				await commands.executeCommand('vscode.openFolder', outputFolder, true);
-			}
+			// open the newly created project in a new vscode instance
+			await commands.executeCommand('vscode.openFolder', outputFolder, true);
 		}
 	}
 
