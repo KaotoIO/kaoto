@@ -133,6 +133,24 @@ describe('RuntimeProvider', () => {
     expect(screen.getByTestId('library-loaded')).toBeInTheDocument();
   });
 
+  it('renders children when the optional XPath catalog fails to load', async () => {
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValueOnce({
+      json: () => ({ ...CONTROLLED_LIBRARY, xsltCatalogs: 'xslt/index.json' }),
+    } as unknown as Response);
+    fetchMock.mockRejectedValueOnce(new Error('XPath catalog unavailable'));
+
+    renderInRuntime(
+      <RuntimeProvider catalogUrl="/catalog/index.json" runtimeCatalogName="" testingCatalogName="">
+        <span data-testid="library-loaded">Loaded</span>
+      </RuntimeProvider>,
+    );
+
+    expect(await screen.findByTestId('library-loaded')).toBeInTheDocument();
+    expect(screen.queryByTestId('loading-library')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Some catalog library files might not be available./)).not.toBeInTheDocument();
+  });
+
   describe('catalog selection from settings', () => {
     beforeEach(() => {
       fetchMock.mockReset();
