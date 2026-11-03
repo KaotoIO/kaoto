@@ -20,7 +20,7 @@
   }
 
   /* stylelint-disable-next-line selector-class-pattern */
-  .pf-v6-c-button {
+  button.pf-v6-c-button {
     @include header-button-style;
   }
 }

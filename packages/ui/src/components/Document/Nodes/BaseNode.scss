@@ -66,7 +66,7 @@
 
   // Selected row styling - blue font color and bold (overrides leaf node grey)
   &__row[data-selected='true'] {
-    color: var(--pf-t--global--color--brand--default) !important;
+    color: var(--pf-t--global--color--brand--default);
     font-weight: bold;
   }
 

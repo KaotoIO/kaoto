@@ -19,7 +19,7 @@
 }
 
 .export-document-preview-table-th {
-  max-width: none !important;
+  --pf-v6-c-table--cell--MaxWidth: none;
 }
 
 .export-document-preview-modal {
