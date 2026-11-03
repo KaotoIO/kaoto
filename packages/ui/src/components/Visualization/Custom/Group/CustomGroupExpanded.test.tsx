@@ -8,7 +8,7 @@ import {
   Rect,
   Visualization,
 } from '@patternfly/react-topology';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { CatalogModalContext, CatalogModalContextValue } from '../../../../dynamic-catalog/catalog-modal.provider';
@@ -17,6 +17,7 @@ import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
 import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
+import { CustomGroupWithSelection } from './CustomGroup';
 import { CustomGroupExpanded } from './CustomGroupExpanded';
 
 const GROUP_ID = 'node-choice-1';
@@ -80,6 +81,22 @@ describe('CustomGroupExpanded', () => {
 
     return vizNode;
   };
+
+  it.each([false, true])('focuses the group context menu and restores focus (collapsed=%s)', async (collapsed) => {
+    const vizNode = createChoiceVizNode();
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+    act(() => {
+      element.setCollapsed(collapsed);
+    });
+    await renderInContext(<CustomGroupWithSelection element={element} />);
+    const group = screen.getByTestId(`${collapsed ? 'custom-node' : 'custom-group'}__choice-1`);
+    group.focus();
+    fireEvent.keyDown(group, { key: 'F10', shiftKey: true });
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: /Copy/ })).toHaveFocus());
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    await waitFor(() => expect(group).toHaveFocus());
+  });
 
   it.each(['self', 'ancestor'] as const)(
     'dims the SVG wrapper during %s drag without applying opacity to foreignObject and restores it after cancellation',

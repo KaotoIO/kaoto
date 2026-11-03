@@ -1,5 +1,5 @@
 import { action, BaseEdge, NodeModel } from '@patternfly/react-topology';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -170,5 +170,15 @@ describe('CustomNode', () => {
     const nodeG = screen.getByTestId('custom-node__route.from.steps.0.log').closest('g')!;
     fireEvent.keyDown(nodeG, { key: 'F10', shiftKey: true });
     expect(onContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['F10', 'ContextMenu'])('moves focus into the real step menu with %s', async (key) => {
+    await renderCustomNode({ withSelection: true });
+    const node = screen.getByTestId('custom-node__route.from.steps.0.log');
+    node.focus();
+    fireEvent.keyDown(node, { key, shiftKey: key === 'F10' });
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: /Copy/ })).toHaveFocus());
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    await waitFor(() => expect(node).toHaveFocus());
   });
 });
