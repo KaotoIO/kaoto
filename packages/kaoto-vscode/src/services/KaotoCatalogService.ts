@@ -662,14 +662,7 @@ export class KaotoCatalogService {
 
 			// Add catalog items for this runtime
 			for (const catalog of filteredCatalogs) {
-				const displayLabel = KaotoCatalogService.buildDisplayLabel(catalog);
-				const isCurrent =
-					currentCatalog?.version === catalog.version && this.normalizeRuntime(currentCatalog.runtime) === this.normalizeRuntime(catalog.runtime);
-				items.push({
-					label: isCurrent ? `$(check) ${displayLabel}` : displayLabel,
-					detail: isCurrent ? 'Currently selected' : undefined,
-					catalog: catalog,
-				});
+				items.push(this.createCatalogQuickPickItem(catalog, currentCatalog));
 			}
 		}
 
@@ -690,6 +683,17 @@ export class KaotoCatalogService {
 		}
 
 		return false; // No selection made (cancelled or closed)
+	}
+
+	private createCatalogQuickPickItem(catalog: CatalogLibraryEntry, currentCatalog: CatalogLibraryEntry | undefined): CatalogQuickPickItem {
+		const displayLabel = KaotoCatalogService.buildDisplayLabel(catalog);
+		const isCurrent =
+			currentCatalog?.version === catalog.version && this.normalizeRuntime(currentCatalog.runtime) === this.normalizeRuntime(catalog.runtime);
+		return {
+			label: isCurrent ? `$(check) ${displayLabel}` : displayLabel,
+			detail: isCurrent ? 'Currently selected' : undefined,
+			catalog,
+		};
 	}
 
 	/**
