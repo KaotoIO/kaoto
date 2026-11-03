@@ -26,10 +26,40 @@ export const getElementFromXml = (xml: string): Element => {
   return xmlDoc.documentElement;
 };
 
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}
+
 describe('BeanXmlParser', () => {
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);
+  });
+
+  it('parses beans concurrently and retains source order when later beans finish first', async () => {
+    const first = deferred<Awaited<ReturnType<typeof BeansXmlParser.transformBeanFactory>>>();
+    const second = deferred<Awaited<ReturnType<typeof BeansXmlParser.transformBeanFactory>>>();
+    const transform = vi
+      .spyOn(BeansXmlParser, 'transformBeanFactory')
+      .mockImplementationOnce(() => first.promise)
+      .mockImplementationOnce(() => second.promise);
+    const parsing = new BeansXmlParser().transformBeansSection(getElementFromXml('<beans><bean/><bean/></beans>'));
+
+    try {
+      expect(transform).toHaveBeenCalledTimes(2);
+    } finally {
+      second.resolve({ name: 'second', type: 'Second' });
+      first.resolve({ name: 'first', type: 'First' });
+    }
+
+    await expect(parsing).resolves.toEqual([
+      { name: 'first', type: 'First' },
+      { name: 'second', type: 'Second' },
+    ]);
   });
 
   it('parse bean constructors properly', () => {

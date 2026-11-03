@@ -1,8 +1,18 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
+import { IVisualizationNode } from '../../../base-visual-entity';
+import { createVisualizationNode } from '../../../visualization-node';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}
 
 describe('BaseNodeMapper', () => {
   let mapper: BaseNodeMapper;
@@ -68,6 +78,52 @@ describe('BaseNodeMapper', () => {
       expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.log');
       expect(vizNode.getChildren()?.[1].data.path).toBe('from.steps.1.to');
       expect(vizNode.getChildren()?.[2].data.isPlaceholder).toBe(true);
+    });
+
+    it('builds branch nodes concurrently and links them in source order', async () => {
+      const first = deferred<IVisualizationNode>();
+      const second = deferred<IVisualizationNode>();
+      const root = {
+        getVizNodeFromProcessor: vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise),
+      };
+      const branchMapper = new BaseNodeMapper(root);
+      const building = branchMapper.getVizNodeFromProcessor(
+        'from',
+        { primaryNodeId: { name: 'from', catalogKind: CatalogKind.Pattern } },
+        { from: { uri: 'direct:start', steps: [{ log: 'first' }, { log: 'second' }] } },
+      );
+      const firstNode = createVisualizationNode('first', {
+        name: 'log',
+        path: 'from.steps.0.log',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
+      const secondNode = createVisualizationNode('second', {
+        name: 'log',
+        path: 'from.steps.1.log',
+        isPlaceholder: false,
+        isGroup: false,
+        iconUrl: '',
+        title: '',
+        description: '',
+      });
+
+      try {
+        expect(root.getVizNodeFromProcessor).toHaveBeenCalledTimes(2);
+      } finally {
+        second.resolve(secondNode);
+        first.resolve(firstNode);
+      }
+
+      const children = (await building).getChildren()!;
+      expect(children.slice(0, 2)).toEqual([firstNode, secondNode]);
+      expect(firstNode.getNextNode()).toBe(secondNode);
+      expect(secondNode.getPreviousNode()).toBe(firstNode);
+      expect(secondNode.getNextNode()).toBe(children[2]);
+      expect(children[2].data.isPlaceholder).toBe(true);
     });
 
     it('should return a VisualizationNode with special children', async () => {

@@ -290,9 +290,10 @@ export class StepXmlSerializer {
   }
 
   static async decorateDoTry(doTry: DoTry, doTryElement: Element, doc: Document): Promise<Element> {
-    for (const doCatch of doTry.doCatch ?? []) {
-      doTryElement.append(await this.serialize('doCatch', doCatch as ElementType, doc));
-    }
+    const catches = await Promise.all(
+      (doTry.doCatch ?? []).map((doCatch) => this.serialize('doCatch', doCatch as ElementType, doc)),
+    );
+    doTryElement.append(...catches);
 
     doTryElement.append(await this.serialize('doFinally', doTry.doFinally as ElementType, doc));
     return doTryElement;
