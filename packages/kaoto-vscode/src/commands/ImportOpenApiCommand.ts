@@ -257,7 +257,7 @@ export class ImportOpenApiCommand extends AbstractNewCamelRouteCommand {
 	}
 
 	private async fetchUrl(url: string): Promise<string | undefined> {
-		return window.withProgress(
+		return await window.withProgress(
 			{
 				location: ProgressLocation.Notification,
 				title: `Fetching OpenAPI specification...`,

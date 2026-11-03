@@ -8,7 +8,7 @@ import { createVisualizationNode } from '../../../visualization-node';
 import { BaseNodeMapper } from './base-node-mapper';
 
 export class DataMapperNodeMapper extends BaseNodeMapper {
-  async getVizNodeFromProcessor(
+  getVizNodeFromProcessor(
     path: string,
     _componentLookup: IVisualizationNodeIds,
     _entityDefinition: unknown,
@@ -27,7 +27,7 @@ export class DataMapperNodeMapper extends BaseNodeMapper {
     };
 
     const vizNode = createVisualizationNode(path + ':' + processorName, data);
-    return vizNode;
+    return Promise.resolve(vizNode);
   }
 
   static isDataMapperNode(stepDefinition: Step): boolean {

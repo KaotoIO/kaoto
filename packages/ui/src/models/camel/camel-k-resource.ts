@@ -44,10 +44,11 @@ export abstract class CamelKResource implements KaotoResource {
     return [];
   }
 
-  async initialize(): Promise<void> {
+  initialize(): Promise<void> {
     if (this.resource.metadata && !this.metadata) {
       this.metadata = new MetadataEntity(this.resource);
     }
+    return Promise.resolve();
   }
 
   getCanvasEntityList(): BaseVisualEntityDefinition {
@@ -117,7 +118,11 @@ export abstract class CamelKResource implements KaotoResource {
     return ['Main', 'Quarkus', 'Spring Boot'];
   }
 
-  async toSourceCode(): Promise<string> {
-    return stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '';
+  toSourceCode(): Promise<string> {
+    try {
+      return Promise.resolve(stringify(this.toJSON(), { schema: 'yaml-1.1' }) || '');
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 }

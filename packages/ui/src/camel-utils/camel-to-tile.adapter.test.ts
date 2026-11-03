@@ -204,6 +204,15 @@ describe('camel-to-tile.adapter', () => {
   });
 
   describe('kameletToTile', () => {
+    it.each([{}, { metadata: { name: 'incomplete-kamelet' } }])(
+      'should reject incomplete Kamelets without throwing synchronously: %j',
+      async (definition) => {
+        const result = kameletToTile(definition as IKameletDefinition);
+
+        await expect(result).rejects.toBeInstanceOf(TypeError);
+      },
+    );
+
     it('should return a tile with the correct type', async () => {
       const kameletDef = {
         metadata: {

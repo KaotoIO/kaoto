@@ -40,8 +40,8 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
 
   const canBeMoved = isDefined(targetNode);
 
-  const onMoveStep = useCallback(async () => {
-    if (!vizNode || !entitiesContext || !targetNode) return;
+  const onMoveStep = useCallback((): Promise<void> => {
+    if (!vizNode || !entitiesContext || !targetNode) return Promise.resolve();
 
     let currentNodeContent = vizNode.getCopiedContent();
     currentNodeContent = processOnCopyAddon(
@@ -58,7 +58,7 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
         nodeInteractionAddonContext.getRegisteredInteractionAddons(IInteractionType.ON_COPY, vizNode) as IOnCopyAddon[],
     );
 
-    if (!currentNodeContent || !targetNodeContent) return;
+    if (!currentNodeContent || !targetNodeContent) return Promise.resolve();
 
     /** Replace the content of the target node with the current node content
         and vice versa  */
@@ -67,6 +67,7 @@ export const useMoveStep = (vizNode: IVisualizationNode, mode: AddStepMode.Appen
 
     /** Update entity */
     entitiesContext.updateEntitiesFromCamelResource();
+    return Promise.resolve();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [entitiesContext, targetNode, vizNode]);
 

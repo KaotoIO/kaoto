@@ -89,13 +89,13 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return definition?.propertiesSchema;
   }
 
-  async fetchNodeDefinition(path?: string): Promise<unknown> {
-    if (!path) return undefined;
+  fetchNodeDefinition(path?: string): Promise<unknown> {
+    if (!path) return Promise.resolve(undefined);
     if (path === this.getRootPath()) {
-      return getCustomSchemaFromPipe(this.pipe);
+      return Promise.resolve(getCustomSchemaFromPipe(this.pipe));
     }
     const stepModel: PipeStep = getValue(this.pipe.spec, path);
-    return stepModel?.properties ?? {};
+    return Promise.resolve(stepModel?.properties ?? {});
   }
 
   getOmitFormFields(): string[] {
@@ -301,7 +301,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
     return insertedIndex === -1 ? undefined : `steps.${insertedIndex}`;
   }
 
-  private async getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): Promise<IVisualizationNode> {
+  private getVizNodeFromStep(step: PipeStep, path: string, isRoot = false): Promise<IVisualizationNode> {
     const kameletName = step?.ref?.name;
     const isPlaceholder = kameletName === undefined;
 
@@ -321,7 +321,7 @@ export class PipeVisualEntity implements BaseVisualEntity {
     };
 
     const vizNode = createVisualizationNode(path, data);
-    return vizNode;
+    return Promise.resolve(vizNode);
   }
 
   private async getVizNodesFromSteps(steps: PipeStep[] = []): Promise<IVisualizationNode[]> {

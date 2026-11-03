@@ -49,7 +49,7 @@ export class EditorRegistrar implements IRegistrar {
 		);
 	}
 
-	public async registerToggleSourceCode() {
+	public registerToggleSourceCode(): Promise<void> {
 		const OPEN_SOURCE_COMMAND_ID: string = COMMAND_OPEN_SOURCE;
 		const CLOSE_SOURCE_COMMAND_ID: string = COMMAND_CLOSE_SOURCE;
 
@@ -66,6 +66,7 @@ export class EditorRegistrar implements IRegistrar {
 				await sendCommandTrackingEvent(this.telemetryService, CLOSE_SOURCE_COMMAND_ID);
 			}),
 		);
+		return Promise.resolve();
 	}
 
 	public registerOpenWithKaoto() {

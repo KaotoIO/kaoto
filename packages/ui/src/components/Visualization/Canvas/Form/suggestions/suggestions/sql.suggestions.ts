@@ -6,10 +6,10 @@ import { SuggestionProvider } from '@kaoto/forms';
 export const sqlSyntaxSuggestionProvider: SuggestionProvider = {
   id: 'sql-syntax-suggestion-provider',
   appliesTo: (propName, schema) => propName === '#.parameters.query' && schema.type === 'string',
-  getSuggestions: async (word, _context) => {
+  getSuggestions: (word, _context) => {
     const suggestionWord = word === '' ? 'foo' : word;
 
-    return [
+    return Promise.resolve([
       {
         value: `:#\${variable.${suggestionWord}}`,
         description: `Reference the '${suggestionWord}' variable`,
@@ -18,6 +18,6 @@ export const sqlSyntaxSuggestionProvider: SuggestionProvider = {
         value: `:#\${header.${suggestionWord}}`,
         description: `Reference the '${suggestionWord}' header`,
       },
-    ];
+    ]);
   },
 };

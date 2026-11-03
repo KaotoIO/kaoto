@@ -31,7 +31,7 @@ export const AddMethodModal: FunctionComponent<AddMethodModalProps> = ({
   const formRef = useRef<KaotoFormApi>(null);
 
   /** Validates the form and adds the method if valid */
-  const handleAdd = useCallback(async () => {
+  const handleAdd = useCallback(() => {
     const valid = formRef.current?.validate();
     if (isDefined(formModel) && !isDefined(valid)) {
       onAddMethod(formModel as AddMethodFormModel);

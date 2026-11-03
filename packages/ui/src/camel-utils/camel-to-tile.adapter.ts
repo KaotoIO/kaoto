@@ -79,33 +79,35 @@ export const camelEntityToTile = async (processorDef: ICamelProcessorDefinition)
   return entityTile;
 };
 
-export const kameletToTile = async (kameletDef: IKameletDefinition): Promise<ITile> => {
-  const headerTags: string[] = ['Kamelet'];
-  if (kameletDef.metadata.annotations?.[KameletKnownAnnotations.SupportLevel]) {
-    headerTags.push(kameletDef.metadata.annotations[KameletKnownAnnotations.SupportLevel]);
-  }
+export const kameletToTile = (kameletDef: IKameletDefinition): Promise<ITile> => {
+  return new Promise((resolve) => {
+    const headerTags: string[] = ['Kamelet'];
+    if (kameletDef.metadata.annotations?.[KameletKnownAnnotations.SupportLevel]) {
+      headerTags.push(kameletDef.metadata.annotations[KameletKnownAnnotations.SupportLevel]);
+    }
 
-  const tags: string[] = [];
-  if (kameletDef.metadata.labels?.[KameletKnownLabels.Type]) {
-    tags.push(kameletDef.metadata.labels[KameletKnownLabels.Type]);
-  }
+    const tags: string[] = [];
+    if (kameletDef.metadata.labels?.[KameletKnownLabels.Type]) {
+      tags.push(kameletDef.metadata.labels[KameletKnownLabels.Type]);
+    }
 
-  const version = kameletDef.metadata.annotations?.[KameletKnownAnnotations.CatalogVersion];
-  const iconUrl = kameletDef.metadata.annotations?.[KameletKnownAnnotations.Icon];
-  const kameletProvider = kameletDef.metadata.annotations?.[KameletKnownAnnotations.Provider];
-  const provider = kameletProvider === 'Apache Software Foundation' ? 'Community' : kameletProvider;
+    const version = kameletDef.metadata.annotations?.[KameletKnownAnnotations.CatalogVersion];
+    const iconUrl = kameletDef.metadata.annotations?.[KameletKnownAnnotations.Icon];
+    const kameletProvider = kameletDef.metadata.annotations?.[KameletKnownAnnotations.Provider];
+    const provider = kameletProvider === 'Apache Software Foundation' ? 'Community' : kameletProvider;
 
-  return {
-    type: CatalogKind.Kamelet,
-    name: kameletDef.metadata.name,
-    title: kameletDef.spec.definition.title,
-    description: kameletDef.spec.definition.description,
-    headerTags,
-    tags,
-    provider,
-    version,
-    iconUrl,
-  };
+    resolve({
+      type: CatalogKind.Kamelet,
+      name: kameletDef.metadata.name,
+      title: kameletDef.spec.definition.title,
+      description: kameletDef.spec.definition.description,
+      headerTags,
+      tags,
+      provider,
+      version,
+      iconUrl,
+    });
+  });
 };
 
 export const citrusComponentToTile = async (componentDefinition: ICitrusComponentDefinition): Promise<ITile> => {

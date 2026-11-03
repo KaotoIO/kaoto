@@ -85,21 +85,21 @@ export class CamelRestVisualEntity implements RestEntity {
     return { ...this.restDef.rest };
   }
 
-  async fetchNodeDefinition(path?: string, _ids?: IVisualizationNodeIds): Promise<unknown> {
-    if (!path) return undefined;
+  fetchNodeDefinition(path?: string, _ids?: IVisualizationNodeIds): Promise<unknown> {
+    if (!path) return Promise.resolve(undefined);
 
     if (path === CamelRestVisualEntity.ROOT_PATH) {
-      return { ...this.restDef.rest };
+      return Promise.resolve({ ...this.restDef.rest });
     }
 
     /** If we're targeting a Rest method, the path would be `rest.get.0` */
     const pathSegments = path?.split('.') ?? [];
     const method = (pathSegments[1] ?? '') as RestMethods;
     if (isDefined(path) && pathSegments.length === 3 && REST_DSL_VERBS.includes(method)) {
-      return { ...getValue(this.restDef, path) };
+      return Promise.resolve({ ...getValue(this.restDef, path) });
     }
 
-    return getValue(this.restDef, path);
+    return Promise.resolve(getValue(this.restDef, path));
   }
 
   updateModel(path: string | undefined, value: unknown): void {

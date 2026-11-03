@@ -12,6 +12,15 @@ suite('OpenApiImportService', function () {
 	});
 
 	suite('parseOpenApi - validation', function () {
+		test('returns a rejected promise for invalid input without throwing synchronously', async function () {
+			const result = service.parseOpenApi('');
+			expect(result).to.be.instanceOf(Promise);
+			await result.then(
+				() => expect.fail('Expected validation to reject'),
+				(error: unknown) => expect(error).to.be.instanceOf(OpenApiValidationError),
+			);
+		});
+
 		test('should throw error for empty string', async function () {
 			try {
 				await service.parseOpenApi('');

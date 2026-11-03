@@ -185,7 +185,7 @@ export class KaotoCatalogService {
 		}
 	}
 
-	private async getSelectedCatalogByKey(
+	private getSelectedCatalogByKey(
 		settingKey: string,
 		catalogTypeLabel: string,
 		getDefault: () => CatalogLibraryEntry | undefined,
@@ -197,7 +197,7 @@ export class KaotoCatalogService {
 		if (catalogName) {
 			const catalog = this.findCatalogByName(catalogName);
 			if (catalog) {
-				return catalog;
+				return Promise.resolve(catalog);
 			}
 			KaotoOutputChannel.logWarning(
 				`Invalid ${catalogTypeLabel} catalog name in settings: "${catalogName}". ` +
@@ -213,7 +213,7 @@ export class KaotoCatalogService {
 				});
 		}
 
-		return getDefault();
+		return Promise.resolve(getDefault());
 	}
 
 	/**

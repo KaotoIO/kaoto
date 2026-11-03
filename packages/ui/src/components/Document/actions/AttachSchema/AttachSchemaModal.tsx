@@ -180,7 +180,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
     [createDocumentResult],
   );
 
-  const onCommit = useCallback(async () => {
+  const onCommit = useCallback(() => {
     if (!createDocumentResult?.document || !createDocumentResult.documentDefinition) {
       setCreateDocumentResult({
         validationStatus: 'error',

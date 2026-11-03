@@ -52,7 +52,7 @@ export class ExecutorRegistrar implements IRegistrar {
 
 	public registerExecutorSetup(catalogService: KaotoCatalogService): void {
 		this.context.subscriptions.push(
-			vscode.workspace.onDidChangeConfiguration(async (event) => {
+			vscode.workspace.onDidChangeConfiguration((event) => {
 				if (event.affectsConfiguration(KAOTO_EXECUTOR_TYPE_SETTING_ID)) {
 					KaotoOutputChannel.logInfo('Executor type configuration changed, validating requirements...');
 

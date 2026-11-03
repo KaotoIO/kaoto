@@ -18,8 +18,8 @@ abstract class BaseCitrusProvider<T = unknown> implements ICatalogProvider<T> {
    * @param key - The unique identifier for the entity
    * @returns A promise resolving to the entity or undefined if not found
    */
-  async fetch(key: string): Promise<T | undefined> {
-    return this.entities[key];
+  fetch(key: string): Promise<T | undefined> {
+    return Promise.resolve(this.entities[key]);
   }
 
   /**
@@ -27,8 +27,8 @@ abstract class BaseCitrusProvider<T = unknown> implements ICatalogProvider<T> {
    *
    * @returns A promise resolving to a record of all entities keyed by their identifiers
    */
-  async fetchAll(): Promise<Record<string, T>> {
-    return this.entities;
+  fetchAll(): Promise<Record<string, T>> {
+    return Promise.resolve(this.entities);
   }
 }
 

@@ -265,24 +265,24 @@ export class CamelSettingsHelper {
 	/**
 	 * Resolve existing local kamelet directory argument
 	 */
-	private async resolveAlreadyExistingLocalKameletDirArgument(existingKameletDirArgument: string, cwd: string): Promise<string> {
+	private resolveAlreadyExistingLocalKameletDirArgument(existingKameletDirArgument: string, cwd: string): Promise<string> {
 		const kameletDirPaths = existingKameletDirArgument
 			.replace('--local-kamelet-dir=', '')
 			.split(',')
 			.map((path) => path.trim());
 		const resolvedKameletDirPaths = resolvePaths(kameletDirPaths, cwd);
-		return `--local-kamelet-dir=${Array.from(resolvedKameletDirPaths).join(',')}`;
+		return Promise.resolve(`--local-kamelet-dir=${Array.from(resolvedKameletDirPaths).join(',')}`);
 	}
 
 	/**
 	 * Resolve local kamelet directories from global setting
 	 */
-	private async resolveLocalKameletDirsFromGlobalSetting(cwd: string): Promise<string | undefined> {
+	private resolveLocalKameletDirsFromGlobalSetting(cwd: string): Promise<string | undefined> {
 		const localKameletDirectories = workspace.getConfiguration().get(KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID) as string[];
 		if (localKameletDirectories.length > 0) {
-			return `--local-kamelet-dir=${Array.from(resolvePaths(localKameletDirectories, cwd)).join(',')}`;
+			return Promise.resolve(`--local-kamelet-dir=${Array.from(resolvePaths(localKameletDirectories, cwd)).join(',')}`);
 		}
-		return undefined;
+		return Promise.resolve(undefined);
 	}
 
 	/**
