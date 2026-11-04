@@ -54,7 +54,6 @@ export const AddMethodModal: FunctionComponent<AddMethodModalProps> = ({
       onSubmit={handleAdd}
     >
       <KaotoForm
-        showFilterField
         schema={ADD_METHOD_SCHEMA}
         model={formModel}
         onChangeProp={onChangeProp}

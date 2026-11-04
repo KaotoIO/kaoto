@@ -1431,7 +1431,7 @@ exports[`SettingsForm > should render 1`] = `
                   </div>
                   <div>
                     <button
-                      class="cds--btn cds--btn--md cds--layout--size-md cds--btn--secondary cds--btn--disabled"
+                      class="cds--btn cds--btn--secondary cds--btn--disabled"
                       disabled=""
                       type="button"
                     >
