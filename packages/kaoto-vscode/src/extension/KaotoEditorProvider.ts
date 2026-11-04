@@ -351,6 +351,11 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		}
 		session.initializing = true;
 		const epoch = session.epoch;
+		/**
+		 * The text document is authoritative for a new session. A source edit queued for a previous session is dropped
+		 * when that session ends, so `state.content` can be older than the document.
+		 */
+		state.content = state.document.getText();
 		try {
 			const result = await session.bus.request('host:document:setContent', {
 				reason: 'init',

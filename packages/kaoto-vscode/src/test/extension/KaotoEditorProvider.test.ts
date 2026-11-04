@@ -137,6 +137,27 @@ suite('Native Kaoto text document provider', () => {
 		ok(!document.isDirty);
 	});
 
+	test('initializes a new session from the text document, not from a dropped source update', async () => {
+		await open();
+		const started = deferred<void>();
+		const finish = deferred<void>();
+		fixture.applying = async () => {
+			fixture.applying = undefined;
+			started.resolve();
+			await finish.promise;
+		};
+		try {
+			await editSource('edited during reload');
+			await started.promise;
+			await fixture.reconnect();
+		} finally {
+			finish.resolve();
+		}
+		const init = fixture.requests.filter(({ reason }) => reason === 'init').at(-1);
+		equal(init?.content, document.getText());
+		equal(fixture.content.content, 'edited during reload');
+	});
+
 	test('canvas edits dirty the shared source without saving or echoing them', async () => {
 		await open();
 		fixture.edit('step with an ID', 1);
@@ -606,7 +627,7 @@ function editorFixture() {
 	const closed = new vscode.EventEmitter<void>();
 	const viewState = new vscode.EventEmitter<vscode.WebviewPanelOnDidChangeViewStateEvent>();
 	let receive: ((message: unknown) => void) | undefined;
-	const init = deferred<void>();
+	let init = deferred<void>();
 	const value = {
 		bus: createEventBus({ role: 'editor', onError: () => {} }),
 		bridge: undefined as ReturnType<typeof createPostMessageBridge> | undefined,
@@ -633,6 +654,7 @@ function editorFixture() {
 			},
 		} as unknown as vscode.WebviewPanel,
 		connect: async () => {
+			init = deferred<void>();
 			value.bus.onRequest('host:document:setContent', async (request) => {
 				value.requests.push(request);
 				if (request.reason !== 'init') {
@@ -665,6 +687,13 @@ function editorFixture() {
 			value.bus.emit('editor:ready', null);
 			await init.promise;
 			await value.flush();
+		},
+		/** Simulates a webview reload: a new editor boot starts a new session on the same panel. */
+		reconnect: async () => {
+			value.bridge?.dispose();
+			value.bus.dispose();
+			value.bus = createEventBus({ role: 'editor', onError: () => {} });
+			await value.connect();
 		},
 		edit: (content: string, revision: number) => {
 			value.content = { content, revision };
