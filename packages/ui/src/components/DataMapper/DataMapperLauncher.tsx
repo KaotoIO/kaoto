@@ -15,12 +15,11 @@
 */
 import './DataMapperLauncher.scss';
 
-import { Help, Tools } from '@carbon/icons-react';
-import { Callout, Link } from '@carbon/react';
+import { Tools } from '@carbon/icons-react';
+import { Button, Callout, Checkbox, FormGroup, InlineNotification, Link } from '@carbon/react';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
-import { isDefined } from '@kaoto/forms';
-import { Button, Checkbox, FormGroup, HelperText, HelperTextItem, Popover } from '@patternfly/react-core';
-import { type FormEvent, FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FieldWrapper, isDefined } from '@kaoto/forms';
+import { type ChangeEvent, FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { IVisualizationNode, ValidationResult, ValidationStatus } from '../../models';
@@ -174,7 +173,7 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
   );
 
   const handleValidationToggle = useCallback(
-    (_event: FormEvent<HTMLInputElement>, checked: boolean) => {
+    (_event: ChangeEvent<HTMLInputElement>, { checked }: { checked: boolean }) => {
       if (!vizNode || !entitiesContext) return;
       if (checked) {
         setIsValidationTogglePending(true);
@@ -255,17 +254,11 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
   return (
     <section className="data-mapper-launcher">
       {xsltFileExists && (
-        <FormGroup
-          label="Document"
-          labelHelp={
-            <Popover
-              bodyContent="The name of the XSLT document that is used by the Kaoto DataMapper"
-              triggerAction="hover"
-              withFocusTrap={false}
-            >
-              <Button variant="plain" aria-label="More info" icon={<Help />} />
-            </Popover>
-          }
+        <FieldWrapper
+          propName="xslt-document"
+          title="Document"
+          description="The name of the XSLT document that is used by the Kaoto DataMapper"
+          defaultValue=""
         >
           <XsltDocumentRenameInput
             value={xsltDocumentName}
@@ -276,16 +269,16 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
             editTitle="Edit document name"
             data-testid="xslt-document-name"
           />
-        </FormGroup>
+        </FieldWrapper>
       )}
       {/* Output validation UI: set to true when feature is complete */}
       {showOutputValidation && xsltFileExists && !isTargetPrimitive && (
-        <FormGroup label="Output Validation">
+        <FormGroup legendText="Output Validation">
           <Checkbox
             id="validate-output"
-            label="Validate output"
-            isChecked={isValidationEnabled}
-            isDisabled={isValidationTogglePending}
+            labelText="Validate output"
+            checked={isValidationEnabled}
+            disabled={isValidationTogglePending}
             onChange={handleValidationToggle}
             data-testid="validate-output-checkbox"
           />
@@ -297,19 +290,22 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
         isDisabled={!vizNode || !entitiesContext}
       />
       {(!xsltFileExists || !isXsltDocumentDefined) && (
-        <HelperText>
-          <HelperTextItem variant="error">
-            This Kaoto DataMapper step is missing some configuration. Please click the configure button to configure it.
-          </HelperTextItem>
-        </HelperText>
+        <InlineNotification
+          className="data-mapper-missing-configuration"
+          kind="error"
+          lowContrast
+          hideCloseButton
+          title=""
+          subtitle="This Kaoto DataMapper step is missing some configuration. Please click the configure button to configure it."
+        />
       )}
       <Button
-        variant="primary"
+        kind="primary"
         title="Click to launch the Kaoto DataMapper editor"
         aria-label="Launch the Kaoto DataMapper editor"
         onClick={onClick}
-        icon={<Tools />}
-        isDisabled={isSavingFile || isEditingFilename}
+        renderIcon={Tools}
+        disabled={isSavingFile || isEditingFilename}
       >
         Configure
       </Button>
