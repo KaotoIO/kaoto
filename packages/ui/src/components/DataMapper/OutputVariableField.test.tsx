@@ -10,8 +10,8 @@ describe('OutputVariableField', () => {
 
     const input = screen.getByTestId('output-variable-name-input');
     expect(input).toHaveValue('');
-    expect(input.closest('.pf-m-success')).toBeNull();
-    expect(input.closest('.pf-m-error')).toBeNull();
+    expect(input.closest('.output-variable-field--success')).toBeNull();
+    expect(input).not.toHaveAttribute('data-invalid');
     expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
   });
 
@@ -20,7 +20,7 @@ describe('OutputVariableField', () => {
 
     const input = screen.getByTestId('output-variable-name-input');
     expect(input).toHaveValue('myVar');
-    expect(input.closest('.pf-m-success')).not.toBeNull();
+    expect(input.closest('.output-variable-field--success')).not.toBeNull();
     expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
   });
 
@@ -28,8 +28,8 @@ describe('OutputVariableField', () => {
     render(<OutputVariableField value="   " onChange={vi.fn()} />);
 
     const input = screen.getByTestId('output-variable-name-input');
-    expect(input.closest('.pf-m-error')).not.toBeNull();
-    expect(input.closest('.pf-m-success')).toBeNull();
+    expect(input).toHaveAttribute('data-invalid', 'true');
+    expect(input.closest('.output-variable-field--success')).toBeNull();
     expect(screen.getByTestId('output-variable-name-error')).toHaveTextContent(
       DataMapperStepService.OUTPUT_VARIABLE_NAME_BLANK,
     );

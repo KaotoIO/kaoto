@@ -13,172 +13,152 @@ describe('XsltDocumentRenameInput', () => {
     editTitle: 'Edit Name',
   };
 
-  describe('Read-only mode', () => {
-    it('should render in read-only mode by default', async () => {
+  const getInput = () => screen.getByRole('textbox');
+  const getSaveButton = () => screen.getByRole('button', { name: 'Save value' });
+  const getCancelButton = () => screen.getByRole('button', { name: 'Cancel editing' });
+
+  const shortNameValidator = (val: string): ValidationResult =>
+    val.length < 3
+      ? { status: ValidationStatus.Error, errMessages: ['Name is too short'] }
+      : { status: ValidationStatus.Default, errMessages: [] };
+
+  /** Focuses the input, replaces its content and returns it */
+  const replaceValue = async (user: ReturnType<typeof userEvent.setup>, text: string) => {
+    const input = getInput();
+    await user.click(input);
+    await user.clear(input);
+    await user.type(input, text);
+    return input;
+  };
+
+  describe('Rendering', () => {
+    it('should render the current value in an input with the provided accessible name', () => {
       render(<XsltDocumentRenameInput {...defaultProps} />);
 
-      // Check if text value is displayed
-      expect(await screen.findByText('Initial Document Name')).toBeInTheDocument();
-
-      // Check if the edit button is available
-      const editBtn = screen.getByTestId('rename-input--edit');
-      expect(editBtn).toBeInTheDocument();
-      expect(editBtn).toHaveAttribute('title', 'Edit Name');
-
-      // Form/Input should not be in the DOM yet
-      expect(screen.queryByTestId('rename-input--text-input')).not.toBeInTheDocument();
+      expect(screen.getByTestId('rename-input')).toBeInTheDocument();
+      const input = getInput();
+      expect(input).toHaveValue('Initial Document Name');
+      expect(input).toHaveAccessibleName('Document Title');
+      expect(input).toHaveAttribute('aria-invalid', 'false');
     });
 
-    it('should use empty string as default value when value prop is undefined', async () => {
-      const { rerender } = render(<XsltDocumentRenameInput data-testid="rename-input" placeholder="Enter name..." />);
-      expect(await screen.findByText('Enter name...')).toBeInTheDocument();
+    it('should use a default accessible name when textTitle is not provided', () => {
+      render(<XsltDocumentRenameInput {...defaultProps} textTitle={undefined} />);
 
-      // Verify it works with undefined explicitly
-      rerender(<XsltDocumentRenameInput data-testid="rename-input" placeholder="Enter name..." value={undefined} />);
-      expect(screen.getByText('Enter name...')).toBeInTheDocument();
+      expect(getInput()).toHaveAccessibleName('XSLT document name');
     });
 
-    it('should display the placeholder if no initial value is provided', async () => {
-      render(<XsltDocumentRenameInput {...defaultProps} value="" />);
-      expect(await screen.findByText('Enter name...')).toBeInTheDocument();
-    });
-
-    it('should render text span with correct title and aria-label', async () => {
+    it('should render the edit button with the provided title', () => {
       render(<XsltDocumentRenameInput {...defaultProps} />);
-      const span = await screen.findByText('Initial Document Name');
-      expect(span).toHaveAttribute('title', 'Document Title');
-      expect(span).toHaveAttribute('aria-label', 'Document Title');
+
+      expect(screen.getByRole('button', { name: 'Edit Name' })).toBeInTheDocument();
     });
 
-    it('should switch to edit mode when the edit button is clicked', async () => {
+    it('should use empty string as default value when value prop is undefined', () => {
+      render(<XsltDocumentRenameInput data-testid="rename-input" placeholder="Enter name..." />);
+
+      const input = getInput();
+      expect(input).toHaveValue('');
+      expect(input).toHaveAttribute('placeholder', 'Enter name...');
+    });
+
+    it('should not show the save and cancel buttons until the input is focused', async () => {
       render(<XsltDocumentRenameInput {...defaultProps} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
+      expect(screen.queryByRole('button', { name: 'Save value' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Cancel editing' })).not.toBeInTheDocument();
 
-      // Input should be visible and contain the current value
-      const input = screen.getByTestId('rename-input--text-input');
-      expect(input).toBeInTheDocument();
-      expect(input).toHaveValue('Initial Document Name');
+      await user.click(getInput());
+
+      expect(getSaveButton()).toBeInTheDocument();
+      expect(getCancelButton()).toBeInTheDocument();
     });
 
-    it('should stop event propagation when clicking the edit button', () => {
-      const mouseEvent = new MouseEvent('click', { bubbles: true });
-      const stopPropagationSpy = vi.spyOn(mouseEvent, 'stopPropagation');
+    it.each([
+      ['click', new MouseEvent('click', { bubbles: true })],
+      ['keydown', new KeyboardEvent('keydown', { key: 'a', bubbles: true })],
+    ])('should stop %s event propagation', (_type, event) => {
+      const stopPropagationSpy = vi.spyOn(event, 'stopPropagation');
 
       render(<XsltDocumentRenameInput {...defaultProps} />);
-      const editButton = screen.getByTestId('rename-input--edit');
-
-      fireEvent(editButton, mouseEvent);
+      fireEvent(getInput(), event);
 
       expect(stopPropagationSpy).toHaveBeenCalled();
     });
+  });
 
-    it('should call onEditingStateChange with true when entering edit mode', async () => {
+  describe('Editing state', () => {
+    it('should call onEditingStateChange with true when the value is modified', async () => {
       const mockOnEditingStateChange = vi.fn();
       render(<XsltDocumentRenameInput {...defaultProps} onEditingStateChange={mockOnEditingStateChange} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
+      await user.click(getInput());
+      expect(mockOnEditingStateChange).not.toHaveBeenCalled();
+
+      await user.type(getInput(), 'x');
 
       expect(mockOnEditingStateChange).toHaveBeenCalledWith(true);
     });
+
+    it('should call onEditingStateChange with false when canceling', async () => {
+      const mockOnEditingStateChange = vi.fn();
+      render(<XsltDocumentRenameInput {...defaultProps} onEditingStateChange={mockOnEditingStateChange} />);
+      const user = userEvent.setup();
+
+      await replaceValue(user, 'Some changes');
+      expect(mockOnEditingStateChange).toHaveBeenLastCalledWith(true);
+
+      await user.click(getCancelButton());
+
+      expect(mockOnEditingStateChange).toHaveBeenLastCalledWith(false);
+    });
+
+    it('should call onEditingStateChange with false when the saved value is applied', async () => {
+      const mockOnChange = vi.fn().mockResolvedValue(undefined);
+      const mockOnEditingStateChange = vi.fn();
+      const { rerender } = render(
+        <XsltDocumentRenameInput
+          {...defaultProps}
+          onChange={mockOnChange}
+          onEditingStateChange={mockOnEditingStateChange}
+        />,
+      );
+      const user = userEvent.setup();
+
+      await user.click(getInput());
+      await user.type(getInput(), ' Updated');
+      expect(mockOnEditingStateChange).toHaveBeenLastCalledWith(true);
+      await user.click(getSaveButton());
+
+      rerender(
+        <XsltDocumentRenameInput
+          {...defaultProps}
+          value="Initial Document Name Updated"
+          onChange={mockOnChange}
+          onEditingStateChange={mockOnEditingStateChange}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(mockOnEditingStateChange).toHaveBeenLastCalledWith(false);
+      });
+    });
   });
 
-  describe('Edit mode', () => {
-    it('should focus the input when entering edit mode', async () => {
-      render(<XsltDocumentRenameInput {...defaultProps} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-
-      const input = screen.getByTestId('rename-input--text-input');
-      expect(input).toHaveFocus();
-    });
-
-    it('should have correct ARIA attributes on the input', async () => {
-      render(<XsltDocumentRenameInput {...defaultProps} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-
-      const input = screen.getByTestId('rename-input--text-input');
-      expect(input).toHaveAttribute('aria-label', 'xslt-document-rename-value');
-      expect(input).toHaveAttribute('aria-invalid', 'false');
-    });
-
-    it('should render save and cancel buttons with correct ARIA labels', async () => {
-      render(<XsltDocumentRenameInput {...defaultProps} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-
-      const saveButton = screen.getByTestId('rename-input--save');
-      const cancelButton = screen.getByTestId('rename-input--cancel');
-
-      expect(saveButton).toHaveAttribute('aria-label', 'Save value');
-      expect(cancelButton).toHaveAttribute('aria-label', 'Cancel editing');
-    });
-
-    it('should trigger validation on input change', async () => {
-      const mockValidator = vi.fn().mockImplementation((val: string): ValidationResult => {
-        if (val.length < 3) {
-          return { status: ValidationStatus.Error, errMessages: ['Name is too short'] };
-        }
-        return { status: ValidationStatus.Default, errMessages: [] };
-      });
-
+  describe('Validation', () => {
+    it('should validate the input change, display the error and disable the save button', async () => {
+      const mockValidator = vi.fn().mockImplementation(shortNameValidator);
       render(<XsltDocumentRenameInput {...defaultProps} validator={mockValidator} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.clear(input);
-      await user.type(input, 'hi');
+      const input = await replaceValue(user, 'hi');
 
       expect(mockValidator).toHaveBeenCalledWith('hi');
-    });
-
-    it('should display validation error messages', async () => {
-      const mockValidator = vi.fn().mockImplementation((val: string): ValidationResult => {
-        if (val.length < 3) {
-          return { status: ValidationStatus.Error, errMessages: ['Name is too short'] };
-        }
-        return { status: ValidationStatus.Default, errMessages: [] };
-      });
-
-      render(<XsltDocumentRenameInput {...defaultProps} validator={mockValidator} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.clear(input);
-      await user.type(input, 'hi');
-
       expect(screen.getByText('Name is too short')).toBeInTheDocument();
       expect(input).toHaveAttribute('aria-invalid', 'true');
-    });
-
-    it('should disable save button when validation fails', async () => {
-      const mockValidator = vi.fn().mockImplementation((val: string): ValidationResult => {
-        if (val.length < 3) {
-          return { status: ValidationStatus.Error, errMessages: ['Name is too short'] };
-        }
-        return { status: ValidationStatus.Default, errMessages: [] };
-      });
-
-      render(<XsltDocumentRenameInput {...defaultProps} validator={mockValidator} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.clear(input);
-      await user.type(input, 'hi');
-
-      expect(screen.getByTestId('rename-input--save')).toBeDisabled();
+      expect(getSaveButton()).toBeDisabled();
     });
 
     it('should reset validation when input value matches the original prop value', async () => {
@@ -186,23 +166,16 @@ describe('XsltDocumentRenameInput', () => {
         status: ValidationStatus.Error,
         errMessages: ['Invalid value'],
       });
-
       render(<XsltDocumentRenameInput {...defaultProps} validator={mockValidator} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      // Change to a different value (triggers validation error)
-      await user.clear(input);
-      await user.type(input, 'Different Value');
+      const input = await replaceValue(user, 'Different Value');
       expect(mockValidator).toHaveBeenCalledWith('Different Value');
+      expect(screen.getByText('Invalid value')).toBeInTheDocument();
 
-      // Change back to original value (should reset validation)
       await user.clear(input);
       await user.type(input, 'Initial Document Name');
 
-      // Validation should be reset to default
       expect(screen.queryByText('Invalid value')).not.toBeInTheDocument();
       expect(input).toHaveAttribute('aria-invalid', 'false');
     });
@@ -218,17 +191,14 @@ describe('XsltDocumentRenameInput', () => {
             }),
         );
         const { rerender } = render(<XsltDocumentRenameInput {...defaultProps} validator={validator} />);
-        fireEvent.click(screen.getByTestId('rename-input--edit'));
-        const input = screen.getByTestId('rename-input--text-input');
+        const input = getInput();
         fireEvent.change(input, { target: { value: 'Changed name' } });
-        expect(screen.getByTestId('rename-input--save')).toBeDisabled();
 
         if (change === 'original value') {
           fireEvent.change(input, { target: { value: defaultProps.value } });
         } else {
           rerender(<XsltDocumentRenameInput {...defaultProps} />);
         }
-        expect(screen.getByTestId('rename-input--save')).toBeEnabled();
 
         await act(async () => {
           resolveValidation({ status: ValidationStatus.Error, errMessages: ['Obsolete warning'] });
@@ -236,7 +206,6 @@ describe('XsltDocumentRenameInput', () => {
 
         expect(screen.queryByText('Obsolete warning')).not.toBeInTheDocument();
         expect(input).toHaveAttribute('aria-invalid', 'false');
-        expect(screen.getByTestId('rename-input--save')).toBeEnabled();
       },
     );
 
@@ -249,8 +218,7 @@ describe('XsltDocumentRenameInput', () => {
           }),
       );
       render(<XsltDocumentRenameInput {...defaultProps} validator={validator} />);
-      fireEvent.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
+      const input = getInput();
       fireEvent.change(input, { target: { value: 'First name' } });
       fireEvent.change(input, { target: { value: 'Second name' } });
 
@@ -258,12 +226,13 @@ describe('XsltDocumentRenameInput', () => {
         pending.get('First name')!({ status: ValidationStatus.Error, errMessages: ['Obsolete warning'] });
       });
       expect(screen.queryByText('Obsolete warning')).not.toBeInTheDocument();
-      expect(screen.getByTestId('rename-input--save')).toBeDisabled();
+      expect(input).toHaveAttribute('aria-invalid', 'false');
 
       await act(async () => {
-        pending.get('Second name')!({ status: ValidationStatus.Default, errMessages: [] });
+        pending.get('Second name')!({ status: ValidationStatus.Error, errMessages: ['Current warning'] });
       });
-      expect(screen.getByTestId('rename-input--save')).toBeEnabled();
+      expect(screen.getByText('Current warning')).toBeInTheDocument();
+      expect(input).toHaveAttribute('aria-invalid', 'true');
     });
 
     it('should handle async validator that returns a Promise', async () => {
@@ -277,80 +246,38 @@ describe('XsltDocumentRenameInput', () => {
                 : { status: ValidationStatus.Default, errMessages: [] },
             ),
         );
-
       render(<XsltDocumentRenameInput {...defaultProps} validator={mockValidator} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
+      const input = await replaceValue(user, 'Hi');
 
-      await user.clear(input);
-      await user.type(input, 'Hi');
-
-      // Wait for async validation to complete
       await waitFor(() => {
         expect(screen.getByText('Too short')).toBeInTheDocument();
       });
-
       expect(mockValidator).toHaveBeenCalledWith('Hi');
       expect(input).toHaveAttribute('aria-invalid', 'true');
     });
 
-    it('should stop event propagation on keyboard events in input field', async () => {
-      render(<XsltDocumentRenameInput {...defaultProps} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      const keyDownEvent = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true });
-      const stopPropagationSpy = vi.spyOn(keyDownEvent, 'stopPropagation');
-
-      fireEvent(input, keyDownEvent);
-
-      expect(stopPropagationSpy).toHaveBeenCalled();
-    });
-
-    it('should handle validator throwing an error', async () => {
-      const mockValidator = vi.fn().mockImplementation(() => {
-        throw new Error('Validator crashed');
-      });
-
+    it.each([
+      [
+        'throwing',
+        () => {
+          throw new Error('Validator crashed');
+        },
+      ],
+      ['rejecting', () => Promise.reject(new Error('Async validator crashed'))],
+    ])('should handle a validator %s an error', async (_kind, validatorImpl) => {
+      const mockValidator = vi.fn().mockImplementation(validatorImpl);
       render(<XsltDocumentRenameInput {...defaultProps} validator={mockValidator} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
+      const input = await replaceValue(user, 'New Value');
 
-      await user.clear(input);
-      await user.type(input, 'New Value');
-
-      // Should show generic error message
       await waitFor(() => {
         expect(screen.getByText('Validation failed. Please try again.')).toBeInTheDocument();
       });
       expect(input).toHaveAttribute('aria-invalid', 'true');
-      expect(screen.getByTestId('rename-input--save')).toBeDisabled();
-    });
-
-    it('should handle async validator throwing an error', async () => {
-      const mockValidator = vi.fn().mockRejectedValue(new Error('Async validator crashed'));
-
-      render(<XsltDocumentRenameInput {...defaultProps} validator={mockValidator} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.clear(input);
-      await user.type(input, 'New Value');
-
-      // Should show generic error message
-      await waitFor(() => {
-        expect(screen.getByText('Validation failed. Please try again.')).toBeInTheDocument();
-      });
-      expect(input).toHaveAttribute('aria-invalid', 'true');
-      expect(screen.getByTestId('rename-input--save')).toBeDisabled();
+      expect(getSaveButton()).toBeDisabled();
     });
   });
 
@@ -360,30 +287,11 @@ describe('XsltDocumentRenameInput', () => {
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.type(input, ' Updated');
-      await user.click(screen.getByTestId('rename-input--save'));
+      await user.click(getInput());
+      await user.type(getInput(), ' Updated');
+      await user.click(getSaveButton());
 
       expect(mockOnChange).toHaveBeenCalledWith('Initial Document Name Updated');
-    });
-
-    it('should return to read-only mode after saving', async () => {
-      const mockOnChange = vi.fn().mockResolvedValue(undefined);
-      render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.type(input, ' Updated');
-      await user.click(screen.getByTestId('rename-input--save'));
-
-      // UI should flip back to read-only text view
-      await waitFor(() => {
-        expect(screen.getByText('Initial Document Name Updated')).toBeInTheDocument();
-      });
     });
 
     it('should save the value when hitting the Enter key', async () => {
@@ -391,12 +299,28 @@ describe('XsltDocumentRenameInput', () => {
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.type(input, ' New{enter}');
+      await user.click(getInput());
+      await user.type(getInput(), ' New{enter}');
 
       expect(mockOnChange).toHaveBeenCalledWith('Initial Document Name New');
+    });
+
+    it('should not save when the input loses focus', async () => {
+      const mockOnChange = vi.fn();
+      render(
+        <>
+          <XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />
+          <button type="button">Elsewhere</button>
+        </>,
+      );
+      const user = userEvent.setup();
+
+      await user.click(getInput());
+      await user.type(getInput(), ' Draft');
+      await user.click(screen.getByRole('button', { name: 'Elsewhere' }));
+
+      expect(mockOnChange).not.toHaveBeenCalled();
+      expect(getInput()).toHaveValue('Initial Document Name Draft');
     });
 
     it('should not save when validation status is Error', async () => {
@@ -405,15 +329,10 @@ describe('XsltDocumentRenameInput', () => {
         status: ValidationStatus.Error,
         errMessages: ['Invalid'],
       });
-
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} validator={mockValidator} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.clear(input);
-      await user.type(input, 'x{enter}');
+      await replaceValue(user, 'x{enter}');
 
       expect(mockOnChange).not.toHaveBeenCalled();
     });
@@ -423,83 +342,91 @@ describe('XsltDocumentRenameInput', () => {
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      await user.click(screen.getByTestId('rename-input--save'));
+      await user.click(getInput());
+      expect(getSaveButton()).toBeDisabled();
+      await user.keyboard('{enter}');
 
       expect(mockOnChange).not.toHaveBeenCalled();
     });
 
-    it('should handle synchronous onChange (non-Promise)', async () => {
-      const mockOnChange = vi.fn(); // Returns undefined (not a Promise)
-      render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
+    it('should validate before saving when validation has not settled yet', async () => {
+      const mockOnChange = vi.fn().mockResolvedValue(undefined);
+      let resolveValidation!: (result: ValidationResult) => void;
+      const validator = vi.fn(
+        () =>
+          new Promise<ValidationResult>((resolve) => {
+            resolveValidation = resolve;
+          }),
+      );
+      render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} validator={validator} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
+      await user.click(getInput());
+      await user.type(getInput(), ' Pending');
+      await user.click(getSaveButton());
+      expect(mockOnChange).not.toHaveBeenCalled();
 
-      await user.type(input, ' Sync');
-      await user.click(screen.getByTestId('rename-input--save'));
-
-      expect(mockOnChange).toHaveBeenCalledWith('Initial Document Name Sync');
+      await act(async () => {
+        resolveValidation({ status: ValidationStatus.Default, errMessages: [] });
+      });
 
       await waitFor(() => {
-        expect(screen.queryByTestId('rename-input--text-input')).not.toBeInTheDocument();
+        expect(mockOnChange).toHaveBeenCalledWith('Initial Document Name Pending');
       });
     });
 
-    it('should stop event propagation when clicking the save button', async () => {
-      const mockOnChange = vi.fn().mockResolvedValue(undefined);
-      render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
+    it('should not save when pending validation completes with an error', async () => {
+      const mockOnChange = vi.fn();
+      const validator = vi.fn(() =>
+        Promise.resolve<ValidationResult>({ status: ValidationStatus.Error, errMessages: ['Rejected late'] }),
+      );
+      render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} validator={validator} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-      await user.type(input, ' Change');
+      await user.click(getInput());
+      await user.type(getInput(), ' Late{enter}');
 
-      const mouseEvent = new MouseEvent('click', { bubbles: true });
-      const stopPropagationSpy = vi.spyOn(mouseEvent, 'stopPropagation');
-
-      const saveButton = screen.getByTestId('rename-input--save');
-      fireEvent(saveButton, mouseEvent);
-
-      expect(stopPropagationSpy).toHaveBeenCalled();
-      await screen.findByText('Initial Document Name Change');
+      await waitFor(() => {
+        expect(screen.getByText('Rejected late')).toBeInTheDocument();
+      });
+      expect(mockOnChange).not.toHaveBeenCalled();
     });
 
-    it('should disable input and buttons while saving', async () => {
+    it('should ignore input changes while saving', async () => {
       let resolveSave: (value: unknown) => void = () => {};
       const mockOnChange = vi.fn().mockImplementation(() => {
         return new Promise((resolve) => {
           resolveSave = resolve;
         });
       });
-
-      const { rerender } = render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
+      const onEditingStateChange = vi.fn();
+      render(
+        <XsltDocumentRenameInput
+          {...defaultProps}
+          onChange={mockOnChange}
+          onEditingStateChange={onEditingStateChange}
+        />,
+      );
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-      await user.type(input, ' Change');
-      await user.click(screen.getByTestId('rename-input--save'));
+      await user.click(getInput());
+      await user.type(getInput(), ' Change');
+      await user.keyboard('{enter}');
+      expect(mockOnChange).toHaveBeenCalledTimes(1);
 
-      // Verify everything is disabled while saving
-      expect(input).toBeDisabled();
-      expect(screen.getByTestId('rename-input--save')).toBeDisabled();
-      expect(screen.getByTestId('rename-input--cancel')).toBeDisabled();
+      fireEvent.change(getInput(), { target: { value: 'Typed while saving' } });
+      expect(getInput()).toHaveValue('Initial Document Name Change');
 
-      // Release the promise
-      resolveSave(null);
+      // A second save request while saving is ignored
+      await user.click(getInput());
+      await user.keyboard('{enter}');
+      expect(mockOnChange).toHaveBeenCalledTimes(1);
 
-      // Re-render with updated value
-      await waitFor(() => {
-        rerender(
-          <XsltDocumentRenameInput {...defaultProps} value="Initial Document Name Change" onChange={mockOnChange} />,
-        );
+      await act(async () => {
+        resolveSave(null);
       });
-
-      await waitFor(() => {
-        expect(screen.getByText('Initial Document Name Change')).toBeInTheDocument();
-      });
+      // Editing continues until the new value is received through the value prop
+      expect(onEditingStateChange).toHaveBeenLastCalledWith(true);
     });
 
     it('should handle onChange throwing an error', async () => {
@@ -507,150 +434,67 @@ describe('XsltDocumentRenameInput', () => {
       render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
+      await user.click(getInput());
+      await user.type(getInput(), ' Updated');
+      await user.click(getSaveButton());
 
-      await user.type(input, ' Updated');
-      await user.click(screen.getByTestId('rename-input--save'));
-
-      // Should show error message and stay in edit mode
       await waitFor(() => {
         expect(screen.getByText('Unable to save document name. Please try again.')).toBeInTheDocument();
       });
-
-      // Should still be in edit mode with the input visible
-      expect(screen.getByTestId('rename-input--text-input')).toBeInTheDocument();
-      expect(input).toHaveAttribute('aria-invalid', 'true');
-      expect(screen.getByTestId('rename-input--save')).toBeDisabled();
+      expect(getInput()).toHaveValue('Initial Document Name Updated');
+      expect(getInput()).toHaveAttribute('aria-invalid', 'true');
+      expect(getSaveButton()).toBeDisabled();
     });
 
-    it('should call onEditingStateChange with false when saving successfully', async () => {
-      const mockOnChange = vi.fn().mockResolvedValue(undefined);
-      const mockOnEditingStateChange = vi.fn();
-      render(
-        <XsltDocumentRenameInput
-          {...defaultProps}
-          onChange={mockOnChange}
-          onEditingStateChange={mockOnEditingStateChange}
-        />,
-      );
+    it('should keep cancel enabled and restore the original value after a failed save', async () => {
+      const mockOnChange = vi.fn().mockRejectedValue(new Error('Save failed'));
+      render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      expect(mockOnEditingStateChange).toHaveBeenCalledWith(true);
-
-      const input = screen.getByTestId('rename-input--text-input');
-      await user.type(input, ' Updated');
-      await user.click(screen.getByTestId('rename-input--save'));
+      await user.click(getInput());
+      await user.type(getInput(), ' Updated');
+      await user.click(getSaveButton());
 
       await waitFor(() => {
-        expect(mockOnEditingStateChange).toHaveBeenCalledWith(false);
+        expect(screen.getByText('Unable to save document name. Please try again.')).toBeInTheDocument();
       });
+      expect(getCancelButton()).toBeEnabled();
+
+      await user.click(getCancelButton());
+
+      expect(getInput()).toHaveValue('Initial Document Name');
+      expect(screen.queryByText('Unable to save document name. Please try again.')).not.toBeInTheDocument();
     });
   });
 
   describe('Cancel functionality', () => {
-    it('should revert to original value when canceling', async () => {
+    it('should revert to the original value and reset validation when canceling', async () => {
       const mockOnChange = vi.fn();
-      render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.clear(input);
-      await user.type(input, 'Accidental Draft Text');
-      await user.click(screen.getByTestId('rename-input--cancel'));
-
-      expect(screen.getByText('Initial Document Name')).toBeInTheDocument();
-      expect(mockOnChange).not.toHaveBeenCalled();
-    });
-
-    it('should reset validation when canceling', async () => {
       const mockValidator = vi.fn().mockReturnValue({
         status: ValidationStatus.Error,
         errMessages: ['Invalid'],
       });
-
-      render(<XsltDocumentRenameInput {...defaultProps} validator={mockValidator} />);
+      render(<XsltDocumentRenameInput {...defaultProps} onChange={mockOnChange} validator={mockValidator} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
-
-      await user.clear(input);
-      await user.type(input, 'x');
-
-      // Verify error is shown
+      await replaceValue(user, 'x');
       expect(screen.getByText('Invalid')).toBeInTheDocument();
 
-      await user.click(screen.getByTestId('rename-input--cancel'));
+      await user.click(getCancelButton());
 
-      // Should be back in read-only mode without errors
-      expect(screen.getByText('Initial Document Name')).toBeInTheDocument();
+      expect(getInput()).toHaveValue('Initial Document Name');
       expect(screen.queryByText('Invalid')).not.toBeInTheDocument();
+      expect(mockOnChange).not.toHaveBeenCalled();
     });
 
     it('should cancel changes when hitting the Escape key', async () => {
       render(<XsltDocumentRenameInput {...defaultProps} />);
       const user = userEvent.setup();
 
-      await user.click(screen.getByTestId('rename-input--edit'));
-      const input = screen.getByTestId('rename-input--text-input');
+      await user.click(getInput());
+      await user.type(getInput(), 'Random Text{escape}');
 
-      await user.type(input, 'Random Text{escape}');
-
-      expect(screen.getByText('Initial Document Name')).toBeInTheDocument();
-    });
-
-    it('should stop event propagation when clicking the cancel button', async () => {
-      render(<XsltDocumentRenameInput {...defaultProps} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-
-      const mouseEvent = new MouseEvent('click', { bubbles: true });
-      const stopPropagationSpy = vi.spyOn(mouseEvent, 'stopPropagation');
-
-      const cancelButton = screen.getByTestId('rename-input--cancel');
-      fireEvent(cancelButton, mouseEvent);
-
-      expect(stopPropagationSpy).toHaveBeenCalled();
-    });
-
-    it('should call onEditingStateChange with false when canceling', async () => {
-      const mockOnEditingStateChange = vi.fn();
-      render(<XsltDocumentRenameInput {...defaultProps} onEditingStateChange={mockOnEditingStateChange} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-      expect(mockOnEditingStateChange).toHaveBeenCalledWith(true);
-
-      const input = screen.getByTestId('rename-input--text-input');
-      await user.clear(input);
-      await user.type(input, 'Some changes');
-      await user.click(screen.getByTestId('rename-input--cancel'));
-
-      expect(mockOnEditingStateChange).toHaveBeenCalledWith(false);
-    });
-  });
-
-  describe('Form behavior', () => {
-    it('should prevent default form submission behavior', async () => {
-      render(<XsltDocumentRenameInput {...defaultProps} />);
-      const user = userEvent.setup();
-
-      await user.click(screen.getByTestId('rename-input--edit'));
-
-      const form = screen.getByTestId('rename-input--form').closest('form');
-      expect(form).toBeInTheDocument();
-
-      const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
-      const preventDefaultSpy = vi.spyOn(submitEvent, 'preventDefault');
-
-      form?.dispatchEvent(submitEvent);
-
-      expect(preventDefaultSpy).toHaveBeenCalled();
+      expect(getInput()).toHaveValue('Initial Document Name');
     });
   });
 });

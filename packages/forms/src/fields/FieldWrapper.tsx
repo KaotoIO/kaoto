@@ -9,7 +9,7 @@ import { FieldProps } from '../models/typings';
 import { capitalizeString } from '../utils/capitalize-string';
 
 interface FieldWrapperProps extends FieldProps {
-  type: string;
+  type?: string;
   title?: ReactNode;
   description?: string;
   defaultValue?: string;
@@ -56,11 +56,11 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
             <ToggletipContent className="kaoto-field-wrapper__toggletip-content">
               <p>
                 <strong>
-                  {label} {`<${type}>`}
+                  {label} {type && `<${type}>`}
                 </strong>
               </p>
               <p>{description}</p>
-              <p>Default: {defaultValue}</p>
+              {defaultValue && <p>Default: {defaultValue}</p>}
             </ToggletipContent>
           </Toggletip>
         )}
