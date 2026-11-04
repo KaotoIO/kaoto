@@ -5,6 +5,8 @@ import {
   action,
   createTopologyControlButtons,
   defaultControlButtonsOptions,
+  DRAG_NODE_END_EVENT,
+  DRAG_NODE_START_EVENT,
   Model,
   SELECTION_EVENT,
   SelectionEventListener,
@@ -127,6 +129,39 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   );
   useEventListener<SelectionEventListener>(SELECTION_EVENT, handleSelection);
 
+  useEffect(() => {
+    let pendingFrame: number | undefined;
+    const preserveDragFocus = () => {
+      const focused = document.activeElement;
+      const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+      if (
+        !(focused instanceof SVGElement) ||
+        !canvas?.contains(focused) ||
+        !focused.matches('g.custom-node, g.placeholder-node, g.custom-group')
+      )
+        return;
+
+      if (pendingFrame !== undefined) cancelAnimationFrame(pendingFrame);
+      // PatternFly reorders SVG layers while dragging, which drops DOM focus.
+      pendingFrame = requestAnimationFrame(() => {
+        // React's layer effects can run after the first animation frame.
+        pendingFrame = requestAnimationFrame(() => {
+          pendingFrame = undefined;
+          if (focused.isConnected && document.activeElement === document.body) {
+            focused.focus({ preventScroll: true });
+          }
+        });
+      });
+    };
+    controller.addEventListener(DRAG_NODE_START_EVENT, preserveDragFocus);
+    controller.addEventListener(DRAG_NODE_END_EVENT, preserveDragFocus);
+    return () => {
+      controller.removeEventListener(DRAG_NODE_START_EVENT, preserveDragFocus);
+      controller.removeEventListener(DRAG_NODE_END_EVENT, preserveDragFocus);
+      if (pendingFrame !== undefined) cancelAnimationFrame(pendingFrame);
+    };
+  }, [controller]);
+
   /** Draw graph */
   useEffect(() => {
     if (isModelResolving) {
@@ -237,7 +272,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
   }, []);
 
-  useArrowKeyNavigation();
+  useArrowKeyNavigation(selectedIds.length === 1 ? selectedIds[0] : undefined);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
