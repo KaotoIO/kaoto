@@ -165,3 +165,8 @@ body {
 }
 
 /* stylelint-enable selector-class-pattern */
+
+/* Inline icons in the help menu items, aligned with the text baseline like the PatternFly Icon they replace. */
+.topbar-menu-icon {
+  vertical-align: -0.125em;
+}

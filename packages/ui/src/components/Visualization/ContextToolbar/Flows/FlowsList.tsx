@@ -2,7 +2,7 @@ import './FlowsList.scss';
 
 import { TrashCan, View, ViewOff } from '@carbon/icons-react';
 import { camelCaseToSpaces } from '@kaoto/forms';
-import { Button, Icon, SearchInput } from '@patternfly/react-core';
+import { Button, SearchInput } from '@patternfly/react-core';
 import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { useVisualizationController } from '@patternfly/react-topology';
 import { FunctionComponent, MouseEvent, useCallback, useContext, useMemo, useState } from 'react';
@@ -118,13 +118,11 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                 onClick={onToggleAll}
                 isDisabled={filteredIds.length === 0}
                 icon={
-                  <Icon isInline>
-                    {areFlowsVisible() ? (
-                      <View data-testid="toggle-btn-hide-all" />
-                    ) : (
-                      <ViewOff data-testid="toggle-btn-show-all" />
-                    )}
-                  </Icon>
+                  areFlowsVisible() ? (
+                    <View data-testid="toggle-btn-hide-all" />
+                  ) : (
+                    <ViewOff data-testid="toggle-btn-show-all" />
+                  )
                 }
                 variant="plain"
               />
@@ -171,13 +169,9 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                     aria-label={visibleFlows[flow.id] ? `Hide ${flow.id}` : `Show ${flow.id}`}
                     icon={
                       visibleFlows[flow.id] ? (
-                        <Icon isInline>
-                          <View title={`Hide ${flow.id}`} data-testid={`toggle-btn-${flow.id}-visible`} />
-                        </Icon>
+                        <View title={`Hide ${flow.id}`} data-testid={`toggle-btn-${flow.id}-visible`} />
                       ) : (
-                        <Icon isInline>
-                          <ViewOff title={`Show ${flow.id}`} data-testid={`toggle-btn-${flow.id}-hidden`} />
-                        </Icon>
+                        <ViewOff title={`Show ${flow.id}`} data-testid={`toggle-btn-${flow.id}-hidden`} />
                       )
                     }
                     variant="plain"
