@@ -1,12 +1,13 @@
 import './CanvasForm.scss';
 
+import { Close } from '@carbon/icons-react';
+import { IconButton } from '@carbon/react';
 import { FunctionComponent, useCallback, useContext, useEffect, useRef } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
 import { VisibleFlowsContext } from '../../../../providers';
 import { CanvasSidePanelErrorBoundary } from '../CanvasSidePanelErrorBoundary';
 import { CanvasFormBody } from './CanvasFormBody';
-import { CanvasFormHeader } from './CanvasFormHeader';
 
 interface CanvasFormProps {
   vizNode: IVisualizationNode;
@@ -41,7 +42,24 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClos
     >
       <div className="canvas-form">
         <div className="canvas-form__header">
-          <CanvasFormHeader nodeId={vizNode.id} title={title} onClose={onCloseFn} iconUrl={vizNode.data.iconUrl} />
+          <div className="form-header-row">
+            <div className="form-header">
+              {vizNode.data.iconUrl && (
+                <img src={vizNode.data.iconUrl} className={`form-header__icon-${vizNode.id}`} alt={title} />
+              )}
+              <h2 className="form-header__title">{title}</h2>
+            </div>
+            <IconButton
+              data-testid="close-side-bar"
+              kind="ghost"
+              size="sm"
+              label="Close"
+              onClick={onCloseFn}
+              className="canvas-header-close"
+            >
+              <Close />
+            </IconButton>
+          </div>
         </div>
 
         <div className="canvas-form__body">

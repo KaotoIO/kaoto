@@ -47,6 +47,32 @@ describe('CanvasForm', () => {
     expect(container).toMatchSnapshot();
   });
 
+  it('should render the node title and icon in the header', async () => {
+    const { Provider } = await TestProvidersWrapper();
+    render(
+      <Provider>
+        <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
+      </Provider>,
+    );
+
+    expect(await screen.findByRole('heading', { level: 2, name: vizNode.getNodeTitle() })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: vizNode.getNodeTitle() })).toHaveAttribute('src', vizNode.data.iconUrl);
+  });
+
+  it('should call onClose when clicking the close button', async () => {
+    const onClose = vi.fn();
+    const { Provider } = await TestProvidersWrapper();
+    render(
+      <Provider>
+        <CanvasForm vizNode={vizNode} onClose={onClose} />
+      </Provider>,
+    );
+
+    fireEvent.click(await screen.findByTestId('close-side-bar'));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('should render nothing if no schema is available', async () => {
     const noSchemaVizNode = createVisualizationNode('route', {
       name: EntityType.Route,
