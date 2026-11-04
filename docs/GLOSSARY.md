@@ -424,7 +424,7 @@ payload (`ok: true`) or a `BridgeError` with a code such as `TIMEOUT` or `NOT_RE
 
 ### Event
 
-A one-way message with no response, such as `editor:ready` or `host:theme:changed`. Either side can send events.
+A one-way message with no response, such as `editor:ready` or `host:settings:updated`. Either side can send events.
 
 **Code:** `bus.emit(name, payload)` sends; `bus.on(name, listener)` listens. `eventCatalog` declares every event
 with its sender and payload validator.
