@@ -77,14 +77,6 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                             >
                               <rect
                                 aria-hidden="true"
-                                class="custom-group__focus-ring"
-                                height="1357"
-                                width="732"
-                                x="31.5"
-                                y="31.5"
-                              />
-                              <rect
-                                aria-hidden="true"
                                 class="custom-group__drop-area"
                                 fill="none"
                                 height="1350"
@@ -94,6 +86,14 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                 y="35"
                               />
                               <g>
+                                <rect
+                                  aria-hidden="true"
+                                  class="custom-group__focus-ring"
+                                  height="1357"
+                                  width="732"
+                                  x="31.5"
+                                  y="31.5"
+                                />
                                 <foreignobject
                                   class="custom-group__body"
                                   data-nodelabel="route-8888"
@@ -153,14 +153,6 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                             >
                               <rect
                                 aria-hidden="true"
-                                class="custom-group__focus-ring"
-                                height="687"
-                                width="652"
-                                x="71.5"
-                                y="376.5"
-                              />
-                              <rect
-                                aria-hidden="true"
                                 class="custom-group__drop-area"
                                 fill="none"
                                 height="680"
@@ -170,6 +162,14 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                 y="380"
                               />
                               <g>
+                                <rect
+                                  aria-hidden="true"
+                                  class="custom-group__focus-ring"
+                                  height="687"
+                                  width="652"
+                                  x="71.5"
+                                  y="376.5"
+                                />
                                 <foreignobject
                                   class="custom-group__body"
                                   data-nodelabel="choice"
@@ -229,14 +229,6 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                             >
                               <rect
                                 aria-hidden="true"
-                                class="custom-group__focus-ring"
-                                height="297"
-                                width="177"
-                                x="256.5"
-                                y="571.5"
-                              />
-                              <rect
-                                aria-hidden="true"
                                 class="custom-group__drop-area"
                                 fill="none"
                                 height="290"
@@ -246,6 +238,14 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                                 y="575"
                               />
                               <g>
+                                <rect
+                                  aria-hidden="true"
+                                  class="custom-group__focus-ring"
+                                  height="297"
+                                  width="177"
+                                  x="256.5"
+                                  y="571.5"
+                                />
                                 <foreignobject
                                   class="custom-group__body"
                                   data-nodelabel="when"
@@ -1186,14 +1186,6 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                             >
                               <rect
                                 aria-hidden="true"
-                                class="custom-group__focus-ring"
-                                height="1357"
-                                width="732"
-                                x="31.5"
-                                y="31.5"
-                              />
-                              <rect
-                                aria-hidden="true"
                                 class="custom-group__drop-area"
                                 fill="none"
                                 height="1350"
@@ -1203,6 +1195,14 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                 y="35"
                               />
                               <g>
+                                <rect
+                                  aria-hidden="true"
+                                  class="custom-group__focus-ring"
+                                  height="1357"
+                                  width="732"
+                                  x="31.5"
+                                  y="31.5"
+                                />
                                 <foreignobject
                                   class="custom-group__body"
                                   data-nodelabel="route-8888"
@@ -1262,14 +1262,6 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                             >
                               <rect
                                 aria-hidden="true"
-                                class="custom-group__focus-ring"
-                                height="687"
-                                width="652"
-                                x="71.5"
-                                y="376.5"
-                              />
-                              <rect
-                                aria-hidden="true"
                                 class="custom-group__drop-area"
                                 fill="none"
                                 height="680"
@@ -1279,6 +1271,14 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                 y="380"
                               />
                               <g>
+                                <rect
+                                  aria-hidden="true"
+                                  class="custom-group__focus-ring"
+                                  height="687"
+                                  width="652"
+                                  x="71.5"
+                                  y="376.5"
+                                />
                                 <foreignobject
                                   class="custom-group__body"
                                   data-nodelabel="choice"
@@ -1338,14 +1338,6 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                             >
                               <rect
                                 aria-hidden="true"
-                                class="custom-group__focus-ring"
-                                height="297"
-                                width="177"
-                                x="256.5"
-                                y="571.5"
-                              />
-                              <rect
-                                aria-hidden="true"
                                 class="custom-group__drop-area"
                                 fill="none"
                                 height="290"
@@ -1355,6 +1347,14 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                                 y="575"
                               />
                               <g>
+                                <rect
+                                  aria-hidden="true"
+                                  class="custom-group__focus-ring"
+                                  height="297"
+                                  width="177"
+                                  x="256.5"
+                                  y="571.5"
+                                />
                                 <foreignobject
                                   class="custom-group__body"
                                   data-nodelabel="when"
@@ -2344,14 +2344,6 @@ exports[`Canvas > should render correctly 1`] = `
                             >
                               <rect
                                 aria-hidden="true"
-                                class="custom-group__focus-ring"
-                                height="1357"
-                                width="732"
-                                x="31.5"
-                                y="31.5"
-                              />
-                              <rect
-                                aria-hidden="true"
                                 class="custom-group__drop-area"
                                 fill="none"
                                 height="1350"
@@ -2361,6 +2353,14 @@ exports[`Canvas > should render correctly 1`] = `
                                 y="35"
                               />
                               <g>
+                                <rect
+                                  aria-hidden="true"
+                                  class="custom-group__focus-ring"
+                                  height="1357"
+                                  width="732"
+                                  x="31.5"
+                                  y="31.5"
+                                />
                                 <foreignobject
                                   class="custom-group__body"
                                   data-nodelabel="route-8888"
@@ -2420,14 +2420,6 @@ exports[`Canvas > should render correctly 1`] = `
                             >
                               <rect
                                 aria-hidden="true"
-                                class="custom-group__focus-ring"
-                                height="687"
-                                width="652"
-                                x="71.5"
-                                y="376.5"
-                              />
-                              <rect
-                                aria-hidden="true"
                                 class="custom-group__drop-area"
                                 fill="none"
                                 height="680"
@@ -2437,6 +2429,14 @@ exports[`Canvas > should render correctly 1`] = `
                                 y="380"
                               />
                               <g>
+                                <rect
+                                  aria-hidden="true"
+                                  class="custom-group__focus-ring"
+                                  height="687"
+                                  width="652"
+                                  x="71.5"
+                                  y="376.5"
+                                />
                                 <foreignobject
                                   class="custom-group__body"
                                   data-nodelabel="choice"
@@ -2496,14 +2496,6 @@ exports[`Canvas > should render correctly 1`] = `
                             >
                               <rect
                                 aria-hidden="true"
-                                class="custom-group__focus-ring"
-                                height="297"
-                                width="177"
-                                x="256.5"
-                                y="571.5"
-                              />
-                              <rect
-                                aria-hidden="true"
                                 class="custom-group__drop-area"
                                 fill="none"
                                 height="290"
@@ -2513,6 +2505,14 @@ exports[`Canvas > should render correctly 1`] = `
                                 y="575"
                               />
                               <g>
+                                <rect
+                                  aria-hidden="true"
+                                  class="custom-group__focus-ring"
+                                  height="297"
+                                  width="177"
+                                  x="256.5"
+                                  y="571.5"
+                                />
                                 <foreignobject
                                   class="custom-group__body"
                                   data-nodelabel="when"

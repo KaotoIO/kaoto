@@ -103,6 +103,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           event.preventDefault();
           const rect = event.currentTarget.getBoundingClientRect?.() ?? { left: 0, bottom: 0 };
           onContextMenu?.({
+            type: event.type,
             preventDefault: () => {},
             stopPropagation: () => {},
             clientX: rect.left,
@@ -237,14 +238,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
         >
           <CanvasNodeOverlays overlays={overlays} bounds={boxRef.current} />
           <rect
-            className="custom-group__focus-ring"
-            aria-hidden="true"
-            x={boxRef.current.x - FOCUS_RING_OFFSET}
-            y={boxRef.current.y - FOCUS_RING_OFFSET}
-            width={boxRef.current.width + 2 * FOCUS_RING_OFFSET}
-            height={boxRef.current.height + 2 * FOCUS_RING_OFFSET}
-          />
-          <rect
             ref={dndDropRef}
             className="custom-group__drop-area"
             aria-hidden="true"
@@ -258,6 +251,14 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}
           {/** WebKit can omit foreignObject backgrounds with direct opacity; composite its SVG wrapper instead. */}
           <g opacity={isDraggingGroup || refreshGroup ? 0.5 : undefined}>
+            <rect
+              className="custom-group__focus-ring"
+              aria-hidden="true"
+              x={boxRef.current.x - FOCUS_RING_OFFSET}
+              y={boxRef.current.y - FOCUS_RING_OFFSET}
+              width={boxRef.current.width + 2 * FOCUS_RING_OFFSET}
+              height={boxRef.current.height + 2 * FOCUS_RING_OFFSET}
+            />
             <foreignObject
               className="custom-group__body"
               data-nodelabel={label}
@@ -315,6 +316,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                 height={CanvasDefaults.DEFAULT_NODE_HEIGHT}
                 dataNodelabel={label}
                 transform={`translate(${dragGroupProps.dragEvent!.x - 20}, ${dragGroupProps.dragEvent!.y - 20})`}
+                className="custom-node"
                 dataTestId={groupVizNode.id}
                 vizNode={groupVizNode}
                 isCollapsed={element.isCollapsed()}

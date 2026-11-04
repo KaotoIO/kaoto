@@ -86,6 +86,42 @@ describe('Canvas', () => {
     expect(result.asFragment()).toMatchSnapshot();
   });
 
+  it.each(['F10', 'ContextMenu'])('opens the canvas background menu with %s and restores focus', async (key) => {
+    await renderCanvas();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const canvas = screen.getByLabelText('Route canvas');
+    canvas.focus();
+    fireEvent.keyDown(canvas, { key, shiftKey: key === 'F10' });
+
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Show all' })).toHaveFocus());
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('menuitem', { name: 'Hide all' })).toHaveFocus();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(canvas).toHaveFocus());
+    expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+  });
+
+  it('opens the canvas background menu with the mouse without focusing an action', async () => {
+    const { container } = await renderCanvas();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const background = container.querySelector('[data-kind="graph"] > rect')!;
+    fireEvent.contextMenu(background, { button: 2, clientX: 100, clientY: 100 });
+    const showAll = await screen.findByRole('menuitem', { name: 'Show all' });
+    expect(showAll).not.toHaveFocus();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.getByLabelText('Route canvas')).toHaveFocus());
+    expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+  });
+
+  it('does not open the canvas background menu from a toolbar control', async () => {
+    await renderCanvas();
+    const resetView = screen.getByRole('button', { name: 'Reset View' });
+    resetView.focus();
+    fireEvent.keyDown(resetView, { key: 'F10', shiftKey: true });
+    expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+    expect(resetView).toHaveFocus();
+  });
+
   it('should keep the selection listener registered while selection changes rerender the canvas', async () => {
     const { container, controller } = await renderCanvas();
     const addSpy = vi.spyOn(controller, 'addEventListener');
@@ -183,37 +219,83 @@ describe('Canvas', () => {
     expect(canvasEl).toHaveFocus();
   });
 
-  it('should restore focus to the selected canvas node when closing the sidebar', async () => {
+  it.each([
+    ['Escape', false],
+    ['close button', false],
+    ['Escape', true],
+    ['close button', true],
+  ])('restores step focus using %s (step removed: %s)', async (closeMethod, removed) => {
     const { container, controller } = await renderCanvas();
 
-    // Inject a fake canvas <g> element with the expected testid for route.from
-    const fakeNode = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    fakeNode.setAttribute('class', 'custom-node');
-    fakeNode.setAttribute('data-testid', 'custom-node__route.from');
-    fakeNode.setAttribute('tabindex', '-1');
-    container.appendChild(fakeNode);
+    // JSDOM does not lay out the SVG nodes; provide their actual topology DOM structure.
+    const appendNode = (routeId: string) => {
+      const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      wrapper.setAttribute('data-id', `${routeId}|route.from`);
+      const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      node.setAttribute('class', 'custom-node');
+      node.setAttribute('data-testid', 'custom-node__route.from');
+      node.setAttribute('tabindex', '-1');
+      wrapper.appendChild(node);
+      screen.getByLabelText('Route canvas').appendChild(wrapper);
+      return node;
+    };
+    const otherRouteNode = appendNode('route-other');
+    const selectedNode = appendNode('route-8888');
 
-    // Open sidebar by selecting the timer `from` step
     act(() => {
       controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
     });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
-    });
-
-    // Close via Escape — clearSelection should focus the canvas node, not #canvas-main
-    fireEvent.keyDown(container.firstChild!, { key: 'Escape' });
-
-    await waitFor(() => {
-      expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
-    });
-
+    await waitFor(() => expect(screen.getByTestId('close-side-bar')).toBeInTheDocument());
     await act(async () => {
       await vi.runAllTimersAsync();
     });
 
-    expect(fakeNode).toHaveFocus();
+    if (removed) selectedNode.remove();
+    if (closeMethod === 'Escape') {
+      // The form's Carbon search consumes Escape to clear its filter.
+      const closeButton = screen.getByTestId('close-side-bar');
+      closeButton.focus();
+      fireEvent.keyDown(closeButton, { key: 'Escape' });
+    } else {
+      fireEvent.click(screen.getByTestId('close-side-bar'));
+    }
+    await waitFor(() => expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument());
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(removed ? screen.getByLabelText('Route canvas') : selectedNode).toHaveFocus();
+    expect(otherRouteNode).not.toHaveFocus();
+  });
+
+  it('should focus the canvas instead of the selected node when clicking the background', async () => {
+    const { container, controller } = await renderCanvas();
+    const canvas = container.querySelector('[id="canvas-main"]')!;
+    // Topology does not render SVG nodes in this test environment.
+    const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    node.setAttribute('data-testid', 'custom-node__route.from');
+    node.setAttribute('tabindex', '-1');
+    canvas.appendChild(node);
+    const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    canvas.appendChild(background);
+
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
+    });
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    fireEvent.click(background);
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+    expect(canvas).toHaveFocus();
   });
 
   it('should schedule a graph.fit(80) upon loading', async () => {
