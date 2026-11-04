@@ -6,7 +6,6 @@ import {
   Divider,
   Dropdown,
   DropdownItem,
-  Icon,
   Masthead,
   MastheadBrand,
   MastheadContent,
@@ -98,33 +97,25 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
             >
               <a href="https://kaoto.io/workshop/" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="tutorial">
-                  <Icon isInline>
-                    <Launch />
-                  </Icon>
+                  <Launch className="topbar-menu-icon" />
                   &nbsp;<span className="pf-u-mr-lg">Tutorials</span>
                 </DropdownItem>
               </a>
               <a href="https://kaoto.io/docs/" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="help">
-                  <Icon isInline>
-                    <Launch />
-                  </Icon>
+                  <Launch className="topbar-menu-icon" />
                   &nbsp;<span className="pf-u-mr-lg">Help</span>
                 </DropdownItem>
               </a>
               <a href="https://github.com/KaotoIO/kaoto-examples" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="feedback">
-                  <Icon isInline>
-                    <LogoGithub />
-                  </Icon>
+                  <LogoGithub className="topbar-menu-icon" />
                   &nbsp;<span className="pf-u-mr-lg">Examples</span>
                 </DropdownItem>
               </a>
               <a href="https://github.com/KaotoIO/kaoto/issues/new/choose" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="feedback">
-                  <Icon isInline>
-                    <LogoGithub />
-                  </Icon>
+                  <LogoGithub className="topbar-menu-icon" />
                   &nbsp;<span className="pf-u-mr-lg">Feedback</span>
                 </DropdownItem>
               </a>
@@ -136,17 +127,13 @@ export const TopBar: FunctionComponent<ITopBar> = (props) => {
                 rel="noopener noreferrer"
               >
                 <DropdownItem key="camel">
-                  <Icon isInline>
-                    <img src={camelLogo} alt="Camel logo" />
-                  </Icon>
+                  <img className="topbar-menu-icon" src={camelLogo} alt="Camel logo" />
                   &nbsp;<span className="pf-u-mr-lg">Apache Camel</span>
                 </DropdownItem>
               </a>
               <a href="https://hawt.io/docs/get-started.html" target="_blank" rel="noopener noreferrer">
                 <DropdownItem key="hawtio">
-                  <Icon isInline>
-                    <FireFill />
-                  </Icon>
+                  <FireFill className="topbar-menu-icon" />
                   &nbsp;<span className="pf-u-mr-lg">Hawtio</span>
                 </DropdownItem>
               </a>
