@@ -2,6 +2,7 @@ import hotkeys from 'hotkeys-js';
 import { useCallback, useEffect, useRef } from 'react';
 
 import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
+import { findCanvasNodeById } from '../components/Visualization/Canvas/canvas-focus';
 
 /**
  * Explicit ordering for named EIP property segments that would otherwise sort
@@ -104,11 +105,7 @@ export function useArrowKeyNavigation(selectedNodeId?: string): () => void {
 
   useEffect(() => {
     if (!selectedNodeId) return;
-    const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
-    lastFocusedNode.current =
-      Array.from(canvas?.querySelectorAll<HTMLElement>('g.custom-node, g.placeholder-node, g.custom-group') ?? []).find(
-        (node) => node.closest<SVGElement>('[data-id]')?.dataset.id === selectedNodeId,
-      ) ?? null;
+    lastFocusedNode.current = findCanvasNodeById(selectedNodeId) ?? null;
   }, [selectedNodeId]);
 
   useEffect(() => {
