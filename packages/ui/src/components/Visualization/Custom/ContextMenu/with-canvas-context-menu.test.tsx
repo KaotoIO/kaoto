@@ -248,6 +248,7 @@ it('still opens with the mouse and executes an action', async () => {
   const { user, trigger } = setup();
   fireEvent.contextMenu(trigger, { button: 2, clientX: 10, clientY: 20 });
   const firstAction = await screen.findByRole('menuitem', { name: 'First action' });
+  expect(await screen.findByTestId('canvas-context-menu')).toContainElement(firstAction);
   expect(firstAction).not.toHaveFocus();
   await user.hover(screen.getByRole('menuitem', { name: 'Second action' }));
   expect(firstAction).not.toHaveFocus();

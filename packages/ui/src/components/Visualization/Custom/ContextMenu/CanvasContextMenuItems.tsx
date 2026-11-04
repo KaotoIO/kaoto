@@ -106,7 +106,7 @@ export const CanvasContextMenu = ({
         if (event?.key === 'Escape') onRequestClose();
       }}
       popper={
-        <div>
+        <div data-testid="canvas-context-menu">
           <CanvasMenuCloseContext.Provider value={onRequestClose}>
             <CanvasContextMenuItems>{children}</CanvasContextMenuItems>
           </CanvasMenuCloseContext.Provider>
