@@ -1,11 +1,12 @@
 import { Add, View, ViewOff } from '@carbon/icons-react';
 import { Divider } from '@patternfly/react-core';
-import { ContextSubMenuItem, ElementContext, GraphComponent, withContextMenu } from '@patternfly/react-topology';
+import { ContextSubMenuItem, ElementContext, GraphComponent } from '@patternfly/react-topology';
 import { createContext, FunctionComponent, PropsWithChildren, ReactElement, useContext, useMemo } from 'react';
 
 import { IDataTestID } from '../../../../models';
 import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
 import { CanvasToolbar } from '../../Canvas/CanvasToolbar/CanvasToolbar';
+import { withCanvasContextMenu } from '../ContextMenu/with-canvas-context-menu';
 import { withCustomPanZoom } from './customUsePanZoom';
 import { ItemPasteEntity } from './ItemPasteEntity';
 import { ShowOrHideAllFlows } from './ShowOrHideAllFlows';
@@ -60,7 +61,9 @@ const GraphContextMenu: FunctionComponent = () => {
   const options = useContext(GraphMenuContext);
   return <>{GraphContextMenuFn(options)}</>;
 };
-const EnhancedGraphComponent = withContextMenu(() => [<GraphContextMenu key="graph-menu" />])(PanZoomGraphComponent);
+const EnhancedGraphComponent = withCanvasContextMenu(() => [<GraphContextMenu key="graph-menu" />])(
+  PanZoomGraphComponent,
+);
 
 const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({ entityContextMenuFn, ...rest }) => {
   const element = useContext(ElementContext);

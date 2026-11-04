@@ -118,6 +118,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           // Position the context menu at the bottom-left of the node (keyboard convention)
           const rect = event.currentTarget.getBoundingClientRect?.() ?? { left: 0, bottom: 0 };
           onContextMenu?.({
+            type: event.type,
             preventDefault: () => {},
             stopPropagation: () => {},
             clientX: rect.left,

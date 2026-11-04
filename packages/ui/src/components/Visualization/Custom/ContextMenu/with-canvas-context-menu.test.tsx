@@ -18,6 +18,7 @@ const Trigger = ({ onContextMenu }: WithContextMenuProps) => (
     onKeyDown={(event) => {
       if ((event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu') {
         onContextMenu?.({
+          type: event.type,
           preventDefault: () => {
             event.preventDefault();
           },
@@ -179,7 +180,21 @@ it('allows an outside click to move focus away from the menu', async () => {
 
 it('still opens with the mouse and executes an action', async () => {
   const { user, trigger } = setup();
-  fireEvent.contextMenu(trigger, { clientX: 10, clientY: 20 });
+  fireEvent.contextMenu(trigger, { button: 2, clientX: 10, clientY: 20 });
+  const firstAction = await screen.findByRole('menuitem', { name: 'First action' });
+  expect(firstAction).not.toHaveFocus();
+  await user.hover(screen.getByRole('menuitem', { name: 'Second action' }));
+  expect(firstAction).not.toHaveFocus();
   await user.click(await screen.findByRole('menuitem', { name: 'Second action' }));
   expect(screen.getByRole('status')).toHaveTextContent('Second action');
+});
+
+it('closes a mouse-opened menu on Escape and restores node focus', async () => {
+  const { user, trigger } = setup();
+  fireEvent.contextMenu(trigger, { button: 2, clientX: 10, clientY: 20 });
+  await screen.findByRole('menuitem', { name: 'First action' });
+  await user.keyboard('{Escape}');
+  await waitFor(() => expect(trigger).toHaveFocus());
+  expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+  expect(screen.getByRole('status')).toBeEmptyDOMElement();
 });

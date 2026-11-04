@@ -86,6 +86,42 @@ describe('Canvas', () => {
     expect(result.asFragment()).toMatchSnapshot();
   });
 
+  it.each(['F10', 'ContextMenu'])('opens the canvas background menu with %s and restores focus', async (key) => {
+    await renderCanvas();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const canvas = screen.getByLabelText('Route canvas');
+    canvas.focus();
+    fireEvent.keyDown(canvas, { key, shiftKey: key === 'F10' });
+
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Show all' })).toHaveFocus());
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('menuitem', { name: 'Hide all' })).toHaveFocus();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(canvas).toHaveFocus());
+    expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+  });
+
+  it('opens the canvas background menu with the mouse without focusing an action', async () => {
+    const { container } = await renderCanvas();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const background = container.querySelector('[data-kind="graph"] > rect')!;
+    fireEvent.contextMenu(background, { button: 2, clientX: 100, clientY: 100 });
+    const showAll = await screen.findByRole('menuitem', { name: 'Show all' });
+    expect(showAll).not.toHaveFocus();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.getByLabelText('Route canvas')).toHaveFocus());
+    expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+  });
+
+  it('does not open the canvas background menu from a toolbar control', async () => {
+    await renderCanvas();
+    const resetView = screen.getByRole('button', { name: 'Reset View' });
+    resetView.focus();
+    fireEvent.keyDown(resetView, { key: 'F10', shiftKey: true });
+    expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+    expect(resetView).toHaveFocus();
+  });
+
   it('should keep the selection listener registered while selection changes rerender the canvas', async () => {
     const { container, controller } = await renderCanvas();
     const addSpy = vi.spyOn(controller, 'addEventListener');

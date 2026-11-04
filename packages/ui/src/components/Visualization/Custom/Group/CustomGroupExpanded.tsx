@@ -103,6 +103,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           event.preventDefault();
           const rect = event.currentTarget.getBoundingClientRect?.() ?? { left: 0, bottom: 0 };
           onContextMenu?.({
+            type: event.type,
             preventDefault: () => {},
             stopPropagation: () => {},
             clientX: rect.left,
