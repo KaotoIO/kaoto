@@ -1,20 +1,15 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
-import { IVisualizationNode } from '../../../base-visual-entity';
 import { createVisualizationNode } from '../../../visualization-node';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';
 
-function deferred<T>() {
-  let resolve!: (value: T) => void;
-  const promise = new Promise<T>((done) => {
-    resolve = done;
-  });
-  return { promise, resolve };
-}
-
 describe('BaseNodeMapper', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   let mapper: BaseNodeMapper;
   let path: string;
   let componentLookup: { primaryNodeId: { name: string; catalogKind: CatalogKind } };
@@ -81,17 +76,7 @@ describe('BaseNodeMapper', () => {
     });
 
     it('builds branch nodes concurrently and links them in source order', async () => {
-      const first = deferred<IVisualizationNode>();
-      const second = deferred<IVisualizationNode>();
-      const root = {
-        getVizNodeFromProcessor: vi.fn().mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise),
-      };
-      const branchMapper = new BaseNodeMapper(root);
-      const building = branchMapper.getVizNodeFromProcessor(
-        'from',
-        { primaryNodeId: { name: 'from', catalogKind: CatalogKind.Pattern } },
-        { from: { uri: 'direct:start', steps: [{ log: 'first' }, { log: 'second' }] } },
-      );
+      vi.useFakeTimers();
       const firstNode = createVisualizationNode('first', {
         name: 'log',
         path: 'from.steps.0.log',
@@ -111,12 +96,27 @@ describe('BaseNodeMapper', () => {
         description: '',
       });
 
-      try {
-        expect(root.getVizNodeFromProcessor).toHaveBeenCalledTimes(2);
-      } finally {
-        second.resolve(secondNode);
-        first.resolve(firstNode);
-      }
+      const root = new RootNodeMapper();
+      const getVizNode = vi
+        .spyOn(root, 'getVizNodeFromProcessor')
+        .mockImplementationOnce(
+          () =>
+            new Promise((resolve) =>
+              setTimeout(() => {
+                resolve(firstNode);
+              }, 100),
+            ),
+        )
+        .mockResolvedValueOnce(secondNode);
+      const branchMapper = new BaseNodeMapper(root);
+      const building = branchMapper.getVizNodeFromProcessor(
+        'from',
+        { primaryNodeId: { name: 'from', catalogKind: CatalogKind.Pattern } },
+        { from: { uri: 'direct:start', steps: [{ log: 'first' }, { log: 'second' }] } },
+      );
+
+      expect(getVizNode).toHaveBeenCalledTimes(2);
+      await vi.advanceTimersByTimeAsync(100);
 
       const children = (await building).getChildren()!;
       expect(children.slice(0, 2)).toEqual([firstNode, secondNode]);
