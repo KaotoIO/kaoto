@@ -1,11 +1,12 @@
 import { Add, View, ViewOff } from '@carbon/icons-react';
 import { Divider } from '@patternfly/react-core';
-import { ContextSubMenuItem, ElementContext, GraphComponent } from '@patternfly/react-topology';
+import { ElementContext, GraphComponent } from '@patternfly/react-topology';
 import { createContext, FunctionComponent, PropsWithChildren, ReactElement, useContext, useMemo } from 'react';
 
 import { IDataTestID } from '../../../../models';
 import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
 import { CanvasToolbar } from '../../Canvas/CanvasToolbar/CanvasToolbar';
+import { CanvasContextSubMenu } from '../ContextMenu/CanvasContextMenuItems';
 import { withCanvasContextMenu } from '../ContextMenu/with-canvas-context-menu';
 import { withCustomPanZoom } from './customUsePanZoom';
 import { ItemPasteEntity } from './ItemPasteEntity';
@@ -36,7 +37,7 @@ export const GraphContextMenuFn = ({
   if (entities.length > 0) {
     items.push(
       <Divider key="new-entity-divider" />,
-      <ContextSubMenuItem
+      <CanvasContextSubMenu
         key="new-entity"
         data-testid="context-menu-item-new-entity"
         label={
@@ -47,7 +48,7 @@ export const GraphContextMenuFn = ({
         }
       >
         {entities}
-      </ContextSubMenuItem>,
+      </CanvasContextSubMenu>,
     );
   }
 

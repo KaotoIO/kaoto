@@ -1,15 +1,16 @@
-import * as Topology from '@patternfly/react-topology';
-import { ContextMenu, WithContextMenuProps } from '@patternfly/react-topology';
+import { WithContextMenuProps } from '@patternfly/react-topology';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
+import * as CanvasMenu from './CanvasContextMenuItems';
+import { CanvasContextMenu } from './CanvasContextMenuItems';
 import { withCanvasContextMenu } from './with-canvas-context-menu';
 
 // Capture the positioning contract; JSDOM cannot lay out Popper's floating menu.
 beforeEach(() => {
-  vi.spyOn(Topology, 'ContextMenu').mockImplementation(({ children }: PropsWithChildren) => <>{children}</>);
+  vi.spyOn(CanvasMenu, 'CanvasContextMenu').mockImplementation(({ children }: PropsWithChildren) => <>{children}</>);
 });
 
 afterEach(() => {
@@ -49,11 +50,17 @@ it.each(['F10', 'ContextMenu'])('anchors %s below the toolbar at the drawing sur
   const canvas = setup();
   canvas.focus();
   fireEvent.keyDown(canvas, { key, shiftKey: key === 'F10' });
-  expect(ContextMenu).toHaveBeenLastCalledWith(expect.objectContaining({ reference: { x: 100, y: 150 } }), undefined);
+  expect(CanvasContextMenu).toHaveBeenLastCalledWith(
+    expect.objectContaining({ reference: { x: 100, y: 150 } }),
+    undefined,
+  );
 });
 
 it('keeps mouse invocation anchored at the pointer', () => {
   setup();
   fireEvent.contextMenu(screen.getByTestId('background'), { button: 2, clientX: 320, clientY: 240 });
-  expect(ContextMenu).toHaveBeenLastCalledWith(expect.objectContaining({ reference: { x: 320, y: 240 } }), undefined);
+  expect(CanvasContextMenu).toHaveBeenLastCalledWith(
+    expect.objectContaining({ reference: { x: 320, y: 240 } }),
+    undefined,
+  );
 });

@@ -1,5 +1,5 @@
 import { MenuList } from '@patternfly/react-core';
-import { ContextMenu, ElementContext, GraphElement, isGraph, WithContextMenuProps } from '@patternfly/react-topology';
+import { ElementContext, GraphElement, isGraph, WithContextMenuProps } from '@patternfly/react-topology';
 import {
   ComponentType,
   MouseEvent,
@@ -13,6 +13,7 @@ import {
 } from 'react';
 
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
+import { CanvasContextMenu } from './CanvasContextMenuItems';
 
 type FocusTarget = HTMLElement | SVGElement;
 type MenuTriggerEvent = Pick<
@@ -119,9 +120,9 @@ export const withCanvasContextMenu =
         <>
           <WrappedComponent {...(props as P)} onContextMenu={onContextMenu} contextMenuOpen={!!reference} />
           {reference && (
-            <ContextMenu reference={reference} open onRequestClose={closeMenu}>
+            <CanvasContextMenu reference={reference} onRequestClose={closeMenu}>
               {menu}
-            </ContextMenu>
+            </CanvasContextMenu>
           )}
         </>
       );
