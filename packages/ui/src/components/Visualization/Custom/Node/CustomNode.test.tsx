@@ -1,10 +1,11 @@
-import { action, BaseEdge, NodeModel, Rect } from '@patternfly/react-topology';
+import { action, BaseEdge, DndManager, DndStore, NodeModel, Rect } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
+import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { CustomNodeObserver, CustomNodeWithSelection } from './CustomNode';
 
 /** Creates a real controller holding a single node built from the given data */
@@ -87,6 +88,49 @@ describe('CustomNode', () => {
     expect(ring).toHaveAttribute('x', '26.5');
     expect(ring).toHaveAttribute('y', '16.5');
   });
+
+  it.each(['cancel', 'end'] as const)(
+    'keeps the focus ring on the source ghost while moving and restores it on %s',
+    async (finish) => {
+      const { element, vizNode, controller } = await renderCustomNode();
+      act(() => {
+        element.setBounds(new Rect(40, 60, 90, 75));
+      });
+      const manager: DndManager = controller.getStore<DndStore>().dndManager;
+      const [source] = manager.registerSource({
+        type: NODE_DRAG_TYPE,
+        canDrag: () => true,
+        beginDrag: () => element,
+        drag: () => {},
+        endDrag: () => {},
+        canCancel: () => true,
+      });
+      act(() => {
+        manager.beginDrag(source, undefined, 40, 60, 40, 60);
+      });
+      act(() => {
+        element.setBounds(new Rect(140, 160, 90, 75));
+      });
+      const preview = screen.getByTestId(vizNode.id).closest('g');
+      const ghost = screen.getByTestId(`${vizNode.id}-dummy`).closest('g');
+      expect(preview?.querySelector('.custom-node__focus-ring')).not.toBeInTheDocument();
+      const ring = ghost?.querySelector('.custom-node__focus-ring');
+      expect(ring).toBeInTheDocument();
+      expect(ghost?.getAttribute('transform')).toMatch(/^translate\(-100, -100\)/);
+      expect(ghost).toHaveAttribute('opacity', '0.5');
+      expect(ring).not.toHaveAttribute('opacity');
+      expect(ring!.compareDocumentPosition(ghost!.querySelector('foreignObject')!)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      await act(async () => {
+        if (finish === 'cancel') manager.cancel();
+        await manager.endDrag();
+      });
+      expect(screen.queryByTestId(`${vizNode.id}-dummy`)).not.toBeInTheDocument();
+      expect(preview?.querySelector('.custom-node__focus-ring')).toBeInTheDocument();
+      expect(preview).not.toHaveAttribute('opacity');
+    },
+  );
 
   it('updates the production node when visualization data disappears and returns', async () => {
     const { element, vizNode } = await renderCustomNode({ withSelection: true });

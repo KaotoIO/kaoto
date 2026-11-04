@@ -26,7 +26,7 @@ import {
   useDragNode,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';

@@ -8,7 +8,7 @@ import {
   Rect,
   Visualization,
 } from '@patternfly/react-topology';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { CatalogModalContext, CatalogModalContextValue } from '../../../../dynamic-catalog/catalog-modal.provider';
@@ -130,50 +130,48 @@ describe('CustomGroupExpanded', () => {
     },
   );
 
-  it.each([true, false])('moves only a focused group ring to the drag preview (focused: %s)', async (focused) => {
-    const vizNode = createChoiceVizNode();
-    createController({ vizNode });
-    const element = controller.getNodeById(GROUP_ID)!;
-    const { container } = await renderInContext(<CustomGroupExpanded element={element} />);
-    const group = screen.getByTestId('custom-group__choice-1');
-    if (focused) fireEvent.focus(group);
-    const manager: DndManager = controller.getStore<DndStore>().dndManager;
-    const [source] = manager.registerSource({
-      type: GROUP_DRAG_TYPE,
-      canDrag: () => true,
-      beginDrag: () => element,
-      drag: () => {},
-      endDrag: () => {},
-      canCancel: () => true,
-    });
-    act(() => {
-      manager.beginDrag(source, undefined, 100, 120, 100, 120);
-    });
-    expect(group.querySelector(':scope > .custom-group__focus-ring')).not.toBeInTheDocument();
-    const ring = container.querySelector('.custom-group__drag-focus-ring');
-    if (focused) {
+  it.each(['cancel', 'end'] as const)(
+    'keeps the ring at the source during dragging and restores opacity on %s',
+    async (finish) => {
+      const vizNode = createChoiceVizNode();
+      createController({ vizNode });
+      const element = controller.getNodeById(GROUP_ID)!;
+      const { container } = await renderInContext(<CustomGroupExpanded element={element} />);
+      const group = screen.getByTestId('custom-group__choice-1');
+      const ring = group.querySelector('.custom-group__focus-ring');
+      const body = group.querySelector('.custom-group__body');
       expect(ring).toBeInTheDocument();
-      expect(ring).toHaveAttribute('width', '67');
-      expect(ring).toHaveAttribute('height', '67');
+      expect(ring?.parentElement).toBe(body?.parentElement);
+      const manager: DndManager = controller.getStore<DndStore>().dndManager;
+      const [source] = manager.registerSource({
+        type: GROUP_DRAG_TYPE,
+        canDrag: () => true,
+        beginDrag: () => element,
+        drag: () => {},
+        endDrag: () => {},
+        canCancel: () => true,
+      });
+      act(() => {
+        manager.beginDrag(source, undefined, 100, 120, 100, 120);
+      });
+      expect(group.querySelector('.custom-group__focus-ring')).toBe(ring);
       expect(ring?.parentElement).toHaveAttribute('opacity', '0.5');
-      const content = ring?.parentElement?.querySelector('foreignObject');
-      expect(content).toBeInTheDocument();
-      expect(content).not.toHaveAttribute('opacity');
-      expect(ring!.compareDocumentPosition(content!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-      fireEvent.blur(group);
-      expect(container.querySelector('.custom-group__drag-focus-ring')).not.toBeInTheDocument();
-      fireEvent.focus(group);
-      expect(container.querySelector('.custom-group__drag-focus-ring')).toBeInTheDocument();
-    } else {
-      expect(ring).not.toBeInTheDocument();
-    }
-    await act(async () => {
-      manager.cancel();
-      await manager.endDrag();
-    });
-    expect(container.querySelector('.custom-group__drag-focus-ring')).not.toBeInTheDocument();
-    expect(group.querySelector(':scope > .custom-group__focus-ring')).toBeInTheDocument();
-  });
+      expect(ring).not.toHaveAttribute('opacity');
+      expect(body).not.toHaveAttribute('opacity');
+      expect(ring!.compareDocumentPosition(body!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+      const preview = screen.getByTestId(vizNode.id).closest('g');
+      expect(preview).toHaveClass('custom-node');
+      expect(preview?.querySelector('rect')).not.toBeInTheDocument();
+      expect(container.querySelectorAll('.custom-group__focus-ring')).toHaveLength(1);
+      await act(async () => {
+        if (finish === 'cancel') manager.cancel();
+        await manager.endDrag();
+      });
+      expect(group.querySelector('.custom-group__focus-ring')).toBe(ring);
+      expect(ring?.parentElement).not.toHaveAttribute('opacity');
+      expect(screen.queryByTestId(vizNode.id)).not.toBeInTheDocument();
+    },
+  );
 
   it('should throw when element is not a Node', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -264,7 +262,7 @@ describe('CustomGroupExpanded', () => {
     await renderInContext(<CustomGroupExpanded element={element} selected />);
 
     const group = await screen.findByTestId('custom-group__choice-1');
-    const ring = group.querySelector(':scope > rect.custom-group__focus-ring');
+    const ring = group.querySelector(':scope > g > rect.custom-group__focus-ring');
     expect(ring).toBeInTheDocument();
     expect(ring).toHaveAttribute('aria-hidden', 'true');
     expect(ring).toHaveAttribute('x', '-3.5');
