@@ -26,35 +26,33 @@ export const getElementFromXml = (xml: string): Element => {
   return xmlDoc.documentElement;
 };
 
-function deferred<T>() {
-  let resolve!: (value: T) => void;
-  const promise = new Promise<T>((done) => {
-    resolve = done;
-  });
-  return { promise, resolve };
-}
-
 describe('BeanXmlParser', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);
   });
 
   it('parses beans concurrently and retains source order when later beans finish first', async () => {
-    const first = deferred<Awaited<ReturnType<typeof BeansXmlParser.transformBeanFactory>>>();
-    const second = deferred<Awaited<ReturnType<typeof BeansXmlParser.transformBeanFactory>>>();
+    vi.useFakeTimers();
     const transform = vi
       .spyOn(BeansXmlParser, 'transformBeanFactory')
-      .mockImplementationOnce(() => first.promise)
-      .mockImplementationOnce(() => second.promise);
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => {
+              resolve({ name: 'first', type: 'First' });
+            }, 100),
+          ),
+      )
+      .mockResolvedValueOnce({ name: 'second', type: 'Second' });
     const parsing = new BeansXmlParser().transformBeansSection(getElementFromXml('<beans><bean/><bean/></beans>'));
 
-    try {
-      expect(transform).toHaveBeenCalledTimes(2);
-    } finally {
-      second.resolve({ name: 'second', type: 'Second' });
-      first.resolve({ name: 'first', type: 'First' });
-    }
+    expect(transform).toHaveBeenCalledTimes(2);
+    await vi.advanceTimersByTimeAsync(100);
 
     await expect(parsing).resolves.toEqual([
       { name: 'first', type: 'First' },
