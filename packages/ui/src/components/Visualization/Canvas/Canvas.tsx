@@ -105,7 +105,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       const canvasNode = nodeId
         ? Array.from(
             canvas?.querySelectorAll<HTMLElement>('g.custom-node, g.placeholder-node, g.custom-group') ?? [],
-          ).find((node) => node.closest('[data-id]')?.getAttribute('data-id') === nodeId)
+          ).find((node) => node.closest<SVGElement>('[data-id]')?.dataset.id === nodeId)
         : undefined;
       if (canvasNode) {
         canvasNode.focus({ preventScroll: true });

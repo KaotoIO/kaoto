@@ -11,13 +11,16 @@ import { VisualizationEmptyState } from '../EmptyState';
 import { CanvasDefaults } from './canvas.defaults';
 import { useCanvasFocusRef } from './canvas-focus';
 
-interface EmptyCanvasProps {
+interface EmptyCanvasViewProps {
   entitiesNumber: number;
   contextToolbar?: ReactNode;
+}
+
+interface EmptyCanvasProps extends EmptyCanvasViewProps {
   isModelResolving?: boolean;
 }
 
-const EmptyCanvasView: FunctionComponent<PropsWithChildren<EmptyCanvasProps & WithContextMenuProps>> = ({
+const EmptyCanvasView: FunctionComponent<PropsWithChildren<EmptyCanvasViewProps & WithContextMenuProps>> = ({
   entitiesNumber,
   contextToolbar,
   onContextMenu,
@@ -51,5 +54,5 @@ const EmptyCanvasWithMenu = withCanvasContextMenu(() => [<EmptyCanvasMenu key="a
   isCanvasBackground: true,
 })(EmptyCanvasView);
 
-export const EmptyCanvas: FunctionComponent<PropsWithChildren<EmptyCanvasProps>> = (props) =>
-  props.isModelResolving ? null : <EmptyCanvasWithMenu {...props} />;
+export const EmptyCanvas: FunctionComponent<PropsWithChildren<EmptyCanvasProps>> = ({ isModelResolving, ...props }) =>
+  isModelResolving ? null : <EmptyCanvasWithMenu {...props} />;
