@@ -25,6 +25,11 @@ export interface BridgeOptions {
   transport: MessageTransport;
   /** `null` waits for as long as the bridge lives. A host can do that because the editor retries on its own. */
   handshakeTimeoutMs?: number | null;
+  /**
+   * Called once when the connection closes for any reason other than `dispose()`, such as a failed send. Events sent
+   * after that are dropped, so the owner must stop accepting changes that would never reach the peer.
+   */
+  onClose?: (error: BridgeError) => void;
 }
 export interface BridgeConnection {
   connect(): Promise<void>;
@@ -73,6 +78,7 @@ export function createPostMessageBridge({
   bus,
   transport,
   handshakeTimeoutMs = 5000,
+  onClose,
 }: BridgeOptions): BridgeConnection {
   if (handshakeTimeoutMs !== null && !validDuration(handshakeTimeoutMs))
     throw new BridgeError('INVALID_MESSAGE', 'Invalid handshake deadline');
@@ -135,6 +141,13 @@ export function createPostMessageBridge({
           transport.dispose();
         });
     else transport.dispose();
+    if (error.code !== 'DISPOSED') {
+      try {
+        onClose?.(error);
+      } catch (callbackError) {
+        endpoint.report(bridgeError(callbackError));
+      }
+    }
   };
   const dispose = () => {
     close(new BridgeError('DISPOSED', 'The bridge has been disposed'));

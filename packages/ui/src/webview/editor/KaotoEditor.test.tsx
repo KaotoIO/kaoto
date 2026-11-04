@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createPostMessageBridge } from '../../host-bridge/bridge';
-import { SettingsSnapshot } from '../../host-bridge/contracts';
+import { BridgeError, SettingsSnapshot } from '../../host-bridge/contracts';
 import { createEventBus } from '../../host-bridge/event-bus';
 import { createMemoryTransports } from '../../host-bridge/transports/memory';
 import {
@@ -61,6 +61,42 @@ describe('KaotoEditor', () => {
         readonly: false,
       }),
     ).resolves.toEqual(expect.objectContaining({ revision: expect.any(Number) }));
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
+
+  it('suspends the document and offers Retry when the host connection is lost', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+    let disconnect: ((error: Error) => void) | undefined;
+    const init: KaotoEditorInit = {
+      ...defaultInit,
+      onDisconnect: (listener) => {
+        disconnect = listener;
+        return () => {
+          disconnect = undefined;
+        };
+      },
+    };
+
+    render(<KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={init} />);
+    await hostBus.request('host:document:setContent', {
+      reason: 'init',
+      fileUri: 'file:///route.camel.yaml',
+      content: '- route: {}',
+      readonly: false,
+    });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+    disconnect?.(new BridgeError('IO_ERROR', 'The peer rejected message delivery'));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('The peer rejected message delivery');
+    expect(screen.getByRole('button', { name: 'Retry' })).toBeInTheDocument();
 
     hostBridge.dispose();
     editorBridge.dispose();

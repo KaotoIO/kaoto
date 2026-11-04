@@ -341,6 +341,7 @@ describe('request deadlines and cancellation', () => {
 const header = { protocol: 'kaoto-host-bridge', version: 1 } as const;
 function supplied(role: 'host' | 'editor' = 'host') {
   const onError = vi.fn();
+  const onClose = vi.fn();
   const bus = createEventBus({ role, onError });
   const sent: Array<WireMessage | ControlMessage> = [];
   let receive = (_value: unknown) => {};
@@ -358,7 +359,7 @@ function supplied(role: 'host' | 'editor' = 'host') {
     },
     dispose: vi.fn(),
   };
-  const bridge = createPostMessageBridge({ bus, transport });
+  const bridge = createPostMessageBridge({ bus, transport, onClose });
   cleanup.push(
     () => {
       bus.dispose();
@@ -380,6 +381,7 @@ function supplied(role: 'host' | 'editor' = 'host') {
     sent,
     connected,
     onError,
+    onClose,
     session,
     receive: (value: unknown) => {
       receive(value);
@@ -816,10 +818,26 @@ describe('transport boundaries', () => {
       const secondRejection = expectRejection(fixture.bus.request('host:document:getContent', null), 'IO_ERROR');
       await Promise.all([firstRejection, secondRejection]);
       expect(fixture.onError).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ code: 'IO_ERROR' }));
+      expect(fixture.onClose).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ code: 'IO_ERROR' }));
       expect(fixture.transport.dispose).toHaveBeenCalledTimes(1);
       expect(vi.getTimerCount()).toBe(0);
     },
   );
+
+  it('notifies the owner when a failed event send closes the connection, but not on dispose', async () => {
+    const fixture = supplied('editor');
+    await fixture.establish();
+    fixture.failSend(() => Promise.reject(new Error('send failed')));
+    fixture.bus.emit('editor:document:changed', { content: 'lost', revision: 1 });
+    await vi.waitFor(() => {
+      expect(fixture.onClose).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ code: 'IO_ERROR' }));
+    });
+
+    const disposed = supplied('editor');
+    await disposed.establish();
+    disposed.bridge.dispose();
+    expect(disposed.onClose).not.toHaveBeenCalled();
+  });
 
   it('rejects non-JSON data before memory serialization can discard it', () => {
     const transports = createMemoryTransports();

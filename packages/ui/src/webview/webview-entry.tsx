@@ -45,7 +45,18 @@ async function start(container: HTMLElement, createTransport: () => MessageTrans
   let disposed = false;
 
   const bus = createEventBus({ role: 'editor', onError: report });
-  const bridge = createPostMessageBridge({ bus, transport });
+  let connectionError: Error | undefined;
+  const disconnectListeners = new Set<(error: Error) => void>();
+  const bridge = createPostMessageBridge({
+    bus,
+    transport,
+    onClose: (error) => {
+      connectionError = error;
+      disconnectListeners.forEach((listener) => {
+        listener(error);
+      });
+    },
+  });
 
   const dispose = () => {
     if (disposed) return;
@@ -71,6 +82,13 @@ async function start(container: HTMLElement, createTransport: () => MessageTrans
       onRetry: () => {
         dispose();
         void start(container, createTransport);
+      },
+      onDisconnect: (listener) => {
+        if (connectionError) listener(connectionError);
+        disconnectListeners.add(listener);
+        return () => {
+          disconnectListeners.delete(listener);
+        };
       },
     };
 
