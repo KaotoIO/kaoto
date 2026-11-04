@@ -31,6 +31,7 @@ import {
 	KAOTO_REST_CUSTOM_MEDIA_TYPES_SETTING_ID,
 } from '../constants';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
+import { findExistingKaotoMetadataFile } from '../utils/KaotoMetadataFileUtils';
 import { readKameletsFromDirectory } from './KameletFileReader';
 import { getSuggestions, type Suggestion, type SuggestionRequestContext } from './SuggestionRegistry';
 
@@ -240,28 +241,8 @@ export class KaotoHostServices implements vscode.Disposable {
 	 * Outside of a workspace folder, only the folder of the document is considered.
 	 */
 	private async findExistingMetadata(uri: vscode.Uri): Promise<vscode.Uri | undefined> {
-		const workspaceFolder = vscode.workspace.getWorkspaceFolder(uri)?.uri.toString();
-		// Let VS Code decide containment: comparing paths breaks on case-insensitive file systems and on Windows drive letters.
-		const isInWorkspaceFolder = (folder: vscode.Uri) =>
-			workspaceFolder !== undefined && vscode.workspace.getWorkspaceFolder(folder)?.uri.toString() === workspaceFolder;
-
-		let folder = vscode.Uri.joinPath(uri, '..');
-		while (true) {
-			const candidate = vscode.Uri.joinPath(folder, '.kaoto');
-			try {
-				await vscode.workspace.fs.stat(candidate);
-				return candidate;
-			} catch (error) {
-				if (!this.isMissing(error)) {
-					throw error;
-				}
-			}
-			const parent = vscode.Uri.joinPath(folder, '..');
-			if (parent.path === folder.path || !isInWorkspaceFolder(parent)) {
-				return undefined;
-			}
-			folder = parent;
-		}
+		// Shared with the project export, so the editor and the exporter always agree on which .kaoto file is in effect.
+		return findExistingKaotoMetadataFile(uri, false);
 	}
 
 	private metadataToCreate(uri: vscode.Uri): vscode.Uri {
