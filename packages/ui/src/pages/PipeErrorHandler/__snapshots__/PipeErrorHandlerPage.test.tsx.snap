@@ -16,184 +16,214 @@ exports[`PipeErrorHandlerPage > renders "Not applicable" when the resource type 
 
 exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is supported 1`] = `
 <div>
-  <form
-    class="cds--form kaoto-form kaoto-form__label"
-    data-testid="pipe-error-handler-form"
+  <div
+    class="cds--layout cds--layout--size-sm"
   >
     <div
-      class="cds--tile array-field-wrapper-tile"
-      data-testid="#__field-wrapper"
+      class="kaoto-form-toolbar"
+      data-testid="kaoto-form-toolbar"
     >
       <div
-        class="array-field-wrapper-header array-field-wrapper-header--with-children"
+        aria-labelledby="search-input-_r_ID_-search"
+        class="cds--search kaoto-form-toolbar__search"
+        role="search"
       >
         <div
-          class="array-field-wrapper-title-section"
+          class="cds--search-magnifier"
+          tabindex="-1"
         >
-          <h4
-            class="cds--tile-heading array-field-wrapper-heading"
+          <svg
+            aria-hidden="true"
+            class="cds--search-magnifier-icon"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 16 16"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            No Pipe ErrorHandler
-          </h4>
-          <button
-            aria-label="More info for No Pipe ErrorHandler field"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              fill="currentColor"
-              focusable="false"
-              height="16"
-              preserveAspectRatio="xMidYMid meet"
-              viewBox="0 0 16 16"
-              width="16"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
-              />
-              <path
-                d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
-              />
-            </svg>
-          </button>
-          <p>
-            <strong>
-              No Pipe ErrorHandler
-               
-              &lt;expression&gt;
-            </strong>
-          </p>
-          <p />
-          <p>
-            Default: 
-            no default value
-          </p>
+            <path
+              d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5 C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
+            />
+          </svg>
         </div>
-        <div>
-          <div
-            class="cds--stack-vertical cds--stack-scale-3"
+        <label
+          class="cds--label"
+          for="search-input-_r_ID_"
+          id="search-input-_r_ID_-search"
+        >
+          Find properties by name
+        </label>
+        <input
+          autocomplete="off"
+          class="cds--search-input"
+          data-testid="filter-fields"
+          id="search-input-_r_ID_"
+          placeholder="Find properties by name"
+          type="search"
+          value=""
+        />
+        <button
+          aria-label="Clear search input"
+          class="cds--search-close cds--search-close--hidden"
+          title="Clear search input"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            fill="currentColor"
+            focusable="false"
+            height="16"
+            preserveAspectRatio="xMidYMid meet"
+            viewBox="0 0 32 32"
+            width="16"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <fieldset
-              style="margin: 0px; padding: 0px;"
-            >
-              <div
-                class="cds--content-switcher cds--content-switcher--md cds--layout--size-md cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
-                role="tablist"
-              >
-                <button
-                  aria-selected="true"
-                  class="cds--content-switcher-btn cds--content-switcher--selected"
-                  role="tab"
-                  tabindex="0"
-                  type="button"
-                >
-                  <span
-                    class="cds--content-switcher__label"
-                    title="No Pipe ErrorHandler"
-                  >
-                    No Pipe ErrorHandler
-                  </span>
-                </button>
-                <button
-                  aria-selected="false"
-                  class="cds--content-switcher-btn"
-                  role="tab"
-                  tabindex="-1"
-                  type="button"
-                >
-                  <span
-                    class="cds--content-switcher__label"
-                    title="Log Pipe ErrorHandler"
-                  >
-                    Log Pipe ErrorHandler
-                  </span>
-                </button>
-                <button
-                  aria-selected="false"
-                  class="cds--content-switcher-btn"
-                  role="tab"
-                  tabindex="-1"
-                  type="button"
-                >
-                  <span
-                    class="cds--content-switcher__label"
-                    title="Sink Pipe ErrorHandler"
-                  >
-                    Sink Pipe ErrorHandler
-                  </span>
-                </button>
-              </div>
-            </fieldset>
-          </div>
-        </div>
+            <path
+              d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+            />
+          </svg>
+        </button>
       </div>
+    </div>
+    <form
+      class="cds--form kaoto-form kaoto-form__label"
+      data-testid="pipe-error-handler-form"
+    >
       <div
-        class="cds--layer-two"
+        class="cds--tile array-field-wrapper-tile"
+        data-testid="#__field-wrapper"
       >
         <div
-          class="kaoto-form kaoto-form__label"
-          data-testid="#__children"
+          class="array-field-wrapper-header array-field-wrapper-header--with-children"
         >
           <div
-            class="cds--stack-vertical cds--stack-scale-5"
+            class="array-field-wrapper-title-section"
           >
+            <h4
+              class="cds--tile-heading array-field-wrapper-heading"
+            >
+              No Pipe ErrorHandler
+            </h4>
+            <button
+              aria-label="More info for No Pipe ErrorHandler field"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="currentColor"
+                focusable="false"
+                height="16"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 16 16"
+                width="16"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+                />
+                <path
+                  d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+                />
+              </svg>
+            </button>
+            <p>
+              <strong>
+                No Pipe ErrorHandler
+                 
+                &lt;expression&gt;
+              </strong>
+            </p>
+            <p />
+            <p>
+              Default: 
+              no default value
+            </p>
+          </div>
+          <div>
             <div
               class="cds--stack-vertical cds--stack-scale-3"
-              data-testid="#.none__field-wrapper"
+            >
+              <fieldset
+                style="margin: 0px; padding: 0px;"
+              >
+                <div
+                  class="cds--content-switcher cds--content-switcher--md cds--layout--size-md cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
+                  role="tablist"
+                >
+                  <button
+                    aria-selected="true"
+                    class="cds--content-switcher-btn cds--content-switcher--selected"
+                    role="tab"
+                    tabindex="0"
+                    type="button"
+                  >
+                    <span
+                      class="cds--content-switcher__label"
+                      title="No Pipe ErrorHandler"
+                    >
+                      No Pipe ErrorHandler
+                    </span>
+                  </button>
+                  <button
+                    aria-selected="false"
+                    class="cds--content-switcher-btn"
+                    role="tab"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    <span
+                      class="cds--content-switcher__label"
+                      title="Log Pipe ErrorHandler"
+                    >
+                      Log Pipe ErrorHandler
+                    </span>
+                  </button>
+                  <button
+                    aria-selected="false"
+                    class="cds--content-switcher-btn"
+                    role="tab"
+                    tabindex="-1"
+                    type="button"
+                  >
+                    <span
+                      class="cds--content-switcher__label"
+                      title="Sink Pipe ErrorHandler"
+                    >
+                      Sink Pipe ErrorHandler
+                    </span>
+                  </button>
+                </div>
+              </fieldset>
+            </div>
+          </div>
+        </div>
+        <div
+          class="cds--layer-two"
+        >
+          <div
+            class="kaoto-form kaoto-form__label"
+            data-testid="#__children"
+          >
+            <div
+              class="cds--stack-vertical cds--stack-scale-5"
             >
               <div
-                class="kaoto-field-wrapper__label-container"
+                class="cds--stack-vertical cds--stack-scale-3"
+                data-testid="#.none__field-wrapper"
               >
-                <label
-                  class="kaoto-field-wrapper__label"
+                <div
+                  class="kaoto-field-wrapper__label-container"
                 >
-                  <span
-                    class="kaoto-field-wrapper__required"
+                  <label
+                    class="kaoto-field-wrapper__label"
                   >
-                    *
-                  </span>
-                  <span>
-                    None
-                     
-                    <div
-                      class="cds--tag"
-                      id="tag-id-_r_ID_"
+                    <span
+                      class="kaoto-field-wrapper__required"
                     >
-                      <span
-                        class="cds--tag__label"
-                        dir="auto"
-                        title=""
-                      >
-                        0
-                      </span>
-                    </div>
-                  </span>
-                </label>
-                <button
-                  aria-label="More info for None field"
-                  type="button"
-                >
-                  <svg
-                    aria-hidden="true"
-                    fill="currentColor"
-                    focusable="false"
-                    height="16"
-                    preserveAspectRatio="xMidYMid meet"
-                    viewBox="0 0 16 16"
-                    width="16"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
-                    />
-                    <path
-                      d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
-                    />
-                  </svg>
-                </button>
-                <p>
-                  <strong>
+                      *
+                    </span>
                     <span>
                       None
                        
@@ -210,141 +240,183 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                         </span>
                       </div>
                     </span>
-                     
-                    &lt;object&gt;
-                  </strong>
-                </p>
-                <p />
-                <p>
-                  Default: 
-                  no default value
-                </p>
-              </div>
-              <div>
-                <div
-                  class="key-value-grid cds--css-grid"
-                >
-                  <div
-                    class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
+                  </label>
+                  <button
+                    aria-label="More info for None field"
+                    type="button"
                   >
-                    <strong>
-                      Key
-                    </strong>
-                  </div>
-                  <div
-                    class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
-                  >
-                    <strong>
-                      Value
-                    </strong>
-                  </div>
-                  <div
-                    class="cds--sm:col-span-0 cds--md:col-span-2 cds--lg:col-span-2 cds--css-grid-column"
-                  >
-                    <span
-                      class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+                    <svg
+                      aria-hidden="true"
+                      fill="currentColor"
+                      focusable="false"
+                      height="16"
+                      preserveAspectRatio="xMidYMid meet"
+                      viewBox="0 0 16 16"
+                      width="16"
+                      xmlns="http://www.w3.org/2000/svg"
                     >
-                      <div
-                        class="cds--tooltip-trigger__wrapper"
-                      >
-                        <button
-                          aria-labelledby="tooltip-_r_ID_"
-                          class="cds--btn cds--btn--ghost cds--btn--icon-only"
-                          data-testid="#.none__add"
-                          type="button"
+                      <path
+                        d="M8.5 11L8.5 6.5 6.5 6.5 6.5 7.5 7.5 7.5 7.5 11 6 11 6 12 10 12 10 11zM8 3.5c-.4 0-.8.3-.8.8S7.6 5 8 5c.4 0 .8-.3.8-.8S8.4 3.5 8 3.5z"
+                      />
+                      <path
+                        d="M8,15c-3.9,0-7-3.1-7-7s3.1-7,7-7s7,3.1,7,7S11.9,15,8,15z M8,2C4.7,2,2,4.7,2,8s2.7,6,6,6s6-2.7,6-6S11.3,2,8,2z"
+                      />
+                    </svg>
+                  </button>
+                  <p>
+                    <strong>
+                      <span>
+                        None
+                         
+                        <div
+                          class="cds--tag"
+                          id="tag-id-_r_ID_"
                         >
-                          <svg
-                            aria-hidden="true"
-                            fill="currentColor"
-                            focusable="false"
-                            height="16"
-                            preserveAspectRatio="xMidYMid meet"
-                            viewBox="0 0 32 32"
-                            width="16"
-                            xmlns="http://www.w3.org/2000/svg"
+                          <span
+                            class="cds--tag__label"
+                            dir="auto"
+                            title=""
                           >
-                            <path
-                              d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                      <span
-                        aria-hidden="true"
-                        class="cds--popover"
-                        id="tooltip-_r_ID_"
-                        role="tooltip"
-                      >
-                        <span
-                          class="cds--popover-content cds--tooltip-content"
-                        >
-                          Add a new property
-                        </span>
-                        <span
-                          class="cds--popover-caret"
-                        />
+                            0
+                          </span>
+                        </div>
                       </span>
-                    </span>
-                  </div>
+                       
+                      &lt;object&gt;
+                    </strong>
+                  </p>
+                  <p />
+                  <p>
+                    Default: 
+                    no default value
+                  </p>
                 </div>
-                <hr />
+                <div>
+                  <div
+                    class="key-value-grid cds--css-grid"
+                  >
+                    <div
+                      class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
+                    >
+                      <strong>
+                        Key
+                      </strong>
+                    </div>
+                    <div
+                      class="cds--sm:col-span-2 cds--md:col-span-3 cds--lg:col-span-7 cds--css-grid-column"
+                    >
+                      <strong>
+                        Value
+                      </strong>
+                    </div>
+                    <div
+                      class="cds--sm:col-span-0 cds--md:col-span-2 cds--lg:col-span-2 cds--css-grid-column"
+                    >
+                      <span
+                        class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+                      >
+                        <div
+                          class="cds--tooltip-trigger__wrapper"
+                        >
+                          <button
+                            aria-labelledby="tooltip-_r_ID_"
+                            class="cds--btn cds--btn--ghost cds--btn--icon-only"
+                            data-testid="#.none__add"
+                            type="button"
+                          >
+                            <svg
+                              aria-hidden="true"
+                              fill="currentColor"
+                              focusable="false"
+                              height="16"
+                              preserveAspectRatio="xMidYMid meet"
+                              viewBox="0 0 32 32"
+                              width="16"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M17 15L17 8 15 8 15 15 8 15 8 17 15 17 15 24 17 24 17 17 24 17 24 15z"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                        <span
+                          aria-hidden="true"
+                          class="cds--popover"
+                          id="tooltip-_r_ID_"
+                          role="tooltip"
+                        >
+                          <span
+                            class="cds--popover-content cds--tooltip-content"
+                          >
+                            Add a new property
+                          </span>
+                          <span
+                            class="cds--popover-caret"
+                          />
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                  <hr />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </form>
-  <div
-    class="no-field-found kaoto-form kaoto-form__empty cds--actionable-notification cds--actionable-notification--low-contrast cds--actionable-notification--info cds--actionable-notification--hide-close-button"
-    data-testid="no-field-found"
-  >
+    </form>
     <div
-      class="cds--actionable-notification__details"
+      class="no-field-found kaoto-form kaoto-form__empty cds--actionable-notification cds--actionable-notification--low-contrast cds--actionable-notification--info cds--actionable-notification--hide-close-button"
+      data-testid="no-field-found"
     >
-      <svg
-        aria-hidden="true"
-        class="cds--inline-notification__icon"
-        fill="currentColor"
-        focusable="false"
-        height="20"
-        preserveAspectRatio="xMidYMid meet"
-        viewBox="0 0 32 32"
-        width="20"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
-          data-icon-path="inner-path"
-          fill="none"
-        />
-        <path
-          d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
-        />
-        <title>
-          info icon
-        </title>
-      </svg>
       <div
-        class="cds--actionable-notification__text-wrapper"
+        class="cds--actionable-notification__details"
       >
-        <div
-          class="cds--actionable-notification__title"
-          dir="auto"
+        <svg
+          aria-hidden="true"
+          class="cds--inline-notification__icon"
+          fill="currentColor"
+          focusable="false"
+          height="20"
+          preserveAspectRatio="xMidYMid meet"
+          viewBox="0 0 32 32"
+          width="20"
+          xmlns="http://www.w3.org/2000/svg"
         >
-          No fields found
-        </div>
+          <path
+            d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
+            data-icon-path="inner-path"
+            fill="none"
+          />
+          <path
+            d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
+          />
+          <title>
+            info icon
+          </title>
+        </svg>
         <div
-          class="cds--actionable-notification__subtitle"
-          dir="auto"
+          class="cds--actionable-notification__text-wrapper"
         >
-          No field found matching this criteria.
+          <div
+            class="cds--actionable-notification__title"
+            dir="auto"
+          >
+            No fields found
+          </div>
+          <div
+            class="cds--actionable-notification__subtitle"
+            dir="auto"
+          >
+            No field found matching this criteria.
+          </div>
         </div>
       </div>
+      <div
+        class="cds--actionable-notification__button-wrapper"
+      />
     </div>
-    <div
-      class="cds--actionable-notification__button-wrapper"
-    />
   </div>
 </div>
 `;

@@ -1,6 +1,5 @@
 import './Visualization.scss';
 
-import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 
 import { ErrorBoundary } from '../ErrorBoundary';
@@ -18,9 +17,7 @@ export const VisualizationShell: FunctionComponent<PropsWithChildren<Visualizati
 }) => {
   return (
     <div className={`canvas-surface ${className ?? ''}`}>
-      <CanvasFormTabsProvider>
-        <ErrorBoundary fallback={fallback ?? <CanvasFallback />}>{children}</ErrorBoundary>
-      </CanvasFormTabsProvider>
+      <ErrorBoundary fallback={fallback ?? <CanvasFallback />}>{children}</ErrorBoundary>
     </div>
   );
 };

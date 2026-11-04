@@ -1,4 +1,4 @@
-import { CanvasFormTabsContext, SuggestionRegistryProvider } from '@kaoto/forms';
+import { SuggestionRegistryProvider } from '@kaoto/forms';
 import {
   CanvasFormBody,
   CatalogKind,
@@ -31,18 +31,11 @@ export default {
           >
             <SchemasLoaderProvider>
               <CatalogLoaderProvider>
-                <CanvasFormTabsContext.Provider
-                  value={{
-                    selectedTab: 'All',
-                    setSelectedTab: () => {},
-                  }}
-                >
-                  <VisibleFlowsProvider>
-                    <SuggestionRegistryProvider>
-                      <Story />
-                    </SuggestionRegistryProvider>
-                  </VisibleFlowsProvider>
-                </CanvasFormTabsContext.Provider>
+                <VisibleFlowsProvider>
+                  <SuggestionRegistryProvider>
+                    <Story />
+                  </SuggestionRegistryProvider>
+                </VisibleFlowsProvider>
               </CatalogLoaderProvider>
             </SchemasLoaderProvider>
           </RuntimeProvider>

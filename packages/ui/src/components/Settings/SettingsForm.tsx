@@ -1,7 +1,7 @@
 import './SettingsForm.scss';
 
 import { Button, InlineNotification } from '@carbon/react';
-import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
+import { KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -15,10 +15,6 @@ import { customFieldsFactoryfactory } from '../Visualization/Canvas/Form/fields/
 
 export const SettingsForm: FunctionComponent = () => {
   const settingsAdapter = useContext(SettingsContext);
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(
-    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
-    [],
-  );
   const navigate = useNavigate();
   const { lastRender, reloadPage } = useReloadContext();
   const [settings, setSettings] = useState(settingsAdapter.getSettings());
@@ -70,15 +66,14 @@ export const SettingsForm: FunctionComponent = () => {
             subtitle={saveError}
           />
         )}
-        <CanvasFormTabsContext.Provider value={formTabsValue}>
-          <KaotoForm
-            data-testid="settings-form"
-            schema={settingsSchema as KaotoSchemaDefinition['schema']}
-            model={settings}
-            onChange={onChangeModel}
-            customFieldsFactory={customFieldsFactoryfactory}
-          />
-        </CanvasFormTabsContext.Provider>
+        <KaotoForm
+          data-testid="settings-form"
+          showFilterField
+          schema={settingsSchema as KaotoSchemaDefinition['schema']}
+          model={settings}
+          onChange={onChangeModel}
+          customFieldsFactory={customFieldsFactoryfactory}
+        />
       </div>
 
       <div className="settings-form-card__footer">

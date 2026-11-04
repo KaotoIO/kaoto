@@ -1,4 +1,4 @@
-import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFormProps } from '@kaoto/forms';
+import { KaotoForm, KaotoFormProps } from '@kaoto/forms';
 import { Content } from '@patternfly/react-core';
 import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo } from 'react';
 
@@ -44,10 +44,6 @@ const PipeErrorHandlerPageInner: FunctionComponent<{
   entitiesContext: EntitiesContextResult;
   errorHandlerSchemaPromise: Promise<KaotoSchemaDefinition['schema'] | undefined>;
 }> = ({ pipeResource, entitiesContext, errorHandlerSchemaPromise }) => {
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(
-    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
-    [],
-  );
   const errorHandlerSchema = use(errorHandlerSchemaPromise);
 
   const getErrorHandlerModel = useCallback(() => {
@@ -70,14 +66,13 @@ const PipeErrorHandlerPageInner: FunctionComponent<{
   );
 
   return (
-    <CanvasFormTabsContext.Provider value={formTabsValue}>
-      <KaotoForm
-        data-testid="pipe-error-handler-form"
-        withLayer={false}
-        schema={errorHandlerSchema}
-        model={getErrorHandlerModel()}
-        onChange={onChangeModel as KaotoFormProps['onChange']}
-      />
-    </CanvasFormTabsContext.Provider>
+    <KaotoForm
+      data-testid="pipe-error-handler-form"
+      withLayer={false}
+      showFilterField
+      schema={errorHandlerSchema}
+      model={getErrorHandlerModel()}
+      onChange={onChangeModel as KaotoFormProps['onChange']}
+    />
   );
 };

@@ -4,6 +4,8 @@ import { FunctionComponent, useCallback, useContext, useLayoutEffect, useMemo, u
 import { IVisualizationNode } from '../../../../models';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { setValue } from '../../../../utils';
+import { Anchors } from '../../../registers/anchors';
+import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { UnknownNode } from '../../Custom/UnknownNode';
 import { customFieldsFactoryfactory } from './fields/custom-fields-factory';
 import { SuggestionRegistrar } from './suggestions/SuggestionsProvider';
@@ -61,7 +63,12 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
         model={model}
         omitFields={omitFields}
         customFieldsFactory={customFieldsFactoryfactory}
-      />
+        showFilterField
+        showSectionTabs
+        defaultSectionTab="Required"
+      >
+        <RenderingAnchor anchorTag={Anchors.CanvasFormHeader} vizNode={vizNode} />
+      </KaotoForm>
     </SuggestionRegistrar>
   );
 };
