@@ -41,7 +41,7 @@ import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
-import { useCanvasFocusRef } from './canvas-focus';
+import { findCanvasNodeById, useCanvasFocusRef } from './canvas-focus';
 import { CanvasSideBar } from './CanvasSideBar';
 import { consumeNodeSelection } from './node-selection-state';
 
@@ -102,13 +102,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     const nodeId = selectedIds.length === 1 ? selectedIds[0] : undefined;
     setSelectedIds([]);
     requestAnimationFrame(() => {
-      // Step paths repeat across routes; the topology ID includes the owning entity.
       const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
-      const canvasNode = nodeId
-        ? Array.from(
-            canvas?.querySelectorAll<HTMLElement>('g.custom-node, g.placeholder-node, g.custom-group') ?? [],
-          ).find((node) => node.closest<SVGElement>('[data-id]')?.dataset.id === nodeId)
-        : undefined;
+      const canvasNode = nodeId ? findCanvasNodeById(nodeId) : undefined;
       if (canvasNode) {
         canvasNode.focus({ preventScroll: true });
       } else {

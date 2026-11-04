@@ -1,5 +1,15 @@
 import { createContext, useCallback, useContext, useMemo, useRef } from 'react';
 
+import { CanvasDefaults } from './canvas.defaults';
+
+/** Resolve the full topology ID so identical step paths in different routes stay distinct. */
+export const findCanvasNodeById = (id: string): HTMLElement | undefined => {
+  const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+  return Array.from(
+    canvas?.querySelectorAll<HTMLElement>('g.custom-node, g.placeholder-node, g.custom-group') ?? [],
+  ).find((node) => node.closest<SVGElement>('[data-id]')?.dataset.id === id);
+};
+
 interface CanvasFocusManager {
   request: () => void;
   clear: () => void;
