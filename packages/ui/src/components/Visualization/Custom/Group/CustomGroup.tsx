@@ -1,15 +1,9 @@
-import {
-  DefaultGroup,
-  GraphElement,
-  isNode,
-  observer,
-  withContextMenu,
-  withSelection,
-} from '@patternfly/react-topology';
+import { DefaultGroup, GraphElement, isNode, observer, withSelection } from '@patternfly/react-topology';
 import { FunctionComponent } from 'react';
 
 import { CanvasNode } from '../../Canvas/canvas.models';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
+import { withCanvasContextMenu } from '../ContextMenu/with-canvas-context-menu';
 import { useCollapseStep } from '../hooks/collapse-step.hook';
 import { CustomNodeWithSelection } from '../Node/CustomNode';
 import { CustomGroupExpanded } from './CustomGroupExpanded';
@@ -59,4 +53,4 @@ export const CustomGroup: FunctionComponent<ICustomGroup> = ({ element, ...rest 
   return <CustomGroupInner element={element} {...rest} />;
 };
 
-export const CustomGroupWithSelection = withSelection()(withContextMenu(NodeContextMenuFn)(CustomGroup));
+export const CustomGroupWithSelection = withSelection()(withCanvasContextMenu(NodeContextMenuFn)(CustomGroup));

@@ -3,7 +3,10 @@
 exports[`EmptyCanvas > should render empty state when there are no routes 1`] = `
 <DocumentFragment>
   <div
+    aria-label="Route canvas"
     class="pf-v6-l-stack"
+    id="canvas-main"
+    tabindex="0"
   >
     <div
       class="pf-v6-l-stack__item pf-m-fill pf-topology-container"
@@ -142,7 +145,10 @@ exports[`EmptyCanvas > should render empty state when there are no routes 1`] = 
 exports[`EmptyCanvas > should render empty state when there are routes but none are visible 1`] = `
 <div>
   <div
+    aria-label="Route canvas"
     class="pf-v6-l-stack"
+    id="canvas-main"
+    tabindex="0"
   >
     <div
       class="pf-v6-l-stack__item pf-m-fill pf-topology-container"
