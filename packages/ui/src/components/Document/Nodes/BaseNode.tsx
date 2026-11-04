@@ -124,43 +124,43 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       )}
 
       {isExpandable ? (
-        <Icon className="node__expand" onClick={onExpandChange}>
+        <span className="node__expand" onClick={onExpandChange}>
           {isExpanded && <ChevronDown data-testid={`expand-icon-${dataTestId}`} />}
           {!isExpanded && <ChevronRight data-testid={`collapse-icon-${dataTestId}`} />}
-        </Icon>
+        </span>
       ) : (
         <span className="node__expand" aria-hidden="true" />
       )}
 
       {isDraggable && (
-        <Icon className="node__spacer" data-drag-handler>
+        <span className="node__spacer" data-drag-handler>
           <Draggable />
-        </Icon>
+        </span>
       )}
       {title}
       {optionalGuard?.comment && onUpdate && (
         <Tooltip
           content={<span className="node__comment-tooltip">{`Optional guard comment: ${optionalGuard.comment}`}</span>}
         >
-          <Icon className="node__spacer" data-testid="guard-comment-indicator-icon">
+          <span className="node__spacer" data-testid="guard-comment-indicator-icon">
             <Button
               variant="plain"
               icon={<DocumentComment />}
               onClick={handleOpenGuardCommentModal}
               aria-label="Edit optional guard comment"
             />
-          </Icon>
+          </span>
         </Tooltip>
       )}
       {isCollectionField && (
-        <Icon className="node__spacer" data-testid="collection-field-icon">
+        <span className="node__spacer" data-testid="collection-field-icon">
           <Layers />
-        </Icon>
+        </span>
       )}
       {isChoiceField && !isSelectedChoice && (
-        <Icon className="node__spacer" data-testid="choice-field-icon">
+        <span className="node__spacer" data-testid="choice-field-icon">
           <Choices />
-        </Icon>
+        </span>
       )}
       {isSelectedChoice && (
         <Label className="node__spacer" color="green" icon={<Choices />} isCompact data-testid="choice-field-icon">
@@ -188,20 +188,20 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       <FieldIcon className="node__spacer node__icon--no-popover" type={iconType} />
 
       {isAttributeField && (
-        <Icon className="node__spacer" data-testid="attribute-field-icon">
+        <span className="node__spacer" data-testid="attribute-field-icon">
           <At />
-        </Icon>
+        </span>
       )}
       {mapping?.comment && mapping && onUpdate && (
         <Tooltip content={<span className="node__comment-tooltip">{mapping?.comment}</span>}>
-          <Icon className="node__spacer" data-testid="comment-indicator-icon">
+          <span className="node__spacer" data-testid="comment-indicator-icon">
             <Button
               variant="plain"
               icon={<DocumentComment />}
               onClick={handleOpenCommentModal}
               aria-label="Edit comment"
             />
-          </Icon>
+          </span>
         </Tooltip>
       )}
       <FieldNodePopover nodeData={nodeData} namespaceMap={namespaceMap} />

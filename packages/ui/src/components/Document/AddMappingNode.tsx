@@ -1,7 +1,7 @@
 import './AddMappingNode.scss';
 
 import { Add, AddAlt, Layers } from '@carbon/icons-react';
-import { ActionList, ActionListGroup, ActionListItem, Button, Icon } from '@patternfly/react-core';
+import { ActionList, ActionListGroup, ActionListItem, Button } from '@patternfly/react-core';
 import { FunctionComponent, useCallback } from 'react';
 
 import { useDataMapper } from '../../hooks/useDataMapper';
@@ -35,18 +35,18 @@ export const AddMappingNode: FunctionComponent<{ nodeData: AddMappingNodeData; r
         namespaceMap={mappingTree.namespaceMap}
         title={
           <>
-            <Icon className="node__spacer">
+            <span className="node__spacer">
               <Add className="node__add__mapping__icon" />
-            </Icon>
+            </span>
             <NodeTitle
               className="node__spacer node__add__mapping__text"
               nodeData={nodeData}
               isDocument={false}
               rank={rank}
             />
-            <Icon className="node__spacer">
+            <span className="node__spacer">
               <Layers className="node__add__mapping__icon" />
-            </Icon>
+            </span>
           </>
         }
         rank={rank}

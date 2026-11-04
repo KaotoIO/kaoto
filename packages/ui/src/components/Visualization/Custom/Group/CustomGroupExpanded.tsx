@@ -298,9 +298,9 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                   </div>
 
                   {isDisabled && !doesHaveWarnings && (
-                    <Icon className="custom-group__disabled-icon" title="Step disabled">
+                    <span className="custom-group__disabled-icon" title="Step disabled">
                       <ErrorIcon />
-                    </Icon>
+                    </span>
                   )}
                 </div>
               </div>
