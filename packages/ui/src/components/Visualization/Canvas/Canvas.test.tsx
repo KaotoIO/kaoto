@@ -1,12 +1,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../models';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
@@ -126,6 +126,11 @@ describe('Canvas', () => {
 
   it('should move focus to the search input when sidebar opens', async () => {
     const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
+    // Without a schema the side panel renders the node source instead of the form (and its search input)
+    setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+    onTestFinished(() => {
+      DynamicCatalogRegistry.get().clearRegistry();
+    });
     const { controller } = await renderCanvas();
 
     // Open sidebar by selecting the timer `from` step — this resolves to a real vizNode
@@ -763,6 +768,9 @@ describe('Canvas', () => {
   ] as const)('selects an inserted Avro step and opens its properties (%s)', async (mode, targetPath, expectedPath) => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+    onTestFinished(() => {
+      DynamicCatalogRegistry.get().clearRegistry();
+    });
     const resource = new CamelRouteResource([
       {
         route: {
@@ -799,14 +807,12 @@ describe('Canvas', () => {
     };
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider>
-        <CanvasFormTabsProvider>
-          <CatalogModalContext.Provider value={catalog}>
-            <VisualizationProvider controller={controller}>
-              <InsertButton />
-              {children}
-            </VisualizationProvider>
-          </CatalogModalContext.Provider>
-        </CanvasFormTabsProvider>
+        <CatalogModalContext.Provider value={catalog}>
+          <VisualizationProvider controller={controller}>
+            <InsertButton />
+            {children}
+          </VisualizationProvider>
+        </CatalogModalContext.Provider>
       </Provider>
     );
     const { rerender } = render(<Canvas {...initial} />, { wrapper });

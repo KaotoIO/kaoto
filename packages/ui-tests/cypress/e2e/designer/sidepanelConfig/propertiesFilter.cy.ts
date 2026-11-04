@@ -116,23 +116,19 @@ describe('Tests for side panel step filtering', () => {
     cy.get('.cds--actionable-notification__title').should('contain', 'No Required fields found');
   });
 
-  it('Side panel to retain user specified fields filter', () => {
+  it('Side panel starts on the Required tab every time a step is opened', () => {
     cy.uploadFixture('flows/camelRoute/basic.yaml');
     cy.openDesignPage();
     cy.openStepConfigurationTab('log');
     cy.selectFormTab('All');
+    cy.get('[data-testid="tab-All"]').should('have.attr', 'aria-selected', 'true');
 
     cy.openStepConfigurationTab('timer');
-
-    cy.get('[data-testid="tab-All"]').should('have.attr', 'aria-selected', 'true');
-    cy.selectFormTab('Required');
-
-    cy.openStepConfigurationTab('log');
     cy.get('[data-testid="tab-Required"]').should('have.attr', 'aria-selected', 'true');
-    cy.selectFormTab('Modified');
 
+    cy.selectFormTab('Modified');
     cy.closeStepConfigurationTab();
     cy.openStepConfigurationTab('timer');
-    cy.get('[data-testid="tab-Modified"]').should('have.attr', 'aria-selected', 'true');
+    cy.get('[data-testid="tab-Required"]').should('have.attr', 'aria-selected', 'true');
   });
 });

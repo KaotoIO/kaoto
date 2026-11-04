@@ -1,16 +1,8 @@
 import { Button, ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
 import { BeanFactory } from '@kaoto/camel-catalog/types';
-import {
-  CanvasFormTabsContext,
-  CanvasFormTabsContextResult,
-  FilteredFieldProvider,
-  isDefined,
-  KaotoForm,
-  KaotoFormApi,
-  KaotoFormProps,
-} from '@kaoto/forms';
+import { isDefined, KaotoForm, KaotoFormApi, KaotoFormProps } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
-import { FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useRef, useState } from 'react';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { SuggestionRegistrar } from '../../suggestions/SuggestionsProvider';
@@ -32,10 +24,6 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = ({
   onCreateBean,
   onCancelCreateBean,
 }) => {
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(
-    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
-    [],
-  );
   const [beanModel, setBeanModel] = useState<unknown>({ name: beanName, type: javaType });
   const formRef = useRef<KaotoFormApi>(null);
 
@@ -57,19 +45,16 @@ export const NewBeanModal: FunctionComponent<NewBeanModalProps> = ({
       <ModalHeader title={`Create a new ${propertyTitle} bean`} label={javaType ? `Java Type: ${javaType}` : ''} />
 
       <ModalBody>
-        <FilteredFieldProvider>
-          <CanvasFormTabsContext.Provider value={formTabsValue}>
-            <SuggestionRegistrar>
-              <KaotoForm
-                data-testid="new-bean-form"
-                schema={beanSchema}
-                model={beanModel}
-                onChange={setBeanModel as KaotoFormProps['onChange']}
-                ref={formRef}
-              />
-            </SuggestionRegistrar>
-          </CanvasFormTabsContext.Provider>
-        </FilteredFieldProvider>
+        <SuggestionRegistrar>
+          <KaotoForm
+            data-testid="new-bean-form"
+            showFilterField
+            schema={beanSchema}
+            model={beanModel}
+            onChange={setBeanModel as KaotoFormProps['onChange']}
+            ref={formRef}
+          />
+        </SuggestionRegistrar>
       </ModalBody>
 
       <ModalFooter>

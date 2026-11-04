@@ -1,6 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsContext, CanvasFormTabsProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
@@ -40,9 +39,7 @@ describe('CanvasForm', () => {
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
-        </CanvasFormTabsProvider>
+        <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
@@ -68,9 +65,7 @@ describe('CanvasForm', () => {
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsProvider>
+        <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
@@ -94,9 +89,7 @@ describe('CanvasForm', () => {
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsProvider>
+        <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
@@ -120,18 +113,12 @@ describe('CanvasForm', () => {
 
     render(
       <Provider>
-        <CanvasFormTabsContext.Provider
-          value={{
-            selectedTab: 'All',
-            setSelectedTab: vi.fn(),
-          }}
-        >
-          <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsContext.Provider>
+        <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.showAllFields();
     await formPageObject.inputText('Description', value);
 
     const closeSideBarButton = await screen.findByTestId('close-side-bar');
@@ -154,18 +141,12 @@ describe('CanvasForm', () => {
 
     render(
       <Provider>
-        <CanvasFormTabsContext.Provider
-          value={{
-            selectedTab: 'All',
-            setSelectedTab: vi.fn(),
-          }}
-        >
-          <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsContext.Provider>
+        <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.showAllFields();
     await formPageObject.inputText('Description', ' ');
 
     const closeSideBarButton = await screen.findByTestId('close-side-bar');
@@ -189,17 +170,12 @@ describe('CanvasForm', () => {
 
     render(
       <Provider>
-        <CanvasFormTabsContext.Provider
-          value={{
-            selectedTab: 'All',
-            setSelectedTab: vi.fn(),
-          }}
-        >
-          <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsContext.Provider>
+        <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.showAllFields();
     const idField = await screen.findByRole('textbox', { name: 'Id' });
     fireEvent.change(idField, { target: { value: newName } });
 
@@ -227,9 +203,7 @@ describe('CanvasForm', () => {
 
     render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsProvider>
+        <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
@@ -256,9 +230,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -305,9 +277,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={setHeaderVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={setHeaderVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -362,9 +332,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -421,9 +389,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -474,9 +440,7 @@ describe('CanvasForm', () => {
       await act(async () => {
         render(
           <Provider>
-            <CanvasFormTabsProvider>
-              <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
-            </CanvasFormTabsProvider>
+            <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
           </Provider>,
         );
       });
@@ -523,9 +487,7 @@ describe('CanvasForm', () => {
       await act(async () => {
         render(
           <Provider>
-            <CanvasFormTabsProvider>
-              <CanvasForm vizNode={setHeaderVizNode} onClose={vi.fn()} />
-            </CanvasFormTabsProvider>
+            <CanvasForm vizNode={setHeaderVizNode} onClose={vi.fn()} />
           </Provider>,
         );
       });
@@ -577,9 +539,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -631,9 +591,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -682,9 +640,7 @@ describe('CanvasForm', () => {
       const { Provider } = await TestProvidersWrapper();
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={vizNode} onClose={onClose} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={vizNode} onClose={onClose} />
         </Provider>,
       );
 

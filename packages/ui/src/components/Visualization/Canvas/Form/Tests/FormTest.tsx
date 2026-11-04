@@ -39,7 +39,7 @@ export const FormTest = (target: {
   it('should render the form without an error', () => {
     schemas.forEach(([name, schema]) => {
       try {
-        render(<KaotoForm schema={schema} onChangeProp={vi.fn()} model={{}} />);
+        render(<KaotoForm schema={schema} onChangeProp={vi.fn()} model={{}} defaultSectionTab="Required" />);
       } catch (e) {
         console.error(e);
         throw new Error(`Error rendering ${name} ${target.kind}`);

@@ -1,8 +1,8 @@
 import './NewEndpointModal.scss';
 
 import { Button, ComposedModal, Layer, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
-import { CanvasFormTabsContextResult, isDefined, ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { FunctionComponent, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { CanvasFormTabsProvider, isDefined, ModelContextProvider, SchemaProvider } from '@kaoto/forms';
+import { FunctionComponent, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { CatalogModalContext } from '../../../../../../dynamic-catalog/catalog-modal.provider';
@@ -28,10 +28,6 @@ export const NewEndpointModal: FunctionComponent<EndpointModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(
-    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
-    [],
-  );
   const [endpointModel, setEndpointModel] = useState<unknown>(endpoint);
   const [endpointType, setEndpointType] = useState<string | undefined>(type);
   const catalogModalContext = useContext(CatalogModalContext);

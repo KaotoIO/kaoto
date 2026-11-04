@@ -41,6 +41,7 @@ describe('NoFieldFound Component', () => {
     const mockContextValue: CanvasFormTabsContextResult = {
       selectedTab: 'Required',
       setSelectedTab: vi.fn(),
+      showSectionTabs: true,
     };
 
     render(
@@ -53,5 +54,23 @@ describe('NoFieldFound Component', () => {
     fireEvent.click(button);
 
     expect(mockContextValue.setSelectedTab).toHaveBeenCalledWith('All');
+  });
+
+  it('should not offer the switch to the All tab when the form has no section tabs', () => {
+    const mockContextValue: CanvasFormTabsContextResult = {
+      selectedTab: 'Required',
+      setSelectedTab: vi.fn(),
+      showSectionTabs: false,
+    };
+
+    render(
+      <CanvasFormTabsContext.Provider value={mockContextValue}>
+        <NoFieldFound />
+      </CanvasFormTabsContext.Provider>,
+    );
+
+    expect(screen.getByText('No Required fields found')).toBeInTheDocument();
+    expect(screen.getByText('No field found matching this criteria.')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Switch to All tab' })).not.toBeInTheDocument();
   });
 });

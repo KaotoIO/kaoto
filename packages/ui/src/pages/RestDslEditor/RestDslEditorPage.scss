@@ -1,5 +1,3 @@
-@use '@carbon/react/scss/spacing' as *;
-
 .form-rest-title {
   display: flex;
   align-items: center;
@@ -18,8 +16,4 @@
 
 .rest-right-panel {
   height: 100%;
-
-  .filter-fields {
-    margin-bottom: $spacing-05;
-  }
 }
