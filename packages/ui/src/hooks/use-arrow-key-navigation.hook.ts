@@ -1,5 +1,5 @@
 import hotkeys from 'hotkeys-js';
-import { useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
 import { CanvasNode } from '../components/Visualization/Canvas/canvas.models';
@@ -94,7 +94,7 @@ const ARROW_KEYS = 'arrowleft,arrowright,arrowup,arrowdown';
  * - ArrowLeft / ArrowUp → previous node
  * Wraps around at the ends.
  */
-export function useArrowKeyNavigation(selectedNodeId?: string, nodes?: readonly Pick<CanvasNode, 'id'>[]): void {
+export function useArrowKeyNavigation(selectedNodeId?: string, nodes?: readonly Pick<CanvasNode, 'id'>[]): () => void {
   const routeOrderByNodeId = useMemo(() => {
     const routes = new Map<string, number>();
     const order = new Map<string, number>();
@@ -109,6 +109,12 @@ export function useArrowKeyNavigation(selectedNodeId?: string, nodes?: readonly 
     return order;
   }, [nodes]);
   const lastFocusedNode = useRef<HTMLElement | null>(null);
+  const restoreNodeFocus = useCallback(() => {
+    const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+    const node = lastFocusedNode.current;
+    const target = node && canvas?.contains(node) ? node : canvas;
+    target?.focus({ preventScroll: true });
+  }, []);
 
   useEffect(() => {
     if (!selectedNodeId) return;
@@ -178,4 +184,6 @@ export function useArrowKeyNavigation(selectedNodeId?: string, nodes?: readonly 
       hotkeys.unbind(ARROW_KEYS, navigate);
     };
   }, [routeOrderByNodeId]);
+
+  return restoreNodeFocus;
 }

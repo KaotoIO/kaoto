@@ -307,35 +307,52 @@ describe('Canvas', () => {
     expect(moved ? outside : node).toHaveFocus();
   });
 
-  it('should focus the canvas instead of the selected node when clicking the background', async () => {
-    const { container, controller } = await renderCanvas();
-    const canvas = container.querySelector('[id="canvas-main"]')!;
-    // Topology does not render SVG nodes in this test environment.
-    const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    node.setAttribute('data-testid', 'custom-node__route.from');
-    node.setAttribute('tabindex', '-1');
-    canvas.appendChild(node);
-    const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    canvas.appendChild(background);
+  it.each([true, false])(
+    'retains step focus on repeated background clicks with sidebar open: %s',
+    async (openSidebar) => {
+      const { container, controller } = await renderCanvas();
+      const canvas = container.querySelector('[id="canvas-main"]')!;
+      // Topology does not render SVG nodes in this test environment.
+      const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      node.setAttribute('data-testid', 'custom-node__route.from');
+      node.setAttribute('tabindex', '-1');
+      node.setAttribute('class', 'custom-node');
+      node.dataset.id = 'route-8888|route.from';
+      canvas.appendChild(node);
+      const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      canvas.appendChild(background);
 
-    act(() => {
-      controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
-    });
-    await waitFor(() => {
-      expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
-    });
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+      node.focus();
+      if (openSidebar) {
+        act(() => {
+          controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
+        });
+        await act(async () => {
+          await vi.runAllTimersAsync();
+        });
+      }
 
-    fireEvent.click(background);
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+      // Browsers move focus off the SVG before dispatching the background click.
+      canvas.focus();
+      fireEvent.click(background);
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
 
-    expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
-    expect(canvas).toHaveFocus();
-  });
+      expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+      expect(node).toHaveFocus();
+
+      canvas.focus();
+      fireEvent.click(background);
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+      expect(node).toHaveFocus();
+    },
+  );
 
   it('should schedule a graph.fit(80) upon loading', async () => {
     // Cannot use renderCanvas() here: fitSpy and layoutSpy must be installed on controller.getGraph()
