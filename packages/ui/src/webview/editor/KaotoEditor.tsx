@@ -36,6 +36,11 @@ export interface KaotoEditorInit {
   isReadOnly: boolean;
   /** Restart the embedding after a pre-edit failure without navigating its frame. */
   onRetry?: () => void;
+  /**
+   * Registers a listener for a lost host connection and returns its unsubscribe function. A listener registered
+   * after the loss is called immediately.
+   */
+  onDisconnect?: (listener: (error: Error) => void) => () => void;
 }
 
 interface Props {
@@ -87,6 +92,15 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
         setSettingsAdapter(new DefaultSettingsAdapter(snapshot.settings));
       }),
     [bus],
+  );
+
+  // Edits made after the connection is lost would never reach the host: suspend the document and offer Retry
+  useEffect(
+    () =>
+      init.onDisconnect?.((error) => {
+        docRef.current?.suspend(error);
+      }),
+    [init],
   );
 
   // Dispose bus on unmount (with Strict Mode guard)
@@ -269,11 +283,10 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
       {documentState.error && (
         <div role="alert">
           {documentState.error.message}
-          {!documentState.initialized && (
-            <Button variant="link" onClick={handleRetry}>
-              Retry
-            </Button>
-          )}
+          {/* Retry restarts the editor, which the host initializes again from the text document. */}
+          <Button variant="link" onClick={handleRetry}>
+            Retry
+          </Button>
         </div>
       )}
       {!documentState.initialized && !documentState.error && <output>Loading document…</output>}
