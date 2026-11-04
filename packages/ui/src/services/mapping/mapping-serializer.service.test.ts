@@ -3,6 +3,7 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  IDocument,
 } from '../../models/datamapper/document';
 import {
   ChooseItem,
@@ -19,7 +20,12 @@ import {
   VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
-import { NS_XSL } from '../../models/datamapper/standard-namespaces';
+import {
+  NS_XML_SCHEMA,
+  NS_XPATH_FUNCTIONS,
+  NS_XSL,
+  STANDARD_NAMESPACE_MAP,
+} from '../../models/datamapper/standard-namespaces';
 import { Types } from '../../models/datamapper/types';
 import {
   getFieldSubstitutionToFieldSubstitutionXslt,
@@ -30,6 +36,7 @@ import {
   getSchemaTestToSchemaTestXslt,
   getSchemaTestXsd,
   getShipOrderEmptyMappingXslt,
+  getShipOrderJsonXslt,
   getShipOrderManuallyEditedXslt,
   getShipOrderToShipOrderCollectionIndexXslt,
   getShipOrderToShipOrderInvalidForEachXslt,
@@ -37,6 +44,7 @@ import {
   getShipOrderToShipOrderXslt,
   getShipOrderWithCommentXslt,
   getShipOrderWithMultipleCommentsXslt,
+  getShipOrderXsdPrefixXslt,
   getUnknownApplyTemplateAfterFieldXslt,
   getUnknownApplyTemplateBeforeFieldXslt,
   getUnknownApplyTemplateXslt,
@@ -95,6 +103,368 @@ describe('MappingSerializerService', () => {
       mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       ({ mappingTree } = MappingSerializerService.deserialize('', targetDoc, mappingTree, sourceParameterMap));
       expect(mappingTree.children).toHaveLength(0);
+    });
+
+    describe('namespace merging', () => {
+      it('should resolve same URI with different prefix in favor of XSLT', () => {
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        mappingTree.namespaceMap = { tns: 'io.kaoto.datamapper.poc.test' };
+
+        ({ mappingTree } = MappingSerializerService.deserialize(
+          getShipOrderToShipOrderXslt(),
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        ));
+
+        expect(mappingTree.namespaceMap['ns0']).toBe('io.kaoto.datamapper.poc.test');
+        expect(mappingTree.namespaceMap['tns']).toBeUndefined();
+
+        const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+        expect(serialized).toContain('xmlns:ns0="io.kaoto.datamapper.poc.test"');
+        expect(serialized).not.toContain('xmlns:tns=');
+      });
+
+      it('should resolve same prefix with different URI in favor of XSLT', () => {
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        mappingTree.namespaceMap = { ns0: 'http://example.com/other' };
+
+        ({ mappingTree } = MappingSerializerService.deserialize(
+          getShipOrderToShipOrderXslt(),
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        ));
+
+        expect(mappingTree.namespaceMap['ns0']).toBe('io.kaoto.datamapper.poc.test');
+      });
+
+      it('should keep seed entries not declared in XSLT and maintain XSLT-first key order', () => {
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        mappingTree.namespaceMap = { custom: 'http://example.com/custom' };
+
+        ({ mappingTree } = MappingSerializerService.deserialize(
+          getShipOrderToShipOrderXslt(),
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        ));
+
+        expect(mappingTree.namespaceMap['ns0']).toBe('io.kaoto.datamapper.poc.test');
+        expect(mappingTree.namespaceMap['custom']).toBe('http://example.com/custom');
+        expect(Object.keys(mappingTree.namespaceMap)).toEqual(['ns0', 'custom']);
+
+        const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+        expect(serialized).toContain('xmlns:custom="http://example.com/custom"');
+
+        let roundTripTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        ({ mappingTree: roundTripTree } = MappingSerializerService.deserialize(
+          serialized,
+          targetDoc,
+          roundTripTree,
+          sourceParameterMap,
+        ));
+        expect(roundTripTree.namespaceMap['custom']).toBe('http://example.com/custom');
+      });
+
+      it('should drop seeded xs/fn when XSLT binds their URIs to other prefixes, but keep them otherwise', () => {
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        mappingTree.namespaceMap = { ...STANDARD_NAMESPACE_MAP };
+
+        ({ mappingTree } = MappingSerializerService.deserialize(
+          getShipOrderXsdPrefixXslt(),
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        ));
+
+        expect(mappingTree.namespaceMap['xsd']).toBe(NS_XML_SCHEMA);
+        expect(mappingTree.namespaceMap['f']).toBe(NS_XPATH_FUNCTIONS);
+        expect(mappingTree.namespaceMap['xs']).toBeUndefined();
+        expect(mappingTree.namespaceMap['fn']).toBeUndefined();
+
+        let jsonTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+        jsonTree.namespaceMap = { ...STANDARD_NAMESPACE_MAP };
+        ({ mappingTree: jsonTree } = MappingSerializerService.deserialize(
+          getShipOrderJsonXslt(),
+          targetDoc,
+          jsonTree,
+          sourceParameterMap,
+        ));
+
+        expect(jsonTree.namespaceMap['fn']).toBe(NS_XPATH_FUNCTIONS);
+        expect(jsonTree.namespaceMap['xs']).toBe(NS_XML_SCHEMA);
+      });
+
+      it('regression: should serialize seeded STANDARD_NAMESPACE_MAP with xs/fn in xmlns and xs fn xsl in exclude-result-prefixes', () => {
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        mappingTree.namespaceMap = { ...STANDARD_NAMESPACE_MAP };
+
+        ({ mappingTree } = MappingSerializerService.deserialize(
+          getShipOrderToShipOrderXslt(),
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        ));
+
+        const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+        expect(serialized).toContain('xmlns:xs="http://www.w3.org/2001/XMLSchema"');
+        expect(serialized).toContain('xmlns:fn="http://www.w3.org/2005/xpath-functions"');
+        expect(serialized).toContain('exclude-result-prefixes="ns0 xs fn xsl"');
+      });
+
+      it('should leave seeded namespaceMap untouched when deserializing template-less XSLT', () => {
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        mappingTree.namespaceMap = { custom: 'http://example.com/custom' };
+
+        ({ mappingTree } = MappingSerializerService.deserialize(EMPTY_XSL, targetDoc, mappingTree, sourceParameterMap));
+
+        expect(mappingTree.namespaceMap).toEqual({ custom: 'http://example.com/custom' });
+      });
+
+      it('should collect inlined namespace declarations from elements inside templates', () => {
+        const xsltWithInlinedNs = `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="io.kaoto.datamapper.poc.test">
+  <xsl:template match="/">
+    <ns0:ShipOrder>
+      <inlined:CustomElement xmlns:inlined="http://example.com/inlined">
+        <sub:Nested xmlns:sub="http://example.com/nested"/>
+      </inlined:CustomElement>
+    </ns0:ShipOrder>
+  </xsl:template>
+</xsl:stylesheet>`;
+
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+
+        ({ mappingTree } = MappingSerializerService.deserialize(
+          xsltWithInlinedNs,
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        ));
+
+        expect(mappingTree.namespaceMap['ns0']).toBe('io.kaoto.datamapper.poc.test');
+        expect(mappingTree.namespaceMap['inlined']).toBe('http://example.com/inlined');
+        expect(mappingTree.namespaceMap['sub']).toBe('http://example.com/nested');
+      });
+
+      it('should emit an error alert and keep root prefix when inlined element shadows a root prefix', () => {
+        const xsltWithShadowedNs = `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="io.kaoto.datamapper.poc.test">
+  <xsl:template match="/">
+    <ns0:ShipOrder xmlns:ns0="http://example.com/shadowed">
+      <unique:Child xmlns:unique="http://example.com/unique"/>
+    </ns0:ShipOrder>
+  </xsl:template>
+</xsl:stylesheet>`;
+
+        const mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+
+        const { mappingTree: deserialized, messages } = MappingSerializerService.deserialize(
+          xsltWithShadowedNs,
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        );
+
+        // Root prefix wins over inlined shadowed prefix
+        expect(deserialized.namespaceMap['ns0']).toBe('io.kaoto.datamapper.poc.test');
+        expect(deserialized.namespaceMap['unique']).toBe('http://example.com/unique');
+        // Error alert emitted
+        const shadowedAlert = messages.find(
+          (m) => m.variant === 'danger' && String(m.title).includes('Shadowed namespace'),
+        );
+        expect(shadowedAlert).toBeDefined();
+        expect(String(shadowedAlert?.description)).toContain(
+          'data mappings using this prefix might not work as expected',
+        );
+      });
+
+      it('should emit an error alert when a descendant inlined element shadows an ancestor inlined prefix', () => {
+        const xsltWithNestedShadowing = `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="io.kaoto.datamapper.poc.test">
+  <xsl:template match="/">
+    <ns0:ShipOrder>
+      <Ancestor xmlns:p="urn:ancestor">
+        <Descendant xmlns:p="urn:descendant"/>
+      </Ancestor>
+    </ns0:ShipOrder>
+  </xsl:template>
+</xsl:stylesheet>`;
+
+        const mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+
+        const { mappingTree: deserialized, messages } = MappingSerializerService.deserialize(
+          xsltWithNestedShadowing,
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        );
+
+        // Earlier inlined prefix wins over descendant shadowed prefix
+        expect(deserialized.namespaceMap['p']).toBe('urn:ancestor');
+        const shadowedAlert = messages.find(
+          (m) => m.variant === 'danger' && String(m.title).includes('Shadowed namespace'),
+        );
+        expect(shadowedAlert).toBeDefined();
+        expect(String(shadowedAlert?.description)).toContain(
+          'data mappings using this prefix might not work as expected',
+        );
+      });
+
+      it('should preserve inlined namespace aliases even if their URI is already declared on the root', () => {
+        const xsltWithInlinedAlias = `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="io.kaoto.datamapper.poc.test" xmlns:ord="urn:orders">
+  <xsl:template match="/">
+    <ns0:ShipOrder>
+      <OrderPerson>
+        <xsl:value-of xmlns:alias="urn:orders" select="/alias:order/alias:name"/>
+      </OrderPerson>
+    </ns0:ShipOrder>
+  </xsl:template>
+</xsl:stylesheet>`;
+
+        const mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+
+        const { mappingTree: deserialized } = MappingSerializerService.deserialize(
+          xsltWithInlinedAlias,
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        );
+
+        expect(deserialized.namespaceMap['ord']).toBe('urn:orders');
+        expect(deserialized.namespaceMap['alias']).toBe('urn:orders');
+
+        const serialized = MappingSerializerService.serialize(deserialized, sourceParameterMap);
+        expect(serialized).toContain('xmlns:ord="urn:orders"');
+        expect(serialized).toContain('xmlns:alias="urn:orders"');
+      });
+
+      it('should preserve multiple root stylesheet declarations even if they bind to the same URI', () => {
+        const xsltWithDuplicateRootUris = `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="http://example.com/orders" xmlns:alias="http://example.com/orders">
+  <xsl:template match="/">
+    <ns0:ShipOrder>
+      <alias:Item/>
+    </ns0:ShipOrder>
+  </xsl:template>
+</xsl:stylesheet>`;
+
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+
+        ({ mappingTree } = MappingSerializerService.deserialize(
+          xsltWithDuplicateRootUris,
+          targetDoc,
+          mappingTree,
+          sourceParameterMap,
+        ));
+
+        expect(mappingTree.namespaceMap['ns0']).toBe('http://example.com/orders');
+        expect(mappingTree.namespaceMap['alias']).toBe('http://example.com/orders');
+
+        const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+        expect(serialized).toContain('xmlns:ns0="http://example.com/orders"');
+        expect(serialized).toContain('xmlns:alias="http://example.com/orders"');
+      });
+
+      it('should handle non-XSLT XML gracefully without throwing', () => {
+        const nonXsltXml = `<?xml version="1.0" encoding="UTF-8"?>
+<foo xmlns:a="urn:a">
+  <b/>
+</foo>`;
+
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+
+        expect(() => {
+          ({ mappingTree } = MappingSerializerService.deserialize(
+            nonXsltXml,
+            targetDoc,
+            mappingTree,
+            sourceParameterMap,
+          ));
+        }).not.toThrow();
+      });
+
+      it('should restore namespaces, params, and variables from stylesheet even without template children', () => {
+        const xsltWithoutTemplate = `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:custom="http://example.com/custom">
+  <xsl:param name="globalParam"/>
+  <xsl:variable name="globalVar" select="'staticValue'"/>
+  <xsl:template match="/"/>
+</xsl:stylesheet>`;
+
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        const paramsMap = new Map<string, IDocument>();
+
+        ({ mappingTree } = MappingSerializerService.deserialize(
+          xsltWithoutTemplate,
+          targetDoc,
+          mappingTree,
+          paramsMap,
+        ));
+
+        expect(mappingTree.namespaceMap['custom']).toBe('http://example.com/custom');
+        expect(paramsMap.has('globalParam')).toBe(true);
+        expect(mappingTree.globalVariables).toHaveLength(1);
+        expect(mappingTree.globalVariables[0].name).toBe('globalVar');
+      });
     });
 
     it('should deserialize XSLT', () => {

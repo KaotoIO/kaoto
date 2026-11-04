@@ -207,19 +207,22 @@ export class MappingSerializerService {
     }
   }
 
-  private static getRootStyleSheet(xsltDocument: Document) {
-    const prefix = xsltDocument.lookupPrefix(NS_XSL);
-    // The document is used both as the XPath context node and as the namespace resolver.
-    return xsltDocument
-      .evaluate(`/${prefix}:stylesheet`, xsltDocument, xsltDocument, XPathResult.ANY_TYPE)
-      .iterateNext()! as Element;
+  private static isXsltDocument(xsltDocument: Document): boolean {
+    const root = xsltDocument.documentElement;
+    return (
+      !!root && root.namespaceURI === NS_XSL && (root.localName === 'stylesheet' || root.localName === 'transform')
+    );
+  }
+
+  private static getRootStyleSheet(xsltDocument: Document): Element | null {
+    return MappingSerializerService.isXsltDocument(xsltDocument) ? xsltDocument.documentElement : null;
   }
 
   private static populateMappingRoot(xsltDocument: Document, mappings: MappingTree) {
     const template = xsltDocument.createElementNS(NS_XSL, 'template');
     template.setAttribute('match', '/');
     const stylesheet = MappingSerializerService.getRootStyleSheet(xsltDocument);
-    stylesheet.appendChild(template);
+    stylesheet?.appendChild(template);
 
     const jsonRoot = MappingSerializerJsonAddon.populateJsonTargetBase(mappings, template);
     if (jsonRoot) return jsonRoot;
@@ -229,6 +232,7 @@ export class MappingSerializerService {
 
   private static populateParam(xsltDocument: Document, sourceParameterMap: Map<string, IDocument>) {
     const stylesheet = MappingSerializerService.getRootStyleSheet(xsltDocument);
+    if (!stylesheet) return;
     sourceParameterMap.forEach((doc, paramName) => {
       const prefix = xsltDocument.lookupPrefix(NS_XSL);
       // The document is used both as the XPath context node and as the namespace resolver.
@@ -252,6 +256,7 @@ export class MappingSerializerService {
 
   private static populateStylesheetVariables(xsltDocument: Document, mappings: MappingTree) {
     const stylesheet = MappingSerializerService.getRootStyleSheet(xsltDocument);
+    if (!stylesheet) return;
     for (const gv of mappings.globalVariables) {
       if (gv.scope !== 'stylesheet') continue;
       if (gv.rawElement) {
@@ -313,11 +318,13 @@ export class MappingSerializerService {
       MappingSerializerService.restoreDataMapperSettings(xsltDoc),
       targetDocument.definitionType,
     );
-    const template = xsltDoc.getElementsByTagNameNS(NS_XSL, 'template')[0];
-    if (template?.children) {
-      MappingSerializerService.restoreNamespaces(xsltDoc, mappingTree);
+    if (MappingSerializerService.isXsltDocument(xsltDoc)) {
+      MappingSerializerService.restoreNamespaces(xsltDoc, mappingTree, messages);
       MappingSerializerService.restoreParam(xsltDoc, sourceParameterMap);
       MappingSerializerService.restoreStylesheetVariables(xsltDoc, mappingTree, sourceParameterMap, messages);
+    }
+    const template = xsltDoc.getElementsByTagNameNS(NS_XSL, 'template')[0];
+    if (template) {
       const root = MappingSerializerJsonAddon.getJsonTargetBase(xsltDoc, mappingTree) ?? template;
       for (const item of Array.from(root.childNodes)) {
         MappingSerializerService.restoreMapping(item, targetDocument, mappingTree, messages);
@@ -333,7 +340,7 @@ export class MappingSerializerService {
    * list and let the two production paths drift apart; adding a pass now means editing only here.
    *
    * Uses `mappingTree.namespaceMap` rather than a map the caller holds: {@link restoreNamespaces}
-   * replaces it above, so a caller's pre-deserialize reference is already detached by this point,
+   * merges and replaces it above, so a caller's pre-deserialize reference is already detached by this point,
    * and prefixes minted during detection have to land on the map serialization will use.
    * @param mappingTree - the tree just restored from XSLT
    * @param targetDocument - the target document the tree maps onto
@@ -351,28 +358,73 @@ export class MappingSerializerService {
     };
   }
 
-  private static restoreNamespaces(xsltDocument: Document, mappingTree: MappingTree) {
-    mappingTree.namespaceMap = {};
-    const rootElement = xsltDocument.documentElement;
-    Array.from(rootElement.attributes).forEach((attr) => {
-      if (!attr.nodeName.includes(':') || !attr.nodeValue || attr.nodeValue === NS_XSL) return;
-      const splitted = attr.nodeName.split(':');
-      if (splitted[0] === 'xmlns') mappingTree.namespaceMap[splitted[1]] = attr.nodeValue;
-    });
+  private static collectElementNamespaces(
+    element: Element,
+    fromXslt: Map<string, string>,
+    xsltUris: Set<string>,
+    checkConflicts: boolean,
+    messages?: SendAlertProps[],
+  ): void {
+    for (const attr of Array.from(element.attributes)) {
+      if (!attr.nodeName.includes(':') || !attr.nodeValue || attr.nodeValue === NS_XSL) continue;
+      const [decl, prefix] = attr.nodeName.split(':');
+      if (decl !== 'xmlns' || prefix === 'xml' || prefix === 'xmlns') continue;
+      if (checkConflicts && fromXslt.has(prefix)) {
+        const existingUri = fromXslt.get(prefix);
+        if (existingUri !== attr.nodeValue && messages) {
+          messages.push({
+            variant: 'danger',
+            title: `Shadowed namespace declaration for prefix "${prefix}"`,
+            description: `Prefix "${prefix}" is already bound to "${existingUri}", but re-declared as "${attr.nodeValue}" on element <${element.nodeName}>. The earlier binding takes precedence, and data mappings using this prefix might not work as expected.`,
+          });
+        }
+        continue;
+      }
+      fromXslt.set(prefix, attr.nodeValue);
+      xsltUris.add(attr.nodeValue);
+    }
+  }
+
+  /**
+   * Restores namespace declarations into the mapping tree.
+   * Priority order: XSLT declarations (highest) > existing mapping tree entries / metadata (fills gaps).
+   * An existing entry is kept only if its prefix is not in the XSLT declarations and its URI is not
+   * already bound by an XSLT declaration.
+   * @param xsltDocument - the parsed XSLT document
+   * @param mappingTree - the tree whose namespaceMap will be merged and replaced
+   * @param messages - optional list to collect alerts / warnings during namespace restore
+   */
+  private static restoreNamespaces(xsltDocument: Document, mappingTree: MappingTree, messages: SendAlertProps[] = []) {
+    const fromXslt = new Map<string, string>();
+    const xsltUris = new Set<string>();
+
+    const root = xsltDocument.documentElement;
+    if (root) {
+      MappingSerializerService.collectElementNamespaces(root, fromXslt, xsltUris, false, messages);
+      for (const el of Array.from(xsltDocument.getElementsByTagName('*'))) {
+        if (el !== root) {
+          MappingSerializerService.collectElementNamespaces(el, fromXslt, xsltUris, true, messages);
+        }
+      }
+    }
+
+    const previousMap = mappingTree.namespaceMap ?? {};
+    const merged = new Map(fromXslt);
+
+    for (const [prefix, uri] of Object.entries(previousMap)) {
+      if (!fromXslt.has(prefix) && !xsltUris.has(uri)) {
+        merged.set(prefix, uri);
+      }
+    }
+
+    mappingTree.namespaceMap = Object.fromEntries(merged);
   }
 
   private static restoreParam(xsltDocument: Document, sourceParameterMap: Map<string, IDocument>) {
-    const prefix = xsltDocument.lookupPrefix(NS_XSL);
-    // The document is used both as the XPath context node and as the namespace resolver.
-    const params = xsltDocument.evaluate(
-      `/${prefix}:stylesheet/${prefix}:param`,
-      xsltDocument,
-      xsltDocument,
-      XPathResult.ANY_TYPE,
-    );
-    let param: Node | null;
-    while ((param = params.iterateNext())) {
-      const paramEl = param as Element;
+    const stylesheet = MappingSerializerService.getRootStyleSheet(xsltDocument);
+    if (!stylesheet) return;
+    for (const paramEl of Array.from(stylesheet.children)) {
+      if (paramEl.namespaceURI !== NS_XSL || paramEl.localName !== 'param') continue;
       const name = paramEl.getAttribute('name');
       if (!name || sourceParameterMap.has(name)) continue;
       sourceParameterMap.set(
@@ -382,6 +434,19 @@ export class MappingSerializerService {
     }
   }
 
+  private static restoreSingleStylesheetVariable(child: Element, varName: string, mappingTree: MappingTree): void {
+    const variable = new VariableItem(mappingTree, varName);
+    variable.scope = 'stylesheet';
+    const selectAttr = child.getAttribute('select');
+    const requiresRawElement =
+      child.hasChildNodes() || Array.from(child.attributes).some((a) => a.name !== 'name' && a.name !== 'select');
+    if (requiresRawElement) {
+      variable.rawElement = child.cloneNode(true) as Element;
+    }
+    variable.expression = selectAttr || '';
+    mappingTree.globalVariables.push(variable);
+  }
+
   private static restoreStylesheetVariables(
     xsltDocument: Document,
     mappingTree: MappingTree,
@@ -389,6 +454,7 @@ export class MappingSerializerService {
     messages: SendAlertProps[],
   ) {
     const stylesheet = MappingSerializerService.getRootStyleSheet(xsltDocument);
+    if (!stylesheet) return;
     for (const child of Array.from(stylesheet.children)) {
       if (child.namespaceURI !== NS_XSL || child.localName !== 'variable') continue;
       const varName = child.getAttribute('name')?.trim() || '';
@@ -411,18 +477,7 @@ export class MappingSerializerService {
         continue;
       }
       if (sourceParameterMap.has(varName)) continue;
-      const variable = new VariableItem(mappingTree, varName);
-      variable.scope = 'stylesheet';
-      const selectAttr = child.getAttribute('select');
-      const requiresRawElement =
-        child.hasChildNodes() || Array.from(child.attributes).some((a) => a.name !== 'name' && a.name !== 'select');
-      if (requiresRawElement) {
-        variable.rawElement = child.cloneNode(true) as Element;
-        variable.expression = selectAttr || '';
-      } else {
-        variable.expression = selectAttr || '';
-      }
-      mappingTree.globalVariables.push(variable);
+      MappingSerializerService.restoreSingleStylesheetVariable(child, varName, mappingTree);
     }
   }
 

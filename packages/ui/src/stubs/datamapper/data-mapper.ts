@@ -96,6 +96,9 @@ export function getShipOrderToShipOrderXslt(): string {
 export function getShipOrderValueOfInContainerXslt(): string {
   return readStubFile('./xml/ShipOrderValueOfInContainer.xsl');
 }
+export function getShipOrderXsdPrefixXslt(): string {
+  return readStubFile('./xml/ShipOrderXsdPrefix.xsl');
+}
 export function getConditionalMappingsToShipOrderXslt(): string {
   return readStubFile('./xml/ConditionalMappingsToShipOrder.xsl');
 }
