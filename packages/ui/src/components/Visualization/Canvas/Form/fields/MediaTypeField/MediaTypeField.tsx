@@ -148,7 +148,7 @@ export const MediaTypeField: FunctionComponent<FieldProps> = ({ propName, requir
           placeholder="Add custom media type"
           disabled={disabled}
         />
-        <Button kind="secondary" size="md" onClick={addCustomValue} disabled={disabled || customValue.trim() === ''}>
+        <Button kind="secondary" onClick={addCustomValue} disabled={disabled || customValue.trim() === ''}>
           Add
         </Button>
       </div>
