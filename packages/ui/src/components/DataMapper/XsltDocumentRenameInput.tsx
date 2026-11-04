@@ -1,17 +1,16 @@
 import './XsltDocumentRenameInput.scss';
 
-import { Checkmark, Close, Edit, WarningFilled } from '@carbon/icons-react';
+import { EditInPlace } from '@carbon/ibm-products';
 import {
-  Button,
-  Form,
-  FormGroup,
-  HelperText,
-  HelperTextItem,
-  InputGroup,
-  InputGroupItem,
-  TextInput,
-} from '@patternfly/react-core';
-import { FunctionComponent, KeyboardEventHandler, MouseEventHandler, useCallback, useEffect, useState } from 'react';
+  FunctionComponent,
+  KeyboardEventHandler,
+  MouseEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
+import { flushSync } from 'react-dom';
 
 import { IDataTestID, ValidationResult, ValidationStatus } from '../../models';
 
@@ -23,8 +22,19 @@ interface IXsltDocumentRenameInput extends IDataTestID {
   onChange?: (value: string) => void | Promise<void>;
   onEditingStateChange?: (isEditing: boolean) => void;
   placeholder?: string;
-  className?: string;
 }
+
+const stopPropagation: MouseEventHandler<HTMLDivElement> & KeyboardEventHandler<HTMLDivElement> = (event) => {
+  event.stopPropagation();
+};
+
+/**
+ * EditInPlace saves a changed value as soon as the input loses focus. Renaming the XSLT document
+ * moves a file, so it must only happen on an explicit save. Providing a blur handler turns that off.
+ */
+const keepDraftOnBlur = () => {
+  // intentionally empty: the draft is kept until it is saved or cancelled
+};
 
 export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput> = ({
   value = '',
@@ -34,12 +44,26 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
   placeholder,
   onChange,
   onEditingStateChange,
-  className,
   ...props
 }) => {
   const [localValue, setLocalValue] = useState(value);
-  const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // After a failed save, remount the editor so Cancel can restore the committed value.
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [editorKey, setEditorKey] = useState(0);
+  const [isResyncingBaseline, setIsResyncingBaseline] = useState(false);
+  const resyncEditorBaseline = useCallback(() => {
+    flushSync(() => {
+      setEditorKey((key) => key + 1);
+      setIsResyncingBaseline(true);
+    });
+    flushSync(() => {
+      setIsResyncingBaseline(false);
+    });
+    // The remounted editor is not focused, which hides its Save and Cancel controls
+    wrapperRef.current?.querySelector('input')?.focus();
+  }, []);
   const [validationInputs, setValidationInputs] = useState({ localValue, value, validator });
   if (
     validationInputs.localValue !== localValue ||
@@ -93,170 +117,112 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
     };
   }, [localValue, value, validator, setValidationResult]);
 
-  const focusTextInput = useCallback((element: HTMLInputElement) => {
-    element?.focus();
-  }, []);
+  // The field is editing while it holds an unsaved draft or a save is in flight.
+  const isEditing = localValue !== value || isSaving;
+  const lastReportedEditing = useRef(false);
+  useEffect(() => {
+    if (lastReportedEditing.current === isEditing) return;
+    lastReportedEditing.current = isEditing;
+    onEditingStateChange?.(isEditing);
+  }, [isEditing, onEditingStateChange]);
 
-  const onEdit: MouseEventHandler<HTMLButtonElement> = useCallback(
-    (event) => {
-      setIsEditing(true);
-      onEditingStateChange?.(true);
-      event.stopPropagation();
+  const onInputValueChange = useCallback(
+    (inputValue: string) => {
+      if (isSaving) return;
+      setLocalValue(inputValue);
     },
-    [onEditingStateChange],
+    [isSaving],
   );
 
-  const onInputValueChange = useCallback((_event: unknown, inputValue: string) => {
-    setLocalValue(inputValue);
-  }, []);
-
   const saveValue = useCallback(async () => {
-    if (isValidating || isSaving || validationResult.status === ValidationStatus.Error) {
+    if (isSaving || localValue === value || validationResult.status === ValidationStatus.Error) {
       return;
     }
 
-    if (localValue !== value && typeof onChange === 'function') {
-      setIsSaving(true);
-      try {
-        await onChange(localValue);
-      } catch {
-        setValidationResult({
-          status: ValidationStatus.Error,
-          errMessages: ['Unable to save document name. Please try again.'],
-        });
-        setIsSaving(false);
-        return;
+    setIsSaving(true);
+    let isSaved = false;
+    try {
+      // The user may save before the validation of the latest input has settled.
+      if (isValidating && typeof validator === 'function') {
+        let result: ValidationResult;
+        try {
+          result = await validator(localValue);
+        } catch {
+          result = { status: ValidationStatus.Error, errMessages: ['Validation failed. Please try again.'] };
+        }
+        if (result.status === ValidationStatus.Error) {
+          setValidationResult(result);
+          return;
+        }
       }
+
+      await onChange?.(localValue);
+      isSaved = true;
+    } catch {
+      setValidationResult({
+        status: ValidationStatus.Error,
+        errMessages: ['Unable to save document name. Please try again.'],
+      });
+    } finally {
+      if (!isSaved) resyncEditorBaseline();
+      setIsSaving(false);
     }
-    setValidationResult({ status: ValidationStatus.Default, errMessages: [] });
-    setIsSaving(false);
-    setIsEditing(false);
-    onEditingStateChange?.(false);
   }, [
-    isValidating,
     isSaving,
     localValue,
     value,
-    onChange,
-    onEditingStateChange,
     validationResult.status,
+    isValidating,
+    validator,
+    onChange,
     setValidationResult,
+    resyncEditorBaseline,
   ]);
 
-  const cancelValue = useCallback(() => {
+  const onSave = useCallback(() => {
+    saveValue().catch(() => {
+      // errors are handled inside saveValue
+    });
+  }, [saveValue]);
+
+  const onCancel = useCallback(() => {
+    if (isSaving) return;
     setLocalValue(value);
-    setValidationResult({ status: ValidationStatus.Default, errMessages: [] });
-    setIsEditing(false);
-    onEditingStateChange?.(false);
-  }, [value, onEditingStateChange, setValidationResult]);
-
-  const onKeyDown: KeyboardEventHandler<HTMLInputElement> = useCallback(
-    (event) => {
-      event.stopPropagation();
-      if (event.key === 'Enter') {
-        saveValue().catch(() => {
-          // errors are handled inside saveValue
-        });
-      }
-      if (event.key === 'Escape') {
-        cancelValue();
-      }
-    },
-    [cancelValue, saveValue],
-  );
-
-  const onSave: MouseEventHandler<HTMLButtonElement> = useCallback(
-    (event) => {
-      event.stopPropagation();
-      saveValue().catch(() => {
-        // errors are handled inside saveValue
-      });
-    },
-    [saveValue],
-  );
-
-  const onCancel: MouseEventHandler<HTMLButtonElement> = useCallback(
-    (event) => {
-      cancelValue();
-      event.stopPropagation();
-    },
-    [cancelValue],
-  );
+  }, [isSaving, value]);
 
   const isInvalid = validationResult.status === ValidationStatus.Error;
-  const validationState = isInvalid ? 'error' : 'default';
+  const errorMessage = isInvalid ? validationResult.errMessages[0] : undefined;
 
   return (
-    <>
-      {isEditing ? (
-        <Form
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <FormGroup fieldId="xslt-document-rename-value" data-testid={props['data-testid'] + '--form'}>
-            <InputGroup>
-              <InputGroupItem isFill>
-                <TextInput
-                  id="xslt-document-rename-value"
-                  name="xslt-document-rename-value"
-                  aria-label="xslt-document-rename-value"
-                  data-testid={props['data-testid'] + '--text-input'}
-                  type="text"
-                  ref={focusTextInput}
-                  onChange={onInputValueChange}
-                  value={localValue}
-                  aria-invalid={isInvalid}
-                  onKeyDown={onKeyDown}
-                  validated={validationState}
-                  isDisabled={isSaving}
-                />
-              </InputGroupItem>
-              <InputGroupItem>
-                <div className="xslt-document-rename-action-buttons">
-                  <Button
-                    icon={<Checkmark />}
-                    variant="plain"
-                    aria-label="Save value"
-                    onClick={onSave}
-                    data-testid={props['data-testid'] + '--save'}
-                    isDisabled={isInvalid || isSaving || isValidating}
-                  />
-                  <Button
-                    icon={<Close />}
-                    variant="plain"
-                    aria-label="Cancel editing"
-                    data-testid={props['data-testid'] + '--cancel'}
-                    onClick={onCancel}
-                    isDisabled={isSaving}
-                  />
-                </div>
-              </InputGroupItem>
-            </InputGroup>
-            {isInvalid && validationResult.errMessages.length > 0 && (
-              <HelperText>
-                <HelperTextItem variant="error" icon={<WarningFilled />}>
-                  {validationResult.errMessages[0]}
-                </HelperTextItem>
-              </HelperText>
-            )}
-          </FormGroup>
-        </Form>
-      ) : (
-        <div className="xslt-document-rename-wrapper">
-          <span title={textTitle} aria-label={textTitle} data-testid={props['data-testid']} className={className}>
-            {localValue || placeholder}
-          </span>
-          <Button
-            title={editTitle}
-            variant="plain"
-            data-testid={props['data-testid'] + '--edit'}
-            onClick={onEdit}
-            icon={<Edit />}
-          />
-        </div>
-      )}
-    </>
+    // role="none": this wrapper is scaffolding that keeps clicks and key presses away from the
+    // canvas panel it is rendered in, not a control. Tabbing and keyboard/mouse/touch interaction are
+    // handled by the EditInPlace controls inside.
+    <div
+      ref={wrapperRef}
+      className="xslt-document-rename"
+      role="none"
+      data-testid={props['data-testid']}
+      onClick={stopPropagation}
+      onKeyDown={stopPropagation}
+    >
+      <EditInPlace
+        key={editorKey}
+        id="xslt-document-rename-value"
+        labelText={textTitle ?? 'XSLT document name'}
+        value={isResyncingBaseline ? value : localValue}
+        placeholder={placeholder}
+        editAlwaysVisible
+        editLabel={editTitle ?? 'Edit'}
+        saveLabel="Save value"
+        cancelLabel="Cancel editing"
+        invalid={isInvalid}
+        invalidText={errorMessage}
+        onChange={onInputValueChange}
+        onSave={onSave}
+        onCancel={onCancel}
+        onBlur={keepDraftOnBlur}
+      />
+    </div>
   );
 };
 

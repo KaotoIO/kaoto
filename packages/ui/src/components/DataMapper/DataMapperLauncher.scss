@@ -1,14 +1,22 @@
 .data-mapper-launcher {
   display: flex;
   flex-direction: column;
-  gap: var(--pf-t--global--spacer--md);
-  margin-top: var(--pf-t--global--spacer--md);
+  gap: 1rem;
+  margin-top: 1rem;
 
   button {
     width: fit-content;
   }
 }
 /* stylelint-disable selector-class-pattern -- Carbon component class names */
+.data-mapper-missing-configuration {
+  // Carbon caps the notification width per breakpoint, stretch it to the form area instead
+  &.cds--inline-notification {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 .data-mapper-not-configurable {
   margin-top: 1rem;
 
