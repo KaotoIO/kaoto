@@ -99,7 +99,7 @@ export const ArrayBadgesField: FunctionComponent<ArrayBadgesFieldProps> = ({
             />
           </div>
           <div>
-            <Button kind="secondary" size="md" onClick={addItem} disabled={disabled || inputValue.trim().length === 0}>
+            <Button kind="secondary" onClick={addItem} disabled={disabled || inputValue.trim().length === 0}>
               Add
             </Button>
           </div>
