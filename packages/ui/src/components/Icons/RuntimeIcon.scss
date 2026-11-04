@@ -1,12 +1,9 @@
 .runtime-icon {
   padding-bottom: 2px;
-
-  > [class^='pf-v6-c-icon'] {
-    display: inline-flex;
-    align-items: center;
-    width: 14px;
-    height: 14px;
-    line-height: 1;
-    padding-top: 2px;
-  }
+  display: inline-flex;
+  align-items: center;
+  width: 14px;
+  height: 14px;
+  line-height: 1;
+  padding-top: 2px;
 }

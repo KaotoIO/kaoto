@@ -13,7 +13,6 @@ import {
   StringText,
   Time,
 } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
 import { FunctionComponent, useMemo } from 'react';
 
 import { Types } from '../../models/datamapper';
@@ -76,8 +75,8 @@ export const FieldIcon: FunctionComponent<FieldIconProps> = ({ type, className }
   }, [type]);
 
   return (
-    <Icon className={className} title={type}>
+    <span className={className} title={type}>
       {iconNode}
-    </Icon>
+    </span>
   );
 };
