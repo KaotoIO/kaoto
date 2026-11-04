@@ -154,6 +154,39 @@ it.each(['F10', 'ContextMenu'])('focuses the first enabled action when opened wi
   await openMenu(key);
 });
 
+it.each(['mouse', 'keyboard'])(
+  'replaces an open menu on another step via %s without restoring stale focus',
+  async (mode) => {
+    const user = userEvent.setup();
+    const controller = ControllerService.createController();
+    controller.fromModel({ graph: { id: 'graph', type: 'graph' }, nodes: [{ id: 'step', type: 'node' }] }, false);
+    render(
+      <TopologyElementWrapper controller={controller} element={controller.getNodeById('step')!}>
+        <Wrapped />
+        <Wrapped />
+      </TopologyElementWrapper>,
+    );
+    const [first, second] = screen.getAllByRole('button', { name: 'Step' });
+    fireEvent.contextMenu(first, { button: 2, clientX: 10, clientY: 20 });
+    await screen.findByRole('menuitem', { name: 'First action' });
+    if (mode === 'mouse') {
+      fireEvent.contextMenu(second, { button: 2, clientX: 100, clientY: 200 });
+    } else {
+      second.focus();
+      fireEvent.keyDown(second, { key: 'F10', shiftKey: true });
+    }
+    await waitFor(() => {
+      expect(screen.getAllByRole('menuitem', { name: 'First action' })).toHaveLength(1);
+    });
+    const action = screen.getByRole('menuitem', { name: 'First action' });
+    if (mode === 'keyboard') expect(action).toHaveFocus();
+    else expect(action.closest('ul')).toHaveFocus();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(second).toHaveFocus());
+    expect(screen.queryByRole('menuitem')).not.toBeInTheDocument();
+  },
+);
+
 it('navigates actions with arrow keys without navigating canvas steps', async () => {
   const { user } = await openMenu();
   await user.keyboard('{ArrowDown}');
