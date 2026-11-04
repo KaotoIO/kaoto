@@ -119,7 +119,7 @@ export function createPostMessageBridge({
     const result: unknown = await sendMessage(message);
     if (result === false) throw new BridgeError('IO_ERROR', 'The peer rejected message delivery');
   };
-  const close = (error: BridgeError, rejection?: ControlMessage) => {
+  const close = (error: BridgeError, rejection?: ControlMessage, notifyOwner = true) => {
     if (closed) return;
     closed = true;
     clearTimeout(handshakeTimer);
@@ -141,7 +141,7 @@ export function createPostMessageBridge({
           transport.dispose();
         });
     else transport.dispose();
-    if (error.code !== 'DISPOSED') {
+    if (notifyOwner) {
       try {
         onClose?.(error);
       } catch (callbackError) {
@@ -150,7 +150,7 @@ export function createPostMessageBridge({
     }
   };
   const dispose = () => {
-    close(new BridgeError('DISPOSED', 'The bridge has been disposed'));
+    close(new BridgeError('DISPOSED', 'The bridge has been disposed'), undefined, false);
   };
   const send = async (message: WireMessage | ControlMessage): Promise<boolean> => {
     if (closed) return false;
@@ -413,7 +413,10 @@ export function createPostMessageBridge({
         }, handshakeTimeoutMs);
       try {
         unsubscribe = transport.onMessage(receive);
-        unsubscribeClose = memoryClosures.get(transport)?.(dispose) ?? noop;
+        unsubscribeClose =
+          memoryClosures.get(transport)?.(() => {
+            close(new BridgeError('DISPOSED', 'The peer closed the connection'));
+          }) ?? noop;
         if (endpoint.role === 'editor' && !closed) {
           bootId = freshId();
           const hello: ControlMessage = { ...protocol, kind: 'hello', editorBootId: bootId };
