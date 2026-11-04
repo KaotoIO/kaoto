@@ -13,6 +13,7 @@ import {
   RootElementOption,
   Types,
 } from '../../models/datamapper';
+import { NS_XML, STANDARD_NAMESPACE_MAP } from '../../models/datamapper/standard-namespaces';
 import { PathExpression } from '../../models/datamapper/xpath';
 import { IMetadataApi } from '../../providers';
 import { XPathService } from '../xpath/xpath.service';
@@ -193,6 +194,59 @@ export class DocumentService {
   static getRootElementQName(document?: IDocument) {
     if (!(document instanceof XmlSchemaDocument)) return null;
     return document.rootElement?.getQName();
+  }
+
+  /**
+   * Registers namespace prefixes declared on XML schemas in the document into the provided namespaceMap.
+   * Skips default (empty), xml, and xmlns prefixes, empty URIs, standard namespace URIs, and any
+   * prefix or URI already present in namespaceMap.
+   * No-op for non-XmlSchemaDocument instances.
+   * @param document - The document to inspect for XML schema namespace declarations
+   * @param namespaceMap - The map to register discovered namespaces into (mutated in place)
+   */
+  static registerSchemaNamespaces(document: IDocument, namespaceMap: Record<string, string>): void {
+    if (!(document instanceof XmlSchemaDocument)) return;
+
+    const standardUris = new Set<string>([NS_XML, ...Object.values(STANDARD_NAMESPACE_MAP)]);
+    for (const schema of document.xmlSchemaCollection.getUserSchemas()) {
+      const context = schema.getNamespaceContext();
+      if (!context) continue;
+      for (const prefix of context.getDeclaredPrefixes()) {
+        if (!prefix || prefix === 'xml' || prefix === 'xmlns') continue;
+        const uri = context.getNamespaceURI(prefix);
+        if (!uri || standardUris.has(uri)) continue;
+        if (Object.prototype.hasOwnProperty.call(namespaceMap, prefix) || Object.values(namespaceMap).includes(uri))
+          continue;
+        namespaceMap[prefix] = uri;
+      }
+    }
+  }
+
+  /**
+   * Registers namespace prefixes declared on XML schemas across target, source, and parameter documents.
+   * Priority order: Target body > Source body > Source parameters.
+   * @param namespaceMap - The map to register discovered namespaces into (mutated in place)
+   * @param targetBodyDocument - The target body document
+   * @param sourceBodyDocument - The source body document
+   * @param sourceParameterMap - The map of source parameter documents
+   */
+  static registerAllSchemaNamespaces(
+    namespaceMap: Record<string, string>,
+    targetBodyDocument?: IDocument,
+    sourceBodyDocument?: IDocument,
+    sourceParameterMap?: Map<string, IDocument>,
+  ): void {
+    if (targetBodyDocument) {
+      DocumentService.registerSchemaNamespaces(targetBodyDocument, namespaceMap);
+    }
+    if (sourceBodyDocument) {
+      DocumentService.registerSchemaNamespaces(sourceBodyDocument, namespaceMap);
+    }
+    if (sourceParameterMap) {
+      for (const doc of sourceParameterMap.values()) {
+        DocumentService.registerSchemaNamespaces(doc, namespaceMap);
+      }
+    }
   }
 
   /**

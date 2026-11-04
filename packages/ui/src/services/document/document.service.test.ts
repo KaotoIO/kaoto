@@ -3,6 +3,7 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  IDocument,
   IField,
   IParentType,
   PathSegment,
@@ -16,6 +17,7 @@ import { PathExpression } from '../../models/datamapper/xpath';
 import { IMetadataApi } from '../../providers';
 import {
   getCartJsonSchema,
+  getExtensionSimpleXsd,
   getMultipleElementsXsd,
   getTestDocumentXsd,
   TestUtil,
@@ -24,6 +26,7 @@ import { DocumentService } from './document.service';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocument } from './json-schema/json-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema/xml-schema-document.model';
+import { XmlSchemaDocumentService } from './xml-schema/xml-schema-document.service';
 
 describe('DocumentService', () => {
   const sourceDoc = TestUtil.createSourceOrderDoc();
@@ -157,6 +160,128 @@ describe('DocumentService', () => {
       expect(result.errors![0].message).toBe("There's no top level Element in the schema");
       expect(result.document).toBeUndefined();
       expect(result.documentDefinition).toBeDefined();
+    });
+  });
+
+  describe('registerSchemaNamespaces()', () => {
+    const createXmlDoc = (schemaContent: string) => {
+      const def = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'schema.xsd': schemaContent },
+      );
+      return XmlSchemaDocumentService.createXmlSchemaDocument(def).document!;
+    };
+
+    it('should register schema-declared prefixes like tns', () => {
+      const doc = createXmlDoc(getMultipleElementsXsd());
+      const map: Record<string, string> = {};
+      DocumentService.registerSchemaNamespaces(doc, map);
+      expect(map['tns']).toBe('io.kaoto.datamapper.test.multiple');
+    });
+
+    it('should not overwrite an existing prefix key in namespaceMap', () => {
+      const doc = createXmlDoc(getMultipleElementsXsd());
+      const map: Record<string, string> = { tns: 'http://existing.com' };
+      DocumentService.registerSchemaNamespaces(doc, map);
+      expect(map['tns']).toBe('http://existing.com');
+    });
+
+    it('should not add a schema prefix when its URI is already bound under another prefix', () => {
+      const doc = createXmlDoc(getTestDocumentXsd());
+      const map: Record<string, string> = { custom: 'io.kaoto.datamapper.poc.test' };
+      DocumentService.registerSchemaNamespaces(doc, map);
+      expect(map['ns0']).toBeUndefined();
+      expect(map['custom']).toBe('io.kaoto.datamapper.poc.test');
+    });
+
+    it('should skip standard schema URIs (xs/xsd), xml prefix, and default namespace', () => {
+      const extDoc = createXmlDoc(getExtensionSimpleXsd());
+      const map1: Record<string, string> = {};
+      DocumentService.registerSchemaNamespaces(extDoc, map1);
+      expect(map1).toEqual({});
+
+      const inlineXmlPrefixDoc = createXmlDoc(`<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xml="http://www.w3.org/XML/1998/namespace" targetNamespace="http://example.com/test">
+  <xs:element name="Root" type="xs:string"/>
+</xs:schema>`);
+      const map2: Record<string, string> = {};
+      DocumentService.registerSchemaNamespaces(inlineXmlPrefixDoc, map2);
+      expect(map2).toEqual({});
+    });
+
+    it('should be a no-op for non-XmlSchemaDocument instances', () => {
+      const primDoc = DocumentService.createPrimitiveDocument(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.Primitive,
+        'test',
+      ).document!;
+      const primMap: Record<string, string> = {};
+      DocumentService.registerSchemaNamespaces(primDoc, primMap);
+      expect(primMap).toEqual({});
+
+      const jsonDoc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.JSON_SCHEMA, 'test', {}),
+      );
+      const jsonMap: Record<string, string> = {};
+      DocumentService.registerSchemaNamespaces(jsonDoc, jsonMap);
+      expect(jsonMap).toEqual({});
+    });
+
+    it('should be idempotent when called multiple times', () => {
+      const doc = createXmlDoc(getMultipleElementsXsd());
+      const map: Record<string, string> = {};
+      DocumentService.registerSchemaNamespaces(doc, map);
+      DocumentService.registerSchemaNamespaces(doc, map);
+      expect(map).toEqual({ tns: 'io.kaoto.datamapper.test.multiple' });
+    });
+  });
+
+  describe('registerAllSchemaNamespaces()', () => {
+    const createXmlDoc = (schemaContent: string) => {
+      const def = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'schema.xsd': schemaContent },
+      );
+      return XmlSchemaDocumentService.createXmlSchemaDocument(def).document!;
+    };
+
+    it('should register schema namespaces with priority: targetBody > sourceBody > sourceParameters', () => {
+      const targetDoc = createXmlDoc(`<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns="http://example.com/target" targetNamespace="http://example.com/target">
+  <xs:element name="TargetRoot" type="xs:string"/>
+</xs:schema>`);
+
+      const sourceDoc = createXmlDoc(`<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns="http://example.com/source" xmlns:src="http://example.com/source-unique" targetNamespace="http://example.com/source">
+  <xs:element name="SourceRoot" type="xs:string"/>
+</xs:schema>`);
+
+      const paramDoc = createXmlDoc(`<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ns="http://example.com/param" xmlns:param="http://example.com/param-unique" targetNamespace="http://example.com/param">
+  <xs:element name="ParamRoot" type="xs:string"/>
+</xs:schema>`);
+
+      const paramMap = new Map<string, IDocument>([['p1', paramDoc]]);
+      const namespaceMap: Record<string, string> = {};
+
+      DocumentService.registerAllSchemaNamespaces(namespaceMap, targetDoc, sourceDoc, paramMap);
+
+      // Target document's binding for 'ns' wins
+      expect(namespaceMap['ns']).toBe('http://example.com/target');
+      // Source unique prefix registered
+      expect(namespaceMap['src']).toBe('http://example.com/source-unique');
+      // Parameter unique prefix registered
+      expect(namespaceMap['param']).toBe('http://example.com/param-unique');
+    });
+
+    it('should handle missing or primitive documents gracefully', () => {
+      const namespaceMap: Record<string, string> = {};
+      DocumentService.registerAllSchemaNamespaces(namespaceMap, undefined, undefined, undefined);
+      expect(namespaceMap).toEqual({});
     });
   });
 

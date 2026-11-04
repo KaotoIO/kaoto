@@ -115,16 +115,20 @@ export class MappingSerializerJsonAddon {
   static getJsonTargetBase(xsltDoc: Document, mappingTree: MappingTree): Element | null {
     if (mappingTree.documentDefinitionType !== DocumentDefinitionType.JSON_SCHEMA) return null;
 
-    const prefix = xsltDoc.lookupPrefix(NS_XSL);
-    // The document is used both as the XPath context node and as the namespace resolver.
-    return xsltDoc
-      .evaluate(
-        `/${prefix}:stylesheet/${prefix}:variable[@name='${TO_JSON_TARGET_VARIABLE}']`,
-        xsltDoc,
-        xsltDoc,
-        XPathResult.ANY_TYPE,
-      )
-      .iterateNext() as Element;
+    const root = xsltDoc.documentElement;
+    if (root?.namespaceURI !== NS_XSL || (root.localName !== 'stylesheet' && root.localName !== 'transform')) {
+      return null;
+    }
+    for (const child of Array.from(root.children)) {
+      if (
+        child.namespaceURI === NS_XSL &&
+        child.localName === 'variable' &&
+        child.getAttribute('name') === TO_JSON_TARGET_VARIABLE
+      ) {
+        return child;
+      }
+    }
+    return null;
   }
 
   /**

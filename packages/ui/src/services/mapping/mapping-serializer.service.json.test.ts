@@ -223,6 +223,23 @@ describe('MappingSerializerService / JSON', () => {
       expect(parameterMap.has('OrderSequence')).toBe(true);
       expect(parameterMap.get('OrderSequence')).toBeInstanceOf(PrimitiveDocument);
     });
+
+    it('should deserialize JSON mappings when root element is xsl:transform', () => {
+      const transformXslt = getShipOrderJsonXslt()
+        .replace('<xsl:stylesheet', '<xsl:transform')
+        .replace('</xsl:stylesheet>', '</xsl:transform>');
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.JSON_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        transformXslt,
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      expect(mappingTree.children).toHaveLength(1);
+      const root = mappingTree.children[0] as FieldItem;
+      expect(root.field.name).toBe('map');
+      expect(root.children).toHaveLength(4);
+    });
   });
 
   describe('serialize()', () => {

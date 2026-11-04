@@ -39,7 +39,7 @@ import {
   PrimitiveDocument,
 } from '../models/datamapper/document';
 import { MappingTree, VariableItem } from '../models/datamapper/mapping';
-import { NS_XML_SCHEMA, NS_XPATH_FUNCTIONS, NS_XSL } from '../models/datamapper/standard-namespaces';
+import { STANDARD_NAMESPACE_MAP } from '../models/datamapper/standard-namespaces';
 import { CanvasView } from '../models/datamapper/view';
 import { TargetRenderIndex } from '../models/datamapper/visualization';
 import { DataMapperSettingsService } from '../services/datamapper-settings.service';
@@ -111,15 +111,13 @@ type DataMapperProviderProps = PropsWithChildren & {
   onUpdateStepSettings?: (settings: IStepSettings) => void;
 };
 
-const INITIAL_NAMESPACE_MAP = { xs: NS_XML_SCHEMA, fn: NS_XPATH_FUNCTIONS, xsl: NS_XSL };
-
 /** Build mutable domain objects before publishing them as React state. */
 const createInitialState = (documentInitializationModel?: DocumentInitializationModel, initialXsltFile?: string) => {
   // Documents retain their definitions and wrapper detection updates their metadata. Own a deep
   // copy, including override arrays, so initialization never mutates caller-owned props.
   const initializationModel = cloneDeep(documentInitializationModel);
   const namespaceMap = {
-    ...INITIAL_NAMESPACE_MAP,
+    ...STANDARD_NAMESPACE_MAP,
     ...initializationModel?.namespaceMap,
   };
   const documents = DocumentService.createInitialDocuments(initializationModel, namespaceMap);
@@ -137,6 +135,12 @@ const createInitialState = (documentInitializationModel?: DocumentInitialization
   const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
   tree.namespaceMap = namespaceMap;
   if (!initialXsltFile) {
+    DocumentService.registerAllSchemaNamespaces(
+      tree.namespaceMap,
+      targetBodyDocument,
+      sourceBodyDocument,
+      sourceParameterMap,
+    );
     return {
       sourceParameterMap,
       sourceBodyDocument,
@@ -151,6 +155,12 @@ const createInitialState = (documentInitializationModel?: DocumentInitialization
     initialXsltFile,
     targetBodyDocument,
     tree,
+    sourceParameterMap,
+  );
+  DocumentService.registerAllSchemaNamespaces(
+    mappingTree.namespaceMap,
+    targetBodyDocument,
+    sourceBodyDocument,
     sourceParameterMap,
   );
   return {
@@ -294,7 +304,13 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
 
   const resetMappingTree = useCallback(() => {
     const newMapping = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, targetBodyDocument.definitionType);
-    newMapping.namespaceMap = { ...INITIAL_NAMESPACE_MAP };
+    newMapping.namespaceMap = { ...STANDARD_NAMESPACE_MAP };
+    DocumentService.registerAllSchemaNamespaces(
+      newMapping.namespaceMap,
+      targetBodyDocument,
+      sourceBodyDocument,
+      sourceParameterMap,
+    );
     applyMappingTree(newMapping, { structural: true });
     onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, dataMapperSettings));
     onUpdateNamespaceMap?.(newMapping.namespaceMap);
@@ -303,8 +319,9 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     dataMapperSettings,
     onUpdateMappings,
     onUpdateNamespaceMap,
+    sourceBodyDocument,
     sourceParameterMap,
-    targetBodyDocument.definitionType,
+    targetBodyDocument,
   ]);
 
   // Re-serialize only when dataMapperSettings actually change (e.g. omitXmlDeclaration toggled).
@@ -375,6 +392,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
 
   const updateDocument = useCallback(
     (document: IDocument, definition: DocumentDefinition, previousDocumentReferenceId: string) => {
+      DocumentService.registerSchemaNamespaces(document, latestMappingTree.current.namespaceMap);
       /** For removing stale mappings when the document structure has changed, we need to know the previous
        * documentReferenceId. This is especially important for JSON Schema where the documentId and documentReferenceId
        * can be different.
