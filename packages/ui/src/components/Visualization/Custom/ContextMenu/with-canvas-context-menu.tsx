@@ -60,12 +60,8 @@ export const withCanvasContextMenu =
             currentTarget: canvas,
             clientX: rect.left,
             clientY: rect.top,
-            preventDefault: () => {
-              event.preventDefault();
-            },
-            stopPropagation: () => {
-              event.stopPropagation();
-            },
+            preventDefault: event.preventDefault.bind(event),
+            stopPropagation: event.stopPropagation.bind(event),
           });
         };
         canvas.addEventListener('keydown', onKeyDown);
