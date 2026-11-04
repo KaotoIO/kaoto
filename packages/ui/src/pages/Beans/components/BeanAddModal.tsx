@@ -1,4 +1,4 @@
-import { CanvasFormTabsProvider, isDefined, KaotoForm, KaotoFormApi } from '@kaoto/forms';
+import { isDefined, KaotoForm, KaotoFormApi } from '@kaoto/forms';
 import { mapValues, omitBy, pick, startCase } from 'lodash';
 import { FunctionComponent, useCallback, useMemo, useRef, useState } from 'react';
 
@@ -47,9 +47,7 @@ export const BeanAddModal: FunctionComponent<BeanAddModalProps> = ({ open, schem
 
   return (
     <EditorModal open={open} title="Add bean" testId="bean-add-modal" onClose={onClose} onSubmit={handleAdd}>
-      <CanvasFormTabsProvider tab="All">
-        <KaotoForm schema={addSchema} model={formModel} onChangeProp={onChangeProp} ref={formRef} />
-      </CanvasFormTabsProvider>
+      <KaotoForm showFilterField schema={addSchema} model={formModel} onChangeProp={onChangeProp} ref={formRef} />
     </EditorModal>
   );
 };

@@ -52,6 +52,20 @@ describe('MetadataPage', () => {
     expect(container!).toMatchSnapshot();
   });
 
+  it('renders the filter field without the section tabs', async () => {
+    // eslint-disable-next-line testing-library/no-unnecessary-act
+    await act(async () => {
+      render(
+        <EntitiesContext.Provider value={mockEntitiesContext}>
+          <MetadataPage />
+        </EntitiesContext.Provider>,
+      );
+    });
+
+    expect(await screen.findByTestId('filter-fields')).toBeInTheDocument();
+    expect(screen.queryByTestId('tab-All')).not.toBeInTheDocument();
+  });
+
   it('calls updateEntitiesFromCamelResource when the model changes', async () => {
     // eslint-disable-next-line testing-library/no-unnecessary-act
     await act(async () => {

@@ -4,8 +4,6 @@ import { FunctionComponent, useCallback, useContext, useEffect, useRef } from 'r
 
 import { IVisualizationNode } from '../../../../models';
 import { VisibleFlowsContext } from '../../../../providers';
-import { Anchors } from '../../../registers/anchors';
-import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasSidePanelErrorBoundary } from '../CanvasSidePanelErrorBoundary';
 import { CanvasFormBody } from './CanvasFormBody';
 import { CanvasFormHeader } from './CanvasFormHeader';
@@ -44,7 +42,6 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClos
       <div className="canvas-form">
         <div className="canvas-form__header">
           <CanvasFormHeader nodeId={vizNode.id} title={title} onClose={onCloseFn} iconUrl={vizNode.data.iconUrl} />
-          <RenderingAnchor anchorTag={Anchors.CanvasFormHeader} vizNode={vizNode} />
         </div>
 
         <div className="canvas-form__body">

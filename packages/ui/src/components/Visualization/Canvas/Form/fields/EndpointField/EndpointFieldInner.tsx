@@ -77,6 +77,7 @@ export const EndpointFieldInner: FunctionComponent<EndpointFieldProps> = ({
       {isDefined(selectedOneOfSchema?.schema.properties) && (
         <KaotoForm
           data-testid="new-endpoint-form"
+          showFilterField
           schema={selectedOneOfSchema?.schema}
           model={model}
           onChange={onModelChange}

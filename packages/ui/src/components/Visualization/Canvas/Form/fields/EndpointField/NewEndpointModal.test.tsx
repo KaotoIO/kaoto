@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { SuggestionRegistryProvider } from '@kaoto/forms';
+import { CanvasFormTabsContext, SuggestionRegistryProvider } from '@kaoto/forms';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { Mock } from 'vitest';
 
@@ -235,5 +235,29 @@ describe('NewEndpointModal', () => {
 
     // Should not call getNewComponent when endpoint and type are provided
     expect(mockGetNewComponent).not.toHaveBeenCalled();
+  });
+
+  it('should keep the endpoint type list visible after clearing the type when the outer canvas form is on the Modified tab', async () => {
+    render(
+      <CanvasFormTabsContext.Provider value={{ selectedTab: 'Modified', setSelectedTab: vi.fn() }}>
+        <CatalogModalContext.Provider value={{ getNewComponent: mockGetNewComponent, checkCompatibility: vi.fn() }}>
+          <NewEndpointModal
+            {...defaultProps}
+            mode="Create"
+            endpoint={{ name: 'testEndpoint', requestUrl: 'http://localhost:8080' }}
+            type="http-client"
+          />
+        </CatalogModalContext.Provider>
+      </CanvasFormTabsContext.Provider>,
+      { wrapper: SuggestionRegistryProvider },
+    );
+
+    expect(await screen.findByTestId('endpoint-type-list')).toBeInTheDocument();
+
+    fireEvent.click(await screen.findByRole('button', { name: 'Clear selected item' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('endpoint-type-list')).toBeInTheDocument();
+    });
   });
 });

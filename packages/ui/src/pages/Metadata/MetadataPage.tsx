@@ -1,4 +1,4 @@
-import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFormProps } from '@kaoto/forms';
+import { KaotoForm, KaotoFormProps } from '@kaoto/forms';
 import { Content } from '@patternfly/react-core';
 import { FunctionComponent, Suspense, use, useCallback, useContext, useMemo } from 'react';
 
@@ -44,10 +44,6 @@ const MetadataPageInner: FunctionComponent<{
   entitiesContext: EntitiesContextResult;
   metadataSchemaPromise: Promise<KaotoSchemaDefinition['schema'] | undefined>;
 }> = ({ camelkResource, entitiesContext, metadataSchemaPromise }) => {
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(
-    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
-    [],
-  );
   const metadataSchema = use(metadataSchemaPromise);
 
   const getMetadataModel = useCallback(() => {
@@ -74,13 +70,12 @@ const MetadataPageInner: FunctionComponent<{
   );
 
   return (
-    <CanvasFormTabsContext.Provider value={formTabsValue}>
-      <KaotoForm
-        data-testid="metadata-form"
-        schema={metadataSchema}
-        model={getMetadataModel()}
-        onChange={onChangeModel as KaotoFormProps['onChange']}
-      />
-    </CanvasFormTabsContext.Provider>
+    <KaotoForm
+      data-testid="metadata-form"
+      showFilterField
+      schema={metadataSchema}
+      model={getMetadataModel()}
+      onChange={onChangeModel as KaotoFormProps['onChange']}
+    />
   );
 };

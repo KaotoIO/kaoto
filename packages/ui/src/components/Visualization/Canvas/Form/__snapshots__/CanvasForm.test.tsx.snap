@@ -70,189 +70,202 @@ exports[`CanvasForm > should render 1`] = `
           </span>
         </span>
       </div>
-      <div
-        aria-label="Single selectable form tabs"
-        class="cds--content-switcher form-tabs cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
-        role="tablist"
-      >
-        <button
-          aria-selected="true"
-          class="cds--content-switcher-btn cds--content-switcher--selected"
-          data-testid="tab-Required"
-          role="tab"
-          tabindex="0"
-          title="Shows Required fields only"
-          type="button"
-        >
-          <span
-            class="cds--content-switcher__label"
-            title="Required"
-          >
-            Required
-          </span>
-        </button>
-        <button
-          aria-selected="false"
-          class="cds--content-switcher-btn"
-          data-testid="tab-All"
-          role="tab"
-          tabindex="-1"
-          title="Shows All fields"
-          type="button"
-        >
-          <span
-            class="cds--content-switcher__label"
-            title="All"
-          >
-            All
-          </span>
-        </button>
-        <button
-          aria-selected="false"
-          class="cds--content-switcher-btn"
-          data-testid="tab-Modified"
-          role="tab"
-          tabindex="-1"
-          title="Shows Modified fields only"
-          type="button"
-        >
-          <span
-            class="cds--content-switcher__label"
-            title="Modified"
-          >
-            Modified
-          </span>
-        </button>
-      </div>
-      <div
-        aria-labelledby="search-input-_r_ID_-search"
-        class="cds--search cds--search--sm cds--layout--size-sm filter-fields"
-        role="search"
-      >
-        <div
-          class="cds--search-magnifier"
-          tabindex="-1"
-        >
-          <svg
-            aria-hidden="true"
-            class="cds--search-magnifier-icon"
-            fill="currentColor"
-            focusable="false"
-            height="16"
-            preserveAspectRatio="xMidYMid meet"
-            viewBox="0 0 16 16"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5 C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
-            />
-          </svg>
-        </div>
-        <label
-          class="cds--label"
-          for="search-input-_r_ID_"
-          id="search-input-_r_ID_-search"
-        >
-          Find properties by name
-        </label>
-        <input
-          autocomplete="off"
-          class="cds--search-input"
-          data-testid="filter-fields"
-          id="search-input-_r_ID_"
-          placeholder="Find properties by name"
-          type="search"
-          value=""
-        />
-        <button
-          aria-label="Clear search input"
-          class="cds--search-close cds--search-close--hidden"
-          title="Clear search input"
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            focusable="false"
-            height="16"
-            preserveAspectRatio="xMidYMid meet"
-            viewBox="0 0 32 32"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
-            />
-          </svg>
-        </button>
-      </div>
     </div>
     <div
       class="canvas-form__body"
     >
       <div
-        class="cds--layer-two"
+        class="cds--layout cds--layout--size-sm"
       >
-        <form
-          class="cds--form kaoto-form kaoto-form__label"
-        />
         <div
-          class="no-field-found kaoto-form kaoto-form__empty cds--actionable-notification cds--actionable-notification--low-contrast cds--actionable-notification--info cds--actionable-notification--hide-close-button"
-          data-testid="no-field-found"
+          class="kaoto-form-toolbar"
+          data-testid="kaoto-form-toolbar"
         >
           <div
-            class="cds--actionable-notification__details"
+            class="cds--layer-two"
           >
-            <svg
-              aria-hidden="true"
-              class="cds--inline-notification__icon"
-              fill="currentColor"
-              focusable="false"
-              height="20"
-              preserveAspectRatio="xMidYMid meet"
-              viewBox="0 0 32 32"
-              width="20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
-                data-icon-path="inner-path"
-                fill="none"
-              />
-              <path
-                d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
-              />
-              <title>
-                info icon
-              </title>
-            </svg>
             <div
-              class="cds--actionable-notification__text-wrapper"
+              aria-label="Single selectable form tabs"
+              class="cds--content-switcher kaoto-form-toolbar__tabs cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
+              role="tablist"
+            >
+              <button
+                aria-selected="true"
+                class="cds--content-switcher-btn cds--content-switcher--selected"
+                data-testid="tab-Required"
+                role="tab"
+                tabindex="0"
+                title="Shows Required fields only"
+                type="button"
+              >
+                <span
+                  class="cds--content-switcher__label"
+                  title="Required"
+                >
+                  Required
+                </span>
+              </button>
+              <button
+                aria-selected="false"
+                class="cds--content-switcher-btn"
+                data-testid="tab-All"
+                role="tab"
+                tabindex="-1"
+                title="Shows All fields"
+                type="button"
+              >
+                <span
+                  class="cds--content-switcher__label"
+                  title="All"
+                >
+                  All
+                </span>
+              </button>
+              <button
+                aria-selected="false"
+                class="cds--content-switcher-btn"
+                data-testid="tab-Modified"
+                role="tab"
+                tabindex="-1"
+                title="Shows Modified fields only"
+                type="button"
+              >
+                <span
+                  class="cds--content-switcher__label"
+                  title="Modified"
+                >
+                  Modified
+                </span>
+              </button>
+            </div>
+            <div
+              aria-labelledby="search-input-_r_ID_-search"
+              class="cds--search kaoto-form-toolbar__search"
+              role="search"
             >
               <div
-                class="cds--actionable-notification__title"
-                dir="auto"
+                class="cds--search-magnifier"
+                tabindex="-1"
               >
-                No Required fields found
+                <svg
+                  aria-hidden="true"
+                  class="cds--search-magnifier-icon"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 16 16"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5 C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
+                  />
+                </svg>
               </div>
-              <div
-                class="cds--actionable-notification__subtitle"
-                dir="auto"
+              <label
+                class="cds--label"
+                for="search-input-_r_ID_"
+                id="search-input-_r_ID_-search"
               >
-                No field found matching this criteria. Please switch to the All tab.
-              </div>
+                Find properties by name
+              </label>
+              <input
+                autocomplete="off"
+                class="cds--search-input"
+                data-testid="filter-fields"
+                id="search-input-_r_ID_"
+                placeholder="Find properties by name"
+                type="search"
+                value=""
+              />
+              <button
+                aria-label="Clear search input"
+                class="cds--search-close cds--search-close--hidden"
+                title="Clear search input"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  fill="currentColor"
+                  focusable="false"
+                  height="16"
+                  preserveAspectRatio="xMidYMid meet"
+                  viewBox="0 0 32 32"
+                  width="16"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
+        </div>
+        <div
+          class="cds--layer-two"
+        >
+          <form
+            class="cds--form kaoto-form kaoto-form__label"
+          />
           <div
-            class="cds--actionable-notification__button-wrapper"
+            class="no-field-found kaoto-form kaoto-form__empty cds--actionable-notification cds--actionable-notification--low-contrast cds--actionable-notification--info cds--actionable-notification--hide-close-button"
+            data-testid="no-field-found"
           >
-            <button
-              class="cds--actionable-notification__action-button cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost"
-              type="button"
+            <div
+              class="cds--actionable-notification__details"
             >
-              Switch to All tab
-            </button>
+              <svg
+                aria-hidden="true"
+                class="cds--inline-notification__icon"
+                fill="currentColor"
+                focusable="false"
+                height="20"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 32 32"
+                width="20"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M16,8a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,13.875H17.125v-8H13v2.25h1.875v5.75H12v2.25h8Z"
+                  data-icon-path="inner-path"
+                  fill="none"
+                />
+                <path
+                  d="M16,2A14,14,0,1,0,30,16,14,14,0,0,0,16,2Zm0,6a1.5,1.5,0,1,1-1.5,1.5A1.5,1.5,0,0,1,16,8Zm4,16.125H12v-2.25h2.875v-5.75H13v-2.25h4.125v8H20Z"
+                />
+                <title>
+                  info icon
+                </title>
+              </svg>
+              <div
+                class="cds--actionable-notification__text-wrapper"
+              >
+                <div
+                  class="cds--actionable-notification__title"
+                  dir="auto"
+                >
+                  No Required fields found
+                </div>
+                <div
+                  class="cds--actionable-notification__subtitle"
+                  dir="auto"
+                >
+                  No field found matching this criteria. Please switch to the All tab.
+                </div>
+              </div>
+            </div>
+            <div
+              class="cds--actionable-notification__button-wrapper"
+            >
+              <button
+                class="cds--actionable-notification__action-button cds--btn cds--btn--sm cds--layout--size-sm cds--btn--ghost"
+                type="button"
+              >
+                Switch to All tab
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -325,123 +338,6 @@ exports[`CanvasForm > should render nothing if no schema and no definition is av
             />
           </span>
         </span>
-      </div>
-      <div
-        aria-label="Single selectable form tabs"
-        class="cds--content-switcher form-tabs cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
-        role="tablist"
-      >
-        <button
-          aria-selected="true"
-          class="cds--content-switcher-btn cds--content-switcher--selected"
-          data-testid="tab-Required"
-          role="tab"
-          tabindex="0"
-          title="Shows Required fields only"
-          type="button"
-        >
-          <span
-            class="cds--content-switcher__label"
-            title="Required"
-          >
-            Required
-          </span>
-        </button>
-        <button
-          aria-selected="false"
-          class="cds--content-switcher-btn"
-          data-testid="tab-All"
-          role="tab"
-          tabindex="-1"
-          title="Shows All fields"
-          type="button"
-        >
-          <span
-            class="cds--content-switcher__label"
-            title="All"
-          >
-            All
-          </span>
-        </button>
-        <button
-          aria-selected="false"
-          class="cds--content-switcher-btn"
-          data-testid="tab-Modified"
-          role="tab"
-          tabindex="-1"
-          title="Shows Modified fields only"
-          type="button"
-        >
-          <span
-            class="cds--content-switcher__label"
-            title="Modified"
-          >
-            Modified
-          </span>
-        </button>
-      </div>
-      <div
-        aria-labelledby="search-input-_r_ID_-search"
-        class="cds--search cds--search--sm cds--layout--size-sm filter-fields"
-        role="search"
-      >
-        <div
-          class="cds--search-magnifier"
-          tabindex="-1"
-        >
-          <svg
-            aria-hidden="true"
-            class="cds--search-magnifier-icon"
-            fill="currentColor"
-            focusable="false"
-            height="16"
-            preserveAspectRatio="xMidYMid meet"
-            viewBox="0 0 16 16"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5 C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
-            />
-          </svg>
-        </div>
-        <label
-          class="cds--label"
-          for="search-input-_r_ID_"
-          id="search-input-_r_ID_-search"
-        >
-          Find properties by name
-        </label>
-        <input
-          autocomplete="off"
-          class="cds--search-input"
-          data-testid="filter-fields"
-          id="search-input-_r_ID_"
-          placeholder="Find properties by name"
-          type="search"
-          value=""
-        />
-        <button
-          aria-label="Clear search input"
-          class="cds--search-close cds--search-close--hidden"
-          title="Clear search input"
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            focusable="false"
-            height="16"
-            preserveAspectRatio="xMidYMid meet"
-            viewBox="0 0 32 32"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
-            />
-          </svg>
-        </button>
       </div>
     </div>
     <div
@@ -603,123 +499,6 @@ exports[`CanvasForm > should render nothing if no schema is available 1`] = `
             />
           </span>
         </span>
-      </div>
-      <div
-        aria-label="Single selectable form tabs"
-        class="cds--content-switcher form-tabs cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
-        role="tablist"
-      >
-        <button
-          aria-selected="true"
-          class="cds--content-switcher-btn cds--content-switcher--selected"
-          data-testid="tab-Required"
-          role="tab"
-          tabindex="0"
-          title="Shows Required fields only"
-          type="button"
-        >
-          <span
-            class="cds--content-switcher__label"
-            title="Required"
-          >
-            Required
-          </span>
-        </button>
-        <button
-          aria-selected="false"
-          class="cds--content-switcher-btn"
-          data-testid="tab-All"
-          role="tab"
-          tabindex="-1"
-          title="Shows All fields"
-          type="button"
-        >
-          <span
-            class="cds--content-switcher__label"
-            title="All"
-          >
-            All
-          </span>
-        </button>
-        <button
-          aria-selected="false"
-          class="cds--content-switcher-btn"
-          data-testid="tab-Modified"
-          role="tab"
-          tabindex="-1"
-          title="Shows Modified fields only"
-          type="button"
-        >
-          <span
-            class="cds--content-switcher__label"
-            title="Modified"
-          >
-            Modified
-          </span>
-        </button>
-      </div>
-      <div
-        aria-labelledby="search-input-_r_ID_-search"
-        class="cds--search cds--search--sm cds--layout--size-sm filter-fields"
-        role="search"
-      >
-        <div
-          class="cds--search-magnifier"
-          tabindex="-1"
-        >
-          <svg
-            aria-hidden="true"
-            class="cds--search-magnifier-icon"
-            fill="currentColor"
-            focusable="false"
-            height="16"
-            preserveAspectRatio="xMidYMid meet"
-            viewBox="0 0 16 16"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M15,14.3L10.7,10c1.9-2.3,1.6-5.8-0.7-7.7S4.2,0.7,2.3,3S0.7,8.8,3,10.7c2,1.7,5,1.7,7,0l4.3,4.3L15,14.3z M2,6.5 C2,4,4,2,6.5,2S11,4,11,6.5S9,11,6.5,11S2,9,2,6.5z"
-            />
-          </svg>
-        </div>
-        <label
-          class="cds--label"
-          for="search-input-_r_ID_"
-          id="search-input-_r_ID_-search"
-        >
-          Find properties by name
-        </label>
-        <input
-          autocomplete="off"
-          class="cds--search-input"
-          data-testid="filter-fields"
-          id="search-input-_r_ID_"
-          placeholder="Find properties by name"
-          type="search"
-          value=""
-        />
-        <button
-          aria-label="Clear search input"
-          class="cds--search-close cds--search-close--hidden"
-          title="Clear search input"
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            focusable="false"
-            height="16"
-            preserveAspectRatio="xMidYMid meet"
-            viewBox="0 0 32 32"
-            width="16"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
-            />
-          </svg>
-        </button>
       </div>
     </div>
     <div
