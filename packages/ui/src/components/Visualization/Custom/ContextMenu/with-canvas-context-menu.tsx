@@ -13,6 +13,7 @@ import {
 } from 'react';
 
 import { CanvasDefaults } from '../../Canvas/canvas.defaults';
+import { CanvasFocusContext } from '../../Canvas/canvas-focus';
 import { CanvasContextMenu } from './CanvasContextMenuItems';
 
 type FocusTarget = HTMLElement | SVGElement;
@@ -21,12 +22,17 @@ type MenuTriggerEvent = Pick<
   'type' | 'currentTarget' | 'clientX' | 'clientY' | 'preventDefault' | 'stopPropagation'
 >;
 
-/** Adds focus management to Topology's context menu while retaining its positioning and menu actions. */
+/** Adds context-menu keyboard access and focus management to canvas elements and empty views. */
 export const withCanvasContextMenu =
-  <E extends GraphElement>(actions: (element: E) => ReactElement[]) =>
+  <E extends GraphElement>(
+    actions: (element: E) => ReactElement[],
+    { isCanvasBackground = false }: { isCanvasBackground?: boolean } = {},
+  ) =>
   <P extends WithContextMenuProps>(WrappedComponent: ComponentType<P>) => {
     const Component = (props: Omit<P, keyof WithContextMenuProps>) => {
+      const pendingCanvasFocus = useContext(CanvasFocusContext);
       const element = useContext(ElementContext) as E;
+      const isBackground = isCanvasBackground || isGraph(element);
       const [reference, setReference] = useState<{ x: number; y: number } | null>(null);
       const triggerRef = useRef<FocusTarget | null>(null);
       const menuRef = useRef<HTMLUListElement | null>(null);
@@ -37,17 +43,17 @@ export const withCanvasContextMenu =
           event.preventDefault();
           event.stopPropagation();
           // The graph background is an unfocusable SVG rect; restore focus to the canvas instead.
-          triggerRef.current = isGraph(element)
+          triggerRef.current = isBackground
             ? document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)
             : (event.currentTarget as FocusTarget);
           openedWithKeyboardRef.current = event.type === 'keydown';
           setReference({ x: event.clientX, y: event.clientY });
         },
-        [element],
+        [isBackground],
       );
 
       useEffect(() => {
-        if (!isGraph(element)) return;
+        if (!isBackground) return;
         const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
         if (!canvas) return;
 
@@ -69,7 +75,7 @@ export const withCanvasContextMenu =
         return () => {
           canvas.removeEventListener('keydown', onKeyDown);
         };
-      }, [element, onContextMenu]);
+      }, [isBackground, onContextMenu]);
 
       const focusMenu = useCallback((menu: HTMLUListElement | null) => {
         menuRef.current = menu;
@@ -87,15 +93,20 @@ export const withCanvasContextMenu =
         const trigger = triggerRef.current;
         setReference(null);
         if (!shouldRestoreFocus) return;
+        pendingCanvasFocus?.request();
 
         requestAnimationFrame(() => {
           // An action may open a dialog or an outside click may focus another control.
           const active = document.activeElement;
-          if (active !== document.body && active !== trigger && active?.isConnected) return;
+          if (active !== document.body && active !== trigger && active?.isConnected) {
+            pendingCanvasFocus?.clear();
+            return;
+          }
           const target = trigger?.isConnected ? trigger : document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
           target?.focus({ preventScroll: true });
+          if (document.activeElement === target) pendingCanvasFocus?.clear();
         });
-      }, []);
+      }, [pendingCanvasFocus]);
 
       const menu = useMemo(
         () => (

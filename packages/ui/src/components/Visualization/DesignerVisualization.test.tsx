@@ -1,11 +1,13 @@
 import { isNode, Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import type { ReactElement } from 'react';
 import type { MockInstance } from 'vitest';
 
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../models/visualization/flows';
 import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
+import { VisibleFlowsProvider } from '../../providers/visible-flows.provider';
 import { TestProvidersWrapper } from '../../stubs';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { COLLAPSE_STATE } from './Canvas/collapse-handler-state';
@@ -141,5 +143,32 @@ describe('DesignerVisualization', () => {
     /* The single existing entity is reported as hidden */
     expect(empty).toHaveTextContent('There are no visible routes');
     expect(fromModelSpy).not.toHaveBeenCalled();
+  });
+  it('keeps the canvas context menu available after hiding and showing all routes', async () => {
+    const user = userEvent.setup();
+    const { Provider, camelResource } = await TestProvidersWrapper();
+    render(
+      <Provider>
+        <VisibleFlowsProvider>
+          <VisualizationProvider controller={controller}>
+            <DesignerVisualization entities={camelResource.getVisualEntities()} />
+          </VisualizationProvider>
+        </VisibleFlowsProvider>
+      </Provider>,
+    );
+    const canvas = await screen.findByLabelText('Route canvas');
+    canvas.focus();
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Show all' })).toHaveFocus());
+    await user.keyboard('{ArrowDown}{Enter}');
+    await screen.findByText('There are no visible routes');
+    await waitFor(() => expect(screen.getByLabelText('Route canvas')).toHaveFocus());
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Show all' })).toHaveFocus());
+    await user.keyboard('{Enter}');
+    await waitFor(() => expect(screen.queryByText('There are no visible routes')).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.getByLabelText('Route canvas')).toHaveFocus());
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Show all' })).toHaveFocus());
   });
 });

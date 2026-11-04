@@ -40,6 +40,7 @@ import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
+import { useCanvasFocusRef } from './canvas-focus';
 import { CanvasSideBar } from './CanvasSideBar';
 import { consumeNodeSelection } from './node-selection-state';
 
@@ -78,6 +79,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const [initialized, setInitialized] = useState(
     () => controller.hasGraph() && controller.getGraph().getLayout() !== undefined,
   );
+  const canvasFocusRef = useCanvasFocusRef(initialized);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sidebarWidth, setSidebarWidth] = useLocalStorage(
     LocalStorageKeys.CanvasSidebarWidth,
@@ -270,6 +272,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   return (
     <TopologyView
+      ref={canvasFocusRef}
       id={CanvasDefaults.CANVAS_MAIN_ID}
       className={clsx({ hidden: !initialized })}
       defaultSideBarSize={sidebarWidth + 'px'}
