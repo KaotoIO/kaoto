@@ -1,6 +1,14 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
+import {
+  action,
+  DRAG_NODE_END_EVENT,
+  DRAG_NODE_START_EVENT,
+  isNode,
+  Point,
+  SELECTION_EVENT,
+  VisualizationProvider,
+} from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -266,6 +274,37 @@ describe('Canvas', () => {
 
     expect(removed ? screen.getByLabelText('Route canvas') : selectedNode).toHaveFocus();
     expect(otherRouteNode).not.toHaveFocus();
+  });
+
+  it.each([
+    [DRAG_NODE_START_EVENT, false],
+    [DRAG_NODE_END_EVENT, false],
+    [DRAG_NODE_START_EVENT, true],
+  ])('preserves node focus across SVG reordering on %s unless focus moved elsewhere (%s)', async (event, moved) => {
+    const { controller } = await renderCanvas();
+    // Focus restoration is independent of the force simulation.
+    act(() => {
+      controller.getGraph().setLayout(undefined);
+    });
+    const canvas = screen.getByLabelText('Route canvas');
+    const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    node.setAttribute('class', 'custom-node');
+    node.setAttribute('tabindex', '-1');
+    canvas.appendChild(node);
+    const outside = document.createElement('button');
+    canvas.appendChild(outside);
+    node.focus();
+    act(() => {
+      controller.fireEvent(event, controller.getNodeById('route-8888|route.from'), {}, { type: 'move.useDragNode' });
+      // Moving a focused SVG layer detaches it and resets browser focus.
+      node.remove();
+      canvas.appendChild(node);
+      if (moved) outside.focus();
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+    expect(moved ? outside : node).toHaveFocus();
   });
 
   it('should focus the canvas instead of the selected node when clicking the background', async () => {
