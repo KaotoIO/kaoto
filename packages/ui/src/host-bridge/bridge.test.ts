@@ -839,6 +839,49 @@ describe('transport boundaries', () => {
     expect(disposed.onClose).not.toHaveBeenCalled();
   });
 
+  it.each(['dispose', 'send failure'] as const)(
+    'notifies the memory peer once after host %s and rejects its pending work',
+    async (reason) => {
+      const transports = createMemoryTransports();
+      const send = vi.spyOn(transports.host, 'send');
+      const host = createEventBus({ role: 'host', onError: vi.fn() });
+      const editor = createEventBus({ role: 'editor', onError: vi.fn() });
+      const hostClosed = vi.fn();
+      const editorClosed = vi.fn();
+      const hostBridge = createPostMessageBridge({ bus: host, transport: transports.host, onClose: hostClosed });
+      const editorBridge = createPostMessageBridge({
+        bus: editor,
+        transport: transports.editor,
+        onClose: editorClosed,
+      });
+      cleanup.push(() => {
+        hostBridge.dispose();
+        editorBridge.dispose();
+        host.dispose();
+        editor.dispose();
+      });
+      host.onRequest('editor:metadata:get', () => new Promise(() => {}));
+      await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+      const pending = expectRejection(editor.request('editor:metadata:get', { key: 'test' }), 'DISPOSED');
+      await tick();
+
+      if (reason === 'dispose') {
+        hostBridge.dispose();
+        expect(hostClosed).not.toHaveBeenCalled();
+      } else {
+        send.mockRejectedValue(new Error('Host send failed'));
+        await expectRejection(host.request('host:document:getContent', null), 'IO_ERROR');
+        expect(hostClosed).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ code: 'IO_ERROR' }));
+      }
+      await pending;
+      expect(editorClosed).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ code: 'DISPOSED' }));
+      await expectRejection(editor.request('editor:metadata:get', { key: 'test' }), 'NOT_CONNECTED');
+      editorBridge.dispose();
+      hostBridge.dispose();
+      expect(editorClosed).toHaveBeenCalledTimes(1);
+    },
+  );
+
   it('rejects non-JSON data before memory serialization can discard it', () => {
     const transports = createMemoryTransports();
     cleanup.push(() => {
