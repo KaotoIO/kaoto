@@ -17,6 +17,7 @@ import { CanvasFocusContext } from '../../Canvas/canvas-focus';
 import { CanvasContextMenu } from './CanvasContextMenuItems';
 
 type FocusTarget = HTMLElement | SVGElement;
+const CANVAS_CONTEXT_MENU_OPEN = 'kaoto:canvas-context-menu-open';
 type MenuTriggerEvent = Pick<
   MouseEvent,
   'type' | 'currentTarget' | 'clientX' | 'clientY' | 'preventDefault' | 'stopPropagation'
@@ -42,6 +43,7 @@ export const withCanvasContextMenu =
         (event: MenuTriggerEvent) => {
           event.preventDefault();
           event.stopPropagation();
+          document.dispatchEvent(new Event(CANVAS_CONTEXT_MENU_OPEN));
           // The graph background is an unfocusable SVG rect; restore focus to the canvas instead.
           triggerRef.current = isBackground
             ? document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)
@@ -51,6 +53,18 @@ export const withCanvasContextMenu =
         },
         [isBackground],
       );
+
+      useEffect(() => {
+        if (!reference) return;
+        // Superseding a menu must not restore focus to its previous trigger.
+        const dismissMenu = () => {
+          setReference(null);
+        };
+        document.addEventListener(CANVAS_CONTEXT_MENU_OPEN, dismissMenu);
+        return () => {
+          document.removeEventListener(CANVAS_CONTEXT_MENU_OPEN, dismissMenu);
+        };
+      }, [reference]);
 
       useEffect(() => {
         if (!isBackground) return;

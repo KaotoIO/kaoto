@@ -303,7 +303,7 @@ describe('Canvas', () => {
     'retains step focus on repeated background clicks with sidebar open: %s',
     async (openSidebar) => {
       const { container, controller } = await renderCanvas();
-      const canvas = container.querySelector('[id="canvas-main"]')!;
+      const canvas = container.querySelector<HTMLElement>('[id="canvas-main"]')!;
       // Topology does not render SVG nodes in this test environment.
       const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       node.setAttribute('data-testid', 'custom-node__route.from');
