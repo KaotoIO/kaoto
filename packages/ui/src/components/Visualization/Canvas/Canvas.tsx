@@ -264,15 +264,18 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     });
   }, [catalogModalContext, controller, settingsAdapter]);
 
-  const handleCanvasClick = useCallback((event: React.MouseEvent) => {
-    const target = event.target as HTMLElement;
-    if (target.tagName === 'rect') {
-      setSelectedIds([]);
-      document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.focus({ preventScroll: true });
-    }
-  }, []);
+  const restoreNodeFocus = useArrowKeyNavigation(selectedIds.length === 1 ? selectedIds[0] : undefined);
 
-  useArrowKeyNavigation(selectedIds.length === 1 ? selectedIds[0] : undefined);
+  const handleCanvasClick = useCallback(
+    (event: React.MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'rect') {
+        setSelectedIds([]);
+        requestAnimationFrame(restoreNodeFocus);
+      }
+    },
+    [restoreNodeFocus],
+  );
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
