@@ -287,13 +287,13 @@ suite('Native Kaoto text document provider', () => {
 
 	test('saves canvas edits using the native document encoding', async () => {
 		const uri = vscode.Uri.joinPath(root, 'route.yaml');
-		await originalWrite(uri, await vscode.workspace.encode('id: ursprünglicher-wert', { encoding: 'utf16le' }));
+		await originalWrite(uri, await vscode.workspace.encode('id: café', { encoding: 'utf16le' }));
 		await open();
 		equal(document.encoding, 'utf16le');
-		fixture.edit('id: geändert', 1);
+		fixture.edit('id: naïve', 1);
 		await eventually(() => document.isDirty);
 		ok(await document.save());
-		equal(await vscode.workspace.decode(await vscode.workspace.fs.readFile(uri), { encoding: document.encoding }), 'id: geändert');
+		equal(await vscode.workspace.decode(await vscode.workspace.fs.readFile(uri), { encoding: document.encoding }), 'id: naïve');
 		ok(!document.isDirty);
 	});
 
