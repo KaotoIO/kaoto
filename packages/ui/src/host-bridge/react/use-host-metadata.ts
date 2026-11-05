@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { BridgeError, isJsonValue, JsonValue } from '../contracts';
+import { toJsonValue } from '../contracts';
 import { useHostBus } from './context';
 
 export function useHostMetadata() {
@@ -12,9 +12,7 @@ export function useHostMetadata() {
         return value === null ? undefined : (value as T);
       },
       setMetadata: async <T>(key: string, value: T): Promise<void> => {
-        const payload = { key, value: (value ?? null) as JsonValue };
-        if (!isJsonValue(payload.value)) throw new BridgeError('INVALID_MESSAGE', 'Metadata must be JSON');
-        await bus.request('editor:metadata:set', payload);
+        await bus.request('editor:metadata:set', { key, value: toJsonValue(value) });
       },
     }),
     [bus],

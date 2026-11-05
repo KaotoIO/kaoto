@@ -9,11 +9,11 @@ import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
 import {
   BridgeError,
   IEventBus,
-  isJsonValue,
   JsonObject,
   KaotoRequests,
   KaotoResponses,
   SettingsSnapshot,
+  toJsonValue,
 } from '../../host-bridge/contracts';
 import { HostBridgeProvider } from '../../host-bridge/react/context';
 import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../../models';
@@ -181,9 +181,7 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
 
   const setMetadata = useCallback(
     async <T,>(key: string, preferences: T): Promise<void> => {
-      const payload = { key, value: preferences ?? null };
-      if (!isJsonValue(payload.value)) throw new BridgeError('INVALID_MESSAGE', 'Metadata must be JSON');
-      await request('editor:metadata:set', payload);
+      await request('editor:metadata:set', { key, value: toJsonValue(preferences) });
     },
     [request],
   );
