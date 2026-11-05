@@ -309,6 +309,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
 
   removeStep(path?: string): void {
     if (!path) return;
+    this.clearTestReport();
 
     const pathArray = path.split('.');
     const last = pathArray[pathArray.length - 1];
@@ -438,6 +439,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   private addNewStep(action: TestActions, mode: AddStepMode, data: IVisualizationNodeData) {
     const path = data.path;
     if (!path) return;
+    this.clearTestReport();
 
     const pathArray = path.split('.');
     const last = pathArray[pathArray.length - 1];
