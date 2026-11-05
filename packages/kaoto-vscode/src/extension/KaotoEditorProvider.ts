@@ -37,6 +37,14 @@ import { KaotoOutputChannel } from './KaotoOutputChannel';
 
 export type KaotoHostServicesFactory = (documentUri: vscode.Uri) => KaotoHostServices;
 
+export interface KaotoEditorProviderTimeouts {
+	/** Deadline for the canvas to answer a save snapshot, kept well below the VS Code save participant timeout (1.5s). */
+	saveSnapshotMs: number;
+	/** Deadline for the canvas to apply a non-initial host update, so an unresponsive canvas cannot stall the queue. */
+	hostUpdateMs: number;
+}
+const DEFAULT_TIMEOUTS: KaotoEditorProviderTimeouts = { saveSnapshotMs: 1000, hostUpdateMs: 5000 };
+
 interface DocumentState {
 	document: vscode.TextDocument;
 	content: string;
@@ -75,10 +83,14 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 	private active?: DocumentState;
 	private disposed = false;
 
+	private readonly timeouts: KaotoEditorProviderTimeouts;
+
 	constructor(
 		private readonly context: Pick<vscode.ExtensionContext, 'extensionUri'>,
 		private readonly factory: KaotoHostServicesFactory = (documentUri) => new KaotoHostServices(documentUri),
+		timeouts: Partial<KaotoEditorProviderTimeouts> = {},
 	) {
+		this.timeouts = { ...DEFAULT_TIMEOUTS, ...timeouts };
 		this.listeners = [
 			vscode.workspace.onDidChangeTextDocument((event) => {
 				const state = this.documents.get(event.document.uri.toString());
@@ -99,11 +111,15 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 					const epoch = session.epoch;
 					await session.whenReady.promise;
 					this.requireSession(state, session, epoch);
-					const result = await session.bus.request('host:document:setContent', {
-						reason: 'hostUpdate',
-						fileUri: state.document.uri.toString(),
-						content,
-					});
+					const result = await session.bus.request(
+						'host:document:setContent',
+						{
+							reason: 'hostUpdate',
+							fileUri: state.document.uri.toString(),
+							content,
+						},
+						{ timeoutMs: this.timeouts.hostUpdateMs },
+					);
 					this.requireSession(state, session, epoch);
 					if (result.applied) {
 						state.content = content;
@@ -334,7 +350,15 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		try {
 			await this.enqueue(state, async () => {
 				const version = state.sourceVersion;
-				await this.snapshot(state, cancellation.token);
+				try {
+					await this.snapshot(state, cancellation.token);
+				} catch (error) {
+					// An unresponsive or cancelled canvas must not fail the save: keep the current native text.
+					if (error instanceof BridgeError && (error.code === 'TIMEOUT' || error.code === 'CANCELLED')) {
+						return;
+					}
+					throw error;
+				}
 				// A source edit that arrived during the snapshot must not be overwritten.
 				if (version === state.sourceVersion) {
 					await this.updateSource(state);
@@ -433,7 +457,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		const epoch = session.epoch;
 		await session.whenReady.promise;
 		this.requireSession(state, session, epoch);
-		const snapshot = await this.request(session.bus, 'host:document:getContent', null, token);
+		const snapshot = await this.request(session.bus, 'host:document:getContent', null, token, this.timeouts.saveSnapshotMs);
 		this.requireSession(state, session, epoch);
 		if (snapshot.revision >= state.revision) {
 			state.content = snapshot.content;
@@ -446,12 +470,13 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		name: R,
 		payload: KaotoRequests[R],
 		token: vscode.CancellationToken,
+		timeoutMs: number,
 	): Promise<KaotoResponses[R]> {
 		checkCancellation(token);
 		const abort = new AbortController();
 		const subscription = token.onCancellationRequested(() => abort.abort());
 		try {
-			const response = await bus.request(name, payload, { signal: abort.signal });
+			const response = await bus.request(name, payload, { signal: abort.signal, timeoutMs });
 			checkCancellation(token);
 			return response;
 		} finally {
