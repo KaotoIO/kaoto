@@ -7,9 +7,8 @@ html body {
   background-color: transparent !important;
 
   /*
-   * The VS Code webview does not apply PatternFly's global font-family
-   * reset to form controls. The following rules mirror the PatternFly v6
-   * definition so buttons, inputs, and selects inherit the correct font.
+   * Explicitly preserve PatternFly v6 font-family and line-height definitions
+   * for form controls (buttons, inputs, selects, textareas) across webview environments.
    */
   :where(button, input, optgroup, select, textarea) {
     margin: 0;
