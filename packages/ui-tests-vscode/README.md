@@ -50,6 +50,49 @@ yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:deploy     # out/deploy/*.tes
 CI also sets `CODE_VERSION=max` (latest VS Code that ExTester supports), `TEST_RESOURCES` (ExTester storage, uploaded
 on failure) and `KAOTO_DISABLE_WHATS_NEW=true`.
 
+## Linux/Wayland troubleshooting
+
+On Fedora/GNOME Wayland, command palette or file-picker input can stall while a `wl-clipboard` taskbar entry appears;
+clicking that window may let the test continue. ExTester's `Input.setText()` reads the clipboard synchronously before
+typing and can also paste from it as a fallback. Its `clipboardy` dependency selects Wayland when `WAYLAND_DISPLAY`
+is set **or** `XDG_SESSION_TYPE=wayland`, invoking `wl-paste` and `wl-copy`. The
+[wl-clipboard manual](https://man.archlinux.org/man/wl-clipboard.1.en#BUGS) describes a temporary transparent surface
+that can hang clipboard access when the compositor does not give it focus.
+
+To use the X11 clipboard backend for the test process, keep `DISPLAY` pointing to a working X11/XWayland display,
+remove `WAYLAND_DISPLAY`, and override `XDG_SESSION_TYPE`. Run from `packages/ui-tests-vscode` after preparing a VSIX
+as described above:
+
+```bash
+# Compile the tests, download VS Code/ChromeDriver, and install the chosen VSIX.
+VSIX_FILE=./kaoto-ci.vsix yarn setup:test:ui:vsix
+
+# Run the editor group using the existing X11/XWayland display.
+env -u ELECTRON_RUN_AS_NODE -u WAYLAND_DISPLAY \
+  XDG_SESSION_TYPE=x11 KAOTO_DISABLE_WHATS_NEW=true \
+  yarn exec extest run-tests 'out/editor/*.test.js'
+```
+
+Use your actual VSIX path in the setup command. Java and JBang are still required for the editor group. Both Wayland
+detection variables must be handled; clearing only one can leave the Wayland clipboard backend selected. The installed
+`clipboardy` includes an `xsel` fallback for X11 clipboard access. These environment changes apply only to the child
+process and leave the desktop session unchanged. XWayland still uses the real desktop clipboard, so this is not
+clipboard isolation.
+
+If launching tests from an IDE fails with `Chrome instance exited`, check whether it inherited
+`ELECTRON_RUN_AS_NODE=1`. Unsetting it, as above, resolved that separate startup failure in the observed environment.
+
+For a separate virtual display, use the `xvfb-run -a` workflow with `WAYLAND_DISPLAY` removed and
+`XDG_SESSION_TYPE=x11` as well; otherwise clipboard access can still target the desktop Wayland session. Xvfb must be
+installed separately and was not available for the comparison below.
+
+In the comparison recorded in [#4367](https://github.com/KaotoIO/kaoto/issues/4367), the same packaged extension and
+VS Code 1.145.0 editor suite produced 13 passing tests and six failures (including setup/cleanup hooks) on Wayland,
+then 30 passing tests and zero failures with the process environment above. No application or test-code changes were
+needed. The Xvfb variant was not tested. Broader clipboard-dependent test hardening is tracked in
+[#4322](https://github.com/KaotoIO/kaoto/issues/4322); this comparison did not investigate the separate unit-test
+failures in [#4363](https://github.com/KaotoIO/kaoto/issues/4363).
+
 ## Layout
 
 | Path                                                                  | Contents                                                                  |
