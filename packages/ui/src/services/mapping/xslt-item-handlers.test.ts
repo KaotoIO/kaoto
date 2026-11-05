@@ -108,7 +108,7 @@ describe('FieldItemHandler copy-of with value-of', () => {
     valueOf.expression = '/ns0:ShipOrder/ns0:OrderId';
     fieldItem.children.push(valueOf);
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const parent = xslt.documentElement;
     const result = handler.serialize(parent, fieldItem);
 
@@ -124,7 +124,7 @@ describe('FieldItemHandler copy-of with value-of', () => {
     copyOf.expression = '.';
     fieldItem.children.push(copyOf);
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const parent = xslt.documentElement;
     const result = handler.serialize(parent, fieldItem);
 
@@ -142,7 +142,7 @@ describe('CopyOfSelectorHandler', () => {
     const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
     vs.expression = '/ns0:Envelope/Payload/node()';
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const result = handler.serialize(xslt.documentElement, vs);
     expect(result.getAttribute('select')).toBe('/ns0:Envelope/Payload/node()');
   });
@@ -153,7 +153,7 @@ describe('CopyOfSelectorHandler', () => {
     const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
     vs.expression = '/ns0:ShipOrder/Item';
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const result = handler.serialize(xslt.documentElement, vs);
     expect(result.getAttribute('select')).toBe('/ns0:ShipOrder/Item');
   });
@@ -264,7 +264,7 @@ describe('ForEachGroupItemHandler', () => {
     item.groupingStrategy = GroupingStrategy.GROUP_BY;
     item.groupingExpression = 'category';
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const parent = xslt.documentElement;
     const el = handler.serialize(parent, item);
     expect(el.localName).toBe('for-each-group');
@@ -279,7 +279,7 @@ describe('ForEachGroupItemHandler', () => {
     item.groupingStrategy = GroupingStrategy.GROUP_ADJACENT;
     item.groupingExpression = '@type';
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const parent = xslt.documentElement;
     const el = handler.serialize(parent, item);
     expect(el.getAttribute('group-adjacent')).toBe('@type');
@@ -319,7 +319,7 @@ describe('ForEachGroupItemHandler', () => {
     item.groupingStrategy = GroupingStrategy.GROUP_STARTING_WITH;
     item.groupingExpression = 'self::ns0:Header';
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const parent = xslt.documentElement;
     const el = handler.serialize(parent, item);
     expect(el.getAttribute('select')).toBe('/data/record');
@@ -333,7 +333,7 @@ describe('ForEachGroupItemHandler', () => {
     item.groupingStrategy = GroupingStrategy.GROUP_ENDING_WITH;
     item.groupingExpression = 'self::ns0:Footer';
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const parent = xslt.documentElement;
     const el = handler.serialize(parent, item);
     expect(el.getAttribute('select')).toBe('/data/record');
@@ -418,7 +418,7 @@ describe('ForEachItemHandler sort serialization', () => {
     sort2.order = 'descending';
     item.sortItems = [sort1, sort2];
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const parent = xslt.documentElement;
     const el = handler.serialize(parent, item);
 
@@ -435,7 +435,7 @@ describe('ForEachItemHandler sort serialization', () => {
     const item = new ForEachItem(mappingTree);
     item.expression = '/items/item';
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const parent = xslt.documentElement;
     const el = handler.serialize(parent, item);
 
@@ -458,7 +458,7 @@ describe('ForEachGroupItemHandler sort serialization', () => {
     sort.order = 'descending';
     item.sortItems = [sort];
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const parent = xslt.documentElement;
     const el = handler.serialize(parent, item);
 
@@ -486,7 +486,7 @@ describe('SortItemHandler advanced properties', () => {
     sort.stable = 'yes';
     item.sortItems = [sort];
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const el = handler.serialize(xslt.documentElement, item);
 
     const sortEl = el.getElementsByTagNameNS(NS_XSL, 'sort')[0];
@@ -505,7 +505,7 @@ describe('SortItemHandler advanced properties', () => {
     sort.expression = 'Title';
     item.sortItems = [sort];
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const el = handler.serialize(xslt.documentElement, item);
 
     const sortEl = el.getElementsByTagNameNS(NS_XSL, 'sort')[0];
@@ -569,7 +569,7 @@ describe('SortItemHandler advanced properties', () => {
     sort.stable = 'yes';
     item.sortItems = [sort];
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const el = handler.serialize(xslt.documentElement, item);
     const sortEl = el.getElementsByTagNameNS(NS_XSL, 'sort')[0];
 
@@ -593,7 +593,7 @@ describe('SortItemHandler advanced properties', () => {
     sort.order = 'descending';
     item.sortItems = [sort];
 
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const el = handler.serialize(xslt.documentElement, item);
     const sortEl = el.getElementsByTagNameNS(NS_XSL, 'sort')[0];
     expect(sortEl.hasAttribute('select')).toBe(false);
@@ -603,7 +603,7 @@ describe('SortItemHandler advanced properties', () => {
     sortHandler.deserialize(sortEl, mappingTree as unknown as IParentType, roundTripItem);
     expect(roundTripItem.sortItems[0].expression).toBe('');
 
-    const xslt2 = MappingSerializerService.createNew();
+    const xslt2 = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const el2 = handler.serialize(xslt2.documentElement, roundTripItem);
     const sortEl2 = el2.getElementsByTagNameNS(NS_XSL, 'sort')[0];
     expect(sortEl2.hasAttribute('select')).toBe(false);
@@ -704,7 +704,7 @@ describe('UnknownMappingItemHandler', () => {
         const variable = new VariableItem(mappingTree, 'myVar');
         variable.expression = '/Order/Id';
 
-        const xslt = MappingSerializerService.createNew();
+        const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
         const el = handler.serialize(xslt.documentElement, variable);
 
         expect(el.localName).toBe('variable');
@@ -717,7 +717,7 @@ describe('UnknownMappingItemHandler', () => {
         const variable = new VariableItem(mappingTree, 'emptyVar');
         // No expression set, no children
 
-        const xslt = MappingSerializerService.createNew();
+        const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
         const el = handler.serialize(xslt.documentElement, variable);
 
         expect(el.localName).toBe('variable');
@@ -735,7 +735,7 @@ describe('UnknownMappingItemHandler', () => {
         childIf.expression = 'true()';
         variable.children.push(childIf);
 
-        const xslt = MappingSerializerService.createNew();
+        const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
         const el = handler.serialize(xslt.documentElement, variable);
 
         expect(el.localName).toBe('variable');
@@ -860,7 +860,7 @@ describe('UnknownMappingItemHandler', () => {
         const variable = new VariableItem(mappingTree, 'roundTripVar');
         variable.expression = '/Order/Customer/Name';
 
-        const xslt = MappingSerializerService.createNew();
+        const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
         const serialized = handler.serialize(xslt.documentElement, variable);
         const deserialized = handler.deserialize(serialized, mappingTree as unknown as IParentType, mappingTree);
 
@@ -873,7 +873,7 @@ describe('UnknownMappingItemHandler', () => {
       it('should round-trip empty variable', () => {
         const variable = new VariableItem(mappingTree, 'emptyRoundTrip');
 
-        const xslt = MappingSerializerService.createNew();
+        const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
         const serialized = handler.serialize(xslt.documentElement, variable);
         const deserialized = handler.deserialize(serialized, mappingTree as unknown as IParentType, mappingTree);
 
@@ -914,7 +914,7 @@ describe('FieldItemHandler xsi:type emission', () => {
       new QName('urn:ext', 'ShipToExt'),
       namespaceMap,
     );
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const element = handler.serialize(xslt.documentElement, fieldItem);
     expect(element.getAttribute('xsi:type')).toBe('ns1:ShipToExt');
   });
@@ -926,7 +926,7 @@ describe('FieldItemHandler xsi:type emission', () => {
       new QName('urn:ext', 'ShipToExt'),
       namespaceMap,
     );
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const element = handler.serialize(xslt.documentElement, fieldItem);
     expect(element.hasAttribute('xsi:type')).toBe(false);
   });
@@ -938,7 +938,7 @@ describe('FieldItemHandler xsi:type emission', () => {
       new QName('urn:ext', 'ShipToExt'),
       namespaceMap,
     );
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const element = handler.serialize(xslt.documentElement, fieldItem);
     expect(element.hasAttribute('xsi:type')).toBe(false);
   });
@@ -950,7 +950,7 @@ describe('FieldItemHandler xsi:type emission', () => {
       new QName('urn:ext', 'ShipToExt'),
       namespaceMap,
     );
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const element = handler.serialize(xslt.documentElement, fieldItem);
     expect(element.hasAttribute('xsi:type')).toBe(false);
   });
@@ -958,7 +958,7 @@ describe('FieldItemHandler xsi:type emission', () => {
   it('should NOT emit xsi:type when typeQName is null', () => {
     const namespaceMap = { xsi: NS_XML_SCHEMA_INSTANCE, ns0: 'urn:order' };
     const fieldItem = createFieldItemWithOverride(FieldOverrideVariant.SAFE, null, namespaceMap);
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const element = handler.serialize(xslt.documentElement, fieldItem);
     expect(element.hasAttribute('xsi:type')).toBe(false);
   });
@@ -972,7 +972,7 @@ describe('FieldItemHandler xsi:type emission', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     mappingTree.namespaceMap = namespaceMap;
     const fieldItem = new FieldItem(mappingTree, field);
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     // attribute fields produce an xsl:attribute element, not a literal element
     const element = handler.serialize(xslt.documentElement, fieldItem);
     expect(element.namespaceURI).toBe(NS_XSL);
@@ -988,7 +988,7 @@ describe('FieldItemHandler xsi:type emission', () => {
       new QName('urn:ext', 'ShipToExt'),
       namespaceMap,
     );
-    const xslt = MappingSerializerService.createNew();
+    const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
     const element = handler.serialize(xslt.documentElement, fieldItem);
     // ns0 is the prefix that maps to NS_XML_SCHEMA_INSTANCE
     expect(element.getAttribute('ns0:type')).toBe('ns1:ShipToExt');

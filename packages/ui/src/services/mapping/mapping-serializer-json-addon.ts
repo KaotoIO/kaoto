@@ -25,7 +25,6 @@ export class MappingSerializerJsonAddon {
   /**
    * Populate a variable declaration of the mapping outcome in XSLT3 lossless JSON
    * representation (XML), which is eventually passed into `xml-to-json()` in the root template.
-   * This also sets the output method to 'text'.
    * This returns the variable declaration element, which is supposed to be filled with
    * mappings.
    * @param mappings
@@ -44,10 +43,6 @@ export class MappingSerializerJsonAddon {
     const toJson = xsltDocument.createElementNS(NS_XSL, 'value-of');
     toJson.setAttribute('select', `xml-to-json($${TO_JSON_TARGET_VARIABLE})`);
     template.appendChild(toJson);
-
-    const stylesheet = template.parentNode as Element;
-    const output = stylesheet.getElementsByTagNameNS(NS_XSL, 'output')[0];
-    output.setAttribute('method', 'text');
 
     return toJsonXmlVariable;
   }

@@ -1207,6 +1207,84 @@ describe('DataMapperProvider', () => {
       });
     });
 
+    it('should write the output method matching the target type across attach and detach', async () => {
+      const onUpdateMappings = vi.fn();
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={onUpdateMappings}>{children}</DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const switchTarget = async (definitionType: DocumentDefinitionType) => {
+        onUpdateMappings.mockClear();
+        const docDef = new DocumentDefinition(DocumentType.TARGET_BODY, definitionType, 'Body', {});
+        const doc = {
+          documentType: DocumentType.TARGET_BODY,
+          documentId: 'Body',
+          definitionType,
+        } as IDocument;
+        act(() => {
+          result.current.updateDocument(doc, docDef, 'test');
+        });
+        await waitFor(() => {
+          expect(result.current.targetBodyDocument.definitionType).toBe(definitionType);
+          expect(onUpdateMappings).toHaveBeenCalled();
+        });
+        const xslt = onUpdateMappings.mock.calls.at(-1)![0] as string;
+        return /<xsl:output[^>]*method="(\w+)"/.exec(xslt)?.[1];
+      };
+
+      expect(await switchTarget(DocumentDefinitionType.XML_SCHEMA)).toBe('xml');
+      expect(await switchTarget(DocumentDefinitionType.Primitive)).toBe('text');
+      expect(await switchTarget(DocumentDefinitionType.JSON_SCHEMA)).toBe('text');
+    });
+
+    it('should write xml, then text, then text when an XML schema is attached, detached and a JSON schema attached', async () => {
+      const onUpdateMappings = vi.fn<(xsltFile: string) => void>();
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={onUpdateMappings}>{children}</DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      const outputMethod = () => /<xsl:output[^>]*method="(\w+)"/.exec(onUpdateMappings.mock.calls.at(-1)![0])?.[1];
+      const waitForType = async (definitionType: DocumentDefinitionType) => {
+        await waitFor(() => {
+          expect(result.current.targetBodyDocument.definitionType).toBe(definitionType);
+          expect(onUpdateMappings).toHaveBeenCalled();
+        });
+      };
+
+      // Attach an XML schema
+      const xmlTarget = TestUtil.createTargetOrderDoc();
+      onUpdateMappings.mockClear();
+      act(() => {
+        result.current.updateDocument(xmlTarget, xmlTarget.definition, BODY_DOCUMENT_ID);
+      });
+      await waitForType(DocumentDefinitionType.XML_SCHEMA);
+      expect(outputMethod()).toBe('xml');
+
+      // Detach: the schema is replaced with the primitive document
+      const primitive = DocumentService.createPrimitiveDocument(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.Primitive,
+        BODY_DOCUMENT_ID,
+      );
+      onUpdateMappings.mockClear();
+      act(() => {
+        result.current.updateDocument(primitive.document!, primitive.documentDefinition!, BODY_DOCUMENT_ID);
+      });
+      await waitForType(DocumentDefinitionType.Primitive);
+      expect(outputMethod()).toBe('text');
+
+      // Attach a JSON schema
+      const jsonTarget = TestUtil.createJSONTargetOrderDoc();
+      onUpdateMappings.mockClear();
+      act(() => {
+        result.current.updateDocument(jsonTarget, jsonTarget.definition, BODY_DOCUMENT_ID);
+      });
+      await waitForType(DocumentDefinitionType.JSON_SCHEMA);
+      expect(outputMethod()).toBe('text');
+    });
+
     it('should serialize the refreshed mapping tree, not the render-stale one, when a target type change also resets settings', async () => {
       const serializeSpy = vi.spyOn(MappingSerializerService, 'serialize');
 
