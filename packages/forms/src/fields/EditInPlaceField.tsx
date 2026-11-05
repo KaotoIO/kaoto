@@ -10,7 +10,7 @@ import { FieldWrapper } from './FieldWrapper';
 
 export const EditInPlaceField: FunctionComponent<FieldProps> = ({ propName, required }) => {
   const { schema } = useContext(SchemaContext);
-  const { value = '', onChange } = useFieldValue<string | undefined>(propName);
+  const { value = '', errors, onChange } = useFieldValue<string | undefined>(propName);
   const [prevValue, setPrevValue] = useState(value);
   const [localValue, setLocalValue] = useState(value);
   if (value !== prevValue) {
@@ -40,6 +40,9 @@ export const EditInPlaceField: FunctionComponent<FieldProps> = ({ propName, requ
             id={propName}
             labelText={label}
             value={localValue}
+            /* EditInPlace blocks saving while invalid, so the error is hidden once the draft differs from the saved value */
+            invalid={!!errors && localValue === value}
+            invalidText={errors?.join(', ')}
             placeholder="Click to add 'uri'"
             editAlwaysVisible
             saveLabel="Save"
