@@ -3,6 +3,17 @@ import './CustomNode.scss';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
 import {
+  Alert,
+  Button,
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  ModalVariant,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
+import {
   AnchorEnd,
   DEFAULT_LAYER,
   DefaultNode,
@@ -24,7 +35,7 @@ import {
   withContextMenu,
   withSelection,
 } from '@patternfly/react-topology';
-import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, MouseEventHandler, useCallback, useContext, useMemo, useRef, useState } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -85,6 +96,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
     const isDisabled = !!(vizNode?.data?.definition as { disabled?: unknown } | undefined)?.disabled;
     const validationText = useNodeValidationText(vizNode);
     const doesHaveWarnings = !isDisabled && !!validationText;
+    const verified = !isDisabled && (vizNode?.isVerified() || false);
     const { childCount, hasGroupChildren, isCollapsedGroup } = getVizNodeChildrenInfo(vizNode);
     const canDragNode = vizNode?.canDragNode() ?? false;
 
@@ -223,6 +235,19 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
         ? getNodeDragAndDropDirection(draggedVizNode, vizNode, false)
         : null;
 
+    const [isErrorModalOpen, setIsErrorModalOpen] = useState<boolean>(false);
+    const showError: MouseEventHandler<HTMLDivElement> = useCallback(
+      (event) => {
+        event.stopPropagation();
+        setIsErrorModalOpen(true);
+      },
+      [setIsErrorModalOpen],
+    );
+
+    const onCloseErrorModal = useCallback(() => {
+      setIsErrorModalOpen(false);
+    }, []);
+
     const showMainNodeContainer = !dndDropProps.droppable || isDraggingNodeType || !isDraggingWithinGroup;
     const showLabelWhenDragging =
       (isDraggingNodeType && !isDraggingNode) || (isDraggingGroupType && !isDraggingWithinGroup);
@@ -254,6 +279,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           data-disabled={isDisabled}
           data-toolbar-open={toolbar.isOpen}
           data-warning={doesHaveWarnings}
+          data-verified={verified}
           tabIndex={selected ? 0 : -1}
           role="button"
           aria-label={label}
@@ -284,6 +310,9 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
               hasGroupChildren={hasGroupChildren}
               ProcessorIcon={ProcessorIcon}
               processorDescription={processorDescription}
+              onShowError={showError}
+              validationText={validationText}
+              doesHaveWarnings={doesHaveWarnings}
               isDisabled={isDisabled}
               isDragging={isDraggedNode}
             />
@@ -304,6 +333,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
               hasGroupChildren={hasGroupChildren}
               ProcessorIcon={ProcessorIcon}
               processorDescription={processorDescription}
+              validationText={validationText}
+              doesHaveWarnings={doesHaveWarnings}
               isDisabled={isDisabled}
               isDragging={isDraggedNode}
             />
@@ -314,6 +345,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
             <CustomNodeLabel
               label={label}
               doesHaveWarnings={doesHaveWarnings}
+              verified={verified}
               validationText={validationText}
               x={labelX}
               y={box.height - 1}
@@ -325,6 +357,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
             <CustomNodeLabel
               label={label}
               doesHaveWarnings={doesHaveWarnings}
+              verified={verified}
               validationText={validationText}
               x={labelX}
               y={box.height - 1}
@@ -336,11 +369,35 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
             <CustomNodeLabel
               label={label}
               doesHaveWarnings={doesHaveWarnings}
+              verified={verified}
               validationText={validationText}
               transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
             />
           )}
         </g>
+
+        <Modal isOpen={isErrorModalOpen} variant={ModalVariant.medium} data-testid="validation-error-modal">
+          <ModalHeader title="FAILURE" titleIconVariant="danger" />
+          <ModalBody>
+            <Stack hasGutter>
+              <StackItem>
+                <Alert variant="danger" title="Validation error">
+                  <p>{validationText}</p>
+                </Alert>
+              </StackItem>
+            </Stack>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              key="Close"
+              data-testid="validation-error-modal-btn-close"
+              variant="control"
+              onClick={onCloseErrorModal}
+            >
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
       </Layer>
     );
   },

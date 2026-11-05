@@ -297,4 +297,41 @@ describe('CustomNodeContainer', () => {
     expect(container.querySelector('.step-icon-collection')).toBeInTheDocument();
     expect(container.querySelector('svg')).toBeInTheDocument();
   });
+
+  it('should render warning icon when doesHaveWarnings is true', () => {
+    const vizNode = createMockVizNode();
+
+    render(
+      <CustomNodeContainer
+        {...defaultContainerProps}
+        vizNode={vizNode}
+        childCount={0}
+        ProcessorIcon={null}
+        processorDescription=""
+        doesHaveWarnings
+        validationText="Missing field"
+        isDisabled={false}
+      />,
+    );
+
+    expect(screen.getByTitle('Missing field')).toBeInTheDocument();
+  });
+
+  it('should not render warning icon when doesHaveWarnings is false', () => {
+    const vizNode = createMockVizNode();
+
+    render(
+      <CustomNodeContainer
+        {...defaultContainerProps}
+        vizNode={vizNode}
+        childCount={0}
+        ProcessorIcon={null}
+        processorDescription=""
+        doesHaveWarnings={false}
+        isDisabled={false}
+      />,
+    );
+
+    expect(screen.queryByTitle('Missing field')).not.toBeInTheDocument();
+  });
 });

@@ -75,6 +75,7 @@ export const BrowserFilePickerMetadataProvider: FunctionComponent<PropsWithChild
       saveResourceContent: () => Promise.resolve(),
       getSuggestions: () => Promise.resolve([]),
       onStepUpdated: () => Promise.resolve(),
+      getTestReport: () => Promise.resolve(undefined),
     }),
     [askUserForFileSelection, getResourceContent, isResourceExist],
   );

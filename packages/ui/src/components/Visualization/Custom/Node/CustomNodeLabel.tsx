@@ -1,4 +1,4 @@
-import { WarningFilled } from '@carbon/icons-react';
+import { CheckmarkFilled, WarningFilled } from '@carbon/icons-react';
 import { Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
@@ -8,6 +8,7 @@ import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 interface CustomNodeLabelProps {
   label: string;
   doesHaveWarnings?: boolean;
+  verified?: boolean;
   validationText?: string;
   x?: number;
   y?: number;
@@ -20,6 +21,7 @@ interface CustomNodeLabelProps {
 export const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
   label,
   doesHaveWarnings = false,
+  verified = false,
   validationText,
   x,
   y,
@@ -48,6 +50,11 @@ export const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
           data-warning={doesHaveWarnings}
         >
           <WarningFilled />
+        </Icon>
+      )}
+      {verified && (
+        <Icon status="success" title="Step verified" aria-label="Verified" role="img" data-verified={verified}>
+          <CheckmarkFilled />
         </Icon>
       )}
       <span title={label}>{label}</span>
