@@ -38,6 +38,7 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 	private visible = true;
 	private disposed = false;
 	private pendingRefresh?: Promise<void>;
+	private refreshRequested = false;
 	private interval: number;
 	private autoRefreshHandle?: NodeJS.Timeout;
 	private localhostData = new Map<string, { associatedFile: string; routes: Route[] }>();
@@ -52,9 +53,6 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 					this.updateIntervalFromSettings();
 				}
 			}),
-		);
-
-		this.subscriptions.push(
 			tasks.onDidStartTaskProcess(async (e) => {
 				const def = e.execution.task.definition as CamelTaskDefinition;
 				if (def.type === 'camel' && def.port > 0) {
@@ -66,8 +64,6 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 					}
 				}
 			}),
-		);
-		this.subscriptions.push(
 			tasks.onDidEndTaskProcess((e) => {
 				this.handleTaskEnd(e.execution.task.definition as CamelTaskDefinition);
 			}),
@@ -121,14 +117,21 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 		}
 	}
 
+	/** Waits for a new poll when a caller requests refresh during an in-flight poll. */
 	refresh(): Promise<void> {
 		console.log('[DeploymentsProvider] Refreshing data...');
-		if (!this.pendingRefresh) {
-			this.pendingRefresh = this.updateData().finally(() => {
-				this.pendingRefresh = undefined;
-			});
-		}
+		this.refreshRequested = true;
+		this.pendingRefresh ??= this.refreshUntilCurrent().finally(() => {
+			this.pendingRefresh = undefined;
+		});
 		return this.pendingRefresh;
+	}
+
+	private async refreshUntilCurrent(): Promise<void> {
+		do {
+			this.refreshRequested = false;
+			await this.updateData();
+		} while (this.refreshRequested && !this.disposed);
 	}
 
 	getTreeItem(element: TreeItem): TreeItem {
