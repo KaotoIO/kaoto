@@ -75,3 +75,32 @@ it('does not request canvas focus when focus was outside before removal', () => 
   rerender(view(true));
   expect(document.body).toHaveFocus();
 });
+
+it.each(['blur', 'remove'] as const)(
+  'cancels a pending handoff when outside focus is subsequently lost via %s',
+  (loseFocus) => {
+    const view = (visible: boolean, outsideVisible = true) => (
+      <FocusProvider>
+        {visible && <View />}
+        {outsideVisible && <button>Outside</button>}
+      </FocusProvider>
+    );
+    const { rerender } = render(view(true));
+    screen.getByLabelText('Canvas step').focus();
+    rerender(view(false));
+    const outside = screen.getByRole('button', { name: 'Outside' });
+    outside.focus();
+    expect(outside).toHaveFocus();
+    if (loseFocus === 'blur') outside.blur();
+    else rerender(view(false, false));
+    expect(document.body).toHaveFocus();
+    rerender(view(true, loseFocus !== 'remove'));
+    expect(document.body).toHaveFocus();
+
+    // Cancelling one handoff must not prevent a later canvas replacement from restoring focus.
+    screen.getByLabelText('Canvas step').focus();
+    rerender(view(false));
+    rerender(view(true));
+    expect(screen.getByLabelText('Canvas focus target')).toHaveFocus();
+  },
+);
