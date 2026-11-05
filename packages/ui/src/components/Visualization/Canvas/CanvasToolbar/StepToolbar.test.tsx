@@ -108,7 +108,7 @@ describe('StepToolbar', () => {
       expect(screen.queryByTestId('Test Node|step-toolbar-button-send-message')).not.toBeInTheDocument();
     });
 
-    it('should render send message button when SendMessageModal context is provided', async () => {
+    it('should render send message button on the route entry when context is provided', async () => {
       const mockOpenSendMessageModal = vi.fn();
       const sendMessageContext = {
         isOpen: false,
@@ -123,6 +123,7 @@ describe('StepToolbar', () => {
       };
 
       await renderToolbar({
+        path: 'route.from',
         toolbar: (node) => (
           <SendMessageModalContext.Provider value={sendMessageContext}>
             <StepToolbar vizNode={node} />
@@ -136,9 +137,49 @@ describe('StepToolbar', () => {
 
       fireEvent.click(sendButton);
       expect(mockOpenSendMessageModal).toHaveBeenCalledWith({
-        endpoint: SET_HEADER_PATH,
+        endpoint: vizNode.getId(),
         title: 'Send a test message to Test Node',
       });
+    });
+  });
+
+  describe('Runtime send availability', () => {
+    const context = {
+      isOpen: false,
+      options: null,
+      openSendMessageModal: vi.fn(),
+      closeSendMessageModal: vi.fn(),
+      sendMessage: vi.fn(),
+      isSending: false,
+      error: null,
+      recentMessageFiles: [],
+      rememberMessageFile: vi.fn(),
+      runtime: { targets: [], send: vi.fn() },
+    };
+    it('keeps a route entry disabled without a started target', async () => {
+      await renderToolbar({
+        path: 'route.from',
+        toolbar: (node) => (
+          <SendMessageModalContext.Provider value={context}>
+            <StepToolbar vizNode={node} />
+          </SendMessageModalContext.Provider>
+        ),
+      });
+      const button = screen.getByTestId('Test Node|step-toolbar-button-send-message');
+      expect(button).toHaveAttribute('aria-disabled', 'true');
+      expect(button).toHaveAttribute('title', 'Start this route to send a test message');
+      fireEvent.click(button);
+      expect(context.openSendMessageModal).not.toHaveBeenCalled();
+    });
+    it('does not expose send on an intermediate processor', async () => {
+      await renderToolbar({
+        toolbar: (node) => (
+          <SendMessageModalContext.Provider value={context}>
+            <StepToolbar vizNode={node} />
+          </SendMessageModalContext.Provider>
+        ),
+      });
+      expect(screen.queryByTestId('Test Node|step-toolbar-button-send-message')).not.toBeInTheDocument();
     });
   });
 

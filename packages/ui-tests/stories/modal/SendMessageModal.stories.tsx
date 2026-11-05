@@ -39,7 +39,10 @@ export default {
   ],
 } as Meta<typeof SendMessageModal>;
 
-const SendMessageTrigger: FunctionComponent = () => {
+const SendMessageTrigger: FunctionComponent<{ multiple?: boolean; fail?: boolean }> = ({
+  multiple = false,
+  fail = false,
+}) => {
   const { openSendMessageModal } = useSendMessageModal()!;
 
   return (
@@ -52,6 +55,15 @@ const SendMessageTrigger: FunctionComponent = () => {
         onClick={() => {
           openSendMessageModal({
             endpoint: 'direct:orders',
+            targets: multiple
+              ? [1, 2].map((pid) => ({
+                  id: String(pid),
+                  routeId: 'direct:orders',
+                  label: 'Orders',
+                  pid,
+                  state: 'Started',
+                }))
+              : undefined,
             title: 'Send a test message to orders',
             subtitle: 'It goes to the endpoint the route starts from, in the running app.',
             initialBody: '{\n  "orderId": "12345",\n  "item": "Widget",\n  "amount": 99.95\n}',
@@ -61,6 +73,7 @@ const SendMessageTrigger: FunctionComponent = () => {
             ],
             onSend: async (payload) => {
               await new Promise((resolve) => setTimeout(resolve, 1000));
+              if (fail) throw new Error('The selected runtime is no longer available.');
               alert(`Message sent: ${JSON.stringify(payload, null, 2)}`);
             },
           });
@@ -76,3 +89,6 @@ const SendMessageTrigger: FunctionComponent = () => {
 export const Default: StoryFn<typeof SendMessageModal> = () => {
   return <SendMessageTrigger />;
 };
+
+export const MultipleRuntimes: StoryFn<typeof SendMessageModal> = () => <SendMessageTrigger multiple />;
+export const DeliveryFailure: StoryFn<typeof SendMessageModal> = () => <SendMessageTrigger fail />;

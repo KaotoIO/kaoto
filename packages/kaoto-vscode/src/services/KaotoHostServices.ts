@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 
+import type { SendMessageRequest, SendMessageRuntimeSnapshot } from '@kaoto/kaoto/models';
 import { BridgeError } from '@kaoto/kaoto/host-bridge';
 import type { CatalogKind, FileTypesResponse, ISettingsModel, RuntimeMavenInformation, StepUpdateAction } from '@kaoto/kaoto/models';
 import { CanvasLayoutDirection, ColorScheme, FileTypes, NodeLabelType, NodeToolbarTrigger, SettingsModel } from '@kaoto/kaoto/models';
@@ -36,6 +37,9 @@ import { readKameletsFromDirectory } from './KameletFileReader';
 import { getSuggestions, type Suggestion, type SuggestionRequestContext } from './SuggestionRegistry';
 
 export interface KaotoDesktopOperations {
+	getSendMessageTargets?: (uri: vscode.Uri) => Promise<SendMessageRuntimeSnapshot>;
+	sendMessage?: (uri: vscode.Uri, request: SendMessageRequest) => Promise<void>;
+	watchSendMessageTargets?: (uri: vscode.Uri, listener: (snapshot: SendMessageRuntimeSnapshot) => void) => vscode.Disposable;
 	getSelectedCatalog?: (uri: vscode.Uri) => Promise<{ name: string; runtime: string } | undefined>;
 	findClasspathRoot?: (uri: vscode.Uri) => vscode.Uri;
 	resolveKameletDirectories?: (directories: string[], uri: vscode.Uri) => vscode.Uri[];
@@ -48,6 +52,18 @@ export interface KaotoDesktopOperations {
 /** Shared host operations. Desktop integrations are supplied by the document owner. */
 export class KaotoHostServices implements vscode.Disposable {
 	private disposed = false;
+	async getSendMessageTargets(): Promise<SendMessageRuntimeSnapshot> {
+		return this.desktop.getSendMessageTargets?.(this.documentUri) ?? { supported: false, targets: [] };
+	}
+	async sendMessage(request: SendMessageRequest): Promise<void> {
+		if (!this.desktop.sendMessage) {
+			throw new BridgeError('UNSUPPORTED_REQUEST', 'Sending messages is not supported by this host.');
+		}
+		await this.desktop.sendMessage(this.documentUri, request);
+	}
+	watchSendMessageTargets(listener: (snapshot: SendMessageRuntimeSnapshot) => void): vscode.Disposable {
+		return this.desktop.watchSendMessageTargets?.(this.documentUri, listener) ?? new vscode.Disposable(() => {});
+	}
 
 	/** A text document keeps its URI for its whole life; Save As opens a new document with its own services. */
 	constructor(
