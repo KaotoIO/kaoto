@@ -86,7 +86,7 @@ export interface IMetadataApi {
    * @param name The test name to look up
    * @returns The full test report entry, or undefined if no report exists
    */
-  getTestReport(name: string): Promise<TestReportEntry | undefined>;
+  getTestReport?(name: string): Promise<TestReportEntry | undefined>;
 }
 
 export const MetadataContext = createContext<IMetadataApi | undefined>(undefined);
