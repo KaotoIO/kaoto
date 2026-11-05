@@ -21,6 +21,9 @@ export class CanvasDefaults {
 
   static readonly DEFAULT_GROUP_PADDING = 40;
 
+  // The 3px stroke is centered 2px outside the element, matching the former HTML outline.
+  static readonly FOCUS_RING_OFFSET = 3.5;
+
   /* Making the step toolbar narrower and center it via CSS */
   static readonly STEP_TOOLBAR_WIDTH = 60;
   static readonly STEP_TOOLBAR_HEIGHT = 60;
