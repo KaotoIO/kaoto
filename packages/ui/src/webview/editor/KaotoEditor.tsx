@@ -28,6 +28,7 @@ import { SourceCodeProvider } from '../../providers/source-code.provider';
 import { setColorScheme } from '../../utils/color-scheme';
 import { bindEditorDocument, type EditorDocumentState } from './Bridge/editor-document';
 import { KaotoBridge } from './Bridge/KaotoBridge';
+import { SendMessageRuntimeProvider } from './SendMessageRuntimeProvider';
 
 export interface KaotoEditorInit {
   fileExtension: string;
@@ -342,7 +343,7 @@ export const KaotoEditor = ({ bus, initialSettings, init, children }: PropsWithC
                           shouldSaveSchema={false}
                           onStepUpdated={onStepUpdated}
                         >
-                          {children}
+                          <SendMessageRuntimeProvider>{children}</SendMessageRuntimeProvider>
                         </KaotoBridge>
                       </EntitiesProvider>
                     </CatalogLoaderProvider>

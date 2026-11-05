@@ -188,6 +188,22 @@ const notification = {
 };
 
 const requestExamples = {
+  'editor:sendMessage:getTargets': {
+    sender: 'editor',
+    timeoutMs: 30000,
+    payload: null,
+    response: { supported: true, targets: [] },
+    invalidRequest: {},
+    invalidResponse: { supported: true, targets: [{}] },
+  },
+  'editor:sendMessage:send': {
+    sender: 'editor',
+    timeoutMs: 90000,
+    payload: { targetId: 'target', routeId: 'orders', payload: { endpoint: 'orders', body: 'hello' } },
+    response: null,
+    invalidRequest: { targetId: 'target' },
+    invalidResponse: {},
+  },
   'host:document:setContent': {
     sender: 'host',
     timeoutMs: null,
@@ -321,6 +337,11 @@ const requestExamples = {
 };
 
 const eventExamples = {
+  'host:sendMessage:targetsUpdated': {
+    sender: 'host',
+    payload: { supported: true, targets: [] },
+    invalid: { targets: [] },
+  },
   'editor:ready': { sender: 'editor', payload: null, invalid: {} },
   'editor:document:changed': {
     sender: 'editor',

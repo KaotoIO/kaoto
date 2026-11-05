@@ -2,6 +2,7 @@ import { execFile } from 'child_process'; // NOSONAR
 import { promisify } from 'util'; // NOSONAR
 import { dirname, relative } from 'path'; // NOSONAR
 import { workspace } from 'vscode';
+import { executeSendMessage } from '../../utils/SendMessageProcess';
 import { CamelExecutorFactory } from '../CamelExecutorFactory';
 import { CamelCommandBuilder } from '../builders/CamelCommandBuilder';
 import {
@@ -39,6 +40,12 @@ const sq = CamelCommandBuilder.strongQuote;
  * Plain strings are used for command keywords and simple flags.
  */
 export class CamelCommandAPI {
+	/** Execute the configured CLI without placing payload content on the command line. */
+	static async sendMessage(pid: number, routeId: string, argumentFile: string, cwd: string): Promise<void> {
+		const result = await this.executeSimple('cmd', ['send', String(pid), sq(`--endpoint=${routeId}`), sq(`@${argumentFile}`)], cwd);
+		await executeSendMessage(result.execution, cwd);
+	}
+
 	private static async resolveCommonSettings(settingsHelper: CamelSettingsHelper, userArgs: string[]): Promise<ResolvedSettings> {
 		const [camelVersionArg, quarkusArgs, springBootArgs, reposArg] = await Promise.all([
 			settingsHelper.getCamelVersionArgument(userArgs),
