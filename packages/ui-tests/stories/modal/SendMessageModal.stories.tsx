@@ -2,12 +2,13 @@ import { Button } from '@carbon/react';
 import {
   CatalogLoaderProvider,
   CatalogSchemaLoader,
+  inMemorySourceCodeAdapter,
   KaotoResourceProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
   SendMessageModal,
   SendMessageModalProvider,
-  SourceCodeSync,
+  SourceCodeProvider,
   useSendMessageModal,
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
@@ -18,7 +19,7 @@ export default {
   component: SendMessageModal,
   decorators: [
     (Story: StoryFn) => (
-      <SourceCodeSync initialSourceCode="">
+      <SourceCodeProvider adapter={inMemorySourceCodeAdapter('')}>
         <KaotoResourceProvider>
           <RuntimeProvider
             catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
@@ -34,7 +35,7 @@ export default {
             </SchemasLoaderProvider>
           </RuntimeProvider>
         </KaotoResourceProvider>
-      </SourceCodeSync>
+      </SourceCodeProvider>
     ),
   ],
 } as Meta<typeof SendMessageModal>;

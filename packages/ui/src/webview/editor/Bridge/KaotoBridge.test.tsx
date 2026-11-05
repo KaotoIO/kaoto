@@ -4,7 +4,6 @@ import { ComponentProps } from 'react';
 import { KaotoBridge } from './KaotoBridge';
 
 describe('KaotoBridge', () => {
-  const mockOnReady = vi.fn();
   const mockGetMetadata = vi.fn();
   const mockSetMetadata = vi.fn();
   const mockGetResourceContent = vi.fn();
@@ -15,7 +14,6 @@ describe('KaotoBridge', () => {
   const mockGetSuggestions = vi.fn();
 
   const defaultProps: ComponentProps<typeof KaotoBridge> = {
-    onReady: mockOnReady,
     getMetadata: mockGetMetadata,
     setMetadata: mockSetMetadata,
     getResourceContent: mockGetResourceContent,
@@ -39,14 +37,5 @@ describe('KaotoBridge', () => {
       </KaotoBridge>,
     );
     expect(getByText('Test Child')).toBeInTheDocument();
-  });
-
-  it('should call onReady on mount', () => {
-    render(
-      <KaotoBridge {...defaultProps}>
-        <div>Test Child</div>
-      </KaotoBridge>,
-    );
-    expect(mockOnReady).toHaveBeenCalledTimes(1);
   });
 });

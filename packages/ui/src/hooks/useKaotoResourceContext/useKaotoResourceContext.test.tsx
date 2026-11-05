@@ -3,13 +3,13 @@ import { PropsWithChildren } from 'react';
 import type { Mock } from 'vitest';
 
 import { KaotoResourceProvider } from '../../providers/kaoto-resource.provider';
-import { SourceCodeSync } from '../../providers/source-code-sync';
+import { inMemorySourceCodeAdapter, SourceCodeProvider } from '../../providers/source-code.provider';
 import { errorMessage, useKaotoResourceContext } from './useKaotoResourceContext';
 
 const wrapper = ({ children }: PropsWithChildren) => (
-  <SourceCodeSync>
+  <SourceCodeProvider adapter={inMemorySourceCodeAdapter()}>
     <KaotoResourceProvider>{children}</KaotoResourceProvider>
-  </SourceCodeSync>
+  </SourceCodeProvider>
 );
 
 describe('useKaotoResourceContext', () => {

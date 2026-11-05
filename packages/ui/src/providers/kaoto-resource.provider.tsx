@@ -21,7 +21,7 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
 
   /**
    * Start with undefined. The real source code arrives through the single
-   * `code:updated` ingress, emitted on mount by the SourceCodeSync. Using a lazy
+   * `code:updated` ingress, emitted by the SourceCodeProvider. Using a lazy
    * initializer avoids re-parsing the YAML on every render.
    */
   const [kaotoResource, setKaotoResource] = useState<KaotoResource | undefined>();
