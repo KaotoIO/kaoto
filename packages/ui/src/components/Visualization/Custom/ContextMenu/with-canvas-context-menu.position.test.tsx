@@ -1,4 +1,4 @@
-import { WithContextMenuProps } from '@patternfly/react-topology';
+import { TopologyView, WithContextMenuProps } from '@patternfly/react-topology';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { PropsWithChildren } from 'react';
 
@@ -61,6 +61,35 @@ it('keeps mouse invocation anchored at the pointer', () => {
   fireEvent.contextMenu(screen.getByTestId('background'), { button: 2, clientX: 320, clientY: 240 });
   expect(CanvasContextMenu).toHaveBeenLastCalledWith(
     expect.objectContaining({ reference: { x: 320, y: 240 } }),
+    undefined,
+  );
+});
+
+const EmptyBackground = ({ onContextMenu }: WithContextMenuProps) => (
+  <TopologyView
+    id="canvas-main"
+    aria-label="Route canvas"
+    tabIndex={0}
+    contextToolbar={<button>Routes</button>}
+    onContextMenu={onContextMenu}
+  >
+    <div>No visible routes</div>
+  </TopologyView>
+);
+const EmptyWrapped = withCanvasContextMenu(() => [<button key="action">Show all</button>], {
+  isCanvasBackground: true,
+})(EmptyBackground);
+
+it.each(['F10', 'ContextMenu'])('anchors %s below the toolbar on an empty canvas', (key) => {
+  render(<EmptyWrapped />);
+  const canvas = screen.getByLabelText('Route canvas');
+  const content = canvas.querySelector('.pf-topology-content')!;
+  vi.spyOn(canvas, 'getBoundingClientRect').mockReturnValue(new DOMRect(100, 50, 800, 600));
+  vi.spyOn(content, 'getBoundingClientRect').mockReturnValue(new DOMRect(100, 150, 800, 500));
+  canvas.focus();
+  fireEvent.keyDown(canvas, { key, shiftKey: key === 'F10' });
+  expect(CanvasContextMenu).toHaveBeenLastCalledWith(
+    expect.objectContaining({ reference: { x: 100, y: 150 } }),
     undefined,
   );
 });
