@@ -53,8 +53,6 @@ import {
 
 type DefaultNodeProps = Parameters<typeof DefaultNode>[0];
 
-const FOCUS_RING_OFFSET = 3.5;
-
 interface CustomNodeProps extends DefaultNodeProps {
   element: GraphElement<ElementModel, CanvasNode['data']>;
   /** Toggle node collapse / expand */
@@ -294,10 +292,10 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
                 <rect
                   className="custom-node__focus-ring"
                   aria-hidden="true"
-                  x={(box.width - 60) / 2 - FOCUS_RING_OFFSET}
-                  y={(box.height - 60) / 2 - FOCUS_RING_OFFSET}
-                  width={60 + 2 * FOCUS_RING_OFFSET}
-                  height={60 + 2 * FOCUS_RING_OFFSET}
+                  x={(box.width - 60) / 2 - CanvasDefaults.FOCUS_RING_OFFSET}
+                  y={(box.height - 60) / 2 - CanvasDefaults.FOCUS_RING_OFFSET}
+                  width={60 + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
+                  height={60 + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
                 />
               )}
             </CustomNodeContainer>
@@ -324,10 +322,10 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
               <rect
                 className="custom-node__focus-ring"
                 aria-hidden="true"
-                x={(box.width - 60) / 2 - FOCUS_RING_OFFSET}
-                y={(box.height - 60) / 2 - FOCUS_RING_OFFSET}
-                width={60 + 2 * FOCUS_RING_OFFSET}
-                height={60 + 2 * FOCUS_RING_OFFSET}
+                x={(box.width - 60) / 2 - CanvasDefaults.FOCUS_RING_OFFSET}
+                y={(box.height - 60) / 2 - CanvasDefaults.FOCUS_RING_OFFSET}
+                width={60 + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
+                height={60 + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
               />
             </CustomNodeContainer>
           )}

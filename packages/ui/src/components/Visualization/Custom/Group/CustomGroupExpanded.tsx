@@ -58,8 +58,6 @@ import {
 import { TargetAnchor } from '../target-anchor';
 import { CustomGroupProps } from './Group.models';
 
-// The 3px stroke is centered 2px outside the group, matching the former HTML outline.
-const FOCUS_RING_OFFSET = 3.5;
 // Keep shadows inside a clipped foreignObject so WebKit repaints their old bounds.
 const GROUP_PAINT_PADDING = 24;
 
@@ -254,10 +252,10 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
             <rect
               className="custom-group__focus-ring"
               aria-hidden="true"
-              x={boxRef.current.x - FOCUS_RING_OFFSET}
-              y={boxRef.current.y - FOCUS_RING_OFFSET}
-              width={boxRef.current.width + 2 * FOCUS_RING_OFFSET}
-              height={boxRef.current.height + 2 * FOCUS_RING_OFFSET}
+              x={boxRef.current.x - CanvasDefaults.FOCUS_RING_OFFSET}
+              y={boxRef.current.y - CanvasDefaults.FOCUS_RING_OFFSET}
+              width={boxRef.current.width + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
+              height={boxRef.current.height + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
             />
             <foreignObject
               className="custom-group__body"
