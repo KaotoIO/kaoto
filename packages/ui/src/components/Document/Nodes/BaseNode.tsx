@@ -128,7 +128,7 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       )}
 
       {isExpandable ? (
-        <span className="node__expand" onClick={onExpandChange}>
+        <span className="node__expand" onClick={onExpandChange} role="none">
           {isExpanded && <ChevronDown data-testid={`expand-icon-${dataTestId}`} />}
           {!isExpanded && <ChevronRight data-testid={`collapse-icon-${dataTestId}`} />}
         </span>
