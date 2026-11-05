@@ -97,6 +97,10 @@
     pointer-events: none;
   }
 
+  &__icon--success {
+    color: var(--pf-t--global--icon--color--status--success--default);
+  }
+
   &__comment-tooltip {
     white-space: pre-line;
   }
@@ -109,6 +113,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+
+    &--substitution {
+      color: var(--pf-t--global--icon--color--status--info--default);
+    }
+
+    &--type {
+      color: var(--pf-t--global--icon--color--status--warning--default);
+    }
   }
 
   &__connection-port {

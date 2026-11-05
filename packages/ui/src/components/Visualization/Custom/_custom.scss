@@ -7,11 +7,16 @@
   &__disabled {
     justify-self: end;
     margin-right: calc(-12px + var(--pf-t--global--spacer--xs) - var(--pf-t--global--spacer--sm));
+    color: var(--pf-t--global--icon--color--status--danger--default);
   }
 
   &__processor {
     justify-self: start;
     margin-left: calc(-12px + var(--pf-t--global--spacer--xs) - var(--pf-t--global--spacer--sm));
+  }
+
+  &__processor-icon {
+    color: var(--pf-t--global--icon--color--status--info--default);
   }
 }
 

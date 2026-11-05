@@ -5,7 +5,6 @@ import {
   ActionListItem,
   Button,
   ButtonVariant,
-  Icon,
   InputGroup,
   InputGroupItem,
   List,
@@ -163,13 +162,9 @@ export const XPathInputAction: FunctionComponent<XPathInputProps> = ({
                   isDanger={validationResult.hasErrors()}
                   icon={
                     validationResult.hasErrors() ? (
-                      <Icon status="danger">
-                        <WarningFilled />
-                      </Icon>
+                      <WarningFilled className="input-group__error-icon" />
                     ) : (
-                      <Icon status="warning">
-                        <WarningAlt />
-                      </Icon>
+                      <WarningAlt className="input-group__warning-icon" />
                     )
                   }
                 />

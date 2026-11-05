@@ -3,4 +3,8 @@
   --pf-v6-c-button--hover--BorderColor: var(--pf-t--global--icon--color--status--success--default) !important;
 
   border-color: var(--pf-t--global--icon--color--status--success--default) !important;
+
+  .flow-clipboard-control-icon {
+    color: var(--pf-t--global--icon--color--status--success--default);
+  }
 }
