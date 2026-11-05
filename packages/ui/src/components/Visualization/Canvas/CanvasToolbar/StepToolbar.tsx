@@ -50,6 +50,11 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   const settingsAdapter = useContext(SettingsContext);
   const sendMessageModal = useSendMessageModal();
   const layout = useGraphLayout();
+  const routeId = vizNode.getId();
+  const isRouteEntry = vizNode.data.path === 'route.from';
+  const runtime = sendMessageModal?.runtime;
+  const targets = runtime?.targets.filter((target) => target.routeId === routeId && target.state === 'Started');
+  const canSend = !runtime || !!targets?.length;
   const { canHaveSpecialChildren, canBeDisabled, canReplaceStep, canRemoveStep, canRemoveFlow } =
     vizNode.getNodeInteraction();
   const label = vizNode?.getNodeLabel(settingsAdapter.getSettings().nodeLabel);
@@ -69,19 +74,30 @@ export const StepToolbar: FunctionComponent<IStepToolbar> = ({
   return (
     <div className="step-toolbar-wrapper">
       <div ref={toolbarRef} className={clsx(className, 'step-toolbar')} data-testid={dataTestId}>
-        {sendMessageModal && (
+        {sendMessageModal && isRouteEntry && routeId && (
           <Button
             icon={<SendAlt size={16} />}
             className="step-toolbar__button"
             data-testid={`${label}|step-toolbar-button-send-message`}
             variant="control"
-            title="Send test message"
+            isAriaDisabled={!canSend}
+            title={canSend ? 'Send test message' : 'Start this route to send a test message'}
             onClick={(event) => {
               event.stopPropagation();
-              const endpoint = vizNode.data?.path || label || 'endpoint';
+              if (!canSend) return;
+              const endpoint = routeId;
               sendMessageModal.openSendMessageModal({
                 endpoint,
                 title: `Send a test message to ${label || endpoint}`,
+                ...(runtime
+                  ? {
+                      targets,
+                      onSend: (payload, targetId) => {
+                        if (!targetId) return Promise.reject(new Error('Select a target runtime.'));
+                        return runtime.send({ targetId, routeId, payload });
+                      },
+                    }
+                  : {}),
               });
             }}
           />

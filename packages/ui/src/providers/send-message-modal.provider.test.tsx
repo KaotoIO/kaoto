@@ -118,3 +118,34 @@ describe('SendMessageModalProvider & useSendMessageModal', () => {
     expect(result.current?.error).toBe('Network error');
   });
 });
+
+describe('Send message session isolation', () => {
+  it('does not close a newly opened dialog when an older send completes', async () => {
+    let finish!: () => void;
+    const onSend = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    const { result } = renderHook(() => useSendMessageModal(), {
+      wrapper: ({ children }) => <SendMessageModalProvider>{children}</SendMessageModalProvider>,
+    });
+    act(() => {
+      result.current!.openSendMessageModal({ endpoint: 'old', onSend });
+    });
+    let pending!: Promise<void>;
+    act(() => {
+      pending = result.current!.sendMessage({ endpoint: 'old' });
+    });
+    act(() => {
+      result.current!.openSendMessageModal({ endpoint: 'new' });
+    });
+    await act(async () => {
+      finish();
+      await pending;
+    });
+    expect(result.current!.isOpen).toBe(true);
+    expect(result.current!.options?.endpoint).toBe('new');
+  });
+});

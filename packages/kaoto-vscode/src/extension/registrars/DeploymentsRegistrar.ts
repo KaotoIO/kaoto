@@ -43,6 +43,7 @@ export class DeploymentsRegistrar implements IRegistrar {
 		private readonly context: vscode.ExtensionContext,
 		private readonly telemetryService: TelemetryService | undefined,
 		private readonly portManager: PortManager,
+		private readonly sharedProvider?: DeploymentsProvider,
 	) {}
 
 	register(): void {
@@ -52,7 +53,7 @@ export class DeploymentsRegistrar implements IRegistrar {
 	}
 
 	public registerDeploymentsView(portManager: PortManager) {
-		this.deploymentsProvider = new DeploymentsProvider(portManager);
+		this.deploymentsProvider = this.sharedProvider ?? new DeploymentsProvider(portManager);
 
 		const deploymentsTreeView = vscode.window.createTreeView(VIEW_DEPLOYMENTS, {
 			treeDataProvider: this.deploymentsProvider,
@@ -65,10 +66,9 @@ export class DeploymentsRegistrar implements IRegistrar {
 		};
 
 		const refreshVisibilityChange = deploymentsTreeView.onDidChangeVisibility(async (event) => {
+			this.deploymentsProvider.setVisible(event.visible);
 			if (event.visible) {
 				await this.deploymentsProvider.refresh();
-			} else {
-				this.deploymentsProvider.dispose();
 			}
 		});
 
