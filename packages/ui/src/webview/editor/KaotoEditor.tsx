@@ -2,7 +2,7 @@ import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be
 
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { Button } from '@patternfly/react-core';
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { PropsWithChildren, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { RouterProvider } from 'react-router';
 
 import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
@@ -22,7 +22,7 @@ import { KaotoResourceProvider } from '../../providers';
 import { EntitiesProvider } from '../../providers/entities.provider';
 import { ReloadProvider } from '../../providers/reload.provider';
 import { RuntimeProvider } from '../../providers/runtime.provider';
-import { SettingsProvider } from '../../providers/settings.provider';
+import { SettingsContext, SettingsProvider } from '../../providers/settings.provider';
 import { SourceCodeSync } from '../../providers/source-code-sync';
 import { setColorScheme } from '../../utils/color-scheme';
 import { bindEditorDocument, type EditorDocumentState, type SourceCodeBridgeProviderRef } from './Bridge/editor-api';
@@ -42,6 +42,24 @@ export interface KaotoEditorInit {
    */
   onDisconnect?: (listener: (error: Error) => void) => () => void;
 }
+
+/**
+ * Reads the catalog settings on every render, so the "Reload with default Catalog" action, which clears the
+ * catalog URL in the settings and remounts the reload boundary, loads the bundled catalog.
+ */
+const EditorRuntimeProvider = ({ defaultCatalogUrl, children }: PropsWithChildren<{ defaultCatalogUrl: string }>) => {
+  const { catalogUrl, runtimeCatalogName, testingCatalogName } = useContext(SettingsContext).getSettings();
+
+  return (
+    <RuntimeProvider
+      catalogUrl={catalogUrl || defaultCatalogUrl}
+      runtimeCatalogName={runtimeCatalogName}
+      testingCatalogName={testingCatalogName}
+    >
+      {children}
+    </RuntimeProvider>
+  );
+};
 
 interface Props {
   bus: IEventBus;
@@ -121,7 +139,8 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const settings = settingsAdapter.getSettings();
+  // The host resolves an empty catalog URL to the bundled catalog, so does the reload with the default catalog
+  const defaultCatalogUrl = `${init.resourcesPathPrefix}/camel-catalog/index.json`;
 
   // History controls: the host owns the document history
   const applyHistory = useCallback(
@@ -298,16 +317,13 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
         }
         aria-busy={!documentState.initialized}
       >
-        <ReloadProvider>
-          <SettingsProvider adapter={settingsAdapter}>
-            <SourceCodeSync>
-              <SourceCodeBridgeProvider ref={editorRef} onNewEdit={sendNewEdit} history={history}>
+        <SettingsProvider adapter={settingsAdapter}>
+          <SourceCodeBridgeProvider ref={editorRef} onNewEdit={sendNewEdit} history={history}>
+            {/* The reload boundary stays below the bridge provider, which owns the document content and its host sync */}
+            <ReloadProvider>
+              <SourceCodeSync>
                 <KaotoResourceProvider fileExtension={init.fileExtension}>
-                  <RuntimeProvider
-                    catalogUrl={settings.catalogUrl}
-                    runtimeCatalogName={settings.runtimeCatalogName}
-                    testingCatalogName={settings.testingCatalogName}
-                  >
+                  <EditorRuntimeProvider defaultCatalogUrl={defaultCatalogUrl}>
                     <CatalogLoaderProvider getResourcesContentByType={getResourcesContentByType}>
                       <EntitiesProvider>
                         <KaotoBridge
@@ -327,12 +343,12 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
                         </KaotoBridge>
                       </EntitiesProvider>
                     </CatalogLoaderProvider>
-                  </RuntimeProvider>
+                  </EditorRuntimeProvider>
                 </KaotoResourceProvider>
-              </SourceCodeBridgeProvider>
-            </SourceCodeSync>
-          </SettingsProvider>
-        </ReloadProvider>
+              </SourceCodeSync>
+            </ReloadProvider>
+          </SourceCodeBridgeProvider>
+        </SettingsProvider>
       </div>
     </HostBridgeProvider>
   );

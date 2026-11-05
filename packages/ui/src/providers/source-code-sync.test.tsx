@@ -25,6 +25,22 @@ describe('SourceCodeSync', () => {
     nextSpy.mockRestore();
   });
 
+  it('seeds the current store content and path on mount when there is no initial source code', () => {
+    useSourceCodeStore.setState({ sourceCode: camelRouteYaml, path: 'route.camel.yaml' });
+    const nextSpy = vi.spyOn(EventNotifier.getInstance(), 'next');
+
+    render(
+      <SourceCodeSync>
+        <div />
+      </SourceCodeSync>,
+    );
+
+    expect(useSourceCodeStore.getState().sourceCode).toEqual(camelRouteYaml);
+    expect(nextSpy).toHaveBeenCalledWith('code:updated', { code: camelRouteYaml, path: 'route.camel.yaml' });
+
+    nextSpy.mockRestore();
+  });
+
   it('clears the undo/redo history on mount', () => {
     const clearSpy = vi.spyOn(useSourceCodeStore.temporal.getState(), 'clear');
 

@@ -4,7 +4,10 @@ import { useSourceCodeStore } from '../store';
 import { EventNotifier } from '../utils';
 
 interface SourceCodeSyncProps extends PropsWithChildren {
-  /** The initial source code */
+  /**
+   * The initial source code. When omitted, the current content of the source code store is used, so a remount
+   * (for instance the reload of the page) keeps the document instead of replacing it with an empty one.
+   */
   initialSourceCode?: string;
 }
 
@@ -15,11 +18,16 @@ interface SourceCodeSyncProps extends PropsWithChildren {
  *  2. Keep the store's source code in sync with entity edits (`entities:updated`).
  * It never subscribes reactively to the store, so it never re-renders on code changes.
  */
-export const SourceCodeSync: FunctionComponent<SourceCodeSyncProps> = ({ initialSourceCode = '', children }) => {
+export const SourceCodeSync: FunctionComponent<SourceCodeSyncProps> = ({ initialSourceCode, children }) => {
   const eventNotifier = EventNotifier.getInstance();
 
   useLayoutEffect(() => {
-    useSourceCodeStore.getState().setCodeAndNotify(initialSourceCode);
+    const { sourceCode, path, setCodeAndNotify } = useSourceCodeStore.getState();
+    if (initialSourceCode === undefined) {
+      setCodeAndNotify(sourceCode, path || undefined);
+    } else {
+      setCodeAndNotify(initialSourceCode);
+    }
     useSourceCodeStore.temporal.getState().clear();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

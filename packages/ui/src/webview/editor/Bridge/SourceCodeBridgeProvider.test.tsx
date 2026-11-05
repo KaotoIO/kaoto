@@ -1,6 +1,8 @@
 import { act, render, waitFor } from '@testing-library/react';
 import { createRef, FunctionComponent, useLayoutEffect, useRef } from 'react';
 
+import { useReloadContext } from '../../../hooks/useReloadContext/useReloadContext';
+import { ReloadProvider } from '../../../providers/reload.provider';
 import { SourceCodeSync } from '../../../providers/source-code-sync';
 import { useSourceCodeStore } from '../../../store';
 import { EventNotifier } from '../../../utils/event-notifier';
@@ -211,6 +213,41 @@ describe('SourceCodeBridgeProvider', () => {
     );
 
     expect(mockOnNewEdit).not.toHaveBeenCalled();
+  });
+
+  it('does not publish an empty document when the reload boundary below it remounts', async () => {
+    const ref = createRef<SourceCodeBridgeProviderRef>();
+    const mockOnNewEdit = vi.fn().mockResolvedValue(undefined);
+    const ReloadButton: FunctionComponent = () => {
+      const { reloadPage } = useReloadContext();
+      return (
+        <button type="button" onClick={reloadPage}>
+          Reload
+        </button>
+      );
+    };
+
+    const { getByText } = render(
+      <SourceCodeBridgeProvider history={history} ref={ref} onNewEdit={mockOnNewEdit}>
+        <ReloadProvider>
+          <SourceCodeSync>
+            <ReloadButton />
+          </SourceCodeSync>
+        </ReloadProvider>
+      </SourceCodeBridgeProvider>,
+    );
+    await act(async () => {
+      await ref.current!.setContent('route.camel.yaml', mockCamelRoute);
+    });
+    mockOnNewEdit.mockClear();
+
+    await act(async () => {
+      getByText('Reload').click();
+    });
+
+    expect(mockOnNewEdit).not.toHaveBeenCalled();
+    expect(await ref.current!.getContent()).toEqual(mockCamelRoute);
+    expect(useSourceCodeStore.getState().sourceCode).toEqual(mockCamelRoute);
   });
 });
 
