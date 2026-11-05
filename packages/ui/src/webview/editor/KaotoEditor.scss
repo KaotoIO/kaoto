@@ -1,14 +1,15 @@
 html body {
   /*
-   * Remove the default white background color of the body element
-   * provided by the Multiplying Architecture theme.
+   * The webview host (VS Code) renders the editor inside an iframe.
+   * Remove the default white background so the VS Code theme shows
+   * through instead of a hard-coded white surface.
    */
   background-color: transparent !important;
 
   /*
-   * The MA uses patternfly v4, which doesn't use CSS variables for
-   * the default font family. The following is taken from the
-   * patternfly v6 definition of the font family.
+   * The VS Code webview does not apply PatternFly's global font-family
+   * reset to form controls. The following rules mirror the PatternFly v6
+   * definition so buttons, inputs, and selects inherit the correct font.
    */
   :where(button, input, optgroup, select, textarea) {
     margin: 0;
