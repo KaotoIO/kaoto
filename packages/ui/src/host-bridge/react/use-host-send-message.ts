@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import type { SendMessageRequest, SendMessageRuntimeSnapshot } from '../../models/send-message-runtime';
+import { toJsonValue } from '../contracts';
 import { useHostBus } from './context';
 
 export function useHostSendMessage() {
@@ -28,7 +29,8 @@ export function useHostSendMessage() {
   }, [bus]);
   const send = useCallback(
     async (request: SendMessageRequest) => {
-      await bus.request('editor:sendMessage:send', request);
+      // Dialog payloads include unset optional fields; omit them before the bridge validates JSON data.
+      await bus.request('editor:sendMessage:send', toJsonValue(request) as unknown as SendMessageRequest);
     },
     [bus],
   );

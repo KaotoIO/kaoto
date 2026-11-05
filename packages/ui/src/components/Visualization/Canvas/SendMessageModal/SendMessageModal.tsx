@@ -309,6 +309,7 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
         {availableTargets !== undefined && (
           <Select
             id="send-message-target"
+            className="send-message-modal__section"
             labelText="Target runtime"
             value={hasValidTarget ? selectedTargetId : ''}
             disabled={isSending}
