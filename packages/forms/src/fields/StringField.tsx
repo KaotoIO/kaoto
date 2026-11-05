@@ -115,7 +115,6 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
       type={schemaType}
       description={schema.description}
       defaultValue={typeof schema.default === 'object' ? undefined : schema.default?.toString()}
-      errors={errors}
       isRaw={isRaw}
       onOpenSuggestions={openSuggestions}
     >
@@ -134,6 +133,8 @@ export const StringField: FunctionComponent<StringFieldProps> = ({
             onChange={handleTextInputChange}
             aria-label={schema.title}
             aria-describedby={id}
+            invalid={!!errors}
+            invalidText={errors?.join(', ')}
             ref={inputRef}
             disabled={disabled}
           />

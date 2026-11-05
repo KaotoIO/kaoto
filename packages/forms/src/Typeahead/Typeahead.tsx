@@ -33,6 +33,8 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
   onCreate,
   onCreatePrefix,
   disabled = false,
+  invalid = false,
+  invalidText,
   allowCustomInput = false,
 }) => {
   const [prevSelectedItem, setPrevSelectedItem] = useState(selectedItem);
@@ -229,6 +231,8 @@ export const Typeahead: FunctionComponent<TypeaheadProps> = ({
         onChange={handleChange}
         onInputChange={handleInputChange}
         disabled={disabled}
+        invalid={invalid}
+        invalidText={invalidText}
         aria-label={ariaLabel}
         data-testid={dataTestId}
         allowCustomValue={allowCustomInput}

@@ -15,6 +15,18 @@
   background-color: var(--cds-field);
 }
 
+// Same invalid box as IBM Products (the stylesheet is not loaded in every host); it also wins over the bottom border above
+.uri-field-input .c4p--edit-in-place--invalid:not(.c4p--edit-in-place--focused) {
+  border: 2px solid var(--cds-support-error);
+}
+
+// The IBM Products stylesheet is not loaded in every host (standalone app, VS Code webview)
+.uri-field-input .c4p--edit-in-place__warning-text,
+.uri-field-input .c4p--edit-in-place__warning-icon {
+  color: var(--cds-text-error);
+  fill: var(--cds-support-error);
+}
+
 .uri-field-input .c4p--edit-in-place input {
   border-block-end: unset;
   background-color: transparent;
