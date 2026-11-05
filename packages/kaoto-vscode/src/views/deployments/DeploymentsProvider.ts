@@ -130,6 +130,7 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 	private async refreshUntilCurrent(): Promise<void> {
 		do {
 			this.refreshRequested = false;
+			// Poll sequentially: an overlapping refresh must read newer state after the current poll finishes.
 			await this.updateData();
 		} while (this.refreshRequested && !this.disposed);
 	}
