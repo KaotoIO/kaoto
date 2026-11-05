@@ -50,6 +50,7 @@ interface DocumentState {
 	content: string;
 	revision: number;
 	sourceVersion: number;
+	appliedSourceVersion: number;
 	mirroredContent?: string;
 	readonly: boolean;
 	disposed: boolean;
@@ -124,6 +125,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 					if (result.applied) {
 						state.content = content;
 						state.revision = result.revision;
+						state.appliedSourceVersion = version;
 					}
 				}).catch(report);
 			}),
@@ -190,6 +192,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			content: document.getText(),
 			revision: 0,
 			sourceVersion: 0,
+			appliedSourceVersion: 0,
 			readonly: vscode.workspace.fs.isWritableFileSystem(document.uri.scheme) === false,
 			disposed: false,
 			services: this.factory(document.uri),
@@ -347,24 +350,42 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 
 	private async prepareSave(state: DocumentState): Promise<void> {
 		const cancellation = new vscode.CancellationTokenSource();
+		const timer = setTimeout(() => cancellation.cancel(), this.timeouts.saveSnapshotMs);
 		try {
-			await this.enqueue(state, async () => {
-				const version = state.sourceVersion;
-				try {
-					await this.snapshot(state, cancellation.token);
-				} catch (error) {
-					// An unresponsive or cancelled canvas must not fail the save: keep the current native text.
-					if (error instanceof BridgeError && (error.code === 'TIMEOUT' || error.code === 'CANCELLED')) {
+			await Promise.race([
+				this.enqueue(state, async () => {
+					if (cancellation.token.isCancellationRequested) {
 						return;
 					}
-					throw error;
-				}
-				// A source edit that arrived during the snapshot must not be overwritten.
-				if (version === state.sourceVersion) {
-					await this.updateSource(state);
-				}
-			});
+					// If a native source update is pending or failed to apply, native text is authoritative.
+					if (state.appliedSourceVersion !== state.sourceVersion) {
+						return;
+					}
+					const version = state.sourceVersion;
+					try {
+						await this.snapshot(state, cancellation.token);
+					} catch (error) {
+						// An unresponsive or cancelled canvas must not fail the save: keep the current native text.
+						if (error instanceof BridgeError && (error.code === 'TIMEOUT' || error.code === 'CANCELLED')) {
+							return;
+						}
+						throw error;
+					}
+					// A source edit that arrived during the snapshot must not be overwritten.
+					if (version === state.sourceVersion && state.appliedSourceVersion === version) {
+						await this.updateSource(state);
+					}
+				}),
+				new Promise<void>((resolve) => {
+					cancellation.token.onCancellationRequested(() => resolve());
+				}),
+			]);
+		} catch (error) {
+			if (!(error instanceof BridgeError && (error.code === 'TIMEOUT' || error.code === 'CANCELLED'))) {
+				throw error;
+			}
 		} finally {
+			clearTimeout(timer);
 			cancellation.dispose();
 		}
 	}
@@ -389,6 +410,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			});
 			this.requireSession(state, session, epoch);
 			state.revision = result.revision;
+			state.appliedSourceVersion = state.sourceVersion;
 			session.initialized = true;
 			session.whenReady.resolve();
 		} catch (error) {
@@ -459,7 +481,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		this.requireSession(state, session, epoch);
 		const snapshot = await this.request(session.bus, 'host:document:getContent', null, token, this.timeouts.saveSnapshotMs);
 		this.requireSession(state, session, epoch);
-		if (snapshot.revision >= state.revision) {
+		if (snapshot.revision >= state.revision && state.appliedSourceVersion === state.sourceVersion) {
 			state.content = snapshot.content;
 			state.revision = snapshot.revision;
 		}
