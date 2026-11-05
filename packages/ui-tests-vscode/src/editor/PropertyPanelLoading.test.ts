@@ -89,7 +89,7 @@ describe('Property panel loading test', function () {
 				'Property panel or a nested container has a horizontal scrollbar',
 			);
 		}
-		await panel.findElement(By.id('All')).click();
+		await panel.findElement(By.css('[data-testid="tab-All"]')).click();
 		const groupToggles = await panel.findElements(By.css('.kaoto-form__expandable-group button[aria-expanded="false"]'));
 		for (const toggle of groupToggles) {
 			await toggle.sendKeys(Key.ENTER);
@@ -140,7 +140,7 @@ describe('Property panel loading test', function () {
 					await clickWhenClickable(driver, avro);
 				}
 				await KaotoEditor.waitForPropertyPanel(driver);
-				await clickWhenClickable(driver, await driver.findElement(By.id('All')));
+				await clickWhenClickable(driver, await driver.findElement(By.css('[data-testid="tab-All"]')));
 
 				const toolbar = By.css('[aria-label="Component Mode Toggle Group"]');
 				expect(await driver.findElements(toolbar), 'Component mode toolbar before editing').to.have.length(1);
