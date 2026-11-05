@@ -236,7 +236,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     [clearSelection],
   );
 
-  useArrowKeyNavigation();
+  useArrowKeyNavigation(nodes);
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {

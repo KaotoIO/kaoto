@@ -1,7 +1,8 @@
 import hotkeys from 'hotkeys-js';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
+import { CanvasNode } from '../components/Visualization/Canvas/canvas.models';
 
 /**
  * Explicit ordering for named EIP property segments that would otherwise sort
@@ -88,12 +89,25 @@ const ARROW_KEYS = 'arrowleft,arrowright,arrowup,arrowdown';
  * inside an INPUT, TEXTAREA, SELECT, or contenteditable — preventing the
  * canvas from stealing arrow keys from form fields.
  *
- * Navigation order follows the logical graph shape (viz-node path order):
+ * Navigation follows route order in the canvas model, then logical viz-node path order:
  * - ArrowRight / ArrowDown → next node
  * - ArrowLeft / ArrowUp → previous node
  * Wraps around at the ends.
  */
-export function useArrowKeyNavigation(): void {
+export function useArrowKeyNavigation(nodes?: readonly Pick<CanvasNode, 'id'>[]): void {
+  const routeOrderByNodeId = useMemo(() => {
+    const routes = new Map<string, number>();
+    const order = new Map<string, number>();
+    nodes?.forEach(({ id }) => {
+      // FlowService prefixes each path with its entity scope; the scope can itself contain pipes.
+      const separator = id.lastIndexOf('|');
+      const scope = separator === -1 ? id : id.slice(0, separator);
+      const routeOrder = routes.get(scope) ?? routes.size;
+      routes.set(scope, routeOrder);
+      order.set(id, routeOrder);
+    });
+    return order;
+  }, [nodes]);
   useEffect(() => {
     const navigate = (event: KeyboardEvent) => {
       const active = document.activeElement as HTMLElement | null;
@@ -104,7 +118,13 @@ export function useArrowKeyNavigation(): void {
 
       const allNodes = Array.from(
         document.querySelectorAll<HTMLElement>('g.custom-node, g.placeholder-node, g.custom-group[data-testid*="."]'),
-      ).sort(compareNodePaths);
+      ).sort((a, b) => {
+        const aOrder =
+          routeOrderByNodeId.get(a.closest<HTMLElement>('[data-id]')?.dataset.id ?? '') ?? routeOrderByNodeId.size;
+        const bOrder =
+          routeOrderByNodeId.get(b.closest<HTMLElement>('[data-id]')?.dataset.id ?? '') ?? routeOrderByNodeId.size;
+        return aOrder - bOrder || compareNodePaths(a, b);
+      });
       if (allNodes.length === 0) return;
 
       event.preventDefault();
@@ -130,5 +150,5 @@ export function useArrowKeyNavigation(): void {
     return () => {
       hotkeys.unbind(ARROW_KEYS, navigate);
     };
-  }, []);
+  }, [routeOrderByNodeId]);
 }
