@@ -34,7 +34,7 @@ export class SendMessageService {
 				}
 				args.push(`--header=${key}=${value}`);
 			}
-			if (args.some((arg) => Array.from(arg).some((character) => character.charCodeAt(0) < 32 && !'\b\t\n\f\r'.includes(character)))) {
+			if (args.some((arg) => Array.from(arg).some((character) => character.codePointAt(0)! < 32 && !'\b\t\n\f\r'.includes(character)))) {
 				throw new Error('Unsupported control character in text or headers. Use a file payload for binary content.');
 			}
 			const argumentFile = join(directory, 'message.args');

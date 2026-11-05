@@ -248,7 +248,7 @@ suite('DeploymentsProvider refresh ownership', () => {
 			global.clearInterval = clear;
 		}
 	});
-	test('overlapping refreshes wait for a committed snapshot', async () => {
+	test('overlapping refreshes wait for a fresh snapshot after the pending poll', async () => {
 		const original = global.fetch;
 		let finishOld!: (response: Response) => void;
 		let calls = 0;
@@ -267,11 +267,13 @@ suite('DeploymentsProvider refresh ownership', () => {
 			const old = provider.refresh();
 			await Promise.resolve();
 			const newer = provider.refresh();
-			finishOld(body('Stopped'));
+			assert.strictEqual(old, newer);
+			finishOld(body('Started'));
 			await old;
 			assert.equal(provider.getSnapshot()[0].state, 'Stopped');
 			await newer;
-			assert.equal(calls, 1);
+			assert.equal(calls, 2);
+			assert.equal(provider.getSnapshot()[0].state, 'Stopped');
 		} finally {
 			global.fetch = original;
 		}

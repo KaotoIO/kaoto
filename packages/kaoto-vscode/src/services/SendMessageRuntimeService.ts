@@ -39,7 +39,12 @@ export class SendMessageRuntimeService {
 					continue;
 				}
 				const data = await response.json();
-				const pid: unknown = path === '/q/dev/jvm' ? data?.jvm?.pid : data?.status === 200 ? data.value : null;
+				let pid: unknown;
+				if (path === '/q/dev/jvm') {
+					pid = data?.jvm?.pid;
+				} else {
+					pid = data?.status === 200 ? data.value : null;
+				}
 				if (validPid(pid)) {
 					return pid;
 				}
