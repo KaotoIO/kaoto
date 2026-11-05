@@ -15,9 +15,16 @@
  * limitations under the License.
  */
 
-import type { SendMessageRequest, SendMessageRuntimeSnapshot } from '@kaoto/kaoto/models';
 import { BridgeError } from '@kaoto/kaoto/host-bridge';
-import type { CatalogKind, FileTypesResponse, ISettingsModel, RuntimeMavenInformation, StepUpdateAction } from '@kaoto/kaoto/models';
+import type {
+	CatalogKind,
+	FileTypesResponse,
+	ISettingsModel,
+	RuntimeMavenInformation,
+	SendMessageRequest,
+	SendMessageRuntimeSnapshot,
+	StepUpdateAction,
+} from '@kaoto/kaoto/models';
 import { CanvasLayoutDirection, ColorScheme, FileTypes, NodeLabelType, NodeToolbarTrigger, SettingsModel } from '@kaoto/kaoto/models';
 import path from 'path'; // NOSONAR: webpack supplies path-browserify in the worker
 import * as vscode from 'vscode';
