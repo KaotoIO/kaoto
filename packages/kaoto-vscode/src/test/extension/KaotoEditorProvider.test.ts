@@ -528,6 +528,40 @@ suite('Native Kaoto text document provider', () => {
 		equal(await read(document.uri), 'saved');
 	});
 
+	test('saving while a host update is stalled completes within the save budget and preserves native text', async () => {
+		useShortDeadlines();
+		await open();
+		fixture.edit('initial', 1);
+		await eventually(() => document.getText() === 'initial' && document.isDirty);
+		ok(await document.save());
+
+		fixture.applying = () => new Promise<void>(() => {});
+		await editSource('native change while stalled');
+		const started = Date.now();
+		ok(await document.save());
+		ok(Date.now() - started < 1_500, 'The save exceeded the VS Code save participant timeout');
+		equal(await read(document.uri), 'native change while stalled');
+		equal(document.getText(), 'native change while stalled');
+	});
+
+	test('a save snapshot does not overwrite native text when host update was not applied', async () => {
+		useShortDeadlines();
+		await open();
+		fixture.edit('initial', 1);
+		await eventually(() => document.getText() === 'initial' && document.isDirty);
+		ok(await document.save());
+
+		fixture.applying = () => new Promise<void>(() => {});
+		await editSource('newer native');
+		// Wait for hostUpdate timeout to expire
+		await eventually(() => fixture.requests.some(({ reason }) => reason === 'hostUpdate'));
+		// Snapshot returns the old canvas content
+		fixture.getSnapshot = () => ({ content: 'initial', revision: 1 });
+		ok(await document.save());
+		equal(await read(document.uri), 'newer native');
+		equal(document.getText(), 'newer native');
+	});
+
 	test('closing the canvas keeps the unsaved source available for reopening', async () => {
 		await open();
 		fixture.edit('unsaved content', 1);
