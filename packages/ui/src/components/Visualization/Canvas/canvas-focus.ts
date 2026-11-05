@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useMemo, useRef } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
 import { CanvasDefaults } from './canvas.defaults';
 
@@ -21,6 +21,16 @@ export const CanvasFocusContext = createContext<CanvasFocusManager | undefined>(
 
 export const useCanvasFocusManager = (): CanvasFocusManager => {
   const pendingFocus = useRef(false);
+  useEffect(() => {
+    // A new focus destination supersedes the handoff, even if it is blurred or removed before restoration.
+    const cancelPendingFocus = () => {
+      pendingFocus.current = false;
+    };
+    document.addEventListener('focusin', cancelPendingFocus);
+    return () => {
+      document.removeEventListener('focusin', cancelPendingFocus);
+    };
+  }, []);
   return useMemo(
     () => ({
       request: () => {
