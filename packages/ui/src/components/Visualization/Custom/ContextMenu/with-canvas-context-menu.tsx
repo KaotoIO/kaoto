@@ -74,7 +74,8 @@ export const withCanvasContextMenu =
         const onKeyDown = (event: KeyboardEvent) => {
           if (event.target !== canvas || !((event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu'))
             return;
-          const surface = canvas.querySelector('.pf-topology-visualization-surface');
+          const surface =
+            canvas.querySelector('.pf-topology-visualization-surface') ?? canvas.querySelector('.pf-topology-content');
           const rect = (surface ?? canvas).getBoundingClientRect();
           onContextMenu({
             type: event.type,
