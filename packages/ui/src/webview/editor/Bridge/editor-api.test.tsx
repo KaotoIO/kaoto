@@ -6,7 +6,7 @@ import { BridgeError, IEventBus } from '../../../host-bridge/contracts';
 import { createEventBus } from '../../../host-bridge/event-bus';
 import { createMemoryTransports } from '../../../host-bridge/transports/memory';
 import { useSourceCodeStore } from '../../../store';
-import { bindEditorDocument, type SourceCodeBridgeProviderRef, useEditorApi } from './editor-api';
+import { bindEditorDocument, getFileNameFromUri, type SourceCodeBridgeProviderRef, useEditorApi } from './editor-api';
 
 describe('useEditorApi', () => {
   const mockSetCodeAndNotify = vi.fn();
@@ -126,6 +126,19 @@ describe('useEditorApi', () => {
   });
 });
 
+describe('getFileNameFromUri', () => {
+  it.each([
+    ['file:///home/u/projects/data.pipeline/routes/timer.camel.yaml', 'timer.camel.yaml'],
+    ['file:///Users/john.piper/timer.camel.yaml', 'timer.camel.yaml'],
+    ['file:///w/com.acme.integration/timer.camel.yaml', 'timer.camel.yaml'],
+    ['git:/w/routes/timer.camel.xml?%7B%22path%22%3A%22%2Fw%22%7D', 'timer.camel.xml'],
+    ['vscode-test-web:/route.camel.yaml#fragment', 'route.camel.yaml'],
+    ['route.camel.yaml', 'route.camel.yaml'],
+  ])('extracts the file name from %s', (uri, fileName) => {
+    expect(getFileNameFromUri(uri)).toBe(fileName);
+  });
+});
+
 describe('editor document binding', () => {
   let host: IEventBus;
   let editor: IEventBus;
@@ -161,6 +174,14 @@ describe('editor document binding', () => {
     binding?.dispose();
     host.dispose();
     editor.dispose();
+  });
+
+  it('sends only the file name to the editor, so ancestor folders do not affect the resource type', async () => {
+    await host.request('host:document:setContent', {
+      ...init,
+      fileUri: 'file:///home/u/projects/data.pipeline/routes/timer.camel.yaml',
+    });
+    expect(ref.current?.setContent).toHaveBeenCalledWith('timer.camel.yaml', '');
   });
 
   it('reports NOT_READY for a missing ref and for snapshots before init', async () => {

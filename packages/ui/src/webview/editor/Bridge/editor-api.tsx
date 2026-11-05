@@ -3,6 +3,20 @@ import { type RefObject, useCallback, useMemo, useRef } from 'react';
 import { BridgeError, IEventBus, SetContentRequest } from '../../../host-bridge/contracts';
 import { useSourceCodeStore } from '../../../store';
 
+/** Matches the start of the query or the fragment of a URI. */
+const URI_QUERY_OR_FRAGMENT = /[?#]/;
+
+/**
+ * Returns the file name of a document URI, without the query, the fragment or the parent folders.
+ * The resource type is detected from the path with substring matches, so folder names such as
+ * `data.pipeline` or `com.acme.integration`, or a `git:` URI query, must not take part in it.
+ */
+export const getFileNameFromUri = (uri: string): string => {
+  const end = uri.search(URI_QUERY_OR_FRAGMENT);
+  const withoutQuery = end === -1 ? uri : uri.slice(0, end);
+  return withoutQuery.slice(withoutQuery.lastIndexOf('/') + 1);
+};
+
 export interface SourceCodeBridgeProviderRef {
   setContent: (path: string, content: string) => Promise<void>;
   getContent: () => Promise<string>;
@@ -129,7 +143,7 @@ export function bindEditorDocument(
     if (signal.aborted) throw new BridgeError('CANCELLED', 'The document request was cancelled');
     applyingHostContent = true;
     try {
-      await api.setContent(request.fileUri, request.content);
+      await api.setContent(getFileNameFromUri(request.fileUri), request.content);
       requireApi(request.reason === 'init');
       lastContent = request.content;
       if (request.reason === 'init') {
