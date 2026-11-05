@@ -77,7 +77,6 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
       type="secret"
       description={schema.description}
       defaultValue={schema.default?.toString()}
-      errors={errors}
       isRaw={isRaw}
       onOpenSuggestions={openSuggestions}
     >
@@ -93,6 +92,8 @@ export const PasswordField: FunctionComponent<FieldProps> = ({ propName, require
             onChange={handlePasswordInputChange}
             aria-label={schema.title}
             aria-describedby={id}
+            invalid={!!errors}
+            invalidText={errors?.join(', ')}
             ref={inputRef}
             disabled={disabled}
           />
