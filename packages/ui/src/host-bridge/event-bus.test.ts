@@ -11,6 +11,7 @@ import {
   type KaotoRequests,
   type KaotoResponses,
   requestCatalog,
+  toJsonValue,
 } from './contracts';
 import { createEventBus } from './event-bus';
 
@@ -487,6 +488,37 @@ describe('plain JSON validation', () => {
     const value = Object.defineProperty({}, 'value', { enumerable: true, get: getter });
     expect(isJsonValue(value)).toBe(false);
     expect(getter).not.toHaveBeenCalled();
+  });
+});
+
+describe('toJsonValue', () => {
+  it('drops undefined properties like JSON serialization', () => {
+    const metadata = {
+      type: 'XML Schema',
+      filePath: ['Cart.xsd'],
+      rootElementChoice: undefined,
+      nested: { a: undefined },
+    };
+    const value = toJsonValue(metadata);
+    expect(value).toEqual({ type: 'XML Schema', filePath: ['Cart.xsd'], nested: {} });
+    expect('rootElementChoice' in (value as object)).toBe(false);
+    expect(isJsonValue(value)).toBe(true);
+  });
+
+  it.each([undefined, null])('maps %s to null', (value) => {
+    expect(toJsonValue(value)).toBeNull();
+  });
+
+  it.each([0, '', false, [1, 'a'], { a: null }])('keeps %j unchanged', (value) => {
+    expect(toJsonValue(value)).toEqual(value);
+  });
+
+  it('rejects data that cannot be serialized', () => {
+    const cyclic: Record<string, unknown> = {};
+    cyclic.self = cyclic;
+    for (const value of [cyclic, 1n, () => null, Symbol('value')]) {
+      expect(() => toJsonValue(value)).toThrow(expect.objectContaining({ code: 'INVALID_MESSAGE' }));
+    }
   });
 });
 

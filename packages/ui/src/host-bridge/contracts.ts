@@ -182,6 +182,21 @@ export function isJsonValue(value: unknown): value is JsonValue {
   }
 }
 
+/**
+ * Converts a value to the JSON it serializes to, so `undefined` properties (e.g. unset optional fields) are dropped
+ * instead of being rejected by {@link isJsonValue}. `undefined` and `null` become `null`.
+ */
+export function toJsonValue(value: unknown): JsonValue {
+  try {
+    const serialized = JSON.stringify(value ?? null);
+    // Functions and symbols serialize to `undefined`: they are not data
+    if (serialized !== undefined) return JSON.parse(serialized) as JsonValue;
+  } catch {
+    // Cycles and BigInt cannot be serialized
+  }
+  throw new BridgeError('INVALID_MESSAGE', 'Metadata must be JSON');
+}
+
 type Validator<T> = (value: unknown) => value is T;
 const string: Validator<string> = (value): value is string => typeof value === 'string';
 const boolean: Validator<boolean> = (value): value is boolean => typeof value === 'boolean';
