@@ -91,6 +91,11 @@ suite('Native Kaoto text document provider', () => {
 		await provider.resolveCustomTextEditor(document, fixture.panel, cancellation.token);
 		await fixture.connect();
 	}
+	/** Replaces the provider with one that gives up on an unresponsive canvas quickly. */
+	function useShortDeadlines() {
+		provider.dispose();
+		provider = new KaotoEditorProvider({ extensionUri: getExtensionUri() }, undefined, { saveSnapshotMs: 200, hostUpdateMs: 200 });
+	}
 	async function editSource(content: string, source = document) {
 		const edit = new vscode.WorkspaceEdit();
 		edit.replace(source.uri, new vscode.Range(source.positionAt(0), source.positionAt(source.getText().length)), content);
@@ -482,6 +487,45 @@ suite('Native Kaoto text document provider', () => {
 			finish.resolve();
 			await saving;
 		}
+	});
+
+	test('a canvas that never answers the save snapshot does not fail the save or block later work', async () => {
+		useShortDeadlines();
+		await open();
+		fixture.edit('A', 1);
+		await eventually(() => document.getText() === 'A' && document.isDirty);
+		fixture.getSnapshot = () => new Promise<ContentSnapshot>(() => {});
+		const started = Date.now();
+		ok(await document.save());
+		ok(Date.now() - started < 1_500, 'The save exceeded the VS Code save participant timeout');
+		equal(await read(document.uri), 'A');
+		equal(document.getText(), 'A');
+		ok(!document.isDirty);
+
+		fixture.getSnapshot = () => ({ ...fixture.content });
+		await editSource('B');
+		await eventually(() => fixture.content.content === 'B');
+		fixture.edit('C', 5);
+		await eventually(() => document.getText() === 'C' && document.isDirty);
+		ok(await document.save());
+		equal(await read(document.uri), 'C');
+	});
+
+	test('a canvas that never applies a host update does not block later edits or saves', async () => {
+		useShortDeadlines();
+		await open();
+		fixture.applying = () => {
+			fixture.applying = undefined;
+			return new Promise<void>(() => {});
+		};
+		await editSource('stalled');
+		await eventually(() => fixture.requests.some(({ reason }) => reason === 'hostUpdate'));
+		await editSource('after stall');
+		await eventually(() => fixture.content.content === 'after stall');
+		fixture.edit('saved', 5);
+		await eventually(() => document.getText() === 'saved' && document.isDirty);
+		ok(await document.save());
+		equal(await read(document.uri), 'saved');
 	});
 
 	test('closing the canvas keeps the unsaved source available for reopening', async () => {
