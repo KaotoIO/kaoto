@@ -45,7 +45,7 @@ export const useCanvasFocusRef = (isReady = true) => {
   const current = useRef<HTMLDivElement | null>(null);
   return useCallback(
     (node: HTMLDivElement | null) => {
-      if (!node && current.current === document.activeElement) focusManager?.request();
+      if (!node && current.current?.contains(document.activeElement)) focusManager?.request();
       current.current = node;
       if (node && isReady) focusManager?.restore(node);
     },
