@@ -2,7 +2,7 @@ import '../../styles/carbon-overrides.scss';
 import './KaotoEditor.scss';
 
 import { Code, Help, Http, WarningFilled } from '@carbon/icons-react';
-import { Icon, Tab, Tabs, TabsProps, TabTitleIcon, TabTitleText } from '@patternfly/react-core';
+import { Tab, Tabs, TabsProps, TabTitleIcon, TabTitleText } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { useContext, useMemo } from 'react';
 import { Link, Outlet, useLocation } from 'react-router';
@@ -102,9 +102,7 @@ export const KaotoEditorLayout = () => {
               title={
                 <>
                   <TabTitleIcon>
-                    <Icon>
-                      <img src={camelIcon} alt="Camel icon" />
-                    </Icon>
+                    <img className="shell-tab-icon" src={camelIcon} alt="Camel icon" />
                   </TabTitleIcon>
                   <TabTitleText>Design</TabTitleText>
                 </>
@@ -122,9 +120,7 @@ export const KaotoEditorLayout = () => {
               title={
                 <>
                   <TabTitleIcon>
-                    <Icon>
-                      <img src={bean} alt="Camel beans icon" />
-                    </Icon>
+                    <img className="shell-tab-icon" src={bean} alt="Camel beans icon" />
                   </TabTitleIcon>
                   <TabTitleText>Beans</TabTitleText>
                 </>
@@ -196,9 +192,7 @@ export const KaotoEditorLayout = () => {
               title={
                 <>
                   <TabTitleIcon>
-                    <Icon>
-                      <img src={icon_component_datamapper} alt="Kaoto DataMapper icon" />
-                    </Icon>
+                    <img className="shell-tab-icon" src={icon_component_datamapper} alt="Kaoto DataMapper icon" />
                   </TabTitleIcon>
                   <TabTitleText>DataMapper</TabTitleText>
                 </>

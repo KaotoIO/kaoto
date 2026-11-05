@@ -5,4 +5,12 @@
   &__text {
     width: 100%;
   }
+
+  &__error-icon {
+    color: var(--pf-t--global--icon--color--status--danger--default);
+  }
+
+  &__warning-icon {
+    color: var(--pf-t--global--icon--color--status--warning--default);
+  }
 }

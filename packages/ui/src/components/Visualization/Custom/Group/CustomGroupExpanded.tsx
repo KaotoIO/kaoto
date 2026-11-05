@@ -3,7 +3,6 @@ import './CustomGroupExpanded.scss';
 import { Error as ErrorIcon, WarningFilled } from '@carbon/icons-react';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { isDefined } from '@kaoto/forms';
-import { Icon } from '@patternfly/react-core';
 import {
   AnchorEnd,
   DragEvent,
@@ -341,9 +340,9 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
               height={25}
             >
               <FloatingCircle>
-                <Icon status="danger" className="custom-group__warning-icon" title={validationText}>
+                <span className="custom-group__warning-icon" title={validationText}>
                   <WarningFilled />
-                </Icon>
+                </span>
               </FloatingCircle>
             </foreignObject>
           )}

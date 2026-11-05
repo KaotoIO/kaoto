@@ -1,7 +1,8 @@
 import './BaseNode.scss';
 
 import { At, ChevronDown, ChevronRight, Choices, DocumentComment, Draggable, Layers } from '@carbon/icons-react';
-import { Button, Icon, Label, Tooltip } from '@patternfly/react-core';
+import { Button, Label, Tooltip } from '@patternfly/react-core';
+import clsx from 'clsx';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
 import { IDataTestID } from '../../../models';
@@ -171,22 +172,20 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
         </Label>
       )}
       {isAbstractField && (
-        <Icon
-          className="node__spacer"
-          status={isSelectedAbstract ? 'success' : undefined}
+        <span
+          className={clsx('node__spacer', { 'node__icon--success': isSelectedAbstract })}
           data-testid="abstract-field-icon"
         >
           <Choices />
-        </Icon>
+        </span>
       )}
       {(isAbstractWrapperMember || isChoiceWrapperMember) && (
-        <Icon
-          className="node__spacer"
-          status={field?.wrapperKind ? undefined : 'success'}
+        <span
+          className={clsx('node__spacer', { 'node__icon--success': !field?.wrapperKind })}
           data-testid={field?.wrapperKind ? 'abstract-field-icon' : 'wrapper-member-icon'}
         >
           <Choices />
-        </Icon>
+        </span>
       )}
       <FieldIcon className="node__spacer node__icon--no-popover" type={iconType} />
 

@@ -225,6 +225,11 @@
     text-align: center;
   }
 
+  &__warning-icon {
+    display: inline-flex;
+    color: var(--pf-t--global--icon--color--status--danger--default);
+  }
+
   &__warning-icon--floating {
     border-radius: 15px;
 
