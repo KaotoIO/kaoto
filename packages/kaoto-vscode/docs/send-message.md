@@ -1,5 +1,19 @@
 # Send a test message
 
+Before starting the integration, give the route an explicit `route.id` and save the file. For example:
+
+```yaml
+- route:
+    id: send-message-test
+    from:
+      uri: direct:send-message-test
+      steps:
+        - log:
+            message: 'Received: ${body}'
+```
+
+Kaoto does not automatically save the file when launching an integration. Send Message matches the saved file path and route ID against the running deployment. Without a saved ID, Camel can assign a runtime ID different from the one generated in the editor; the Deployments view can then show a started route while Send Message remains disabled. If the integration was started without the saved ID, add the ID, save the file, and restart the integration. Saving alone does not reliably update the identity of an already-running route.
+
 Start your integration using Kaoto and wait until the route appears as **Started** in the Deployments view. At the route's first node, choose **Send test message**. A disabled button with the tooltip **Start this route to send a test message** means that no matching started local deployment is available.
 
 Compose a text or file payload and headers in the dialog, then select **Send**. With one matching instance, the target is selected automatically. If the same route is running in multiple instances, select the target runtime explicitly; its name and PID identify it. Sending to an intermediate processor is not supported.

@@ -28,24 +28,6 @@ describe('SendMessageModal', () => {
     );
   };
 
-  it('requires an explicit target when multiple started instances match', async () => {
-    const onSend = vi.fn().mockResolvedValue(undefined);
-    renderWithProvider({
-      endpoint: 'orders',
-      onSend,
-      targets: [
-        { id: 'one', routeId: 'orders', label: 'orders', pid: 1, state: 'Started' },
-        { id: 'two', routeId: 'orders', label: 'orders', pid: 2, state: 'Started' },
-      ],
-    });
-    expect(screen.getByTestId('send-message-submit-btn')).toBeDisabled();
-    fireEvent.change(screen.getByLabelText('Target runtime'), { target: { value: 'two' } });
-    fireEvent.click(screen.getByTestId('send-message-submit-btn'));
-    await waitFor(() => {
-      expect(onSend).toHaveBeenCalledWith(expect.objectContaining({ endpoint: 'orders' }), 'two');
-    });
-  });
-
   const mockCatalog = {
     getAll: vi.fn(),
     get: vi.fn(),
@@ -144,6 +126,24 @@ describe('SendMessageModal', () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     DynamicCatalogRegistry.get().clearRegistry();
+  });
+
+  it('requires an explicit target when multiple started instances match', async () => {
+    const onSend = vi.fn().mockResolvedValue(undefined);
+    renderWithProvider({
+      endpoint: 'orders',
+      onSend,
+      targets: [
+        { id: 'one', routeId: 'orders', label: 'orders', pid: 1, state: 'Started' },
+        { id: 'two', routeId: 'orders', label: 'orders', pid: 2, state: 'Started' },
+      ],
+    });
+    expect(screen.getByTestId('send-message-submit-btn')).toBeDisabled();
+    fireEvent.change(screen.getByLabelText('Target runtime'), { target: { value: 'two' } });
+    fireEvent.click(screen.getByTestId('send-message-submit-btn'));
+    await waitFor(() => {
+      expect(onSend).toHaveBeenCalledWith(expect.objectContaining({ endpoint: 'orders' }), 'two');
+    });
   });
 
   it('renders modal with title and initial values', () => {
