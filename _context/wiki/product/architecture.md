@@ -81,7 +81,7 @@ Anything exported from `packages/ui/src/public-api.ts` and `packages/ui/src/mode
 | Testing API         | `packages/ui/src/testing-api.ts`                                     | Test helpers shared with `packages/ui-tests/`                                             |
 | VS Code IPC bridge  | `packages/ui/src/host-bridge/` and `packages/ui/src/webview/editor/` | VS Code extension — uses the native host bridge (`IEventBus`) for bidirectional messaging |
 
-The VS Code webview editor (`KaotoEditor` in `packages/ui/src/webview/editor/`) communicates with the extension host via the host bridge (`packages/ui/src/host-bridge/`). The bridge uses an `IEventBus` over an `iframe`-compatible transport; there is no Kogito / KIE channel API dependency. Changes to this layer require corresponding changes in `packages/kaoto-vscode/`.
+The VS Code webview editor (`KaotoEditor` in `packages/ui/src/webview/editor/`) communicates with the extension host via the host bridge (`packages/ui/src/host-bridge/`). The bridge uses `IEventBus` with transport obtained through `window.__kaotoHost` (backed by `acquireVsCodeApi().postMessage()` in the webview host shim and `webview.postMessage()` on the extension side); there is no Kogito / KIE channel API dependency. Changes to this layer require corresponding changes in `packages/kaoto-vscode/`.
 
 ---
 
