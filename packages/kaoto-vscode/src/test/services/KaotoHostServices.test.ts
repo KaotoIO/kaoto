@@ -363,3 +363,26 @@ async function write(uri: vscode.Uri, content: string): Promise<void> {
 async function read(uri: vscode.Uri): Promise<string> {
 	return new TextDecoder().decode(await vscode.workspace.fs.readFile(uri));
 }
+
+suite('Send message host document scope', () => {
+	test('binds delivery to the host-owned URI and propagates failures', async () => {
+		const uri = vscode.Uri.file('/project/orders.camel.yaml');
+		const request = { targetId: 'runtime', routeId: 'orders', payload: { endpoint: 'ignored', body: 'hello' } };
+		const services = new KaotoHostServices(uri, {
+			sendMessage: async (actualUri, actualRequest) => {
+				equal(actualUri, uri);
+				deepStrictEqual(actualRequest, request);
+				throw new Error('runtime stopped');
+			},
+		});
+		await rejects(services.sendMessage(request), /runtime stopped/);
+		services.dispose();
+		await rejects(services.sendMessage(request), /disposed/);
+	});
+	test('reports missing desktop integration as unsupported', async () => {
+		const services = new KaotoHostServices(vscode.Uri.file('/project/orders.yaml'));
+		deepStrictEqual(await services.getSendMessageTargets(), { supported: false, targets: [] });
+		await rejects(services.sendMessage({ targetId: 'x', routeId: 'r', payload: { endpoint: 'r' } }), /not supported/);
+		services.dispose();
+	});
+});
