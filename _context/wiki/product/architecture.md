@@ -15,15 +15,15 @@ Non-obvious design decisions, state ownership rules, key invariants, and public 
 
 Understanding which layer owns what state prevents accidental duplication or bypassing of the source of truth.
 
-| State | Owner | Notes |
-|-------|-------|-------|
-| Loaded Camel YAML content (raw) | `KaotoResourceProvider` (`providers/kaoto-resource.provider.tsx`) | Single source of truth for the file on disk. All other state is derived from this. |
-| Parsed flows / visual entities | `EntitiesProvider` (`providers/entities.provider.tsx`) | Derives its list of `BaseVisualEntity` objects from `KaotoResourceProvider`. Mutating a visual entity must always trigger a re-serialisation back through this provider. |
-| Which flows are shown | `VisibleFlowsProvider` (`providers/visible-flows.provider.tsx`) | Controls the `visibleFlows` set. Does **not** own flow data — only visibility. |
-| Component catalog / schemas | `SchemasProvider` (`providers/schemas.provider.tsx`) | Loads and caches JSON schemas from the generated Camel catalog. Never duplicated in component state. |
-| Settings | `SettingsProvider` (`providers/settings.provider.tsx`) | User preferences (label style, appearance). Persisted via localStorage. |
-| DataMapper mapping state | `DataMapperProvider` (`providers/datamapper.provider.tsx`) | Owns the source/target schema trees and the mapping definition. Separate from route-flow state. |
-| Drag-and-drop within DataMapper | `DataMapperDndProvider` (`providers/datamapper-dnd.provider.tsx`) | Transient drag state only — does not own mapping data. |
+| State                           | Owner                                                             | Notes                                                                                                                                                                    |
+| ------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Loaded Camel YAML content (raw) | `KaotoResourceProvider` (`providers/kaoto-resource.provider.tsx`) | Single source of truth for the file on disk. All other state is derived from this.                                                                                       |
+| Parsed flows / visual entities  | `EntitiesProvider` (`providers/entities.provider.tsx`)            | Derives its list of `BaseVisualEntity` objects from `KaotoResourceProvider`. Mutating a visual entity must always trigger a re-serialisation back through this provider. |
+| Which flows are shown           | `VisibleFlowsProvider` (`providers/visible-flows.provider.tsx`)   | Controls the `visibleFlows` set. Does **not** own flow data — only visibility.                                                                                           |
+| Component catalog / schemas     | `SchemasProvider` (`providers/schemas.provider.tsx`)              | Loads and caches JSON schemas from the generated Camel catalog. Never duplicated in component state.                                                                     |
+| Settings                        | `SettingsProvider` (`providers/settings.provider.tsx`)            | User preferences (label style, appearance). Persisted via localStorage.                                                                                                  |
+| DataMapper mapping state        | `DataMapperProvider` (`providers/datamapper.provider.tsx`)        | Owns the source/target schema trees and the mapping definition. Separate from route-flow state.                                                                          |
+| Drag-and-drop within DataMapper | `DataMapperDndProvider` (`providers/datamapper-dnd.provider.tsx`) | Transient drag state only — does not own mapping data.                                                                                                                   |
 
 **Rule**: Always read and write through the owning provider. Never reach into a sibling provider's state directly from a component.
 
@@ -53,6 +53,7 @@ Every canvas edit is immediately serialised back to the active source DSL. The s
 ### 3. DSL-agnostic generic layer
 
 `IVisualizationNode` and `CanvasNode` must remain DSL-agnostic. Camel-specific logic belongs in:
+
 - `AbstractCamelVisualEntity` and its subclasses (flow-level)
 - `CamelProcessorStepsProperties` and the node-mapper utilities (node-level)
 
@@ -72,15 +73,15 @@ Anything exported from `packages/ui/src/public-api.ts` and `packages/ui/src/mode
 
 ## Public interface boundaries
 
-| Boundary | File | Consumed by |
-|----------|------|-------------|
-| Full public API | `packages/ui/src/public-api.ts` | VS Code extension, external embedders |
-| Components-only API | `packages/ui/src/components-api.ts` | `RouteVisualization` standalone component users |
-| Models API | `packages/ui/src/models-api.ts` | Downstream TypeScript consumers needing type definitions |
-| Testing API | `packages/ui/src/testing-api.ts` | Test helpers shared with `packages/ui-tests/` |
-| VS Code IPC bridge | `packages/ui/src/multiplying-architecture/` | VS Code extension — uses `KaotoEditorChannelApi` for bidirectional messaging |
+| Boundary            | File                                                                 | Consumed by                                                                               |
+| ------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Full public API     | `packages/ui/src/public-api.ts`                                      | VS Code extension, external embedders                                                     |
+| Components-only API | `packages/ui/src/components-api.ts`                                  | `RouteVisualization` standalone component users                                           |
+| Models API          | `packages/ui/src/models-api.ts`                                      | Downstream TypeScript consumers needing type definitions                                  |
+| Testing API         | `packages/ui/src/testing-api.ts`                                     | Test helpers shared with `packages/ui-tests/`                                             |
+| VS Code IPC bridge  | `packages/ui/src/host-bridge/` and `packages/ui/src/webview/editor/` | VS Code extension — uses the native host bridge (`IEventBus`) for bidirectional messaging |
 
-The multiplying-architecture bridge (`KaotoEditor`, `KaotoEditorFactory`, `KaotoEditorChannelApi`) implements the [Kogito channel API pattern](https://github.com/kiegroup/kogito-tooling) for VS Code webview communication. Changes to this layer require corresponding changes in `packages/kaoto-vscode/`.
+The VS Code webview editor (`KaotoEditor` in `packages/ui/src/webview/editor/`) communicates with the extension host via the host bridge (`packages/ui/src/host-bridge/`). The bridge uses an `IEventBus` over an `iframe`-compatible transport; there is no Kogito / KIE channel API dependency. Changes to this layer require corresponding changes in `packages/kaoto-vscode/`.
 
 ---
 
