@@ -435,4 +435,52 @@ ${elements}
       expect(nsErrors.some((e) => e.message.includes('xs:import'))).toBe(true);
     });
   });
+
+  describe('getReachableFiles()', () => {
+    it('should return only the entry file if no edges exist', () => {
+      const reachable = XmlSchemaAnalysisService.getReachableFiles('Main.xsd', []);
+      expect(reachable).toEqual(new Set(['Main.xsd']));
+    });
+
+    it('should traverse includes and imports transitively', () => {
+      const edges = [
+        {
+          from: 'Main.xsd',
+          to: 'Included.xsd',
+          directive: { type: 'include' as const, schemaLocation: 'Included.xsd', namespace: null },
+        },
+        {
+          from: 'Included.xsd',
+          to: 'Imported.xsd',
+          directive: { type: 'import' as const, schemaLocation: 'Imported.xsd', namespace: 'http://example.com/ns' },
+        },
+        {
+          from: 'Unrelated.xsd',
+          to: 'Other.xsd',
+          directive: { type: 'include' as const, schemaLocation: 'Other.xsd', namespace: null },
+        },
+      ];
+
+      const reachable = XmlSchemaAnalysisService.getReachableFiles('Main.xsd', edges);
+      expect(reachable).toEqual(new Set(['Main.xsd', 'Included.xsd', 'Imported.xsd']));
+    });
+
+    it('should handle circular dependencies without infinite loop', () => {
+      const edges = [
+        {
+          from: 'A.xsd',
+          to: 'B.xsd',
+          directive: { type: 'include' as const, schemaLocation: 'B.xsd', namespace: null },
+        },
+        {
+          from: 'B.xsd',
+          to: 'A.xsd',
+          directive: { type: 'include' as const, schemaLocation: 'A.xsd', namespace: null },
+        },
+      ];
+
+      const reachable = XmlSchemaAnalysisService.getReachableFiles('A.xsd', edges);
+      expect(reachable).toEqual(new Set(['A.xsd', 'B.xsd']));
+    });
+  });
 });

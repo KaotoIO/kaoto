@@ -866,10 +866,12 @@ describe('XmlSchemaDocumentUtilService', () => {
       expect(options).toContainEqual({
         namespaceUri: 'kaoto.datamapper.test',
         name: 'account',
+        entrySchemaFile: 'account-ns.xsd',
       });
       expect(options).toContainEqual({
         namespaceUri: 'kaoto.datamapper.test.alternate',
         name: 'account',
+        entrySchemaFile: 'account-ns2.xsd',
       });
     });
 
@@ -893,10 +895,12 @@ describe('XmlSchemaDocumentUtilService', () => {
       expect(options).toContainEqual({
         namespaceUri: '',
         name: 'account',
+        entrySchemaFile: 'account-lc.xsd',
       });
       expect(options).toContainEqual({
         namespaceUri: 'kaoto.datamapper.test',
         name: 'account',
+        entrySchemaFile: 'account-ns.xsd',
       });
     });
 
@@ -919,14 +923,17 @@ describe('XmlSchemaDocumentUtilService', () => {
       expect(options).toContainEqual({
         namespaceUri: 'io.kaoto.datamapper.test.multiple',
         name: 'Order',
+        entrySchemaFile: 'MultipleElements.xsd',
       });
       expect(options).toContainEqual({
         namespaceUri: 'io.kaoto.datamapper.test.multiple',
         name: 'Invoice',
+        entrySchemaFile: 'MultipleElements.xsd',
       });
       expect(options).toContainEqual({
         namespaceUri: 'io.kaoto.datamapper.test.multiple',
         name: 'Shipment',
+        entrySchemaFile: 'MultipleElements.xsd',
       });
     });
   });

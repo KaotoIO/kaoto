@@ -415,6 +415,7 @@ export class DocumentDefinition {
     public fieldTypeOverrides?: IFieldTypeOverride[],
     public choiceSelections?: IChoiceSelection[],
     public fieldSubstitutions?: IFieldSubstitution[],
+    public entrySchemaFile?: string,
   ) {
     if (!definitionFiles) this.definitionFiles = {};
   }
@@ -448,6 +449,7 @@ export class DocumentInitializationModel {
 export type RootElementOption = {
   namespaceUri: string;
   name: string;
+  entrySchemaFile?: string;
 };
 
 /**

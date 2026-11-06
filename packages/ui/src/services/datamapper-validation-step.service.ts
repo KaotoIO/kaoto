@@ -84,7 +84,7 @@ export class DataMapperValidationStepService {
         return;
     }
 
-    const resourceUri = targetMetadata.filePath?.[0];
+    const resourceUri = targetMetadata.entrySchemaFile ?? targetMetadata.filePath?.[0];
     if (!resourceUri) {
       return;
     }
@@ -148,7 +148,7 @@ export class DataMapperValidationStepService {
       return;
     }
 
-    const resourceUri = targetMetadata.filePath?.[0];
+    const resourceUri = targetMetadata.entrySchemaFile ?? targetMetadata.filePath?.[0];
     if (!resourceUri) {
       return;
     }

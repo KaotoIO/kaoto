@@ -4,6 +4,7 @@ import {
   DocumentDefinitionType,
   DocumentInitializationModel,
   DocumentType,
+  RootElementOption,
 } from '../models/datamapper';
 import {
   IChoiceSelection,
@@ -128,6 +129,34 @@ export class DataMapperMetadataService {
     });
   }
 
+  /**
+   * Infers the entry schema file for legacy metadata by inspecting which schema file declares
+   * the specified root element. Falls back to undefined if not found.
+   */
+  static inferEntrySchemaFile(
+    definitionFiles: Record<string, string>,
+    rootElementChoice?: RootElementOption,
+  ): string | undefined {
+    if (!rootElementChoice?.name) return undefined;
+    for (const [filePath, content] of Object.entries(definitionFiles)) {
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(content, 'text/xml');
+        const targetNs = doc.documentElement?.getAttribute('targetNamespace') ?? '';
+        if (targetNs === (rootElementChoice.namespaceUri ?? '')) {
+          for (const child of Array.from(doc.documentElement?.children ?? [])) {
+            if (child.localName === 'element' && child.getAttribute('name') === rootElementChoice.name) {
+              return filePath;
+            }
+          }
+        }
+      } catch {
+        // Ignore parse errors and continue
+      }
+    }
+    return undefined;
+  }
+
   private static doLoadDocument(
     api: IMetadataApi,
     documentType: DocumentType,
@@ -150,6 +179,23 @@ export class DataMapperMetadataService {
           )
         : [];
       void Promise.allSettled(fileReadingPromises).then(() => {
+        let entrySchemaFile = documentMetadata.entrySchemaFile;
+        if (
+          !entrySchemaFile &&
+          definitionType === DocumentDefinitionType.XML_SCHEMA &&
+          documentMetadata.filePath &&
+          documentMetadata.filePath.length > 0
+        ) {
+          entrySchemaFile = documentMetadata.rootElementChoice?.entrySchemaFile;
+          if (!entrySchemaFile && documentMetadata.rootElementChoice) {
+            entrySchemaFile =
+              DataMapperMetadataService.inferEntrySchemaFile(definitionFiles, documentMetadata.rootElementChoice) ??
+              documentMetadata.filePath[0];
+          } else if (!entrySchemaFile) {
+            entrySchemaFile = documentMetadata.filePath[0];
+          }
+        }
+
         const answer = new DocumentDefinition(
           documentType,
           definitionType,
@@ -159,6 +205,7 @@ export class DataMapperMetadataService {
           documentMetadata.fieldTypeOverrides,
           documentMetadata.choiceSelections,
           documentMetadata.fieldSubstitutions,
+          entrySchemaFile,
         );
         resolve(answer);
       });
@@ -217,6 +264,7 @@ export class DataMapperMetadataService {
     const answer: IDocumentMetadata = {
       type: definition.definitionType,
       filePath: filePaths,
+      entrySchemaFile: definition.entrySchemaFile,
       rootElementChoice: definition.rootElementChoice,
       fieldTypeOverrides: definition.fieldTypeOverrides,
       choiceSelections: definition.choiceSelections,

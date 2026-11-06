@@ -77,9 +77,13 @@ describe('DocumentService', () => {
       expect(result.rootElementOptions?.length).toBe(3);
 
       expect(result.rootElementOptions).toEqual([
-        { name: 'Order', namespaceUri: 'io.kaoto.datamapper.test.multiple' },
-        { name: 'Invoice', namespaceUri: 'io.kaoto.datamapper.test.multiple' },
-        { name: 'Shipment', namespaceUri: 'io.kaoto.datamapper.test.multiple' },
+        { name: 'Order', namespaceUri: 'io.kaoto.datamapper.test.multiple', entrySchemaFile: 'MultipleElements.xsd' },
+        { name: 'Invoice', namespaceUri: 'io.kaoto.datamapper.test.multiple', entrySchemaFile: 'MultipleElements.xsd' },
+        {
+          name: 'Shipment',
+          namespaceUri: 'io.kaoto.datamapper.test.multiple',
+          entrySchemaFile: 'MultipleElements.xsd',
+        },
       ]);
     });
 

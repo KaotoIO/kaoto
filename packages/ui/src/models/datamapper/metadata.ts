@@ -80,6 +80,12 @@ export interface IDocumentMetadata {
   filePath: string[];
 
   /**
+   * For XML Schema documents, the entry point schema file from which root element resolution
+   * and reachable schema assembly begin.
+   */
+  entrySchemaFile?: string;
+
+  /**
    * If the document is XML, this represents the selected root element of XML schema
    * document with multiple root elements. When an XML schema has multiple top-level
    * elements, this specifies which one to use as a root element.

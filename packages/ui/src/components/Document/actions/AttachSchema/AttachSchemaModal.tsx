@@ -162,8 +162,15 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
   const selectedRootOption: RootElementOption | undefined = useMemo(() => {
     const rootQName = DocumentService.getRootElementQName(createDocumentResult?.document);
     if (!rootQName || !createDocumentResult?.rootElementOptions) return undefined;
-    return createDocumentResult.rootElementOptions.find(
-      (opt) => opt.name === rootQName.getLocalPart() && opt.namespaceUri === (rootQName.getNamespaceURI() || ''),
+    const entrySchemaFile = createDocumentResult.document?.definition?.entrySchemaFile;
+    const name = rootQName.getLocalPart();
+    const namespaceUri = rootQName.getNamespaceURI() || '';
+    const options = createDocumentResult.rootElementOptions;
+    // Prefer the option whose entrySchemaFile matches the document's current entry schema.
+    return (
+      options.find(
+        (opt) => opt.name === name && opt.namespaceUri === namespaceUri && opt.entrySchemaFile === entrySchemaFile,
+      ) ?? options.find((opt) => opt.name === name && opt.namespaceUri === namespaceUri)
     );
   }, [createDocumentResult]);
 
@@ -309,6 +316,7 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
                 rootElementOptions={createDocumentResult!.rootElementOptions!}
                 selectedOption={selectedRootOption}
                 onChange={onUpdateRootElement}
+                documentEntrySchemaFile={createDocumentResult!.document?.definition?.entrySchemaFile}
               />
             </StackItem>
           )}

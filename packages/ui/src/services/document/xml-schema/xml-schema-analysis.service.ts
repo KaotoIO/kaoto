@@ -1,19 +1,19 @@
 import { ReportMessage, SchemaAnalysisReport } from '../../../models/datamapper/schema';
 import { PathUtil } from '../../path-util';
 
-interface SchemaDirective {
+export interface SchemaDirective {
   type: 'include' | 'import';
   schemaLocation: string;
   namespace: string | null;
 }
 
-interface SchemaFileInfo {
+export interface SchemaFileInfo {
   filePath: string;
   targetNamespace: string | null;
   directives: SchemaDirective[];
 }
 
-interface DependencyEdge {
+export interface DependencyEdge {
   from: string;
   to: string;
   directive: SchemaDirective;
@@ -90,6 +90,38 @@ export class XmlSchemaAnalysisService {
     const loadOrder = XmlSchemaAnalysisService.topologicalSort(Object.keys(definitionFiles), edges);
 
     return { fileInfos, edges, errors, warnings, loadOrder };
+  }
+
+  /**
+   * Computes the set of schema file paths reachable from the entry schema file
+   * by following dependency edges (xs:include, xs:import, etc.).
+   *
+   * @param entryFilePath The entry schema file path
+   * @param edges Dependency edges parsed during schema analysis
+   * @returns Set containing the entry file and all reachable file paths
+   */
+  static getReachableFiles(entryFilePath: string, edges: DependencyEdge[]): Set<string> {
+    const reachable = new Set<string>([entryFilePath]);
+    const adjacencyMap = new Map<string, string[]>();
+
+    for (const edge of edges) {
+      const list = adjacencyMap.get(edge.from) ?? [];
+      list.push(edge.to);
+      adjacencyMap.set(edge.from, list);
+    }
+
+    const queue: string[] = [entryFilePath];
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      for (const neighbor of adjacencyMap.get(current) ?? []) {
+        if (!reachable.has(neighbor)) {
+          reachable.add(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+
+    return reachable;
   }
 
   private static parseSchemaFileInfo(
