@@ -1,12 +1,11 @@
 import { IField } from '../../models/datamapper/document';
+import { IWrapperCandidateChild } from '../../models/datamapper/field-action';
 import { FieldItem, InstructionItem } from '../../models/datamapper/mapping';
 import { IFieldSubstituteInfo } from '../../models/datamapper/types';
 import { TargetFieldNodeData, TargetNodeData } from '../../models/datamapper/visualization';
 import { FieldOverrideService } from '../document/field-override.service';
 import { MappingService } from '../mapping/mapping.service';
 import { MappingActionService } from './mapping-action.service';
-
-const MAX_CHILDREN_PREVIEW = 3;
 
 /**
  * Shared base for {@link AbstractFieldService}, {@link ChoiceFieldService},
@@ -18,10 +17,10 @@ export class WrapperBaseService {
   protected static readonly INLINE_SUBSTITUTION_LIMIT = 10;
   protected static readonly INLINE_CHOICE_LIMIT = 10;
 
-  protected static formatChildrenPreview(field: IField): string[] | undefined {
+  protected static formatChildren(field: IField): IWrapperCandidateChild[] | undefined {
     const children = field.fields;
     if (!children || children.length === 0) return undefined;
-    return children.slice(0, MAX_CHILDREN_PREVIEW).map((c) => c.displayName || c.name);
+    return children.map((c) => ({ name: c.displayName || c.name, type: c.type }));
   }
 
   /** Matches by localPart + namespaceURI, not by field identity — substitution candidates are separate field instances. */

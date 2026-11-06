@@ -116,7 +116,7 @@ describe('ChoiceFieldService', () => {
       expect(result.label).toBe('fallbackName');
     });
 
-    it('should populate childrenPreview from first 3 children', () => {
+    it('should populate children with all direct children and their types', () => {
       const children = [
         mockField({ displayName: 'A', name: 'a' }),
         mockField({ displayName: 'B', name: 'b' }),
@@ -128,15 +128,16 @@ describe('ChoiceFieldService', () => {
 
       const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
 
-      expect(result.childrenPreview).toEqual(['A', 'B', 'C']);
+      expect(result.children?.map((c) => c.name)).toEqual(['A', 'B', 'C', 'D', 'E']);
+      expect(result.children?.[0].type).toBe(children[0].type);
     });
 
-    it('should return undefined childrenPreview for field with no children', () => {
+    it('should return undefined children for field with no children', () => {
       const field = mockField({ fields: [] });
 
       const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
 
-      expect(result.childrenPreview).toBeUndefined();
+      expect(result.children).toBeUndefined();
     });
 
     it('should use getChoiceMemberLabel for sequence wrapper fields', () => {
@@ -202,7 +203,7 @@ describe('ChoiceFieldService', () => {
           selection: { memberIndex: 0 },
         }),
       );
-      expect(result[0].childrenPreview).toEqual(['key', 'value']);
+      expect(result[0].children?.map((c) => c.name)).toEqual(['key', 'value']);
     });
 
     it('should pass through normal members via fieldToCandidate', () => {
@@ -255,7 +256,7 @@ describe('ChoiceFieldService', () => {
       });
       const result = ChoiceFieldService.dissolveChoiceMembers([member], namespaceMap);
 
-      expect(result[0].childrenPreview).toEqual(['Street', 'City']);
+      expect(result[0].children?.map((c) => c.name)).toEqual(['Street', 'City']);
     });
 
     it('should handle empty members list', () => {
