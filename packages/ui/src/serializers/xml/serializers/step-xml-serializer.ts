@@ -109,7 +109,7 @@ export class StepXmlSerializer {
         const childElement = await this.serialize(key, value as ElementType, doc, routeParent);
         element.appendChild(childElement);
       } else {
-        element.setAttribute(key, String(value));
+        element.setAttribute(key, String(value as AttributeValue));
       }
     }
   }
