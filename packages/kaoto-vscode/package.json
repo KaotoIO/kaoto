@@ -34,6 +34,7 @@
     "compare-versions": "^6.1.1",
     "get-port-please": "^3.2.0",
     "valid-filename": "5.0.0",
+    "vscode-languageclient": "^10.0.0",
     "wait-on": "^9.1.0",
     "yaml": "^2.9.0"
   },
@@ -1369,6 +1370,26 @@
             "tags": [
               "experimental"
             ]
+          }
+        }
+      },
+      {
+        "id": "languageServer",
+        "title": "Language Server",
+        "properties": {
+          "kaoto.lsp.enabled": {
+            "type": "boolean",
+            "default": true,
+            "markdownDescription": "Enable Camel Language Server for source code features (completion, validation, hover). Requires Java 17+ on the system PATH or JAVA_HOME. The server starts when a Camel route, Kamelet or application properties file is opened, and is downloaded from Maven Central the first time.",
+            "scope": "window",
+            "order": 0
+          },
+          "kaoto.lsp.serverJarPath": {
+            "type": "string",
+            "default": "",
+            "markdownDescription": "Path to a Camel Language Server JAR to run instead of the one that Kaoto downloads, for example a local build. Leave empty to use the downloaded JAR.",
+            "scope": "machine",
+            "order": 1
           }
         }
       }

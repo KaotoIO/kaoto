@@ -7,3 +7,4 @@ export * from './views';
 export * from './context-keys';
 export * from './global-state-keys';
 export * from './trusted-urls';
+export * from './lsp-settings';
