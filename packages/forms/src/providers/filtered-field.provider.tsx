@@ -13,7 +13,7 @@ export const FilteredFieldContext = createContext<FilteredFieldContextResult>({
 });
 
 /**
- * Used for fetching and injecting the filtered text from the canvas form
+ * Holds the filter text. Mounted by `KaotoForm`, also exported for field-level tests and consumers
  */
 export const FilteredFieldProvider: FunctionComponent<PropsWithChildren> = (props) => {
   const [searchTerm, setSearchTerm] = useDebounceValue('', 500, { trailing: true });

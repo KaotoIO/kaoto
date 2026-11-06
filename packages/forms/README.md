@@ -91,7 +91,13 @@ export const MyForm = () => {
 | `disabled`            | `boolean`                                                             | Disables all the form fields.                                                                                                               |
 | `withLayer`           | `boolean`                                                             | Wraps the form in a Carbon `<Layer>` when no ancestor provides one, so the inputs don't blend with the page background. Defaults to `true`. |
 | `customFieldsFactory` | `(schema: JSONSchema4) => FunctionComponent<FieldProps> \| undefined` | Overrides the field selection. Return a custom field component for a given schema, or `undefined` to use the default one.                   |
+| `showFilterField`     | `boolean`                                                             | Renders a field filter input on top of the form. Defaults to `false`.                                                                       |
+| `showSectionTabs`     | `boolean`                                                             | Renders the `Required` / `All` / `Modified` section tabs switcher on top of the form. Defaults to `false`.                                  |
+| `defaultSectionTab`   | `'Required' \| 'All' \| 'Modified'`                                   | The section tab selected on mount. Defaults to `All`.                                                                                       |
+| `children`            | `ReactNode`                                                           | Extra content rendered right below the filter field and section tabs, above the fields. It sits inside the form providers and `<Layer>`.    |
 | `data-testid`         | `string`                                                              | Test id set on the form element.                                                                                                            |
+
+The form owns its tab and filter state and ignores any provider rendered above it. `defaultSectionTab` is applied even when the switcher is hidden (`showSectionTabs` is `false`) and is read only on mount.
 
 ## Validating the form
 
