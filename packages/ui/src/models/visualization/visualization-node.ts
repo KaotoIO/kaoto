@@ -138,9 +138,11 @@ class VisualizationNode<T extends IVisualizationNodeData = IVisualizationNodeDat
     return this.getBaseEntity()?.getOmitFormFields() ?? [];
   }
 
-  updateModel(value: unknown): void {
-    this.getBaseEntity()?.updateModel(this.data.path, value);
+  updateModel(value: unknown): boolean {
+    const entity = this.getBaseEntity();
+    const rebuild = entity?.updateModel(this.data.path, value) ?? false;
     this.lastUpdate = Date.now();
+    return rebuild;
   }
 
   /** Replace the endpoint processor while retaining its definition and node identity. */

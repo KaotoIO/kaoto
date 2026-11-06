@@ -39,8 +39,12 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
 
       const newModel = modelRef.current ?? {};
       setValue(newModel, path, updatedValue);
-      vizNode.updateModel(newModel);
-      entitiesContext?.updateSourceCodeFromEntities();
+      const needsRebuild = vizNode.updateModel(newModel);
+      if (needsRebuild) {
+        entitiesContext?.updateEntitiesFromCamelResource();
+      } else {
+        entitiesContext?.updateSourceCodeFromEntities();
+      }
     },
     [entitiesContext, vizNode],
   );

@@ -140,9 +140,10 @@ export class CitrusTestSchemaService {
    * - 'single-node': Single nested action (e.g., soap-assertFault)
    *
    * @param path - The path to the test action in the visualization tree
+   * @param modelData - The test action model data, used to inspect condition-dependent containers (e.g., waitFor)
    * @returns Container settings if the action is a container, undefined otherwise
    */
-  static getTestContainerSettings(path?: string): CitrusTestContainerSettings | undefined {
+  static getTestContainerSettings(path?: string, modelData?: TestActions): CitrusTestContainerSettings | undefined {
     if (!path) {
       return undefined;
     }
@@ -159,9 +160,16 @@ export class CitrusTestSchemaService {
       case 'sequential':
       case 'conditional':
       case 'doFinally':
-      case 'waitFor':
       case 'async':
         return { name: 'actions', type: 'branch' };
+
+      case 'waitFor': {
+        const waitForData = (modelData as Record<string, Record<string, unknown>> | undefined)?.['waitFor'];
+        if (isDefined(waitForData?.['action'])) {
+          return { name: 'action', type: 'single-node' };
+        }
+        return undefined;
+      }
 
       case 'parallel':
         return { name: 'actions', type: 'array-node' };
