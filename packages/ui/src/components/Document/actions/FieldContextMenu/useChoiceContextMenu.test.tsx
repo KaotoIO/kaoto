@@ -1,4 +1,4 @@
-import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
@@ -928,7 +928,7 @@ describe('useChoiceContextMenu', () => {
           .onClick();
       });
       const { rerender } = render(result.current.menu.modals);
-      expect(screen.getByText('Fields: url')).toBeInTheDocument();
+      expect(within(screen.getByTestId('choice-selection-modal-details')).getByText('url')).toBeInTheDocument();
 
       act(() => {
         const { namespaceMap } = result.current.mapper.mappingTree;
@@ -947,8 +947,9 @@ describe('useChoiceContextMenu', () => {
         result.current.mapper.updateDocument(document, document.definition, previousRefId);
       });
       rerender(result.current.menu.modals);
-      expect(screen.getByText('string')).toBeInTheDocument();
-      expect(screen.queryByText('Fields: url')).not.toBeInTheDocument();
+      const details = screen.getByTestId('choice-selection-modal-details');
+      expect(within(details).getByText('string')).toBeInTheDocument();
+      expect(within(details).queryByText('url')).not.toBeInTheDocument();
     });
 
     it('should dissolve abstract member into substitution candidates in context menu', () => {

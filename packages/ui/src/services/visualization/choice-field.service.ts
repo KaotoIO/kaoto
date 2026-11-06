@@ -112,7 +112,7 @@ export class ChoiceFieldService extends WrapperBaseService {
       label,
       typeBadge: field.type,
       description: field.description,
-      childrenPreview: this.formatChildrenPreview(field),
+      children: this.formatChildren(field),
       selection: { memberIndex },
     };
   }

@@ -1,19 +1,28 @@
 .wrapper-selection-modal {
+  // ResizableSplitPanels fills 100% of its parent's height, so the body needs a fixed height
+  // inside ModalBody; each pane then scrolls on its own.
+  &__body {
+    height: 50vh;
+    min-height: 300px;
+  }
+
+  &__pane {
+    height: 100%;
+    overflow-y: auto;
+  }
+
   &__candidate-list {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    max-height: 400px;
-    max-width: 85%;
-    margin: 0 auto;
-    overflow-y: auto;
   }
 
   &__candidate-item {
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
 
-    &:hover {
+    &:hover,
+    &[data-selected] {
       background-color: var(--pf-t--global--background--color--secondary--default);
     }
 
@@ -34,35 +43,56 @@
     font-weight: 500;
   }
 
-  &__candidate-description {
-    margin-top: 0.25rem;
-    margin-left: 1.5rem;
-    font-size: 0.75rem;
-    color: var(--pf-t--global--text--color--subtle);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    cursor: default;
-  }
-
-  &__candidate-item:hover &__candidate-description {
-    -webkit-line-clamp: unset;
-  }
-
-  &__candidate-children {
-    margin-top: 0.125rem;
-    margin-left: 1.5rem;
-    font-size: 0.75rem;
-    color: var(--pf-t--global--text--color--subtle);
-    font-style: italic;
-  }
-
   &__search {
     margin-bottom: 0.5rem;
   }
 
   &__no-results {
+    font-style: italic;
+    color: var(--pf-t--global--text--color--subtle);
+    padding: 1rem;
+    text-align: center;
+  }
+
+  &__details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  &__details-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  &__details-description {
+    color: var(--pf-t--global--text--color--subtle);
+  }
+
+  &__details-section {
+    margin-top: 0.5rem;
+  }
+
+  &__details-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__details-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.125rem 0.5rem;
+    border-bottom: 1px solid var(--pf-t--global--border--color--default);
+  }
+
+  &__details-empty {
     font-style: italic;
     color: var(--pf-t--global--text--color--subtle);
     padding: 1rem;

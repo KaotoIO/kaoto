@@ -53,8 +53,15 @@ export interface IWrapperCandidate {
   label: string;
   typeBadge: Types;
   description?: string;
-  childrenPreview?: string[];
+  /** Direct child fields of the candidate, shown in the selection modal's details pane. */
+  children?: IWrapperCandidateChild[];
   selection: IMemberSelection;
+}
+
+/** A direct child field of an {@link IWrapperCandidate}, for display only. */
+export interface IWrapperCandidateChild {
+  name: string;
+  type: Types;
 }
 
 // ── Resolved-state contracts ──
