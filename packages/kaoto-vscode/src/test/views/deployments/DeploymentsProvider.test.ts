@@ -182,3 +182,100 @@ suite('DeploymentsProvider — reachability poll uses 3-second timeout', functio
 		);
 	});
 });
+
+suite('DeploymentsProvider snapshots', () => {
+	const createProvider = useDeploymentsProviders();
+	test('keeps different full paths with the same basename separate', async () => {
+		const { portManager } = makePortManager(true);
+		portManager.getUsedPorts().add(9876);
+		const original = global.fetch;
+		global.fetch = async () =>
+			new Response(
+				JSON.stringify({
+					route: {
+						routes: [
+							{ routeId: 'same', source: 'file:/one/orders.camel.yaml:1', state: 'Started', statistics: {} },
+							{ routeId: 'same', source: 'file:/two/orders.camel.yaml:1', state: 'Stopped', statistics: {} },
+						],
+					},
+				}),
+			);
+		try {
+			const provider = createProvider(portManager);
+			await provider.refresh();
+			assert.deepEqual(
+				provider
+					.getSnapshot()
+					.map((r) => r.sourcePath)
+					.sort(),
+				['/one/orders.camel.yaml', '/two/orders.camel.yaml'],
+			);
+		} finally {
+			global.fetch = original;
+		}
+	});
+});
+
+suite('DeploymentsProvider refresh ownership', () => {
+	const createProvider = useDeploymentsProviders();
+	test('keeps polling with an editor lease while the tree is hidden', async () => {
+		const interval = global.setInterval;
+		const clear = global.clearInterval;
+		const callbacks = new Map<NodeJS.Timeout, () => Promise<void>>();
+		global.setInterval = ((callback: () => Promise<void>) => {
+			const handle = {} as NodeJS.Timeout;
+			callbacks.set(handle, callback);
+			return handle;
+		}) as typeof setInterval;
+		global.clearInterval = ((handle: NodeJS.Timeout) => {
+			callbacks.delete(handle);
+		}) as typeof clearInterval;
+		try {
+			const { portManager, waitForPortReachableCalls } = makePortManager(false);
+			portManager.getUsedPorts().add(9876);
+			const provider = createProvider(portManager);
+			provider.setVisible(false);
+			assert.equal(callbacks.size, 0);
+			const lease = provider.acquireRefresh();
+			assert.equal(callbacks.size, 1);
+			await [...callbacks.values()][0]();
+			assert.lengthOf(waitForPortReachableCalls, 1);
+			lease.dispose();
+			assert.equal(callbacks.size, 0);
+			provider.dispose();
+		} finally {
+			global.setInterval = interval;
+			global.clearInterval = clear;
+		}
+	});
+	test('overlapping refreshes wait for a fresh snapshot after the pending poll', async () => {
+		const original = global.fetch;
+		let finishOld!: (response: Response) => void;
+		let calls = 0;
+		const body = (state: string) =>
+			new Response(JSON.stringify({ route: { routes: [{ routeId: 'orders', source: 'file:/p/orders.yaml:1', state, statistics: {} }] } }));
+		global.fetch = async () =>
+			++calls === 1
+				? new Promise<Response>((resolve) => {
+						finishOld = resolve;
+					})
+				: body('Stopped');
+		try {
+			const { portManager } = makePortManager(true);
+			portManager.getUsedPorts().add(9876);
+			const provider = createProvider(portManager);
+			const old = provider.refresh();
+			await Promise.resolve();
+			const newer = provider.refresh();
+			assert.strictEqual(old, newer);
+			finishOld(body('Started'));
+			await old;
+			assert.equal(provider.getSnapshot()[0].state, 'Stopped');
+			await newer;
+			assert.equal(calls, 2);
+			assert.equal(provider.getSnapshot()[0].state, 'Stopped');
+		} finally {
+			global.fetch = original;
+		}
+	});
+});

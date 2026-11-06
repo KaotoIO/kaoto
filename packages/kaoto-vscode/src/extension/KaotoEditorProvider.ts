@@ -525,6 +525,18 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		on('editor:suggestions:get', async ({ topic, word, context }) => ({
 			suggestions: await services.getSuggestions(topic, word, context as SuggestionRequestContext),
 		}));
+		on('editor:sendMessage:getTargets', () => services.getSendMessageTargets());
+		on('editor:sendMessage:send', async (request) => {
+			await services.sendMessage(request);
+			return null;
+		});
+		listeners.push(
+			services.watchSendMessageTargets((snapshot) => {
+				if (!session.stopped && state.session === session) {
+					host.emit('host:sendMessage:targetsUpdated', snapshot);
+				}
+			}),
+		);
 		on('editor:maven:getRuntimeInfo', async () => ({ runtimeInfo: (await services.getRuntimeInfoFromMavenContext()) ?? null }));
 	}
 	private async settings(state: DocumentState, session: EditorSession): Promise<SettingsSnapshot> {

@@ -1,13 +1,29 @@
-import { createContext, FunctionComponent, PropsWithChildren, useCallback, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  FunctionComponent,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { ICamelMessagePayload, ISendMessageModalOptions } from '../models/send-message';
+import type { SendMessageRequest, SendMessageTarget } from '../models/send-message-runtime';
+
+export interface SendMessageRuntime {
+  targets: SendMessageTarget[];
+  send: (request: SendMessageRequest) => Promise<void>;
+}
 
 export interface SendMessageModalContextValue {
+  runtime?: SendMessageRuntime;
   isOpen: boolean;
   options: ISendMessageModalOptions | null;
   openSendMessageModal: (options: ISendMessageModalOptions) => void;
   closeSendMessageModal: () => void;
-  sendMessage: (payload: ICamelMessagePayload) => Promise<void>;
+  sendMessage: (payload: ICamelMessagePayload, targetId?: string) => Promise<void>;
   isSending: boolean;
   error: string | null;
   recentMessageFiles: File[];
@@ -16,7 +32,11 @@ export interface SendMessageModalContextValue {
 
 export const SendMessageModalContext = createContext<SendMessageModalContextValue | undefined>(undefined);
 
-export const SendMessageModalProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
+export const SendMessageModalProvider: FunctionComponent<
+  PropsWithChildren<{ runtime?: SendMessageRuntime; enabled?: boolean }>
+> = ({ children, runtime, enabled = true }) => {
+  const session = useRef(0);
+  const sending = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState<ISendMessageModalOptions | null>(null);
   const [isSending, setIsSending] = useState(false);
@@ -35,12 +55,17 @@ export const SendMessageModalProvider: FunctionComponent<PropsWithChildren> = ({
   }, []);
 
   const openSendMessageModal = useCallback((modalOptions: ISendMessageModalOptions) => {
+    session.current++;
+    sending.current = false;
+    setIsSending(false);
     setOptions(modalOptions);
     setError(null);
     setIsOpen(true);
   }, []);
 
   const closeSendMessageModal = useCallback(() => {
+    session.current++;
+    sending.current = false;
     setIsOpen(false);
     setOptions(null);
     setError(null);
@@ -48,20 +73,27 @@ export const SendMessageModalProvider: FunctionComponent<PropsWithChildren> = ({
   }, []);
 
   const sendMessage = useCallback(
-    async (payload: ICamelMessagePayload) => {
+    async (payload: ICamelMessagePayload, targetId?: string) => {
+      if (sending.current) return;
+      sending.current = true;
+      const currentSession = session.current;
       setIsSending(true);
       setError(null);
       try {
         if (options?.onSend) {
-          await options.onSend(payload);
+          if (targetId === undefined) await options.onSend(payload);
+          else await options.onSend(payload, targetId);
         }
-        closeSendMessageModal();
+        if (session.current === currentSession) closeSendMessageModal();
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to send message';
-        setError(message);
+        if (session.current === currentSession) setError(message);
         throw err;
       } finally {
-        setIsSending(false);
+        if (session.current === currentSession) {
+          sending.current = false;
+          setIsSending(false);
+        }
       }
     },
     [closeSendMessageModal, options],
@@ -69,6 +101,7 @@ export const SendMessageModalProvider: FunctionComponent<PropsWithChildren> = ({
 
   const value = useMemo<SendMessageModalContextValue>(
     () => ({
+      runtime,
       isOpen,
       options,
       openSendMessageModal,
@@ -80,6 +113,7 @@ export const SendMessageModalProvider: FunctionComponent<PropsWithChildren> = ({
       rememberMessageFile,
     }),
     [
+      runtime,
       isOpen,
       options,
       openSendMessageModal,
@@ -92,7 +126,9 @@ export const SendMessageModalProvider: FunctionComponent<PropsWithChildren> = ({
     ],
   );
 
-  return <SendMessageModalContext.Provider value={value}>{children}</SendMessageModalContext.Provider>;
+  return (
+    <SendMessageModalContext.Provider value={enabled ? value : undefined}>{children}</SendMessageModalContext.Provider>
+  );
 };
 
 export const useSendMessageModal = (): SendMessageModalContextValue | undefined => {
