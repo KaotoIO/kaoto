@@ -20,6 +20,8 @@ export interface RunningInfrastructureService {
 	name: string;
 	port?: number;
 	url?: string;
+	uiUrl?: string;
+	uiSupported?: boolean;
 	description?: string;
 	args: string[];
 	terminalName: string;
@@ -39,6 +41,9 @@ export class InfrastructureItem extends TreeItem {
 		if (service.port) {
 			contextValue += '-has-port';
 		}
+		if (service.uiUrl) {
+			contextValue += '-has-ui-url';
+		}
 		this.contextValue = contextValue;
 
 		this.iconPath = new ThemeIcon(service.status === 'running' ? 'server-environment' : 'loading~spin');
@@ -53,8 +58,16 @@ export class InfrastructureItem extends TreeItem {
 		const urlText = service.url ? `URL: ${service.url}` : undefined;
 		const portText = service.port ? `Port: ${service.port}` : undefined;
 		const argsText = service.args.length > 0 ? `Args: ${service.args.join(' ')}` : undefined;
+		const uiText = this.buildUiTooltipText(service);
 
-		return [statusText, serviceText, urlText, portText, argsText].filter(Boolean).join('\n');
+		return [statusText, serviceText, urlText, portText, argsText, uiText].filter(Boolean).join('\n');
+	}
+
+	private buildUiTooltipText(service: RunningInfrastructureService): string | undefined {
+		if (service.uiUrl) {
+			return `UI: ${service.uiUrl}`;
+		}
+		return service.uiSupported ? 'UI: available but not running' : undefined;
 	}
 
 	private getStatusText(status: 'starting' | 'running' | 'stopping'): string {
@@ -70,31 +83,24 @@ export class InfrastructureItem extends TreeItem {
 
 	private buildDescription(service: RunningInfrastructureService): string {
 		const externalLabel = service.isExternal ? ' (external)' : '';
+		const uiHint = !service.uiUrl && service.uiSupported ? ' · UI available but not running' : '';
 
+		return `${this.buildBaseDescription(service)}${externalLabel}${uiHint}`.trim();
+	}
+
+	private buildBaseDescription(service: RunningInfrastructureService): string {
 		if (service.status === 'starting') {
-			if (service.port) {
-				return `Starting on :${service.port}${externalLabel}`;
-			}
-
-			return `Starting...${externalLabel}`;
+			return service.port ? `Starting on :${service.port}` : 'Starting...';
 		}
 
 		if (service.status === 'stopping') {
-			if (service.port) {
-				return `Stopping on :${service.port}${externalLabel}`;
-			}
-
-			return `Stopping...${externalLabel}`;
+			return service.port ? `Stopping on :${service.port}` : 'Stopping...';
 		}
 
 		if (service.port) {
-			return `:${service.port}${externalLabel}`;
+			return `:${service.port}`;
 		}
 
-		if (service.description) {
-			return `${service.description}${externalLabel}`;
-		}
-
-		return externalLabel.trim();
+		return service.description ?? '';
 	}
 }

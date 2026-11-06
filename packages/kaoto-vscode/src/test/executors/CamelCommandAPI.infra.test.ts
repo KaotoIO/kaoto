@@ -190,7 +190,7 @@ suite('CamelCommandAPI — extractRunningServices', function () {
 		assert.deepStrictEqual(result, []);
 	});
 
-	test('no serviceData → no port, no url, no host', function () {
+	test('no serviceData → no port, no url, no host, no uiUrl', function () {
 		const json = JSON.stringify([{ name: 'kafka' }]);
 
 		const result = CamelCommandAPI.extractRunningServices(json);
@@ -198,5 +198,61 @@ suite('CamelCommandAPI — extractRunningServices', function () {
 		assert.isUndefined(result[0].port);
 		assert.isUndefined(result[0].url);
 		assert.isUndefined(result[0].host);
+		assert.isUndefined(result[0].uiUrl);
 	});
+});
+
+// ─── extractRunningServices — uiUrl and uiSupported ───────────────────────────
+
+suite('CamelCommandAPI — extractRunningServices — uiUrl and uiSupported', function () {
+	const uiUrlCases: { label: string; serviceData?: Record<string, unknown>; expected?: string }[] = [
+		{ label: 'string uiUrl', serviceData: { uiUrl: 'http://localhost:8080' }, expected: 'http://localhost:8080' },
+		{ label: 'no uiUrl', serviceData: { port: 9092 } },
+		{ label: 'non-string uiUrl', serviceData: { uiUrl: 8080 } },
+		{ label: 'empty uiUrl', serviceData: { uiUrl: '' } },
+	];
+
+	for (const { label, serviceData, expected } of uiUrlCases) {
+		test(`uiUrl: ${label} → ${expected ?? 'undefined'}`, function () {
+			const result = CamelCommandAPI.extractRunningServices(JSON.stringify([{ name: 'kafka', serviceData }]));
+
+			assert.strictEqual(result[0].uiUrl, expected);
+		});
+	}
+
+	test('uiUrl is not used to derive the service host, port or url', function () {
+		const json = JSON.stringify([{ name: 'kafka', serviceData: { uiUrl: 'http://localhost:8080', bootstrapServers: 'kafka-host:9092' } }]);
+
+		const result = CamelCommandAPI.extractRunningServices(json);
+
+		assert.strictEqual(result[0].host, 'kafka-host');
+		assert.strictEqual(result[0].port, 9092);
+		assert.strictEqual(result[0].url, 'kafka-host:9092');
+		assert.strictEqual(result[0].uiUrl, 'http://localhost:8080');
+	});
+
+	test('uiUrl alone does not produce a service host, port or url', function () {
+		const json = JSON.stringify([{ name: 'kafka', serviceData: { uiUrl: 'http://localhost:8080' } }]);
+
+		const result = CamelCommandAPI.extractRunningServices(json);
+
+		assert.isUndefined(result[0].host);
+		assert.isUndefined(result[0].port);
+		assert.isUndefined(result[0].url);
+	});
+
+	const uiSupportedCases: { label: string; uiSupported?: unknown; expected?: boolean }[] = [
+		{ label: 'true', uiSupported: true, expected: true },
+		{ label: 'false', uiSupported: false, expected: false },
+		{ label: 'absent' },
+		{ label: 'non-boolean', uiSupported: 'yes' },
+	];
+
+	for (const { label, uiSupported, expected } of uiSupportedCases) {
+		test(`uiSupported: ${label} → ${expected ?? 'undefined'}`, function () {
+			const result = CamelCommandAPI.extractRunningServices(JSON.stringify([{ name: 'kafka', uiSupported }]));
+
+			assert.strictEqual(result[0].uiSupported, expected);
+		});
+	}
 });
