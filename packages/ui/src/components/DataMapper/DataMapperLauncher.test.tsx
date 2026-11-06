@@ -12,8 +12,13 @@ import { EntitiesContext } from '../../providers';
 import { IMetadataApi, MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperOutputValidationService } from '../../services/datamapper-output-validation.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
+import {
+  GENERATED_WRAPPER_MARKER,
+  GENERATED_WRAPPER_NOTICE,
+} from '../../services/document/xml-schema/xml-schema-wrapper-generator.service';
 import { DataMapperLauncher } from './DataMapperLauncher';
 
 /** Renders the current router location so navigation can be asserted on */
@@ -86,6 +91,16 @@ describe('DataMapperLauncher', () => {
     } as unknown as IVisualizationNode;
   };
 
+  /** A viz node with a real step definition, so the URIs the rename writes can be asserted on */
+  const createStepVizNode = (...uris: string[]): IVisualizationNode =>
+    ({
+      data: { definition: { id: 'test-node-id', steps: uris.map((uri) => ({ to: { uri } })) } },
+      updateModel: vi.fn(),
+    }) as unknown as IVisualizationNode;
+
+  const stepUris = (vizNode: IVisualizationNode) =>
+    ((vizNode.data.definition as { steps: Array<{ to: { uri: string } }> }).steps ?? []).map((step) => step.to.uri);
+
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <MemoryRouter>
       <MetadataContext.Provider value={mockMetadataContext}>
@@ -97,7 +112,6 @@ describe('DataMapperLauncher', () => {
 
   let getXsltFileNameSpy: MockInstance<typeof DataMapperStepService.getXsltFileName>;
   let getDataMapperMetadataIdSpy: MockInstance<typeof DataMapperStepService.getDataMapperMetadataId>;
-  let updateXsltFileNameSpy: MockInstance<typeof DataMapperStepService.updateXsltFileName>;
   let isValidationEnabledSpy: MockInstance<typeof DataMapperValidationStepService.isValidationEnabled>;
   let addValidationStepSpy: MockInstance<typeof DataMapperValidationStepService.addValidationStep>;
   let removeValidationStepSpy: MockInstance<typeof DataMapperValidationStepService.removeValidationStep>;
@@ -110,19 +124,18 @@ describe('DataMapperLauncher', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Tests replace this mock where the behaviour matters (e.g. the rename tests use a stateful one); do not leak it.
+    mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);
     getXsltFileNameSpy = vi.spyOn(DataMapperStepService, 'getXsltFileName').mockReturnValue(undefined);
     getDataMapperMetadataIdSpy = vi.spyOn(DataMapperStepService, 'getDataMapperMetadataId');
-    updateXsltFileNameSpy = vi.spyOn(DataMapperStepService, 'updateXsltFileName').mockImplementation(() => {});
     vi.spyOn(DataMapperStepService, 'getOutputVariable').mockReturnValue(undefined);
     vi.spyOn(DataMapperStepService, 'setOutputVariable').mockImplementation(() => {});
     vi.spyOn(DataMapperMetadataService, 'updateXsltPath').mockResolvedValue(undefined);
     isValidationEnabledSpy = vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(false);
-    addValidationStepSpy = vi
-      .spyOn(DataMapperValidationStepService, 'addValidationStep')
-      .mockImplementation(() => undefined);
+    addValidationStepSpy = vi.spyOn(DataMapperValidationStepService, 'addValidationStep').mockImplementation(() => {});
     removeValidationStepSpy = vi
       .spyOn(DataMapperValidationStepService, 'removeValidationStep')
-      .mockImplementation(() => undefined);
+      .mockImplementation(() => {});
     const originalConsoleError = console.error;
     // Suppress act() warnings for async useEffect in component
     vi.spyOn(console, 'error').mockImplementation((message) => {
@@ -541,7 +554,7 @@ describe('DataMapperLauncher', () => {
       });
 
       it('should trigger rename when save button is clicked after editing', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
+        const vizNode = createStepVizNode('xslt-saxon:test-document.xsl');
         getXsltFileNameSpy.mockReturnValue('test-document.xsl');
         getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
 
@@ -555,8 +568,11 @@ describe('DataMapperLauncher', () => {
 
         mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(mockMetadata);
         mockMetadataContext.getResourceContent = vi.fn().mockResolvedValue('mock xslt content');
+        mockMetadataContext.isResourceExist = vi
+          .fn()
+          .mockImplementation((path: string) => Promise.resolve(path === 'test-document.xsl'));
         mockMetadataContext.saveResourceContent = vi.fn().mockResolvedValue(undefined);
-        mockMetadataContext.deleteResource = vi.fn().mockResolvedValue(undefined);
+        mockMetadataContext.deleteResource = vi.fn().mockResolvedValue(true);
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
@@ -574,9 +590,138 @@ describe('DataMapperLauncher', () => {
         fireEvent.click(saveButton);
 
         await waitFor(() => {
-          expect(mockMetadataContext.saveResourceContent).toHaveBeenCalledWith('renamed.xsl', 'mock xslt content');
-          expect(updateXsltFileNameSpy).toHaveBeenCalledWith(vizNode, 'renamed.xsl', mockEntitiesContext);
           expect(mockMetadataContext.deleteResource).toHaveBeenCalledWith('test-document.xsl');
+        });
+        expect(mockMetadataContext.saveResourceContent).toHaveBeenCalledWith('renamed.xsl', 'mock xslt content');
+        expect(stepUris(vizNode)).toEqual(['xslt-saxon:renamed.xsl']);
+        expect(vizNode.updateModel).toHaveBeenCalledTimes(1);
+      });
+
+      describe('validation wrapper on rename', () => {
+        const WRAPPER_CONTENT = `${GENERATED_WRAPPER_MARKER}. ${GENERATED_WRAPPER_NOTICE}`;
+        const OLD_VALIDATOR_URI = 'validator:test-document-validation-wrapper.xsd?failOnNullBody=false';
+
+        /** Clicks through the rename of `test-document.xsl` to `renamed.xsl`, without waiting for the outcome */
+        const startRename = async (resources: Record<string, string>, overrideMocks?: () => void) => {
+          const vizNode = createStepVizNode('xslt-saxon:test-document.xsl', OLD_VALIDATOR_URI);
+          getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+          getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
+          mockMetadataContext.getMetadata = vi.fn().mockResolvedValue({
+            sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+            sourceParameters: {},
+            targetBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+            xsltPath: 'test-document.xsl',
+            namespaceMap: {},
+          });
+          mockMetadataContext.getResourceContent = vi
+            .fn()
+            .mockImplementation((path: string) => Promise.resolve(resources[path]));
+          mockMetadataContext.isResourceExist = vi
+            .fn()
+            .mockImplementation((path: string) => Promise.resolve(resources[path] !== undefined));
+          mockMetadataContext.saveResourceContent = vi.fn().mockResolvedValue(undefined);
+          mockMetadataContext.deleteResource = vi.fn().mockResolvedValue(true);
+          overrideMocks?.();
+
+          render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+          fireEvent.click(await screen.findByTestId('xslt-document-name--edit'));
+          fireEvent.change(await screen.findByTestId('xslt-document-name--text-input'), {
+            target: { value: 'renamed.xsl' },
+          });
+          fireEvent.click(await screen.findByTestId('xslt-document-name--save'));
+          return vizNode;
+        };
+
+        const renameWith = async (resources: Record<string, string>) => {
+          const vizNode = await startRename(resources);
+          await waitFor(() => {
+            expect(vizNode.updateModel).toHaveBeenCalledTimes(1);
+          });
+          return vizNode;
+        };
+
+        it('should copy the wrapper, repoint the step and only then delete the old files', async () => {
+          const vizNode = await renameWith({
+            'test-document.xsl': 'mock xslt content',
+            'test-document-validation-wrapper.xsd': WRAPPER_CONTENT,
+          });
+
+          await waitFor(() => {
+            expect(mockMetadataContext.deleteResource).toHaveBeenCalledWith('test-document-validation-wrapper.xsd');
+          });
+          expect(mockMetadataContext.saveResourceContent).toHaveBeenCalledWith(
+            'renamed-validation-wrapper.xsd',
+            WRAPPER_CONTENT,
+          );
+          // The XSLT step and the validator (query options included) follow the renamed files
+          expect(stepUris(vizNode)).toEqual([
+            'xslt-saxon:renamed.xsl',
+            'validator:renamed-validation-wrapper.xsd?failOnNullBody=false',
+          ]);
+          expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalledTimes(1);
+          expect(mockMetadataContext.deleteResource).toHaveBeenCalledTimes(2);
+          // The old files are deleted after the route was repointed, never before
+          const updateModelOrder = (vizNode.updateModel as Mock).mock.invocationCallOrder[0];
+          for (const deleteOrder of (mockMetadataContext.deleteResource as Mock).mock.invocationCallOrder) {
+            expect(updateModelOrder).toBeLessThan(deleteOrder);
+          }
+        });
+
+        it('should neither copy nor delete a wrapper when there is none', async () => {
+          const vizNode = await renameWith({ 'test-document.xsl': 'mock xslt content' });
+
+          await waitFor(() => {
+            expect(mockMetadataContext.deleteResource).toHaveBeenCalledWith('test-document.xsl');
+          });
+          expect(stepUris(vizNode)).toEqual(['xslt-saxon:renamed.xsl', OLD_VALIDATOR_URI]);
+          expect(mockMetadataContext.deleteResource).toHaveBeenCalledTimes(1);
+          expect(mockMetadataContext.saveResourceContent).toHaveBeenCalledTimes(1);
+          expect(mockMetadataContext.saveResourceContent).toHaveBeenCalledWith('renamed.xsl', 'mock xslt content');
+        });
+
+        it('should keep the old wrapper when copying it failed', async () => {
+          vi.spyOn(DataMapperMetadataService, 'duplicateValidationWrapper').mockResolvedValue({
+            renames: {},
+            failure: 'boom',
+          });
+          const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+          await renameWith({
+            'test-document.xsl': 'mock xslt content',
+            'test-document-validation-wrapper.xsd': WRAPPER_CONTENT,
+          });
+
+          await waitFor(() => {
+            expect(mockMetadataContext.deleteResource).toHaveBeenCalledWith('test-document.xsl');
+          });
+          expect(mockMetadataContext.deleteResource).not.toHaveBeenCalledWith('test-document-validation-wrapper.xsd');
+          expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('boom'));
+        });
+
+        it('should not delete any old file when repointing the step throws', async () => {
+          vi.spyOn(DataMapperStepService, 'applyResourceRenamesToNode').mockImplementation(() => {
+            throw new Error('model update failed');
+          });
+
+          await startRename({
+            'test-document.xsl': 'mock xslt content',
+            'test-document-validation-wrapper.xsd': WRAPPER_CONTENT,
+          });
+
+          expect(await screen.findByText('Unable to save document name. Please try again.')).toBeInTheDocument();
+          expect(mockMetadataContext.saveResourceContent).toHaveBeenCalledWith('renamed.xsl', 'mock xslt content');
+          expect(mockMetadataContext.deleteResource).not.toHaveBeenCalled();
+        });
+
+        it('should not touch the step nor delete anything when saving the renamed file is rejected', async () => {
+          const vizNode = await startRename({ 'test-document.xsl': 'mock xslt content' }, () => {
+            mockMetadataContext.saveResourceContent = vi.fn().mockRejectedValue(new Error('disk full'));
+          });
+
+          expect(await screen.findByText('Unable to save document name. Please try again.')).toBeInTheDocument();
+          expect(vizNode.updateModel).not.toHaveBeenCalled();
+          expect(stepUris(vizNode)).toEqual(['xslt-saxon:test-document.xsl', OLD_VALIDATOR_URI]);
+          expect(mockMetadataContext.deleteResource).not.toHaveBeenCalled();
         });
       });
 
@@ -691,8 +836,7 @@ describe('DataMapperLauncher', () => {
       });
     });
 
-    // Output validation UI: skipped until feature is complete
-    describe.skip('Validate Output toggle', () => {
+    describe('Validate Output toggle', () => {
       beforeEach(() => {
         // Default: file exists, XML target, validation disabled
         mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);
@@ -773,6 +917,7 @@ describe('DataMapperLauncher', () => {
       });
 
       it('should call addValidationStep when checkbox is toggled ON', async () => {
+        vi.spyOn(DataMapperValidationStepService, 'canAddValidationStep').mockReturnValue(true);
         const vizNode = createMockVizNode('test-document.xsl');
         getXsltFileNameSpy.mockReturnValue('test-document.xsl');
         isValidationEnabledSpy.mockReturnValue(false);
@@ -783,8 +928,37 @@ describe('DataMapperLauncher', () => {
         fireEvent.click(checkbox);
 
         await waitFor(() => {
-          expect(addValidationStepSpy).toHaveBeenCalled();
+          expect(addValidationStepSpy).toHaveBeenCalledTimes(1);
         });
+        expect(addValidationStepSpy).toHaveBeenCalledWith(
+          vizNode,
+          expect.objectContaining({ filePath: ['ShipOrder.xsd'] }),
+          mockEntitiesContext,
+          'ShipOrder.xsd',
+        );
+        expect(removeValidationStepSpy).not.toHaveBeenCalled();
+      });
+
+      it('should revert the checkbox and not throw when enabling the validation is rejected', async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        vi.spyOn(DataMapperOutputValidationService, 'setOutputValidation').mockRejectedValue(new Error('no access'));
+        const vizNode = createMockVizNode('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+        // The model was not changed: the validator step is still absent
+        isValidationEnabledSpy.mockReturnValue(false);
+
+        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+        const checkbox = (await screen.findByTestId('validate-output-checkbox')) as HTMLInputElement;
+        fireEvent.click(checkbox);
+
+        await waitFor(() => {
+          expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('toggle output validation'), expect.any(Error));
+        });
+        await waitFor(() => {
+          expect(checkbox).toBeEnabled();
+        });
+        expect(checkbox.checked).toBe(false);
       });
 
       it('should call removeValidationStep when checkbox is toggled OFF', async () => {
@@ -798,8 +972,10 @@ describe('DataMapperLauncher', () => {
         fireEvent.click(checkbox);
 
         await waitFor(() => {
-          expect(removeValidationStepSpy).toHaveBeenCalled();
+          expect(removeValidationStepSpy).toHaveBeenCalledTimes(1);
         });
+        expect(removeValidationStepSpy).toHaveBeenCalledWith(vizNode, mockEntitiesContext);
+        expect(addValidationStepSpy).not.toHaveBeenCalled();
       });
     });
   });

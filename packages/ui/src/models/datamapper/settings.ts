@@ -26,7 +26,7 @@ export interface IStepSettings {
  */
 export type IDataMapperSettings = IXslOutputSettings & IStepSettings;
 
-const DEFAULT_XSL_OUTPUT_SETTINGS: IXslOutputSettings = {
+export const DEFAULT_XSL_OUTPUT_SETTINGS: IXslOutputSettings = {
   omitXmlDeclaration: false,
 };
 

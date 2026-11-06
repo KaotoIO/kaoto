@@ -9,7 +9,7 @@ import { DebugLayout } from './DebugLayout';
 
 type DataMapperDebuggerProps = {
   documentInitializationModel?: DocumentInitializationModel;
-  onUpdateDocument?: (definition: DocumentDefinition) => void;
+  onUpdateDocument?: (definition: DocumentDefinition) => undefined;
   initialXsltFile?: string;
   onUpdateMappings?: (xsltFile: string) => void;
 };

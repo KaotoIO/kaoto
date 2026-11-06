@@ -41,4 +41,41 @@ describe('DataMapperSettingsService', () => {
       expect(DataMapperSettingsService.sanitizeForTarget(settings, DocumentDefinitionType.Primitive)).toBe(settings);
     });
   });
+
+  describe('applyPatch()', () => {
+    it('should return the same reference when the patch changes nothing', () => {
+      const settings: IDataMapperSettings = { ...DEFAULT_DATAMAPPER_SETTINGS };
+
+      expect(DataMapperSettingsService.applyPatch(settings, { omitXmlDeclaration: false })).toBe(settings);
+      expect(DataMapperSettingsService.applyPatch(settings, {})).toBe(settings);
+    });
+
+    it('should return a new object when the patch changes a value', () => {
+      const settings: IDataMapperSettings = { ...DEFAULT_DATAMAPPER_SETTINGS };
+
+      const answer = DataMapperSettingsService.applyPatch(settings, { isOutputValidationEnabled: true });
+
+      expect(answer).not.toBe(settings);
+      expect(answer.isOutputValidationEnabled).toBe(true);
+      expect(settings.isOutputValidationEnabled).toBe(false);
+    });
+  });
+
+  describe('isXslOutputChanged()', () => {
+    const base: IDataMapperSettings = { ...DEFAULT_DATAMAPPER_SETTINGS };
+
+    it('should ignore a change of the output validation', () => {
+      expect(DataMapperSettingsService.isXslOutputChanged(base, { ...base, isOutputValidationEnabled: true })).toBe(
+        false,
+      );
+    });
+
+    it('should ignore a change of the output variable', () => {
+      expect(DataMapperSettingsService.isXslOutputChanged(base, { ...base, outputVariable: 'out' })).toBe(false);
+    });
+
+    it('should detect a change of omitXmlDeclaration', () => {
+      expect(DataMapperSettingsService.isXslOutputChanged(base, { ...base, omitXmlDeclaration: true })).toBe(true);
+    });
+  });
 });

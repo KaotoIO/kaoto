@@ -1,4 +1,4 @@
-import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { ProcessorDefinition, Step } from '@kaoto/camel-catalog/types';
 import type { Mocked, MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
@@ -1180,6 +1180,74 @@ describe('DataMapperStepService', () => {
 
     it('should return undefined for a valid name', () => {
       expect(DataMapperStepService.getOutputVariableNameError('myVar')).toBeUndefined();
+    });
+  });
+
+  describe('resource renames', () => {
+    const definition = () =>
+      ({
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:old.xsl` } },
+          { to: { uri: 'validator:old-validation-wrapper.xsd?failOnNullBody=false' } },
+        ],
+      }) as unknown as Step;
+    const uris = (def: Step) => (def.steps as Array<{ to: { uri: string } }>).map((s) => s.to.uri);
+
+    it('should retarget the validator, keeping its options, and update the XSLT step of a node', () => {
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: definition(),
+      });
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.applyResourceRenamesToNode(
+        vizNode,
+        { 'old.xsl': 'new.xsl', 'old-validation-wrapper.xsd': 'new-validation-wrapper.xsd' },
+        mockEntitiesContext,
+      );
+
+      expect(uris(vizNode.data.definition as Step)).toEqual([
+        `${XSLT_COMPONENT_NAME}:new.xsl`,
+        'validator:new-validation-wrapper.xsd?failOnNullBody=false',
+      ]);
+      expect(updateModelSpy).toHaveBeenCalledTimes(1);
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalledTimes(1);
+    });
+
+    it('should point a copy to its own files', () => {
+      const def = definition();
+
+      DataMapperStepService.applyCopiedResources(def, {
+        'old.xsl': 'new.xsl',
+        'old-validation-wrapper.xsd': 'new-validation-wrapper.xsd',
+      });
+
+      expect(uris(def)).toEqual([
+        `${XSLT_COMPONENT_NAME}:new.xsl`,
+        'validator:new-validation-wrapper.xsd?failOnNullBody=false',
+      ]);
+    });
+
+    it('should drop the validator of a copy that got no wrapper of its own', () => {
+      const def = definition();
+
+      DataMapperStepService.applyCopiedResources(def, { 'old.xsl': 'new.xsl' });
+
+      expect(uris(def)).toEqual([`${XSLT_COMPONENT_NAME}:new.xsl`]);
+    });
+
+    it('should clear the XSLT file and drop the wrapper validator of a copy without files', () => {
+      const def = definition();
+
+      DataMapperStepService.clearResources(def);
+
+      expect(uris(def)).toEqual([`${XSLT_COMPONENT_NAME}:`]);
     });
   });
 });

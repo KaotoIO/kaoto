@@ -1683,6 +1683,190 @@ describe('DataMapperProvider', () => {
         expect.objectContaining({ isOutputValidationEnabled: false }),
       );
     });
+
+    it('should not reserialize the mapping file when only a step setting changes', async () => {
+      const onUpdateMappings = vi.fn();
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={onUpdateMappings}>{children}</DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+      await waitFor(() => {
+        expect(onUpdateMappings).toHaveBeenCalled();
+      });
+      onUpdateMappings.mockClear();
+
+      act(() => {
+        result.current.updateDataMapperSettings({ isOutputValidationEnabled: true });
+      });
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.isOutputValidationEnabled).toBe(true);
+      });
+
+      expect(onUpdateMappings).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Step settings patch from the host', () => {
+    const docDef = new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, 'Body', {});
+    const mockDocument = {
+      documentType: DocumentType.TARGET_BODY,
+      documentId: 'Body',
+      definitionType: DocumentDefinitionType.Primitive,
+    } as IDocument;
+
+    it('should apply the patch returned by onUpdateDocument', async () => {
+      const onUpdateDocument = vi.fn().mockResolvedValue({ isOutputValidationEnabled: true });
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateDocument={onUpdateDocument}>{children}</DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.updateDocument(mockDocument, docDef, 'Body');
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.isOutputValidationEnabled).toBe(true);
+      });
+    });
+
+    it('should apply the patch returned by onUpdateStepSettings without calling it again', async () => {
+      const onUpdateStepSettings = vi.fn().mockResolvedValue({ isOutputValidationEnabled: false });
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider
+          initialStepSettings={{ isOutputValidationEnabled: true }}
+          onUpdateStepSettings={onUpdateStepSettings}
+        >
+          {children}
+        </DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.updateDataMapperSettings({ outputVariable: 'out' });
+      });
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings.isOutputValidationEnabled).toBe(false);
+      });
+      expect(result.current.dataMapperSettings.outputVariable).toBe('out');
+      expect(onUpdateStepSettings).toHaveBeenCalledTimes(1);
+    });
+
+    it('should revert the optimistic settings change when the host rejects it', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const onUpdateStepSettings = vi.fn().mockRejectedValue(new Error('rejected'));
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider
+          initialStepSettings={{ isOutputValidationEnabled: false }}
+          onUpdateStepSettings={onUpdateStepSettings}
+        >
+          {children}
+        </DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+      const before = result.current.dataMapperSettings;
+
+      act(() => {
+        result.current.updateDataMapperSettings({ isOutputValidationEnabled: true });
+      });
+      // The change is applied optimistically first
+      expect(result.current.dataMapperSettings.isOutputValidationEnabled).toBe(true);
+
+      await waitFor(() => {
+        expect(result.current.dataMapperSettings).toBe(before);
+      });
+      expect(onUpdateStepSettings).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledTimes(1);
+      warn.mockRestore();
+    });
+
+    it('should not revert a newer settings change when an older update is rejected', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      let rejectFirst: (reason: Error) => void = () => {};
+      const onUpdateStepSettings = vi
+        .fn()
+        .mockImplementationOnce(() => new Promise((_resolve, reject) => (rejectFirst = reject)))
+        .mockResolvedValue(undefined);
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateStepSettings={onUpdateStepSettings}>{children}</DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.updateDataMapperSettings({ outputVariable: 'first' });
+      });
+      act(() => {
+        result.current.updateDataMapperSettings({ outputVariable: 'second' });
+      });
+      await act(async () => {
+        rejectFirst(new Error('rejected'));
+        await Promise.resolve();
+      });
+
+      expect(result.current.dataMapperSettings.outputVariable).toBe('second');
+      warn.mockRestore();
+    });
+
+    it('should leave the settings untouched when the host returns nothing', async () => {
+      const onUpdateDocument = vi.fn().mockResolvedValue(undefined);
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateDocument={onUpdateDocument}>{children}</DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+      const before = result.current.dataMapperSettings;
+
+      act(() => {
+        result.current.updateDocument(mockDocument, docDef, 'Body');
+      });
+      await waitFor(() => {
+        expect(onUpdateDocument).toHaveBeenCalled();
+      });
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(result.current.dataMapperSettings.isOutputValidationEnabled).toBe(before.isOutputValidationEnabled);
+    });
+
+    it('should keep the settings reference when the patch equals the current value', async () => {
+      const onUpdateDocument = vi.fn().mockResolvedValue({ isOutputValidationEnabled: false });
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateDocument={onUpdateDocument}>{children}</DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+      const before = result.current.dataMapperSettings;
+
+      act(() => {
+        result.current.updateDocument(mockDocument, docDef, 'Body');
+      });
+      await waitFor(() => {
+        expect(onUpdateDocument).toHaveBeenCalled();
+      });
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(result.current.dataMapperSettings).toBe(before);
+    });
+
+    it('should not throw when the host rejects', async () => {
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const onUpdateDocument = vi.fn().mockRejectedValue(new Error('boom'));
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateDocument={onUpdateDocument}>{children}</DataMapperProvider>
+      );
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      act(() => {
+        result.current.updateDocument(mockDocument, docDef, 'Body');
+      });
+
+      await waitFor(() => {
+        expect(warn).toHaveBeenCalled();
+      });
+      warn.mockRestore();
+    });
   });
 
   describe('Output Variable', () => {

@@ -8,8 +8,9 @@ import { DataMapperDebugger } from './DataMapperDebugger';
 const onUpdateMappings = (xsltFile: string) => {
   console.log('onUpdateMappings() >>>>> ' + xsltFile);
 };
-const onUpdateDocument = (definition: DocumentDefinition) => {
+const onUpdateDocument = (definition: DocumentDefinition): undefined => {
   console.log('onUpdateDocument() >>>>>', JSON.stringify(definition));
+  return undefined;
 };
 
 const container = document.getElementById('root');

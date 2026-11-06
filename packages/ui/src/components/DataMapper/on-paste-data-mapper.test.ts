@@ -6,6 +6,10 @@ import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import {
+  GENERATED_WRAPPER_MARKER,
+  GENERATED_WRAPPER_NOTICE,
+} from '../../services/document/xml-schema/xml-schema-wrapper-generator.service';
 import { XSLT_COMPONENT_NAME } from '../../utils';
 import { onPasteDataMapper } from './on-paste-data-mapper';
 
@@ -222,7 +226,11 @@ describe('onPasteDataMapper', () => {
       updatedContent,
     });
 
-    expect(mockApi.setMetadata).toHaveBeenCalled();
+    expect(mockApi.setMetadata).toHaveBeenCalledTimes(1);
+    expect(mockApi.setMetadata).toHaveBeenCalledWith(
+      newStepId,
+      expect.objectContaining({ xsltPath: `${newStepId}.xsl` }),
+    );
 
     expect(mockApi.saveResourceContent).not.toHaveBeenCalled();
   });
@@ -243,9 +251,10 @@ describe('onPasteDataMapper', () => {
     };
 
     mockApi.getMetadata.mockResolvedValueOnce(originalMetadata1).mockResolvedValueOnce(originalMetadata2);
-    mockApi.getResourceContent
-      .mockResolvedValueOnce('<xsl:stylesheet>1</xsl:stylesheet>')
-      .mockResolvedValueOnce('<xsl:stylesheet>2</xsl:stylesheet>');
+    const xsltContents: Record<string, string> = {};
+    xsltContents[originalMetadata1.xsltPath] = '<xsl:stylesheet>1</xsl:stylesheet>';
+    xsltContents[originalMetadata2.xsltPath] = '<xsl:stylesheet>2</xsl:stylesheet>';
+    mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(xsltContents[path]));
 
     const originalContent: IClipboardContent = {
       name: 'choice',
@@ -321,5 +330,118 @@ describe('onPasteDataMapper', () => {
     const steps2 = step2.steps as Array<Record<string, Record<string, unknown>>>;
     expect(steps1[0].to.uri).toBe(`${XSLT_COMPONENT_NAME}:kaoto-datamapper-new-id-1.xsl`);
     expect(steps2[0].to.uri).toBe(`${XSLT_COMPONENT_NAME}:kaoto-datamapper-new-id-2.xsl`);
+  });
+
+  describe('validation wrapper', () => {
+    const wrapper = `${GENERATED_WRAPPER_MARKER}. ${GENERATED_WRAPPER_NOTICE}`;
+    const originalMetadata: IDataMapperMetadata = {
+      sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      sourceParameters: {},
+      targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['a.xsd', 'b.xsd'] },
+      xsltPath: `${originalStepId}.xsl`,
+    };
+    const originalWrapper = `${originalStepId}-validation-wrapper.xsd`;
+    const newWrapper = `${newStepId}-validation-wrapper.xsd`;
+
+    const stepContent = (id: string, validatorUri: string): IClipboardContent => ({
+      name: id,
+      definition: {
+        id,
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:${id}.xsl` } }, { to: { uri: validatorUri } }],
+      },
+    });
+
+    const validatorUriOf = (content: IClipboardContent) =>
+      (content.definition as { steps: Array<{ to: { uri: string } }> }).steps[1]?.to.uri;
+
+    beforeEach(() => {
+      mockApi.getMetadata.mockResolvedValue(originalMetadata);
+      mockApi.isResourceExist.mockImplementation(
+        async (path) => (await mockApi.getResourceContent(path)) !== undefined,
+      );
+    });
+
+    it('should copy the wrapper and point the validator of the pasted step to the copy', async () => {
+      const files: Record<string, string> = { [`${originalStepId}.xsl`]: '<xsl/>', [originalWrapper]: wrapper };
+      mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+      const updatedContent = stepContent(newStepId, `validator:${originalWrapper}?failOnNullBody=false`);
+
+      await onPasteDataMapper(mockApi, {
+        targetVizNode: mockVizNode,
+        originalContent: stepContent(originalStepId, `validator:${originalWrapper}`),
+        updatedContent,
+      });
+
+      expect(mockApi.saveResourceContent).toHaveBeenCalledWith(newWrapper, wrapper);
+      expect(validatorUriOf(updatedContent)).toBe(`validator:${newWrapper}?failOnNullBody=false`);
+    });
+
+    it('should warn, drop the validator of the pasted step and leave the original files alone when the wrapper copy fails', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const files: Record<string, string> = { [`${originalStepId}.xsl`]: '<xsl/>', [originalWrapper]: wrapper };
+      mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+      mockApi.saveResourceContent.mockImplementation((path: string) =>
+        path === newWrapper ? Promise.reject(new Error('disk full')) : Promise.resolve(),
+      );
+      const updatedContent = stepContent(newStepId, `validator:${originalWrapper}`);
+
+      await onPasteDataMapper(mockApi, {
+        targetVizNode: mockVizNode,
+        originalContent: stepContent(originalStepId, `validator:${originalWrapper}`),
+        updatedContent,
+      });
+
+      expect(validatorUriOf(updatedContent)).toBeUndefined();
+      expect(warnSpy).toHaveBeenCalledTimes(1);
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('disk full'));
+      expect(mockApi.deleteResource).not.toHaveBeenCalled();
+      expect(mockApi.saveResourceContent).not.toHaveBeenCalledWith(originalWrapper, expect.anything());
+    });
+
+    it('should drop the validator when the original wrapper is gone (copy, delete the original, paste)', async () => {
+      mockApi.getResourceContent.mockImplementation((path: string) =>
+        Promise.resolve(path === `${originalStepId}.xsl` ? '<xsl/>' : undefined),
+      );
+      const updatedContent = stepContent(newStepId, `validator:${originalWrapper}`);
+
+      await onPasteDataMapper(mockApi, {
+        targetVizNode: mockVizNode,
+        originalContent: stepContent(originalStepId, `validator:${originalWrapper}`),
+        updatedContent,
+      });
+
+      expect(mockApi.saveResourceContent).not.toHaveBeenCalledWith(newWrapper, expect.anything());
+      expect(validatorUriOf(updatedContent)).toBeUndefined();
+    });
+
+    it('should drop the validator when the original has no metadata', async () => {
+      mockApi.getMetadata.mockResolvedValue(undefined);
+      // A pasted copy still carries the XSLT file of the original step.
+      const updatedContent = stepContent(originalStepId, `validator:${originalWrapper}`);
+      (updatedContent.definition as { id: string }).id = newStepId;
+
+      await onPasteDataMapper(mockApi, {
+        targetVizNode: mockVizNode,
+        originalContent: stepContent(originalStepId, `validator:${originalWrapper}`),
+        updatedContent,
+      });
+
+      expect(validatorUriOf(updatedContent)).toBeUndefined();
+    });
+
+    it('should keep a validator that points to a user schema', async () => {
+      mockApi.getResourceContent.mockImplementation((path: string) =>
+        Promise.resolve(path === `${originalStepId}.xsl` ? '<xsl/>' : undefined),
+      );
+      const updatedContent = stepContent(newStepId, 'validator:a.xsd');
+
+      await onPasteDataMapper(mockApi, {
+        targetVizNode: mockVizNode,
+        originalContent: stepContent(originalStepId, 'validator:a.xsd'),
+        updatedContent,
+      });
+
+      expect(validatorUriOf(updatedContent)).toBe('validator:a.xsd');
+    });
   });
 });
