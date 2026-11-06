@@ -50,23 +50,24 @@ export class EditorRegistrar implements IRegistrar {
 	}
 
 	public registerToggleSourceCode(): Promise<void> {
-		const OPEN_SOURCE_COMMAND_ID: string = COMMAND_OPEN_SOURCE;
-		const CLOSE_SOURCE_COMMAND_ID: string = COMMAND_CLOSE_SOURCE;
-
-		this.context.subscriptions.push(
-			vscode.commands.registerCommand(OPEN_SOURCE_COMMAND_ID, async () => {
-				if (this.editors.activeDocumentUri !== undefined) {
-					const doc = await vscode.workspace.openTextDocument(this.editors.activeDocumentUri);
-					await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
-					await sendCommandTrackingEvent(this.telemetryService, OPEN_SOURCE_COMMAND_ID);
-				}
-			}),
-			vscode.commands.registerCommand(CLOSE_SOURCE_COMMAND_ID, async () => {
-				await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
-				await sendCommandTrackingEvent(this.telemetryService, CLOSE_SOURCE_COMMAND_ID);
-			}),
-		);
-		return Promise.resolve();
+		try {
+			this.context.subscriptions.push(
+				vscode.commands.registerCommand(COMMAND_OPEN_SOURCE, async () => {
+					if (this.editors.activeDocumentUri !== undefined) {
+						const doc = await vscode.workspace.openTextDocument(this.editors.activeDocumentUri);
+						await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
+						await sendCommandTrackingEvent(this.telemetryService, COMMAND_OPEN_SOURCE);
+					}
+				}),
+				vscode.commands.registerCommand(COMMAND_CLOSE_SOURCE, async () => {
+					await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+					await sendCommandTrackingEvent(this.telemetryService, COMMAND_CLOSE_SOURCE);
+				}),
+			);
+			return Promise.resolve();
+		} catch (error) {
+			return Promise.reject(error);
+		}
 	}
 
 	public registerOpenWithKaoto() {
