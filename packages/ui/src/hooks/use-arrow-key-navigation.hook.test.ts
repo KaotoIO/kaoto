@@ -52,7 +52,7 @@ describe('useArrowKeyNavigation', () => {
   });
 
   /** Render the hook and capture the handler registered with hotkeys */
-  function setupHook(): (key: string) => void {
+  function setupHook(nodes?: { id: string }[]): (key: string) => void {
     const handlers: Record<string, KeyHandler> = {};
     mockHotkeys.mockImplementation((keys: string, ...args: unknown[]) => {
       const handler = args.find((arg): arg is KeyHandler => typeof arg === 'function');
@@ -61,7 +61,7 @@ describe('useArrowKeyNavigation', () => {
       });
     });
     renderHook(() => {
-      useArrowKeyNavigation();
+      useArrowKeyNavigation(nodes);
     });
     // Return a helper that fires the captured handler for the given key name
     return (key: string) => {
@@ -145,6 +145,40 @@ describe('useArrowKeyNavigation', () => {
       g.setAttribute('tabindex', '-1');
       return g;
     };
+
+    it.each(['arrowdown', 'arrowright', 'arrowup', 'arrowleft'])(
+      'keeps routes together in model order when navigating with %s',
+      (key) => {
+        container.remove();
+        pathContainer = document.createElement('div');
+        canvasRoot.appendChild(pathContainer);
+        const paths = ['route.from', 'route.from.steps.0.log', 'route.from.steps.1.to'];
+        const routes = ['z|first-route', 'a-second-route'];
+        const ordered = routes.flatMap((route) =>
+          paths.map((path) => {
+            const node = makeNode('custom-node', `custom-node__${path}`);
+            const wrapper = document.createElement('div');
+            wrapper.dataset.id = `${route}|${path}`;
+            wrapper.appendChild(node);
+            return { node, wrapper };
+          }),
+        );
+        // Paint order differs from model order and changes again during navigation.
+        [...ordered].reverse().forEach(({ wrapper }) => pathContainer.appendChild(wrapper));
+        const fire = setupHook(ordered.map(({ wrapper }) => ({ id: wrapper.dataset.id! })));
+        const forward = key === 'arrowdown' || key === 'arrowright';
+        const expected = forward ? ordered : [...ordered].reverse();
+        canvasRoot.focus();
+        for (const { node } of expected) {
+          fire(key);
+          expect(node).toHaveFocus();
+          pathContainer.prepend(node.parentElement!);
+          node.focus();
+        }
+        fire(key);
+        expect(expected[0].node).toHaveFocus();
+      },
+    );
 
     it('should navigate in path order even when DOM order is different', () => {
       pathContainer = document.createElement('div');
