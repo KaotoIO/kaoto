@@ -48,12 +48,9 @@ describe('DirectEndpointNameField', () => {
       { from: { uri: 'direct', parameters: { name: 'billing' }, steps: [] } },
     ]);
 
-    const toggle = screen.getByLabelText('Name toggle');
+    const toggle = await screen.findByRole('button', { name: 'Open' });
     fireEvent.click(toggle);
 
-    // findAllByRole polls until the typeahead options render, which also flushes
-    // PatternFly's debounced Popper reposition inside act() — a plain getAllByRole
-    // would assert synchronously and let that update leak past the test.
     const options = (await screen.findAllByRole('option')).map((option) => option.textContent);
 
     expect(options.some((option) => option?.includes('billing'))).toBeTruthy();
@@ -64,8 +61,8 @@ describe('DirectEndpointNameField', () => {
   it('enables create button only for new names', async () => {
     await renderField(undefined, [{ from: { uri: 'direct:start', steps: [] } }]);
 
-    const input = screen.getByRole('textbox', { name: 'Name' });
-    const button = screen.getByRole('button', { name: 'Create Route' });
+    const input = await screen.findByRole('combobox', { name: 'Name' });
+    const button = await screen.findByRole('button', { name: 'Create Route' });
 
     expect(button).toBeDisabled();
 
@@ -93,8 +90,8 @@ describe('DirectEndpointNameField', () => {
     );
     const addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
 
-    const input = screen.getByRole('textbox', { name: 'Name' });
-    const button = screen.getByRole('button', { name: 'Create Route' });
+    const input = await screen.findByRole('combobox', { name: 'Name' });
+    const button = await screen.findByRole('button', { name: 'Create Route' });
 
     fireEvent.change(input, { target: { value: 'new-route' } });
     await waitFor(() => {

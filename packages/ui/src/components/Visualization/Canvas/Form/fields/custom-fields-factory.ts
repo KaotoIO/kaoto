@@ -1,8 +1,8 @@
 import { CustomFieldsFactory, EnumField, TextAreaField } from '@kaoto/forms';
 
-import { CustomMediaTypes } from './ArrayBadgesField/CustomMediaTypes';
 import { DataSourceBeanField, PrefixedBeanField, UnprefixedBeanField } from './BeanField/BeanField';
 import { RuntimeCatalogNameField, TestingCatalogNameField } from './CatalogSelectorField/CatalogSelectorField';
+import { CustomMediaTypes } from './CustomMediaTypes';
 import { DirectEndpointNameField } from './DirectEndpointNameField';
 import { EndpointField } from './EndpointField/EndpointField';
 import { EndpointListField } from './EndpointField/EndpointListField';
@@ -12,7 +12,6 @@ import { InfraImplementationField } from './InfraServiceField/InfraImplementatio
 import { InfraServiceField } from './InfraServiceField/InfraServiceField';
 import { MediaTypeField } from './MediaTypeField/MediaTypeField';
 import { SedaEndpointNameField } from './SedaEndpointNameField';
-import { UriField } from './UriField/UriField';
 
 const isDirectEndpointName = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
   return (
@@ -50,10 +49,6 @@ const isExpressionField = (schema: Parameters<CustomFieldsFactory>[0]): boolean 
 
 const isCustomMediaTypesField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
   return schema.type === 'array' && schema.title === 'Custom media types';
-};
-
-const isUriField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
-  return schema.type === 'string' && schema.title === 'Uri';
 };
 
 const isEndpointPropertiesField = (schema: Parameters<CustomFieldsFactory>[0]): boolean => {
@@ -128,7 +123,6 @@ const CUSTOM_FIELD_ENTRIES: [
   [isMediaTypeField, MediaTypeField],
   [isExpressionField, ExpressionField],
   [isCustomMediaTypesField, CustomMediaTypes],
-  [isUriField, UriField],
   [isEndpointPropertiesField, EndpointPropertiesField],
   [isInfraServiceField, InfraServiceField],
   [isInfraImplementationField, InfraImplementationField],

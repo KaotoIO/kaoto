@@ -60,7 +60,6 @@ export const TextAreaField: FunctionComponent<FieldProps> = ({ propName, require
       type="string"
       description={schema.description}
       defaultValue={schema.default?.toString()}
-      errors={errors}
       isRaw={isRaw}
       onOpenSuggestions={openSuggestions}
     >
@@ -77,6 +76,8 @@ export const TextAreaField: FunctionComponent<FieldProps> = ({ propName, require
             value={value}
             onChange={onFieldChange}
             aria-describedby={id}
+            invalid={!!errors}
+            invalidText={errors?.join(', ')}
             ref={textAreaRef}
             disabled={disabled}
           />

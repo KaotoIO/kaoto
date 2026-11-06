@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition, SetBody } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsContext, KaotoForm, KeyValue } from '@kaoto/forms';
+import { KaotoForm, KeyValue } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { JSONSchema4 } from 'json-schema';
@@ -14,6 +14,8 @@ import { TestProvidersWrapper } from '../../../../stubs';
 import { createMockEntitiesContext } from '../../../../stubs/create-mock-entities-context';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
+import { Anchors } from '../../../registers/anchors';
+import { RenderingAnchorContext } from '../../../RenderingAnchor/rendering.provider';
 import { CanvasFormBody } from './CanvasFormBody';
 
 describe('CanvasFormBody', () => {
@@ -58,16 +60,15 @@ describe('CanvasFormBody', () => {
     const { Provider } = await TestProvidersWrapper();
     const view = ({ context, node }: typeof original) => (
       <EntitiesContext.Provider value={context}>
-        <CanvasFormTabsContext.Provider value={{ selectedTab: 'All', setSelectedTab: vi.fn() }}>
-          <CanvasFormBody vizNode={node} />
-        </CanvasFormTabsContext.Provider>
+        <CanvasFormBody vizNode={node} />
       </EntitiesContext.Provider>
     );
     // Resolve catalog-backed fields before observing a synchronous source refresh.
     // eslint-disable-next-line testing-library/no-unnecessary-act
     const { rerender } = await act(async () => render(view(original), { wrapper: Provider }));
+    await new KaotoFormPageObject(screen, act).showAllFields();
     const destination = screen.getByRole('textbox', { name: 'Destination Name' });
-    const connectionFactory = screen.getByRole('textbox', { name: 'Connection Factory' });
+    const connectionFactory = screen.getByRole('combobox', { name: 'Connection Factory' });
     connectionFactory.focus();
 
     rerender(view(updated));
@@ -78,9 +79,9 @@ describe('CanvasFormBody', () => {
     expect(destination).toHaveValue('after');
     expect(updated.context.updateSourceCodeFromEntities).not.toHaveBeenCalled();
     fireEvent.click(connectionFactory);
-    expect(await screen.findByRole('option', { name: 'option #factory-after' })).toBeInTheDocument();
-    expect(screen.queryByRole('option', { name: 'option #factory-before' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Connection Factory toggle' }));
+    expect(await screen.findByRole('option', { name: /^#factory-after/ })).toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /^#factory-before/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     fireEvent.change(destination, { target: { value: 'edited' } });
     await waitFor(() => {
       expect(updated.node.data.definition).toMatchObject({ parameters: { destinationName: 'edited' } });
@@ -139,12 +140,11 @@ describe('CanvasFormBody', () => {
     });
 
     // Clearing and selecting locally must still work after an external language change.
-    // eslint-disable-next-line testing-library/no-unnecessary-act
-    await act(async () => fireEvent.click(screen.getByTestId('#__expression-list__clear')));
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.clearExpressionFieldForProperty(ROOT_PATH);
     await waitFor(() => {
       expect(screen.queryByDisplayValue('edited')).not.toBeInTheDocument();
     });
-    const formPageObject = new KaotoFormPageObject(screen, act);
     await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
     await formPageObject.selectTypeaheadItem('simple');
     await formPageObject.inputText('Expression', '${body.again}');
@@ -239,7 +239,7 @@ describe('CanvasFormBody', () => {
     rerender(<KaotoForm schema={schema} model={{ amount: 3 }} onChange={onChange} />);
     expect(input).toHaveValue('3');
     rerender(<KaotoForm schema={schema} model={{ amount: Number.NaN }} onChange={onChange} />);
-    // PatternFly displays NaN as empty; the form must remain mounted and editable.
+    // NaN is displayed as empty; the form must remain mounted and editable.
     expect(input).toHaveValue('');
     fireEvent.change(input, { target: { value: '4' } });
     expect(onChange).toHaveBeenLastCalledWith({ amount: 4 });
@@ -322,23 +322,19 @@ describe('CanvasFormBody', () => {
 
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <EntitiesContext.Provider value={null}>
-          <Provider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: vi.fn(),
-              }}
-            >
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <EntitiesContext.Provider value={null}>
+            <Provider>
               <CanvasFormBody vizNode={setHeaderNode} />
-            </CanvasFormTabsContext.Provider>
-          </Provider>
-        </EntitiesContext.Provider>,
-      );
+            </Provider>
+          </EntitiesContext.Provider>,
+        );
+      });
 
       const formPageObject = new KaotoFormPageObject(screen, act);
-      await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
+      await formPageObject.showAllFields();
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
@@ -378,25 +374,18 @@ describe('CanvasFormBody', () => {
       render(
         <EntitiesContext.Provider value={null}>
           <Provider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: vi.fn(),
-              }}
-            >
-              <CanvasFormBody vizNode={setHeaderNode} />
-            </CanvasFormTabsContext.Provider>
+            <CanvasFormBody vizNode={setHeaderNode} />
           </Provider>
         </EntitiesContext.Provider>,
       );
 
       const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
       await formPageObject.inputText('Name', 'bar');
 
       expect(camelRoute.from.steps[0].setHeader!.simple).toBeUndefined();
       expect(camelRoute.from.steps[0].setHeader!.name).toBe('bar');
 
-      await screen.findByTestId(`${ROOT_PATH}__expression-list-typeahead-select-input`);
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
       await formPageObject.inputText('Expression', '${header.foo}');
@@ -437,19 +426,13 @@ describe('CanvasFormBody', () => {
       render(
         <EntitiesContext.Provider value={null}>
           <Provider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: vi.fn(),
-              }}
-            >
-              <CanvasFormBody vizNode={marshalNode} />
-            </CanvasFormTabsContext.Provider>
+            <CanvasFormBody vizNode={marshalNode} />
           </Provider>
         </EntitiesContext.Provider>,
       );
 
       const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('avro');
 
@@ -488,19 +471,13 @@ describe('CanvasFormBody', () => {
       render(
         <EntitiesContext.Provider value={null}>
           <Provider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: vi.fn(),
-              }}
-            >
-              <CanvasFormBody vizNode={marshalNode} />
-            </CanvasFormTabsContext.Provider>
+            <CanvasFormBody vizNode={marshalNode} />
           </Provider>
         </EntitiesContext.Provider>,
       );
 
       const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
       expect(camelRoute.from.steps[0].marshal!.id).toBe('modified');
 
@@ -544,19 +521,13 @@ describe('CanvasFormBody', () => {
       render(
         <EntitiesContext.Provider value={null}>
           <Provider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: vi.fn(),
-              }}
-            >
-              <CanvasFormBody vizNode={loadBalanceNode} />
-            </CanvasFormTabsContext.Provider>
+            <CanvasFormBody vizNode={loadBalanceNode} />
           </Provider>
         </EntitiesContext.Provider>,
       );
 
       const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('weighted load balancer');
 
@@ -599,19 +570,13 @@ describe('CanvasFormBody', () => {
       render(
         <EntitiesContext.Provider value={null}>
           <Provider>
-            <CanvasFormTabsContext.Provider
-              value={{
-                selectedTab: 'All',
-                setSelectedTab: vi.fn(),
-              }}
-            >
-              <CanvasFormBody vizNode={loadBalanceNode} />
-            </CanvasFormTabsContext.Provider>
+            <CanvasFormBody vizNode={loadBalanceNode} />
           </Provider>
         </EntitiesContext.Provider>,
       );
 
       const formPageObject = new KaotoFormPageObject(screen, act);
+      await formPageObject.showAllFields();
       await formPageObject.inputText('Id', 'modified', { index: 0 });
       expect(camelRoute.from.steps[0].loadBalance!.id).toBe('modified');
 
@@ -642,29 +607,18 @@ describe('CanvasFormBody', () => {
 
     const wrapper = render(
       <Provider>
-        <CanvasFormTabsContext.Provider
-          value={{
-            selectedTab: 'All',
-            setSelectedTab: vi.fn(),
-          }}
-        >
-          <CanvasFormBody vizNode={vizNode} />
-        </CanvasFormTabsContext.Provider>
+        <CanvasFormBody vizNode={vizNode} />
       </Provider>,
     );
 
     const formPageObject = new KaotoFormPageObject(screen, act);
-    await waitFor(() => {
-      expect(formPageObject.getFieldByDisplayName('Name')).not.toBeNull();
-    });
-    const inputField = formPageObject.getFieldByDisplayName('Name')!;
+    await formPageObject.showAllFields();
+    const inputField = await formPageObject.findFieldByDisplayName('Name');
 
     fireEvent.focus(inputField);
     fireEvent.keyDown(inputField, { ctrlKey: true, code: 'Space' });
 
-    await waitFor(() => {
-      expect(wrapper.getByTestId('suggestions-menu')).toBeInTheDocument();
-    });
+    expect(wrapper.queryByTestId('suggestions-menu')).toBeInTheDocument();
   });
 
   describe('seda queue name field', () => {
@@ -675,15 +629,18 @@ describe('CanvasFormBody', () => {
       await fromNode.fetchSchema();
 
       const { Provider } = await TestProvidersWrapper();
-      render(
-        <EntitiesContext.Provider value={null}>
-          <Provider>
-            <CanvasFormTabsContext.Provider value={{ selectedTab: 'All', setSelectedTab: vi.fn() }}>
+      // The endpoint properties field suspends while resolving the component catalog.
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <EntitiesContext.Provider value={null}>
+            <Provider>
               <CanvasFormBody vizNode={fromNode} />
-            </CanvasFormTabsContext.Provider>
-          </Provider>
-        </EntitiesContext.Provider>,
-      );
+            </Provider>
+          </EntitiesContext.Provider>,
+        );
+      });
+      await new KaotoFormPageObject(screen, act).showAllFields();
     };
 
     it('renders the Create Route button for the seda component', async () => {
@@ -691,5 +648,65 @@ describe('CanvasFormBody', () => {
 
       expect(await screen.findByRole('button', { name: 'Create Route' })).toBeInTheDocument();
     });
+  });
+
+  it('renders the CanvasFormHeader anchor components below the filter and above the fields', async () => {
+    const { Provider, camelResource } = await TestProvidersWrapper();
+    const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
+    vizNode.data.schema = {
+      type: 'object',
+      properties: { name: { type: 'string', title: 'Name' } },
+      required: ['name'],
+    };
+    vizNode.data.definition = {};
+    const AnchoredComponent = () => <div data-testid="anchored-component" />;
+    const getRegisteredComponents = vi.fn((anchorTag: string) =>
+      anchorTag === Anchors.CanvasFormHeader ? [{ key: 'anchored', Component: AnchoredComponent }] : [],
+    );
+
+    render(
+      <Provider>
+        <RenderingAnchorContext.Provider value={{ registerComponent: vi.fn(), getRegisteredComponents }}>
+          <CanvasFormBody vizNode={vizNode} />
+        </RenderingAnchorContext.Provider>
+      </Provider>,
+    );
+
+    const filter = screen.getByTestId('filter-fields');
+    const anchored = screen.getByTestId('anchored-component');
+    const field = await new KaotoFormPageObject(screen, act).findFieldByDisplayName('Name');
+
+    expect(filter.compareDocumentPosition(anchored) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(anchored.compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('renders the filter field and the section tabs, starting on the Required tab', async () => {
+    const { Provider, camelResource } = await TestProvidersWrapper();
+    const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
+    vizNode.data.schema = {
+      type: 'object',
+      properties: {
+        name: { type: 'string', title: 'Name' },
+        description: { type: 'string', title: 'Description' },
+      },
+      required: ['name'],
+    };
+    vizNode.data.definition = {};
+
+    render(
+      <Provider>
+        <CanvasFormBody vizNode={vizNode} />
+      </Provider>,
+    );
+
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    expect(screen.getByTestId('filter-fields')).toBeInTheDocument();
+    expect(screen.getByTestId('tab-Required')).toHaveAttribute('aria-selected', 'true');
+    expect(await formPageObject.findFieldByDisplayName('Name')).toBeInTheDocument();
+    expect(formPageObject.getFieldByDisplayName('Description')).not.toBeInTheDocument();
+
+    await formPageObject.showAllFields();
+
+    expect(await formPageObject.findFieldByDisplayName('Description')).toBeInTheDocument();
   });
 });

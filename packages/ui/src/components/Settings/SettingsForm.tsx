@@ -1,7 +1,7 @@
 import './SettingsForm.scss';
 
-import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
-import { Alert, Button, Card, CardBody, CardFooter, CardTitle } from '@patternfly/react-core';
+import { Button, InlineNotification } from '@carbon/react';
+import { KaotoForm } from '@kaoto/forms';
 import { FunctionComponent, useContext, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -15,10 +15,6 @@ import { customFieldsFactoryfactory } from '../Visualization/Canvas/Form/fields/
 
 export const SettingsForm: FunctionComponent = () => {
   const settingsAdapter = useContext(SettingsContext);
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(
-    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
-    [],
-  );
   const navigate = useNavigate();
   const { lastRender, reloadPage } = useReloadContext();
   const [settings, setSettings] = useState(settingsAdapter.getSettings());
@@ -46,48 +42,51 @@ export const SettingsForm: FunctionComponent = () => {
   };
 
   return (
-    <Card className="settings-form-card" data-last-render={lastRender}>
-      <CardTitle>Settings</CardTitle>
+    <div className="settings-form-card" data-last-render={lastRender}>
+      <h2 className="settings-form-card__title">Settings</h2>
 
-      <CardBody>
+      <div className="settings-form-card__body">
         {hasPendingCatalogUrlChange && (
-          <Alert
+          <InlineNotification
             className="alert-catalog-url"
-            isInline
-            variant="info"
+            kind="info"
+            lowContrast
+            hideCloseButton
             title="Catalog versions will be recomputed after saving a custom catalog."
-          >
-            Runtime selector versions still reflect the currently saved catalog URL. Save the settings to recompute the
-            available Camel and testing catalogs options from the new catalog URL.
-          </Alert>
+            subtitle="Runtime selector versions still reflect the currently saved catalog URL. Save the settings to recompute the available Camel and testing catalogs options from the new catalog URL."
+          />
         )}
         {saveError && (
-          <Alert className="alert-catalog-url" isInline variant="danger" title="Failed to save settings.">
-            {saveError}
-          </Alert>
-        )}
-        <CanvasFormTabsContext.Provider value={formTabsValue}>
-          <KaotoForm
-            data-testid="settings-form"
-            schema={settingsSchema as KaotoSchemaDefinition['schema']}
-            model={settings}
-            onChange={onChangeModel}
-            customFieldsFactory={customFieldsFactoryfactory}
+          <InlineNotification
+            className="alert-catalog-url"
+            kind="error"
+            lowContrast
+            hideCloseButton
+            title="Failed to save settings."
+            subtitle={saveError}
           />
-        </CanvasFormTabsContext.Provider>
-      </CardBody>
+        )}
+        <KaotoForm
+          data-testid="settings-form"
+          showFilterField
+          schema={settingsSchema as KaotoSchemaDefinition['schema']}
+          model={settings}
+          onChange={onChangeModel}
+          customFieldsFactory={customFieldsFactoryfactory}
+        />
+      </div>
 
-      <CardFooter>
+      <div className="settings-form-card__footer">
         <Button
           data-testid="settings-form-save-btn"
-          variant="primary"
+          kind="primary"
           onClick={async () => {
             await onSave();
           }}
         >
           Save
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };

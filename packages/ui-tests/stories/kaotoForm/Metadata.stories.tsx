@@ -1,4 +1,4 @@
-import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm, KaotoFormProps } from '@kaoto/forms';
+import { KaotoForm, KaotoFormProps } from '@kaoto/forms';
 import { MetadataPage } from '@kaoto/kaoto';
 import { KaotoSchemaDefinition } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
@@ -11,7 +11,6 @@ export default {
   component: MetadataPage,
 } as Meta<typeof MetadataPage>;
 
-const formTabsValue: CanvasFormTabsContextResult = {} as CanvasFormTabsContextResult;
 const getMetadataModel = () => {
   return mockModel.metadata;
 };
@@ -19,14 +18,13 @@ const onChangeModel = () => {};
 
 const Template: StoryFn<typeof KaotoForm> = (args) => {
   return (
-    <CanvasFormTabsContext.Provider value={formTabsValue}>
-      <KaotoForm
-        {...args}
-        data-testid="metadata-form"
-        schema={mockSchema as KaotoSchemaDefinition['schema']}
-        onChange={onChangeModel as KaotoFormProps['onChange']}
-      />
-    </CanvasFormTabsContext.Provider>
+    <KaotoForm
+      {...args}
+      data-testid="metadata-form"
+      showFilterField
+      schema={mockSchema as KaotoSchemaDefinition['schema']}
+      onChange={onChangeModel as KaotoFormProps['onChange']}
+    />
   );
 };
 

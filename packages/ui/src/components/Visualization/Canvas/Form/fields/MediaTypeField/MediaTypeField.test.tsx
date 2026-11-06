@@ -1,5 +1,6 @@
 import { ModelContextProvider, SchemaProvider } from '@kaoto/forms';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { KaotoSchemaDefinition } from '../../../../../../models';
 import { DefaultSettingsAdapter } from '../../../../../../models/settings';
@@ -35,13 +36,14 @@ describe('MediaTypeField', () => {
     it('should render with placeholder text when no value is selected', () => {
       renderMediaTypeField();
 
-      expect(screen.getByRole('button', { name: /select media types/i })).toBeInTheDocument();
+      expect(screen.getByTestId('media-type-field-toggle')).toBeInTheDocument();
+      expect(screen.getByText('Select media types')).toBeInTheDocument();
     });
 
     it('should render with selected values', () => {
       renderMediaTypeField({ mediaType: 'application/json, text/plain' });
 
-      expect(screen.getByRole('button', { name: /application\/json, text\/plain/i })).toBeInTheDocument();
+      expect(screen.getByText('application/json, text/plain')).toBeInTheDocument();
     });
 
     it('should render with schema title and description', () => {
@@ -62,7 +64,8 @@ describe('MediaTypeField', () => {
         </SettingsProvider>,
       );
 
-      expect(screen.getByRole('button', { name: /select media types/i })).toBeDisabled();
+      const toggle = screen.getByTestId('media-type-field-toggle');
+      expect(toggle.querySelector('button.cds--list-box__field')).toBeDisabled();
     });
   });
 
@@ -70,49 +73,41 @@ describe('MediaTypeField', () => {
     it('should open dropdown when clicking toggle', async () => {
       renderMediaTypeField();
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
+      const toggleBtn = screen.getByTestId('media-type-field-toggle').querySelector('button.cds--list-box__field')!;
+      fireEvent.click(toggleBtn);
 
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu and render items
-      await screen.findByRole('menuitem', { name: 'application/json' });
-      expect(screen.getByRole('menuitem', { name: 'application/xml' })).toBeInTheDocument();
-      expect(screen.getByRole('menuitem', { name: 'text/plain' })).toBeInTheDocument();
+      await screen.findByRole('option', { name: 'application/json' });
+      expect(screen.getByRole('option', { name: 'application/xml' })).toBeInTheDocument();
+      expect(screen.getByRole('option', { name: 'text/plain' })).toBeInTheDocument();
     });
 
     it('should select a media type when clicking an option', async () => {
+      const user = userEvent.setup();
       const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
+      const toggleBtn = screen.getByTestId('media-type-field-toggle').querySelector('button.cds--list-box__field')!;
+      await user.click(toggleBtn);
 
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const option = await screen.findByRole('menuitem', { name: 'application/json' });
-      const checkbox = within(option).getByRole('checkbox');
-
-      fireEvent.click(checkbox);
+      const option = await screen.findByRole('option', { name: 'application/json' });
+      await user.click(option);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/json');
     });
 
     it('should select multiple media types', async () => {
+      const user = userEvent.setup();
       const model: Record<string, unknown> = {};
       const onPropertyChange = vi.fn((propName: string, value: unknown) => {
         model[propName] = value;
       });
       const { rerender } = renderMediaTypeField(model, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
+      const toggleBtn = screen.getByTestId('media-type-field-toggle').querySelector('button.cds--list-box__field')!;
+      await user.click(toggleBtn);
 
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const option1 = await screen.findByRole('menuitem', { name: 'application/json' });
-      const checkbox1 = within(option1).getByRole('checkbox');
-
-      fireEvent.click(checkbox1);
+      const option1 = await screen.findByRole('option', { name: 'application/json' });
+      await user.click(option1);
 
       rerender(
         <SettingsProvider adapter={settingsAdapter}>
@@ -124,45 +119,37 @@ describe('MediaTypeField', () => {
         </SettingsProvider>,
       );
 
-      const option2 = screen.getByRole('menuitem', { name: 'text/plain' });
-      const checkbox2 = within(option2).getByRole('checkbox');
-
-      fireEvent.click(checkbox2);
+      const option2 = screen.getByRole('option', { name: 'text/plain' });
+      await user.click(option2);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/json');
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/json, text/plain');
     });
 
     it('should deselect a media type when clicking a selected option', async () => {
+      const user = userEvent.setup();
       const onPropertyChange = vi.fn();
       renderMediaTypeField({ mediaType: 'application/json, text/plain' }, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /application\/json, text\/plain/i });
+      const toggleBtn = screen.getByTestId('media-type-field-toggle').querySelector('button.cds--list-box__field')!;
+      await user.click(toggleBtn);
 
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const option = await screen.findByRole('menuitem', { name: 'application/json' });
-      const checkbox = within(option).getByRole('checkbox');
-
-      fireEvent.click(checkbox);
+      const option = await screen.findByRole('option', { name: 'application/json' });
+      await user.click(option);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'text/plain');
     });
 
     it('should set value to undefined when deselecting the last item', async () => {
+      const user = userEvent.setup();
       const onPropertyChange = vi.fn();
       renderMediaTypeField({ mediaType: 'application/json' }, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /application\/json/i });
+      const toggleBtn = screen.getByTestId('media-type-field-toggle').querySelector('button.cds--list-box__field')!;
+      await user.click(toggleBtn);
 
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const option = await screen.findByRole('menuitem', { name: 'application/json' });
-      const checkbox = within(option).getByRole('checkbox');
-
-      fireEvent.click(checkbox);
+      const option = await screen.findByRole('option', { name: 'application/json' });
+      await user.click(option);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', undefined);
     });
@@ -170,147 +157,99 @@ describe('MediaTypeField', () => {
     it('should show checkboxes for selected items', async () => {
       renderMediaTypeField({ mediaType: 'application/json' });
 
-      const toggle = screen.getByRole('button', { name: /application\/json/i });
+      const toggleBtn = screen.getByTestId('media-type-field-toggle').querySelector('button.cds--list-box__field')!;
+      fireEvent.click(toggleBtn);
 
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const option = await screen.findByRole('menuitem', { name: 'application/json' });
-      const checkbox = within(option).getByRole('checkbox');
+      const option = await screen.findByRole('option', { name: 'application/json' });
+      const checkbox = option.querySelector('input[type="checkbox"]')!;
 
       expect(checkbox).toBeChecked();
     });
   });
 
   describe('Custom Media Type Functionality', () => {
-    it('should render custom media type input and add button', async () => {
+    it('should render custom media type input and add button', () => {
       renderMediaTypeField();
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      await screen.findByPlaceholderText('Add custom media type');
       expect(screen.getByPlaceholderText('Add custom media type')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
     });
 
-    it('should add custom media type when clicking Add button', async () => {
+    it('should add custom media type when clicking Add button', () => {
       const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText('Add custom media type');
+      const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
-
       fireEvent.click(addButton);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/custom');
     });
 
-    it('should add custom media type when pressing Enter key', async () => {
+    it('should add custom media type when pressing Enter key', () => {
       const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText('Add custom media type');
+      const input = screen.getByPlaceholderText('Add custom media type');
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
-
       fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/custom');
     });
 
-    it('should clear input after adding custom media type', async () => {
+    it('should clear input after adding custom media type', () => {
       renderMediaTypeField();
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText<HTMLInputElement>('Add custom media type');
+      const input = screen.getByPlaceholderText<HTMLInputElement>('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
-
       fireEvent.click(addButton);
 
       expect(input.value).toBe('');
     });
 
-    it('should trim whitespace from custom media type', async () => {
+    it('should trim whitespace from custom media type', () => {
       const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText('Add custom media type');
+      const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: '  application/custom  ' } });
-
       fireEvent.click(addButton);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/custom');
     });
 
-    it('should not add empty custom media type', async () => {
+    it('should not add empty custom media type', () => {
       const onPropertyChange = vi.fn();
       renderMediaTypeField({}, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText('Add custom media type');
+      const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: '   ' } });
-
       fireEvent.click(addButton);
 
       expect(onPropertyChange).not.toHaveBeenCalled();
     });
 
-    it('should disable Add button when input is empty', async () => {
+    it('should disable Add button when input is empty', () => {
       renderMediaTypeField();
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const addButton = await screen.findByRole('button', { name: 'Add' });
+      const addButton = screen.getByRole('button', { name: 'Add' });
 
       expect(addButton).toBeDisabled();
     });
 
-    it('should enable Add button when input has value', async () => {
+    it('should enable Add button when input has value', () => {
       renderMediaTypeField();
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText('Add custom media type');
+      const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'test' } });
@@ -318,20 +257,14 @@ describe('MediaTypeField', () => {
       expect(addButton).not.toBeDisabled();
     });
 
-    it('should add custom media type to existing selection', async () => {
+    it('should add custom media type to existing selection', () => {
       const onPropertyChange = vi.fn();
       renderMediaTypeField({ mediaType: 'application/json' }, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /application\/json/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText('Add custom media type');
+      const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
-
       fireEvent.click(addButton);
 
       expect(onPropertyChange).toHaveBeenCalledWith('mediaType', 'application/json, application/custom');
@@ -339,27 +272,20 @@ describe('MediaTypeField', () => {
   });
 
   describe('Settings Persistence', () => {
-    it('should save custom media type to settings', async () => {
+    it('should save custom media type to settings', () => {
       renderMediaTypeField();
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText('Add custom media type');
+      const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
-
       fireEvent.click(addButton);
 
       const settings = settingsAdapter.getSettings();
       expect(settings.rest.customMediaTypes).toContain('application/custom');
     });
 
-    it('should not duplicate custom media types in settings', async () => {
-      // Pre-populate settings with a custom media type
+    it('should not duplicate custom media types in settings', () => {
       const settings = settingsAdapter.getSettings();
       settingsAdapter.saveSettings({
         ...settings,
@@ -371,16 +297,10 @@ describe('MediaTypeField', () => {
 
       renderMediaTypeField();
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText('Add custom media type');
+      const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/existing' } });
-
       fireEvent.click(addButton);
 
       const updatedSettings = settingsAdapter.getSettings();
@@ -400,13 +320,11 @@ describe('MediaTypeField', () => {
 
       renderMediaTypeField();
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
+      const toggleBtn = screen.getByTestId('media-type-field-toggle').querySelector('button.cds--list-box__field')!;
+      fireEvent.click(toggleBtn);
 
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      await screen.findByRole('menuitem', { name: 'application/stored-custom' });
-      expect(screen.getByRole('menuitem', { name: 'application/stored-custom' })).toBeInTheDocument();
+      await screen.findByRole('option', { name: 'application/stored-custom' });
+      expect(screen.getByRole('option', { name: 'application/stored-custom' })).toBeInTheDocument();
     });
   });
 
@@ -414,55 +332,47 @@ describe('MediaTypeField', () => {
     it('should handle undefined value gracefully', () => {
       renderMediaTypeField({ mediaType: undefined });
 
-      expect(screen.getByRole('button', { name: /select media types/i })).toBeInTheDocument();
+      expect(screen.getByTestId('media-type-field-toggle')).toBeInTheDocument();
+      expect(screen.getByText('Select media types')).toBeInTheDocument();
     });
 
     it('should handle empty string value', () => {
       renderMediaTypeField({ mediaType: '' });
 
-      expect(screen.getByRole('button', { name: /select media types/i })).toBeInTheDocument();
+      expect(screen.getByTestId('media-type-field-toggle')).toBeInTheDocument();
+      expect(screen.getByText('Select media types')).toBeInTheDocument();
     });
 
     it('should parse comma-separated values correctly', () => {
       renderMediaTypeField({ mediaType: 'application/json, text/plain, application/xml' });
 
-      expect(
-        screen.getByRole('button', { name: /application\/json, text\/plain, application\/xml/i }),
-      ).toBeInTheDocument();
+      expect(screen.getByText('application/json, text/plain, application/xml')).toBeInTheDocument();
     });
 
     it('should handle values with extra whitespace', () => {
       renderMediaTypeField({ mediaType: '  application/json  ,  text/plain  ' });
 
-      expect(screen.getByRole('button', { name: /application\/json, text\/plain/i })).toBeInTheDocument();
+      expect(screen.getByText('application/json, text/plain')).toBeInTheDocument();
     });
 
     it('should display custom values that are not in common list', async () => {
       renderMediaTypeField({ mediaType: 'application/custom-type' });
 
-      const toggle = screen.getByRole('button', { name: /application\/custom-type/i });
+      const toggleBtn = screen.getByTestId('media-type-field-toggle').querySelector('button.cds--list-box__field')!;
+      fireEvent.click(toggleBtn);
 
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      await screen.findByRole('menuitem', { name: 'application/custom-type' });
-      expect(screen.getByRole('menuitem', { name: 'application/custom-type' })).toBeInTheDocument();
+      await screen.findByRole('option', { name: 'application/custom-type' });
+      expect(screen.getByRole('option', { name: 'application/custom-type' })).toBeInTheDocument();
     });
 
-    it('should not add duplicate custom media type to selection', async () => {
+    it('should not add duplicate custom media type to selection', () => {
       const onPropertyChange = vi.fn();
       renderMediaTypeField({ mediaType: 'application/custom' }, onPropertyChange);
 
-      const toggle = screen.getByRole('button', { name: /application\/custom/i });
-
-      fireEvent.click(toggle);
-
-      // Wait for Popper to position the menu
-      const input = await screen.findByPlaceholderText('Add custom media type');
+      const input = screen.getByPlaceholderText('Add custom media type');
       const addButton = screen.getByRole('button', { name: 'Add' });
 
       fireEvent.change(input, { target: { value: 'application/custom' } });
-
       fireEvent.click(addButton);
 
       // Should not call onChange since the value is already selected
@@ -482,9 +392,8 @@ describe('MediaTypeField', () => {
         </SettingsProvider>,
       );
 
-      const toggle = screen.getByRole('button', { name: /select media types/i });
-
-      expect(toggle).toBeDisabled();
+      const toggle = screen.getByTestId('media-type-field-toggle');
+      expect(toggle.querySelector('button.cds--list-box__field')).toBeDisabled();
     });
   });
 });

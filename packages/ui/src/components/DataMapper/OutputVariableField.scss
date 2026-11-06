@@ -1,0 +1,10 @@
+/* stylelint-disable selector-class-pattern -- Carbon component class names */
+.output-variable-field {
+  &--success .cds--text-input {
+    border-block-end-color: var(--cds-support-success);
+  }
+
+  &__success-icon {
+    fill: var(--cds-support-success);
+  }
+}

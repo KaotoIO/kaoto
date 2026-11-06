@@ -1,5 +1,7 @@
+import './EndpointNameField.scss';
+
+import { Button } from '@carbon/react';
 import { FieldProps, FieldWrapper, SchemaContext, Typeahead, useFieldValue } from '@kaoto/forms';
-import { Button, InputGroup, InputGroupItem } from '@patternfly/react-core';
 import { FunctionComponent, useContext, useState } from 'react';
 
 import { EntitiesContext } from '../../../../../providers/entities.provider';
@@ -31,6 +33,7 @@ export const EndpointNameField: FunctionComponent<EndpointNameFieldProps> = ({ p
       visualEntities: entitiesContext?.visualEntities,
       scheme,
     });
+  const defaultValue = typeof schema.default === 'string' ? schema.default : undefined;
   const typedCandidateName = typedInputValue.trim() || typedName;
   const { canCreateRoute, onCreateRoute } = useCreateRoute({
     disabled: !!disabled,
@@ -49,16 +52,16 @@ export const EndpointNameField: FunctionComponent<EndpointNameFieldProps> = ({ p
       title={schema.title}
       type="string"
       description={schema.description}
-      defaultValue={schema.default?.toString()}
+      defaultValue={defaultValue}
     >
-      <InputGroup>
-        <InputGroupItem isFill>
+      <div className="endpoint-name-field">
+        <div className="endpoint-name-field__input">
           <Typeahead
             aria-label={schema.title ?? propName}
             data-testid={propName}
             selectedItem={selectedItem}
             items={items}
-            placeholder={schema.default?.toString()}
+            placeholder={defaultValue}
             id={propName}
             onChange={(item) => {
               onTypeaheadChange(item);
@@ -72,13 +75,11 @@ export const EndpointNameField: FunctionComponent<EndpointNameFieldProps> = ({ p
             disabled={disabled}
             allowCustomInput
           />
-        </InputGroupItem>
-        <InputGroupItem>
-          <Button variant="secondary" onClick={onCreateRoute} isDisabled={!canCreateRoute}>
-            Create Route
-          </Button>
-        </InputGroupItem>
-      </InputGroup>
+        </div>
+        <Button kind="secondary" onClick={onCreateRoute} disabled={!canCreateRoute}>
+          Create Route
+        </Button>
+      </div>
     </FieldWrapper>
   );
 };

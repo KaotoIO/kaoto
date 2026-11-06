@@ -2,7 +2,7 @@ import './BeanEditor.scss';
 
 import { Add } from '@carbon/icons-react';
 import { Button, Stack } from '@carbon/react';
-import { CanvasFormTabsContext, CanvasFormTabsContextResult, KaotoForm } from '@kaoto/forms';
+import { KaotoForm } from '@kaoto/forms';
 import { cloneDeep } from 'lodash';
 import { FunctionComponent, useMemo, useState } from 'react';
 
@@ -22,10 +22,6 @@ export interface BeanEditorProps {
 }
 
 export const BeanEditor: FunctionComponent<BeanEditorProps> = (props) => {
-  const formTabsValue: CanvasFormTabsContextResult = useMemo(
-    () => ({ selectedTab: 'All', setSelectedTab: () => {} }),
-    [],
-  );
   const [selected, setSelected] = useState(-1);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [preparedModel, setPreparedModel] = useState<any>(null);
@@ -101,15 +97,14 @@ export const BeanEditor: FunctionComponent<BeanEditorProps> = (props) => {
                   <span>Edit </span>
                   <span>{getFormModel()?.[nameKey]}</span>
                 </div>
-                <CanvasFormTabsContext.Provider value={formTabsValue}>
-                  <KaotoForm
-                    key={`metadata-editor-form-${selected}`}
-                    data-testid="metadata-editor-form-Beans"
-                    schema={itemSchema}
-                    model={getFormModel()}
-                    onChange={onChangeFormModel}
-                  />
-                </CanvasFormTabsContext.Provider>
+                <KaotoForm
+                  key={`metadata-editor-form-${selected}`}
+                  data-testid="metadata-editor-form-Beans"
+                  showFilterField
+                  schema={itemSchema}
+                  model={getFormModel()}
+                  onChange={onChangeFormModel}
+                />
               </Stack>
             ) : (
               <EditorEmptyState

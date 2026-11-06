@@ -119,7 +119,7 @@ describe('Toggle Source Code', function () {
 			await dismissHoverOverlay(driver);
 			await clickWhenClickable(driver, log);
 			await KaotoEditor.waitForPropertyPanel(driver);
-			await clickWhenClickable(driver, await driver.findElement(By.id('All')));
+			await clickWhenClickable(driver, await driver.findElement(By.css('[data-testid="tab-All"]')));
 			const id = await driver.findElement(By.css('input[name="#.id"]'));
 			await driver.wait(until.elementIsVisible(id), 5_000, 'Step ID field did not become visible');
 			await id.sendKeys('log-from-properties', Key.TAB);
@@ -147,7 +147,7 @@ describe('Toggle Source Code', function () {
 			await dismissHoverOverlay(driver);
 			await clickWhenClickable(driver, log);
 			await KaotoEditor.waitForPropertyPanel(driver);
-			await clickWhenClickable(driver, await driver.findElement(By.id('All')));
+			await clickWhenClickable(driver, await driver.findElement(By.css('[data-testid="tab-All"]')));
 			await driver.wait(
 				async () => {
 					const inputs = await driver.findElements(By.css('input[name="#.id"]'));
@@ -249,7 +249,7 @@ describe('Toggle Source Code', function () {
 			await dismissHoverOverlay(driver);
 			await clickWhenClickable(driver, log);
 			await KaotoEditor.waitForPropertyPanel(driver);
-			await clickWhenClickable(driver, await driver.findElement(By.id('All')));
+			await clickWhenClickable(driver, await driver.findElement(By.css('[data-testid="tab-All"]')));
 			const id = await driver.findElement(By.css('input[name="#.id"]'));
 			await driver.wait(until.elementIsVisible(id), 5_000);
 			await id.sendKeys('x', Key.TAB);

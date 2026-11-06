@@ -36,13 +36,19 @@ export default defineConfig({
         ],
       },
     },
-    alias: {
+    alias: [
       // Force all packages to use the same React instance
-      react: fileURLToPath(new URL('../../node_modules/react', import.meta.url)),
-      'react-dom': fileURLToPath(new URL('../../node_modules/react-dom', import.meta.url)),
+      { find: /^react$/, replacement: fileURLToPath(new URL('../../node_modules/react', import.meta.url)) },
+      {
+        find: /^react-dom$/,
+        replacement: fileURLToPath(new URL('../../node_modules/react-dom', import.meta.url)),
+      },
       // Use native ESM build to avoid CJS interop issues in wrapper.mjs
-      uuid: fileURLToPath(new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url)),
-    },
+      {
+        find: /^uuid$/,
+        replacement: fileURLToPath(new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url)),
+      },
+    ],
   },
   resolve: {
     // Resolve workspace packages to their TypeScript sources.

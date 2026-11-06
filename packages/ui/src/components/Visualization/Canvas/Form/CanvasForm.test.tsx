@@ -1,6 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary, RouteDefinition } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsContext, CanvasFormTabsProvider } from '@kaoto/forms';
 import { KaotoFormPageObject } from '@kaoto/forms/testing';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
@@ -40,14 +39,38 @@ describe('CanvasForm', () => {
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
-        </CanvasFormTabsProvider>
+        <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
-    await screen.findAllByRole('button', { name: 'All' });
+    await screen.findAllByRole('tab', { name: 'All' });
     expect(container).toMatchSnapshot();
+  });
+
+  it('should render the node title and icon in the header', async () => {
+    const { Provider } = await TestProvidersWrapper();
+    render(
+      <Provider>
+        <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
+      </Provider>,
+    );
+
+    expect(await screen.findByRole('heading', { level: 2, name: vizNode.getNodeTitle() })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: vizNode.getNodeTitle() })).toHaveAttribute('src', vizNode.data.iconUrl);
+  });
+
+  it('should call onClose when clicking the close button', async () => {
+    const onClose = vi.fn();
+    const { Provider } = await TestProvidersWrapper();
+    render(
+      <Provider>
+        <CanvasForm vizNode={vizNode} onClose={onClose} />
+      </Provider>,
+    );
+
+    fireEvent.click(await screen.findByTestId('close-side-bar'));
+
+    expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it('should render nothing if no schema is available', async () => {
@@ -68,9 +91,7 @@ describe('CanvasForm', () => {
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsProvider>
+        <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
@@ -94,9 +115,7 @@ describe('CanvasForm', () => {
     const { Provider } = await TestProvidersWrapper();
     const { container } = render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsProvider>
+        <CanvasForm vizNode={noSchemaVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
@@ -120,21 +139,43 @@ describe('CanvasForm', () => {
 
     render(
       <Provider>
-        <CanvasFormTabsContext.Provider
-          value={{
-            selectedTab: 'All',
-            setSelectedTab: vi.fn(),
-          }}
-        >
-          <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsContext.Provider>
+        <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
-    const [idField] = await screen.findAllByLabelText('Description', { selector: 'textarea' });
-    fireEvent.change(idField, { target: { value } });
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.showAllFields();
+    await formPageObject.inputText('Description', value);
 
-    const closeSideBarButton = screen.getByTestId('close-side-bar');
+    const closeSideBarButton = await screen.findByTestId('close-side-bar');
+    fireEvent.click(closeSideBarButton);
+
+    expect(camelRouteVisualEntity.entityDef.route.description).toBeUndefined();
+  });
+
+  it("should serialize empty strings(with space characters) `' '` as `undefined`", async () => {
+    const flowId = camelRouteVisualEntity.id;
+    const dispatchSpy = vi.fn();
+    const visualFlowsApi = new VisualFlowsApi(dispatchSpy);
+    const { nodes } = FlowService.getFlowDiagram('test', await camelRouteVisualEntity.toVizNode());
+    const lastVizNode = nodes[nodes.length - 1].data!.vizNode!;
+    await lastVizNode.fetchSchema();
+
+    const { Provider } = await TestProvidersWrapper({
+      visibleFlowsContext: { allFlowsVisible: true, visibleFlows: { [flowId]: true }, visualFlowsApi },
+    });
+
+    render(
+      <Provider>
+        <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
+      </Provider>,
+    );
+
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.showAllFields();
+    await formPageObject.inputText('Description', ' ');
+
+    const closeSideBarButton = await screen.findByTestId('close-side-bar');
     fireEvent.click(closeSideBarButton);
 
     expect(camelRouteVisualEntity.entityDef.route.description).toBeUndefined();
@@ -155,21 +196,16 @@ describe('CanvasForm', () => {
 
     render(
       <Provider>
-        <CanvasFormTabsContext.Provider
-          value={{
-            selectedTab: 'All',
-            setSelectedTab: vi.fn(),
-          }}
-        >
-          <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsContext.Provider>
+        <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.showAllFields();
     const idField = await screen.findByRole('textbox', { name: 'Id' });
     fireEvent.change(idField, { target: { value: newName } });
 
-    const closeSideBarButton = screen.getByTestId('close-side-bar');
+    const closeSideBarButton = await screen.findByTestId('close-side-bar');
     fireEvent.click(closeSideBarButton);
 
     expect(camelRouteVisualEntity.id).toEqual(newName);
@@ -193,16 +229,14 @@ describe('CanvasForm', () => {
 
     render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
-        </CanvasFormTabsProvider>
+        <CanvasForm vizNode={lastVizNode} onClose={vi.fn()} />
       </Provider>,
     );
 
     const NameField = await screen.findByDisplayValue('user-source');
     fireEvent.change(NameField, { target: { value: newName } });
 
-    const closeSideBarButton = screen.getByTestId('close-side-bar');
+    const closeSideBarButton = await screen.findByTestId('close-side-bar');
     fireEvent.click(closeSideBarButton);
 
     expect(kameletVisualEntity.id).toEqual(newName);
@@ -222,9 +256,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -235,13 +267,13 @@ describe('CanvasForm', () => {
       expect(variableReceiveField).not.toBeInTheDocument();
 
       await formPageObject.showAllFields();
-      variableReceiveField = formPageObject.getFieldByDisplayName('Variable Receive');
+      variableReceiveField = await formPageObject.findFieldByDisplayName('Variable Receive');
       expect(variableReceiveField).toBeInTheDocument();
 
       await formPageObject.inputText('Variable Receive', 'myVariable');
 
       await formPageObject.showModifiedFields();
-      variableReceiveField = formPageObject.getFieldByDisplayName('Variable Receive');
+      variableReceiveField = await formPageObject.findFieldByDisplayName('Variable Receive');
       expect(variableReceiveField).toBeInTheDocument();
       expect(variableReceiveField).toHaveAttribute('value', 'myVariable');
     });
@@ -271,9 +303,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={setHeaderVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={setHeaderVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -284,22 +314,22 @@ describe('CanvasForm', () => {
       expect(expressionField).not.toBeInTheDocument();
 
       await formPageObject.showAllFields();
-      expressionField = formPageObject.getExpressionInputForProperty(ROOT_PATH);
+      expressionField = await formPageObject.findExpressionInputForProperty(ROOT_PATH);
       expect(expressionField).toBeInTheDocument();
 
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
 
-      let inputExpression = formPageObject.getFieldByDisplayName('Expression');
+      let inputExpression = await formPageObject.findFieldByDisplayName('Expression');
       expect(inputExpression).toBeInTheDocument();
 
       await formPageObject.inputText('Expression', '${header.foo}');
 
       await formPageObject.showModifiedFields();
-      expressionField = formPageObject.getExpressionInputForProperty(ROOT_PATH);
+      expressionField = await formPageObject.findExpressionInputForProperty(ROOT_PATH);
       expect(expressionField).toBeInTheDocument();
 
-      inputExpression = formPageObject.getFieldByDisplayName('Expression');
+      inputExpression = await formPageObject.findFieldByDisplayName('Expression');
       expect(inputExpression).toBeInTheDocument();
     });
 
@@ -328,9 +358,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -341,25 +369,23 @@ describe('CanvasForm', () => {
       expect(dataformatField).not.toBeInTheDocument();
 
       await formPageObject.showAllFields();
-      dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      dataformatField = await formPageObject.findOneOfInputForProperty(ROOT_PATH);
       expect(dataformatField).toBeInTheDocument();
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('barcode');
 
-      let inputBarcodeFormat = formPageObject.getTypeaheadInputForProperty('#.barcode.barcodeFormat');
+      let inputBarcodeFormat = await formPageObject.findTypeaheadInputForProperty('#.barcode.barcodeFormat');
       expect(inputBarcodeFormat).toBeInTheDocument();
 
       await formPageObject.toggleTypeaheadFieldForProperty('#.barcode.barcodeFormat');
       await formPageObject.selectTypeaheadItem('ean_13');
 
       await formPageObject.showModifiedFields();
-      dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      dataformatField = await formPageObject.findOneOfInputForProperty(ROOT_PATH);
       expect(dataformatField).toBeInTheDocument();
 
-      inputBarcodeFormat = formPageObject
-        .getTypeaheadInputForProperty('#.barcode.barcodeFormat')!
-        .querySelector('input');
+      inputBarcodeFormat = await formPageObject.findTypeaheadInputForProperty('#.barcode.barcodeFormat');
       expect(inputBarcodeFormat).toBeInTheDocument();
       expect(inputBarcodeFormat).toHaveAttribute('value', 'EAN_13');
     });
@@ -389,9 +415,7 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
@@ -402,7 +426,7 @@ describe('CanvasForm', () => {
       expect(loadbalancerField).not.toBeInTheDocument();
 
       await formPageObject.showAllFields();
-      loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      loadbalancerField = await formPageObject.findOneOfInputForProperty(ROOT_PATH);
       expect(loadbalancerField).toBeInTheDocument();
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
@@ -414,7 +438,7 @@ describe('CanvasForm', () => {
       fireEvent.click(inputRoundRobin);
 
       await formPageObject.showModifiedFields();
-      loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      loadbalancerField = await formPageObject.findOneOfInputForProperty(ROOT_PATH);
       expect(loadbalancerField).toBeInTheDocument();
 
       inputRoundRobin = await screen.findByLabelText('Round Robin');
@@ -442,9 +466,7 @@ describe('CanvasForm', () => {
       await act(async () => {
         render(
           <Provider>
-            <CanvasFormTabsProvider>
-              <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
-            </CanvasFormTabsProvider>
+            <CanvasForm vizNode={vizNode} onClose={vi.fn()} />
           </Provider>,
         );
       });
@@ -452,13 +474,13 @@ describe('CanvasForm', () => {
       const formPageObject = new KaotoFormPageObject(screen, act);
 
       await formPageObject.showRequiredFields();
-      let timerNameField = formPageObject.getFieldByDisplayName('Timer Name');
+      let timerNameField = await formPageObject.findFieldByDisplayName('Timer Name');
       expect(timerNameField).toBeInTheDocument();
 
       await formPageObject.inputText('Timer Name', 'quartz');
 
       await formPageObject.showAllFields();
-      timerNameField = formPageObject.getFieldByDisplayName('Timer Name');
+      timerNameField = await formPageObject.findFieldByDisplayName('Timer Name');
       expect(timerNameField).toBeInTheDocument();
       expect(timerNameField).toHaveAttribute('value', 'quartz');
     });
@@ -486,33 +508,35 @@ describe('CanvasForm', () => {
 
       const { Provider } = await TestProvidersWrapper();
 
-      render(
-        <Provider>
-          <CanvasFormTabsProvider>
+      // The expression selector suspends while language names load.
+      // eslint-disable-next-line testing-library/no-unnecessary-act
+      await act(async () => {
+        render(
+          <Provider>
             <CanvasForm vizNode={setHeaderVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
-        </Provider>,
-      );
+          </Provider>,
+        );
+      });
 
       const formPageObject = new KaotoFormPageObject(screen, act);
 
       await formPageObject.showRequiredFields();
-      let expressionField = formPageObject.getExpressionInputForProperty(ROOT_PATH);
+      let expressionField = await formPageObject.findExpressionInputForProperty(ROOT_PATH);
       expect(expressionField).toBeInTheDocument();
 
       await formPageObject.toggleExpressionFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('simple');
 
-      let inputExpression = formPageObject.getFieldByDisplayName('Expression');
+      let inputExpression = await formPageObject.findFieldByDisplayName('Expression');
       expect(inputExpression).toBeInTheDocument();
 
       await formPageObject.inputText('Expression', '${header.foo}');
 
       await formPageObject.showAllFields();
-      expressionField = formPageObject.getExpressionInputForProperty(ROOT_PATH);
+      expressionField = await formPageObject.findExpressionInputForProperty(ROOT_PATH);
       expect(expressionField).toBeInTheDocument();
 
-      inputExpression = formPageObject.getFieldByDisplayName('Expression');
+      inputExpression = await formPageObject.findFieldByDisplayName('Expression');
       expect(inputExpression).toBeInTheDocument();
     });
 
@@ -541,31 +565,29 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={marshalVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
       const formPageObject = new KaotoFormPageObject(screen, act);
 
       await formPageObject.showRequiredFields();
-      let dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      let dataformatField = await formPageObject.findOneOfInputForProperty(ROOT_PATH);
       expect(dataformatField).toBeInTheDocument();
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('beanio');
 
-      let inputBarcodeFormat = formPageObject.getFieldByDisplayName('Mapping');
+      let inputBarcodeFormat = await formPageObject.findFieldByDisplayName('Mapping');
       expect(inputBarcodeFormat).toBeInTheDocument();
 
       await formPageObject.inputText('Mapping', 'Jackson');
 
       await formPageObject.showAllFields();
-      dataformatField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      dataformatField = await formPageObject.findOneOfInputForProperty(ROOT_PATH);
       expect(dataformatField).toBeInTheDocument();
 
-      inputBarcodeFormat = formPageObject.getFieldByDisplayName('Mapping');
+      inputBarcodeFormat = await formPageObject.findFieldByDisplayName('Mapping');
       expect(inputBarcodeFormat).toBeInTheDocument();
       expect(inputBarcodeFormat).toHaveAttribute('value', 'Jackson');
     });
@@ -595,31 +617,29 @@ describe('CanvasForm', () => {
 
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={loadBalanceVizNode} onClose={vi.fn()} />
         </Provider>,
       );
 
       const formPageObject = new KaotoFormPageObject(screen, act);
 
       await formPageObject.showRequiredFields();
-      let loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      let loadbalancerField = await formPageObject.findOneOfInputForProperty(ROOT_PATH);
       expect(loadbalancerField).toBeInTheDocument();
 
       await formPageObject.toggleOneOfFieldForProperty(ROOT_PATH);
       await formPageObject.selectTypeaheadItem('weighted load balancer');
 
-      let inputDistributionRatio = formPageObject.getFieldByDisplayName('Distribution Ratio');
+      let inputDistributionRatio = await formPageObject.findFieldByDisplayName('Distribution Ratio');
       expect(inputDistributionRatio).toBeInTheDocument();
 
       await formPageObject.inputText('Distribution Ratio', '3.5');
 
       await formPageObject.showAllFields();
-      loadbalancerField = formPageObject.getOneOfInputForProperty(ROOT_PATH);
+      loadbalancerField = await formPageObject.findOneOfInputForProperty(ROOT_PATH);
       expect(loadbalancerField).toBeInTheDocument();
 
-      inputDistributionRatio = formPageObject.getFieldByDisplayName('Distribution Ratio');
+      inputDistributionRatio = await formPageObject.findFieldByDisplayName('Distribution Ratio');
       expect(inputDistributionRatio).toBeInTheDocument();
       expect(inputDistributionRatio).toHaveAttribute('value', '3.5');
     });
@@ -646,9 +666,7 @@ describe('CanvasForm', () => {
       const { Provider } = await TestProvidersWrapper();
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasForm vizNode={vizNode} onClose={onClose} />
-          </CanvasFormTabsProvider>
+          <CanvasForm vizNode={vizNode} onClose={onClose} />
         </Provider>,
       );
 

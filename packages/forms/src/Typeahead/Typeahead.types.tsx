@@ -18,5 +18,7 @@ export interface TypeaheadProps extends IDataTestID {
   onCreate?: (value?: string, filterValue?: string) => void;
   onCreatePrefix?: string;
   disabled?: boolean;
+  invalid?: boolean;
+  invalidText?: string;
   allowCustomInput?: boolean;
 }

@@ -5,6 +5,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import noDataIcon from '../../assets/no-data.svg';
 import notFoundIcon from '../../assets/not-found.svg';
+import { IDataTestID } from '../../models';
 
 export type EditorEmptyStateProps = PropsWithChildren<{
   /** Whether the editor list has at least one item. */
@@ -15,8 +16,8 @@ export type EditorEmptyStateProps = PropsWithChildren<{
   plural: string;
   /** When provided, a "Show first {singular}" button is rendered if the list has items but none is selected. */
   onSelectFirst?: () => void;
-  'data-testid'?: string;
-}>;
+}> &
+  IDataTestID;
 
 /**
  * Empty state shown in the details panel of the editors when there is nothing to edit:
@@ -31,6 +32,7 @@ export const EditorEmptyState: FunctionComponent<EditorEmptyStateProps> = ({
   plural,
   onSelectFirst,
   'data-testid': dataTestId = 'editor-empty-state',
+  'aria-label': ariaLabel,
   children,
 }) => {
   const article = /^[aeiou]/i.test(singular) ? 'an' : 'a';
@@ -40,7 +42,7 @@ export const EditorEmptyState: FunctionComponent<EditorEmptyStateProps> = ({
     : `Start creating some ${plural} here`;
 
   return (
-    <div className="editor-empty-state" data-testid={dataTestId}>
+    <div className="editor-empty-state" data-testid={dataTestId} aria-label={ariaLabel}>
       <img
         src={hasItems ? noDataIcon : notFoundIcon}
         alt={hasItems ? 'no data' : 'not found'}

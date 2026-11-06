@@ -1,0 +1,23 @@
+.kaoto-form-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding-block: var(--cds-spacing-03) var(--cds-spacing-05);
+
+  /*
+   * Containers such as pages, tiles and modals paint the first layer color. Do not use --cds-layer here, it
+   * changes with the nesting level (the Carbon modal body is already a second layer) and would show as a band.
+   * Consumers can override it, f.i. the canvas side panel.
+   */
+  background-color: var(--kaoto-form-toolbar-background, var(--cds-layer-01));
+
+  &__tabs {
+    margin-bottom: var(--cds-spacing-05);
+
+    button {
+      flex: 1;
+      justify-content: center;
+      font-weight: bold;
+    }
+  }
+}

@@ -345,7 +345,7 @@ describe('DataMapperSettingsModal', () => {
 
       const input = await screen.findByTestId('output-variable-name-input');
       expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
-      expect(input.closest('.pf-m-success')).toBeNull();
+      expect(input.closest('.output-variable-field--success')).toBeNull();
       expect(screen.getByTestId('datamapper-settings-save-btn')).not.toBeDisabled();
     });
 
@@ -354,7 +354,7 @@ describe('DataMapperSettingsModal', () => {
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
       const input = await screen.findByTestId('output-variable-name-input');
-      expect(input.closest('.pf-m-success')).not.toBeNull();
+      expect(input.closest('.output-variable-field--success')).not.toBeNull();
       expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
     });
 
@@ -365,10 +365,10 @@ describe('DataMapperSettingsModal', () => {
 
       const input = await screen.findByTestId('output-variable-name-input');
       await user.type(input, 'myVar');
-      expect(input.closest('.pf-m-success')).not.toBeNull();
+      expect(input.closest('.output-variable-field--success')).not.toBeNull();
 
       await user.clear(input);
-      expect(input.closest('.pf-m-success')).toBeNull();
+      expect(input.closest('.output-variable-field--success')).toBeNull();
       expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
     });
 

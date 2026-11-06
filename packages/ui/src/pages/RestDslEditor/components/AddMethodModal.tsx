@@ -1,4 +1,4 @@
-import { CanvasFormTabsProvider, isDefined, KaotoForm, KaotoFormApi } from '@kaoto/forms';
+import { isDefined, KaotoForm, KaotoFormApi } from '@kaoto/forms';
 import { FunctionComponent, RefObject, useCallback, useRef, useState } from 'react';
 
 import { EditorModal } from '../../../components/EditorShell';
@@ -53,15 +53,13 @@ export const AddMethodModal: FunctionComponent<AddMethodModalProps> = ({
       onClose={onClose}
       onSubmit={handleAdd}
     >
-      <CanvasFormTabsProvider tab="All">
-        <KaotoForm
-          schema={ADD_METHOD_SCHEMA}
-          model={formModel}
-          onChangeProp={onChangeProp}
-          ref={formRef}
-          customFieldsFactory={customFieldsFactoryfactory}
-        />
-      </CanvasFormTabsProvider>
+      <KaotoForm
+        schema={ADD_METHOD_SCHEMA}
+        model={formModel}
+        onChangeProp={onChangeProp}
+        ref={formRef}
+        customFieldsFactory={customFieldsFactoryfactory}
+      />
     </EditorModal>
   );
 };

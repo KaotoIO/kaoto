@@ -75,4 +75,25 @@ describe('CanvasFormTabsProvider', () => {
     fireEvent.click(requiredTab);
     expect(screen.getByTestId('selected-tab')).toHaveTextContent('Required');
   });
+
+  it('should expose whether the section tabs are shown', () => {
+    const TestComponent: FunctionComponent = () => {
+      const { showSectionTabs } = useContext(CanvasFormTabsContext);
+      return <div data-testid="show-section-tabs">{String(showSectionTabs)}</div>;
+    };
+
+    const { rerender } = render(
+      <CanvasFormTabsProvider>
+        <TestComponent />
+      </CanvasFormTabsProvider>,
+    );
+    expect(screen.getByTestId('show-section-tabs')).toHaveTextContent('false');
+
+    rerender(
+      <CanvasFormTabsProvider showSectionTabs>
+        <TestComponent />
+      </CanvasFormTabsProvider>,
+    );
+    expect(screen.getByTestId('show-section-tabs')).toHaveTextContent('true');
+  });
 });

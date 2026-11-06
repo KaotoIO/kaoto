@@ -9,13 +9,15 @@ import { FieldProps } from '../models/typings';
 import { capitalizeString } from '../utils/capitalize-string';
 
 interface FieldWrapperProps extends FieldProps {
-  type: string;
+  type?: string;
   title?: ReactNode;
   description?: string;
   defaultValue?: string;
   errors?: string[];
   isRow?: boolean;
   isRaw?: boolean;
+  /** Hides the info toggletip, useful when there is no label, description or default to show */
+  hideInfo?: boolean;
   onOpenSuggestions?: () => void;
 }
 
@@ -30,6 +32,7 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
   isRow = false,
   children,
   isRaw = false,
+  hideInfo = false,
   onOpenSuggestions,
 }) => {
   const id = `${propName}-popover`;
@@ -45,20 +48,22 @@ export const FieldWrapper: FunctionComponent<PropsWithChildren<FieldWrapperProps
           {label}
         </label>
         {isRaw && <Tag size="sm">raw</Tag>}
-        <Toggletip autoAlign>
-          <ToggletipButton label={`More info for ${labelText} field`}>
-            <Information />
-          </ToggletipButton>
-          <ToggletipContent className="kaoto-field-wrapper__toggletip-content">
-            <p>
-              <strong>
-                {label} {`<${type}>`}
-              </strong>
-            </p>
-            <p>{description}</p>
-            <p>Default: {defaultValue}</p>
-          </ToggletipContent>
-        </Toggletip>
+        {!hideInfo && (
+          <Toggletip autoAlign>
+            <ToggletipButton label={`More info for ${labelText} field`}>
+              <Information />
+            </ToggletipButton>
+            <ToggletipContent className="kaoto-field-wrapper__toggletip-content">
+              <p>
+                <strong>
+                  {label} {type && `<${type}>`}
+                </strong>
+              </p>
+              <p>{description}</p>
+              {defaultValue && <p>Default: {defaultValue}</p>}
+            </ToggletipContent>
+          </Toggletip>
+        )}
         {onOpenSuggestions && (
           <IconButton
             autoAlign

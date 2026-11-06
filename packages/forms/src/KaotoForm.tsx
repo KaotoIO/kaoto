@@ -1,10 +1,11 @@
 import './KaotoForm.scss';
 
-import { Form, Layer, useLayer } from '@carbon/react';
+import { Form, Layer, preview_Layout as Layout, useLayer } from '@carbon/react';
 import { JSONSchema4 } from 'json-schema';
 import {
   forwardRef,
   Fragment,
+  ReactNode,
   SubmitEventHandler,
   useCallback,
   useEffect,
@@ -15,8 +16,11 @@ import {
 } from 'react';
 
 import { AutoField } from './fields/AutoField';
+import { FormToolbar } from './Form/FormToolbar';
 import { NoFieldFound } from './Form/NoFieldFound';
 import { IDataTestID } from './models';
+import { CanvasFormTabsProvider, TabKeys } from './providers/canvas-form-tabs.provider';
+import { FilteredFieldProvider } from './providers/filtered-field.provider';
 import { CustomFieldsFactory, FormComponentFactoryProvider } from './providers/FormComponentFactoryProvider';
 import { ModelContextProvider } from './providers/ModelProvider';
 import { SchemaDefinitionsProvider } from './providers/SchemaDefinitionsProvider';
@@ -44,6 +48,24 @@ export interface KaotoFormProps extends IDataTestID {
    * Wrap the form in a Carbon `<Layer>` when no ancestor provides one. Defaults to `true`.
    */
   withLayer?: boolean;
+  /**
+   * Renders the "Find properties by name" search above the fields. Defaults to `false`.
+   */
+  showFilterField?: boolean;
+  /**
+   * Renders the Required / All / Modified switcher above the fields. Defaults to `false`.
+   */
+  showSectionTabs?: boolean;
+  /**
+   * Tab selected on mount, whether or not the switcher is shown. Changing it afterwards has no effect.
+   * Defaults to `All`.
+   */
+  defaultSectionTab?: TabKeys;
+  /**
+   * Extra content rendered right below the filter field / section tabs and above the fields. It lives inside
+   * the form providers, `<Layer>` and `<Layout>`, so it gets the same background, density and field state.
+   */
+  children?: ReactNode;
   onChange?: (value: unknown) => void;
   onChangeProp?: (propName: string, value: unknown) => void;
   customFieldsFactory?: CustomFieldsFactory;
@@ -58,6 +80,10 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
       omitFields = [],
       disabled,
       withLayer = true,
+      showFilterField = false,
+      showSectionTabs = false,
+      defaultSectionTab = 'All',
+      children,
       onChange,
       onChangeProp,
       customFieldsFactory,
@@ -125,7 +151,8 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
      * If an ancestor already did (sidebar, modal, nested form...), we avoid stacking another one.
      */
     const { level } = useLayer();
-    const LayerWrapper = withLayer && level <= 1 ? Layer : Fragment;
+    const shouldAddLayer = withLayer && level <= 1;
+    const LayerWrapper = shouldAddLayer ? Layer : Fragment;
 
     const validator = useMemo(() => getValidator(schema), [schema]);
 
@@ -159,13 +186,31 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
               onPropertyChange={onPropertyChange}
               disabled={disabled}
             >
-              <LayerWrapper>
-                <Form onSubmit={onSubmit} className="kaoto-form kaoto-form__label" data-testid={dataTestId}>
-                  <AutoField propName={ROOT_PATH} />
-                </Form>
+              {/* Providers mounted above the form are ignored on purpose: every form owns its tab and filter state */}
+              <CanvasFormTabsProvider tab={defaultSectionTab} showSectionTabs={showSectionTabs}>
+                <FilteredFieldProvider>
+                  {/* One place to set the density of every control in the form and its toolbar */}
+                  <Layout size="sm">
+                    {(showFilterField || showSectionTabs) && (
+                      <FormToolbar
+                        showFilterField={showFilterField}
+                        showSectionTabs={showSectionTabs}
+                        withLayer={shouldAddLayer}
+                      />
+                    )}
 
-                <NoFieldFound className="kaoto-form kaoto-form__empty" />
-              </LayerWrapper>
+                    <LayerWrapper>
+                      {children}
+
+                      <Form onSubmit={onSubmit} className="kaoto-form kaoto-form__label" data-testid={dataTestId}>
+                        <AutoField propName={ROOT_PATH} />
+                      </Form>
+
+                      <NoFieldFound className="kaoto-form kaoto-form__empty" />
+                    </LayerWrapper>
+                  </Layout>
+                </FilteredFieldProvider>
+              </CanvasFormTabsProvider>
             </ModelContextProvider>
           </SchemaProvider>
         </SchemaDefinitionsProvider>
