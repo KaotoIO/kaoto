@@ -27,9 +27,37 @@ export const getElementFromXml = (xml: string): Element => {
 };
 
 describe('BeanXmlParser', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeAll(async () => {
     const catalogsMap = await getFirstCatalogMap(catalogLibrary as CatalogLibrary);
     setupDynamicCatalogRegistry(catalogsMap);
+  });
+
+  it('parses beans concurrently and retains source order when later beans finish first', async () => {
+    vi.useFakeTimers();
+    const transform = vi
+      .spyOn(BeansXmlParser, 'transformBeanFactory')
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => {
+              resolve({ name: 'first', type: 'First' });
+            }, 100),
+          ),
+      )
+      .mockResolvedValueOnce({ name: 'second', type: 'Second' });
+    const parsing = new BeansXmlParser().transformBeansSection(getElementFromXml('<beans><bean/><bean/></beans>'));
+
+    expect(transform).toHaveBeenCalledTimes(2);
+    await vi.advanceTimersByTimeAsync(100);
+
+    await expect(parsing).resolves.toEqual([
+      { name: 'first', type: 'First' },
+      { name: 'second', type: 'Second' },
+    ]);
   });
 
   it('parse bean constructors properly', () => {

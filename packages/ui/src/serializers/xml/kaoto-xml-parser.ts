@@ -64,44 +64,56 @@ export class KaotoXmlParser {
     const children = rootCamelElement ? rootCamelElement.children : xmlDoc.children;
 
     // Process route entities
-    for (const routeElement of Array.from(xmlDoc.getElementsByTagName('route'))) {
-      const route = await RouteXmlParser.parse(routeElement);
-      rawEntities.push({ route });
-    }
+    const routes = await Promise.all(
+      Array.from(xmlDoc.getElementsByTagName('route')).map(async (element) => ({
+        route: await RouteXmlParser.parse(element),
+      })),
+    );
+    rawEntities.push(...routes);
 
     // Process beans (bean factory)
     const beansSection = xmlDoc.getElementsByTagName('beans')[0];
     const beans: BeanFactory[] = beansSection ? await this.beanParser.transformBeansSection(beansSection) : [];
     // process beans outside of beans section
-    for (const beanElement of Array.from(children).filter((child) => child.tagName === 'bean')) {
-      beans.push(await BeansXmlParser.transformBeanFactory(beanElement));
-    }
+    const standaloneBeans = await Promise.all(
+      Array.from(children)
+        .filter((child) => child.tagName === 'bean')
+        .map((element) => BeansXmlParser.transformBeanFactory(element)),
+    );
+    beans.push(...standaloneBeans);
 
     if (beans.length > 0) {
       rawEntities.push({ beans });
     }
 
     // Process rest entities
-    for (const restElement of Array.from(xmlDoc.getElementsByTagName('rest'))) {
-      const rest = await RestXmlParser.parse(restElement);
-      rawEntities.push({ rest });
-    }
+    const rests = await Promise.all(
+      Array.from(xmlDoc.getElementsByTagName('rest')).map(async (element) => ({
+        rest: await RestXmlParser.parse(element),
+      })),
+    );
+    rawEntities.push(...rests);
 
     // Process route configurations
-    for (const routeConf of Array.from(xmlDoc.getElementsByTagName('routeConfiguration'))) {
-      const routeConfiguration = await RouteXmlParser.parseRouteConfiguration(routeConf);
-      rawEntities.push({ routeConfiguration });
-    }
+    const routeConfigurations = await Promise.all(
+      Array.from(xmlDoc.getElementsByTagName('routeConfiguration')).map(async (element) => ({
+        routeConfiguration: await RouteXmlParser.parseRouteConfiguration(element),
+      })),
+    );
+    rawEntities.push(...routeConfigurations);
 
     // rest of the elements
-    for (const child of Array.from(children)) {
-      if (KaotoXmlParser.PARSABLE_ELEMENTS.includes(child.tagName)) {
-        const entity = await StepParser.parseElement(child);
-        if (entity) {
-          rawEntities.push({ [child.tagName]: entity });
-        }
-      }
-    }
+    const otherEntities = await Promise.all(
+      Array.from(children)
+        .filter((child) => KaotoXmlParser.PARSABLE_ELEMENTS.includes(child.tagName))
+        .map(async (child) => {
+          const entity = await StepParser.parseElement(child);
+          return entity ? { [child.tagName]: entity } : undefined;
+        }),
+    );
+    otherEntities.forEach((entity) => {
+      if (entity) rawEntities.push(entity);
+    });
 
     return rawEntities;
   }

@@ -22,10 +22,27 @@ export class CitrusTestSchemaService {
   private static kindMap: Record<string, CatalogKind> | null = null;
   /** Incremented on every clearKindMap() call; used to discard in-flight builds. */
   private static kindMapGeneration = 0;
+  private static kindMapPromise: Promise<void> | null = null;
 
   private static async ensureKindMap(): Promise<void> {
     if (CitrusTestSchemaService.kindMap !== null) return;
 
+    const request = (CitrusTestSchemaService.kindMapPromise ??= CitrusTestSchemaService.buildKindMap());
+    try {
+      await request;
+    } finally {
+      if (CitrusTestSchemaService.kindMapPromise === request) {
+        CitrusTestSchemaService.kindMapPromise = null;
+      }
+    }
+
+    // A clear during the build requires the current generation before looking up actions.
+    if (CitrusTestSchemaService.kindMap === null) {
+      await CitrusTestSchemaService.ensureKindMap();
+    }
+  }
+
+  private static async buildKindMap(): Promise<void> {
     const generation = CitrusTestSchemaService.kindMapGeneration;
     const registry = DynamicCatalogRegistry.get();
     const kindMap: Record<string, CatalogKind> = {};
@@ -52,6 +69,7 @@ export class CitrusTestSchemaService {
    */
   static clearKindMap(): void {
     CitrusTestSchemaService.kindMapGeneration++;
+    CitrusTestSchemaService.kindMapPromise = null;
     CitrusTestSchemaService.kindMap = null;
   }
 

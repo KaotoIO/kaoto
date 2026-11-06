@@ -389,27 +389,29 @@ Cypress.Commands.add('assertValueCopiedToClipboard', (value) => {
       // Otherwise the read floats and may resolve against a later copy's content, throwing an
       // uncaught AssertionError (the Chromium-only "deeply equal" failure seen in CI).
       return win.navigator?.clipboard?.read().then(async (text: ClipboardItems) => {
-        for (const item of text) {
-          if (item.types.includes('web text/kaoto')) {
-            const blob = await item.getType('web text/kaoto');
-            const yamlText = await blob.text();
-            const parsedContent = parse(yamlText);
+        await Promise.all(
+          text.map(async (item) => {
+            if (item.types.includes('web text/kaoto')) {
+              const blob = await item.getType('web text/kaoto');
+              const yamlText = await blob.text();
+              const parsedContent = parse(yamlText);
 
-            // Normalize parsed YAML to IClipboardContent format
-            const clipboardContent = normalizeClipboardContent(parsedContent);
-            expect(clipboardContent).to.deep.equal(value);
-          }
+              // Normalize parsed YAML to IClipboardContent format
+              const clipboardContent = normalizeClipboardContent(parsedContent);
+              expect(clipboardContent).to.deep.equal(value);
+            }
 
-          if (item.types.includes('text/plain')) {
-            const blob = await item.getType('text/plain');
-            const yamlText = await blob.text();
-            const parsedContent = parse(yamlText);
+            if (item.types.includes('text/plain')) {
+              const blob = await item.getType('text/plain');
+              const yamlText = await blob.text();
+              const parsedContent = parse(yamlText);
 
-            // Normalize parsed YAML to IClipboardContent format
-            const clipboardContent = normalizeClipboardContent(parsedContent);
-            expect(clipboardContent).to.deep.equal(value);
-          }
-        }
+              // Normalize parsed YAML to IClipboardContent format
+              const clipboardContent = normalizeClipboardContent(parsedContent);
+              expect(clipboardContent).to.deep.equal(value);
+            }
+          }),
+        );
       });
     } else {
       // For browsers without clipboard API support, skip the assertion

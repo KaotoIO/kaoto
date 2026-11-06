@@ -63,13 +63,14 @@ export class BaseNodeMapper implements INodeMapper {
       vizNode.data.isGroup = true;
     }
 
-    for (const stepsProperty of childrenStepsProperties) {
-      const childrenVizNodes = await this.getVizNodesFromChildren(path, stepsProperty, entityDefinition);
-
-      childrenVizNodes.forEach((childVizNode) => {
-        vizNode.addChild(childVizNode);
-      });
-    }
+    const children = await Promise.all(
+      childrenStepsProperties.map((stepsProperty) =>
+        this.getVizNodesFromChildren(path, stepsProperty, entityDefinition),
+      ),
+    );
+    children.flat().forEach((childVizNode) => {
+      vizNode.addChild(childVizNode);
+    });
 
     return vizNode;
   }
@@ -144,29 +145,23 @@ export class BaseNodeMapper implements INodeMapper {
   protected async getChildrenFromBranch(path: string, entityDefinition: unknown): Promise<IVisualizationNode[]> {
     const stepsList = getValue(entityDefinition, path, []) as ProcessorDefinition[];
 
-    const branchVizNodes: IVisualizationNode[] = [];
-    for (let index = 0; index < stepsList.length; index++) {
-      const step = stepsList[index];
-      const singlePropertyName = Object.keys(step)[0];
-      const childPath = `${path}.${index}.${singlePropertyName}`;
-      const childComponentLookup = {
-        primaryNodeId: { name: singlePropertyName, catalogKind: CatalogKind.Pattern } satisfies NodeIdentity,
-      };
-
-      const vizNode = await this.rootNodeMapper.getVizNodeFromProcessor(
-        childPath,
-        childComponentLookup,
-        entityDefinition,
-      );
-
-      const previousVizNode = branchVizNodes[branchVizNodes.length - 1];
+    const branchVizNodes = await Promise.all(
+      stepsList.map((step, index) => {
+        const singlePropertyName = Object.keys(step)[0];
+        const childPath = `${path}.${index}.${singlePropertyName}`;
+        const childComponentLookup = {
+          primaryNodeId: { name: singlePropertyName, catalogKind: CatalogKind.Pattern } satisfies NodeIdentity,
+        };
+        return this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+      }),
+    );
+    branchVizNodes.forEach((vizNode, index) => {
+      const previousVizNode = branchVizNodes[index - 1];
       if (previousVizNode !== undefined) {
         previousVizNode.setNextNode(vizNode);
         vizNode.setPreviousNode(previousVizNode);
       }
-
-      branchVizNodes.push(vizNode);
-    }
+    });
 
     /** Empty steps branch placeholder */
     const placeholderPath = `${path}.${branchVizNodes.length}.placeholder`;
@@ -214,29 +209,26 @@ export class BaseNodeMapper implements INodeMapper {
     const expressionList = getValue(entityDefinition, path, []) as When1[] | DoCatch[];
 
     const children: IVisualizationNode[] = [this.getPlaceHolderNodeForProcessor(path)];
-    for (let index = 0; index < expressionList.length; index++) {
-      let childPath = `${path}.${index}`;
-      const processorName = path.split('.').pop() as keyof ProcessorDefinition;
-      const childComponentLookup = {
-        primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern } satisfies NodeIdentity,
-      };
+    const arrayClauseNodes = await Promise.all(
+      expressionList.map((_, index) => {
+        let childPath = `${path}.${index}`;
+        const processorName = path.split('.').pop() as keyof ProcessorDefinition;
+        const childComponentLookup = {
+          primaryNodeId: { name: processorName, catalogKind: CatalogKind.Pattern } satisfies NodeIdentity,
+        };
 
-      if (
-        SPECIAL_PROCESSORS_PARENTS_MAP['routeConfiguration'].includes(
-          processorName as (typeof SPECIAL_PROCESSORS_PARENTS_MAP)['routeConfiguration'][number],
-        )
-      ) {
-        childPath = `${path}.${index}.${processorName}`;
-      }
+        if (
+          SPECIAL_PROCESSORS_PARENTS_MAP['routeConfiguration'].includes(
+            processorName as (typeof SPECIAL_PROCESSORS_PARENTS_MAP)['routeConfiguration'][number],
+          )
+        ) {
+          childPath = `${path}.${index}.${processorName}`;
+        }
 
-      const arrayClauseVizNode = await this.rootNodeMapper.getVizNodeFromProcessor(
-        childPath,
-        childComponentLookup,
-        entityDefinition,
-      );
-
-      children.push(arrayClauseVizNode);
-    }
+        return this.rootNodeMapper.getVizNodeFromProcessor(childPath, childComponentLookup, entityDefinition);
+      }),
+    );
+    children.push(...arrayClauseNodes);
 
     return children;
   }

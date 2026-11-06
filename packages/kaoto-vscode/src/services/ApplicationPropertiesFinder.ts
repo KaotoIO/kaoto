@@ -48,9 +48,10 @@ export async function findAllApplicationPropertiesFiles(start: vscode.Uri | stri
 
 export async function parseMultipleApplicationPropertiesFiles(fileUris: vscode.Uri[]): Promise<Suggestion[]> {
 	const suggestions: Suggestion[] = [];
+	const contents = await Promise.all(fileUris.map((uri) => vscode.workspace.fs.readFile(uri)));
 
-	for (const uri of fileUris) {
-		const bytes = await vscode.workspace.fs.readFile(uri);
+	for (const [index, uri] of fileUris.entries()) {
+		const bytes = contents[index];
 		const content = new TextDecoder().decode(bytes);
 		const fileName = path.posix.basename(uri.path);
 

@@ -3,6 +3,7 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
+import { CatalogKind } from '../../../catalog-kind';
 import { TestActions } from '../../../citrus/entities/Test';
 import { CitrusTestSchemaService } from './citrus-test-schema.service';
 
@@ -24,6 +25,65 @@ describe('CitrusTestSchemaService', () => {
   describe('getTestActionName', () => {
     afterEach(() => {
       CitrusTestSchemaService.clearKindMap();
+    });
+
+    it('should retry the kind-map build after a shared failure', async () => {
+      CitrusTestSchemaService.clearKindMap();
+      const catalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestAction)!;
+      const getAll = vi.spyOn(catalog, 'getAll').mockRejectedValueOnce(new Error('Unavailable'));
+      try {
+        const action = { print: { message: 'hello' } };
+        const results = await Promise.allSettled([
+          CitrusTestSchemaService.getTestActionName(action),
+          CitrusTestSchemaService.getTestActionName(action),
+        ]);
+        expect(results.map((result) => result.status)).toEqual(['rejected', 'rejected']);
+        expect(getAll).toHaveBeenCalledTimes(1);
+        expect(await CitrusTestSchemaService.getTestActionName(action)).toBe('print');
+        expect(getAll).toHaveBeenCalledTimes(2);
+      } finally {
+        getAll.mockRestore();
+      }
+    });
+
+    it('should use the current generation when the kind map is cleared during a build', async () => {
+      CitrusTestSchemaService.clearKindMap();
+      const catalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestAction)!;
+      let resolveOld!: (value: Awaited<ReturnType<typeof catalog.getAll>>) => void;
+      const oldRequest = new Promise<Awaited<ReturnType<typeof catalog.getAll>>>((resolve) => {
+        resolveOld = resolve;
+      });
+      const getAll = vi.spyOn(catalog, 'getAll').mockReturnValueOnce(oldRequest);
+      try {
+        const action = { http: { sendRequest: {} } };
+        const oldResult = CitrusTestSchemaService.getTestActionName(action);
+        CitrusTestSchemaService.clearKindMap();
+        const newResult = CitrusTestSchemaService.getTestActionName(action);
+        expect(await newResult).toBe('http-sendRequest');
+        resolveOld({});
+        expect(await oldResult).toBe('http-sendRequest');
+        expect(await CitrusTestSchemaService.getTestActionName(action)).toBe('http-sendRequest');
+        expect(getAll).toHaveBeenCalledTimes(2);
+      } finally {
+        resolveOld({});
+        getAll.mockRestore();
+      }
+    });
+
+    it('should share the kind-map build across concurrent action lookups', async () => {
+      CitrusTestSchemaService.clearKindMap();
+      const catalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestAction)!;
+      const getAll = vi.spyOn(catalog, 'getAll');
+      try {
+        const results = await Promise.all([
+          CitrusTestSchemaService.getTestActionName({ print: { message: 'first' } }),
+          CitrusTestSchemaService.getTestActionName({ print: { message: 'second' } }),
+        ]);
+        expect(results).toEqual(['print', 'print']);
+        expect(getAll).toHaveBeenCalledTimes(1);
+      } finally {
+        getAll.mockRestore();
+      }
     });
 
     it('should get test action name for simple action models', async () => {
