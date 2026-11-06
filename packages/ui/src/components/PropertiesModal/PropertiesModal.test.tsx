@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { screen, waitFor } from '@testing-library/dom';
+import { screen, waitFor, within } from '@testing-library/dom';
 import { act, render } from '@testing-library/react';
 
 import { CatalogContext } from '../../dynamic-catalog/catalog.provider';
@@ -110,11 +110,8 @@ describe('PropertiesModal', () => {
       expect(screen.getByTestId('tab-1-table-1-properties-modal-table-caption')).toHaveTextContent(
         'query parameters (26)',
       );
-      //headers
-      expect(screen.getByTestId('tab-1-table-1-header-name')).toHaveTextContent('name');
-      expect(screen.getByTestId('tab-1-table-1-header-description')).toHaveTextContent('description');
-      expect(screen.getByTestId('tab-1-table-1-header-default')).toHaveTextContent('default');
-      expect(screen.getByTestId('tab-1-table-1-header-type')).toHaveTextContent('type');
+      //headers are shared with table1 (single table, one header row)
+      expect(screen.queryByTestId('tab-1-table-1-header-name')).not.toBeInTheDocument();
       //rows
       expect(screen.getByTestId('tab-1-table-1-row-0-cell-name')).toHaveTextContent(
         'sendEmptyMessageWhenIdle (consumer)',
@@ -143,6 +140,39 @@ describe('PropertiesModal', () => {
       );
       expect(screen.getByTestId('tab-2-table-0-row-0-cell-type')).toHaveTextContent('List');
       expect(screen.getByTestId('tab-2-table-0-row-0-cell-default')).toHaveTextContent('');
+    });
+
+    it('renders endpoint options path and query parameters as row groups of a single table', async () => {
+      await renderModal(tile);
+      await waitFor(() => {
+        expect(screen.queryByText('Loading properties...')).not.toBeInTheDocument();
+      });
+      await act(async () => {
+        screen.getByTestId('tab-1').click();
+        await new Promise(process.nextTick);
+      });
+
+      // one shared table instead of one table per parameter group
+      const table = screen.getByTestId('tab-1-table-0');
+      expect(table.tagName).toBe('TABLE');
+      expect(screen.queryByTestId('tab-1-table-1')).not.toBeInTheDocument();
+
+      // both group captions are inside that table and span every column
+      const headerCount = table.querySelectorAll('thead tr th').length;
+      expect(headerCount).toBe(4);
+      const pathCaption = within(table).getByTestId('tab-1-table-0-properties-modal-table-caption');
+      const queryCaption = within(table).getByTestId('tab-1-table-1-properties-modal-table-caption');
+      expect(pathCaption).toHaveTextContent('path parameters (1)');
+      expect(queryCaption).toHaveTextContent('query parameters (26)');
+      expect(pathCaption).toHaveAttribute('colspan', String(headerCount));
+      expect(queryCaption).toHaveAttribute('colspan', String(headerCount));
+
+      // every data row has the same number of cells as the header row
+      const dataRows = table.querySelectorAll('tbody tr[data-testid*="-row-"]');
+      expect(dataRows).toHaveLength(27);
+      dataRows.forEach((row) => {
+        expect(row.querySelectorAll('td')).toHaveLength(headerCount);
+      });
     });
   });
 
@@ -205,6 +235,9 @@ describe('PropertiesModal', () => {
       expect(screen.getByTestId('tab-0-table-0-row-0-cell-description')).toHaveTextContent(
         'A short description for the security scheme.',
       );
+      // a single caption-less table renders no group heading row
+      expect(screen.queryByTestId('tab-0-table-0-properties-modal-table-caption')).not.toBeInTheDocument();
+      expect(screen.getByTestId('tab-0-table-0').querySelector('tbody th')).toBeNull();
     });
   });
 
