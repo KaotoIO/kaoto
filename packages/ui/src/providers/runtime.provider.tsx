@@ -60,7 +60,7 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
     const controller = new AbortController();
     fetch(catalogUrl)
       .then((response) => response.json())
-      .then((catalogLibrary: CatalogLibrary) => {
+      .then(async (catalogLibrary: CatalogLibrary) => {
         if (controller.signal.aborted) return;
         let catalogLibraryEntry: CatalogLibraryEntry | undefined = undefined;
         if (isDefined(catalogName)) {
@@ -73,9 +73,11 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
         setCatalogLibrary(catalogLibrary);
         setSelectedCatalog(catalogLibraryEntry);
 
-        return fetchXsltXPathFunctions(basePath, catalogLibrary, controller.signal).catch(() => {
+        try {
+          await fetchXsltXPathFunctions(basePath, catalogLibrary, controller.signal);
+        } catch {
           /* XSLT catalog load failure is non-fatal — XPath editor falls back to hardcoded functions */
-        });
+        }
       })
       .then(() => {
         if (!controller.signal.aborted) setLoadState({ request, status: LoadingStatus.Loaded });
