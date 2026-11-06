@@ -351,6 +351,37 @@ describe('Canvas', () => {
     expect(removeSpy).toHaveBeenCalledWith(['route-8888']);
   });
 
+  it('should drop the previous context menu as soon as the node is right-clicked again', async () => {
+    const camelResource = new CamelRouteResource([camelRouteJson]);
+    await camelResource.initialize();
+    const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
+
+    const { Provider } = await TestProvidersWrapper({ camelResource });
+
+    render(
+      <Provider>
+        <VisualizationProvider controller={ControllerService.createController()}>
+          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    const route = screen.getByText('route-8888');
+    fireEvent.contextMenu(route);
+    const firstDelete = await screen.findByRole('menuitem', { name: 'Delete' });
+
+    fireEvent.contextMenu(route);
+
+    /* The items of the first menu must not stay clickable while the second menu is being built (#3529) */
+    expect(firstDelete).not.toBeInTheDocument();
+    const secondDelete = await screen.findByRole('menuitem', { name: 'Delete' });
+    expect(secondDelete).not.toBe(firstDelete);
+  });
+
   it('should be able to delete the kamelets', async () => {
     const kameletResource = new KameletResource(kameletJson);
     await kameletResource.initialize();
