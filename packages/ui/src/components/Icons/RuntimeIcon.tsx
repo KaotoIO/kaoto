@@ -1,7 +1,5 @@
 import './RuntimeIcon.scss';
 
-import { Icon } from '@patternfly/react-core';
-
 import camelLogo from '../../assets/camel-logo.svg';
 import citrusLogo from '../../assets/citrus-logo.png';
 import quarkusLogo from '../../assets/quarkus-logo.svg';
@@ -20,39 +18,39 @@ export const getRuntimeIcon = (runtimeOrName: string = '') => {
 
   if (normalized.includes('redhat')) {
     return (
-      <Icon className="runtime-icon">
+      <span className="runtime-icon">
         <img src={redhatLogo} alt="Red Hat logo" />
-      </Icon>
+      </span>
     );
   }
 
   if (normalized.includes('citrus')) {
     return (
-      <Icon className="runtime-icon">
+      <span className="runtime-icon">
         <img src={citrusLogo} alt="Citrus logo" />
-      </Icon>
+      </span>
     );
   }
 
   if (normalized.includes('quarkus')) {
     return (
-      <Icon className="runtime-icon">
+      <span className="runtime-icon">
         <img src={quarkusLogo} alt="Quarkus logo" />
-      </Icon>
+      </span>
     );
   }
 
   if (normalized.includes('springboot')) {
     return (
-      <Icon className="runtime-icon">
+      <span className="runtime-icon">
         <img src={springBootLogo} alt="Spring Boot logo" />
-      </Icon>
+      </span>
     );
   }
 
   return (
-    <Icon className="runtime-icon">
+    <span className="runtime-icon">
       <img src={camelLogo} alt="Apache Camel logo" />
-    </Icon>
+    </span>
   );
 };

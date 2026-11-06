@@ -1,5 +1,4 @@
 import { Error as ErrorIcon, Layers } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { ElementType, FunctionComponent, Ref } from 'react';
 
@@ -66,26 +65,18 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
           <FloatingCircle
             className={clsx('step-icon step-icon__processor', { 'step-icon-collection': hasGroupChildren })}
           >
-            {hasGroupChildren && (
-              <Icon size="sm" aria-label="contains nested collections">
-                <Layers />
-              </Icon>
-            )}
+            {hasGroupChildren && <Layers aria-label="contains nested collections" />}
             <span title={`${childCount}`}>{childCount}</span>
           </FloatingCircle>
         )}
         {ProcessorIcon && (
           <FloatingCircle className="step-icon step-icon__processor">
-            <Icon status="info" size="lg">
-              <ProcessorIcon title={processorDescription} />
-            </Icon>
+            <ProcessorIcon className="step-icon__processor-icon" title={processorDescription} />
           </FloatingCircle>
         )}
         {isDisabled && (
           <FloatingCircle className="step-icon step-icon__disabled">
-            <Icon status="danger" size="lg">
-              <ErrorIcon />
-            </Icon>
+            <ErrorIcon />
           </FloatingCircle>
         )}
       </div>

@@ -1,7 +1,7 @@
 import './BaseDocument.scss';
 
 import { Draggable } from '@carbon/icons-react';
-import { ActionListGroup, ActionListItem, Divider, Icon } from '@patternfly/react-core';
+import { ActionListGroup, ActionListItem, Divider } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent, KeyboardEvent, MouseEvent, ReactNode, useCallback, useMemo } from 'react';
 
@@ -109,9 +109,9 @@ export const DocumentHeader: FunctionComponent<DocumentHeaderProps> = ({
   const headerContent = (
     <div className={clsx('document-header', { 'selected-container': isSelected })}>
       {enableDnD && (
-        <Icon className="node__spacer" data-drag-handler>
+        <span className="node__spacer" data-drag-handler>
           <Draggable />
-        </Icon>
+        </span>
       )}
       <div className="document-header__title">{header}</div>
       {!isReadOnly && (

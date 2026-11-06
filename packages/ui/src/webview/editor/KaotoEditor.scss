@@ -46,6 +46,13 @@ html body {
     }
   }
 
+  // Tab title logos: same 14px box the PatternFly Icon wrapper used to provide
+  .shell-tab-icon {
+    width: var(--pf-t--global--icon--size--font--body--default);
+    height: var(--pf-t--global--icon--size--font--body--default);
+    object-fit: contain;
+  }
+
   // Tab content for Design canvas is not scrollable
   div#{&}__tab-content {
     flex-grow: 1;
