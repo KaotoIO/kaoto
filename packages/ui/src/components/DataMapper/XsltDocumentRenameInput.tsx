@@ -28,14 +28,6 @@ const stopPropagation: MouseEventHandler<HTMLDivElement> & KeyboardEventHandler<
   event.stopPropagation();
 };
 
-/**
- * EditInPlace saves a changed value as soon as the input loses focus. Renaming the XSLT document
- * moves a file, so it must only happen on an explicit save. Providing a blur handler turns that off.
- */
-const keepDraftOnBlur = () => {
-  // intentionally empty: the draft is kept until it is saved or cancelled
-};
-
 export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput> = ({
   value = '',
   validator,
@@ -190,6 +182,24 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
     setLocalValue(value);
   }, [isSaving, value]);
 
+  // EditInPlace blurs the input itself when Enter is pressed, right before it saves.
+  // That blur must not discard the draft.
+  const isEnterPressed = useRef(false);
+  const onKeyDownCapture: KeyboardEventHandler<HTMLDivElement> = useCallback((event) => {
+    isEnterPressed.current = event.key === 'Enter';
+  }, []);
+
+  // EditInPlace saves a changed value as soon as the input loses focus. Renaming the XSLT document
+  // moves a file, so it must only happen on an explicit save. Providing a blur handler turns that off,
+  // and the unsaved draft is discarded so the displayed name never differs from the actual file name.
+  const onBlur = useCallback(() => {
+    if (isEnterPressed.current) {
+      isEnterPressed.current = false;
+      return;
+    }
+    onCancel();
+  }, [onCancel]);
+
   const isInvalid = validationResult.status === ValidationStatus.Error;
   const errorMessage = isInvalid ? validationResult.errMessages[0] : undefined;
 
@@ -204,6 +214,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
       data-testid={props['data-testid']}
       onClick={stopPropagation}
       onKeyDown={stopPropagation}
+      onKeyDownCapture={onKeyDownCapture}
     >
       <EditInPlace
         key={editorKey}
@@ -220,7 +231,7 @@ export const XsltDocumentRenameInput: FunctionComponent<IXsltDocumentRenameInput
         onChange={onInputValueChange}
         onSave={onSave}
         onCancel={onCancel}
-        onBlur={keepDraftOnBlur}
+        onBlur={onBlur}
       />
     </div>
   );

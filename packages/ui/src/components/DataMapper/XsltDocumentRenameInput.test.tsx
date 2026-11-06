@@ -305,7 +305,7 @@ describe('XsltDocumentRenameInput', () => {
       expect(mockOnChange).toHaveBeenCalledWith('Initial Document Name New');
     });
 
-    it('should not save when the input loses focus', async () => {
+    it('should not save and should discard the draft when the input loses focus', async () => {
       const mockOnChange = vi.fn();
       render(
         <>
@@ -320,7 +320,7 @@ describe('XsltDocumentRenameInput', () => {
       await user.click(screen.getByRole('button', { name: 'Elsewhere' }));
 
       expect(mockOnChange).not.toHaveBeenCalled();
-      expect(getInput()).toHaveValue('Initial Document Name Draft');
+      expect(getInput()).toHaveValue('Initial Document Name');
     });
 
     it('should not save when validation status is Error', async () => {
