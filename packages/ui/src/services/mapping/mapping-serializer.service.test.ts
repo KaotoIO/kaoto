@@ -4,6 +4,7 @@ import {
   DocumentDefinitionType,
   DocumentType,
   IDocument,
+  PrimitiveDocument,
 } from '../../models/datamapper/document';
 import {
   ChooseItem,
@@ -20,6 +21,7 @@ import {
   VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
+import { DEFAULT_DATAMAPPER_SETTINGS } from '../../models/datamapper/settings';
 import {
   NS_XML_SCHEMA,
   NS_XPATH_FUNCTIONS,
@@ -70,7 +72,7 @@ import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { TargetRenderService } from '../visualization/target-render.service';
 import { MappingService } from './mapping.service';
-import { EMPTY_XSL, MappingSerializerService } from './mapping-serializer.service';
+import { EMPTY_XSL, getEmptyXsl, MappingSerializerService } from './mapping-serializer.service';
 
 describe('MappingSerializerService', () => {
   const sourceParameterMap = TestUtil.createParameterMap();
@@ -801,7 +803,106 @@ describe('MappingSerializerService', () => {
     });
   });
 
+  describe('output method', () => {
+    const getOutput = (xslt: string) => {
+      const xsltDocument = domParser.parseFromString(xslt, 'application/xml');
+      return xsltDocument
+        .evaluate('/xsl:stylesheet/xsl:output', xsltDocument, xslNsResolver, XPathResult.ANY_TYPE)
+        .iterateNext() as Element;
+    };
+
+    it('EMPTY_XSL should use the text output method without indent', () => {
+      expect(getOutput(EMPTY_XSL).getAttribute('method')).toBe('text');
+      expect(getOutput(EMPTY_XSL).hasAttribute('indent')).toBe(false);
+    });
+
+    it('should use the text output method for a JSON target without mappings', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.JSON_SCHEMA,
+      );
+      const output = getOutput(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
+      expect(output.getAttribute('method')).toBe('text');
+    });
+
+    it('should use the xml output method for an XML target and respect omitXmlDeclaration', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const plain = getOutput(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
+      expect(plain.getAttribute('method')).toBe('xml');
+      expect(plain.getAttribute('indent')).toBe('yes');
+      expect(plain.hasAttribute('omit-xml-declaration')).toBe(false);
+
+      const omitted = getOutput(
+        MappingSerializerService.serialize(mappingTree, sourceParameterMap, {
+          ...DEFAULT_DATAMAPPER_SETTINGS,
+          omitXmlDeclaration: true,
+        }),
+      );
+      expect(omitted.getAttribute('method')).toBe('xml');
+      expect(omitted.getAttribute('omit-xml-declaration')).toBe('yes');
+    });
+
+    it('should not write omit-xml-declaration for a non-XML target', () => {
+      const output = getOutput(
+        getEmptyXsl(DocumentDefinitionType.Primitive, { ...DEFAULT_DATAMAPPER_SETTINGS, omitXmlDeclaration: true }),
+      );
+      expect(output.getAttribute('method')).toBe('text');
+      expect(output.hasAttribute('omit-xml-declaration')).toBe(false);
+    });
+
+    it('should keep the text output method through a primitive target round trip', () => {
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.Primitive);
+      const valueOf = new ValueOfSelector(mappingTree);
+      valueOf.expression = "concat('Tom', ' & ', 'Jerry')";
+      mappingTree.children.push(valueOf);
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+
+      mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.Primitive);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        serialized,
+        primitiveDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+      const reserialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+
+      expect(getOutput(reserialized).getAttribute('method')).toBe('text');
+    });
+  });
+
   describe('serialize()', () => {
+    it('should serialize a primitive target as plain text output', () => {
+      const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.Primitive);
+      const valueOf = new ValueOfSelector(mappingTree);
+      valueOf.expression = "concat('Tom', ' & ', 'Jerry')";
+      mappingTree.children.push(valueOf);
+
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(serialized, 'application/xml');
+
+      const output = xsltDocument
+        .evaluate('/xsl:stylesheet/xsl:output', xsltDocument, xslNsResolver, XPathResult.ANY_TYPE)
+        .iterateNext() as Element;
+      expect(output.getAttribute('method')).toBe('text');
+      expect(output.hasAttribute('indent')).toBe(false);
+      expect(output.hasAttribute('omit-xml-declaration')).toBe(false);
+
+      const template = xsltDocument
+        .evaluate("/xsl:stylesheet/xsl:template[@match='/']", xsltDocument, xslNsResolver, XPathResult.ANY_TYPE)
+        .iterateNext() as Element;
+      expect(template.children).toHaveLength(1);
+      expect(template.children[0].namespaceURI).toBe(NS_XSL);
+      expect(template.children[0].localName).toBe('value-of');
+      expect(template.children[0].getAttribute('select')).toBe("concat('Tom', ' & ', 'Jerry')");
+    });
     it('should preserve copy-of and value-of on the same container through a round trip', () => {
       const mappingTree = new MappingTree(
         DocumentType.TARGET_BODY,

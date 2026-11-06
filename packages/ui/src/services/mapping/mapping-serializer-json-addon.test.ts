@@ -22,7 +22,7 @@ import { MappingSerializerJsonAddon, TO_JSON_TARGET_VARIABLE } from './mapping-s
 describe('mappingSerializerJsonAddon', () => {
   describe('populateXmlToJsonVariable()', () => {
     it('should populate a variable', () => {
-      const xsltDocument = MappingSerializerService.createNew();
+      const xsltDocument = MappingSerializerService.createNew(DocumentDefinitionType.JSON_SCHEMA);
       const stylesheet = xsltDocument.children[0];
       const template = xsltDocument.createElementNS(NS_XSL, 'template');
       template.setAttribute('match', '/');
@@ -72,7 +72,7 @@ describe('mappingSerializerJsonAddon', () => {
     });
 
     it('should not populate a variable in JSON target case when no mappings', () => {
-      const xsltDocument = MappingSerializerService.createNew();
+      const xsltDocument = MappingSerializerService.createNew(DocumentDefinitionType.JSON_SCHEMA);
       const stylesheet = xsltDocument.children[0];
       const template = xsltDocument.createElementNS(NS_XSL, 'template');
       template.setAttribute('match', '/');
@@ -86,7 +86,7 @@ describe('mappingSerializerJsonAddon', () => {
 
       expect(stylesheet.children).toHaveLength(2);
       const output = stylesheet.children[0];
-      expect(output.getAttribute('method')).toBe('xml');
+      expect(output.getAttribute('method')).toBe('text');
     });
   });
 
