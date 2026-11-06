@@ -39,7 +39,7 @@ describe('useArrowKeyNavigation', () => {
     container.appendChild(node1);
     container.appendChild(node2);
     container.appendChild(node3);
-    document.body.appendChild(container);
+    canvasRoot.appendChild(container);
   });
 
   afterEach(() => {
@@ -52,7 +52,7 @@ describe('useArrowKeyNavigation', () => {
   });
 
   /** Render the hook and capture the handler registered with hotkeys */
-  function setupHook(): (key: string) => void {
+  function setupHook(selectedNodeId?: string): (key: string) => void {
     const handlers: Record<string, KeyHandler> = {};
     mockHotkeys.mockImplementation((keys: string, ...args: unknown[]) => {
       const handler = args.find((arg): arg is KeyHandler => typeof arg === 'function');
@@ -61,7 +61,7 @@ describe('useArrowKeyNavigation', () => {
       });
     });
     renderHook(() => {
-      useArrowKeyNavigation();
+      useArrowKeyNavigation(selectedNodeId);
     });
     // Return a helper that fires the captured handler for the given key name
     return (key: string) => {
@@ -76,6 +76,35 @@ describe('useArrowKeyNavigation', () => {
       });
     };
   }
+
+  it.each([
+    ['arrowright', 2],
+    ['arrowleft', 0],
+  ] as const)('continues from the last focused step after a background click with %s', (key, expectedIndex) => {
+    const navigate = setupHook();
+    node2.focus();
+    canvasRoot.focus();
+    navigate(key);
+    expect([node1, node2, node3][expectedIndex]).toHaveFocus();
+  });
+
+  it('remembers the selected step by full topology ID when the form has focus', () => {
+    node1.dataset.id = 'first-route|route.from';
+    node2.dataset.id = 'second-route|route.from';
+    const navigate = setupHook('second-route|route.from');
+    canvasRoot.focus();
+    navigate('arrowright');
+    expect(node3).toHaveFocus();
+  });
+
+  it('starts at the first available step if the remembered node was removed', () => {
+    const navigate = setupHook();
+    node2.focus();
+    canvasRoot.focus();
+    node2.remove();
+    navigate('arrowright');
+    expect(node1).toHaveFocus();
+  });
 
   it('should bind arrow key hotkeys on mount', () => {
     renderHook(() => {

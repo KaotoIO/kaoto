@@ -122,8 +122,8 @@ export class KaotoCanvas extends AbstractElement {
 	 */
 	static async openContextMenu(driver: WebDriver, node: WebElement, timeout = 5_000): Promise<WebElement> {
 		await driver.actions().contextClick(node).perform();
-		await driver.wait(until.elementLocated(By.className(kaotoLocators.KaotoContextMenu.menu)), timeout, 'Cannot find the Kaoto context menu');
-		return driver.findElement(By.className(kaotoLocators.KaotoContextMenu.menu));
+		await driver.wait(until.elementLocated(By.css(kaotoLocators.KaotoContextMenu.menu)), timeout, 'Cannot find the Kaoto context menu');
+		return driver.findElement(By.css(kaotoLocators.KaotoContextMenu.menu));
 	}
 
 	/**

@@ -1,10 +1,11 @@
-import { action, BaseEdge, NodeModel } from '@patternfly/react-topology';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { action, BaseEdge, DndManager, DndStore, NodeModel, Rect } from '@patternfly/react-topology';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
+import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { CustomNodeObserver, CustomNodeWithSelection } from './CustomNode';
 
 /** Creates a real controller holding a single node built from the given data */
@@ -68,6 +69,68 @@ describe('CustomNode', () => {
 
     return { ...result, vizNode, element, controller };
   };
+
+  it('keeps the SVG focus ring behind the badges and centered on the icon when bounds change', async () => {
+    const { element, vizNode } = await renderCustomNode();
+    const node = screen.getByTestId(`custom-node__${vizNode.id}`);
+    const ring = node.querySelector(':scope > g > rect.custom-node__focus-ring');
+    expect(ring).toBeInTheDocument();
+    expect(ring).toHaveAttribute('aria-hidden', 'true');
+    expect(ring).toHaveAttribute('x', '11.5');
+    expect(ring).toHaveAttribute('y', '4');
+    expect(ring).toHaveAttribute('width', '67');
+    expect(ring).toHaveAttribute('height', '67');
+    expect(ring!.compareDocumentPosition(node.querySelector('foreignObject')!)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+
+    act(() => {
+      element.setBounds(new Rect(40, 60, 120, 100));
+    });
+    expect(ring).toHaveAttribute('x', '26.5');
+    expect(ring).toHaveAttribute('y', '16.5');
+  });
+
+  it.each(['cancel', 'end'] as const)(
+    'keeps the focus ring on the source ghost while moving and restores it on %s',
+    async (finish) => {
+      const { element, vizNode, controller } = await renderCustomNode();
+      act(() => {
+        element.setBounds(new Rect(40, 60, 90, 75));
+      });
+      const manager: DndManager = controller.getStore<DndStore>().dndManager;
+      const [source] = manager.registerSource({
+        type: NODE_DRAG_TYPE,
+        canDrag: () => true,
+        beginDrag: () => element,
+        drag: () => {},
+        endDrag: () => {},
+        canCancel: () => true,
+      });
+      act(() => {
+        manager.beginDrag(source, undefined, 40, 60, 40, 60);
+      });
+      act(() => {
+        element.setBounds(new Rect(140, 160, 90, 75));
+      });
+      const preview = screen.getByTestId(vizNode.id).closest('g');
+      const ghost = screen.getByTestId(`${vizNode.id}-dummy`).closest('g');
+      expect(preview?.querySelector('.custom-node__focus-ring')).not.toBeInTheDocument();
+      const ring = ghost?.querySelector('.custom-node__focus-ring');
+      expect(ring).toBeInTheDocument();
+      expect(ghost?.getAttribute('transform')).toMatch(/^translate\(-100, -100\)/);
+      expect(ghost).toHaveAttribute('opacity', '0.5');
+      expect(ring).not.toHaveAttribute('opacity');
+      expect(ring!.compareDocumentPosition(ghost!.querySelector('foreignObject')!)).toBe(
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      );
+      await act(async () => {
+        if (finish === 'cancel') manager.cancel();
+        await manager.endDrag();
+      });
+      expect(screen.queryByTestId(`${vizNode.id}-dummy`)).not.toBeInTheDocument();
+      expect(preview?.querySelector('.custom-node__focus-ring')).toBeInTheDocument();
+      expect(preview).not.toHaveAttribute('opacity');
+    },
+  );
 
   it('updates the production node when visualization data disappears and returns', async () => {
     const { element, vizNode } = await renderCustomNode({ withSelection: true });
@@ -170,5 +233,15 @@ describe('CustomNode', () => {
     const nodeG = screen.getByTestId('custom-node__route.from.steps.0.log').closest('g')!;
     fireEvent.keyDown(nodeG, { key: 'F10', shiftKey: true });
     expect(onContextMenu).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['F10', 'ContextMenu'])('moves focus into the real step menu with %s', async (key) => {
+    await renderCustomNode({ withSelection: true });
+    const node = screen.getByTestId('custom-node__route.from.steps.0.log');
+    node.focus();
+    fireEvent.keyDown(node, { key, shiftKey: key === 'F10' });
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: /Copy/ })).toHaveFocus());
+    fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
+    await waitFor(() => expect(node).toHaveFocus());
   });
 });

@@ -148,7 +148,7 @@
     }
 
     // SVG groups focused through keyboard navigation need :focus in Chromium.
-    &:focus > &__focus-ring {
+    &:focus &__focus-ring {
       visibility: visible;
     }
 

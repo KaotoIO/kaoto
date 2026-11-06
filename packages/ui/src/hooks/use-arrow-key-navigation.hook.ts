@@ -1,7 +1,8 @@
 import hotkeys from 'hotkeys-js';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 
 import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
+import { findCanvasNodeById } from '../components/Visualization/Canvas/canvas-focus';
 
 /**
  * Explicit ordering for named EIP property segments that would otherwise sort
@@ -93,8 +94,33 @@ const ARROW_KEYS = 'arrowleft,arrowright,arrowup,arrowdown';
  * - ArrowLeft / ArrowUp → previous node
  * Wraps around at the ends.
  */
-export function useArrowKeyNavigation(): void {
+export function useArrowKeyNavigation(selectedNodeId?: string): () => void {
+  const lastFocusedNode = useRef<HTMLElement | null>(null);
+  const restoreNodeFocus = useCallback(() => {
+    const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+    const node = lastFocusedNode.current;
+    const target = node && canvas?.contains(node) ? node : canvas;
+    target?.focus({ preventScroll: true });
+  }, []);
+
   useEffect(() => {
+    if (!selectedNodeId) return;
+    lastFocusedNode.current = findCanvasNodeById(selectedNodeId) ?? null;
+  }, [selectedNodeId]);
+
+  useEffect(() => {
+    const rememberFocus = (event: FocusEvent) => {
+      const target = event.target;
+      const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+      if (
+        target instanceof Element &&
+        canvas?.contains(target) &&
+        target.matches('g.custom-node, g.placeholder-node, g.custom-group')
+      ) {
+        lastFocusedNode.current = target as HTMLElement;
+      }
+    };
+    document.addEventListener('focusin', rememberFocus);
     const navigate = (event: KeyboardEvent) => {
       const active = document.activeElement as HTMLElement | null;
       const canvasRoot = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
@@ -111,7 +137,9 @@ export function useArrowKeyNavigation(): void {
 
       const key = event.key.toLowerCase();
       const forward = key === 'arrowright' || key === 'arrowdown';
-      const currentIndex = allNodes.indexOf(document.activeElement as HTMLElement);
+      // A background click dismisses selection without discarding the navigation position.
+      const origin = active === canvasRoot ? lastFocusedNode.current : active;
+      const currentIndex = origin ? allNodes.indexOf(origin) : -1;
 
       let nextIndex: number;
       if (currentIndex === -1) {
@@ -122,13 +150,17 @@ export function useArrowKeyNavigation(): void {
           : (currentIndex - 1 + allNodes.length) % allNodes.length;
       }
 
+      lastFocusedNode.current = allNodes[nextIndex];
       allNodes[nextIndex].focus({ preventScroll: true });
     };
 
     hotkeys(ARROW_KEYS, navigate);
 
     return () => {
+      document.removeEventListener('focusin', rememberFocus);
       hotkeys.unbind(ARROW_KEYS, navigate);
     };
   }, []);
+
+  return restoreNodeFocus;
 }

@@ -1,7 +1,15 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { CanvasFormTabsProvider } from '@kaoto/forms';
-import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
+import {
+  action,
+  DRAG_NODE_END_EVENT,
+  DRAG_NODE_START_EVENT,
+  isNode,
+  Point,
+  SELECTION_EVENT,
+  VisualizationProvider,
+} from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -84,6 +92,42 @@ describe('Canvas', () => {
       expect(screen.getByText('Reset View')).toBeInTheDocument();
     });
     expect(result.asFragment()).toMatchSnapshot();
+  });
+
+  it.each(['F10', 'ContextMenu'])('opens the canvas background menu with %s and restores focus', async (key) => {
+    await renderCanvas();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const canvas = screen.getByLabelText('Route canvas');
+    canvas.focus();
+    fireEvent.keyDown(canvas, { key, shiftKey: key === 'F10' });
+
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Show all' })).toHaveFocus());
+    await user.keyboard('{ArrowDown}');
+    expect(screen.getByRole('menuitem', { name: 'Hide all' })).toHaveFocus();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(canvas).toHaveFocus());
+    expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+  });
+
+  it('opens the canvas background menu with the mouse without focusing an action', async () => {
+    const { container } = await renderCanvas();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    const background = container.querySelector('[data-kind="graph"] > rect')!;
+    fireEvent.contextMenu(background, { button: 2, clientX: 100, clientY: 100 });
+    const showAll = await screen.findByRole('menuitem', { name: 'Show all' });
+    expect(showAll).not.toHaveFocus();
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.getByLabelText('Route canvas')).toHaveFocus());
+    expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+  });
+
+  it('does not open the canvas background menu from a toolbar control', async () => {
+    await renderCanvas();
+    const resetView = screen.getByRole('button', { name: 'Reset View' });
+    resetView.focus();
+    fireEvent.keyDown(resetView, { key: 'F10', shiftKey: true });
+    expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+    expect(resetView).toHaveFocus();
   });
 
   it('should keep the selection listener registered while selection changes rerender the canvas', async () => {
@@ -178,38 +222,129 @@ describe('Canvas', () => {
     expect(canvasEl).toHaveFocus();
   });
 
-  it('should restore focus to the selected canvas node when closing the sidebar', async () => {
+  it.each([
+    ['Escape', false],
+    ['close button', false],
+    ['Escape', true],
+    ['close button', true],
+  ])('restores step focus using %s (step removed: %s)', async (closeMethod, removed) => {
     const { container, controller } = await renderCanvas();
 
-    // Inject a fake canvas <g> element with the expected testid for route.from
-    const fakeNode = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    fakeNode.setAttribute('class', 'custom-node');
-    fakeNode.setAttribute('data-testid', 'custom-node__route.from');
-    fakeNode.setAttribute('tabindex', '-1');
-    container.appendChild(fakeNode);
+    // JSDOM does not lay out the SVG nodes; provide their actual topology DOM structure.
+    const appendNode = (routeId: string) => {
+      const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      wrapper.setAttribute('data-id', `${routeId}|route.from`);
+      const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      node.setAttribute('class', 'custom-node');
+      node.setAttribute('data-testid', 'custom-node__route.from');
+      node.setAttribute('tabindex', '-1');
+      wrapper.appendChild(node);
+      screen.getByLabelText('Route canvas').appendChild(wrapper);
+      return node;
+    };
+    const otherRouteNode = appendNode('route-other');
+    const selectedNode = appendNode('route-8888');
 
-    // Open sidebar by selecting the timer `from` step
     act(() => {
       controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
     });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
-    });
-
-    // Close via Escape — clearSelection should focus the canvas node, not #canvas-main
-    fireEvent.keyDown(container.firstChild!, { key: 'Escape' });
-
-    await waitFor(() => {
-      expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
-    });
-
+    await waitFor(() => expect(screen.getByTestId('close-side-bar')).toBeInTheDocument());
     await act(async () => {
       await vi.runAllTimersAsync();
     });
 
-    expect(fakeNode).toHaveFocus();
+    if (removed) selectedNode.remove();
+    if (closeMethod === 'Escape') {
+      fireEvent.keyDown(screen.getByTestId('filter-fields').querySelector('input')!, { key: 'Escape' });
+    } else {
+      fireEvent.click(screen.getByTestId('close-side-bar'));
+    }
+    await waitFor(() => expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument());
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(removed ? screen.getByLabelText('Route canvas') : selectedNode).toHaveFocus();
+    expect(otherRouteNode).not.toHaveFocus();
   });
+
+  it.each([
+    [DRAG_NODE_START_EVENT, false],
+    [DRAG_NODE_END_EVENT, false],
+    [DRAG_NODE_START_EVENT, true],
+  ])('preserves node focus across SVG reordering on %s unless focus moved elsewhere (%s)', async (event, moved) => {
+    const { controller } = await renderCanvas();
+    // Focus restoration is independent of the force simulation.
+    act(() => {
+      controller.getGraph().setLayout(undefined);
+    });
+    const canvas = screen.getByLabelText('Route canvas');
+    const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    node.setAttribute('class', 'custom-node');
+    node.setAttribute('tabindex', '-1');
+    canvas.appendChild(node);
+    const outside = document.createElement('button');
+    canvas.appendChild(outside);
+    node.focus();
+    act(() => {
+      controller.fireEvent(event, controller.getNodeById('route-8888|route.from'), {}, { type: 'move.useDragNode' });
+      // Moving a focused SVG layer detaches it and resets browser focus.
+      node.remove();
+      canvas.appendChild(node);
+      if (moved) outside.focus();
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(100);
+    });
+    expect(moved ? outside : node).toHaveFocus();
+  });
+
+  it.each([true, false])(
+    'retains step focus on repeated background clicks with sidebar open: %s',
+    async (openSidebar) => {
+      const { container, controller } = await renderCanvas();
+      const canvas = container.querySelector<HTMLElement>('[id="canvas-main"]')!;
+      // Topology does not render SVG nodes in this test environment.
+      const node = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      node.setAttribute('data-testid', 'custom-node__route.from');
+      node.setAttribute('tabindex', '-1');
+      node.setAttribute('class', 'custom-node');
+      node.dataset.id = 'route-8888|route.from';
+      canvas.appendChild(node);
+      const background = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      canvas.appendChild(background);
+
+      node.focus();
+      if (openSidebar) {
+        act(() => {
+          controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
+        });
+        await act(async () => {
+          await vi.runAllTimersAsync();
+        });
+      }
+
+      // Browsers move focus off the SVG before dispatching the background click.
+      canvas.focus();
+      fireEvent.click(background);
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+      expect(node).toHaveFocus();
+
+      canvas.focus();
+      fireEvent.click(background);
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+      expect(node).toHaveFocus();
+    },
+  );
 
   it('should schedule a graph.fit(80) upon loading', async () => {
     // Cannot use renderCanvas() here: fitSpy and layoutSpy must be installed on controller.getGraph()

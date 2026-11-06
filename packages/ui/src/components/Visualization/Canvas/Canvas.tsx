@@ -5,6 +5,8 @@ import {
   action,
   createTopologyControlButtons,
   defaultControlButtonsOptions,
+  DRAG_NODE_END_EVENT,
+  DRAG_NODE_START_EVENT,
   Model,
   SELECTION_EVENT,
   SelectionEventListener,
@@ -24,7 +26,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 
@@ -40,6 +41,7 @@ import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
+import { findCanvasNodeById, useCanvasFocusRef } from './canvas-focus';
 import { CanvasSideBar } from './CanvasSideBar';
 import { consumeNodeSelection } from './node-selection-state';
 
@@ -78,6 +80,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const [initialized, setInitialized] = useState(
     () => controller.hasGraph() && controller.getGraph().getLayout() !== undefined,
   );
+  const canvasFocusRef = useCanvasFocusRef(initialized);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sidebarWidth, setSidebarWidth] = useLocalStorage(
     LocalStorageKeys.CanvasSidebarWidth,
@@ -95,22 +98,19 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
   }, [controller, isGraphEmpty, isModelResolving]);
 
-  /** Track which viz-node id was selected so focus can return to it on sidebar close */
-  const selectedVizNodeIdRef = useRef<string | undefined>(undefined);
-
   const clearSelection = useCallback(() => {
-    const vizNodeId = selectedVizNodeIdRef.current;
+    const nodeId = selectedIds.length === 1 ? selectedIds[0] : undefined;
     setSelectedIds([]);
     requestAnimationFrame(() => {
-      // Prefer restoring focus to the canvas node that was selected (matches any type: custom-node, placeholder-node, custom-group)
-      const canvasNode = vizNodeId ? document.querySelector<HTMLElement>(`[data-testid$="__${vizNodeId}"]`) : null;
+      const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+      const canvasNode = nodeId ? findCanvasNodeById(nodeId) : undefined;
       if (canvasNode) {
         canvasNode.focus({ preventScroll: true });
       } else {
-        document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.focus({ preventScroll: true });
+        canvas?.focus({ preventScroll: true });
       }
     });
-  }, []);
+  }, [selectedIds]);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
   useDeleteHotkey(selectedVizNode, clearSelection);
@@ -123,6 +123,39 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     [controller],
   );
   useEventListener<SelectionEventListener>(SELECTION_EVENT, handleSelection);
+
+  useEffect(() => {
+    let pendingFrame: number | undefined;
+    const preserveDragFocus = () => {
+      const focused = document.activeElement;
+      const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+      if (
+        !(focused instanceof SVGElement) ||
+        !canvas?.contains(focused) ||
+        !focused.matches('g.custom-node, g.placeholder-node, g.custom-group')
+      )
+        return;
+
+      if (pendingFrame !== undefined) cancelAnimationFrame(pendingFrame);
+      // PatternFly reorders SVG layers while dragging, which drops DOM focus.
+      pendingFrame = requestAnimationFrame(() => {
+        // React's layer effects can run after the first animation frame.
+        pendingFrame = requestAnimationFrame(() => {
+          pendingFrame = undefined;
+          if (focused.isConnected && document.activeElement === document.body) {
+            focused.focus({ preventScroll: true });
+          }
+        });
+      });
+    };
+    controller.addEventListener(DRAG_NODE_START_EVENT, preserveDragFocus);
+    controller.addEventListener(DRAG_NODE_END_EVENT, preserveDragFocus);
+    return () => {
+      controller.removeEventListener(DRAG_NODE_START_EVENT, preserveDragFocus);
+      controller.removeEventListener(DRAG_NODE_END_EVENT, preserveDragFocus);
+      if (pendingFrame !== undefined) cancelAnimationFrame(pendingFrame);
+    };
+  }, [controller]);
 
   /** Draw graph */
   useEffect(() => {
@@ -226,17 +259,18 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     });
   }, [catalogModalContext, controller, settingsAdapter]);
 
+  const restoreNodeFocus = useArrowKeyNavigation(selectedIds.length === 1 ? selectedIds[0] : undefined);
+
   const handleCanvasClick = useCallback(
     (event: React.MouseEvent) => {
       const target = event.target as HTMLElement;
       if (target.tagName === 'rect') {
-        clearSelection();
+        setSelectedIds([]);
+        requestAnimationFrame(restoreNodeFocus);
       }
     },
-    [clearSelection],
+    [restoreNodeFocus],
   );
-
-  useArrowKeyNavigation();
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
@@ -249,18 +283,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
 
-  /** Track the selected node id and move focus to the search bar when sidebar opens */
+  /** Move focus to the search bar when the sidebar opens. */
   useEffect(() => {
     if (selectedVizNode) {
-      selectedVizNodeIdRef.current = selectedVizNode.id;
       requestAnimationFrame(() => {
         const searchInput = document.querySelector<HTMLElement>('[data-testid="filter-fields"] input');
         // preventScroll: the drawer panel is still sliding in from off-screen at this point, so a plain
         // focus() would scroll the drawer's overflow container and make the canvas jump sideways
         searchInput?.focus({ preventScroll: true });
       });
-    } else {
-      selectedVizNodeIdRef.current = undefined;
     }
   }, [selectedVizNode]);
 
@@ -270,6 +301,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   return (
     <TopologyView
+      ref={canvasFocusRef}
       id={CanvasDefaults.CANVAS_MAIN_ID}
       className={clsx({ hidden: !initialized })}
       defaultSideBarSize={sidebarWidth + 'px'}

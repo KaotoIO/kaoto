@@ -21,7 +21,6 @@ import {
   useAnchor,
   useDndDrop,
   useDragNode,
-  withContextMenu,
   withSelection,
 } from '@patternfly/react-topology';
 import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
@@ -38,6 +37,7 @@ import { useCanvasToolbarTarget } from '../../Canvas/hooks/use-canvas-toolbar-ta
 import { CanvasNodeOverlays } from '../../Overlay/CanvasElementOverlays';
 import { useCanvasOverlays } from '../../Overlay/use-canvas-overlays';
 import { NodeContextMenuFn } from '../ContextMenu/NodeContextMenu';
+import { withCanvasContextMenu } from '../ContextMenu/with-canvas-context-menu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useGraphLayout } from '../hooks/use-graph-layout.hook';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
@@ -118,6 +118,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           // Position the context menu at the bottom-left of the node (keyboard convention)
           const rect = event.currentTarget.getBoundingClientRect?.() ?? { left: 0, bottom: 0 };
           onContextMenu?.({
+            type: event.type,
             preventDefault: () => {},
             stopPropagation: () => {},
             clientX: rect.left,
@@ -286,7 +287,18 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
               processorDescription={processorDescription}
               isDisabled={isDisabled}
               isDragging={isDraggedNode}
-            />
+            >
+              {!isDraggingNode && (
+                <rect
+                  className="custom-node__focus-ring"
+                  aria-hidden="true"
+                  x={(box.width - 60) / 2 - CanvasDefaults.FOCUS_RING_OFFSET}
+                  y={(box.height - 60) / 2 - CanvasDefaults.FOCUS_RING_OFFSET}
+                  width={60 + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
+                  height={60 + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
+                />
+              )}
+            </CustomNodeContainer>
           )}
 
           {/* The dummy node that appears at the original node's position when dragging */}
@@ -306,7 +318,16 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
               processorDescription={processorDescription}
               isDisabled={isDisabled}
               isDragging={isDraggedNode}
-            />
+            >
+              <rect
+                className="custom-node__focus-ring"
+                aria-hidden="true"
+                x={(box.width - 60) / 2 - CanvasDefaults.FOCUS_RING_OFFSET}
+                y={(box.height - 60) / 2 - CanvasDefaults.FOCUS_RING_OFFSET}
+                width={60 + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
+                height={60 + 2 * CanvasDefaults.FOCUS_RING_OFFSET}
+              />
+            </CustomNodeContainer>
           )}
 
           {/** This label, appears for the node which are not dragging */}
@@ -357,4 +378,4 @@ const CustomNode: FunctionComponent<CustomNodeProps> = ({ element, ...rest }: Cu
 
 export const CustomNodeObserver = observer(CustomNode);
 
-export const CustomNodeWithSelection = withSelection()(withContextMenu(NodeContextMenuFn)(CustomNodeObserver));
+export const CustomNodeWithSelection = withSelection()(withCanvasContextMenu(NodeContextMenuFn)(CustomNodeObserver));
