@@ -18,7 +18,7 @@ import { BeanFactory } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { CatalogKind } from '../../../models';
-import { ElementType, StepXmlSerializer } from './step-xml-serializer';
+import { AttributeValue, ElementType, StepXmlSerializer } from './step-xml-serializer';
 
 export class BeansXmlSerializer {
   static async serialize(beanElement: BeanFactory, doc: Document): Promise<Element | undefined> {
@@ -66,7 +66,7 @@ export class BeansXmlSerializer {
           this.appendPropertyElement(doc, propertiesElement, key, value);
         }
       } else {
-        this.appendPropertyElement(doc, propertiesElement, propKey, String(propValue));
+        this.appendPropertyElement(doc, propertiesElement, propKey, String(propValue as AttributeValue));
       }
     }
     return propertiesElement;
@@ -88,7 +88,7 @@ export class BeansXmlSerializer {
         if (typeof value === 'object') {
           return acc.concat(this.flattenObject(value as Record<string, unknown>, `${prefix}.${key}`));
         }
-        return acc.concat({ key: `${prefix}.${key}`, value: String(value) });
+        return acc.concat({ key: `${prefix}.${key}`, value: String(value as AttributeValue) });
       },
       [] as { key: string; value: string }[],
     );
