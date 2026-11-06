@@ -65,7 +65,6 @@ export const EnumField: FunctionComponent<FieldProps> = ({ propName, required })
       propName={propName}
       required={required}
       title={schema.title}
-      errors={errors}
       type="enum"
       description={schema.description}
       defaultValue={schema.default?.toString()}
@@ -79,6 +78,8 @@ export const EnumField: FunctionComponent<FieldProps> = ({ propName, required })
         onChange={onItemChange}
         onCleanInput={onCleanInput}
         disabled={disabled}
+        invalid={!!errors}
+        invalidText={errors?.join(', ')}
         allowCustomInput
       />
     </FieldWrapper>
