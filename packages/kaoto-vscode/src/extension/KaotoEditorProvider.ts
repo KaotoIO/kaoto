@@ -37,11 +37,20 @@ import { KaotoOutputChannel } from './KaotoOutputChannel';
 
 export type KaotoHostServicesFactory = (documentUri: vscode.Uri) => KaotoHostServices;
 
+export interface KaotoEditorProviderTimeouts {
+	/** Deadline for the canvas to answer a save snapshot, kept well below the VS Code save participant timeout (1.5s). */
+	saveSnapshotMs: number;
+	/** Deadline for the canvas to apply a non-initial host update, so an unresponsive canvas cannot stall the queue. */
+	hostUpdateMs: number;
+}
+const DEFAULT_TIMEOUTS: KaotoEditorProviderTimeouts = { saveSnapshotMs: 1000, hostUpdateMs: 5000 };
+
 interface DocumentState {
 	document: vscode.TextDocument;
 	content: string;
 	revision: number;
 	sourceVersion: number;
+	appliedSourceVersion: number;
 	mirroredContent?: string;
 	readonly: boolean;
 	disposed: boolean;
@@ -75,10 +84,14 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 	private active?: DocumentState;
 	private disposed = false;
 
+	private readonly timeouts: KaotoEditorProviderTimeouts;
+
 	constructor(
 		private readonly context: Pick<vscode.ExtensionContext, 'extensionUri'>,
 		private readonly factory: KaotoHostServicesFactory = (documentUri) => new KaotoHostServices(documentUri),
+		timeouts: Partial<KaotoEditorProviderTimeouts> = {},
 	) {
+		this.timeouts = { ...DEFAULT_TIMEOUTS, ...timeouts };
 		this.listeners = [
 			vscode.workspace.onDidChangeTextDocument((event) => {
 				const state = this.documents.get(event.document.uri.toString());
@@ -99,15 +112,20 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 					const epoch = session.epoch;
 					await session.whenReady.promise;
 					this.requireSession(state, session, epoch);
-					const result = await session.bus.request('host:document:setContent', {
-						reason: 'hostUpdate',
-						fileUri: state.document.uri.toString(),
-						content,
-					});
+					const result = await session.bus.request(
+						'host:document:setContent',
+						{
+							reason: 'hostUpdate',
+							fileUri: state.document.uri.toString(),
+							content,
+						},
+						{ timeoutMs: this.timeouts.hostUpdateMs },
+					);
 					this.requireSession(state, session, epoch);
 					if (result.applied) {
 						state.content = content;
 						state.revision = result.revision;
+						state.appliedSourceVersion = version;
 					}
 				}).catch(report);
 			}),
@@ -174,6 +192,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			content: document.getText(),
 			revision: 0,
 			sourceVersion: 0,
+			appliedSourceVersion: 0,
 			readonly: vscode.workspace.fs.isWritableFileSystem(document.uri.scheme) === false,
 			disposed: false,
 			services: this.factory(document.uri),
@@ -331,16 +350,42 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 
 	private async prepareSave(state: DocumentState): Promise<void> {
 		const cancellation = new vscode.CancellationTokenSource();
+		const timer = setTimeout(() => cancellation.cancel(), this.timeouts.saveSnapshotMs);
 		try {
-			await this.enqueue(state, async () => {
-				const version = state.sourceVersion;
-				await this.snapshot(state, cancellation.token);
-				// A source edit that arrived during the snapshot must not be overwritten.
-				if (version === state.sourceVersion) {
-					await this.updateSource(state);
-				}
-			});
+			await Promise.race([
+				this.enqueue(state, async () => {
+					if (cancellation.token.isCancellationRequested) {
+						return;
+					}
+					// If a native source update is pending or failed to apply, native text is authoritative.
+					if (state.appliedSourceVersion !== state.sourceVersion) {
+						return;
+					}
+					const version = state.sourceVersion;
+					try {
+						await this.snapshot(state, cancellation.token);
+					} catch (error) {
+						// An unresponsive or cancelled canvas must not fail the save: keep the current native text.
+						if (error instanceof BridgeError && (error.code === 'TIMEOUT' || error.code === 'CANCELLED')) {
+							return;
+						}
+						throw error;
+					}
+					// A source edit that arrived during the snapshot must not be overwritten.
+					if (version === state.sourceVersion && state.appliedSourceVersion === version) {
+						await this.updateSource(state);
+					}
+				}),
+				new Promise<void>((resolve) => {
+					cancellation.token.onCancellationRequested(() => resolve());
+				}),
+			]);
+		} catch (error) {
+			if (!(error instanceof BridgeError && (error.code === 'TIMEOUT' || error.code === 'CANCELLED'))) {
+				throw error;
+			}
 		} finally {
+			clearTimeout(timer);
 			cancellation.dispose();
 		}
 	}
@@ -365,6 +410,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			});
 			this.requireSession(state, session, epoch);
 			state.revision = result.revision;
+			state.appliedSourceVersion = state.sourceVersion;
 			session.initialized = true;
 			session.whenReady.resolve();
 		} catch (error) {
@@ -433,9 +479,9 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		const epoch = session.epoch;
 		await session.whenReady.promise;
 		this.requireSession(state, session, epoch);
-		const snapshot = await this.request(session.bus, 'host:document:getContent', null, token);
+		const snapshot = await this.request(session.bus, 'host:document:getContent', null, token, this.timeouts.saveSnapshotMs);
 		this.requireSession(state, session, epoch);
-		if (snapshot.revision >= state.revision) {
+		if (snapshot.revision >= state.revision && state.appliedSourceVersion === state.sourceVersion) {
 			state.content = snapshot.content;
 			state.revision = snapshot.revision;
 		}
@@ -446,12 +492,13 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		name: R,
 		payload: KaotoRequests[R],
 		token: vscode.CancellationToken,
+		timeoutMs: number,
 	): Promise<KaotoResponses[R]> {
 		checkCancellation(token);
 		const abort = new AbortController();
 		const subscription = token.onCancellationRequested(() => abort.abort());
 		try {
-			const response = await bus.request(name, payload, { signal: abort.signal });
+			const response = await bus.request(name, payload, { signal: abort.signal, timeoutMs });
 			checkCancellation(token);
 			return response;
 		} finally {
