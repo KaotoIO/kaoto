@@ -77,6 +77,95 @@ describe('BeanXmlParser', () => {
     testSerializer(expected, result!);
   });
 
+  it('serializes nested properties once and preserves dotted paths and order', () => {
+    const properties = {
+      person: {
+        name: 'John',
+        lastname: 'Connor',
+        address: {
+          city: 'Bengaluru',
+          country: 'India',
+        },
+        age: 30,
+      },
+      active: true,
+    };
+    const expected = `<properties>
+  <property key="person.name" value="John"/>
+  <property key="person.lastname" value="Connor"/>
+  <property key="person.address.city" value="Bengaluru"/>
+  <property key="person.address.country" value="India"/>
+  <property key="person.age" value="30"/>
+  <property key="active" value="true"/>
+</properties>`;
+
+    const result = BeansXmlSerializer.serializeProperties(properties, doc);
+
+    testSerializer(expected, result);
+  });
+
+  it.each([
+    {
+      level: 'direct',
+      properties: { name: 'John', age: null, missing: undefined },
+      expected: `<properties>
+  <property key="name" value="John"/>
+</properties>`,
+    },
+    {
+      level: 'nested',
+      properties: {
+        person: {
+          name: 'John',
+          age: null,
+          missing: undefined,
+          address: { city: 'Bengaluru', unit: null, pincode: undefined },
+        },
+      },
+      expected: `<properties>
+  <property key="person.name" value="John"/>
+  <property key="person.address.city" value="Bengaluru"/>
+</properties>`,
+    },
+  ])('omits null and undefined values in $level properties', ({ properties, expected }) => {
+    const result = BeansXmlSerializer.serializeProperties(properties, doc);
+
+    testSerializer(expected, result);
+  });
+
+  it('preserves zero, false, and empty strings in direct and nested properties', () => {
+    const properties = {
+      count: 0,
+      enabled: false,
+      text: '',
+      nested: { count: 0, enabled: false, text: '' },
+    };
+    const expected = `<properties>
+  <property key="count" value="0"/>
+  <property key="enabled" value="false"/>
+  <property key="text" value=""/>
+  <property key="nested.count" value="0"/>
+  <property key="nested.enabled" value="false"/>
+  <property key="nested.text" value=""/>
+</properties>`;
+
+    const result = BeansXmlSerializer.serializeProperties(properties, doc);
+
+    testSerializer(expected, result);
+  });
+
+  it('returns empty properties when all direct and nested values are omitted', () => {
+    const properties = {
+      age: null,
+      missing: undefined,
+      person: { age: null, missing: undefined },
+    };
+
+    const result = BeansXmlSerializer.serializeProperties(properties, doc);
+
+    testSerializer('<properties/>', result);
+  });
+
   it('handle undefined constructors properly', () => {
     const constructors = {
       '0': 'true',
