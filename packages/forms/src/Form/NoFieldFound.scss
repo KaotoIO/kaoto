@@ -1,3 +1,4 @@
+/* stylelint-disable selector-class-pattern */
 .no-field-found {
   // Carbon caps the notification width per breakpoint, stretch it to the form area instead
   &.cds--actionable-notification {

@@ -3727,7 +3727,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/forms@workspace:packages/forms":
+"@kaoto/forms@workspace:*, @kaoto/forms@workspace:packages/forms":
   version: 0.0.0-use.local
   resolution: "@kaoto/forms@workspace:packages/forms"
   dependencies:
@@ -3794,6 +3794,7 @@ __metadata:
     "@cypress/grep": "npm:^7.0.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.10.7"
+    "@kaoto/forms": "workspace:*"
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.6.1"
     "@patternfly/react-core": "npm:6.6.1"
@@ -3919,6 +3920,7 @@ __metadata:
     "@dnd-kit/modifiers": "npm:^9.0.0"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.10.7"
+    "@kaoto/forms": "workspace:*"
     "@monaco-editor/react": "npm:^4.7.0"
     "@patternfly/patternfly": "npm:^6.6.1"
     "@patternfly/react-code-editor": "npm:6.6.1"
