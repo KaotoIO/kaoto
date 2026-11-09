@@ -39,6 +39,7 @@
     "cypress": "^16.0.0",
     "cypress-file-upload": "^5.0.8",
     "cypress-real-events": "^1.15.1",
+    "cypress-vite": "^1.10.2",
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-import": "^2.32.0",
