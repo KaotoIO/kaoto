@@ -39,12 +39,6 @@ jobs:
       - name: Install dependencies
         run: yarn install --immutable --mode=skip-build
 
-      - name: Build UI lib
-        run: yarn workspace @kaoto/kaoto build:lib
-
-      - name: Build UI lib
-        run: yarn workspace @kaoto/forms build:lib
-
       - name: Build webview, build and lint extension
         run: yarn workspace vscode-kaoto build:prod
 
