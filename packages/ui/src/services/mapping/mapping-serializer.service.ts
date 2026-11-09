@@ -34,6 +34,7 @@ import { FieldOverrideService } from '../document/field-override.service';
 import { FROM_JSON_SOURCE_SUFFIX, JsonSchemaDocument } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
 import { ensureNamespaceRegistered, parseQNameString } from '../namespace-util';
+import { CopyOfPlacementService } from './copy-of-placement.service';
 import { MappingService } from './mapping.service';
 import { MappingSerializerJsonAddon, TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 import { WrapperAutoDetectionService } from './wrapper-auto-detection.service';
@@ -86,26 +87,54 @@ export class MappingSerializerService {
     return fields.some((f) => f.isAttribute);
   }
 
+  /**
+   * Places items matching the predicate before (or, with `position: 'last'`, after) the ones that don't.
+   * @returns 0 when both match, -1 / 1 when only one does, or null when neither does so the caller
+   * can fall through to the next rule.
+   */
+  private static comparePlacement(
+    matches: (item: MappingItem) => boolean,
+    left: MappingItem,
+    right: MappingItem,
+    position: 'first' | 'last' = 'first',
+  ): number | null {
+    const leftMatches = matches(left);
+    const rightMatches = matches(right);
+    if (!leftMatches && !rightMatches) return null;
+    if (leftMatches === rightMatches) return 0;
+    const leftFirst = position === 'first' ? -1 : 1;
+    return leftMatches ? leftFirst : -leftFirst;
+  }
+
+  private static compareInstructionItems(left: MappingItem, right: MappingItem): number | null {
+    if (!(left instanceof InstructionItem && right instanceof InstructionItem)) return null;
+
+    // Two instructions normally keep their authored order, but an xsl:attribute must still be
+    // emitted before any element content or the transform fails at runtime (XTDE0410). Once
+    // optional attributes get wrapped in an auto-optional guard the attribute is an instruction
+    // too, so fall through to field comparison whenever one side carries one.
+    const hasAttribute = (item: MappingItem) =>
+      MappingSerializerService.hasAttributeField(MappingSerializerService.getMappingItemFields(item));
+    return hasAttribute(left) === hasAttribute(right) ? 0 : null;
+  }
+
   private static compareSpecialMappingItems(left: MappingItem, right: MappingItem): number | null {
-    if (left instanceof VariableItem) return right instanceof VariableItem ? 0 : -1;
-    if (right instanceof VariableItem) return 1;
-    if (left instanceof UnknownMappingItem || right instanceof UnknownMappingItem) return 0;
-    if (left instanceof OtherwiseItem) return right instanceof OtherwiseItem ? 0 : 1;
-    if (right instanceof OtherwiseItem) return -1;
-    if (left instanceof InstructionItem && right instanceof InstructionItem) {
-      // Two instructions normally keep their authored order, but an xsl:attribute must still be
-      // emitted before any element content or the transform fails at runtime (XTDE0410). Once
-      // optional attributes get wrapped in an auto-optional guard the attribute is an instruction
-      // too, so fall through to field comparison whenever one side carries one.
-      const leftHasAttribute = MappingSerializerService.hasAttributeField(
-        MappingSerializerService.getMappingItemFields(left),
-      );
-      const rightHasAttribute = MappingSerializerService.hasAttributeField(
-        MappingSerializerService.getMappingItemFields(right),
-      );
-      return leftHasAttribute === rightHasAttribute ? 0 : null;
-    }
-    return null;
+    const { comparePlacement } = MappingSerializerService;
+    const isVariable = (item: MappingItem) => item instanceof VariableItem;
+    const isOtherwise = (item: MappingItem) => item instanceof OtherwiseItem;
+    // An empty copy-of has no field to anchor to, so it leads its field's content. Every other
+    // copy-of reaches this comparator only when it can't be tied to a child (1-to-1 ones sit inline
+    // in that child's FieldItem) and keeps falling through to the "no fields" rule, i.e. last.
+    const isLeadingCopyOf = (item: MappingItem) => CopyOfPlacementService.isLeadingCopyOf(item);
+    const involvesUnknown = left instanceof UnknownMappingItem || right instanceof UnknownMappingItem;
+
+    return (
+      comparePlacement(isVariable, left, right) ??
+      comparePlacement(isLeadingCopyOf, left, right) ??
+      (involvesUnknown ? 0 : null) ??
+      comparePlacement(isOtherwise, left, right, 'last') ??
+      MappingSerializerService.compareInstructionItems(left, right)
+    );
   }
 
   private static compareMappingItemFields(leftFields: IField[], rightFields: IField[]) {

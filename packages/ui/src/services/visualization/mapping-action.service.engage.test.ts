@@ -44,6 +44,7 @@ import {
 import { expectNoDecisionChange } from '../../stubs/datamapper/target-render-test-helpers';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
@@ -304,11 +305,11 @@ describe('MappingActionService — mapping engagement', () => {
         const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
         const sourceItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceShipOrderChildren[3]);
         MappingActionService.deleteMappingItem(targetForEachChildren[0] as TargetNodeData);
-        // index 0 is the whole-element copy-of selector, which renders first; index 1 is the "Title" field
+        // the whole-element copy-of selector is not empty, so it renders after the fields; index 0 is "Title"
         MappingActionService.engageMapping(
           tree,
           sourceItemChildren[0] as FieldNodeData,
-          targetItemChildren[1] as TargetFieldNodeData,
+          targetItemChildren[0] as TargetFieldNodeData,
         );
 
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -921,7 +922,9 @@ describe('MappingActionService — mapping engagement', () => {
         pidItem.children.push(copyOf);
         const renderIndex = adt.buildRenderIndex();
         const pidNode = adt.targetNode('PID', renderIndex) as FieldItemNodeData;
-        const copyOfNode = VisualizationService.generateNonDocumentNodeDataChildren(pidNode)[0] as MappingNodeData;
+        const copyOfNode = VisualizationService.generateNonDocumentNodeDataChildren(pidNode).find(
+          (n) => 'mapping' in n && n.mapping === copyOf,
+        ) as MappingNodeData;
         expect(pidNode.autoOptionalIfItem).toBe(ifItem);
         expect(copyOfNode.mapping).toBe(copyOf);
 
@@ -1228,6 +1231,55 @@ describe('MappingActionService — mapping engagement', () => {
         expect(copyOf).toBeDefined();
         expect(copyOf.valueType).toEqual(CopyOfType.CONTAINER_NODE);
         expect(copyOf.expression).toMatch(/\/node\(\)$/);
+      });
+    });
+
+    describe('xs:anyType …/node() copy-of placement', () => {
+      it('should keep the dragged node() copy-of as a separate node inside its wrapper and round-trip it unchanged', () => {
+        const anyTypeDef = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          { 'Envelope.xsd': getEnvelopeXsd() },
+        );
+        const anyTypeDoc = XmlSchemaDocumentService.createXmlSchemaDocument(anyTypeDef).document!;
+        const anyTypeDocChildren = VisualizationService.generateStructuredDocumentChildren(
+          new DocumentNodeData(anyTypeDoc),
+        );
+        const payloadField = VisualizationService.generateNonDocumentNodeDataChildren(
+          anyTypeDocChildren[0],
+        )[0] as FieldNodeData;
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const targetItem = VisualizationService.generateNonDocumentNodeDataChildren(
+          targetDocChildren[0],
+        )[3] as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, payloadField, targetItem);
+
+        const itemFieldItem = (tree.children[0] as FieldItem).children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'Item',
+        ) as FieldItem;
+        const copyOf = itemFieldItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
+        expect(
+          CopyOfPlacementService.classify(copyOf.expression, itemFieldItem.field, () => '', itemFieldItem).kind,
+        ).toBe('other');
+        expect(CopyOfPlacementService.selectsOwnField(copyOf, itemFieldItem, () => '')).toBe(false);
+
+        const xslt = MappingSerializerService.serialize(tree, paramsMap);
+        expect(xslt).toMatch(/<Item[^>]*>\s*<xsl:copy-of select="[^"]*\/node\(\)"\/>/);
+
+        const reloadedTree = new MappingTree(
+          targetDoc.documentType,
+          targetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        MappingSerializerService.deserialize(xslt, targetDoc, reloadedTree, paramsMap);
+        const reloadedItem = (reloadedTree.children[0] as FieldItem).children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'Item',
+        ) as FieldItem;
+        const reloadedCopyOf = reloadedItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
+        expect(reloadedCopyOf.valueType).toBe(CopyOfType.CONTAINER_NODE);
+        expect(MappingSerializerService.serialize(reloadedTree, paramsMap)).toEqual(xslt);
       });
     });
 

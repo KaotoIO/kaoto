@@ -54,6 +54,9 @@ function readStubFile(relativePath: string): string {
   return fileCache.get(relativePath)!;
 }
 
+export function getCopyOfSequenceOrderXsd(): string {
+  return readStubFile('./xml/CopyOfSequenceOrder.xsd');
+}
 export function getShipOrderXsd(): string {
   return readStubFile('./xml/ShipOrder.xsd');
 }

@@ -36,6 +36,7 @@ import {
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingService } from '../mapping/mapping.service';
 import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
@@ -57,6 +58,9 @@ import { VisualizationUtilService } from './visualization-util.service';
  * given target node lives in {@link MappingActionRegistryService}.
  */
 export class MappingActionService {
+  /** Whether a separate copy-of rendered first at its last commit, to rebuild the tree only when that changes. */
+  private static readonly committedCopyOfLeads = new WeakMap<CopyOfSelector, boolean>();
+
   /**
    * Returns `true` if the node's mapping already has a {@link ValueSelector} child.
    * @param nodeData - The target node to inspect.
@@ -121,8 +125,102 @@ export class MappingActionService {
     expressionItem: IExpressionHolder & MappingItem,
   ): XPathCommitResult {
     const resynced = MappingActionService.resyncOptionalGuard(nodeData, expressionItem);
+    if (MappingActionService.reclassifyCopyOf(expressionItem)) return 'structural-update';
     if (TargetRenderService.hasDecisionChanged(expressionItem, nodeData.renderIndex)) return 'structural-update';
     return resynced ? 'update' : 'none';
+  }
+
+  /**
+   * Moves a committed `xsl:copy-of` to where {@link CopyOfPlacementService.classify} puts it: inline
+   * on the child field it selects when 1-to-1, as a separate node otherwise. This runs on commit,
+   * not per keystroke, because the target tree is only rebuilt on structural refreshes. A copy-of
+   * directly under `xsl:template` (no enclosing field) is left alone.
+   * @param expressionItem - the expression holder that was edited
+   * @returns `true` when the copy-of moved or, as a separate node, may need to change its row position,
+   * so the target tree must be rebuilt
+   */
+  private static reclassifyCopyOf(expressionItem: IExpressionHolder & MappingItem): boolean {
+    if (!(expressionItem instanceof CopyOfSelector)) return false;
+
+    const owner = expressionItem.parent;
+    const inlineIn =
+      owner instanceof FieldItem && expressionItem.valueType === CopyOfType.CONTAINER ? owner : undefined;
+    const outputParent: MappingParentType = inlineIn ? inlineIn.parent : owner;
+    const contextField = CopyOfPlacementService.getContextField(outputParent);
+    if (!contextField) return false;
+
+    const namespaceMap = expressionItem.mappingTree.namespaceMap;
+    const placement = CopyOfPlacementService.classify(
+      expressionItem.expression,
+      contextField,
+      (prefix) => namespaceMap[prefix],
+      outputParent,
+    );
+
+    if (placement.kind === 'child' && CopyOfPlacementService.canHostFieldItem(outputParent)) {
+      if (inlineIn?.field === placement.field) return false;
+      MappingActionService.detachCopyOf(expressionItem, inlineIn);
+      const target = MappingActionService.findCopyOfHost(outputParent, placement.field);
+      if (target) {
+        expressionItem.parent = target;
+        expressionItem.valueType = CopyOfType.CONTAINER;
+        target.children.push(expressionItem);
+        MappingActionService.committedCopyOfLeads.delete(expressionItem);
+        return true;
+      }
+      // The field already has content and can't repeat: a second element would be invalid output, so the
+      // copy-of stays a separate node.
+      expressionItem.parent = outputParent;
+      expressionItem.valueType = CopyOfType.CONTAINER_NODE;
+      outputParent.children.push(expressionItem);
+      MappingActionService.committedCopyOfLeads.set(
+        expressionItem,
+        CopyOfPlacementService.isLeadingCopyOf(expressionItem),
+      );
+      return true;
+    }
+
+    // Still a separate node, but an empty copy-of renders first and any other one last, so the row only
+    // moves when that changes. What the previous commit left is remembered; with no record the tree is
+    // rebuilt to be safe.
+    if (inlineIn) {
+      MappingActionService.detachCopyOf(expressionItem, inlineIn);
+      expressionItem.parent = outputParent;
+      expressionItem.valueType = CopyOfType.CONTAINER_NODE;
+      outputParent.children.push(expressionItem);
+      MappingActionService.committedCopyOfLeads.set(
+        expressionItem,
+        CopyOfPlacementService.isLeadingCopyOf(expressionItem),
+      );
+      return true;
+    }
+    const leads = CopyOfPlacementService.isLeadingCopyOf(expressionItem);
+    const leadsBefore = MappingActionService.committedCopyOfLeads.get(expressionItem);
+    MappingActionService.committedCopyOfLeads.set(expressionItem, leads);
+    return leadsBefore !== leads;
+  }
+
+  /**
+   * The {@link FieldItem} of `field` under `parent` that can take a copy-of, created when missing. Only an
+   * empty one is reused: a copy-of next to other content would no longer be the field's whole body, and
+   * serialization would nest it inside the field's element. When a populated one exists and the field
+   * can't repeat, there is no valid host and `undefined` is returned.
+   */
+  private static findCopyOfHost(parent: MappingParentType, field: IField): FieldItem | undefined {
+    const sameField = parent.children.filter((c): c is FieldItem => c instanceof FieldItem && c.field === field);
+    const empty = sameField.find((c) => c.children.length === 0);
+    if (empty) return empty;
+    if (sameField.length > 0 && field.maxOccurs === 1) return undefined;
+    return MappingService.createFieldItem(parent, field);
+  }
+
+  /** Removes the copy-of from where it sits, dropping the {@link FieldItem} that only carried it. */
+  private static detachCopyOf(selector: CopyOfSelector, inlineIn: FieldItem | undefined) {
+    const holder: MappingParentType = inlineIn ?? selector.parent;
+    holder.children = holder.children.filter((child) => child !== selector);
+    if (inlineIn?.children.length === 0) {
+      inlineIn.parent.children = inlineIn.parent.children.filter((child) => child !== inlineIn);
+    }
   }
 
   /**

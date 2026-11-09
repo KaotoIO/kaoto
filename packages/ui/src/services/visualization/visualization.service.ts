@@ -3,8 +3,6 @@ import { qname } from 'xml-name-validator';
 
 import { IDocument, IField } from '../../models/datamapper/document';
 import {
-  CopyOfSelector,
-  CopyOfType,
   FieldItem,
   IExpressionHolder,
   IfItem,
@@ -41,6 +39,7 @@ import {
 import { DocumentService } from '../document/document.service';
 import { DocumentUtilService } from '../document/document-util.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { MappingService } from '../mapping/mapping.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
@@ -301,15 +300,15 @@ export class VisualizationService {
     mappings: MappingItem[] | undefined,
   ): void {
     if (!mappings) return;
-    const isCopyOfContainerNode = (m: MappingItem) =>
-      m instanceof CopyOfSelector && m.valueType === CopyOfType.CONTAINER_NODE;
+    // Only an empty copy-of leads. Any other separate copy-of can't be tied to a child field, and the
+    // serializer emits it after the fields, so it renders after them too (collectUnrenderedMappings).
     let filterPriorityMappingItem: (m: MappingItem) => boolean = (m) =>
-      m instanceof UnknownMappingItem || m instanceof VariableItem || isCopyOfContainerNode(m);
+      m instanceof UnknownMappingItem || m instanceof VariableItem || CopyOfPlacementService.isLeadingCopyOf(m);
     if (parent.isPrimitive) {
       filterPriorityMappingItem = (m) =>
         m instanceof UnknownMappingItem ||
         VisualizationUtilService.isInlineValueSelector(m) ||
-        isCopyOfContainerNode(m);
+        CopyOfPlacementService.isLeadingCopyOf(m);
     }
     for (const m of mappings.filter(filterPriorityMappingItem)) {
       answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m));

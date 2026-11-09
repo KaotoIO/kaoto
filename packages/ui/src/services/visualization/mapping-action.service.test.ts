@@ -1986,6 +1986,22 @@ describe('MappingActionService', () => {
         expectNoDecisionChange(tree, renderIndex);
       });
 
+      it('should re-sync the guard test when the committed selector is a separate copy-of that reclassifies', () => {
+        const { ifItem, noteFieldItem, selector } = addNote('Note', 'Note');
+        noteFieldItem.children = [];
+        const copyOf = new CopyOfSelector(noteFieldItem, CopyOfType.CONTAINER_NODE);
+        copyOf.expression = 'Note';
+        noteFieldItem.children.push(copyOf);
+        const noteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+        expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+        expect(selector.parent).toBe(noteFieldItem);
+
+        MappingService.updateExpression(copyOf, './Note');
+
+        expect(MappingActionService.commitExpression(noteNode, copyOf)).toBe('structural-update');
+        expect(ifItem.expression).toBe('./Note');
+      });
+
       it('should return none when a field whose source is required commits the path it already had', () => {
         const { ifItem, selector } = addNote('Title', 'Title');
         const renderIndex = buildRenderIndex();
