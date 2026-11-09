@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Source schema of the DataMapper step "log-2614". Lives in a subfolder on purpose: camel export
+     carries only the files sitting next to the routes, so this one proves the Kaoto export copied it. -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xs:element name="Order">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="OrderId" type="xs:string"/>
+				<xs:element name="Customer" type="xs:string"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
