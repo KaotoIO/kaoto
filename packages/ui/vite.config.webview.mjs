@@ -1,7 +1,7 @@
 // @ts-check
 import react from '@vitejs/plugin-react';
 import path from 'path'; // NOSONAR
-import { defineConfig } from 'vite';
+import { defaultClientConditions, defineConfig } from 'vite';
 
 import { getBuildInfoDefines } from '../../scripts/build-info.mjs';
 
@@ -40,6 +40,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     resolve: {
+      // Resolve workspace packages to their TypeScript sources
+      conditions: ['@kaoto/source', ...defaultClientConditions],
       alias: [{ find: /^~/, replacement: '' }],
     },
   };
