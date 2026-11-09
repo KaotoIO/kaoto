@@ -68,10 +68,5 @@
     "@kaoto/forms": "^1.9.0",
     "@kaoto/kaoto": "workspace:*",
     "storybook": "^10.6.1"
-  },
-  "eslintConfig": {
-    "extends": [
-      "plugin:storybook/recommended"
-    ]
   }
 }
