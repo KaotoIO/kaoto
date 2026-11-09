@@ -1,5 +1,6 @@
 import { defineConfig } from 'cypress';
 import cypressSplit from 'cypress-split';
+import vitePreprocessor from 'cypress-vite';
 
 export default defineConfig({
   projectId: 'ui-test',
@@ -8,6 +9,16 @@ export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
       cypressSplit(on, config);
+
+      on(
+        'file:preprocessor',
+        vitePreprocessor({
+          resolve: {
+            conditions: ['@kaoto/source'],
+          },
+        }),
+      );
+
       // IMPORTANT: return the config object
       return config;
     },
