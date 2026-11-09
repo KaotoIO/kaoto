@@ -22,6 +22,12 @@
     "build:storybook": "storybook build",
     "chromatic": "chromatic --build-script-name 'build:storybook' --exit-zero-on-changes --project-token=$CHROMATIC_PROJECT_TOKEN"
   },
+  "dependencies": {
+    "@kaoto/camel-catalog": "^0.10.7",
+    "@kaoto/forms": "workspace:*",
+    "@kaoto/kaoto": "workspace:*",
+    "storybook": "^10.6.1"
+  },
   "devDependencies": {
     "@cypress/grep": "^7.0.0",
     "@eslint/js": "^9.10.0",
@@ -63,10 +69,5 @@
     "typescript": "^6.0.0",
     "typescript-eslint": "^8.71.0",
     "vite": "^8.3.0"
-  },
-  "dependencies": {
-    "@kaoto/camel-catalog": "^0.10.7",
-    "@kaoto/kaoto": "workspace:*",
-    "storybook": "^10.6.1"
   }
 }
