@@ -148,6 +148,27 @@ describe('Integrations View', function () {
 			);
 		});
 
+		/**
+		 * The DataMapper context of the exported routes has to survive the export: `camel export` carries
+		 * neither the `.kaoto` file nor the schemas and stylesheets in subfolders, so the extension copies
+		 * them afterwards. The fixture under `routes/` holds entries for a YAML and an XML route plus one
+		 * entry no route references, which must not be carried over.
+		 */
+		it('carries the DataMapper metadata and its resources over', async function () {
+			const exportedKaotoFile = join(PROJECT_OUTPUT_DIR, '.kaoto');
+			await driver.wait(async () => fs.existsSync(exportedKaotoFile), 60_000, 'The exported project has no .kaoto metadata file', 2_000);
+
+			const metadata = JSON.parse(fs.readFileSync(exportedKaotoFile, 'utf-8'));
+			expect(Object.keys(metadata), 'only the entries of the exported routes may be written').to.have.members(['log-2614', 'log-2626']);
+			expect(metadata['log-2614'].xsltPath, 'the path has to be rewritten against the exported classpath root').to.equal('xslt/mapping.xsl');
+
+			const resourcesDir = join(PROJECT_OUTPUT_DIR, 'src', 'main', 'resources');
+			expect(fs.existsSync(join(resourcesDir, 'xslt', 'mapping.xsl')), 'the referenced XSLT has to be copied').to.be.true;
+			expect(fs.existsSync(join(resourcesDir, 'schemas', 'order.xsd')), 'the referenced source schema has to be copied').to.be.true;
+			expect(fs.existsSync(join(resourcesDir, 'schemas', 'shipment.xsd')), 'the referenced target schema has to be copied').to.be.true;
+			expect(fs.existsSync(join(resourcesDir, 'xslt', 'orphan.xsl')), 'a resource of a non-exported entry must not be copied').to.be.false;
+		});
+
 		async function waitUntilNewCamelProjectHasCrucialFiles(): Promise<void> {
 			// expand folders
 			await expandFolderItemsInTreeStructuredView(integrationsSection, 'quarkus-export-example', 'src', 'main', 'resources', 'camel');

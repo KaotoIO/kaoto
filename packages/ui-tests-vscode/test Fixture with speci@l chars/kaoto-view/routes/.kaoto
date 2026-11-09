@@ -1,0 +1,19 @@
+{
+	"log-2614": {
+		"xsltPath": "xslt/mapping.xsl",
+		"sourceBody": {
+			"filePath": ["schemas/order.xsd"]
+		},
+		"targetBody": {
+			"filePath": ["schemas/shipment.xsd"]
+		}
+	},
+	"log-2626": {
+		"sourceBody": {
+			"filePath": ["schemas/order.xsd"]
+		}
+	},
+	"log-0000-not-exported": {
+		"xsltPath": "xslt/orphan.xsl"
+	}
+}
