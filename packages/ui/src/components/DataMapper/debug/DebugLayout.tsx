@@ -15,7 +15,7 @@
 */
 import './DebugLayout.scss';
 
-import { Masthead, Page, PageSection, PageSectionVariants } from '@patternfly/react-core';
+import { Stack, StackItem } from '@patternfly/react-core';
 import { FunctionComponent, memo, useEffect } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -32,22 +32,26 @@ export const DebugLayout: FunctionComponent = memo(function DebugLayout() {
     setDebug(true);
   }, [setDebug]);
 
-  const header = (
-    <Masthead>
-      <ContextToolbar />
-    </Masthead>
-  );
-
   return (
-    <Page isContentFilled masthead={header}>
-      <BrowserFilePickerMetadataProvider>
-        <DataMapperMonitor />
-        <CanvasMonitor />
-        <DataMapperDnDMonitor />
-        <PageSection isFilled hasBodyWrapper={false} variant={PageSectionVariants.default} className="debug-layout">
+    <BrowserFilePickerMetadataProvider>
+      <DataMapperMonitor />
+      <CanvasMonitor />
+      <DataMapperDnDMonitor />
+      {/*
+        The debugger is rendered inside Kaoto's main layout, which already provides a
+        PatternFly Page. Rendering another Page here produced a Page-in-Page (issue #2263),
+        so lay the toolbar and content out with a Stack instead. The filled StackItem
+        re-establishes the definite height that SourceTargetView (height: 100%) needs to
+        own its own scrolling.
+      */}
+      <Stack className="debug-layout">
+        <StackItem>
+          <ContextToolbar />
+        </StackItem>
+        <StackItem isFilled className="debug-layout__body">
           <DataMapperControl />
-        </PageSection>
-      </BrowserFilePickerMetadataProvider>
-    </Page>
+        </StackItem>
+      </Stack>
+    </BrowserFilePickerMetadataProvider>
   );
 });
