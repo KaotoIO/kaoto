@@ -17,7 +17,7 @@ exports[`PipeErrorHandlerPage > renders "Not applicable" when the resource type 
 exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is supported 1`] = `
 <div>
   <div
-    class="cds--layout cds--layout--size-sm"
+    class="kaoto-form-layout cds--layout cds--layout--size-sm"
   >
     <div
       class="kaoto-form-toolbar"
