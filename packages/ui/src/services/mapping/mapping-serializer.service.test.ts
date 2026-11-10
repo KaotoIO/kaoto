@@ -1128,6 +1128,48 @@ describe('MappingSerializerService', () => {
       expect(childNames).toEqual(['when', 'when', 'when', 'otherwise']);
     });
 
+    it('should keep otherwise last when it only contains an empty copy-of', () => {
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const shipOrderField = targetDoc.fields.find((f) => f.name === 'ShipOrder')!;
+      const shipOrderItem = new FieldItem(mappingTree, shipOrderField);
+      mappingTree.children.push(shipOrderItem);
+
+      const chooseItem = new ChooseItem(shipOrderItem);
+      shipOrderItem.children.push(chooseItem);
+
+      const when1 = new WhenItem(chooseItem);
+      when1.expression = "condition1 = 'true'";
+      chooseItem.children.push(when1);
+
+      // Authored before the second when, holding only the default empty copy-of
+      const otherwise = new OtherwiseItem(chooseItem);
+      otherwise.children.push(new CopyOfSelector(otherwise, CopyOfType.CONTAINER_NODE));
+      chooseItem.children.push(otherwise);
+
+      const when2 = new WhenItem(chooseItem);
+      when2.expression = "condition2 = 'true'";
+      chooseItem.children.push(when2);
+
+      const xslt = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+      const xsltDocument = domParser.parseFromString(xslt, 'text/xml');
+      const iterator = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:template/ShipOrder/xsl:choose/*',
+        xsltDocument,
+        xslNsResolver,
+        XPathResult.ORDERED_NODE_ITERATOR_TYPE,
+      );
+      const childNames: string[] = [];
+      for (let child = iterator.iterateNext(); child; child = iterator.iterateNext()) {
+        childNames.push((child as Element).localName);
+      }
+
+      expect(childNames).toEqual(['when', 'when', 'otherwise']);
+    });
+
     it('should fix otherwise order when importing malformed XSL with otherwise in the middle', () => {
       // Create malformed XSL with otherwise in the middle of when elements
       const malformedXslt = `<?xml version="1.0" encoding="UTF-8"?>

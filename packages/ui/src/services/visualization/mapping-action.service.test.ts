@@ -977,6 +977,33 @@ describe('MappingActionService', () => {
         MappingActionService.deleteMappingItem(copyOfNodeData);
         expect(tree.children).toHaveLength(0);
       });
+
+      it('should report a structural change when a source is dropped onto a copy-of selector', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.Primitive,
+        );
+        targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
+        MappingActionService.applyCopyOfSelector(targetDocNode);
+        const copyOfNodeData = VisualizationService.generatePrimitiveDocumentChildren(
+          targetDocNode,
+        )[0] as MappingNodeData;
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
+
+        const structural = MappingActionService.engageMapping(
+          tree,
+          sourceShipOrderChildren[1] as FieldNodeData,
+          copyOfNodeData,
+        );
+
+        expect(structural).toBe(true);
+        expect((tree.children[0] as CopyOfSelector).expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
+      });
     });
   });
 

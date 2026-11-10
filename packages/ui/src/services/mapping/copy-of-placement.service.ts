@@ -9,10 +9,13 @@ import {
   InstructionItem,
   MappingItem,
   MappingParentType,
+  OtherwiseItem,
+  WhenItem,
 } from '../../models/datamapper/mapping';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
 import { PathExprNode, StepExprNode, XPathNodeType } from '../xpath/syntaxtree/xpath-syntaxtree-model';
 import { XPathService } from '../xpath/xpath.service';
+import { MappingService } from './mapping.service';
 
 /**
  * How a `xsl:copy-of` is placed among its field's children.
@@ -78,12 +81,14 @@ export class CopyOfPlacementService {
 
   /**
    * Whether the item sorts and renders first among its siblings: an empty copy-of, or an
-   * instruction that contains nothing but empty copy-ofs.
+   * instruction that contains nothing but empty copy-ofs. `xsl:when` and `xsl:otherwise` branches never
+   * lead: their order inside `xsl:choose` is authored (`otherwise` last), whatever they contain.
    */
   static isLeadingCopyOf(item: MappingItem): boolean {
     if (item instanceof CopyOfSelector) {
       return item.valueType === CopyOfType.CONTAINER_NODE && !item.expression.trim();
     }
+    if (item instanceof WhenItem || item instanceof OtherwiseItem) return false;
     if (item instanceof InstructionItem) {
       return item.children.length > 0 && item.children.every((child) => CopyOfPlacementService.isLeadingCopyOf(child));
     }
@@ -96,9 +101,8 @@ export class CopyOfPlacementService {
    * field, such as directly under `xsl:template`.
    */
   static getContextField(owner: MappingParentType): IField | undefined {
-    let current: MappingParentType = owner;
-    while (current instanceof InstructionItem) current = current.parent;
-    return current instanceof FieldItem ? current.field : undefined;
+    const outputParent = owner instanceof InstructionItem ? MappingService.findOutputParent(owner) : owner;
+    return outputParent instanceof FieldItem ? outputParent.field : undefined;
   }
 
   /**

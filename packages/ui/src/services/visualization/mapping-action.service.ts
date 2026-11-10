@@ -577,8 +577,9 @@ export class MappingActionService {
    * {@link MappingItem} such as a `FieldItem`/`ForEachItem`/`ChooseItem` or an optional guard was
    * added, removed, or replaced), or the drop changed whether an optional guard is see-through
    * ({@link TargetRenderService.hasDecisionChanged}) — e.g. a second source dropped onto a guarded
-   * field appends to its selector, so the guard shows as a regular `if`. `false` when only an
-   * expression changed and every row stays as it is.
+   * field appends to its selector, so the guard shows as a regular `if`; or the drop updated a
+   * {@link CopyOfSelector}'s expression, which decides whether it is inlined or standalone. `false`
+   * when only an expression changed and every row stays as it is.
    */
   static engageMapping(mappingTree: MappingTree, sourceNode: SourceNodeDataType, targetNode: TargetNodeData): boolean {
     if (MappingActionService.applyEngageMapping(mappingTree, sourceNode, targetNode)) return true;
@@ -613,7 +614,9 @@ export class MappingActionService {
       return targetWasUnmapped || wrapOrGuardChanged;
     } else if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceField);
-      return false;
+      // A copy-of selector's expression decides whether it is inlined on its field row or kept as a
+      // standalone node, so the tree must be rebuilt for `filterMappingsForField()` to re-place it.
+      return targetNode.mapping instanceof CopyOfSelector;
     } else if (targetNode instanceof TargetDocumentNodeData) {
       const hadRootValueSelector = mappingTree.children.some((c) => c instanceof ValueOfSelector);
       MappingService.mapToDocument(mappingTree, sourceField);
