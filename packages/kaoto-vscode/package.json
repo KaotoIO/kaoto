@@ -27,7 +27,7 @@
     "lint:fix": "yarn lint --fix"
   },
   "dependencies": {
-    "@kaoto/camel-catalog": "^0.10.7",
+    "@kaoto/camel-catalog": "^0.10.8",
     "@kaoto/kaoto": "workspace:*",
     "@redhat-developer/vscode-extension-proposals": "^0.0.23",
     "@redhat-developer/vscode-redhat-telemetry": "^0.10.2",
