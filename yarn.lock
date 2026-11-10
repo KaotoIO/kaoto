@@ -3720,10 +3720,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/camel-catalog@npm:^0.10.7":
-  version: 0.10.7
-  resolution: "@kaoto/camel-catalog@npm:0.10.7"
-  checksum: 10/bd5935bb6d813afe14324f7c9b54fd3e87113448d0db2c8c43b0f001259049aff46b6fca8827b588c590a6462f0b8174d80dbff0336098234cb2282c021490b2
+"@kaoto/camel-catalog@npm:^0.10.8":
+  version: 0.10.8
+  resolution: "@kaoto/camel-catalog@npm:0.10.8"
+  checksum: 10/d6fa39b834ad9d9e6e7e9268aa303d5b81bbb230edb920f59bdbf5f144a5266a543142176710e8443f63ba27cf5aae9f3793c0919455fbe07fdd7439c748999d
   languageName: node
   linkType: hard
 
@@ -3793,7 +3793,7 @@ __metadata:
   dependencies:
     "@cypress/grep": "npm:^7.0.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.10.7"
+    "@kaoto/camel-catalog": "npm:^0.10.8"
     "@kaoto/forms": "workspace:*"
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.6.1"
@@ -3856,7 +3856,7 @@ __metadata:
     "@double-great/stylelint-a11y": "npm:^3.0.4"
     "@eslint/js": "npm:^9.10.0"
     "@ibm/plex": "npm:^6.4.1"
-    "@kaoto/camel-catalog": "npm:^0.10.7"
+    "@kaoto/camel-catalog": "npm:^0.10.8"
     "@kaoto/kaoto": "workspace:*"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
@@ -3919,7 +3919,7 @@ __metadata:
     "@dnd-kit/core": "npm:^6.1.0"
     "@dnd-kit/modifiers": "npm:^9.0.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.10.7"
+    "@kaoto/camel-catalog": "npm:^0.10.8"
     "@kaoto/forms": "workspace:*"
     "@monaco-editor/react": "npm:^4.7.0"
     "@patternfly/patternfly": "npm:^6.6.1"
@@ -4007,7 +4007,7 @@ __metadata:
     zundo: "npm:^2.3.0"
     zustand: "npm:^5.0.11"
   peerDependencies:
-    "@kaoto/camel-catalog": ^0.10.7
+    "@kaoto/camel-catalog": ^0.10.8
     monaco-editor: ^0.55.1
     monaco-yaml: ^5.5.1
     react: ^19.2.4
@@ -26252,7 +26252,7 @@ __metadata:
   dependencies:
     "@cyclonedx/cdxgen": "npm:12.8.4"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.10.7"
+    "@kaoto/camel-catalog": "npm:^0.10.8"
     "@kaoto/kaoto": "workspace:*"
     "@redhat-developer/vscode-extension-proposals": "npm:^0.0.23"
     "@redhat-developer/vscode-redhat-telemetry": "npm:^0.10.2"
