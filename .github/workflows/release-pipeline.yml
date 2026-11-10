@@ -71,7 +71,11 @@ jobs:
     secrets: inherit
 
   call-release-container:
-    needs: setup
+    # Gate on call-release-ui so the image (built from the same @kaoto/kaoto web app) is only
+    # pushed — including the floating `stable` tag — after the Cypress E2E tests have passed.
+    needs:
+      - setup
+      - call-release-ui
     if: ${{ !inputs.snapshot }}
     uses: ./.github/workflows/release-container.yml
     with:
