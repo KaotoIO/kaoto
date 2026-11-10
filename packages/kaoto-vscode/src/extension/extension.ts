@@ -92,7 +92,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	 */
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(VIEW_HELP, new HelpFeedbackProvider(context.extensionUri.path)));
 
-	languageServerRegistrar = new LanguageServerRegistrar(context);
+	languageServerRegistrar = new LanguageServerRegistrar(context, catalogService);
 
 	const registrars: IRegistrar[] = [
 		new EditorRegistrar(context, editors, telemetryService),

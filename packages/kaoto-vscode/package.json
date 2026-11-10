@@ -1394,6 +1394,35 @@
             "markdownDescription": "Path to a Camel Language Server JAR to run instead of the one that Kaoto downloads, for example a local build. Leave empty to use the downloaded JAR.",
             "scope": "machine",
             "order": 1
+          },
+          "kaoto.lsp.extraComponents": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "component"
+              ],
+              "properties": {
+                "component": {
+                  "type": "object",
+                  "required": [
+                    "scheme"
+                  ],
+                  "properties": {
+                    "scheme": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "markdownDescription": "List of additional Camel components to include in the catalog, described as a JSON list respecting Camel catalog syntax.",
+            "default": null,
+            "scope": "window",
+            "order": 2,
+            "tags": [
+              "experimental"
+            ]
           }
         }
       }

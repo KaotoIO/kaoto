@@ -17,11 +17,12 @@ import * as vscode from 'vscode';
 import * as path from 'path'; // NOSONAR
 import * as fs from 'fs'; // NOSONAR
 import { execFile } from 'node:child_process';
-import { Executable, LanguageClient, LanguageClientOptions } from 'vscode-languageclient/node';
+import { DidChangeConfigurationNotification, Executable, LanguageClient, LanguageClientOptions, State } from 'vscode-languageclient/node';
 import { KAOTO_LSP_SERVER_JAR_SETTING_ID } from '../constants';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { CAMEL_LSP_DOCUMENT_SELECTORS } from './CamelLspDocumentFilter';
 import { CamelLspServerDownloader, DownloadProgress } from './CamelLspServerDownloader';
+import { CamelLspSettings } from './CamelLspSettings';
 
 const LANGUAGE_CLIENT_ID = 'LANGUAGE_ID_APACHE_CAMEL_KAOTO';
 // also the name of the client's output channel, listed next to the 'Kaoto' channel
@@ -38,6 +39,10 @@ export class CamelLanguageServerManager {
 	static readonly REQUIRED_JAVA_VERSION = 17;
 
 	private languageClient: LanguageClient | undefined;
+	/** The latest settings, which the client also gives to a server that it restarts. */
+	private settings: CamelLspSettings | undefined;
+	/** The settings that the server got, as JSON. */
+	private sentSettings: string | undefined;
 	private outputChannel: vscode.LogOutputChannel | undefined;
 	private starting: Promise<void> | undefined;
 	private startAbort: AbortController | undefined;
@@ -49,6 +54,8 @@ export class CamelLanguageServerManager {
 
 	constructor(
 		private readonly context: vscode.ExtensionContext,
+		// read at each start and by updateSettings(), so that the server follows the catalog selected in Kaoto
+		private readonly readSettings: () => Promise<CamelLspSettings>,
 		// the release pinned in the camelLanguageServer group of the extension's package.json
 		private readonly downloader = new CamelLspServerDownloader(context.globalStorageUri.fsPath, context.extension.packageJSON.camelLanguageServer),
 	) {
@@ -119,12 +126,33 @@ export class CamelLanguageServerManager {
 			args: ['-jar', jarPath],
 		};
 
+		// read after the download, so that a catalog selected meanwhile is the one the server starts with
+		const settings = await this.readSettingsOrBundledCatalog();
+		if (signal.aborted) {
+			return;
+		}
+		KaotoOutputChannel.logInfo(`Camel Language Server settings: ${JSON.stringify(settings.camel)}`);
+		this.settings = settings;
+
 		const clientOptions: LanguageClientOptions = {
 			documentSelector: CAMEL_LSP_DOCUMENT_SELECTORS,
 			outputChannel: this.getOutputChannel(),
+			// no configuration section is synchronized: the server gets only these settings, the camel.* ones of VS Code
+			// belong to the Camel extension. Read at each initialize, also when the client restarts a server that stopped.
+			initializationOptions: () => {
+				this.sentSettings = JSON.stringify(this.settings);
+				return this.settings;
+			},
 		};
 
-		this.languageClient = new LanguageClient(LANGUAGE_CLIENT_ID, LANGUAGE_CLIENT_NAME, serverOptions, clientOptions);
+		const client = this.createLanguageClient(serverOptions, clientOptions);
+		// settings changed while the client restarted a server that stopped are sent once it runs again
+		client.onDidChangeState((event) => {
+			if (event.newState === State.Running && client === this.languageClient) {
+				void this.sendSettings(client);
+			}
+		});
+		this.languageClient = client;
 
 		try {
 			await this.languageClient.start();
@@ -157,11 +185,63 @@ export class CamelLanguageServerManager {
 	}
 
 	/**
+	 * Reads the settings, once a start in progress is done, and sends them to the running server when they changed.
+	 * A server that is not running gets them when it starts, also when its client restarts it.
+	 */
+	async updateSettings(): Promise<void> {
+		await this.starting?.catch(() => undefined);
+		const client = this.languageClient;
+		if (!client) {
+			return;
+		}
+		try {
+			const settings = await this.readSettings();
+			// a client created meanwhile read them at its start
+			if (client === this.languageClient) {
+				this.settings = settings;
+				await this.sendSettings(client);
+			}
+		} catch (error) {
+			KaotoOutputChannel.logError('Could not send the settings to the Camel Language Server', error);
+		}
+	}
+
+	/**
+	 * Sends the latest settings to the server when it runs and did not get them yet.
+	 */
+	private async sendSettings(client: LanguageClient): Promise<void> {
+		const json = JSON.stringify(this.settings);
+		if (!client.isRunning() || json === this.sentSettings) {
+			return;
+		}
+		this.sentSettings = json;
+		try {
+			await client.sendNotification(DidChangeConfigurationNotification.type, { settings: this.settings });
+			KaotoOutputChannel.logInfo(`Camel Language Server settings changed: ${JSON.stringify(this.settings?.camel)}`);
+		} catch (error) {
+			KaotoOutputChannel.logError('Could not send the settings to the Camel Language Server', error);
+		}
+	}
+
+	/**
+	 * @returns the settings, or none when they cannot be read, so that the server still starts, with the catalog it bundles
+	 */
+	private async readSettingsOrBundledCatalog(): Promise<CamelLspSettings> {
+		try {
+			return await this.readSettings();
+		} catch (error) {
+			KaotoOutputChannel.logError('Could not read the settings of the Camel Language Server, it uses the catalog it bundles', error);
+			return { camel: {} };
+		}
+	}
+
+	/**
 	 * Stops the client when it runs, and drops it. A client whose start failed cannot be stopped.
 	 */
 	private async disposeClient(): Promise<void> {
 		const client = this.languageClient;
 		this.languageClient = undefined;
+		this.sentSettings = undefined;
 		if (client?.isRunning()) {
 			try {
 				await client.stop();
@@ -170,6 +250,13 @@ export class CamelLanguageServerManager {
 				KaotoOutputChannel.logError('Error stopping Camel Language Server', error);
 			}
 		}
+	}
+
+	/**
+	 * Creates the client of the server; tests replace it with a client that starts no process.
+	 */
+	protected createLanguageClient(serverOptions: Executable, clientOptions: LanguageClientOptions): LanguageClient {
+		return new LanguageClient(LANGUAGE_CLIENT_ID, LANGUAGE_CLIENT_NAME, serverOptions, clientOptions);
 	}
 
 	/**

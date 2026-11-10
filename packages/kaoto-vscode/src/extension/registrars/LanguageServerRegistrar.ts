@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 import * as vscode from 'vscode';
-import { KAOTO_LSP_ENABLED_SETTING_ID, KAOTO_LSP_SERVER_JAR_SETTING_ID } from '../../constants';
+import {
+	KAOTO_CATALOG_URL_SETTING_ID,
+	KAOTO_LSP_ENABLED_SETTING_ID,
+	KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID,
+	KAOTO_LSP_SERVER_JAR_SETTING_ID,
+	KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID,
+} from '../../constants';
 import { CamelLanguageServerManager } from '../../lsp/CamelLanguageServerManager';
 import { isCamelLspDocument } from '../../lsp/CamelLspDocumentFilter';
+import { readCamelLspSettings } from '../../lsp/CamelLspSettings';
+import { KaotoCatalogService } from '../../services/KaotoCatalogService';
 import { KaotoOutputChannel } from '../KaotoOutputChannel';
 import { IRegistrar } from './IRegistrar';
 
@@ -24,16 +32,21 @@ export class LanguageServerRegistrar implements IRegistrar {
 	private lspManager: CamelLanguageServerManager | undefined;
 	private camelDocumentListener: vscode.Disposable | undefined;
 
-	constructor(private readonly context: vscode.ExtensionContext) {}
+	constructor(
+		private readonly context: vscode.ExtensionContext,
+		private readonly catalogService: KaotoCatalogService,
+	) {}
 
 	register(): void {
-		this.lspManager = new CamelLanguageServerManager(this.context);
+		this.lspManager = new CamelLanguageServerManager(this.context, () => readCamelLspSettings(this.catalogService));
 
 		// Register the settings listener unconditionally — this must happen before the
 		// early return below so that re-enabling at runtime also works when the LSP was disabled
 		// at activation time (otherwise no listener would exist to catch the change).
 		this.context.subscriptions.push(
 			this.lspManager.onDidRequestRetry(() => this.startInBackground()),
+			// the catalogs of a new kaoto.catalog.url can change what the selected catalog is
+			this.catalogService.onDidReloadCatalogs(() => this.lspManager?.updateSettings()),
 			vscode.workspace.onDidChangeConfiguration(async (event) => {
 				if (event.affectsConfiguration(KAOTO_LSP_ENABLED_SETTING_ID)) {
 					if (LanguageServerRegistrar.isEnabled()) {
@@ -50,6 +63,15 @@ export class LanguageServerRegistrar implements IRegistrar {
 					KaotoOutputChannel.logInfo('Camel Language Server JAR changed, restarting...');
 					await this.lspManager?.stop();
 					this.startWhenCamelFileOpens();
+				}
+				// not an else: the same change can also touch kaoto.lsp.enabled, which leaves a running server as it is
+				if (
+					// with a new kaoto.catalog.url, the settings are sent once its catalogs are loaded, where the name is looked up
+					!event.affectsConfiguration(KAOTO_CATALOG_URL_SETTING_ID) &&
+					(event.affectsConfiguration(KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID) || event.affectsConfiguration(KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID))
+				) {
+					// a server that is not running reads the settings when it starts
+					await this.lspManager?.updateSettings();
 				}
 			}),
 		);
