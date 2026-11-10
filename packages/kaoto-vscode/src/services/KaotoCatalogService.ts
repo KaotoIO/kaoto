@@ -39,6 +39,10 @@ export class KaotoCatalogService {
 	private readonly catalogIndexPath: string;
 	private readonly redHatNotificationService: RedHatMavenNotificationService;
 	private lastNotifiedRedHatVersion: string | undefined;
+	private readonly catalogsReloaded = new vscode.EventEmitter<void>();
+
+	/** Fires each time the catalogs are loaded: at activation, after `kaoto.catalog.url` changed, and from the catalog picker. */
+	readonly onDidReloadCatalogs = this.catalogsReloaded.event;
 
 	constructor(private readonly context: vscode.ExtensionContext) {
 		// Path to the catalog directory copied by webpack during build
@@ -99,6 +103,7 @@ export class KaotoCatalogService {
 				const catalogIndex = (await response.json()) as CatalogLibrary;
 				this.catalogs = catalogIndex.definitions || [];
 				KaotoOutputChannel.logInfo(`Loaded catalog index from custom URL: ${customCatalogUrl}`);
+				this.catalogsReloaded.fire();
 				return;
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
@@ -117,6 +122,7 @@ export class KaotoCatalogService {
 			KaotoOutputChannel.logError(`Failed to load catalog index from ${this.catalogIndexPath}`, error);
 			throw error;
 		}
+		this.catalogsReloaded.fire();
 	}
 
 	/**
@@ -221,6 +227,15 @@ export class KaotoCatalogService {
 	 */
 	public async getSelectedIntegrationCatalog(resourceUri?: vscode.Uri): Promise<CatalogLibraryEntry | undefined> {
 		return this.getSelectedCatalogByKey('runtimeCatalogName', 'runtime', () => this.getDefaultIntegrationCatalog(), resourceUri);
+	}
+
+	/**
+	 * Resolve the integration catalog selected for the window, or the default one, without warning about an invalid name:
+	 * for readers in the background, such as the Camel Language Server, while the editor and the status bar warn about it
+	 */
+	public resolveSelectedIntegrationCatalog(): CatalogLibraryEntry | undefined {
+		const catalogName = vscode.workspace.getConfiguration('kaoto').get<string>('runtimeCatalogName');
+		return (catalogName ? this.findCatalogByName(catalogName) : undefined) ?? this.getDefaultIntegrationCatalog();
 	}
 
 	/**
@@ -489,6 +504,7 @@ export class KaotoCatalogService {
 
 		// Listen for workspace folder changes
 		this.context.subscriptions.push(
+			this.catalogsReloaded,
 			vscode.workspace.onDidChangeWorkspaceFolders(() => {
 				void this.updateStatusBar();
 			}),
