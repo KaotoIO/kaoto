@@ -75,7 +75,7 @@ exports[`CanvasForm > should render 1`] = `
       class="canvas-form__body"
     >
       <div
-        class="cds--layout cds--layout--size-sm"
+        class="kaoto-form-layout cds--layout cds--layout--size-sm"
       >
         <div
           class="kaoto-form-toolbar"

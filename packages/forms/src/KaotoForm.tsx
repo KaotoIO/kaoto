@@ -190,7 +190,7 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
               <CanvasFormTabsProvider tab={defaultSectionTab} showSectionTabs={showSectionTabs}>
                 <FilteredFieldProvider>
                   {/* One place to set the density of every control in the form and its toolbar */}
-                  <Layout size="sm">
+                  <Layout size="sm" className="kaoto-form-layout">
                     {(showFilterField || showSectionTabs) && (
                       <FormToolbar
                         showFilterField={showFilterField}

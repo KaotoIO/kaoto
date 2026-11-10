@@ -10,7 +10,7 @@ exports[`KaotoForm > should validate the model 1`] = `
 }
   </code>
   <div
-    class="cds--layout cds--layout--size-sm"
+    class="kaoto-form-layout cds--layout cds--layout--size-sm"
   >
     <div
       class="cds--layer-two"
