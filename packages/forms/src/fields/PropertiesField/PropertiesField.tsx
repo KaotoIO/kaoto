@@ -21,7 +21,10 @@ export const PropertiesField: FunctionComponent<FieldProps> = ({ propName, requi
       required={required}
       title={
         <span>
-          {title} <Tag title={`${items.length} properties`}>{items.length}</Tag>
+          {title}{' '}
+          <Tag as="span" title={`${items.length} properties`}>
+            {items.length}
+          </Tag>
         </span>
       }
       type="object"
