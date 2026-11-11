@@ -12,7 +12,8 @@ export default defineConfig({
     setupFiles: ['./vitest-mocks-setup.ts', './src/stubs/reset-app-state.setup.ts', './vitest-setup.ts'],
     snapshotSerializers: ['./vitest-snapshot-serializer.ts'],
     include: ['**/?(*.)+(test).[tj]s?(x)'],
-    testTimeout: 10_000,
+    // The v8 coverage (`--coverage`) slows the heaviest tests down on the CI runners
+    testTimeout: 20_000,
     hookTimeout: 20_000,
     isolate: false,
     sequence: {
@@ -23,6 +24,24 @@ export default defineConfig({
     },
     clearMocks: true,
     css: false,
+    // Enabled with `--coverage`. The lcov report is the one picked up by the Codecov upload in CI.
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: 'coverage',
+      // Paths are relative to the repository root, as Codecov expects.
+      reporter: ['text-summary', ['lcovonly', { projectRoot: fileURLToPath(new URL('../..', import.meta.url)) }]],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: [
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.d.ts',
+        'src/public-api.ts',
+        'src/**/*.models.ts',
+        'src/**/stubs/**',
+        'src/**/node-icon-resolver.ts',
+        'src/**/index.ts',
+        'src/**/router-exports.tsx',
+      ],
+    },
     server: {
       deps: {
         inline: [

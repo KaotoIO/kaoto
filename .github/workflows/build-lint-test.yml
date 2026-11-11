@@ -88,13 +88,21 @@ jobs:
           yarn workspace @kaoto/kaoto build:lib
           yarn workspace @kaoto/forms build:lib
       - name: Run UI tests
-        run: yarn workspace @kaoto/kaoto test
+        run: yarn workspace @kaoto/kaoto test --coverage
       - name: Run forms tests
-        run: yarn workspace @kaoto/forms test
-      - name: Upload coverage
+        run: yarn workspace @kaoto/forms test --coverage
+      - name: Upload UI coverage
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/ui/coverage/lcov.info
+          flags: ui
+      - name: Upload forms coverage
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/forms/coverage/lcov.info
+          flags: forms
 
   web:
     name: Web
@@ -115,11 +123,13 @@ jobs:
         run: |
           yarn workspace @kaoto/kaoto-web lint
           yarn workspace @kaoto/kaoto-web build
-          yarn workspace @kaoto/kaoto-web test
+          yarn workspace @kaoto/kaoto-web test --coverage
       - name: Upload coverage
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/kaoto-web/coverage/lcov.info
+          flags: web
 
   vscode-smoke:
     name: VS Code (smoke)
@@ -130,6 +140,7 @@ jobs:
       run-full-ui-tests: false
       run-deploy-tests: false
       full-matrix: false
+    secrets: inherit
 
   vscode-full:
     name: VS Code (full)
@@ -140,6 +151,7 @@ jobs:
       run-full-ui-tests: true
       run-deploy-tests: ${{ needs.changes.outputs.deploy == 'true' }}
       full-matrix: false
+    secrets: inherit
 
   e2e:
     name: Cypress

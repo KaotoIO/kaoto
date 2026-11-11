@@ -1,7 +1,18 @@
+ignore:
+  # The VS Code unit test coverage also reports the test files themselves
+  - packages/kaoto-vscode/src/test
+  - packages/kaoto-vscode/out-unit-tests
+
 flags:
   ui:
     paths:
-      - packages/ui/coverage
-  catalog-generator:
+      - packages/ui/src
+  forms:
     paths:
-      - packages/catalog-generator/target/jacoco
+      - packages/forms/src
+  web:
+    paths:
+      - packages/kaoto-web/src
+  vscode:
+    paths:
+      - packages/kaoto-vscode/src

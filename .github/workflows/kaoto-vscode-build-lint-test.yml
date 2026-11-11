@@ -16,6 +16,10 @@ on:
         required: false
         type: boolean
         default: true
+    secrets:
+      CODECOV_TOKEN:
+        description: Token used to upload the unit test coverage to Codecov
+        required: false
 
 permissions:
   contents: read
@@ -48,7 +52,14 @@ jobs:
           yarn workspace @kaoto/ui-tests-vscode lint
 
       - name: Run unit tests
-        run: xvfb-run -a yarn workspace vscode-kaoto test:unit
+        run: xvfb-run -a yarn workspace vscode-kaoto test:unit --coverage
+
+      - name: Upload unit test coverage
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/kaoto-vscode/coverage/lcov.info
+          flags: vscode
 
       - name: Build VSIX
         run: yarn workspace vscode-kaoto build:vsix --out kaoto-ci.vsix

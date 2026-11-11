@@ -55,15 +55,30 @@ function findDebugBootloader() {
 const debugBootloader = findDebugBootloader();
 
 export default defineConfig({
-  files: 'out-unit-tests/test/**/*.test.js',
-  workspaceFolder: tempWorkspace,
-  launchArgs,
-  mocha: {
-    ui: 'tdd',
-    color: true,
-    // The slowest test takes ~1.3s in CI and extension activation ~15s; a lower limit makes a
-    // blocked await fail fast instead of stalling the run. Raise it per test with this.timeout().
-    timeout: debugBootloader ? 0 : 20_000,
-    ...(debugBootloader ? { require: debugBootloader } : {}),
+  tests: [
+    {
+      files: 'out-unit-tests/test/**/*.test.js',
+      workspaceFolder: tempWorkspace,
+      launchArgs,
+      mocha: {
+        ui: 'tdd',
+        color: true,
+        // The slowest test takes ~1.3s in CI and extension activation ~15s; a lower limit makes a
+        // blocked await fail fast instead of stalling the run. Raise it per test with this.timeout().
+        timeout: debugBootloader ? 0 : 20_000,
+        ...(debugBootloader ? { require: debugBootloader } : {}),
+      },
+    },
+  ],
+  // Used by `vscode-test --coverage`. The tests are bundled from the sources with source maps, so the report
+  // maps back to src/. Paths are relative to the repository root, as Codecov expects.
+  // c8 filters by the bundled file, not by the mapped sources: src/test/ and the Kaoto UI sources are
+  // reported too and are left out by the `ignore` and `vscode` flag paths in .github/codecov.yaml.
+  coverage: {
+    exclude: ['**/node_modules/**', '**/dist/**'],
+    reporter: {
+      'text-summary': {},
+      lcovonly: { projectRoot: path.resolve(projectRoot, '..', '..') },
+    },
   },
 });
