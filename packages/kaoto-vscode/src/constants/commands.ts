@@ -93,3 +93,5 @@ export const COMMAND_INFRASTRUCTURE_COPY_URL = 'kaoto.infrastructure.copyUrl';
 export const COMMAND_INFRASTRUCTURE_COPY_PORT = 'kaoto.infrastructure.copyPort';
 
 export const COMMAND_INFRASTRUCTURE_OPEN_UI = 'kaoto.infrastructure.openUi';
+
+export const COMMAND_INFRASTRUCTURE_OPEN_UI_IN_VSCODE = 'kaoto.infrastructure.openUiInVSCode';

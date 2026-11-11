@@ -565,6 +565,11 @@
       {
         "command": "kaoto.infrastructure.openUi",
         "title": "Open UI in Browser",
+        "category": "Kaoto"
+      },
+      {
+        "command": "kaoto.infrastructure.openUiInVSCode",
+        "title": "Open UI in VS Code",
         "category": "Kaoto",
         "icon": "$(globe)"
       },
@@ -798,6 +803,10 @@
         {
           "command": "kaoto.infrastructure.openUi",
           "when": "false"
+        },
+        {
+          "command": "kaoto.infrastructure.openUiInVSCode",
+          "when": "false"
         }
       ],
       "editor/title": [
@@ -998,9 +1007,19 @@
           "group": "navigation@2"
         },
         {
-          "command": "kaoto.infrastructure.openUi",
+          "command": "kaoto.infrastructure.openUiInVSCode",
           "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/ && config.kaoto.infrastructure.enabled",
           "group": "inline@3"
+        },
+        {
+          "command": "kaoto.infrastructure.openUiInVSCode",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/ && config.kaoto.infrastructure.enabled",
+          "group": "navigation@3"
+        },
+        {
+          "command": "kaoto.infrastructure.openUi",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/ && config.kaoto.infrastructure.enabled",
+          "group": "navigation@4"
         },
         {
           "command": "kaoto.openapi.showSource",
