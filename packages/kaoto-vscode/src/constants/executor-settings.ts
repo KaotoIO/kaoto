@@ -17,5 +17,3 @@ export const KAOTO_EXECUTOR_INFRA_ARGUMENTS_SETTING_ID = 'kaoto.executor.infraAr
 export const KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID = 'kaoto.runtimeCatalogName';
 
 export const KAOTO_TESTING_CATALOG_NAME_SETTING_ID = 'kaoto.testingCatalogName';
-
-export const KAOTO_INFRASTRUCTURE_ENABLED_SETTING_ID = 'kaoto.infrastructure.enabled';

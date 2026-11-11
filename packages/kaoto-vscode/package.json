@@ -877,12 +877,12 @@
         {
           "command": "kaoto.infrastructure.start",
           "group": "navigation@1",
-          "when": "view == kaoto.infrastructure && !virtualWorkspace && kaoto.executorAvailable && config.kaoto.infrastructure.enabled"
+          "when": "view == kaoto.infrastructure && !virtualWorkspace && kaoto.executorAvailable"
         },
         {
           "command": "kaoto.infrastructure.refresh",
           "group": "navigation@2",
-          "when": "view == kaoto.infrastructure && config.kaoto.infrastructure.enabled"
+          "when": "view == kaoto.infrastructure"
         },
         {
           "command": "kaoto.openapi.refresh",
@@ -988,22 +988,22 @@
         },
         {
           "command": "kaoto.infrastructure.stop",
-          "when": "view == kaoto.infrastructure && viewItem =~ /^infrastructure-service.*/ && config.kaoto.infrastructure.enabled",
+          "when": "view == kaoto.infrastructure && viewItem =~ /^infrastructure-service.*/",
           "group": "inline@1"
         },
         {
           "command": "kaoto.infrastructure.logs",
-          "when": "view == kaoto.infrastructure && viewItem =~ /^infrastructure-service(?!-external).*/ && config.kaoto.infrastructure.enabled",
+          "when": "view == kaoto.infrastructure && viewItem =~ /^infrastructure-service(?!-external).*/",
           "group": "inline@2"
         },
         {
           "command": "kaoto.infrastructure.copyUrl",
-          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-url.*/ && config.kaoto.infrastructure.enabled",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-url.*/",
           "group": "navigation@1"
         },
         {
           "command": "kaoto.infrastructure.copyPort",
-          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-port.*/ && config.kaoto.infrastructure.enabled",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-port.*/",
           "group": "navigation@2"
         },
         {
@@ -1398,16 +1398,6 @@
             "markdownDescription": "⚠️ **WORKSPACE-ONLY SETTING** - This setting only works in Workspace/Folder settings, not User settings.\n\nSelected testing catalog name for test files (e.g., 'Citrus 4.10.1').\n\n**Note**: Use the status bar to select from available catalogs.",
             "scope": "resource",
             "order": 1
-          },
-          "kaoto.infrastructure.enabled": {
-            "type": "boolean",
-            "default": false,
-            "markdownDescription": "Enable the `Infrastructure` view and its related commands. When disabled (default), the view is hidden. Enable this setting to try out Camel Infra service management.",
-            "scope": "window",
-            "order": 2,
-            "tags": [
-              "experimental"
-            ]
           }
         }
       },
@@ -1524,7 +1514,7 @@
           "contextualTitle": "Kaoto",
           "icon": "icons/kaoto.png",
           "initialSize": 2,
-          "when": "!virtualWorkspace && config.kaoto.infrastructure.enabled"
+          "when": "!virtualWorkspace"
         },
         {
           "id": "kaoto.help",

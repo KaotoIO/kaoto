@@ -131,8 +131,6 @@ You can follow [Installation Guide](https://kaoto.io/docs/installation) on a Kao
 
 ### Requirements for Infrastructure Services
 
-The Infrastructure view is **experimental** and disabled by default. Enable `kaoto.infrastructure.enabled` in VS Code Settings to show the view and its commands.
-
 To use the **Infrastructure Services** feature (e.g., running Kafka, databases, etc.), you need a container runtime:
 
 - **Docker** or **Podman** must be installed and running
