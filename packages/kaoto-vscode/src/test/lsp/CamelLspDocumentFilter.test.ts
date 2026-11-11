@@ -76,6 +76,12 @@ suite('CamelLspDocumentFilter', () => {
 			expect(isCamelLspDocument(documentWithLanguage('/project/route.camel.yml', 'plaintext'))).to.be.true;
 			expect(isCamelLspDocument(documentWithLanguage('/project/source.kamelet.yaml', 'camel'))).to.be.true;
 			expect(isCamelLspDocument(documentWithLanguage('/project/route.camel.xml', 'plaintext'))).to.be.true;
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.xml', 'plaintext'))).to.be.false;
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.xml', 'camel'))).to.be.false;
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.yaml', 'plaintext'))).to.be.false;
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.yaml', 'camel'))).to.be.false;
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.yml', 'plaintext'))).to.be.false;
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.yml', 'camel'))).to.be.false;
 		});
 
 		test('should serve the application properties of the Quarkus and Spring Boot extensions', () => {
