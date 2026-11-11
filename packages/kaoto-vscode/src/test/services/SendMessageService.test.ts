@@ -1,13 +1,63 @@
 import { assert } from 'chai';
 import { readFile, access } from 'fs/promises';
-import { Uri } from 'vscode';
+import { ShellExecution, Uri } from 'vscode';
 import { SendMessageService } from '../../services/SendMessageService';
 import { CamelCommandAPI } from '../../executors/api/CamelCommandAPI';
+import { rejects } from 'node:assert/strict';
+import { CamelExecutorFactory } from '../../executors/CamelExecutorFactory';
+import { JBangExecutor } from '../../executors/JBangExecutor';
+import { deferred } from '../utils/Deferred';
 
 suite('SendMessageService', () => {
 	const original = CamelCommandAPI.sendMessage;
 	teardown(() => {
 		CamelCommandAPI.sendMessage = original;
+	});
+	test('rejects an already cancelled request before resolving or sending', async () => {
+		let resolutions = 0;
+		let sends = 0;
+		CamelCommandAPI.sendMessage = async () => {
+			sends++;
+		};
+		const service = new SendMessageService({
+			resolveTarget: async () => {
+				resolutions++;
+				return { pid: 123, routeId: 'orders', sourcePath: '/p/a.yaml', consolePort: 9876, label: 'a', state: 'Started' };
+			},
+		});
+		const abort = new AbortController();
+		abort.abort();
+		await rejects(service.send(Uri.file('/p/a.yaml'), { targetId: 'target', routeId: 'orders', payload: { endpoint: '' } }, abort.signal), {
+			name: 'AbortError',
+		});
+		assert.equal(resolutions, 0);
+		assert.equal(sends, 0);
+	});
+	test('does not launch the CLI after cancellation during executor preparation', async () => {
+		const originalFactory = CamelExecutorFactory.createExecutor;
+		const preparing = deferred<void>();
+		const ready = deferred<void>();
+		CamelExecutorFactory.createExecutor = async () => {
+			preparing.resolve();
+			await ready.promise;
+			const executor = new JBangExecutor({ type: 'jbang', version: '4.22.1' });
+			executor.execute = async () => ({ execution: new ShellExecution('kaoto-test-must-not-start') });
+			return executor;
+		};
+		const service = new SendMessageService({
+			resolveTarget: async () => ({ pid: 123, routeId: 'orders', sourcePath: '/p/a.yaml', consolePort: 9876, label: 'a', state: 'Started' }),
+		});
+		const abort = new AbortController();
+		try {
+			const pending = service.send(Uri.file('/p/a.yaml'), { targetId: 'target', routeId: 'orders', payload: { endpoint: '' } }, abort.signal);
+			const cancelled = rejects(pending, { name: 'AbortError' });
+			await preparing.promise;
+			abort.abort();
+			ready.resolve();
+			await cancelled;
+		} finally {
+			CamelExecutorFactory.createExecutor = originalFactory;
+		}
 	});
 	test('writes private argument file and cleans it up after delivery failure', async () => {
 		let file = '';
