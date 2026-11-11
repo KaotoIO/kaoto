@@ -13,6 +13,15 @@ export default defineConfig({
     hookTimeout: 20_000,
     clearMocks: true,
     css: false,
+    // Enabled with `--coverage`. The lcov report is the one picked up by the Codecov upload in CI.
+    coverage: {
+      provider: 'v8',
+      reportsDirectory: 'coverage',
+      // Paths are relative to the repository root, as Codecov expects.
+      reporter: ['text-summary', ['lcovonly', { projectRoot: fileURLToPath(new URL('../..', import.meta.url)) }]],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.d.ts', 'src/**/stubs/**', 'src/**/__mocks__/**', 'src/testing/**'],
+    },
     alias: {
       // Force all packages to use the same React instance
       react: fileURLToPath(new URL('../../node_modules/react', import.meta.url)),
