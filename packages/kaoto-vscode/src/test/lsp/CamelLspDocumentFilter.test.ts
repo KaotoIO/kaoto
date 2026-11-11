@@ -18,37 +18,30 @@ import * as vscode from 'vscode';
 import { CAMEL_LSP_DOCUMENT_SELECTORS, isCamelLspDocument } from '../../lsp/CamelLspDocumentFilter';
 
 suite('CamelLspDocumentFilter', () => {
-	test('should define document selectors for Camel YAML files', () => {
-		const yamlSelectors = CAMEL_LSP_DOCUMENT_SELECTORS.filter((s) => s.language === 'yaml');
-		expect(yamlSelectors.length).to.be.greaterThan(0);
+	const patterns = CAMEL_LSP_DOCUMENT_SELECTORS.map((s) => s.pattern);
 
-		const patterns = yamlSelectors.map((s) => s.pattern);
+	test('should define document selectors for Camel YAML files', () => {
 		expect(patterns).to.include('**/*.camel.{yaml,yml}');
 		expect(patterns).to.include('**/*.kamelet.{yaml,yml}');
 	});
 
 	test('should define document selectors for Camel XML files', () => {
-		const xmlSelectors = CAMEL_LSP_DOCUMENT_SELECTORS.filter((s) => s.language === 'xml');
-		expect(xmlSelectors.length).to.be.greaterThan(0);
-
-		const patterns = xmlSelectors.map((s) => s.pattern);
 		expect(patterns).to.include('**/*.camel.xml');
 	});
 
 	test('should define document selectors for properties files', () => {
-		const propsSelectors = CAMEL_LSP_DOCUMENT_SELECTORS.filter((s) => s.language === 'properties');
-		expect(propsSelectors.length).to.be.greaterThan(0);
-
-		const patterns = propsSelectors.map((s) => s.pattern);
 		expect(patterns).to.include('**/application*.properties');
 	});
 
-	test('should NOT include broad yaml/xml selectors (non-Camel files)', () => {
-		const broadYaml = CAMEL_LSP_DOCUMENT_SELECTORS.filter((s) => s.language === 'yaml' && (!s.pattern || s.pattern === '**/*.yaml'));
-		expect(broadYaml).to.have.lengthOf(0);
+	test('should match the files by name only, not by language', () => {
+		for (const selector of CAMEL_LSP_DOCUMENT_SELECTORS) {
+			expect(selector).to.not.have.property('language');
+		}
+	});
 
-		const broadXml = CAMEL_LSP_DOCUMENT_SELECTORS.filter((s) => s.language === 'xml' && (!s.pattern || s.pattern === '**/*.xml'));
-		expect(broadXml).to.have.lengthOf(0);
+	test('should NOT include broad yaml/xml selectors (non-Camel files)', () => {
+		expect(patterns).to.not.include('**/*.yaml');
+		expect(patterns).to.not.include('**/*.xml');
 	});
 
 	suite('isCamelLspDocument', () => {
@@ -74,6 +67,24 @@ suite('CamelLspDocumentFilter', () => {
 			const properties = await openFixtureDocument('suggestions', 'application.properties');
 
 			expect(isCamelLspDocument(properties)).to.be.true;
+		});
+
+		// a files.associations setting such as { "*.yaml": "camel" } gives the Camel files another language,
+		// plaintext when no extension defines it
+		test('should serve Camel files whatever their language', () => {
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.camel.yaml', 'camel'))).to.be.true;
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.camel.yml', 'plaintext'))).to.be.true;
+			expect(isCamelLspDocument(documentWithLanguage('/project/source.kamelet.yaml', 'camel'))).to.be.true;
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.camel.xml', 'plaintext'))).to.be.true;
+		});
+
+		test('should serve the application properties of the Quarkus and Spring Boot extensions', () => {
+			expect(isCamelLspDocument(documentWithLanguage('/project/src/main/resources/application.properties', 'quarkus-properties'))).to.be.true;
+			expect(isCamelLspDocument(documentWithLanguage('/project/src/main/resources/application-dev.properties', 'spring-boot-properties'))).to.be.true;
+		});
+
+		test('should not serve other YAML files with the language of a Camel file association', () => {
+			expect(isCamelLspDocument(documentWithLanguage('/project/k8s/deployment.yaml', 'camel'))).to.be.false;
 		});
 
 		test('should not serve Pipes', () => {
