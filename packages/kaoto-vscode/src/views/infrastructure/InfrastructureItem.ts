@@ -44,6 +44,9 @@ export class InfrastructureItem extends TreeItem {
 		if (service.uiUrl) {
 			contextValue += '-has-ui-url';
 		}
+		if (service.uiSupported) {
+			contextValue += '-ui-supported';
+		}
 		this.contextValue = contextValue;
 
 		this.iconPath = new ThemeIcon(service.status === 'running' ? 'server-environment' : 'loading~spin');
