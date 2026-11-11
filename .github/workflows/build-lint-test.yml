@@ -33,17 +33,18 @@ jobs:
       - name: Validate PR commits
         run: yarn commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
+  # Every other job runs when a workspace it validates is affected. Yarn finds the workspaces that hold a file
+  # changed since the base commit, and `--recursive` adds every workspace that depends on them, so a new
+  # package or a new dependency between packages needs no change here.
   changes:
     name: Select CI jobs
     runs-on: ubuntu-latest
     outputs:
-      ui: ${{ steps.changes.outputs.ui }}
-      web: ${{ steps.changes.outputs.web }}
-      vscode-smoke: ${{ steps.changes.outputs['vscode-smoke'] }}
-      vscode-full: ${{ steps.changes.outputs['vscode-full'] }}
-      deploy: ${{ steps.changes.outputs.deploy }}
-      e2e: ${{ steps.changes.outputs.e2e }}
-      chromatic: ${{ steps.changes.outputs.chromatic }}
+      # JSON arrays of workspace names: those that hold a changed file, those plus their dependents, and the
+      # affected ones that the Packages (UI) job checks because they have no job of their own.
+      changed: ${{ steps.select.outputs.changed }}
+      affected: ${{ steps.select.outputs.affected }}
+      packages: ${{ steps.select.outputs.packages }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -52,17 +53,48 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '24.x'
-      - name: Test CI selection
-        run: node --test .github/scripts/ci-changes.test.mjs
-      - name: Select affected jobs
-        id: changes
-        run: node .github/scripts/ci-changes.mjs
+      - name: Select affected workspaces
+        id: select
+        env:
+          # The upstream base commit of a PR, or the commit before a push. A manual run has none.
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          # Yarn ignores files outside the workspaces, such as yarn.lock, root configs and workflows, so a change
+          # to one of them that isn't documentation selects every workspace. So does a run with nothing to
+          # compare (a manual run or the first push of a branch) and a push that rewrote history: Yarn compares
+          # with the merge base, so it can't see the changes that such a push removed.
+          if [[ "$BASE" =~ ^0*$ ]] ||
+            { [[ "$GITHUB_EVENT_NAME" == push ]] && ! git merge-base --is-ancestor "$BASE" HEAD; } ||
+            ! git diff --quiet "$BASE...HEAD" -- . ':(exclude)packages/' ':(exclude)*.md' \
+              ':(exclude)docs/' ':(exclude)_context/' ':(exclude)assets/readme/' ':(exclude).vscode/' \
+              ':(exclude).github/ISSUE_TEMPLATE/' ':(exclude).github/PULL_REQUEST_TEMPLATE/'; then
+            since=()
+          else
+            since=(--since="$BASE")
+          fi
+          # If Yarn fails, this step must fail rather than select no jobs: pipefail keeps Yarn's exit status
+          # past jq, and each list gets its own assignment because set -e ignores a failure inside echo.
+          set -o pipefail
+          list() { yarn workspaces list "${since[@]}" "$@" --json | jq -sc 'map(select(.location != ".") | .name)'; }
+          changed=$(list)
+          affected=$(list --recursive)
+          packages=$(jq -c 'map(select(IN("vscode-kaoto", "@kaoto/ui-tests-vscode", "@kaoto/kompanion") | not))' <<<"$affected")
+          {
+            echo "changed=$changed"
+            echo "affected=$affected"
+            echo "packages=$packages"
+          } | tee -a "$GITHUB_OUTPUT"
 
-  ui:
-    name: UI
+  # Lint, build and test the affected workspaces with their own package.json scripts. Yarn skips a
+  # workspace that doesn't define a script, so a new package needs no change here.
+  packages:
+    name: Packages (UI)
     needs: changes
-    if: needs.changes.outputs.ui == 'true'
+    if: needs.changes.outputs.packages != '[]'
     runs-on: ubuntu-latest
+    env:
+      # The affected workspaces as Yarn filters, e.g. "--include @kaoto/kaoto --include @kaoto/kaoto-web".
+      WORKSPACES: --include ${{ join(fromJSON(needs.changes.outputs.packages), ' --include ') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -70,44 +102,47 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: '24.x'
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto'
           cache: yarn
       - name: Install dependencies
         run: yarn install --immutable --mode=skip-build
-      - name: Lint UI and test sources
-        run: |
-          yarn workspace @kaoto/kaoto lint
-          yarn workspace @kaoto/kaoto lint:style
-          yarn workspace @kaoto/kaoto-tests lint
-          yarn workspace @kaoto/forms lint
-          yarn workspace @kaoto/forms lint:style
-      - name: Build UI and library
-        run: |
-          yarn workspace @kaoto/kaoto build
-          yarn workspace @kaoto/kaoto build:lib
-          yarn workspace @kaoto/forms build:lib
-      - name: Run UI tests
-        run: yarn workspace @kaoto/kaoto test --coverage
-      - name: Run forms tests
-        run: yarn workspace @kaoto/forms test --coverage
+      - name: Lint
+        run: yarn workspaces foreach --all --parallel --topological-dev --verbose $WORKSPACES run lint
+      - name: Lint styles
+        run: yarn workspaces foreach --all --parallel --topological-dev --verbose $WORKSPACES run lint:style
+      - name: Build
+        run: yarn workspaces foreach --all --parallel --topological-dev --verbose $WORKSPACES run build
+      - name: Build libraries
+        run: yarn workspaces foreach --all --parallel --topological-dev --verbose $WORKSPACES run build:lib
+      - name: Test
+        run: yarn workspaces foreach --all --parallel --topological-dev --verbose $WORKSPACES run test --coverage
+      # Codecov gets the report of each tested package under its own flag (.github/codecov.yaml). A new
+      # package needs an upload and a flag of its own to report coverage.
       - name: Upload UI coverage
+        if: hashFiles('packages/ui/coverage/lcov.info') != ''
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/ui/coverage/lcov.info
           flags: ui
       - name: Upload forms coverage
+        if: hashFiles('packages/forms/coverage/lcov.info') != ''
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/forms/coverage/lcov.info
           flags: forms
+      - name: Upload web coverage
+        if: hashFiles('packages/kaoto-web/coverage/lcov.info') != ''
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/kaoto-web/coverage/lcov.info
+          flags: web
 
-  web:
-    name: Web
+  kompanion:
+    name: Kompanion
     needs: changes
-    if: needs.changes.outputs.web == 'true'
+    if: contains(fromJSON(needs.changes.outputs.affected), '@kaoto/kompanion')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -117,24 +152,27 @@ jobs:
         with:
           node-version: '24.x'
           cache: yarn
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
       - name: Install dependencies
         run: yarn install --immutable --mode=skip-build
-      - name: Validate web
-        run: |
-          yarn workspace @kaoto/kaoto-web lint
-          yarn workspace @kaoto/kaoto-web build
-          yarn workspace @kaoto/kaoto-web test --coverage
-      - name: Upload coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/kaoto-web/coverage/lcov.info
-          flags: web
+      - name: Check formatting
+        run: yarn workspace @kaoto/kompanion lint
+      - name: Run unit tests
+        run: yarn workspace @kaoto/kompanion test
 
+  # The extension embeds the UI. A change in a package it embeds runs the smoke groups; a change in the
+  # extension or its UI tests runs all groups and the deployment tests (KaotoIO/kaoto#3852).
   vscode-smoke:
     name: VS Code (smoke)
     needs: changes
-    if: needs.changes.outputs['vscode-smoke'] == 'true' && needs.changes.outputs['vscode-full'] != 'true'
+    if: >-
+      contains(fromJSON(needs.changes.outputs.affected), 'vscode-kaoto') &&
+      !contains(fromJSON(needs.changes.outputs.changed), 'vscode-kaoto') &&
+      !contains(fromJSON(needs.changes.outputs.changed), '@kaoto/ui-tests-vscode')
     uses: ./.github/workflows/kaoto-vscode-build-lint-test.yml
     with:
       run-full-ui-tests: false
@@ -145,32 +183,38 @@ jobs:
   vscode-full:
     name: VS Code (full)
     needs: changes
-    if: needs.changes.outputs['vscode-full'] == 'true'
+    if: >-
+      contains(fromJSON(needs.changes.outputs.changed), 'vscode-kaoto') ||
+      contains(fromJSON(needs.changes.outputs.changed), '@kaoto/ui-tests-vscode')
     uses: ./.github/workflows/kaoto-vscode-build-lint-test.yml
     with:
       run-full-ui-tests: true
-      run-deploy-tests: ${{ needs.changes.outputs.deploy == 'true' }}
+      run-deploy-tests: true
       full-matrix: false
     secrets: inherit
 
+  # Cypress tests the UI through the end-to-end specs of the UI tests package.
   e2e:
     name: Cypress
     needs: changes
-    if: needs.changes.outputs.e2e == 'true'
+    if: contains(fromJSON(needs.changes.outputs.affected), '@kaoto/kaoto-tests')
     uses: ./.github/workflows/e2e-tests.yml
     with:
       full-matrix: false
     secrets: inherit
 
+  # Chromatic publishes the Storybook stories of the same package.
   chromatic:
     name: Chromatic
     needs: changes
-    if: needs.changes.outputs.chromatic == 'true' && (github.event_name != 'pull_request' || github.base_ref == 'main')
+    if: >-
+      contains(fromJSON(needs.changes.outputs.affected), '@kaoto/kaoto-tests') &&
+      (github.event_name != 'pull_request' || github.base_ref == 'main')
     uses: ./.github/workflows/chromatic.yml
 
   # Keep the existing required check name, including on documentation-only PRs.
   build:
-    needs: [commitlint, changes, ui, web, vscode-smoke, vscode-full, e2e, chromatic]
+    needs: [commitlint, changes, packages, kompanion, vscode-smoke, vscode-full, e2e, chromatic]
     if: always()
     runs-on: ubuntu-latest
     steps:
