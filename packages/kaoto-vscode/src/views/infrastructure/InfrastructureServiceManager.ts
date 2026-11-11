@@ -182,7 +182,8 @@ export class InfrastructureServiceManager implements Disposable {
 					description: cliService.description ?? currentService.description,
 					port: cliService.port ?? currentService.port,
 					url: cliService.url ?? currentService.url,
-					uiUrl: cliService.uiUrl ?? currentService.uiUrl,
+					// No fallback: a service restarted without its UI must lose the stale URL
+					uiUrl: cliService.uiUrl,
 					uiSupported: cliService.uiSupported ?? currentService.uiSupported,
 					status: 'running',
 					// Keep isExternal as it was - don't change managed services to external

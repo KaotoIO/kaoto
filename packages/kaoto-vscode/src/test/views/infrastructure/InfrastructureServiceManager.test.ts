@@ -292,6 +292,28 @@ suite('InfrastructureServiceManager — refreshRunningServicesFromCli', function
 		manager.dispose();
 	});
 
+	test('updates the UI URL of a tracked service', async function () {
+		CamelCommandAPI.captureInfraPs = async () => JSON.stringify([{ name: 'kafka', serviceData: { uiUrl: 'http://localhost:8080' } }]);
+		const manager = new InfrastructureServiceManager(() => {});
+		manager['runningServices'].set('kafka', makeService({ status: 'running', isExternal: true }));
+
+		await manager.refreshRunningServicesFromCli();
+
+		assert.strictEqual(manager.getRunningService('kafka')!.uiUrl, 'http://localhost:8080');
+		manager.dispose();
+	});
+
+	test('clears the UI URL of a tracked service when the latest CLI snapshot has none', async function () {
+		CamelCommandAPI.captureInfraPs = async () => JSON.stringify([makeCliJson('kafka', 9092)]);
+		const manager = new InfrastructureServiceManager(() => {});
+		manager['runningServices'].set('kafka', makeService({ status: 'running', isExternal: true, uiUrl: 'http://localhost:8080' }));
+
+		await manager.refreshRunningServicesFromCli();
+
+		assert.isUndefined(manager.getRunningService('kafka')!.uiUrl);
+		manager.dispose();
+	});
+
 	test('removes external service when it disappears from CLI', async function () {
 		CamelCommandAPI.captureInfraPs = async () => JSON.stringify([]);
 		const manager = new InfrastructureServiceManager(() => {});
