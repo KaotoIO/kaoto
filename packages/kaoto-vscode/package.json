@@ -1000,7 +1000,7 @@
         {
           "command": "kaoto.infrastructure.openUi",
           "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/ && config.kaoto.infrastructure.enabled",
-          "group": "navigation@3"
+          "group": "inline@3"
         },
         {
           "command": "kaoto.openapi.showSource",
