@@ -1,12 +1,15 @@
 import { assert } from 'chai';
 import { readFile, access } from 'fs/promises';
-import { ShellExecution, Uri } from 'vscode';
+import { ShellExecution, TaskExecution, tasks, Uri } from 'vscode';
 import { SendMessageService } from '../../services/SendMessageService';
 import { CamelCommandAPI } from '../../executors/api/CamelCommandAPI';
 import { rejects } from 'node:assert/strict';
 import { CamelExecutorFactory } from '../../executors/CamelExecutorFactory';
 import { JBangExecutor } from '../../executors/JBangExecutor';
 import { deferred } from '../utils/Deferred';
+import { readFileSync } from 'node:fs';
+import { setImmediate } from 'node:timers/promises';
+import { executeSendMessage } from '../../utils/SendMessageProcess';
 
 suite('SendMessageService', () => {
 	const original = CamelCommandAPI.sendMessage;
@@ -57,6 +60,54 @@ suite('SendMessageService', () => {
 			await cancelled;
 		} finally {
 			CamelExecutorFactory.createExecutor = originalFactory;
+		}
+	});
+	test('revokes message arguments before a cancelled Windows task resumes startup', async () => {
+		const originalExecute = tasks.executeTask;
+		const starting = deferred<void>();
+		const resume = deferred<void>();
+		let argumentFile = '';
+		let delivered = false;
+		let terminated = false;
+		tasks.executeTask = async (task) => {
+			starting.resolve();
+			await resume.promise;
+			try {
+				readFileSync(argumentFile);
+				delivered = true;
+			} catch (error) {
+				assert.equal((error as NodeJS.ErrnoException).code, 'ENOENT');
+			}
+			return {
+				task,
+				terminate: () => {
+					terminated = true;
+				},
+			} as TaskExecution;
+		};
+		CamelCommandAPI.sendMessage = async (_pid, _route, file, cwd, signal) => {
+			argumentFile = file;
+			await executeSendMessage(new ShellExecution('jbang', [`@${file}`]), cwd, signal, 'win32');
+		};
+		const service = new SendMessageService({
+			resolveTarget: async () => ({ pid: 123, routeId: 'orders', sourcePath: '/p/a.yaml', consolePort: 9876, label: 'a', state: 'Started' }),
+		});
+		const abort = new AbortController();
+		try {
+			const pending = service.send(Uri.file('/p/a.yaml'), { targetId: 'target', routeId: 'orders', payload: { endpoint: '' } }, abort.signal);
+			const cancelled = rejects(pending, { name: 'AbortError' });
+			await starting.promise;
+			abort.abort();
+			// Resume in the same turn: asynchronous cleanup alone leaves a delivery window.
+			resume.resolve();
+			await cancelled;
+			await setImmediate();
+			assert.isFalse(delivered, 'A cancelled task must not be able to read the message arguments');
+			assert.isTrue(terminated);
+			await rejects(access(argumentFile), { code: 'ENOENT' });
+		} finally {
+			resume.resolve();
+			tasks.executeTask = originalExecute;
 		}
 	});
 	test('writes private argument file and cleans it up after delivery failure', async () => {

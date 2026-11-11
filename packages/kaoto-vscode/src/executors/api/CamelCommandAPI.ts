@@ -45,7 +45,7 @@ export class CamelCommandAPI {
 		signal?.throwIfAborted();
 		const result = await this.executeSimple('cmd', ['send', String(pid), sq(`--endpoint=${routeId}`), sq(`@${argumentFile}`)], cwd);
 		signal?.throwIfAborted();
-		await executeSendMessage(result.execution, cwd);
+		await executeSendMessage(result.execution, cwd, signal);
 	}
 
 	private static async resolveCommonSettings(settingsHelper: CamelSettingsHelper, userArgs: string[]): Promise<ResolvedSettings> {
