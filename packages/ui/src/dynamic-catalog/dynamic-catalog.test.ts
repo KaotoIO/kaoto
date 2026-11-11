@@ -21,54 +21,6 @@ describe('DynamicCatalog', () => {
   });
 
   describe('get', () => {
-    it('should share concurrent requests for the same uncached key', async () => {
-      const entity = { id: '1', name: 'shared', value: 42 };
-      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(entity);
-
-      const results = await Promise.all([catalog.get('shared'), catalog.get('shared')]);
-
-      expect(results).toEqual([entity, entity]);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-    });
-
-    it('should retry a shared request after a failure', async () => {
-      const entity = { id: '1', name: 'recovered', value: 42 };
-      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockRejectedValueOnce(new Error('Unavailable'));
-      const results = await Promise.allSettled([catalog.get('shared'), catalog.get('shared')]);
-
-      expect(results.map((result) => result.status)).toEqual(['rejected', 'rejected']);
-      expect(fetchSpy).toHaveBeenCalledTimes(1);
-      fetchSpy.mockResolvedValueOnce(entity);
-      expect(await catalog.get('shared')).toBe(entity);
-      expect(fetchSpy).toHaveBeenCalledTimes(2);
-    });
-
-    it('should discard requests invalidated by clearCache without removing their replacements', async () => {
-      const oldEntity = { id: '1', name: 'old', value: 1 };
-      const newEntity = { id: '1', name: 'new', value: 2 };
-      let resolveOld!: (entity: TestEntity) => void;
-      let resolveNew!: (entity: TestEntity) => void;
-      const oldRequest = new Promise<TestEntity>((resolve) => {
-        resolveOld = resolve;
-      });
-      const newRequest = new Promise<TestEntity>((resolve) => {
-        resolveNew = resolve;
-      });
-      const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockReturnValueOnce(oldRequest).mockReturnValueOnce(newRequest);
-      const oldResult = catalog.get('shared');
-      catalog.clearCache();
-      const newResult = catalog.get('shared');
-      resolveOld(oldEntity);
-      await oldResult;
-      const concurrentResult = catalog.get('shared');
-      resolveNew(newEntity);
-
-      expect(await newResult).toBe(newEntity);
-      expect(await concurrentResult).toBe(newEntity);
-      expect(await catalog.get('shared')).toBe(newEntity);
-      expect(fetchSpy).toHaveBeenCalledTimes(2);
-    });
-
     it('should fetch entity from provider when not in cache', async () => {
       const mockEntity: TestEntity = { id: '1', name: 'test-entity', value: 42 };
       const fetchSpy = vi.spyOn(mockProvider, 'fetch').mockResolvedValue(mockEntity);

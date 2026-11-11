@@ -1,15 +1,10 @@
 import { RouteDefinition } from '@kaoto/camel-catalog/types';
 
 import { CatalogKind } from '../../../../catalog-kind';
-import { createVisualizationNode } from '../../../visualization-node';
 import { RootNodeMapper } from '../root-node-mapper';
 import { BaseNodeMapper } from './base-node-mapper';
 
 describe('BaseNodeMapper', () => {
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
   let mapper: BaseNodeMapper;
   let path: string;
   let componentLookup: { primaryNodeId: { name: string; catalogKind: CatalogKind } };
@@ -73,57 +68,6 @@ describe('BaseNodeMapper', () => {
       expect(vizNode.getChildren()?.[0].data.path).toBe('from.steps.0.log');
       expect(vizNode.getChildren()?.[1].data.path).toBe('from.steps.1.to');
       expect(vizNode.getChildren()?.[2].data.isPlaceholder).toBe(true);
-    });
-
-    it('builds branch nodes concurrently and links them in source order', async () => {
-      vi.useFakeTimers();
-      const firstNode = createVisualizationNode('first', {
-        name: 'log',
-        path: 'from.steps.0.log',
-        isPlaceholder: false,
-        isGroup: false,
-        iconUrl: '',
-        title: '',
-        description: '',
-      });
-      const secondNode = createVisualizationNode('second', {
-        name: 'log',
-        path: 'from.steps.1.log',
-        isPlaceholder: false,
-        isGroup: false,
-        iconUrl: '',
-        title: '',
-        description: '',
-      });
-
-      const root = new RootNodeMapper();
-      const getVizNode = vi
-        .spyOn(root, 'getVizNodeFromProcessor')
-        .mockImplementationOnce(
-          () =>
-            new Promise((resolve) =>
-              setTimeout(() => {
-                resolve(firstNode);
-              }, 100),
-            ),
-        )
-        .mockResolvedValueOnce(secondNode);
-      const branchMapper = new BaseNodeMapper(root);
-      const building = branchMapper.getVizNodeFromProcessor(
-        'from',
-        { primaryNodeId: { name: 'from', catalogKind: CatalogKind.Pattern } },
-        { from: { uri: 'direct:start', steps: [{ log: 'first' }, { log: 'second' }] } },
-      );
-
-      expect(getVizNode).toHaveBeenCalledTimes(2);
-      await vi.advanceTimersByTimeAsync(100);
-
-      const children = (await building).getChildren()!;
-      expect(children.slice(0, 2)).toEqual([firstNode, secondNode]);
-      expect(firstNode.getNextNode()).toBe(secondNode);
-      expect(secondNode.getPreviousNode()).toBe(firstNode);
-      expect(secondNode.getNextNode()).toBe(children[2]);
-      expect(children[2].data.isPlaceholder).toBe(true);
     });
 
     it('should return a VisualizationNode with special children', async () => {

@@ -4,7 +4,6 @@ import { ICatalogProvider, IDynamicCatalog } from './models';
 
 export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
   protected readonly cache: Record<string, T> = {};
-  private readonly pendingRequests = new Map<string, Promise<T | undefined>>();
   private fetchedAll = false;
   private refreshPromise: Promise<void> | null = null;
 
@@ -15,23 +14,12 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
       return this.cache[key];
     }
 
-    const pending = this.pendingRequests.get(key);
-    if (pending) return pending;
-
-    const request = this.provider.fetch(key);
-    this.pendingRequests.set(key, request);
-    try {
-      const entity = await request;
-      if (entity !== undefined && this.pendingRequests.get(key) === request) {
-        this.cache[key] = entity;
-      }
-      return entity;
-    } finally {
-      // An invalidated request must not remove a newer request for the same key.
-      if (this.pendingRequests.get(key) === request) {
-        this.pendingRequests.delete(key);
-      }
+    const entity = await this.provider.fetch(key);
+    if (entity !== undefined) {
+      this.cache[key] = entity;
     }
+
+    return entity;
   }
 
   async getAll(
@@ -68,7 +56,6 @@ export class DynamicCatalog<T = unknown> implements IDynamicCatalog<T> {
   }
 
   clearCache(): void {
-    this.pendingRequests.clear();
     Object.keys(this.cache).forEach((key) => {
       delete this.cache[key];
     });

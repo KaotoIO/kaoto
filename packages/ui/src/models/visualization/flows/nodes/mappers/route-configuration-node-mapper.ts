@@ -28,14 +28,12 @@ export class RouteConfigurationNodeMapper extends BaseNodeMapper {
 
     const vizNode = createVisualizationNode(path, data);
 
-    const children = await Promise.all(
-      SPECIAL_PROCESSORS_PARENTS_MAP.routeConfiguration.map((property) =>
-        this.getChildrenFromArrayClause(`${path}.${property}`, entityDefinition),
-      ),
-    );
-    children.flat().forEach((node) => {
-      vizNode.addChild(node);
-    });
+    for (const property of SPECIAL_PROCESSORS_PARENTS_MAP.routeConfiguration) {
+      const configNodes = await this.getChildrenFromArrayClause(`${path}.${property}`, entityDefinition);
+      configNodes.forEach((node) => {
+        vizNode.addChild(node);
+      });
+    }
 
     return vizNode;
   }
