@@ -18,7 +18,7 @@
     "start": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test": "vitest run --config vitest.config.mts",
+    "test": "vitest run --config vitest.config.mts --coverage",
     "test:watch": "vitest --config vitest.config.mts",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "yarn lint --fix",
