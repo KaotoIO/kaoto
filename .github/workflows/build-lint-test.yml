@@ -114,7 +114,7 @@ jobs:
       - name: Build libraries
         run: yarn workspaces foreach --all --parallel --topological-dev --verbose $WORKSPACES run build:lib
       - name: Test
-        run: yarn workspaces foreach --all --parallel --topological-dev --verbose $WORKSPACES run test --coverage
+        run: yarn workspaces foreach --all --parallel --topological-dev --verbose $WORKSPACES run test
       # Codecov gets the report of each tested package under its own flag (.github/codecov.yaml). A new
       # package needs an upload and a flag of its own to report coverage.
       - name: Upload UI coverage

@@ -61,7 +61,7 @@
     "build:webview:dev": "vite build --config vite.config.webview.mjs --mode development",
     "write-version": "node ./scripts/write-version-file.mjs",
     "preview": "vite preview",
-    "test": "vitest run --config vitest.config.mts",
+    "test": "vitest run --config vitest.config.mts --coverage",
     "test:watch": "vitest --config vitest.config.mts",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "yarn lint --fix",
