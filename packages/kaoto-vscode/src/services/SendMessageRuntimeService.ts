@@ -1,7 +1,8 @@
 import type { SendMessageRuntimeSnapshot } from '@kaoto/kaoto/models';
 import { isAbsolute } from 'path'; // NOSONAR
-import { Uri } from 'vscode';
+import { Disposable, Uri } from 'vscode';
 import { arePathsEqual } from '../utils/Path';
+import type { DeploymentsProvider } from '../views/deployments/DeploymentsProvider';
 
 export interface LocalDeploymentRoute {
 	sourcePath: string;
@@ -9,6 +10,45 @@ export interface LocalDeploymentRoute {
 	state: string;
 	consolePort: number;
 	label: string;
+}
+
+/** Publishes deployment snapshots for an editor while holding its polling lease. */
+export function watchSendMessageTargets(
+	deployments: Pick<DeploymentsProvider, 'acquireRefresh' | 'onDidChangeTreeData'>,
+	runtimes: Pick<SendMessageRuntimeService, 'getSnapshot'>,
+	documentUri: Uri,
+	listener: (snapshot: SendMessageRuntimeSnapshot) => void,
+): Disposable {
+	const lease = deployments.acquireRefresh();
+	let disposed = false;
+	let running = false;
+	let pending = false;
+	const refresh = async () => {
+		pending = true;
+		if (running) {
+			return;
+		}
+		running = true;
+		try {
+			do {
+				pending = false;
+				const snapshot = await runtimes.getSnapshot(documentUri).catch(() => ({ supported: true, targets: [] }));
+				if (!disposed) {
+					listener(snapshot);
+				}
+			} while (pending && !disposed);
+		} finally {
+			running = false;
+		}
+	};
+	const subscription = deployments.onDidChangeTreeData(() => {
+		void refresh();
+	});
+	return new Disposable(() => {
+		disposed = true;
+		subscription.dispose();
+		lease.dispose();
+	});
 }
 
 export interface ResolvedSendTarget extends LocalDeploymentRoute {
@@ -28,12 +68,14 @@ function validPid(value: unknown): value is number {
 export class SendMessageRuntimeService {
 	constructor(private readonly deployments: DeploymentSource) {}
 
-	private async readPid(port: number): Promise<number | null> {
+	private async readPid(port: number, signal?: AbortSignal): Promise<number | null> {
 		for (const path of ['/q/dev/jvm', '/observe/jolokia/read/java.lang:type=Runtime/Pid']) {
+			signal?.throwIfAborted();
 			try {
+				const timeout = AbortSignal.timeout(3000);
 				const response = await fetch(`http://localhost:${port}${path}`, {
 					headers: { Accept: 'application/json' },
-					signal: AbortSignal.timeout(3000),
+					signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
 				});
 				if (!response.ok) {
 					continue;
@@ -49,13 +91,15 @@ export class SendMessageRuntimeService {
 					return pid;
 				}
 			} catch {
+				signal?.throwIfAborted();
 				/* A missing console can return HTTP 200 with plain text. Try the next identity source. */
 			}
 		}
 		return null;
 	}
 
-	private async targets(documentUri: Uri) {
+	private async targets(documentUri: Uri, signal?: AbortSignal) {
+		signal?.throwIfAborted();
 		if (documentUri.scheme !== 'file') {
 			return [];
 		}
@@ -64,7 +108,7 @@ export class SendMessageRuntimeService {
 		return Promise.all(
 			rows.map(async (row) => {
 				if (!pids.has(row.consolePort)) {
-					pids.set(row.consolePort, this.readPid(row.consolePort));
+					pids.set(row.consolePort, this.readPid(row.consolePort, signal));
 				}
 				const pid = await pids.get(row.consolePort)!;
 				return { row, pid, id: JSON.stringify([row.consolePort, pid, row.sourcePath, row.routeId]) };
@@ -77,9 +121,12 @@ export class SendMessageRuntimeService {
 		return { supported: true, targets: targets.map(({ row, pid, id }) => ({ id, pid, routeId: row.routeId, state: row.state, label: row.label })) };
 	}
 
-	async resolveTarget(documentUri: Uri, targetId: string, routeId: string): Promise<ResolvedSendTarget> {
+	/** Revalidates deployment identity and honours cancellation before returning a send target. */
+	async resolveTarget(documentUri: Uri, targetId: string, routeId: string, signal?: AbortSignal): Promise<ResolvedSendTarget> {
+		signal?.throwIfAborted();
 		await this.deployments.refresh();
-		const targets = await this.targets(documentUri);
+		const targets = await this.targets(documentUri, signal);
+		signal?.throwIfAborted();
 		const target = targets.find((item) => item.id === targetId && item.row.routeId === routeId && item.row.state === 'Started');
 		if (!target) {
 			throw new Error('The selected route instance is no longer available. Refresh the target selection.');

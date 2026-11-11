@@ -10,7 +10,9 @@ import type { SendMessageRuntimeService } from './SendMessageRuntimeService';
 export class SendMessageService {
 	constructor(private readonly runtimes: Pick<SendMessageRuntimeService, 'resolveTarget'>) {}
 
-	async send(documentUri: Uri, request: SendMessageRequest): Promise<void> {
+	/** An expired request may finish cleanup, but must never start a later delivery. */
+	async send(documentUri: Uri, request: SendMessageRequest, signal?: AbortSignal): Promise<void> {
+		signal?.throwIfAborted();
 		const directory = await mkdtemp(join(tmpdir(), 'kaoto-send-'));
 		try {
 			const { payload } = request;
@@ -39,8 +41,10 @@ export class SendMessageService {
 			}
 			const argumentFile = join(directory, 'message.args');
 			await writeFile(argumentFile, args.map((arg) => JSON.stringify(arg)).join('\n') + '\n', { mode: 0o600 });
-			const target = await this.runtimes.resolveTarget(documentUri, request.targetId, request.routeId);
-			await CamelCommandAPI.sendMessage(target.pid, target.routeId, argumentFile, dirname(documentUri.fsPath));
+			signal?.throwIfAborted();
+			const target = await this.runtimes.resolveTarget(documentUri, request.targetId, request.routeId, signal);
+			signal?.throwIfAborted();
+			await CamelCommandAPI.sendMessage(target.pid, target.routeId, argumentFile, dirname(documentUri.fsPath), signal);
 		} finally {
 			await rm(directory, { recursive: true, force: true });
 		}

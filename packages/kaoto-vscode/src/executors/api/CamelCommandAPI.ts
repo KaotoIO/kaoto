@@ -41,8 +41,10 @@ const sq = CamelCommandBuilder.strongQuote;
  */
 export class CamelCommandAPI {
 	/** Execute the configured CLI without placing payload content on the command line. */
-	static async sendMessage(pid: number, routeId: string, argumentFile: string, cwd: string): Promise<void> {
+	static async sendMessage(pid: number, routeId: string, argumentFile: string, cwd: string, signal?: AbortSignal): Promise<void> {
+		signal?.throwIfAborted();
 		const result = await this.executeSimple('cmd', ['send', String(pid), sq(`--endpoint=${routeId}`), sq(`@${argumentFile}`)], cwd);
+		signal?.throwIfAborted();
 		await executeSendMessage(result.execution, cwd);
 	}
 

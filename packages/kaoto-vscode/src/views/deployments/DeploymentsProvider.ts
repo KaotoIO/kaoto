@@ -38,7 +38,6 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 	private visible = true;
 	private disposed = false;
 	private pendingRefresh?: Promise<void>;
-	private refreshRequested = false;
 	private interval: number;
 	private autoRefreshHandle?: NodeJS.Timeout;
 	private localhostData = new Map<string, { associatedFile: string; routes: Route[] }>();
@@ -117,22 +116,20 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 		}
 	}
 
-	/** Waits for a new poll when a caller requests refresh during an in-flight poll. */
+	/** Waits for a poll started after this request, independently of subsequent refreshes. */
 	refresh(): Promise<void> {
 		console.log('[DeploymentsProvider] Refreshing data...');
-		this.refreshRequested = true;
-		this.pendingRefresh ??= this.refreshUntilCurrent().finally(() => {
-			this.pendingRefresh = undefined;
+		const pending = this.pendingRefresh ?? Promise.resolve();
+		return pending.then(() => {
+			if (this.disposed) {
+				return;
+			}
+			// Coalesce callers waiting for the same poll into one following poll.
+			this.pendingRefresh ??= this.updateData().finally(() => {
+				this.pendingRefresh = undefined;
+			});
+			return this.pendingRefresh;
 		});
-		return this.pendingRefresh;
-	}
-
-	private async refreshUntilCurrent(): Promise<void> {
-		do {
-			this.refreshRequested = false;
-			// Poll sequentially: an overlapping refresh must read newer state after the current poll finishes.
-			await this.updateData();
-		} while (this.refreshRequested && !this.disposed);
 	}
 
 	getTreeItem(element: TreeItem): TreeItem {

@@ -22,6 +22,9 @@ import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { createEventBus, createPostMessageBridge, type ContentSnapshot, type SetContentRequest } from '@kaoto/kaoto/host-bridge';
 import { KaotoEditorProvider } from '../../extension/KaotoEditorProvider';
+import { KaotoHostServices } from '../../services/KaotoHostServices';
+import { SendMessageService } from '../../services/SendMessageService';
+import { CamelCommandAPI } from '../../executors/api/CamelCommandAPI';
 import { getExtensionUri } from '../utils/TestSetup';
 
 suite('Native Kaoto text document provider', () => {
@@ -105,6 +108,57 @@ suite('Native Kaoto text document provider', () => {
 		equal(fixture.requests[0].reason, 'init');
 		ok(document.isDirty);
 		equal(await read(document.uri), 'original');
+	});
+	test('does not dispatch a message after the bridge request times out during target resolution', async () => {
+		const target = deferred<{ pid: number; routeId: string; sourcePath: string; consolePort: number; label: string; state: string }>();
+		const resolving = deferred<void>();
+		const finished = deferred<void>();
+		const sender = new SendMessageService({
+			resolveTarget: async () => {
+				resolving.resolve();
+				return target.promise;
+			},
+		});
+		const originalSend = CamelCommandAPI.sendMessage;
+		let dispatched = false;
+		CamelCommandAPI.sendMessage = async () => {
+			dispatched = true;
+		};
+		provider.dispose();
+		provider = new KaotoEditorProvider(
+			{ extensionUri: getExtensionUri() },
+			(uri) =>
+				new KaotoHostServices(uri, {
+					sendMessage: async (...args) => {
+						try {
+							await sender.send(...args);
+						} finally {
+							finished.resolve();
+						}
+					},
+				}),
+		);
+		try {
+			await open();
+			const pending = fixture.bus.request(
+				'editor:sendMessage:send',
+				{
+					targetId: 'target',
+					routeId: 'orders',
+					payload: { endpoint: '', body: 'test' },
+				},
+				{ timeoutMs: 1000 },
+			);
+			const timedOut = rejects(pending, { code: 'TIMEOUT' });
+			await resolving.promise;
+			await timedOut;
+			await fixture.flush();
+			target.resolve({ pid: 123, routeId: 'orders', sourcePath: document.uri.fsPath, consolePort: 9876, label: 'orders', state: 'Started' });
+			await finished.promise;
+			equal(dispatched, false, 'An expired bridge request must not invoke the CLI');
+		} finally {
+			CamelCommandAPI.sendMessage = originalSend;
+		}
 	});
 
 	test('initializes an empty document exactly once after ready', async () => {

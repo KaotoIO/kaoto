@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { DeploymentsProvider } from '../views/deployments/DeploymentsProvider';
-import { SendMessageRuntimeService } from '../services/SendMessageRuntimeService';
+import { SendMessageRuntimeService, watchSendMessageTargets } from '../services/SendMessageRuntimeService';
 import { SendMessageService } from '../services/SendMessageService';
 import { getRedHatService, TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
 import * as vscode from 'vscode';
@@ -65,32 +65,8 @@ export async function activate(context: vscode.ExtensionContext) {
 			await deployments.refresh();
 			return messageRuntimes.getSnapshot(uri);
 		},
-		sendMessage: (uri, request) => messageSender.send(uri, request),
-		watchSendMessageTargets: (uri, listener) => {
-			const lease = deployments.acquireRefresh();
-			let disposed = false;
-			let generation = 0;
-			const subscription = deployments.onDidChangeTreeData(() => {
-				const current = ++generation;
-				void messageRuntimes
-					.getSnapshot(uri)
-					.then((snapshot) => {
-						if (!disposed && current === generation) {
-							listener(snapshot);
-						}
-					})
-					.catch(() => {
-						if (!disposed && current === generation) {
-							listener({ supported: true, targets: [] });
-						}
-					});
-			});
-			return new vscode.Disposable(() => {
-				disposed = true;
-				subscription.dispose();
-				lease.dispose();
-			});
-		},
+		sendMessage: (uri, request, signal) => messageSender.send(uri, request, signal),
+		watchSendMessageTargets: (uri, listener) => watchSendMessageTargets(deployments, messageRuntimes, uri, listener),
 		getSelectedCatalog: async (uri) => {
 			if (await KaotoCatalogService.isMavenProject(uri)) {
 				return undefined;

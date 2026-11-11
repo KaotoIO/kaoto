@@ -17,6 +17,8 @@ import { assert } from 'chai';
 import { DeploymentsProvider, PortFileKey } from '../../../views/deployments/DeploymentsProvider';
 import { PortManager } from '../../../services/PortManager';
 import { CamelTask, CamelTaskDefinition } from '../../../tasks/CamelTask';
+import { setImmediate } from 'node:timers/promises';
+import { deferred } from '../../utils/Deferred';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -265,17 +267,69 @@ suite('DeploymentsProvider refresh ownership', () => {
 			portManager.getUsedPorts().add(9876);
 			const provider = createProvider(portManager);
 			const old = provider.refresh();
-			await Promise.resolve();
+			await setImmediate();
 			const newer = provider.refresh();
-			assert.strictEqual(old, newer);
 			finishOld(body('Started'));
 			await old;
-			assert.equal(provider.getSnapshot()[0].state, 'Stopped');
 			await newer;
 			assert.equal(calls, 2);
 			assert.equal(provider.getSnapshot()[0].state, 'Stopped');
 		} finally {
 			global.fetch = original;
+		}
+	});
+	test('completes callers after their poll while further refreshes remain pending', async () => {
+		const originalSet = global.setInterval;
+		const originalClear = global.clearInterval;
+		const originalFetch = global.fetch;
+		const timers = new Map<NodeJS.Timeout, () => Promise<void>>();
+		const polls: ReturnType<typeof deferred<Response>>[] = [];
+		global.setInterval = ((callback: () => Promise<void>) => {
+			const handle = {} as NodeJS.Timeout;
+			timers.set(handle, callback);
+			return handle;
+		}) as typeof setInterval;
+		global.clearInterval = ((handle: NodeJS.Timeout) => {
+			timers.delete(handle);
+		}) as typeof clearInterval;
+		global.fetch = () => {
+			const poll = deferred<Response>();
+			polls.push(poll);
+			return poll.promise;
+		};
+		const { portManager } = makePortManager(true);
+		portManager.getUsedPorts().add(9876);
+		const provider = createProvider(portManager);
+		const completePoll = (index: number) => polls[index].resolve(new Response(JSON.stringify({ route: { routes: [] } })));
+		let initialCompleted = false;
+		let overlappingCompleted = false;
+		const initial = provider.refresh().then(() => {
+			initialCompleted = true;
+		});
+		try {
+			await setImmediate();
+			const overlapping = provider.refresh().then(() => {
+				overlappingCompleted = true;
+			});
+			completePoll(0);
+			await setImmediate();
+			assert.isTrue(initialCompleted, 'The first caller must not wait for the second poll');
+			assert.isFalse(overlappingCompleted, 'An overlapping request must wait for a fresh poll');
+			const trailing = [...timers.values()][0]();
+			completePoll(1);
+			await setImmediate();
+			assert.isTrue(overlappingCompleted, 'The second caller must not wait for the third poll');
+			assert.lengthOf(polls, 3);
+			provider.dispose();
+			completePoll(2);
+			await Promise.all([initial, overlapping, trailing]);
+		} finally {
+			provider.dispose();
+			polls.at(-1)?.resolve(new Response('{}'));
+			await initial;
+			global.fetch = originalFetch;
+			global.setInterval = originalSet;
+			global.clearInterval = originalClear;
 		}
 	});
 });

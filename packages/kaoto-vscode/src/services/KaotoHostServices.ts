@@ -45,7 +45,7 @@ import { getSuggestions, type Suggestion, type SuggestionRequestContext } from '
 
 export interface KaotoDesktopOperations {
 	getSendMessageTargets?: (uri: vscode.Uri) => Promise<SendMessageRuntimeSnapshot>;
-	sendMessage?: (uri: vscode.Uri, request: SendMessageRequest) => Promise<void>;
+	sendMessage?: (uri: vscode.Uri, request: SendMessageRequest, signal?: AbortSignal) => Promise<void>;
 	watchSendMessageTargets?: (uri: vscode.Uri, listener: (snapshot: SendMessageRuntimeSnapshot) => void) => vscode.Disposable;
 	getSelectedCatalog?: (uri: vscode.Uri) => Promise<{ name: string; runtime: string } | undefined>;
 	findClasspathRoot?: (uri: vscode.Uri) => vscode.Uri;
@@ -62,11 +62,11 @@ export class KaotoHostServices implements vscode.Disposable {
 	async getSendMessageTargets(): Promise<SendMessageRuntimeSnapshot> {
 		return this.desktop.getSendMessageTargets?.(this.documentUri) ?? { supported: false, targets: [] };
 	}
-	async sendMessage(request: SendMessageRequest): Promise<void> {
+	async sendMessage(request: SendMessageRequest, signal?: AbortSignal): Promise<void> {
 		if (!this.desktop.sendMessage) {
 			throw new BridgeError('UNSUPPORTED_REQUEST', 'Sending messages is not supported by this host.');
 		}
-		await this.desktop.sendMessage(this.documentUri, request);
+		await this.desktop.sendMessage(this.documentUri, request, signal);
 	}
 	watchSendMessageTargets(listener: (snapshot: SendMessageRuntimeSnapshot) => void): vscode.Disposable {
 		return this.desktop.watchSendMessageTargets?.(this.documentUri, listener) ?? new vscode.Disposable(() => {});
