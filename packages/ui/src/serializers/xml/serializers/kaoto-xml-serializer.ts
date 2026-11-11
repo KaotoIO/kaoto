@@ -60,11 +60,9 @@ export class KaotoXmlSerializer {
 
       switch (entity.type) {
         case EntityType.Beans:
-          {
-            const beans = await Promise.all(entity.parent.beans.map((bean) => BeansXmlSerializer.serialize(bean, doc)));
-            beans.forEach((bean) => {
-              if (bean) rootElement.appendChild(bean);
-            });
+          for (const bean of entity.parent.beans) {
+            const beanElement = await BeansXmlSerializer.serialize(bean, doc);
+            if (beanElement) rootElement.appendChild(beanElement);
           }
           break;
         case EntityType.Route:

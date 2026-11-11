@@ -84,9 +84,15 @@ export class BeansXmlParser {
   // This might required support for nested beans, if not change to static
   async transformBeansSection(beansSection: Element): Promise<BeanFactory[]> {
     // Process all bean elements and populate beanFactories
-    return await Promise.all(
-      Array.from(beansSection.children).map((bean) => BeansXmlParser.transformBeanFactory(bean)),
-    );
+    const beanFactories: BeanFactory[] = [];
+    const beanElements = Array.from(beansSection.children);
+
+    for (const beanElement of beanElements) {
+      const processedBean = await BeansXmlParser.transformBeanFactory(beanElement);
+      beanFactories.push(processedBean);
+    }
+
+    return beanFactories;
   }
 
   private static parseScript(beanElement: Element): string | undefined {

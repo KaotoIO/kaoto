@@ -66,31 +66,34 @@ export class StepParser {
       return extractAttributesFromXmlElement(element);
     }
 
-    const patches = await Promise.all(
-      Object.entries(processorModel.properties).map(async ([name, properties]): Promise<Record<string, unknown>> => {
-        switch (properties.kind) {
-          case 'value':
-            return { [name]: element.textContent };
-          case 'attribute':
-            return element.hasAttribute(name) ? this.parseAttributeType(name, element) : {};
-          case 'expression': {
-            const expression = await ExpressionParser.parse(
-              element,
-              properties,
-              name === 'expression' ? undefined : name,
-            );
-            return name === 'expression' ? { ...expression } : { [name]: expression };
+    let processor: { [key: string]: unknown } = {};
+
+    for (const [name, properties] of Object.entries(processorModel.properties)) {
+      switch (properties.kind) {
+        case 'value':
+          processor[name] = element.textContent;
+          break;
+        case 'attribute':
+          if (element.hasAttribute(name)) {
+            processor = { ...processor, ...(await this.parseAttributeType(name, element)) };
           }
-          case 'element': {
-            const parsed = await this.parseElementType(name, element, properties, transformer);
-            return parsed ? { [parsed.key]: parsed.value } : {};
+          break;
+        case 'expression':
+          if (name === 'expression') {
+            processor = { ...processor, ...(await ExpressionParser.parse(element, properties)) };
+          } else processor[name] = await ExpressionParser.parse(element, properties, name);
+          break;
+
+        case 'element':
+          {
+            const elementType = await this.parseElementType(name, element, properties, transformer);
+            if (elementType) {
+              processor[elementType.key] = elementType.value;
+            }
           }
-          default:
-            return {};
-        }
-      }),
-    );
-    const processor: Record<string, unknown> = patches.reduce((result, patch) => ({ ...result, ...patch }), {});
+          break;
+      }
+    }
 
     // handle cases that aren't defined in catalog or are defined incorrectly
     await this.handleSpecialCases(processorName, element, processor, processorModel.properties);
@@ -216,11 +219,9 @@ export class StepParser {
     const doCatchArray: DoCatch[] = [];
     let doFinallyElement = undefined;
 
-    const children = Array.from(doTryElement.children);
-    const elements = await Promise.all(children.map((child) => this.parseElement(child)));
-    for (const [index, child] of children.entries()) {
+    for (const child of Array.from(doTryElement.children)) {
       const tagNameLower = child.tagName;
-      const element = elements[index];
+      const element = await this.parseElement(child);
 
       if (child.tagName === 'doCatch') {
         //set to undefined because onWhen definition doesn't have steps. It's a special case

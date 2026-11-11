@@ -41,15 +41,17 @@ export class RestXmlParser {
 
   // Transform verbs like <get>, <post>, etc.
   private static async parseRestVerbs(restElement: Element): Promise<Rest> {
-    const entries = await Promise.all(
-      REST_DSL_VERBS.map(async (verb) => {
-        const instances = await Promise.all(
-          Array.from(restElement.getElementsByTagName(verb)).map((element) => this.parseRestVerb(element)),
-        );
-        return [verb, instances] as const;
-      }),
-    );
-    return Object.fromEntries(entries.filter(([, instances]) => instances.length > 0)) as unknown as Rest;
+    const verbs: { [key: string]: unknown } = {};
+
+    // For each verb, look for its elements and transform them
+    for (const verb of REST_DSL_VERBS) {
+      const verbInstances = Array.from(restElement.getElementsByTagName(verb));
+      if (verbInstances.length > 0) {
+        verbs[verb] = await Promise.all(verbInstances.map((verbElement: Element) => this.parseRestVerb(verbElement)));
+      }
+    }
+
+    return verbs as unknown as Rest;
   }
 
   static async parseRestVerb(verbElement: Element) {
@@ -115,13 +117,17 @@ export class RestXmlParser {
     );
     const properties = securityDefinitionsDefinition?.properties.securityDefinitions;
 
+    let securityDefinitions: SecurityDefinitions = {};
     if (securityDefinitionsElements.length === 0) return undefined;
-    const entries = await Promise.all(
-      securityDefinitionsElements
-        .filter((element) => properties?.oneOf?.includes(element.tagName))
-        .map(async (element) => [element.tagName, await StepParser.parseElement(element)] as const),
-    );
-    return Object.fromEntries(entries) as SecurityDefinitions;
+    for (const securityDefinition of securityDefinitionsElements.filter((el) =>
+      properties?.oneOf?.includes(el.tagName),
+    )) {
+      securityDefinitions = {
+        ...securityDefinitions,
+        [securityDefinition.tagName]: await StepParser.parseElement(securityDefinition),
+      };
+    }
+    return securityDefinitions;
   }
 
   private static async parseSecurityRequirements(restElement: Element): Promise<RestSecurity[] | undefined> {
