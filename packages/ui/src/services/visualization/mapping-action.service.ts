@@ -237,7 +237,10 @@ export class MappingActionService {
     } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
       if (nodeData.mapping?.children.some((c) => c instanceof ChooseItem)) return;
 
-      if (nodeData instanceof FieldItemNodeData && nodeData.autoOptionalIfItem) {
+      if (
+        (nodeData instanceof FieldItemNodeData || nodeData instanceof CopyOfFieldNodeData) &&
+        nodeData.autoOptionalIfItem
+      ) {
         MappingActionService.wrapGuardedFieldWithChoose(nodeData, nodeData.autoOptionalIfItem);
         return;
       }
@@ -253,7 +256,7 @@ export class MappingActionService {
    * {@link MappingService.wrapWithChooseWhenOtherwise} always puts the field into a new `when` and a
    * copy of it into a new `otherwise`, which the casts rely on.
    */
-  private static wrapGuardedFieldWithChoose(nodeData: FieldItemNodeData, guard: IfItem) {
+  private static wrapGuardedFieldWithChoose(nodeData: FieldItemNodeData | CopyOfFieldNodeData, guard: IfItem) {
     const guardTest = guard.expression;
     const fieldComment = nodeData.mapping.comment;
     const field = MappingActionService.removeOptionalGuard(nodeData) ?? nodeData.mapping;
@@ -472,7 +475,7 @@ export class MappingActionService {
     if (!mapping) return;
     const copyOfSelector = new CopyOfSelector(mapping);
     mapping.children.push(copyOfSelector);
-    useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
+    useDocumentTreeStore.getState().requestXPathInputFocus(copyOfSelector.nodePath.toString());
   }
 
   /**

@@ -1548,6 +1548,70 @@ describe('DataMapperProvider', () => {
       serializeSpy.mockRestore();
     });
 
+    it('should set targetDocument on the tree built by refreshMappingTree', async () => {
+      const mockOnUpdateMappings = vi.fn();
+      const serializeSpy = vi.spyOn(MappingSerializerService, 'serialize');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={mockOnUpdateMappings}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      // Other code paths (e.g. initial mount) may also call serialize, so record the baseline and
+      // inspect only the call this test's own refreshMappingTree() triggers.
+      const callCountBefore = serializeSpy.mock.calls.length;
+
+      act(() => {
+        result.current.refreshMappingTree();
+      });
+
+      await waitFor(() => {
+        expect(serializeSpy.mock.calls.length).toBeGreaterThan(callCountBefore);
+      });
+      const [tree] = serializeSpy.mock.calls[serializeSpy.mock.calls.length - 1];
+      // A root-level copy-of relies on the tree's targetDocument to classify its schema position
+      // (CopyOfPlacementService.getContextField); without it, every root-level copy-of sorts last
+      // regardless of what it selects.
+      expect((tree as MappingTree).targetDocument).toBe(result.current.targetBodyDocument);
+
+      serializeSpy.mockRestore();
+    });
+
+    it('should prefer an explicit targetDocument option over the (possibly stale) state value', async () => {
+      const mockOnUpdateMappings = vi.fn();
+      const serializeSpy = vi.spyOn(MappingSerializerService, 'serialize');
+
+      const wrapper = ({ children }: { children: React.ReactNode }) => (
+        <DataMapperProvider onUpdateMappings={mockOnUpdateMappings}>{children}</DataMapperProvider>
+      );
+
+      const { result } = renderHook(() => useDataMapper(), { wrapper });
+
+      // Simulates updateDocument's TARGET_BODY case: it calls setTargetBodyDocument(cloned) and then
+      // refreshMappingTree(...) synchronously in the same tick, so the closure's targetBodyDocument is
+      // still the OLD value — the explicit option is what makes the new document win.
+      const overrideDoc = {
+        documentType: DocumentType.TARGET_BODY,
+        documentId: 'Body',
+        definitionType: DocumentDefinitionType.XML_SCHEMA,
+      } as IDocument;
+      const callCountBefore = serializeSpy.mock.calls.length;
+
+      act(() => {
+        result.current.refreshMappingTree({ targetDocument: overrideDoc });
+      });
+
+      await waitFor(() => {
+        expect(serializeSpy.mock.calls.length).toBeGreaterThan(callCountBefore);
+      });
+      const [tree] = serializeSpy.mock.calls[serializeSpy.mock.calls.length - 1];
+      expect((tree as MappingTree).targetDocument).toBe(overrideDoc);
+      expect((tree as MappingTree).targetDocument).not.toBe(result.current.targetBodyDocument);
+
+      serializeSpy.mockRestore();
+    });
+
     it('should pass dataMapperSettings to serialize in resetMappingTree', async () => {
       const mockOnUpdateMappings = vi.fn();
       const serializeSpy = vi.spyOn(MappingSerializerService, 'serialize');

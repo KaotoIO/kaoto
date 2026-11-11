@@ -86,10 +86,13 @@ export class MappingService {
     });
   }
 
-  private static collectInstructionFields(mapping: InstructionItem): IField[] {
+  private static collectInstructionFields(
+    mapping: InstructionItem,
+    copyOfFields: (copyOf: CopyOfSelector) => IField[],
+  ): IField[] {
     if (mapping instanceof ChooseItem) {
       return [...mapping.when, mapping.otherwise].reduce((acc, branch) => {
-        branch && acc.push(...MappingService.collectInstructionFields(branch));
+        branch && acc.push(...MappingService.collectInstructionFields(branch, copyOfFields));
         return acc;
       }, [] as IField[]);
     } else if (
@@ -103,10 +106,9 @@ export class MappingService {
         if (child instanceof FieldItem) {
           acc.push(child.field);
         } else if (child instanceof CopyOfSelector) {
-          const field = CopyOfPlacementService.getInlineField(child);
-          field && acc.push(field);
+          acc.push(...copyOfFields(child));
         } else if (child instanceof InstructionItem) {
-          acc.push(...MappingService.collectInstructionFields(child));
+          acc.push(...MappingService.collectInstructionFields(child, copyOfFields));
         }
         return acc;
       }, [] as IField[]);
@@ -121,7 +123,22 @@ export class MappingService {
    * @returns all target fields found at any depth within the instruction
    */
   static getInstructionFields(mapping: InstructionItem): IField[] {
-    return MappingService.collectInstructionFields(mapping);
+    return MappingService.collectInstructionFields(mapping, (copyOf) => {
+      const field = CopyOfPlacementService.getInlineField(copyOf);
+      return field ? [field] : [];
+    });
+  }
+
+  /**
+   * Like {@link getInstructionFields}, but a copy-of that isn't 1-to-1 with any single field (e.g. a
+   * comma-list or union) still contributes its schema anchor fields, so an instruction wrapping only
+   * such a copy-of can be ordered by schema position instead of always sorting last. Serializer-only:
+   * every other caller of {@link getInstructionFields} needs its inline-only identity semantics
+   * (e.g. "does this instruction host the row for field X"), which an anchor — a sort hint, not an
+   * ownership claim — would answer incorrectly.
+   */
+  static getInstructionAnchorFields(mapping: InstructionItem): IField[] {
+    return MappingService.collectInstructionFields(mapping, (copyOf) => CopyOfPlacementService.getAnchorFields(copyOf));
   }
 
   /**

@@ -22,6 +22,7 @@ import {
   ValueOfSelector,
   ValueOfType,
   VariableItem,
+  WhenItem,
 } from '../../models/datamapper/mapping';
 import { DeserializeItemResult, DeserializeResult, MappingItemClass } from '../../models/datamapper/serialization';
 import { DEFAULT_DATAMAPPER_SETTINGS, IDataMapperSettings } from '../../models/datamapper/settings';
@@ -81,7 +82,7 @@ export class MappingSerializerService {
   private static getMappingItemFields(item: MappingItem): IField[] {
     if (item instanceof FieldItem) return [item.field];
     if (item instanceof CopyOfSelector) return CopyOfPlacementService.getAnchorFields(item);
-    if (item instanceof InstructionItem) return MappingService.getInstructionFields(item);
+    if (item instanceof InstructionItem) return MappingService.getInstructionAnchorFields(item);
     return [];
   }
 
@@ -111,13 +112,26 @@ export class MappingSerializerService {
   private static compareInstructionItems(left: MappingItem, right: MappingItem): number | null {
     if (!(left instanceof InstructionItem && right instanceof InstructionItem)) return null;
 
-    // Two instructions normally keep their authored order, but an xsl:attribute must still be
-    // emitted before any element content or the transform fails at runtime (XTDE0410). Once
-    // optional attributes get wrapped in an auto-optional guard the attribute is an instruction
-    // too, so fall through to field comparison whenever one side carries one.
-    const hasAttribute = (item: MappingItem) =>
-      MappingSerializerService.hasAttributeField(MappingSerializerService.getMappingItemFields(item));
-    return hasAttribute(left) === hasAttribute(right) ? 0 : null;
+    // xsl:when/xsl:otherwise branches are mutually exclusive at runtime, so XTDE0410's
+    // attribute-before-content constraint never applies across them, and sorting them by the field
+    // each wraps would silently change which branch xsl:choose's first-match-wins semantics selects.
+    if (
+      left instanceof WhenItem ||
+      left instanceof OtherwiseItem ||
+      right instanceof WhenItem ||
+      right instanceof OtherwiseItem
+    ) {
+      return 0;
+    }
+
+    // Two instructions normally keep their authored order, but fall through to field comparison
+    // whenever either side resolves a field — including an xsl:attribute, which must still be
+    // emitted before any element content or the transform fails at runtime (XTDE0410);
+    // compareMappingItemFields already prioritizes attribute fields once reached. Neither side
+    // resolving any field is the only case left tied here.
+    const leftFields = MappingSerializerService.getMappingItemFields(left);
+    const rightFields = MappingSerializerService.getMappingItemFields(right);
+    return leftFields.length === 0 && rightFields.length === 0 ? 0 : null;
   }
 
   private static compareSpecialMappingItems(left: MappingItem, right: MappingItem): number | null {
@@ -164,7 +178,10 @@ export class MappingSerializerService {
     const byFields = MappingSerializerService.compareMappingItemFields(leftFields, rightFields);
     if (byFields !== 0) return byFields;
     // A copy-of anchored on the same first field as a field item comes first: it brings the container
-    // the field item would otherwise be written into. The canvas renders them in the same order.
+    // the field item would otherwise be written into. The canvas renders them in the same order. Only
+    // apply this when both sides actually share that anchor — compareMappingItemFields also ties when
+    // neither side resolves any field, which isn't a shared anchor and must keep authored order.
+    if (leftFields.length === 0 || rightFields.length === 0) return 0;
     return Number(right instanceof CopyOfSelector) - Number(left instanceof CopyOfSelector);
   }
 

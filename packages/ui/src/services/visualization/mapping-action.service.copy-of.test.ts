@@ -11,7 +11,9 @@ import {
   ForEachItem,
   IfItem,
   MappingTree,
+  WhenItem,
 } from '../../models/datamapper/mapping';
+import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import {
   CopyOfFieldNodeData,
   DocumentNodeData,
@@ -27,6 +29,7 @@ import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
+import { MappingActionRegistryService } from './mapping-action-registry.service';
 import { MappingLinksService } from './mapping-links.service';
 import { TargetRenderService } from './target-render.service';
 import { VisualizationService } from './visualization.service';
@@ -97,6 +100,41 @@ describe('MappingActionService — copy-of placement', () => {
     expect(row.field.name).toBe('ShipTo');
   });
 
+  it('allows "Wrap with if"/"Wrap with choose" for a bare copy-of row', () => {
+    const copyOf = addCopyOf('/ns0:Order/*');
+    snapshot();
+
+    copyOf.expression = '/ns0:Order/ShipTo';
+    MappingActionService.commitExpression(docNode, copyOf);
+    const row = orderChildren().find((n) => n instanceof CopyOfFieldNodeData) as CopyOfFieldNodeData;
+
+    const allowed = MappingActionRegistryService.getAllowedActions(row);
+    expect(allowed).toContain(MappingActionKind.If);
+    expect(allowed).toContain(MappingActionKind.Choose);
+  });
+
+  it('wraps a guarded bare copy-of with choose using the same when/otherwise split as a guarded field', () => {
+    const ifItem = new IfItem(orderItem);
+    ifItem.expression = 'exists(/ns0:Order/ShipTo)';
+    orderItem.children.push(ifItem);
+    const copyOf = new CopyOfSelector(ifItem);
+    copyOf.expression = '/ns0:Order/ShipTo';
+    ifItem.children.push(copyOf);
+
+    const shipToField = orderItem.field.fields.find((f) => f.name === 'ShipTo')!;
+    const nodeData = new CopyOfFieldNodeData(docNode, copyOf, shipToField);
+    nodeData.autoOptionalIfItem = ifItem;
+
+    MappingActionService.applyChooseWhenOtherwise(nodeData);
+
+    expect(copyOf.parent).toBeInstanceOf(WhenItem);
+    const whenItem = copyOf.parent as WhenItem;
+    expect(whenItem.expression).toBe(ifItem.expression);
+    const chooseItem = whenItem.parent as ChooseItem;
+    expect(chooseItem.otherwise?.children[0]).toBeInstanceOf(CopyOfSelector);
+    expect(orderItem.children).toEqual([chooseItem]);
+  });
+
   it('draws a copy-of that stops being 1-to-1 as a node of its own', () => {
     const copyOf = addCopyOf('/ns0:Order/ShipTo');
     snapshot();
@@ -152,6 +190,51 @@ describe('MappingActionService — copy-of placement', () => {
     expect(MappingActionService.commitExpression(docNode, copyOf)).toBe('none');
     copyOf.expression = '';
     expect(MappingActionService.commitExpression(docNode, copyOf)).toBe('structural-update');
+  });
+
+  it.each([
+    [
+      'moves a standalone multi-field copy-of to a different anchor field',
+      '/ns0:Order/ShipTo, /ns0:Order/TotalAmount',
+      '/ns0:Order/Item, /ns0:Order/TotalAmount',
+      'structural-update',
+      undefined,
+    ],
+    [
+      'keeps a standalone multi-field copy-of in place when the anchor field is unchanged',
+      '/ns0:Order/ShipTo, /ns0:Order/TotalAmount',
+      '/ns0:Order/ShipTo, /ns0:Order/Item',
+      'none',
+      undefined,
+    ],
+    [
+      'rebuilds when an inline copy-of gains a second field and becomes a standalone "(copy)" child',
+      '/ns0:Order/ShipTo',
+      '/ns0:Order/ShipTo, /ns0:Order/Item',
+      'structural-update',
+      undefined,
+    ],
+    [
+      'rebuilds when a standalone multi-field copy-of loses a field and becomes inline',
+      '/ns0:Order/ShipTo, /ns0:Order/Item',
+      '/ns0:Order/ShipTo',
+      'structural-update',
+      'ShipTo',
+    ],
+  ] as const)('%s', (_name, initial, edited, expectedResult, expectedInlineFieldName) => {
+    const copyOf = addCopyOf(initial);
+    snapshot();
+
+    copyOf.expression = edited;
+    expect(MappingActionService.commitExpression(docNode, copyOf)).toBe(expectedResult);
+
+    const row = orderChildren().find((n) => n instanceof CopyOfFieldNodeData) as CopyOfFieldNodeData | undefined;
+    if (expectedInlineFieldName) {
+      expect(row?.mapping).toBe(copyOf);
+      expect(row?.field.name).toBe(expectedInlineFieldName);
+    } else {
+      expect(row).toBeUndefined();
+    }
   });
 
   it('renders only an empty copy-of ahead of the fields', () => {

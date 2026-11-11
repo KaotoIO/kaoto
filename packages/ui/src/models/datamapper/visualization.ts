@@ -93,6 +93,12 @@ export interface ISourceDocumentContext {
 export interface CopyOfRenderPlacement {
   /** The field row the copy-of sits on, or `undefined` when it is a node of its own. */
   field: IField | undefined;
+  /**
+   * The schema-earliest field a standalone (non-1-to-1) copy-of is anchored on, or `undefined` when it
+   * names none. Tracked separately from `field` because a multi-field copy-of can keep the same anchor
+   * while losing its 1-to-1 `field` (or vice versa), which a single combined property would miss.
+   */
+  anchor: IField | undefined;
   /** Whether it renders and serializes before its siblings. */
   leads: boolean;
 }

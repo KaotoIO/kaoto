@@ -184,6 +184,18 @@ describe('MappingActionService', () => {
         expect(vs).toBeInstanceOf(CopyOfSelector);
       });
 
+      it('should focus the new copy-of selector, not its parent row', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        MappingActionService.applyCopyOfSelector(shipOrderChildren[0] as TargetNodeData);
+
+        const shipOrderFI = tree.children[0] as FieldItem;
+        const orderIdFI = shipOrderFI.children[0] as FieldItem;
+        const copyOfSelector = orderIdFI.children[0] as CopyOfSelector;
+        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(copyOfSelector.nodePath.toString());
+        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).not.toBe(orderIdFI.nodePath.toString());
+      });
+
       it('should allow multiple copy-of selectors', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);

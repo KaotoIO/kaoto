@@ -82,6 +82,7 @@ export interface IDataMapperContext {
   refreshMappingTree(options?: {
     structural?: boolean;
     targetDefinitionType?: DocumentDefinitionType;
+    targetDocument?: IDocument;
     dataMapperSettings?: IDataMapperSettings;
   }): void;
   resetMappingTree(): void;
@@ -270,6 +271,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
     (options?: {
       structural?: boolean;
       targetDefinitionType?: DocumentDefinitionType;
+      targetDocument?: IDocument;
       dataMapperSettings?: IDataMapperSettings;
     }) => {
       const newMapping = new MappingTree(
@@ -286,6 +288,11 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
         return gv;
       });
       newMapping.namespaceMap = mappingTree.namespaceMap;
+      // `targetBodyDocument` can be stale here: a caller that just replaced it via
+      // setTargetBodyDocument and calls refreshMappingTree synchronously in the same tick (e.g.
+      // updateDocument's TARGET_BODY case) won't see the new value in this closure until the next
+      // render, same reason targetDefinitionType has its own override above.
+      newMapping.targetDocument = options?.targetDocument ?? targetBodyDocument;
       applyMappingTree(newMapping, options);
       const settingsToSerialize = options?.dataMapperSettings ?? dataMapperSettings;
       onUpdateMappings?.(MappingSerializerService.serialize(newMapping, sourceParameterMap, settingsToSerialize));
@@ -298,7 +305,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
       onUpdateMappings,
       onUpdateNamespaceMap,
       sourceParameterMap,
-      targetBodyDocument.definitionType,
+      targetBodyDocument,
     ],
   );
 
@@ -415,6 +422,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
           refreshMappingTree({
             structural: true,
             targetDefinitionType: document.definitionType,
+            targetDocument: cloned,
             dataMapperSettings: sanitizedSettings,
           });
           break;

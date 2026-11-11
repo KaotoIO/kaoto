@@ -136,6 +136,13 @@ export class CopyOfPlacementService {
       return result.kind === 'child' ? result.field : undefined;
     }
 
+    // Unlike `.` above, a named path is never the loop's own iteration variable, so it can't be 1-to-1
+    // with the loop's repeated field — the output repeats once per iteration regardless of what it
+    // names. A `for-each` whose own `select` is schema-guaranteed to return at most one node is a
+    // theoretical exception left unhandled: no realistic stylesheet wraps a single copy-of in such a
+    // loop instead of `xsl:if`, which already stays transparent.
+    if (CopyOfPlacementService.findEnclosingLoop(owner)) return undefined;
+
     const step = path.steps[path.steps.length - 1];
     if (!CopyOfPlacementService.isChildNameTest(step)) return undefined;
 
@@ -273,21 +280,24 @@ export class CopyOfPlacementService {
     resolveNamespace: NamespaceResolver,
     owner?: MappingParentType,
   ): CopyOfClassification {
+    const loop = CopyOfPlacementService.findEnclosingLoop(owner);
+    if (!(loop instanceof ForEachItem)) return OTHER;
+    const result = CopyOfPlacementService.classify(loop.expression, parentField, resolveNamespace, loop.parent);
+    return result.kind === 'child' ? result : OTHER;
+  }
+
+  /**
+   * The nearest `xsl:for-each`/`xsl:for-each-group` enclosing `owner`, walking up through other
+   * instruction wrappers (`xsl:if`, `xsl:choose`/`when`/`otherwise`) that don't themselves repeat
+   * output, or `undefined` when no loop encloses it.
+   */
+  private static findEnclosingLoop(owner?: MappingParentType): ForEachItem | ForEachGroupItem | undefined {
     let current = owner;
     while (current instanceof InstructionItem) {
-      if (current instanceof ForEachGroupItem) return OTHER;
-      if (current instanceof ForEachItem) {
-        const result = CopyOfPlacementService.classify(
-          current.expression,
-          parentField,
-          resolveNamespace,
-          current.parent,
-        );
-        return result.kind === 'child' ? result : OTHER;
-      }
+      if (current instanceof ForEachGroupItem || current instanceof ForEachItem) return current;
       current = current.parent;
     }
-    return OTHER;
+    return undefined;
   }
 
   static canHostFieldItem(parent: MappingParentType): boolean {

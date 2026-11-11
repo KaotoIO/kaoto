@@ -277,8 +277,12 @@ export class TargetRenderService {
   }
 
   private static getCopyOfPlacement(selector: CopyOfSelector): CopyOfRenderPlacement {
+    const anchorFields = [...CopyOfPlacementService.getAnchorFields(selector)].sort(
+      (a, b) => a.parent.fields.indexOf(a) - b.parent.fields.indexOf(b),
+    );
     return {
       field: CopyOfPlacementService.getInlineField(selector),
+      anchor: anchorFields[0],
       leads: CopyOfPlacementService.isLeadingCopyOf(selector),
     };
   }
@@ -288,7 +292,7 @@ export class TargetRenderService {
       const snapshot = renderIndex.getCopyOfPlacement(item);
       if (!snapshot) return renderIndex.hasSnapshot;
       const live = TargetRenderService.getCopyOfPlacement(item);
-      return snapshot.field !== live.field || snapshot.leads !== live.leads;
+      return snapshot.field !== live.field || snapshot.anchor !== live.anchor || snapshot.leads !== live.leads;
     }
     if (!(item instanceof IfItem)) return false;
     const isSeeThrough = !!TargetRenderService.computeSeeThroughField(item, renderIndex.sourceContext);

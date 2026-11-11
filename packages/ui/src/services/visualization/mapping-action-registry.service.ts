@@ -303,6 +303,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) =>
         !VisualizationUtilService.isMappingNode(n) ||
+        MappingActionRegistryService.isCopyOfRow(n) ||
         !MappingActionRegistryService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, IfItem, ChooseItem)(n),
     },
     {
@@ -316,6 +317,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) =>
         !VisualizationUtilService.isMappingNode(n) ||
+        MappingActionRegistryService.isCopyOfRow(n) ||
         !MappingActionRegistryService.mappingIsOneOf(ValueSelector, WhenItem, OtherwiseItem, IfItem, ChooseItem)(n),
     },
     {

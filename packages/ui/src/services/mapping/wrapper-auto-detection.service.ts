@@ -57,42 +57,63 @@ export class WrapperAutoDetectionService {
   ): void {
     for (const child of parent.children) {
       if (child instanceof FieldItem) {
-        WrapperAutoDetectionService.processFieldItem(child, targetDocument, namespaceMap, processedWrappers);
+        WrapperAutoDetectionService.processIdentifyingField(
+          child.field,
+          child,
+          targetDocument,
+          namespaceMap,
+          processedWrappers,
+        );
         WrapperAutoDetectionService.tryPersistNonAbstractSubstitution(child, targetDocument, namespaceMap);
+      } else if (child instanceof CopyOfSelector) {
+        const field = CopyOfPlacementService.getInlineField(child);
+        if (field) {
+          WrapperAutoDetectionService.processIdentifyingField(
+            field,
+            child,
+            targetDocument,
+            namespaceMap,
+            processedWrappers,
+          );
+        }
       }
       WrapperAutoDetectionService.walkMappingTree(child, targetDocument, namespaceMap, processedWrappers);
     }
   }
 
-  private static processFieldItem(
-    fieldItem: FieldItem,
+  private static processIdentifyingField(
+    startField: IField,
+    mappingItem: FieldItem | CopyOfSelector,
     targetDocument: IDocument,
     namespaceMap: Record<string, string>,
     processedWrappers: Set<IField>,
   ): void {
-    let identifyingField: IField = fieldItem.field;
+    let identifyingField: IField = startField;
     let current: IParentType = identifyingField.parent;
 
     while ('wrapperKind' in current && current.wrapperKind) {
       if (!processedWrappers.has(current)) {
-        processedWrappers.add(current);
+        let selected = false;
         if (current.wrapperKind === 'abstract') {
-          WrapperAutoDetectionService.tryAutoDetectAbstractSelection(
+          selected = WrapperAutoDetectionService.tryAutoDetectAbstractSelection(
             current,
             identifyingField,
-            fieldItem,
+            mappingItem,
             targetDocument,
             namespaceMap,
           );
         } else if (current.wrapperKind === 'choice') {
-          WrapperAutoDetectionService.tryAutoDetectChoiceSelection(
+          selected = WrapperAutoDetectionService.tryAutoDetectChoiceSelection(
             current,
             identifyingField,
-            fieldItem,
+            mappingItem,
             targetDocument,
             namespaceMap,
           );
         }
+        // Mark processed only once a selection is actually accepted. A rejected candidate (e.g. one
+        // inside a conditional wrapper) must not block a later, eligible candidate for the same member.
+        if (selected) processedWrappers.add(current);
       }
       identifyingField = current;
       current = current.parent;
@@ -102,18 +123,19 @@ export class WrapperAutoDetectionService {
   private static tryAutoDetectAbstractSelection(
     wrapperField: IField,
     candidateField: IField,
-    fieldItem: FieldItem,
+    mappingItem: FieldItem | CopyOfSelector,
     targetDocument: IDocument,
     namespaceMap: Record<string, string>,
-  ): void {
-    if (wrapperField.selectedMemberQName) return;
-    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return;
-    if (!WrapperAutoDetectionService.isUniqueInWrapper(candidateField, wrapperField)) return;
-    if (WrapperAutoDetectionService.hasConditionalWrapper(fieldItem)) return;
-    if (WrapperAutoDetectionService.hasExistingSubstitutionMetadata(wrapperField, targetDocument, namespaceMap)) return;
+  ): boolean {
+    if (wrapperField.selectedMemberQName) return false;
+    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return false;
+    if (!WrapperAutoDetectionService.isUniqueInWrapper(candidateField, wrapperField)) return false;
+    if (WrapperAutoDetectionService.hasConditionalWrapper(mappingItem)) return false;
+    if (WrapperAutoDetectionService.hasExistingSubstitutionMetadata(wrapperField, targetDocument, namespaceMap))
+      return false;
 
     wrapperField.selectedMemberQName = new QName(candidateField.namespaceURI, candidateField.name);
-    fieldItem.isUserCreated = true;
+    if (mappingItem instanceof FieldItem) mappingItem.isUserCreated = true;
 
     ensureNamespaceRegistered(candidateField.namespaceURI, namespaceMap, candidateField.namespacePrefix ?? undefined);
     ensureNamespaceRegistered(wrapperField.namespaceURI, namespaceMap, wrapperField.namespacePrefix ?? undefined);
@@ -126,26 +148,27 @@ export class WrapperAutoDetectionService {
     };
     targetDocument.definition.fieldSubstitutions ??= [];
     targetDocument.definition.fieldSubstitutions.push(entry);
+    return true;
   }
 
   private static tryAutoDetectChoiceSelection(
     wrapperField: IField,
     memberField: IField,
-    fieldItem: FieldItem,
+    mappingItem: FieldItem | CopyOfSelector,
     targetDocument: IDocument,
     namespaceMap: Record<string, string>,
-  ): void {
-    if (wrapperField.selectedMemberIndex !== undefined) return;
-    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return;
-    if (!WrapperAutoDetectionService.isUniqueInWrapper(memberField, wrapperField)) return;
-    if (WrapperAutoDetectionService.hasConditionalWrapper(fieldItem)) return;
-    if (WrapperAutoDetectionService.hasExistingChoiceMetadata(wrapperField, targetDocument, namespaceMap)) return;
+  ): boolean {
+    if (wrapperField.selectedMemberIndex !== undefined) return false;
+    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return false;
+    if (!WrapperAutoDetectionService.isUniqueInWrapper(memberField, wrapperField)) return false;
+    if (WrapperAutoDetectionService.hasConditionalWrapper(mappingItem)) return false;
+    if (WrapperAutoDetectionService.hasExistingChoiceMetadata(wrapperField, targetDocument, namespaceMap)) return false;
 
     const memberIndex = wrapperField.fields.indexOf(memberField);
-    if (memberIndex < 0) return;
+    if (memberIndex < 0) return false;
 
     wrapperField.selectedMemberIndex = memberIndex;
-    fieldItem.isUserCreated = true;
+    if (mappingItem instanceof FieldItem) mappingItem.isUserCreated = true;
 
     const schemaPath = SchemaPathService.build(wrapperField, namespaceMap);
     const entry: IChoiceSelection = {
@@ -154,6 +177,7 @@ export class WrapperAutoDetectionService {
     };
     targetDocument.definition.choiceSelections ??= [];
     targetDocument.definition.choiceSelections.push(entry);
+    return true;
   }
 
   /**

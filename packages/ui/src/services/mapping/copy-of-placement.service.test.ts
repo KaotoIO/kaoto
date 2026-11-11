@@ -4,7 +4,15 @@ import {
   DocumentDefinitionType,
   DocumentType,
 } from '../../models/datamapper/document';
-import { CopyOfSelector, FieldItem, MappingTree, OtherwiseItem, WhenItem } from '../../models/datamapper/mapping';
+import {
+  CopyOfSelector,
+  FieldItem,
+  ForEachGroupItem,
+  ForEachItem,
+  MappingTree,
+  OtherwiseItem,
+  WhenItem,
+} from '../../models/datamapper/mapping';
 import { getCopyOfSequenceOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { CopyOfPlacementService } from './copy-of-placement.service';
@@ -83,6 +91,39 @@ describe('CopyOfPlacementService with the CopyOfSequenceOrder schema', () => {
       copyOf.expression = '/ns0:Order/ShipTo';
 
       expect(CopyOfPlacementService.getAnchorFields(copyOf)).toEqual([]);
+    });
+
+    it('should return no anchor for a multi-field expression nested in a loop', () => {
+      const { root } = newRoot();
+      const forEach = new ForEachItem(root);
+      root.children.push(forEach);
+      const copyOf = new CopyOfSelector(forEach);
+      copyOf.expression = '/ns0:Order/ShipTo, /ns0:Order/Item';
+
+      expect(CopyOfPlacementService.getAnchorFields(copyOf)).toEqual([]);
+    });
+  });
+
+  describe('getInlineField() under a loop', () => {
+    it.each([
+      ['xsl:for-each', (root: FieldItem) => new ForEachItem(root)],
+      ['xsl:for-each-group', (root: FieldItem) => new ForEachGroupItem(root)],
+    ])('should not inline a named 1-to-1 path nested under %s', (_name, makeLoop) => {
+      const { root } = newRoot();
+      const loop = makeLoop(root);
+      root.children.push(loop);
+      const copyOf = new CopyOfSelector(loop);
+      copyOf.expression = '/ns0:Order/ShipTo';
+
+      expect(CopyOfPlacementService.getInlineField(copyOf)).toBeUndefined();
+    });
+
+    it('should inline the same named 1-to-1 path when there is no enclosing loop', () => {
+      const { root } = newRoot();
+      const copyOf = new CopyOfSelector(root);
+      copyOf.expression = '/ns0:Order/ShipTo';
+
+      expect(CopyOfPlacementService.getInlineField(copyOf)?.name).toBe('ShipTo');
     });
   });
 });

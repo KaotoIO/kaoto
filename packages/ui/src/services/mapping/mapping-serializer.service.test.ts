@@ -2597,6 +2597,117 @@ describe('MappingSerializerService', () => {
       });
     });
 
+    describe('sortMappingItem comparator fixes', () => {
+      it('anchors an xsl:if wrapping only a multi-field copy-of on its earliest referenced field', () => {
+        const xslt = wrap(
+          `${valueOf('Id')}${valueOf('TotalAmount')}` +
+            `<xsl:if test="/ns0:Order/Id"><xsl:copy-of select="/ns0:Order/ShipTo, /ns0:Order/TotalAmount"/></xsl:if>`,
+        );
+        const { tree } = load(xslt);
+        const out = serialize(tree);
+        // ShipTo (schema index 1) is the earliest field the copy-of names, so the xsl:if should sort
+        // before TotalAmount (index 3) instead of always last, even though getInstructionFields alone
+        // (inline-only) would see no fields in this xsl:if at all.
+        expectAscending(order(out, '<Id', '<xsl:if', '<TotalAmount'));
+      });
+
+      it('anchors an xsl:choose/xsl:when wrapping only a multi-field copy-of on its earliest referenced field', () => {
+        const xslt = wrap(
+          `${valueOf('Id')}${valueOf('TotalAmount')}` +
+            `<xsl:choose><xsl:when test="/ns0:Order/Id">` +
+            `<xsl:copy-of select="/ns0:Order/ShipTo, /ns0:Order/TotalAmount"/>` +
+            `</xsl:when></xsl:choose>`,
+        );
+        const { tree } = load(xslt);
+        const out = serialize(tree);
+        // Same as the xsl:if case above, but exercising collectInstructionFields's ChooseItem/WhenItem
+        // recursion branch specifically, to confirm the copyOfFields callback threads through it too.
+        expectAscending(order(out, '<Id', '<xsl:choose', '<TotalAmount'));
+      });
+
+      it('serializes two sibling xsl:if wrapping copy-ofs anchored on different fields in schema order', () => {
+        const xslt = wrap(
+          `<xsl:if test="/ns0:Order/Id"><xsl:copy-of select="/ns0:Order/TotalAmount"/></xsl:if>` +
+            `<xsl:if test="/ns0:Order/Id"><xsl:copy-of select="/ns0:Order/ShipTo"/></xsl:if>`,
+        );
+        const { tree } = load(xslt);
+        const out = serialize(tree);
+        // Authored TotalAmount-if first, ShipTo-if second; ShipTo (schema index 1) sorts before
+        // TotalAmount (schema index 3) once the ifs are compared by the field each anchors on.
+        expectAscending(order(out, 'select="/ns0:Order/ShipTo"', 'select="/ns0:Order/TotalAmount"'));
+      });
+
+      it('keeps sibling xsl:when branches in authored order when they map different fields', () => {
+        const doc = createOrderDoc();
+        const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+        const orderItem = new FieldItem(tree, doc.fields[0]);
+        tree.children.push(orderItem);
+        const choose = new ChooseItem(orderItem);
+        orderItem.children.push(choose);
+
+        // when1 maps TotalAmount (schema index 3), when2 maps ShipTo (schema index 1) — the opposite
+        // of schema order, so a byFields-based reorder would swap them if the WhenItem guard were
+        // missing or misplaced.
+        const when1 = new WhenItem(choose);
+        when1.expression = "/ns0:Order/Id = 'first'";
+        const totalAmountField = doc.fields[0].fields.find((f) => f.name === 'TotalAmount')!;
+        when1.children.push(new FieldItem(when1, totalAmountField));
+        choose.children.push(when1);
+
+        const when2 = new WhenItem(choose);
+        when2.expression = "/ns0:Order/Id = 'second'";
+        const shipToField = doc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        when2.children.push(new FieldItem(when2, shipToField));
+        choose.children.push(when2);
+
+        const out = MappingSerializerService.serialize(tree, new Map());
+        expectAscending(order(out, 'first', 'second'));
+      });
+
+      it('keeps an authored xsl:value-of before an unanchored sibling copy-of', () => {
+        const doc = createOrderDoc();
+        const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+        const itemField = doc.fields[0].fields.find((f) => f.name === 'Item')!;
+        const orderItem = new FieldItem(tree, doc.fields[0]);
+        tree.children.push(orderItem);
+        const item = new FieldItem(orderItem, itemField);
+        orderItem.children.push(item);
+
+        const valueOf = new ValueOfSelector(item);
+        valueOf.expression = '/ns0:Order/Item/Title';
+        const copyOf = new CopyOfSelector(item);
+        copyOf.expression = '/ns0:Order/Item/node()';
+        // Authored value-of first, copy-of second — neither resolves a field (node() is unanchored),
+        // so compareMappingItemFields ties at 0 for both the old and new comparator; only the C2 gate
+        // decides whether the leftover tie-break is allowed to still reorder them.
+        item.children.push(valueOf, copyOf);
+
+        const out = MappingSerializerService.serialize(tree, new Map());
+        expectAscending(order(out, 'xsl:value-of', 'xsl:copy-of'));
+      });
+
+      it('still sorts a copy-of before a sibling field item it shares its anchor with (regression guard)', () => {
+        const doc = createOrderDoc();
+        const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+        const orderItem = new FieldItem(tree, doc.fields[0]);
+        tree.children.push(orderItem);
+
+        const shipToField = doc.fields[0].fields.find((f) => f.name === 'ShipTo')!;
+        // Authored field item first, copy-of second — the copy-of's first anchor (ShipTo) is the same
+        // field the sibling FieldItem is for, so compareMappingItemFields ties and the pre-existing
+        // tie-break ("a copy-of anchored on the same first field as a field item comes first") must
+        // still move it ahead of the field item despite being authored after it.
+        const shipToItem = new FieldItem(orderItem, shipToField);
+        orderItem.children.push(shipToItem);
+        const copyOf = new CopyOfSelector(orderItem);
+        copyOf.expression = '/ns0:Order/ShipTo, /ns0:Order/TotalAmount';
+        orderItem.children.push(copyOf);
+
+        const out = MappingSerializerService.serialize(tree, new Map());
+        expectAscending(order(out, 'ns0:Order/ShipTo, ', '<ShipTo'));
+      });
+    });
+
     it('keeps an empty copy-of as the first child on the same field across reloads', () => {
       const xslt = wrap(`${valueOf('Id')}<ShipTo xmlns=""><xsl:copy-of select=""/></ShipTo>${valueOf('TotalAmount')}`);
       const first = serialize(load(xslt).tree);
