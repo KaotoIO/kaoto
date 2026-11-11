@@ -3,6 +3,7 @@ import { InfraRunningServiceDetails, InfraServiceDefinition } from '../../execut
 import { CamelCommandAPI } from '../../executors/api/CamelCommandAPI';
 import { KaotoOutputChannel } from '../../extension/KaotoOutputChannel';
 import { RunningInfrastructureService } from './InfrastructureItem';
+import { createExternalService, mergeCliDetails } from './InfrastructureServiceDetails';
 import { DockerErrorDetector } from '../../utils/DockerErrorDetector';
 
 /**
@@ -177,37 +178,16 @@ export class InfrastructureServiceManager implements Disposable {
 				}
 
 				// Update service details but preserve isExternal flag and other managed properties
-				this.runningServices.set(name, {
-					...currentService,
-					description: cliService.description ?? currentService.description,
-					port: cliService.port ?? currentService.port,
-					url: cliService.url ?? currentService.url,
-					// No fallback: a service restarted without its UI must lose the stale URL
-					uiUrl: cliService.uiUrl,
-					uiSupported: cliService.uiSupported ?? currentService.uiSupported,
-					status: 'running',
-					// Keep isExternal as it was - don't change managed services to external
-				});
+				this.runningServices.set(name, mergeCliDetails(currentService, cliService));
 				changed = true;
 			}
 
 			// Register new external services not yet tracked
 			for (const [name, cliService] of runningByName.entries()) {
 				if (!this.runningServices.has(name)) {
-					const terminalName = `${cliService.name} (external)`;
-					this.runningServices.set(name, {
-						name: cliService.name,
-						description: cliService.description,
-						port: cliService.port,
-						url: cliService.url,
-						uiUrl: cliService.uiUrl,
-						uiSupported: cliService.uiSupported,
-						args: [],
-						terminalName: terminalName,
-						status: 'running',
-						isExternal: true,
-					});
-					this.terminalNameToServiceName.set(terminalName, name);
+					const externalService = createExternalService(cliService);
+					this.runningServices.set(name, externalService);
+					this.terminalNameToServiceName.set(externalService.terminalName, name);
 					changed = true;
 					KaotoOutputChannel.logInfo(`[InfrastructureServiceManager] Discovered external service: ${name}`);
 				}
@@ -249,13 +229,7 @@ export class InfrastructureServiceManager implements Disposable {
 					return;
 				}
 
-				this.runningServices.set(name, {
-					...currentService,
-					description: cliService.description ?? currentService.description,
-					port: cliService.port ?? currentService.port,
-					url: cliService.url ?? currentService.url,
-					status: 'running',
-				});
+				this.runningServices.set(name, mergeCliDetails(currentService, cliService));
 				this.onServiceChange();
 				KaotoOutputChannel.logInfo(`[InfrastructureServiceManager] Task ended for "${name}" but the infrastructure service is still running.`);
 				return;
