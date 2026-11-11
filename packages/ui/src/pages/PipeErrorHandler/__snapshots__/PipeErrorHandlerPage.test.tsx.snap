@@ -230,7 +230,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                     <span>
                       None
                        
-                      <div
+                      <span
                         class="cds--tag"
                         id="tag-id-_r_ID_"
                       >
@@ -241,7 +241,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                         >
                           0
                         </span>
-                      </div>
+                      </span>
                     </span>
                   </label>
                   <button
@@ -274,7 +274,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                       <span>
                         None
                          
-                        <div
+                        <span
                           class="cds--tag"
                           id="tag-id-_r_ID_"
                         >
@@ -285,7 +285,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
                           >
                             0
                           </span>
-                        </div>
+                        </span>
                       </span>
                        
                       &lt;object&gt;
