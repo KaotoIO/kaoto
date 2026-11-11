@@ -8,23 +8,29 @@ import { ControllerService } from '../../Canvas/controller.service';
 import { withNodeContextMenu } from './withNodeContextMenu';
 
 describe('withNodeContextMenu', () => {
-  const itemA = (
-    <ContextMenuItem key="item-a" data-testid="item-a">
-      Item A
+  const createItem = (id: string, label: string) => (
+    <ContextMenuItem key={id} data-testid={id}>
+      {label}
     </ContextMenuItem>
   );
-  const itemB = (
-    <ContextMenuItem key="item-b" data-testid="item-b">
-      Item B
-    </ContextMenuItem>
-  );
+  const itemA = createItem('item-a', 'Item A');
+  const itemB = createItem('item-b', 'Item B');
 
-  const Target: FunctionComponent<WithContextMenuProps> = ({ onContextMenu, contextMenuOpen }) => (
-    <g data-testid="target" data-menu-open={String(contextMenuOpen)} onContextMenu={onContextMenu} />
+  interface TargetProps extends WithContextMenuProps {
+    count?: number;
+  }
+
+  const Target: FunctionComponent<TargetProps> = ({ onContextMenu, contextMenuOpen, count }) => (
+    <g
+      data-testid="target"
+      data-menu-open={String(contextMenuOpen)}
+      data-count={count !== undefined ? String(count) : undefined}
+      onContextMenu={onContextMenu}
+    />
   );
 
   /** A real controller holding one node, exposed through `ElementContext` like the canvas does */
-  const renderWithMenu = (actions: Mock) => {
+  const renderWithMenu = (actions: Mock, initialProps: { count?: number } = {}) => {
     const controller = ControllerService.createController();
     controller.fromModel(
       {
@@ -36,20 +42,27 @@ describe('withNodeContextMenu', () => {
     const element = controller.getNodeById('node-1')!;
     const WithMenu = withNodeContextMenu(actions)(Target);
 
-    render(
+    const renderResult = render(
       <TopologyElementWrapper controller={controller} element={element}>
-        <WithMenu />
+        <WithMenu {...initialProps} />
       </TopologyElementWrapper>,
     );
 
-    return { element, target: screen.getByTestId('target') };
+    const rerender = (newProps: { count?: number } = {}) => {
+      renderResult.rerender(
+        <TopologyElementWrapper controller={controller} element={element}>
+          <WithMenu {...newProps} />
+        </TopologyElementWrapper>,
+      );
+    };
+
+    return { element, target: screen.getByTestId('target'), rerender };
   };
 
   /** Lets the animation frame that opens the menu, and any follow-up renders, run */
   const settle = async () => {
     await act(async () => {
-      await Promise.resolve();
-      await Promise.resolve();
+      await new Promise((resolve) => requestAnimationFrame(resolve));
     });
   };
 
@@ -67,15 +80,19 @@ describe('withNodeContextMenu', () => {
   });
 
   it('keeps the same item element in the DOM from the moment it appears until the menu closes', async () => {
-    const actions = vi.fn().mockReturnValue([itemA]);
-    const { target } = renderWithMenu(actions);
+    const actions = vi.fn().mockImplementation(() => [createItem('item-a', 'Item A')]);
+    const { target, rerender } = renderWithMenu(actions, { count: 1 });
 
     fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
     const item = await screen.findByTestId('item-a');
-    await settle();
+    expect(target).toHaveAttribute('data-count', '1');
+
+    rerender({ count: 2 });
     await settle();
 
+    expect(target).toHaveAttribute('data-count', '2');
     expect(screen.getByTestId('item-a')).toBe(item);
+    expect(actions).toHaveBeenCalledTimes(1);
 
     fireEvent.click(within(item).getByRole('menuitem'));
     expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
