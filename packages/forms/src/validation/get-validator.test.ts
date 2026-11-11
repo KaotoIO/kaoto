@@ -30,6 +30,23 @@ describe('getValidator', () => {
     expect(isValid).toBe(false);
   });
 
+  it('should ignore the custom formats without logging a warning', () => {
+    const schemaWithFormats: JSONSchema4 = {
+      type: 'object',
+      properties: {
+        handler: { type: 'string', format: 'bean:org.apache.camel.spi.ExceptionHandler' },
+        secret: { type: 'string', format: 'password' },
+      },
+    };
+
+    const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const validator = getValidator(schemaWithFormats);
+
+    expect(validator?.({ handler: '#myHandler', secret: 'value' })).toBe(true);
+    expect(consoleWarnSpy).not.toHaveBeenCalled();
+    consoleWarnSpy.mockRestore();
+  });
+
   it('should return undefined when schema is invalid', () => {
     const invalidSchema = {
       type: 'object',
