@@ -114,7 +114,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
                 <span>
                   Annotations
                    
-                  <div
+                  <span
                     class="cds--tag"
                     id="tag-id-_r_ID_"
                   >
@@ -125,7 +125,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
                     >
                       0
                     </span>
-                  </div>
+                  </span>
                 </span>
               </label>
               <button
@@ -158,7 +158,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
                   <span>
                     Annotations
                      
-                    <div
+                    <span
                       class="cds--tag"
                       id="tag-id-_r_ID_"
                     >
@@ -169,7 +169,7 @@ exports[`MetadataPage > renders the KaotoForm when the resource type is supporte
                       >
                         0
                       </span>
-                    </div>
+                    </span>
                   </span>
                    
                   &lt;object&gt;
@@ -1403,7 +1403,7 @@ Applied only if Name is not specified. More info: https://git.k8s.io/community/c
                 <span>
                   Labels
                    
-                  <div
+                  <span
                     class="cds--tag"
                     id="tag-id-_r_ID_"
                   >
@@ -1414,7 +1414,7 @@ Applied only if Name is not specified. More info: https://git.k8s.io/community/c
                     >
                       0
                     </span>
-                  </div>
+                  </span>
                 </span>
               </label>
               <button
@@ -1447,7 +1447,7 @@ Applied only if Name is not specified. More info: https://git.k8s.io/community/c
                   <span>
                     Labels
                      
-                    <div
+                    <span
                       class="cds--tag"
                       id="tag-id-_r_ID_"
                     >
@@ -1458,7 +1458,7 @@ Applied only if Name is not specified. More info: https://git.k8s.io/community/c
                       >
                         0
                       </span>
-                    </div>
+                    </span>
                   </span>
                    
                   &lt;object&gt;
