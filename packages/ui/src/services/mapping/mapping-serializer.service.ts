@@ -11,6 +11,7 @@ import {
   PrimitiveDocument,
 } from '../../models/datamapper/document';
 import {
+  CopyOfSelector,
   FieldItem,
   InstructionItem,
   MappingItem,
@@ -79,6 +80,7 @@ export class MappingSerializerService {
 
   private static getMappingItemFields(item: MappingItem): IField[] {
     if (item instanceof FieldItem) return [item.field];
+    if (item instanceof CopyOfSelector) return CopyOfPlacementService.getAnchorFields(item);
     if (item instanceof InstructionItem) return MappingService.getInstructionFields(item);
     return [];
   }
@@ -159,7 +161,11 @@ export class MappingSerializerService {
     const leftFields = MappingSerializerService.getMappingItemFields(left);
     const rightFields = MappingSerializerService.getMappingItemFields(right);
 
-    return MappingSerializerService.compareMappingItemFields(leftFields, rightFields);
+    const byFields = MappingSerializerService.compareMappingItemFields(leftFields, rightFields);
+    if (byFields !== 0) return byFields;
+    // A copy-of anchored on the same first field as a field item comes first: it brings the container
+    // the field item would otherwise be written into. The canvas renders them in the same order.
+    return Number(right instanceof CopyOfSelector) - Number(left instanceof CopyOfSelector);
   }
 
   /**
@@ -346,6 +352,7 @@ export class MappingSerializerService {
   ): DeserializeResult {
     mappingTree.children = [];
     mappingTree.globalVariables = [];
+    mappingTree.targetDocument = targetDocument;
     const messages: SendAlertProps[] = [];
     const xsltDoc = new DOMParser().parseFromString(xslt, 'application/xml');
     // Sanitized here rather than by each caller: a setting the target type does not support must

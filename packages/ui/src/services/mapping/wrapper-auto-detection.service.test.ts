@@ -11,7 +11,6 @@ import {
 } from '../../models/datamapper/document';
 import {
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachItem,
   IfItem,
@@ -759,11 +758,18 @@ describe('WrapperAutoDetectionService', () => {
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(true);
       });
 
-      it('should return true for a CopyOfType.CONTAINER_NODE selector despite its /node() suffix', () => {
-        const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+      it('should return true for a copy-of selector despite its /node() suffix', () => {
+        const selector = new CopyOfSelector(fieldItem);
         selector.expression = `${LOOP_NOTE_PATH}/node()`;
         fieldItem.children.push(selector);
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(true);
+      });
+
+      it('should return false for a bare copy-of when its field already had mapping content', () => {
+        // A copy-of standing for Item/Note on the loop's element, with the field's own item gone.
+        const copyOf = new CopyOfSelector(fieldItem.parent);
+        copyOf.expression = LOOP_NOTE_PATH;
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(copyOf, sourceField, true)).toBe(false);
       });
 
       it('should return false when the selector already carries another source', () => {
@@ -994,11 +1000,11 @@ describe('WrapperAutoDetectionService', () => {
         expect(matched).toBe(ifItem.children[0]);
       });
 
-      it('should strip the CopyOfType.CONTAINER_NODE /node() suffix before comparing', () => {
+      it('should strip the /node() suffix before comparing', () => {
         const ifItem = new IfItem(tree);
         ifItem.expression = NOTE_PATH;
         const fieldItem = new FieldItem(ifItem, targetField);
-        const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+        const selector = new CopyOfSelector(fieldItem);
         selector.expression = `${NOTE_PATH}/node()`;
         fieldItem.children.push(selector);
         ifItem.children.push(fieldItem);

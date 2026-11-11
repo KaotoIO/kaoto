@@ -20,6 +20,7 @@ import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.mo
 import { ensureNamespaceRegistered, formatWithPrefix } from '../namespace-util';
 import { SchemaPathService } from '../schema-path.service';
 import { XPathService } from '../xpath/xpath.service';
+import { CopyOfPlacementService } from './copy-of-placement.service';
 
 /**
  * Derives and repairs target-side wrapper state from the mapping tree: abstract substitutions,
@@ -270,10 +271,22 @@ export class WrapperAutoDetectionService {
    * @returns `true` to wrap the field in an `xsl:if` guard
    */
   static shouldWrapWithOptionalGuard(
-    fieldItem: FieldItem,
+    fieldItem: FieldItem | CopyOfSelector,
     sourceField: PrimitiveDocument | IField,
     hadExistingContent: boolean,
   ): boolean {
+    if (fieldItem instanceof CopyOfSelector) {
+      if (hadExistingContent) return false;
+      const sourcePath = XPathService.toPathExpression(
+        fieldItem.mappingTree.namespaceMap,
+        sourceField,
+        fieldItem.parent.contextPath,
+      );
+      return (
+        !!WrapperAutoDetectionService.getHiddenGuardSelector(fieldItem) &&
+        WrapperAutoDetectionService.isOptionalSourcePath(sourceField, sourcePath)
+      );
+    }
     if (fieldItem.parent instanceof IfItem || fieldItem.field.minOccurs !== 0) return false;
     const sourcePath = XPathService.toPathExpression(
       fieldItem.mappingTree.namespaceMap,
@@ -292,16 +305,22 @@ export class WrapperAutoDetectionService {
   /**
    * The target-side half of "can this field carry a see-through guard": not already under an
    * `IfItem`, optional on the target, and mapped by a single selector whose source path is simple —
-   * the shape {@link matchSimpleOptionalGuard} recognises once the guard is in place. Shared by
-   * {@link shouldWrapWithOptionalGuard} (drag-and-drop) and the "Add optional guard" menu action
-   * ({@link TargetRenderService.canAddOptionalGuard}), which `MappingActionService.addOptionalGuard`
-   * re-checks before wrapping.
-   * @param fieldItem - the target field item to inspect
+   * the shape {@link matchSimpleOptionalGuard} recognises once the guard is in place. A bare
+   * {@link CopyOfSelector} stands for the field it is 1-to-1 with and is its own selector.
+   * Shared by {@link shouldWrapWithOptionalGuard} (drag-and-drop) and the "Add optional guard" menu
+   * action ({@link TargetRenderService.canAddOptionalGuard}), which
+   * `MappingActionService.addOptionalGuard` re-checks before wrapping.
+   * @param item - the target field item, or copy-of drawn on a field row, to inspect
    * @returns the selector whose `sourcePath` becomes the guard's `test`, or `undefined`
    */
-  static getHiddenGuardSelector(fieldItem: FieldItem): ValueOfSelector | CopyOfSelector | undefined {
-    if (fieldItem.parent instanceof IfItem || fieldItem.field.minOccurs !== 0) return undefined;
-    const selector = fieldItem.soleSelector;
+  static getHiddenGuardSelector(item: FieldItem | CopyOfSelector): ValueOfSelector | CopyOfSelector | undefined {
+    if (item.parent instanceof IfItem) return undefined;
+    if (item instanceof CopyOfSelector) {
+      const field = CopyOfPlacementService.getInlineField(item);
+      return field?.minOccurs === 0 && XPathService.isSimplePath(item.sourcePath) ? item : undefined;
+    }
+    if (item.field.minOccurs !== 0) return undefined;
+    const selector = item.soleSelector;
     return selector && XPathService.isSimplePath(selector.sourcePath) ? selector : undefined;
   }
 
@@ -359,8 +378,8 @@ export class WrapperAutoDetectionService {
    * - `test` is a simple path (no operators, functions, or predicates)
    * - that `FieldItem` has exactly one `ValueOfSelector`/`CopyOfSelector` child (not
    *   recursive `FieldItem` children)
-   * - the selector's source path matches `test` (a `CopyOfType.CONTAINER_NODE`
-   *   selector's trailing `/node()` is stripped before comparing)
+   * - the selector's source path matches `test` (a copy-of's trailing `/node()`
+   *   is stripped before comparing)
    *
    * This is the target-side, structural half of the see-through rule only: it does not resolve the
    * source field the test refers to. {@link TargetRenderService.computeSeeThroughField} adds that
@@ -368,12 +387,21 @@ export class WrapperAutoDetectionService {
    * @param ifItem - the `IfItem` to test
    * @param test - the test to check the shape against; defaults to the `IfItem`'s own expression,
    *   and lets a caller ask about a candidate test without writing it to the model
-   * @returns the matched inner `FieldItem`, or `undefined`
+   * @returns the matched inner `FieldItem` or bare `CopyOfSelector`, or `undefined`
    */
-  static matchSimpleOptionalGuard(ifItem: IfItem, test: string = ifItem.expression): FieldItem | undefined {
+  static matchSimpleOptionalGuard(
+    ifItem: IfItem,
+    test: string = ifItem.expression,
+  ): FieldItem | CopyOfSelector | undefined {
     if (ifItem.children.length !== 1) return undefined;
-    const fieldItem = ifItem.children[0];
-    if (!(fieldItem instanceof FieldItem)) return undefined;
+    const guarded = ifItem.children[0];
+    if (guarded instanceof CopyOfSelector) {
+      const field = CopyOfPlacementService.getInlineField(guarded);
+      if (field?.minOccurs !== 0 || guarded.sourcePath !== test) return undefined;
+      return XPathService.isSimplePath(test) ? guarded : undefined;
+    }
+    if (!(guarded instanceof FieldItem)) return undefined;
+    const fieldItem = guarded;
     if (fieldItem.field.minOccurs !== 0) return undefined;
 
     const selector = fieldItem.soleSelector;

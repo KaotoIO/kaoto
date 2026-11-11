@@ -2,7 +2,6 @@ import { BaseField, IField, IParentType, PrimitiveDocument } from '../../models/
 import {
   ChooseItem,
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -10,7 +9,6 @@ import {
   IfItem,
   MappingItem,
   MappingParentType,
-  MappingTree,
   OtherwiseItem,
   SortItem,
   UnknownMappingItem,
@@ -26,7 +24,6 @@ import { FROM_JSON_SOURCE_SUFFIX } from '../document/json-schema/json-schema-doc
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
 import { formatQNameWithPrefix, getPrefixForNamespaceURI } from '../namespace-util';
 import { CopyOfPlacementService } from './copy-of-placement.service';
-import { MappingService } from './mapping.service';
 import { MappingSerializerJsonAddon, TO_JSON_TARGET_VARIABLE } from './mapping-serializer-json-addon';
 
 /** Handles {@link ValueOfSelector} — maps to `xsl:value-of` or `xsl:text`. */
@@ -64,15 +61,10 @@ export class ValueOfSelectorHandler implements XsltItemHandler<ValueOfSelector> 
 /**
  * Handles {@link CopyOfSelector} — maps to `xsl:copy-of`.
  *
- * Where the copy-of lands is decided by {@link CopyOfPlacementService.classify}, the same check the
- * canvas uses. A copy-of that is 1-to-1 with a child element of the surrounding field is rebuilt as
- * an inline `CONTAINER` copy-of inside that child's {@link FieldItem} (the child's wrapper element
- * was skipped during serialization), so it keeps the child's `xs:sequence` position. This also holds
- * when the copy-of sits under an instruction such as `xsl:if` or `xsl:for-each`; `.` inside a
- * `for-each` is resolved through the loop's `select`. Every other copy-of (empty, wildcard,
- * `node()`, union, variable, function, attribute, unmatched path) stays a separate
- * `CONTAINER_NODE` item. No field is ever created for it, because the target document must not
- * gain fields the schema does not declare.
+ * A copy-of is always read back as a standalone selector under the item that contains it. Whether it
+ * is drawn on the row of the child field it is 1-to-1 with, or as a node of its own, is decided by
+ * {@link CopyOfPlacementService.classifyItem} when the canvas and the serializer need it, so no
+ * field is ever created for it and the target document does not gain fields the schema does not declare.
  */
 export class CopyOfSelectorHandler implements XsltItemHandler<MappingItem> {
   readonly itemClass = CopyOfSelector;
@@ -88,36 +80,17 @@ export class CopyOfSelectorHandler implements XsltItemHandler<MappingItem> {
 
   deserialize(
     element: Element,
-    parentField: IParentType,
+    _parentField: IParentType,
     parentMapping: MappingParentType,
   ): DeserializeItemResult<MappingItem> {
-    const selectExpr = element.getAttribute('select') || '';
-    // Same lookup as FieldItemHandler.serialize, so a copy-of is classified identically on load and save.
-    const namespaceMap = (parentMapping instanceof MappingTree ? parentMapping : parentMapping.mappingTree)
-      .namespaceMap;
-    const placement =
-      CopyOfPlacementService.canHostFieldItem(parentMapping) && !(parentField instanceof PrimitiveDocument)
-        ? CopyOfPlacementService.classify(selectExpr, parentField, (prefix) => namespaceMap[prefix], parentMapping)
-        : undefined;
-
-    if (placement?.kind !== 'child') {
-      const selector = new CopyOfSelector(parentMapping, CopyOfType.CONTAINER_NODE);
-      selector.expression = selectExpr;
-      return { mappingItem: selector, fieldItem: null };
-    }
-
-    const fieldItem = new FieldItem(parentMapping, placement.field);
-    const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
-    selector.expression = selectExpr;
-    fieldItem.children.push(selector);
-    return { mappingItem: fieldItem, fieldItem: placement.field };
+    const selector = new CopyOfSelector(parentMapping);
+    selector.expression = element.getAttribute('select') || '';
+    return { mappingItem: selector, fieldItem: null };
   }
 }
 
 /**
  * Handles {@link FieldItem} — serializes target element or `xsl:attribute`, deserializes `xsl:attribute`.
- * When the sole child is a CONTAINER {@link CopyOfSelector}, the target element is skipped
- * during serialization (copy-of appears directly under the parent).
  */
 export class FieldItemHandler implements XsltItemHandler<FieldItem> {
   readonly itemClass = FieldItem;
@@ -132,19 +105,6 @@ export class FieldItemHandler implements XsltItemHandler<FieldItem> {
       parent.appendChild(xslAttribute);
       return xslAttribute;
     }
-
-    // A CONTAINER copy-of brings the element itself, so the wrapper is skipped — but only when
-    // nothing else contributes content. `producesOutput` looks through instruction wrappers:
-    // an auto-optional guard sits between the field and its content, and a direct scan of
-    // `children` would report none and reparent that content into the grandparent.
-    const resolveNamespace = (prefix: string) => mapping.mappingTree.namespaceMap[prefix];
-    const ownCopyOfs = new Set<MappingItem>(
-      mapping.children.filter(
-        (c) => c instanceof CopyOfSelector && CopyOfPlacementService.selectsOwnField(c, mapping, resolveNamespace),
-      ),
-    );
-    const hasOtherContent = mapping.children.some((c) => !ownCopyOfs.has(c) && MappingService.producesOutput(c));
-    if (ownCopyOfs.size > 0 && !hasOtherContent) return parent;
 
     const jsonElement = MappingSerializerJsonAddon.populateFieldItem(parent, mapping);
     if (jsonElement) return jsonElement;

@@ -1,6 +1,7 @@
 import { IField } from '../../../models/datamapper/document';
 import {
   AddMappingNodeData,
+  CopyOfFieldNodeData,
   FieldItemNodeData,
   FieldNodeData,
   NodeData,
@@ -14,7 +15,10 @@ import { getOverrideDisplayInfo } from '../actions/FieldOverride/override-util';
 
 export const isFieldNode = (nodeData: NodeData): boolean => {
   return (
-    nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData || nodeData instanceof AddMappingNodeData
+    nodeData instanceof FieldNodeData ||
+    nodeData instanceof FieldItemNodeData ||
+    nodeData instanceof CopyOfFieldNodeData ||
+    nodeData instanceof AddMappingNodeData
   );
 };
 
@@ -127,7 +131,10 @@ export const prepareFieldDetails = (
 ): LabelValuePair[] => {
   const overrideDisplay = getOverrideDisplayInfo(field, namespaceMap);
   const effectiveMaxOccurs = getEffectiveMaxOccurs(field, nodeData);
-  const optionalGuard = nodeData instanceof FieldItemNodeData ? nodeData.autoOptionalIfItem : undefined;
+  const optionalGuard =
+    nodeData instanceof FieldItemNodeData || nodeData instanceof CopyOfFieldNodeData
+      ? nodeData.autoOptionalIfItem
+      : undefined;
 
   const rows = [
     { label: 'Category', value: field.type },

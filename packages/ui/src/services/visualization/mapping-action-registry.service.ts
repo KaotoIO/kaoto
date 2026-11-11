@@ -21,6 +21,7 @@ import {
 } from '../../models/datamapper/mapping-action';
 import {
   AddMappingNodeData,
+  CopyOfFieldNodeData,
   FieldItemNodeData,
   ForEachCapableNodeData,
   MappingNodeData,
@@ -60,6 +61,11 @@ export class MappingActionRegistryService {
 
   private static isUnselectedWrapperField(n: TargetNodeData): boolean {
     return VisualizationUtilService.isUnselectedChoiceField(n) || VisualizationUtilService.isUnselectedAbstractField(n);
+  }
+
+  /** A row that is a bare copy-of drawn on a field: it can be wrapped or removed but holds no children. */
+  private static isCopyOfRow(n: TargetNodeData): boolean {
+    return n instanceof CopyOfFieldNodeData;
   }
 
   private static mappingIsOneOf(...types: Array<abstract new (...args: never[]) => MappingItem>) {
@@ -116,6 +122,7 @@ export class MappingActionRegistryService {
       key: MappingActionKind.Delete,
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
+        if (n instanceof CopyOfFieldNodeData) return true;
         if (n instanceof FieldItemNodeData)
           return (
             (n.mapping instanceof FieldItem && n.mapping.isUserCreated) || MappingActionService.hasValueSelector(n)
@@ -168,6 +175,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
+        if (MappingActionRegistryService.isCopyOfRow(n)) return false;
         if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
         if (MappingActionRegistryService.isInVariable(n)) return false;
         // Check element-children constraint for both unmapped field nodes (TargetFieldNodeData)
@@ -202,6 +210,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
+        if (MappingActionRegistryService.isCopyOfRow(n)) return false;
         if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
         if (MappingActionRegistryService.isInVariable(n)) return false;
         if (!DocumentService.isCopyOfSupported(n.mappingTree?.documentDefinitionType)) return false;
@@ -248,7 +257,9 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) =>
         n instanceof AddMappingNodeData ||
-        (VisualizationUtilService.isFieldNode(n) && VisualizationUtilService.isCollectionField(n)),
+        (VisualizationUtilService.isFieldNode(n) &&
+          !MappingActionRegistryService.isCopyOfRow(n) &&
+          VisualizationUtilService.isCollectionField(n)),
     },
     {
       key: MappingActionKind.ForEachGroup,
@@ -261,7 +272,9 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) =>
         n instanceof AddMappingNodeData ||
-        (VisualizationUtilService.isFieldNode(n) && VisualizationUtilService.isCollectionField(n)),
+        (VisualizationUtilService.isFieldNode(n) &&
+          !MappingActionRegistryService.isCopyOfRow(n) &&
+          VisualizationUtilService.isCollectionField(n)),
     },
     {
       key: MappingActionKind.ForEachCurrentGroup,
@@ -274,7 +287,8 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
-        if (!VisualizationUtilService.isFieldNode(n) || !VisualizationUtilService.isCollectionField(n)) return false;
+        if (!VisualizationUtilService.isFieldNode(n) || MappingActionRegistryService.isCopyOfRow(n)) return false;
+        if (!VisualizationUtilService.isCollectionField(n)) return false;
         return MappingActionRegistryService.allowForEachCurrentGroup(n);
       },
     },
@@ -315,6 +329,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) =>
         !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        !MappingActionRegistryService.isCopyOfRow(n) &&
         (n instanceof AddMappingNodeData ||
           VisualizationUtilService.isFieldNode(n) ||
           MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n)),
@@ -330,6 +345,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) =>
         !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        !MappingActionRegistryService.isCopyOfRow(n) &&
         (n instanceof AddMappingNodeData ||
           VisualizationUtilService.isFieldNode(n) ||
           MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n)),
@@ -345,6 +361,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
+        if (MappingActionRegistryService.isCopyOfRow(n)) return false;
         if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
         const nodeTypeAllowed =
           VisualizationUtilService.isFieldNode(n) ||
@@ -364,6 +381,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) =>
         !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        !MappingActionRegistryService.isCopyOfRow(n) &&
         (VisualizationUtilService.isFieldNode(n) ||
           MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n)),
     },
@@ -378,6 +396,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) =>
         !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        !MappingActionRegistryService.isCopyOfRow(n) &&
         (VisualizationUtilService.isFieldNode(n) ||
           MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem, IfItem)(n)),
     },
@@ -391,6 +410,7 @@ export class MappingActionRegistryService {
       isAllowed: (n) => {
         if (n instanceof VariableNodeData) return false;
         if (n instanceof TargetDocumentNodeData) return false;
+        if (MappingActionRegistryService.isCopyOfRow(n)) return false;
         if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
         if (VisualizationUtilService.isFieldNode(n)) return DocumentService.hasChildren(n.field);
         return (
@@ -422,14 +442,16 @@ export class MappingActionRegistryService {
       apply: (n, { onUpdate }) => {
         if (VisualizationUtilService.isMappingNode(n) && n.mapping instanceof IfItem) {
           MappingActionService.duplicateIf(n);
-        } else if (VisualizationUtilService.isFieldNode(n)) {
+        } else if (VisualizationUtilService.isFieldNode(n) && !(n instanceof CopyOfFieldNodeData)) {
           MappingActionService.duplicateFieldNode(n);
         }
         onUpdate();
       },
       isAllowed: (n) => {
         if (VisualizationUtilService.isMappingNode(n) && n.mapping instanceof IfItem) return true;
-        if (VisualizationUtilService.isFieldNode(n)) return VisualizationUtilService.isCollectionField(n);
+        if (VisualizationUtilService.isFieldNode(n) && !MappingActionRegistryService.isCopyOfRow(n)) {
+          return VisualizationUtilService.isCollectionField(n);
+        }
         return false;
       },
     },
@@ -485,21 +507,27 @@ export class MappingActionRegistryService {
       testId: 'transformation-actions-remove-optional-guard',
       getLabel: () => 'Remove optional guard',
       apply: (n, { onUpdate }) => {
-        if (n instanceof FieldItemNodeData) MappingActionService.removeOptionalGuard(n);
+        if (n instanceof FieldItemNodeData || n instanceof CopyOfFieldNodeData) {
+          MappingActionService.removeOptionalGuard(n);
+        }
         onUpdate();
       },
-      isAllowed: (n) => n instanceof FieldItemNodeData && !!n.autoOptionalIfItem,
+      isAllowed: (n) => (n instanceof FieldItemNodeData || n instanceof CopyOfFieldNodeData) && !!n.autoOptionalIfItem,
     },
     {
       key: MappingActionKind.AddOptionalGuard,
       testId: 'transformation-actions-add-optional-guard',
       getLabel: () => 'Add optional guard',
       apply: (n, { onUpdate }) => {
-        if (n instanceof FieldItemNodeData) MappingActionService.addOptionalGuard(n);
+        if (n instanceof FieldItemNodeData || n instanceof CopyOfFieldNodeData) {
+          MappingActionService.addOptionalGuard(n);
+        }
         onUpdate();
       },
       isAllowed: (n) =>
-        n instanceof FieldItemNodeData && !n.autoOptionalIfItem && TargetRenderService.canAddOptionalGuard(n),
+        (n instanceof FieldItemNodeData || n instanceof CopyOfFieldNodeData) &&
+        !n.autoOptionalIfItem &&
+        TargetRenderService.canAddOptionalGuard(n),
     },
   ];
 

@@ -2,7 +2,6 @@ import { DocumentType, IDocument, IField, PrimitiveDocument } from '../../models
 import {
   ChooseItem,
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -30,6 +29,7 @@ import { DocumentService } from '../document/document.service';
 import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { ensureNamespaceRegistered } from '../namespace-util';
 import { XPathService } from '../xpath/xpath.service';
+import { CopyOfPlacementService } from './copy-of-placement.service';
 import { FieldMatchingService } from './field-matching.service';
 import { WrapperAutoDetectionService } from './wrapper-auto-detection.service';
 
@@ -74,6 +74,8 @@ export class MappingService {
     return mappings.filter((mapping) => {
       if (mapping instanceof FieldItem) {
         return mapping.field === field;
+      } else if (mapping instanceof CopyOfSelector) {
+        return CopyOfPlacementService.getInlineField(mapping) === field;
       } else if (mapping instanceof ValueSelector) {
         return false;
       } else if (mapping instanceof InstructionItem) {
@@ -84,12 +86,12 @@ export class MappingService {
     });
   }
 
-  private static getInstructionFieldItems(mapping: InstructionItem): FieldItem[] {
+  private static collectInstructionFields(mapping: InstructionItem): IField[] {
     if (mapping instanceof ChooseItem) {
       return [...mapping.when, mapping.otherwise].reduce((acc, branch) => {
-        branch && acc.push(...MappingService.getInstructionFieldItems(branch));
+        branch && acc.push(...MappingService.collectInstructionFields(branch));
         return acc;
-      }, [] as FieldItem[]);
+      }, [] as IField[]);
     } else if (
       mapping instanceof IfItem ||
       mapping instanceof WhenItem ||
@@ -99,24 +101,27 @@ export class MappingService {
     ) {
       return mapping.children.reduce((acc, child) => {
         if (child instanceof FieldItem) {
-          acc.push(child);
+          acc.push(child.field);
+        } else if (child instanceof CopyOfSelector) {
+          const field = CopyOfPlacementService.getInlineField(child);
+          field && acc.push(field);
         } else if (child instanceof InstructionItem) {
-          acc.push(...MappingService.getInstructionFieldItems(child));
+          acc.push(...MappingService.collectInstructionFields(child));
         }
         return acc;
-      }, [] as FieldItem[]);
+      }, [] as IField[]);
     }
     return [];
   }
 
   /**
    * Recursively unwraps nested instruction structures (choose/when/otherwise/if/foreach)
-   * to collect all referenced target fields.
+   * to collect all referenced target fields, including the field a copy-of is 1-to-1 with.
    * @param mapping - the instruction item to extract fields from
    * @returns all target fields found at any depth within the instruction
    */
   static getInstructionFields(mapping: InstructionItem): IField[] {
-    return MappingService.getInstructionFieldItems(mapping).map((item) => item.field);
+    return MappingService.collectInstructionFields(mapping);
   }
 
   /**
@@ -778,7 +783,7 @@ export class MappingService {
     sourceField: PrimitiveDocument | IField,
     hadExistingContent: boolean,
   ): IfItem | undefined {
-    if (!(fieldItem instanceof FieldItem)) return undefined;
+    if (!(fieldItem instanceof FieldItem || fieldItem instanceof CopyOfSelector)) return undefined;
     if (!WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, hadExistingContent)) {
       return undefined;
     }
@@ -813,23 +818,20 @@ export class MappingService {
 
   /**
    * Like {@link mapToField} but creates a {@link CopyOfSelector} for container copy-of scenarios.
+   * @param source - the source field to copy
+   * @param host - the mapping item that receives the copy-of: the target {@link FieldItem} when the copy-of
+   * goes inside the target element, or the field's output parent when it stands for the element itself
+   * @param copyChildrenOnly - appends `/node()` so `xsl:copy-of` copies the children of the source and not
+   * the wrapper element, which a name mismatch with the target (`xs:anyType`) requires
    */
-  static mapToFieldWithValueType(
-    source: PrimitiveDocument | IField,
-    targetFieldItem: MappingItem,
-    valueType: CopyOfType,
-  ) {
-    let copyOfSelector = targetFieldItem?.children.find((child) => child instanceof CopyOfSelector) as
-      | CopyOfSelector
-      | undefined;
+  static mapToFieldWithCopyOf(source: PrimitiveDocument | IField, host: MappingParentType, copyChildrenOnly = false) {
+    let copyOfSelector = host.children.find((child) => child instanceof CopyOfSelector) as CopyOfSelector | undefined;
     if (!copyOfSelector) {
-      copyOfSelector = new CopyOfSelector(targetFieldItem, valueType);
-      targetFieldItem.children.push(copyOfSelector);
-    } else {
-      copyOfSelector.valueType = valueType;
+      copyOfSelector = new CopyOfSelector(host);
+      host.children.push(copyOfSelector);
     }
-    MappingService.applySourceExpression(source, targetFieldItem, copyOfSelector);
-    if (valueType === CopyOfType.CONTAINER_NODE && !copyOfSelector.expression.endsWith('/node()')) {
+    MappingService.applySourceExpression(source, host, copyOfSelector);
+    if (copyChildrenOnly && !copyOfSelector.expression.endsWith('/node()')) {
       copyOfSelector.expression = `${copyOfSelector.expression}/node()`;
     }
   }
@@ -847,15 +849,12 @@ export class MappingService {
 
   private static applySourceExpression(
     source: PrimitiveDocument | IField,
-    targetFieldItem: MappingItem,
+    targetFieldItem: MappingParentType,
     valueSelector: ValueSelector,
   ) {
-    MappingService.registerNamespaceFromField(targetFieldItem.mappingTree, source);
-    const relativePath = XPathService.toPathExpression(
-      targetFieldItem.mappingTree.namespaceMap,
-      source,
-      valueSelector.contextPath,
-    );
+    const mappingTree = targetFieldItem instanceof MappingTree ? targetFieldItem : targetFieldItem.mappingTree;
+    MappingService.registerNamespaceFromField(mappingTree, source);
+    const relativePath = XPathService.toPathExpression(mappingTree.namespaceMap, source, valueSelector.contextPath);
     valueSelector.expression = XPathService.addSource(valueSelector.expression, relativePath);
   }
 
@@ -863,7 +862,7 @@ export class MappingService {
    * Recursively generates child mappings for container fields that cannot use copy-of.
    * For each matching child pair from {@link FieldMatchingService.findMatchingChildren}:
    * - Both terminal → {@link mapToField} (value-of)
-   * - Both container + copy-of eligible → {@link mapToFieldWithValueType} with CONTAINER/CONTAINER_NODE
+   * - Both container + copy-of eligible → {@link applyContainerMapping} (a copy-of of the element, or of its children for `xs:anyType`)
    * - Both container + NOT copy-of eligible → recurse
    * - Kind mismatch (leaf↔container) → skipped (already filtered by findMatchingChildren)
    *
@@ -888,14 +887,15 @@ export class MappingService {
    */
   private static processPair(sourceChild: IField, targetChild: IField, parentItem: MappingItem): void {
     const childFieldItem = MappingService.createFieldItem(parentItem, targetChild);
+    let guardTarget: MappingItem = childFieldItem;
 
     if (!DocumentService.hasChildren(sourceChild)) {
       MappingService.mapToField(sourceChild, childFieldItem);
     } else {
-      MappingService.applyContainerMapping(sourceChild, targetChild, childFieldItem);
+      guardTarget = MappingService.applyContainerMapping(sourceChild, targetChild, childFieldItem);
     }
     // createFieldItem always yields a fresh FieldItem, so there is never pre-existing content here.
-    MappingService.tryAutoOptionalIfWrap(childFieldItem, sourceChild, false);
+    MappingService.tryAutoOptionalIfWrap(guardTarget, sourceChild, false);
   }
 
   /**
@@ -903,29 +903,43 @@ export class MappingService {
    * into child mappings. Shared by auto-mapping ({@link processPair}) and drag-and-drop
    * ({@link MappingActionService.engageMapping}).
    */
-  static applyContainerMapping(sourceField: IField, targetField: IField, parentItem: MappingItem): void {
-    if (FieldMatchingService.canUseCopyOf(sourceField, targetField)) {
-      const valueType = MappingService.getContainerValueType(sourceField, targetField);
-      MappingService.mapToFieldWithValueType(sourceField, parentItem, valueType);
-    } else {
+  static applyContainerMapping(sourceField: IField, targetField: IField, parentItem: MappingItem): MappingItem {
+    if (!FieldMatchingService.canUseCopyOf(sourceField, targetField)) {
       MappingService.generateAutoChildMappings(sourceField, targetField, parentItem);
+      return parentItem;
     }
+    if (MappingService.copiesChildrenOnly(sourceField, targetField)) {
+      MappingService.mapToFieldWithCopyOf(sourceField, parentItem, true);
+      return parentItem;
+    }
+    // The copy-of brings the element itself, so it sits next to the target field's siblings rather than
+    // inside a FieldItem for that field; the canvas draws it on the field's row.
+    const host = parentItem instanceof FieldItem && !parentItem.children.length ? parentItem.parent : undefined;
+    if (!host) {
+      MappingService.mapToFieldWithCopyOf(sourceField, parentItem);
+      return parentItem;
+    }
+    const index = host.children.indexOf(parentItem);
+    host.children = host.children.filter((child) => child !== parentItem);
+    const copyOf = new CopyOfSelector(host);
+    copyOf.comment = parentItem.comment;
+    host.children.splice(index === -1 ? host.children.length : index, 0, copyOf);
+    MappingService.applySourceExpression(sourceField, host, copyOf);
+    return copyOf;
   }
 
   /**
-   * Determines whether to use CONTAINER or CONTAINER_NODE based on xs:anyType involvement.
-   * When xs:anyType is involved, CONTAINER_NODE is used to generate `xsl:copy-of select="path/node()"`,
-   * which copies only children to avoid name mismatch between source and target wrapper elements.
+   * Whether a container copy-of must copy only the children of the source. When `xs:anyType` is involved
+   * the generated `xsl:copy-of select="path/node()"` avoids a name mismatch between the source and the
+   * target wrapper element.
    * @param sourceField - Source field
    * @param targetField - Target field
-   * @returns CONTAINER_NODE if xs:anyType is involved, otherwise CONTAINER
    */
-  static getContainerValueType(sourceField: IField, targetField: IField): CopyOfType {
-    const anyTypeInvolved =
+  static copiesChildrenOnly(sourceField: IField, targetField: IField): boolean {
+    return (
       (sourceField instanceof XmlSchemaField && sourceField.type === Types.AnyType) ||
-      (targetField instanceof XmlSchemaField && targetField.type === Types.AnyType);
-
-    return anyTypeInvolved ? CopyOfType.CONTAINER_NODE : CopyOfType.CONTAINER;
+      (targetField instanceof XmlSchemaField && targetField.type === Types.AnyType)
+    );
   }
 
   /**
@@ -1303,9 +1317,9 @@ export class MappingService {
     // matches no branch here and silently does nothing.
     const isParentFieldItem =
       item instanceof MappingItem && MappingService.findEnclosingFieldItem(item) instanceof FieldItem;
-    // Primitive target body has no root FieldItem — CopyOfSelector sits directly under MappingTree.
-    // Structured targets don't need this: their copy-of parent is a FieldItem, handled by isParentFieldItem.
-    const isRootLevelCopyOf = item instanceof CopyOfSelector && item.parent instanceof MappingTree;
+    // A copy-of is a standalone child of whatever contains it (the tree, a loop, a guard or a field item),
+    // and the walk above stops at loops, so it is removed from its parent whatever that parent is.
+    const isRootLevelCopyOf = item instanceof CopyOfSelector;
     const isUserCreatedFieldItem = item instanceof FieldItem && item.isUserCreated;
     if (isVariableItem) {
       MappingService.removeVariableReferences(item as VariableItem);

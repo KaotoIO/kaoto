@@ -10,7 +10,6 @@ import {
 import {
   ChooseItem,
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachItem,
   IfItem,
@@ -621,14 +620,14 @@ describe('VisualizationService', () => {
     });
   });
 
-  describe('CopyOfSelector (CONTAINER_NODE) support', () => {
+  describe('standalone CopyOfSelector support', () => {
     it('should render a copy-of container node as the first child, ahead of regular fields', () => {
       const targetDoc = TestUtil.createTargetOrderDoc();
       const tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       tree.children.push(fieldItem);
       expect(fieldItem.field.fields.length).toBeGreaterThan(0);
-      const copyOfSelector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+      const copyOfSelector = new CopyOfSelector(fieldItem);
       fieldItem.children.push(copyOfSelector);
       const targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
       const fieldItemNodeData = new FieldItemNodeData(targetDocNode, fieldItem);
@@ -757,15 +756,9 @@ describe('VisualizationService', () => {
       expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(true);
     });
 
-    it('should return true for CONTAINER CopyOfSelector', () => {
+    it('should return false for any CopyOfSelector, which is a row of its own or a field row, never an input of its parent', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
-      const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
-      expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(true);
-    });
-
-    it('should return false for CONTAINER_NODE CopyOfSelector', () => {
-      const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
-      const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+      const vs = new CopyOfSelector(fieldItem);
       expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(false);
     });
 
@@ -776,10 +769,10 @@ describe('VisualizationService', () => {
   });
 
   describe('copy-of tree-node rendering', () => {
-    it('should show CONTAINER_NODE copy-of as tree node in hasChildren', () => {
+    it('should show a standalone copy-of as tree node in hasChildren', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       tree.children.push(fieldItem);
-      const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+      const vs = new CopyOfSelector(fieldItem);
       fieldItem.children.push(vs);
       targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -801,7 +794,7 @@ describe('VisualizationService', () => {
       expect(VisualizationService.hasChildren(orderPersonNode)).toBe(false);
     });
 
-    it('should show CONTAINER_NODE copy-of as tree node in primitive document children', () => {
+    it('should show a standalone copy-of as tree node in primitive document children', () => {
       const primitiveTargetDoc = new PrimitiveDocument(
         new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
       );
@@ -810,7 +803,7 @@ describe('VisualizationService', () => {
         primitiveTargetDoc.documentId,
         DocumentDefinitionType.Primitive,
       );
-      const vs = new CopyOfSelector(primitiveTree, CopyOfType.CONTAINER_NODE);
+      const vs = new CopyOfSelector(primitiveTree);
       primitiveTree.children.push(vs);
       const primitiveDocNode = new TargetDocumentNodeData(primitiveTargetDoc, primitiveTree);
       const children = VisualizationService.generatePrimitiveDocumentChildren(primitiveDocNode);

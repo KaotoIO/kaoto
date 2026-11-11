@@ -9,7 +9,6 @@ import {
 import {
   ChooseItem,
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -74,6 +73,7 @@ import { JsonSchemaDocument } from '../document/json-schema/json-schema-document
 import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { TargetRenderService } from '../visualization/target-render.service';
+import { CopyOfPlacementService } from './copy-of-placement.service';
 import { MappingService } from './mapping.service';
 import { EMPTY_XSL, getEmptyXsl, MappingSerializerService } from './mapping-serializer.service';
 
@@ -524,7 +524,6 @@ describe('MappingSerializerService', () => {
       expect(shipToFieldItem.children).toHaveLength(1);
       const copyOfSelector = shipToFieldItem.children[0] as CopyOfSelector;
       expect(copyOfSelector.expression).toBe('/ns0:ShipOrder/ShipTo');
-      expect(copyOfSelector.valueType).toBe(CopyOfType.CONTAINER_NODE);
 
       const forEachItem = shipOrderFieldItem.children[3] as ForEachItem;
       expect(forEachItem.expression).toBe('/ns0:ShipOrder/Item');
@@ -596,7 +595,7 @@ describe('MappingSerializerService', () => {
       expect(selector.expression).toBe('Price');
     });
 
-    it('should reconstruct intermediate FieldItem for CONTAINER copy-of with skipped wrapper', () => {
+    it('should read a 1-to-1 copy-of with a skipped wrapper as a standalone selector that serializes unchanged', () => {
       const xslt = `<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="3.0" xmlns:xsl="${NS_XSL}" xmlns:ns0="io.kaoto.datamapper.poc.test">
   <xsl:output method="xml" indent="yes"/>
@@ -614,15 +613,10 @@ describe('MappingSerializerService', () => {
       expect(shipOrderFieldItem.field.name).toBe('ShipOrder');
       expect(shipOrderFieldItem.children).toHaveLength(1);
 
-      const shipToFieldItem = shipOrderFieldItem.children[0] as FieldItem;
-      expect(shipToFieldItem).toBeInstanceOf(FieldItem);
-      expect(shipToFieldItem.field.name).toBe('ShipTo');
-      expect(shipToFieldItem.children).toHaveLength(1);
-
-      const selector = shipToFieldItem.children[0] as CopyOfSelector;
+      const selector = shipOrderFieldItem.children[0] as CopyOfSelector;
       expect(selector).toBeInstanceOf(CopyOfSelector);
-      expect(selector.valueType).toBe(CopyOfType.CONTAINER);
       expect(selector.expression).toBe('/ns0:ShipOrder/ShipTo');
+      expect(CopyOfPlacementService.getInlineField(selector)?.name).toBe('ShipTo');
 
       const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
       const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
@@ -940,7 +934,7 @@ describe('MappingSerializerService', () => {
       const shipOrderFieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
       mappingTree.children.push(shipOrderFieldItem);
 
-      const copyOf = new CopyOfSelector(shipOrderFieldItem, CopyOfType.CONTAINER);
+      const copyOf = new CopyOfSelector(shipOrderFieldItem);
       copyOf.expression = '/ns0:ShipOrder';
       const valueOf = new ValueOfSelector(shipOrderFieldItem);
       valueOf.expression = '/ns0:ShipOrder/ns0:OrderPerson';
@@ -1147,7 +1141,7 @@ describe('MappingSerializerService', () => {
 
       // Authored before the second when, holding only the default empty copy-of
       const otherwise = new OtherwiseItem(chooseItem);
-      otherwise.children.push(new CopyOfSelector(otherwise, CopyOfType.CONTAINER_NODE));
+      otherwise.children.push(new CopyOfSelector(otherwise));
       chooseItem.children.push(otherwise);
 
       const when2 = new WhenItem(chooseItem);
@@ -2311,9 +2305,9 @@ describe('MappingSerializerService', () => {
       mappingTree.children.push(rootItem);
       const fieldItem = new FieldItem(rootItem, targetField);
       rootItem.children.push(fieldItem);
-      // CONTAINER_NODE (unlike CONTAINER) always renders a dedicated target element wrapper,
-      // with the copy-of's `/node()` suffix stripped when comparing against the if's test.
-      MappingService.mapToFieldWithValueType(sourceField, fieldItem, CopyOfType.CONTAINER_NODE);
+      // A /node() copy-of renders inside the target element, and its `/node()` suffix is stripped
+      // when comparing against the if's test.
+      MappingService.mapToFieldWithCopyOf(sourceField, fieldItem, true);
       const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)!;
       expect(ifItem.expression).toBe('/CSV/CSV_r');
 
@@ -2360,7 +2354,7 @@ describe('MappingSerializerService', () => {
       expect(renderIndex.isAbsorbed(deserializedIfItem)).toBe(true);
     });
 
-    it('should serialize a CONTAINER (skipped-wrapper) copy-of guard that is see-through again after a round trip', () => {
+    it('should serialize a guard around a copy-of of the element that is see-through again after a round trip', () => {
       // Regression: CopyOfSelectorHandler only reconstructed the intermediate FieldItem when
       // its immediate parent mapping was a FieldItem — when the copy-of sits inside an xsl:if
       // instead (exactly what this feature produces), the parent mapping is the IfItem, so the
@@ -2381,8 +2375,9 @@ describe('MappingSerializerService', () => {
       mappingTree.children.push(rootItem);
       const fieldItem = new FieldItem(rootItem, targetField);
       rootItem.children.push(fieldItem);
-      MappingService.mapToFieldWithValueType(sourceField, fieldItem, CopyOfType.CONTAINER);
-      const ifItem = MappingService.tryAutoOptionalIfWrap(fieldItem, sourceField, false)!;
+      const copyOf = MappingService.applyContainerMapping(sourceField, targetField, fieldItem) as CopyOfSelector;
+      expect(copyOf).toBeInstanceOf(CopyOfSelector);
+      const ifItem = MappingService.tryAutoOptionalIfWrap(copyOf, sourceField, false)!;
       expect(ifItem.expression).toBe('/CSV/CSV_r');
 
       const xslt = MappingSerializerService.serialize(mappingTree, localParamsMap);
@@ -2396,7 +2391,7 @@ describe('MappingSerializerService', () => {
         )
         .iterateNext();
       expect(ifTest?.nodeValue).toBe('/CSV/CSV_r');
-      // CONTAINER skips the target element wrapper — the copy-of appears directly under the if.
+      // The copy-of brings the element itself — it appears directly under the if.
       const copyOfSelect = xsltDocument
         .evaluate(
           '/xsl:stylesheet/xsl:template/CSV/xsl:if/xsl:copy-of/@select',
@@ -2422,16 +2417,16 @@ describe('MappingSerializerService', () => {
       const deserializedRoot = deserialized.children[0] as FieldItem;
       const deserializedIfItem = deserializedRoot.children.find((c) => c instanceof IfItem) as IfItem;
       expect(deserializedIfItem).toBeDefined();
-      // The intermediate CSV_r FieldItem must be reconstructed under the IfItem for the
-      // guard's shape to match — not a bare CopyOfSelector directly under the IfItem.
-      const reconstructedFieldItem = deserializedIfItem.children.find((c) => c instanceof FieldItem) as FieldItem;
-      expect(reconstructedFieldItem).toBeDefined();
-      expect(reconstructedFieldItem.field.name).toBe('CSV_r');
+      // The guard holds the bare copy-of: no field item is reconstructed for it.
+      const reloadedCopyOf = deserializedIfItem.children[0] as CopyOfSelector;
+      expect(reloadedCopyOf).toBeInstanceOf(CopyOfSelector);
+      expect(CopyOfPlacementService.getInlineField(reloadedCopyOf)?.name).toBe('CSV_r');
       const renderIndex = TargetRenderService.buildIndex(deserialized, {
         sourceParameterMap: localParamsMap,
         sourceBody: localSourceDoc,
       });
-      expect(renderIndex.getAbsorbingField(deserializedIfItem)).toBe(reconstructedFieldItem);
+      expect(renderIndex.getAbsorbingField(deserializedIfItem)).toBe(reloadedCopyOf);
+      expect(MappingSerializerService.serialize(deserialized, localParamsMap)).toEqual(xslt);
     });
 
     it('should still emit the container element when its only other content sits inside a guard', () => {
@@ -2454,7 +2449,7 @@ describe('MappingSerializerService', () => {
       rootItem.children.push(shipToItem);
       // A guarded child alongside a wholesale container copy-of: the copy-of alone would let the
       // ShipTo element be skipped, which would reparent the guarded Name into ShipOrder.
-      MappingService.mapToFieldWithValueType(sourceShipTo, shipToItem, CopyOfType.CONTAINER);
+      MappingService.mapToFieldWithCopyOf(sourceShipTo, shipToItem);
       const nameItem = new FieldItem(shipToItem, targetName);
       shipToItem.children.push(nameItem);
       MappingService.mapToField(sourceName, nameItem);
@@ -2599,7 +2594,6 @@ describe('MappingSerializerService', () => {
         expect(group).toBeDefined();
         const child = group.children[0];
         expect(child).toBeInstanceOf(CopyOfSelector);
-        expect((child as CopyOfSelector).valueType).toBe(CopyOfType.CONTAINER_NODE);
       });
     });
 
@@ -2616,7 +2610,6 @@ describe('MappingSerializerService', () => {
     it.each([
       ['a wildcard', '/ns0:Order/*'],
       ['node()', '/ns0:Order/node()'],
-      ['a union', '/ns0:Order/ShipTo | /ns0:Order/Item'],
       ['an attribute', '/ns0:Order/@id'],
       ['an unmatched name', '/ns0:Order/Item[Quantity > 1]/Unknown'],
     ])('keeps a copy-of selecting %s last and adds no field to the target document', (_name, select) => {
@@ -2631,6 +2624,39 @@ describe('MappingSerializerService', () => {
       const reloaded = load(out);
       expect(reloaded.doc.fields[0].fields.map((f) => f.name)).toEqual(fieldNames);
       expect(serialize(reloaded.tree)).toEqual(out);
+    });
+
+    it.each([
+      ['a union', '/ns0:Order/ShipTo | /ns0:Order/Item'],
+      ['a comma list', '/ns0:Order/Item, /ns0:Order/ShipTo'],
+      ['parentheses', '(/ns0:Order/ShipTo | /ns0:Order/Item)'],
+    ])('anchors a copy-of selecting %s on the earliest field it names, before TotalAmount', (_name, select) => {
+      const { doc, tree } = load(wrap(`${valueOf('Id')}<xsl:copy-of select="${select}"/>${valueOf('TotalAmount')}`));
+      const fieldNames = doc.fields[0].fields.map((f) => f.name);
+      const out = serialize(tree);
+      expectAscending(order(out, '<Id', 'xsl:copy-of', '<TotalAmount'));
+      const reloaded = load(out);
+      expect(reloaded.doc.fields[0].fields.map((f) => f.name)).toEqual(fieldNames);
+      expect(serialize(reloaded.tree)).toEqual(out);
+    });
+
+    it('anchors a multi-field copy-of before the field item of its earliest field', () => {
+      const { tree } = load(
+        wrap(`<xsl:copy-of select="/ns0:Order/ShipTo, /ns0:Order/Item"/>${valueOf('Id')}${valueOf('TotalAmount')}`),
+      );
+      expectAscending(order(serialize(tree), '<Id', 'xsl:copy-of', '<TotalAmount'));
+    });
+
+    it('keeps a /node() copy-of inside its own element and does not treat it as the element', () => {
+      const { tree } = load(wrap(`<Item xmlns=""><xsl:copy-of select="/ns0:Order/Item/node()"/></Item>`));
+      const root = tree.children[0] as FieldItem;
+      const item = root.children.find((c) => c instanceof FieldItem && c.field.name === 'Item') as FieldItem;
+      const copyOf = item.children[0] as CopyOfSelector;
+
+      expect(root.children.some((c) => c instanceof CopyOfSelector)).toBe(false);
+      expect(copyOf.sourcePath).toBe('/ns0:Order/Item');
+      expect(CopyOfPlacementService.getInlineField(copyOf)).toBeUndefined();
+      expect(serialize(tree)).toContain('<Item');
     });
 
     it('round-trips a 1-to-1 copy-of on ShipTo unchanged and adds no field', () => {

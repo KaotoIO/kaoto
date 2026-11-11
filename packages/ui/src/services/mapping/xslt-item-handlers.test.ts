@@ -1,7 +1,6 @@
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IParentType } from '../../models/datamapper/document';
 import {
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -23,6 +22,7 @@ import {
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { QName } from '../../xml-schema-ts/QName';
+import { CopyOfPlacementService } from './copy-of-placement.service';
 import { MappingSerializerService } from './mapping-serializer.service';
 import * as handlerModule from './xslt-item-handlers';
 import {
@@ -100,7 +100,7 @@ describe('FieldItemHandler copy-of with value-of', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
 
-    const copyOf = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
+    const copyOf = new CopyOfSelector(fieldItem);
     copyOf.expression = '.';
     fieldItem.children.push(copyOf);
 
@@ -116,11 +116,11 @@ describe('FieldItemHandler copy-of with value-of', () => {
     expect(result.localName).toBe(targetDoc.fields[0].name);
   });
 
-  it('should return parent element when only copy-of exists without child FieldItems or value-of', () => {
+  it('should wrap the copy-of in the target element when it is the only content of the field item', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
 
-    const copyOf = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
+    const copyOf = new CopyOfSelector(fieldItem);
     copyOf.expression = '.';
     fieldItem.children.push(copyOf);
 
@@ -128,7 +128,8 @@ describe('FieldItemHandler copy-of with value-of', () => {
     const parent = xslt.documentElement;
     const result = handler.serialize(parent, fieldItem);
 
-    expect(result).toBe(parent);
+    expect(result).not.toBe(parent);
+    expect(result.localName).toBe(targetDoc.fields[0].name);
   });
 });
 
@@ -136,10 +137,10 @@ describe('CopyOfSelectorHandler', () => {
   const handler = new CopyOfSelectorHandler();
   const targetDoc = TestUtil.createTargetOrderDoc();
 
-  it('should serialize CONTAINER_NODE without appending /node()', () => {
+  it('should serialize a /node() copy-of without appending another /node()', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
-    const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+    const vs = new CopyOfSelector(fieldItem);
     vs.expression = '/ns0:Envelope/Payload/node()';
 
     const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
@@ -147,10 +148,10 @@ describe('CopyOfSelectorHandler', () => {
     expect(result.getAttribute('select')).toBe('/ns0:Envelope/Payload/node()');
   });
 
-  it('should serialize CONTAINER expression as-is', () => {
+  it('should serialize a copy-of expression as-is', () => {
     const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
-    const vs = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
+    const vs = new CopyOfSelector(fieldItem);
     vs.expression = '/ns0:ShipOrder/Item';
 
     const xslt = MappingSerializerService.createNew(DocumentDefinitionType.XML_SCHEMA);
@@ -158,7 +159,7 @@ describe('CopyOfSelectorHandler', () => {
     expect(result.getAttribute('select')).toBe('/ns0:ShipOrder/Item');
   });
 
-  it('should deserialize copy-of inside FieldItem as CONTAINER_NODE', () => {
+  it('should deserialize a /node() copy-of inside a FieldItem as a standalone selector', () => {
     const xslt = new DOMParser().parseFromString(
       `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:copy-of select="/ns0:Envelope/Payload/node()"/></xsl:stylesheet>`,
       'application/xml',
@@ -168,117 +169,72 @@ describe('CopyOfSelectorHandler', () => {
     const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
     const result = handler.deserialize(element, targetDoc.fields[0], fieldItem);
     const mappingItem = result.mappingItem as CopyOfSelector;
-    expect(mappingItem.valueType).toBe(CopyOfType.CONTAINER_NODE);
     expect(mappingItem.expression).toBe('/ns0:Envelope/Payload/node()');
   });
 
-  it('should wrap a 1-to-1 copy-of in the FieldItem of the child it selects, also under a for-each', () => {
-    const xslt = new DOMParser().parseFromString(
-      `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:copy-of select="/ns0:ShipOrder/Item"/></xsl:stylesheet>`,
-      'application/xml',
-    );
-    const element = xslt.getElementsByTagNameNS(NS_XSL, 'copy-of')[0];
-    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    const forEachItem = new ForEachItem(mappingTree);
-    const result = handler.deserialize(element, targetDoc.fields[0], forEachItem);
-    expect(result.mappingItem).toBeInstanceOf(FieldItem);
-    const wrapped = result.mappingItem as FieldItem;
-    expect(wrapped.field.name).toBe('Item');
-    expect(wrapped.parent).toBe(forEachItem);
-    const mappingItem = wrapped.children[0] as CopyOfSelector;
-    expect(mappingItem.valueType).toBe(CopyOfType.CONTAINER);
-    expect(mappingItem.expression).toBe('/ns0:ShipOrder/Item');
-  });
-
-  it('should reconstruct the intermediate FieldItem when the CONTAINER copy-of sits directly inside an xsl:if', () => {
-    // Regression: xsl:if passes the field context through unchanged, so a CONTAINER copy-of
-    // nested in one (exactly what an auto-optional guard produces) must be wrapped in the
-    // intermediate FieldItem exactly like it would be at the plain target-element level.
-    const xslt = new DOMParser().parseFromString(
-      `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:copy-of select="/ns0:ShipOrder/ShipTo"/></xsl:stylesheet>`,
-      'application/xml',
-    );
-    const element = xslt.getElementsByTagNameNS(NS_XSL, 'copy-of')[0];
-    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    const ifItem = new IfItem(mappingTree);
-    const result = handler.deserialize(element, targetDoc.fields[0], ifItem);
-    expect(result.mappingItem).toBeInstanceOf(FieldItem);
-    const wrappedFieldItem = result.mappingItem as FieldItem;
-    expect(wrappedFieldItem.parent).toBe(ifItem);
-    const copyOfSelector = wrappedFieldItem.children[0] as CopyOfSelector;
-    expect(copyOfSelector).toBeInstanceOf(CopyOfSelector);
-    expect(copyOfSelector.valueType).toBe(CopyOfType.CONTAINER);
-    expect(copyOfSelector.expression).toBe('/ns0:ShipOrder/ShipTo');
-  });
-
-  it('should resolve a `.` copy-of inside a for-each through the for-each select', () => {
-    const xslt = new DOMParser().parseFromString(
-      `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:copy-of select="."/></xsl:stylesheet>`,
-      'application/xml',
-    );
-    const element = xslt.getElementsByTagNameNS(NS_XSL, 'copy-of')[0];
-    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    const forEachItem = new ForEachItem(mappingTree);
-    forEachItem.expression = '/ns0:ShipOrder/Item';
-    const result = handler.deserialize(element, targetDoc.fields[0], forEachItem);
-    expect(result.mappingItem).toBeInstanceOf(FieldItem);
-    expect((result.mappingItem as FieldItem).field.name).toBe('Item');
-  });
-
-  it.each([
-    ['an empty select', ''],
-    ['a wildcard', '/ns0:ShipOrder/*'],
-    ['node()', '/ns0:ShipOrder/node()'],
-    ['a union', '/ns0:ShipOrder/Item | /ns0:ShipOrder/ShipTo'],
-    ['a variable', '$var'],
-    ['an attribute step', '/ns0:ShipOrder/@OrderId'],
-    ['a path matching no child', '/ns0:ShipOrder/Unknown'],
-    ['`.` outside a for-each', '.'],
-  ])('should keep a copy-of with %s as a separate CONTAINER_NODE and add no field', (_name, select) => {
+  const copyOfElement = (select: string) => {
     const xslt = new DOMParser().parseFromString(
       `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:copy-of select="${select}"/></xsl:stylesheet>`,
       'application/xml',
     );
-    const element = xslt.getElementsByTagNameNS(NS_XSL, 'copy-of')[0];
-    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
-    const fieldCount = targetDoc.fields[0].fields.length;
-    const result = handler.deserialize(element, targetDoc.fields[0], fieldItem);
+    return xslt.getElementsByTagNameNS(NS_XSL, 'copy-of')[0];
+  };
+  const newTree = () => {
+    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    tree.targetDocument = targetDoc;
+    return tree;
+  };
+
+  it.each([
+    [
+      'directly in the target element',
+      (tree: MappingTree) => new FieldItem(tree, targetDoc.fields[0]),
+      '/ns0:ShipOrder/Item',
+    ],
+    ['inside an xsl:for-each', (tree: MappingTree) => new ForEachItem(tree), '/ns0:ShipOrder/Item'],
+    ['inside an xsl:if', (tree: MappingTree) => new IfItem(tree), '/ns0:ShipOrder/ShipTo'],
+  ])('should read a 1-to-1 copy-of %s as a standalone selector', (_name, createParent, select) => {
+    const parent = createParent(newTree());
+    const result = handler.deserialize(copyOfElement(select), targetDoc.fields[0], parent);
+
     expect(result.mappingItem).toBeInstanceOf(CopyOfSelector);
-    expect((result.mappingItem as CopyOfSelector).valueType).toBe(CopyOfType.CONTAINER_NODE);
+    expect(result.fieldItem).toBeNull();
+    expect((result.mappingItem as CopyOfSelector).expression).toBe(select);
+    expect((result.mappingItem as CopyOfSelector).parent).toBe(parent);
+  });
+
+  it('should add no field and no field item for any copy-of', () => {
+    const fieldCount = targetDoc.fields[0].fields.length;
+    for (const select of ['', '/ns0:ShipOrder/*', '/ns0:ShipOrder/Item | /ns0:ShipOrder/ShipTo', '$var', '.']) {
+      const result = handler.deserialize(
+        copyOfElement(select),
+        targetDoc.fields[0],
+        new FieldItem(newTree(), targetDoc.fields[0]),
+      );
+      expect(result.mappingItem).toBeInstanceOf(CopyOfSelector);
+    }
     expect(targetDoc.fields[0].fields).toHaveLength(fieldCount);
   });
 
-  it('should deserialize copy-of as CONTAINER when select target differs from parent field name', () => {
-    const xslt = new DOMParser().parseFromString(
-      `<xsl:stylesheet xmlns:xsl="${NS_XSL}"><xsl:copy-of select="/ns0:ShipOrder/ShipTo"/></xsl:stylesheet>`,
-      'application/xml',
-    );
-    const element = xslt.getElementsByTagNameNS(NS_XSL, 'copy-of')[0];
-    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
-    const result = handler.deserialize(element, targetDoc.fields[0], fieldItem);
-    expect(result.mappingItem).toBeInstanceOf(FieldItem);
-    const wrappedFieldItem = result.mappingItem as FieldItem;
-    const copyOfSelector = wrappedFieldItem.children[0] as CopyOfSelector;
-    expect(copyOfSelector).toBeInstanceOf(CopyOfSelector);
-    expect(copyOfSelector.valueType).toBe(CopyOfType.CONTAINER);
-    expect(copyOfSelector.expression).toBe('/ns0:ShipOrder/ShipTo');
+  it('should let the oracle place a standalone copy-of on the row of the child it selects', () => {
+    const rootItem = new FieldItem(newTree(), targetDoc.fields[0]);
+    const selector = handler.deserialize(copyOfElement('/ns0:ShipOrder/ShipTo'), targetDoc.fields[0], rootItem)
+      .mappingItem as CopyOfSelector;
+    rootItem.children.push(selector);
+
+    expect(CopyOfPlacementService.getInlineField(selector)?.name).toBe('ShipTo');
   });
 
-  it('should deserialize copy-of as CONTAINER_NODE when select target matches parent field name', () => {
-    const ns = 'io.kaoto.datamapper.poc.test';
-    const xslt = new DOMParser().parseFromString(
-      `<xsl:stylesheet xmlns:xsl="${NS_XSL}" xmlns:ns0="${ns}"><xsl:copy-of select="/root/ns0:ShipOrder"/></xsl:stylesheet>`,
-      'application/xml',
-    );
-    const element = xslt.getElementsByTagNameNS(NS_XSL, 'copy-of')[0];
-    const mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
-    const fieldItem = new FieldItem(mappingTree, targetDoc.fields[0]);
-    const result = handler.deserialize(element, targetDoc.fields[0], fieldItem);
-    const mappingItem = result.mappingItem as CopyOfSelector;
-    expect(mappingItem.valueType).toBe(CopyOfType.CONTAINER_NODE);
-    expect(mappingItem.expression).toBe('/root/ns0:ShipOrder');
+  it('should resolve a `.` copy-of inside a for-each through the for-each select', () => {
+    const rootItem = new FieldItem(newTree(), targetDoc.fields[0]);
+    const forEachItem = new ForEachItem(rootItem);
+    forEachItem.expression = '/ns0:ShipOrder/Item';
+    rootItem.children.push(forEachItem);
+    const selector = handler.deserialize(copyOfElement('.'), targetDoc.fields[0], forEachItem)
+      .mappingItem as CopyOfSelector;
+    forEachItem.children.push(selector);
+
+    expect(CopyOfPlacementService.getInlineField(selector)?.name).toBe('Item');
   });
 });
 

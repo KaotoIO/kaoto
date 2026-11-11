@@ -15,12 +15,14 @@ import {
   ValueOfSelector,
 } from '../../models/datamapper/mapping';
 import {
+  CopyOfFieldNodeData,
   FieldItemNodeData,
   IMappingLink,
   NodeData,
   TargetDocumentNodeData,
   TargetRenderIndex,
 } from '../../models/datamapper/visualization';
+import { DocumentUtilService } from '../../services/document/document-util.service';
 import { XmlSchemaDocument } from '../../services/document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../../services/document/xml-schema/xml-schema-document.service';
 import { TargetRenderService } from '../../services/visualization/target-render.service';
@@ -64,7 +66,7 @@ export const expectNoDecisionChange = (root: MappingTree | MappingItem, renderIn
  */
 export const createGuardedCsvRows = (): Record<
   'guardedOptional' | 'guardedRepeating' | 'unguardedOptional',
-  FieldItemNodeData
+  FieldItemNodeData | CopyOfFieldNodeData
 > => {
   const sourceBody = createElementRefSingleRowCsvDocument(DocumentType.SOURCE_BODY);
   const targetDoc = createElementRefCsvDocument(DocumentType.TARGET_BODY);
@@ -128,16 +130,28 @@ const mapCsvField = (csvItem: FieldItem, name: string, isGuarded: boolean): void
     parent.expression = sourcePath;
     csvItem.children.push(parent);
   }
+  DocumentUtilService.resolveTypeFragment(field);
+  if (field.fields.length > 0) {
+    // A container is copied wholesale by a bare copy-of, drawn on the field's row.
+    const copyOf = new CopyOfSelector(parent);
+    copyOf.expression = sourcePath;
+    parent.children.push(copyOf);
+    return;
+  }
   const fieldItem = new FieldItem(parent, field);
   parent.children.push(fieldItem);
-  const selector = field.fields.length > 0 ? new CopyOfSelector(fieldItem) : new ValueOfSelector(fieldItem);
+  const selector = new ValueOfSelector(fieldItem);
   selector.expression = sourcePath;
   fieldItem.children.push(selector);
 };
 
-const findFieldItemRow = (rows: NodeData[], name: string): FieldItemNodeData => {
-  const row = rows.find((node) => node instanceof FieldItemNodeData && node.field.name === name);
-  if (!(row instanceof FieldItemNodeData)) throw new Error(`CSV has no mapped row for ${name}`);
+const findFieldItemRow = (rows: NodeData[], name: string): FieldItemNodeData | CopyOfFieldNodeData => {
+  const row = rows.find(
+    (node) => (node instanceof FieldItemNodeData || node instanceof CopyOfFieldNodeData) && node.field.name === name,
+  );
+  if (!(row instanceof FieldItemNodeData || row instanceof CopyOfFieldNodeData)) {
+    throw new TypeError(`CSV has no mapped row for ${name}`);
+  }
   return row;
 };
 
@@ -156,4 +170,14 @@ const collectIfItems = (item: MappingTree | MappingItem): IfItem[] => {
     ifItems.push(...collectIfItems(child));
   }
   return ifItems;
+};
+
+/**
+ * The row of `CSV_r`, a container mapped by a bare copy-of inside a see-through optional guard, so it is
+ * drawn as a copy-of row that absorbs the guard.
+ */
+export const createGuardedCsvCopyOfRow = (): CopyOfFieldNodeData => {
+  const row = createGuardedCsvRows().guardedRepeating;
+  if (!(row instanceof CopyOfFieldNodeData)) throw new TypeError('CSV_r should be drawn as a copy-of row');
+  return row;
 };

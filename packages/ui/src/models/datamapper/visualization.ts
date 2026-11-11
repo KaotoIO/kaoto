@@ -3,6 +3,7 @@ import { AlertProps } from '@patternfly/react-core';
 import { ConnectionPortRef } from './connection-port';
 import { DocumentType, IDocument, IField, PrimitiveDocument } from './document';
 import {
+  CopyOfSelector,
   FieldItem,
   IExpressionHolder,
   IfItem,
@@ -88,6 +89,14 @@ export interface ISourceDocumentContext {
  * follow the live expression but end on the snapshot's paths. Values are resolved when the index is
  * built, because mapping items are shared with the live tree and mutated in place.
  */
+/** Where a `xsl:copy-of` was drawn in a render snapshot. */
+export interface CopyOfRenderPlacement {
+  /** The field row the copy-of sits on, or `undefined` when it is a node of its own. */
+  field: IField | undefined;
+  /** Whether it renders and serializes before its siblings. */
+  leads: boolean;
+}
+
 export class TargetRenderIndex {
   /** An index without a snapshot, for code that runs without a `DataMapperProvider`, such as unit tests. */
   static readonly EMPTY = new TargetRenderIndex(new Map(), new Map(), undefined);
@@ -97,23 +106,30 @@ export class TargetRenderIndex {
    * @param targetPaths - the target path the lines of each item end on, for every item that has a
    *   row or anchors inline selectors
    * @param sourceContext - a live handle on the source documents the decisions were made with, not a copy
+   * @param copyOfPlacements - where each `xsl:copy-of` was drawn: the field row it is 1-to-1 with, if any,
+   *   and whether it leads its siblings. Compared with the live expression to tell when an edit moved it.
    * @param generation - increases with every index {@link TargetRenderService.buildIndex} builds, so a
    *   newer snapshot can be told from an older one by a number, which store state can hold cheaply;
    *   `0` for {@link EMPTY}
    */
   constructor(
-    private readonly absorbedFields: ReadonlyMap<IfItem, FieldItem>,
+    private readonly absorbedFields: ReadonlyMap<IfItem, FieldItem | CopyOfSelector>,
     private readonly targetPaths: ReadonlyMap<MappingItem, string>,
     readonly sourceContext: ISourceDocumentContext | undefined,
     readonly generation: number = 0,
+    private readonly copyOfPlacements: ReadonlyMap<CopyOfSelector, CopyOfRenderPlacement> = new Map(),
   ) {}
+
+  getCopyOfPlacement(selector: CopyOfSelector): CopyOfRenderPlacement | undefined {
+    return this.copyOfPlacements.get(selector);
+  }
 
   /** `false` only for {@link EMPTY}, which code without a `DataMapperProvider` gets. */
   get hasSnapshot(): boolean {
     return this.generation > 0;
   }
 
-  getAbsorbingField(ifItem: IfItem): FieldItem | undefined {
+  getAbsorbingField(ifItem: IfItem): FieldItem | CopyOfSelector | undefined {
     return this.absorbedFields.get(ifItem);
   }
 
@@ -184,6 +200,7 @@ export class TargetDocumentNodeData extends DocumentNodeData implements TargetNo
   constructor(document: IDocument, mappingTree: MappingTree, renderIndex: TargetRenderIndex = TargetRenderIndex.EMPTY) {
     super(document);
     this.mappingTree = mappingTree;
+    this.mappingTree.targetDocument = document;
     this.mapping = mappingTree;
     this.renderIndex = renderIndex;
   }
@@ -366,6 +383,24 @@ export class FieldItemNodeData extends MappingNodeData {
    * The see-through optional guard absorbed into this field's row, as decided by the node's
    * {@link TargetRenderIndex}. Absent when the field has no see-through guard in this snapshot.
    */
+  public autoOptionalIfItem?: IfItem;
+}
+
+/**
+ * Visualization node for a {@link CopyOfSelector} that is 1-to-1 with a target field, so it is drawn on
+ * that field's row (with a "copy" badge) instead of as a node of its own. The selector stays a standalone
+ * mapping item; {@link CopyOfPlacementService.classifyItem} decides, on every tree build, that it belongs here.
+ */
+export class CopyOfFieldNodeData extends MappingNodeData {
+  constructor(
+    public parent: TargetNodeData,
+    public mapping: CopyOfSelector,
+    public field: IField,
+  ) {
+    super(parent, mapping);
+    this.title = field.displayName;
+  }
+  /** The see-through optional guard absorbed into this row, as {@link FieldItemNodeData.autoOptionalIfItem}. */
   public autoOptionalIfItem?: IfItem;
 }
 

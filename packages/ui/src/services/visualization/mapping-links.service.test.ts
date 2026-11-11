@@ -11,7 +11,6 @@ import {
 import {
   ChooseItem,
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachItem,
   IfItem,
@@ -57,6 +56,7 @@ import { DocumentUtilService } from '../document/document-util.service';
 import { JsonSchemaDocumentService } from '../document/json-schema/json-schema-document.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { XPathService } from '../xpath/xpath.service';
@@ -1107,7 +1107,7 @@ describe('MappingLinksService', () => {
       }
     });
 
-    it('should classify copy-of with CONTAINER_NODE as COPY_OF', () => {
+    it('should classify a standalone copy-of as COPY_OF', () => {
       const manualTree = new MappingTree(
         targetDoc.documentType,
         targetDoc.documentId,
@@ -1121,7 +1121,7 @@ describe('MappingLinksService', () => {
       manualTree.children.push(rootItem);
       const shipToItem = new FieldItem(rootItem, targetShipTo);
       rootItem.children.push(shipToItem);
-      const vs = new CopyOfSelector(shipToItem, CopyOfType.CONTAINER_NODE);
+      const vs = new CopyOfSelector(shipToItem);
       vs.expression = '/ns0:ShipOrder/ShipTo';
       shipToItem.children.push(vs);
 
@@ -1131,7 +1131,7 @@ describe('MappingLinksService', () => {
       expect(links[0].targetNodePath).toContain(vs.id);
     });
 
-    it('should point a root-level CONTAINER_NODE copy-of to its own node, not the document root', () => {
+    it('should point a root-level copy-of to its own node, not the document root', () => {
       const manualTree = new MappingTree(
         targetDoc.documentType,
         targetDoc.documentId,
@@ -1142,7 +1142,7 @@ describe('MappingLinksService', () => {
       const valueOf = new ValueOfSelector(manualTree);
       valueOf.expression = '/ns0:ShipOrder/OrderId';
       manualTree.children.push(valueOf);
-      const copyOf = new CopyOfSelector(manualTree, CopyOfType.CONTAINER_NODE);
+      const copyOf = new CopyOfSelector(manualTree);
       copyOf.expression = '/ns0:ShipOrder/ShipTo';
       manualTree.children.push(copyOf);
 
@@ -1155,7 +1155,7 @@ describe('MappingLinksService', () => {
       expect(copyOfLink.targetNodePath).not.toBe(valueOfLink.targetNodePath);
     });
 
-    it('should connect mixed container value-of to its node with a regular line', () => {
+    it('should connect a copy-of to its field row and a value-of next to it to its own node', () => {
       const manualTree = new MappingTree(
         targetDoc.documentType,
         targetDoc.documentId,
@@ -1166,21 +1166,20 @@ describe('MappingLinksService', () => {
       const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
       const rootItem = new FieldItem(manualTree, targetRoot);
       manualTree.children.push(rootItem);
-      const shipToItem = new FieldItem(rootItem, targetShipTo);
-      rootItem.children.push(shipToItem);
 
-      const copyOf = new CopyOfSelector(shipToItem, CopyOfType.CONTAINER);
+      const copyOf = new CopyOfSelector(rootItem);
       copyOf.expression = '/ns0:ShipOrder/ShipTo';
-      shipToItem.children.push(copyOf);
-      const valueOf = new ValueOfSelector(shipToItem);
+      rootItem.children.push(copyOf);
+      const valueOf = new ValueOfSelector(rootItem);
       valueOf.expression = '/ns0:ShipOrder/ns0:OrderPerson';
-      shipToItem.children.push(valueOf);
+      rootItem.children.push(valueOf);
+      expect(CopyOfPlacementService.getInlineField(copyOf)).toBe(targetShipTo);
 
       const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
       const copyOfLink = links.find((link) => link.sourceNodePath.includes('ShipTo'))!;
       const valueOfLink = links.find((link) => link.sourceNodePath.includes('OrderPerson'))!;
 
-      expect(copyOfLink.targetNodePath).toBe(shipToItem.nodePath.toString());
+      expect(copyOfLink.targetNodePath).toBe(copyOf.nodePath.toString());
       expect(copyOfLink.lineStyle).toBe(MappingLineStyle.COPY_OF);
       expect(valueOfLink.targetNodePath).toBe(valueOf.nodePath.toString());
       expect(valueOfLink.lineStyle).toBe(MappingLineStyle.REGULAR);
@@ -1393,7 +1392,7 @@ describe('MappingLinksService', () => {
       const whenItem = new WhenItem(shipToItem);
       whenItem.expression = 'true()';
       shipToItem.children.push(whenItem);
-      const vs = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+      const vs = new CopyOfSelector(whenItem);
       vs.expression = '/ns0:ShipOrder/ShipTo';
       whenItem.children.push(vs);
 
@@ -1418,7 +1417,7 @@ describe('MappingLinksService', () => {
 
       const otherwiseItem = new OtherwiseItem(shipToItem);
       shipToItem.children.push(otherwiseItem);
-      const vs = new CopyOfSelector(otherwiseItem, CopyOfType.CONTAINER);
+      const vs = new CopyOfSelector(otherwiseItem);
       vs.expression = '/ns0:ShipOrder/ShipTo';
       otherwiseItem.children.push(vs);
 
@@ -1444,7 +1443,7 @@ describe('MappingLinksService', () => {
       const ifItem = new IfItem(shipToItem);
       ifItem.expression = 'true()';
       shipToItem.children.push(ifItem);
-      const vs = new CopyOfSelector(ifItem, CopyOfType.CONTAINER);
+      const vs = new CopyOfSelector(ifItem);
       vs.expression = '/ns0:ShipOrder/ShipTo';
       ifItem.children.push(vs);
 
@@ -1458,14 +1457,16 @@ describe('MappingLinksService', () => {
     it('should classify a sole-copy-of container directly inside a see-through IfItem by its own shape, not REGULAR', () => {
       const csvSourceDoc = createElementRefSingleRowCsvDocument(DocumentType.SOURCE_BODY);
       const { csvTree, guard, recordItem } = createGuardedCsvRecordTree();
-      const vs = new CopyOfSelector(recordItem, CopyOfType.CONTAINER);
+      // The copy-of stands for the record element itself, so it sits in the guard without a field item.
+      const vs = new CopyOfSelector(guard);
       vs.expression = '/CSV/CSV_r';
-      recordItem.children.push(vs);
+      guard.children = [vs];
+      expect(recordItem.parent).toBe(guard);
       const renderIndex = buildRenderIndex(csvTree, csvSourceDoc);
       expect(renderIndex.isAbsorbed(guard)).toBe(true);
 
       const links = MappingLinksService.extractMappingLinks(csvTree, paramsMap, csvSourceDoc, renderIndex);
-      const recordLink = links.find((l) => l.targetNodePath.endsWith(recordItem.id));
+      const recordLink = links.find((l) => l.targetNodePath.endsWith(vs.id));
       expect(recordLink).toBeDefined();
       expect(recordLink!.targetNodePath).not.toMatch('/if-');
       expect(recordLink!.lineStyle).toBe(MappingLineStyle.COPY_OF);
@@ -1550,7 +1551,7 @@ describe('MappingLinksService', () => {
       const whenItem = new WhenItem(chooseItem);
       whenItem.expression = 'true()';
       chooseItem.children.push(whenItem);
-      const vs = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+      const vs = new CopyOfSelector(whenItem);
       vs.expression = '/ns0:ShipOrder/ShipTo';
       whenItem.children.push(vs);
 
@@ -1579,13 +1580,13 @@ describe('MappingLinksService', () => {
       const whenItem = new WhenItem(chooseItem);
       whenItem.expression = 'true()';
       chooseItem.children.push(whenItem);
-      const vs1 = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+      const vs1 = new CopyOfSelector(whenItem);
       vs1.expression = '/ns0:ShipOrder/ShipTo';
       whenItem.children.push(vs1);
 
       const otherwiseItem = new OtherwiseItem(chooseItem);
       chooseItem.children.push(otherwiseItem);
-      const vs2 = new CopyOfSelector(otherwiseItem, CopyOfType.CONTAINER);
+      const vs2 = new CopyOfSelector(otherwiseItem);
       vs2.expression = '/ns0:ShipOrder/ShipTo';
       otherwiseItem.children.push(vs2);
 
@@ -1626,7 +1627,7 @@ describe('MappingLinksService', () => {
       // FieldItem(Name) under IfItem — recursion must stop here
       const nameItem = new FieldItem(ifItem, nameField);
       ifItem.children.push(nameItem);
-      const copyOf = new CopyOfSelector(nameItem, CopyOfType.CONTAINER);
+      const copyOf = new CopyOfSelector(nameItem);
       copyOf.expression = '/ns0:ShipOrder/ShipTo/Name';
       nameItem.children.push(copyOf);
 
@@ -1676,7 +1677,7 @@ describe('MappingLinksService', () => {
         const whenItem = new WhenItem(containerItem);
         whenItem.expression = 'true()';
         containerItem.children.push(whenItem);
-        const copyOf = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+        const copyOf = new CopyOfSelector(whenItem);
         copyOf.expression = '/ns0:ShipOrder/ShipTo';
         whenItem.children.push(copyOf);
 
@@ -1743,7 +1744,7 @@ describe('MappingLinksService', () => {
         const whenItem = new WhenItem(containerItemA);
         whenItem.expression = 'true()';
         containerItemA.children.push(whenItem);
-        const copyOf = new CopyOfSelector(whenItem, CopyOfType.CONTAINER);
+        const copyOf = new CopyOfSelector(whenItem);
         copyOf.expression = '/ns0:ShipOrder/ShipTo/Name';
         whenItem.children.push(copyOf);
 

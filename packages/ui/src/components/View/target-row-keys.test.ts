@@ -9,7 +9,6 @@ import { DocumentTree, FlattenedNode } from '../../models/datamapper/document-tr
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import {
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   IfItem,
   MappingItem,
@@ -183,7 +182,7 @@ describe('getTargetRowKeys()', () => {
   it('should give every row of a list a key of its own', () => {
     addGuard(itemItem, noteField, BODY_NOTE, `normalize-space(${BODY_NOTE})`);
     const shipToItem = MappingService.createFieldItem(shipOrderItem, findField(shipOrderItem.field, 'ShipTo'));
-    const copyOf = new CopyOfSelector(shipToItem, CopyOfType.CONTAINER_NODE);
+    const copyOf = new CopyOfSelector(shipToItem);
     copyOf.expression = '/ns0:ShipOrder/ShipTo/node()';
     shipToItem.children.push(copyOf);
     const rows = flattenTargetTree();

@@ -7,7 +7,12 @@ import OptIcon from '../../../assets/data-mapper/field-icons/OptIcon';
 import Repeat0Icon from '../../../assets/data-mapper/field-icons/Repeat0Icon';
 import Repeat1Icon from '../../../assets/data-mapper/field-icons/Repeat1Icon';
 import { IfItem } from '../../../models/datamapper/mapping';
-import { AddMappingNodeData, FieldItemNodeData, FieldNodeData } from '../../../models/datamapper/visualization';
+import {
+  AddMappingNodeData,
+  CopyOfFieldNodeData,
+  FieldItemNodeData,
+  FieldNodeData,
+} from '../../../models/datamapper/visualization';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { getOptionalGuardExplanation, OPTIONAL_GUARD_LABEL } from '../FieldNodePopover/field-details-utils';
 
@@ -15,7 +20,7 @@ type FieldNodeTitleProps = {
   className?: string;
   rank: number;
   title: string;
-  nodeData: FieldNodeData | FieldItemNodeData | AddMappingNodeData;
+  nodeData: FieldNodeData | FieldItemNodeData | CopyOfFieldNodeData | AddMappingNodeData;
 };
 
 type GuardTooltipProps = {
@@ -53,7 +58,10 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
   const optionalField = nodeData.field.minOccurs === 0;
   const repeatingField0 = nodeData.field.minOccurs >= 0 && nodeData.field.maxOccurs === 'unbounded';
   const repeatingField1 = nodeData.field.minOccurs >= 1 && nodeData.field.maxOccurs === 'unbounded';
-  const optionalGuard = nodeData instanceof FieldItemNodeData ? nodeData.autoOptionalIfItem : undefined;
+  const optionalGuard =
+    nodeData instanceof FieldItemNodeData || nodeData instanceof CopyOfFieldNodeData
+      ? nodeData.autoOptionalIfItem
+      : undefined;
   const occurrenceMarkerClassName = clsx('node__spacer datamapper-marker-field', {
     'datamapper-marker-field--active-guard': optionalGuard !== undefined,
   });
