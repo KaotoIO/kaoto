@@ -1,10 +1,12 @@
 import type { SendMessageRequest } from '@kaoto/kaoto/models';
 import { mkdtemp, writeFile, rm } from 'fs/promises'; // NOSONAR
+import { unlinkSync } from 'fs'; // NOSONAR
 import { tmpdir } from 'os'; // NOSONAR
 import { dirname, join } from 'path'; // NOSONAR
 import type { Uri } from 'vscode';
 import { CamelCommandAPI } from '../executors/api/CamelCommandAPI';
 import type { SendMessageRuntimeService } from './SendMessageRuntimeService';
+import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 
 /** Owns temporary message files; their names and contents are never shell commands. */
 export class SendMessageService {
@@ -41,10 +43,25 @@ export class SendMessageService {
 			}
 			const argumentFile = join(directory, 'message.args');
 			await writeFile(argumentFile, args.map((arg) => JSON.stringify(arg)).join('\n') + '\n', { mode: 0o600 });
-			signal?.throwIfAborted();
-			const target = await this.runtimes.resolveTarget(documentUri, request.targetId, request.routeId, signal);
-			signal?.throwIfAborted();
-			await CamelCommandAPI.sendMessage(target.pid, target.routeId, argumentFile, dirname(documentUri.fsPath), signal);
+			const revoke = () => {
+				try {
+					// Revoke synchronously: a queued Windows task must not read arguments after cancellation.
+					unlinkSync(argumentFile);
+				} catch (error) {
+					if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+						KaotoOutputChannel.logError('Could not revoke cancelled message arguments', error);
+					}
+				}
+			};
+			signal?.addEventListener('abort', revoke, { once: true });
+			try {
+				signal?.throwIfAborted();
+				const target = await this.runtimes.resolveTarget(documentUri, request.targetId, request.routeId, signal);
+				signal?.throwIfAborted();
+				await CamelCommandAPI.sendMessage(target.pid, target.routeId, argumentFile, dirname(documentUri.fsPath), signal);
+			} finally {
+				signal?.removeEventListener('abort', revoke);
+			}
 		} finally {
 			await rm(directory, { recursive: true, force: true });
 		}
