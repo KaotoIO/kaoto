@@ -353,3 +353,41 @@ suite('InfrastructureServiceManager — refreshRunningServicesFromCli', function
 		manager.dispose();
 	});
 });
+
+// ─── reconcileServiceAfterTaskEnd ─────────────────────────────────────────────
+
+suite('InfrastructureServiceManager — reconcileServiceAfterTaskEnd', function () {
+	let origCapturePs: typeof CamelCommandAPI.captureInfraPs;
+
+	setup(function () {
+		origCapturePs = CamelCommandAPI.captureInfraPs;
+	});
+
+	teardown(function () {
+		CamelCommandAPI.captureInfraPs = origCapturePs;
+	});
+
+	test('refreshes the UI details of a service that is still running after the task ended', async function () {
+		CamelCommandAPI.captureInfraPs = async () => JSON.stringify([{ name: 'kafka', uiSupported: true, serviceData: { uiUrl: 'http://localhost:8080' } }]);
+		const manager = new InfrastructureServiceManager(() => {});
+		manager['runningServices'].set('kafka', makeService({ status: 'running' }));
+
+		await manager['reconcileServiceAfterTaskEnd']('kafka');
+
+		const service = manager.getRunningService('kafka')!;
+		assert.strictEqual(service.uiUrl, 'http://localhost:8080');
+		assert.isTrue(service.uiSupported);
+		manager.dispose();
+	});
+
+	test('clears a stale UI URL of a service that is still running after the task ended', async function () {
+		CamelCommandAPI.captureInfraPs = async () => JSON.stringify([makeCliJson('kafka', 9092)]);
+		const manager = new InfrastructureServiceManager(() => {});
+		manager['runningServices'].set('kafka', makeService({ status: 'running', uiUrl: 'http://localhost:8080' }));
+
+		await manager['reconcileServiceAfterTaskEnd']('kafka');
+
+		assert.isUndefined(manager.getRunningService('kafka')!.uiUrl);
+		manager.dispose();
+	});
+});

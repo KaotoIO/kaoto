@@ -20,6 +20,7 @@ import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { CamelCommandAPI } from '../executors/api/CamelCommandAPI';
 import { CamelTaskFactory } from '../tasks/CamelTaskFactory';
 import { InfrastructureProvider } from '../views/infrastructure/InfrastructureProvider';
+import { createExternalService } from '../views/infrastructure/InfrastructureServiceDetails';
 import { DockerErrorDetector } from '../utils/DockerErrorDetector';
 
 export class StartInfrastructureServiceCommand {
@@ -110,16 +111,7 @@ export class StartInfrastructureServiceCommand {
 
 		if (cliRunningService) {
 			// Service is running but not yet tracked - register it and handle inline
-			this.infrastructureProvider.registerRunningService({
-				name: cliRunningService.name,
-				description: cliRunningService.description ?? '',
-				port: cliRunningService.port,
-				url: cliRunningService.url,
-				args: [],
-				terminalName: `${cliRunningService.name} (external)`,
-				status: 'running',
-				isExternal: true,
-			});
+			this.infrastructureProvider.registerRunningService(createExternalService(cliRunningService));
 
 			// Handle the external service conflict inline
 			return this.handleExternalServiceConflict(serviceName, {
