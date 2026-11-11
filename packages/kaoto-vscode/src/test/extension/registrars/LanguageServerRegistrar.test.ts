@@ -26,6 +26,7 @@ suite('LanguageServerRegistrar', () => {
 	const originalStart = CamelLanguageServerManager.prototype.start;
 	const originalUpdateSettings = CamelLanguageServerManager.prototype.updateSettings;
 	let context: vscode.ExtensionContext;
+	let registrar: LanguageServerRegistrar;
 	let changeConfiguration: (event: vscode.ConfigurationChangeEvent) => Promise<void>;
 	let reloadCatalogs: () => void;
 	let updates: number;
@@ -59,10 +60,13 @@ suite('LanguageServerRegistrar', () => {
 			},
 		} as unknown as KaotoCatalogService;
 
-		new LanguageServerRegistrar(context, catalogService).register();
+		registrar = new LanguageServerRegistrar(context, catalogService);
+		registrar.register();
 	});
 
-	teardown(() => {
+	teardown(async () => {
+		// disposes the listener that waits for a Camel file when the server is enabled, which is not in the subscriptions
+		await registrar.stop();
 		CamelLanguageServerManager.prototype.start = originalStart;
 		CamelLanguageServerManager.prototype.updateSettings = originalUpdateSettings;
 		Object.defineProperty(vscode.workspace, 'onDidChangeConfiguration', { value: originalOnDidChangeConfiguration, configurable: true });
