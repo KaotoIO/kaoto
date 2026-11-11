@@ -73,14 +73,25 @@ suite('InfrastructureItem — contextValue', function () {
 		assert.strictEqual(item.contextValue, 'infrastructure-service-external-has-url');
 	});
 
-	test('service with url, port and uiUrl → appends "-has-ui-url" last', function () {
+	test('service with url, port and uiUrl → appends "-has-ui-url" after url and port', function () {
 		const item = new InfrastructureItem(makeService({ url: 'localhost:9092', port: 9092, uiUrl: 'http://localhost:8080' }));
 		assert.strictEqual(item.contextValue, 'infrastructure-service-has-url-has-port-has-ui-url');
 	});
 
-	test('service with uiSupported but no uiUrl → no "-has-ui-url"', function () {
+	test('service with uiSupported but no uiUrl → "-ui-supported" without "-has-ui-url"', function () {
 		const item = new InfrastructureItem(makeService({ uiSupported: true }));
+		assert.strictEqual(item.contextValue, 'infrastructure-service-ui-supported');
 		assert.notInclude(item.contextValue, '-has-ui-url');
+	});
+
+	test('service with uiUrl and uiSupported → appends "-has-ui-url" then "-ui-supported"', function () {
+		const item = new InfrastructureItem(makeService({ url: 'localhost:9092', port: 9092, uiUrl: 'http://localhost:8080', uiSupported: true }));
+		assert.strictEqual(item.contextValue, 'infrastructure-service-has-url-has-port-has-ui-url-ui-supported');
+	});
+
+	test('service with uiSupported false → no "-ui-supported"', function () {
+		const item = new InfrastructureItem(makeService({ uiSupported: false }));
+		assert.notInclude(item.contextValue, '-ui-supported');
 	});
 });
 
