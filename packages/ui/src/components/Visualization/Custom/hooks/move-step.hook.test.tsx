@@ -80,11 +80,11 @@ describe('useMoveStep', () => {
 
   const wrapper: FunctionComponent<PropsWithChildren> = ({ children }) => (
     <VisualizationProvider controller={controller}>
-      <NodeInteractionAddonProvider>
-        <RegisterNodeInteractionAddons>
-          <EntitiesContext.Provider value={mockEntitiesContext}>{children}</EntitiesContext.Provider>
-        </RegisterNodeInteractionAddons>
-      </NodeInteractionAddonProvider>
+      <EntitiesContext.Provider value={mockEntitiesContext}>
+        <NodeInteractionAddonProvider>
+          <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
+        </NodeInteractionAddonProvider>
+      </EntitiesContext.Provider>
     </VisualizationProvider>
   );
 

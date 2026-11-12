@@ -5,6 +5,8 @@ import { IVisualizationNode } from '../../../../models';
 import { EntitiesContext } from '../../../../providers/entities.provider';
 import { setValue } from '../../../../utils';
 import { Anchors } from '../../../registers/anchors';
+import { IInteractionType, IOnUpdateAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { UnknownNode } from '../../Custom/UnknownNode';
 import { customFieldsFactoryfactory } from './fields/custom-fields-factory';
@@ -17,6 +19,7 @@ interface CanvasFormTabsProps {
 
 export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode, onDismiss }) => {
   const entitiesContext = useContext(EntitiesContext);
+  const { getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext);
   const [omitFields] = useState(() => vizNode.getOmitFormFields() ?? []);
   const schema = vizNode.data.schema;
 
@@ -42,14 +45,16 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
 
       const newModel = modelRef.current ?? {};
       setValue(newModel, path, updatedValue);
-      const needsRebuild = vizNode.updateModel(newModel);
-      if (needsRebuild) {
-        entitiesContext?.updateEntitiesFromCamelResource();
-      } else {
-        entitiesContext?.updateSourceCodeFromEntities();
-      }
+      vizNode.updateModel(newModel);
+
+      const onUpdateAddons = getRegisteredInteractionAddons(IInteractionType.ON_UPDATE, vizNode) as IOnUpdateAddon[];
+      onUpdateAddons.forEach((addon) => {
+        addon.callback({ vizNode });
+      });
+
+      entitiesContext?.updateSourceCodeFromEntities();
     },
-    [entitiesContext, vizNode],
+    [entitiesContext, getRegisteredInteractionAddons, vizNode],
   );
 
   if (isUnknownComponent) {

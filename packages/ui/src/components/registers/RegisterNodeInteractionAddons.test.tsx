@@ -1,13 +1,19 @@
+import { Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { render, renderHook, waitFor } from '@testing-library/react';
-import { StrictMode, useContext } from 'react';
+import { FunctionComponent, PropsWithChildren, StrictMode, useContext, useMemo } from 'react';
 import type { MockInstance } from 'vitest';
 
+import { errorMessage } from '../../hooks/useEntityContext/useEntityContext';
+import { CatalogKind } from '../../models/catalog-kind';
+import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { IMetadataApi, MetadataContext } from '../../providers';
+import { EntitiesContext, EntitiesContextResult } from '../../providers/entities.provider';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
 import {
   IInteractionType,
   IOnDeleteAddon,
+  IOnUpdateAddon,
   IRegisteredInteractionAddon,
 } from './interactions/node-interaction-addon.model';
 import {
@@ -42,25 +48,57 @@ describe('RegisterNodeInteractionAddons', () => {
     deleteMetadataSpy = vi.spyOn(DataMapperMetadataService, 'deleteMetadata').mockResolvedValue(undefined);
   });
 
-  const renderWithSpy = (metadataApi: IMetadataApi | undefined = undefined) => {
+  const createEntitiesContext = (updateEntitiesFromCamelResource = vi.fn()) =>
+    ({ updateEntitiesFromCamelResource }) as unknown as EntitiesContextResult;
+
+  const renderWithSpy = (
+    metadataApi: IMetadataApi | undefined = undefined,
+    entitiesContext: EntitiesContextResult = createEntitiesContext(),
+  ) => {
     const registered: IRegisteredInteractionAddon[] = [];
     const registerInteractionAddon = vi.fn((addon: IRegisteredInteractionAddon) => {
       registered.push(addon);
+      return () => {
+        registered.splice(registered.indexOf(addon), 1);
+      };
     });
 
+    const controller = new Visualization();
+
+    const Wrapper: FunctionComponent<PropsWithChildren<{ entities: EntitiesContextResult }>> = ({
+      entities,
+      children,
+    }) => {
+      const addonContext = useMemo(() => ({ registerInteractionAddon, getRegisteredInteractionAddons: () => [] }), []);
+
+      return (
+        <EntitiesContext.Provider value={entities}>
+          <MetadataContext.Provider value={metadataApi}>
+            <NodeInteractionAddonContext.Provider value={addonContext}>
+              <VisualizationProvider controller={controller}>
+                <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
+              </VisualizationProvider>
+            </NodeInteractionAddonContext.Provider>
+          </MetadataContext.Provider>
+        </EntitiesContext.Provider>
+      );
+    };
+
     const result = render(
-      <MetadataContext.Provider value={metadataApi}>
-        <NodeInteractionAddonContext.Provider
-          value={{ registerInteractionAddon, getRegisteredInteractionAddons: () => [] }}
-        >
-          <RegisterNodeInteractionAddons>
-            <p>child content</p>
-          </RegisterNodeInteractionAddons>
-        </NodeInteractionAddonContext.Provider>
-      </MetadataContext.Provider>,
+      <Wrapper entities={entitiesContext}>
+        <p>child content</p>
+      </Wrapper>,
     );
 
-    return { registered, result };
+    const rerenderWithEntities = (entities: EntitiesContextResult) => {
+      result.rerender(
+        <Wrapper entities={entities}>
+          <p>child content</p>
+        </Wrapper>,
+      );
+    };
+
+    return { registered, result, rerenderWithEntities, registerInteractionAddon, controller };
   };
 
   const getOnDeleteAddon = (registered: IRegisteredInteractionAddon[]) =>
@@ -91,9 +129,11 @@ describe('RegisterNodeInteractionAddons', () => {
     const { result, rerender, unmount } = renderHook(() => useContext(NodeInteractionAddonContext), {
       wrapper: ({ children }) => (
         <StrictMode>
-          <NodeInteractionAddonProvider>
-            <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
-          </NodeInteractionAddonProvider>
+          <EntitiesContext.Provider value={createEntitiesContext()}>
+            <NodeInteractionAddonProvider>
+              <RegisterNodeInteractionAddons>{children}</RegisterNodeInteractionAddons>
+            </NodeInteractionAddonProvider>
+          </EntitiesContext.Provider>
         </StrictMode>
       ),
     });
@@ -107,7 +147,7 @@ describe('RegisterNodeInteractionAddons', () => {
     expect(getAddons(IInteractionType.ON_DELETE)).toHaveLength(0);
   });
 
-  it('registers all four interaction addon types', () => {
+  it('registers all the interaction addon types', () => {
     const { registered } = renderWithSpy();
 
     expect(registered.map((addon) => addon.type)).toEqual([
@@ -115,7 +155,91 @@ describe('RegisterNodeInteractionAddons', () => {
       IInteractionType.ON_COPY,
       IInteractionType.ON_DUPLICATE,
       IInteractionType.ON_PASTE,
+      IInteractionType.ON_UPDATE,
     ]);
+  });
+
+  it('requires the entities context', () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => render(<RegisterNodeInteractionAddons />)).toThrow(errorMessage);
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  describe('Citrus ON_UPDATE addon', () => {
+    const getOnUpdateAddon = (registered: IRegisteredInteractionAddon[]) =>
+      registered.find((addon) => addon.type === IInteractionType.ON_UPDATE) as IOnUpdateAddon;
+
+    const createWaitForVizNode = (isGroup: boolean) =>
+      ({
+        getId: () => 'test-1',
+        data: { path: 'actions.0.waitFor', definition: { action: {} }, isGroup },
+      }) as unknown as IVisualizationNode;
+
+    it('is only active for waitFor test actions', () => {
+      const addon = getOnUpdateAddon(renderWithSpy().registered);
+
+      expect(
+        addon.activationFn({
+          data: { primaryNodeId: { name: 'waitFor', catalogKind: CatalogKind.TestAction } },
+        } as unknown as IVisualizationNode),
+      ).toBe(true);
+      expect(
+        addon.activationFn({
+          data: { primaryNodeId: { name: 'print', catalogKind: CatalogKind.TestAction } },
+        } as unknown as IVisualizationNode),
+      ).toBe(false);
+      expect(
+        addon.activationFn({
+          data: { primaryNodeId: { name: 'waitFor', catalogKind: CatalogKind.Processor } },
+        } as unknown as IVisualizationNode),
+      ).toBe(false);
+    });
+
+    it('rebuilds the entities when the waitFor shape no longer matches the rendered node', () => {
+      const updateEntitiesFromCamelResource = vi.fn();
+      const { registered } = renderWithSpy(undefined, createEntitiesContext(updateEntitiesFromCamelResource));
+      const addon = getOnUpdateAddon(registered);
+
+      addon.callback({ vizNode: createWaitForVizNode(true) });
+      expect(updateEntitiesFromCamelResource).not.toHaveBeenCalled();
+
+      addon.callback({ vizNode: createWaitForVizNode(false) });
+      expect(updateEntitiesFromCamelResource).toHaveBeenCalledTimes(1);
+    });
+
+    it('requests the selection of the updated node before rebuilding, so the form stays open', () => {
+      const updateEntitiesFromCamelResource = vi.fn(() => {
+        pendingSelectionOnRebuild = controller.getState<{ pendingNodeSelection?: unknown }>().pendingNodeSelection;
+      });
+      let pendingSelectionOnRebuild: unknown;
+      const { registered, controller } = renderWithSpy(
+        undefined,
+        createEntitiesContext(updateEntitiesFromCamelResource),
+      );
+      const addon = getOnUpdateAddon(registered);
+
+      addon.callback({ vizNode: createWaitForVizNode(true) });
+      expect(controller.getState<{ pendingNodeSelection?: unknown }>().pendingNodeSelection).toBeUndefined();
+
+      addon.callback({ vizNode: createWaitForVizNode(false) });
+      expect(pendingSelectionOnRebuild).toEqual({ entityId: 'test-1', path: 'actions.0.waitFor' });
+    });
+
+    it('rebuilds using the latest entities context after it changes', () => {
+      const initialUpdate = vi.fn();
+      const latestUpdate = vi.fn();
+      const { registered, rerenderWithEntities } = renderWithSpy(undefined, createEntitiesContext(initialUpdate));
+
+      rerenderWithEntities(createEntitiesContext(latestUpdate));
+      /** The previous registrations are released, so only the latest addons remain */
+      expect(registered).toHaveLength(5);
+      getOnUpdateAddon(registered).callback({ vizNode: createWaitForVizNode(false) });
+
+      expect(initialUpdate).not.toHaveBeenCalled();
+      expect(latestUpdate).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('renders its children', () => {

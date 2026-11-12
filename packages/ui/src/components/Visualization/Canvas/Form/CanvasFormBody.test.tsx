@@ -15,6 +15,8 @@ import { createMockEntitiesContext } from '../../../../stubs/create-mock-entitie
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { ROOT_PATH } from '../../../../utils';
 import { Anchors } from '../../../registers/anchors';
+import { IInteractionType, IOnUpdateAddon } from '../../../registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../../registers/interactions/node-interaction-addon.provider';
 import { RenderingAnchorContext } from '../../../RenderingAnchor/rendering.provider';
 import { CanvasFormBody } from './CanvasFormBody';
 
@@ -619,6 +621,49 @@ describe('CanvasFormBody', () => {
     fireEvent.keyDown(inputField, { ctrlKey: true, code: 'Space' });
 
     expect(wrapper.queryByTestId('suggestions-menu')).toBeInTheDocument();
+  });
+
+  it('processes the ON_UPDATE addons after the node model is updated', async () => {
+    const { Provider, camelResource, updateSourceCodeFromEntitiesSpy } = await TestProvidersWrapper();
+    const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
+    vizNode.data.schema = {
+      type: 'object',
+      properties: { name: { type: 'string', title: 'Name' } },
+      required: ['name'],
+    };
+    vizNode.data.definition = { name: 'before' };
+    const callOrder: string[] = [];
+    vi.spyOn(vizNode, 'updateModel').mockImplementation(() => {
+      callOrder.push('updateModel');
+    });
+    const addon: IOnUpdateAddon = {
+      type: IInteractionType.ON_UPDATE,
+      activationFn: () => true,
+      callback: vi.fn(() => {
+        callOrder.push('addon');
+      }),
+    };
+    updateSourceCodeFromEntitiesSpy.mockImplementation(() => {
+      callOrder.push('updateSourceCode');
+    });
+    const getRegisteredInteractionAddons = vi.fn().mockReturnValue([addon]);
+
+    render(
+      <Provider>
+        <NodeInteractionAddonContext.Provider
+          value={{ registerInteractionAddon: vi.fn(), getRegisteredInteractionAddons }}
+        >
+          <CanvasFormBody vizNode={vizNode} />
+        </NodeInteractionAddonContext.Provider>
+      </Provider>,
+    );
+
+    const formPageObject = new KaotoFormPageObject(screen, act);
+    await formPageObject.inputText('Name', 'after');
+
+    expect(getRegisteredInteractionAddons).toHaveBeenCalledWith(IInteractionType.ON_UPDATE, vizNode);
+    expect(addon.callback).toHaveBeenCalledWith({ vizNode });
+    expect(callOrder).toEqual(['updateModel', 'addon', 'updateSourceCode']);
   });
 
   describe('seda queue name field', () => {

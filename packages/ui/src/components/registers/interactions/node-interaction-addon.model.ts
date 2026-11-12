@@ -7,6 +7,7 @@ export enum IInteractionType {
   ON_COPY = 'onCopy',
   ON_DUPLICATE = 'onDuplicate',
   ON_PASTE = 'onPaste',
+  ON_UPDATE = 'onUpdate',
 }
 
 export interface IModalCustomization {
@@ -17,7 +18,12 @@ export interface IModalCustomization {
 /**
  * Registered interaction addon.
  */
-export type IRegisteredInteractionAddon = IOnDeleteAddon | IOnCopyAddon | IOnDuplicateAddon | IOnPasteAddon;
+export type IRegisteredInteractionAddon =
+  | IOnDeleteAddon
+  | IOnCopyAddon
+  | IOnDuplicateAddon
+  | IOnPasteAddon
+  | IOnUpdateAddon;
 
 export interface IOnDeleteAddon {
   type: IInteractionType.ON_DELETE;
@@ -52,6 +58,15 @@ export interface IOnPasteAddon {
     originalContent: IClipboardContent | undefined;
     updatedContent: IClipboardContent | undefined;
   }) => Promise<void>;
+}
+
+/**
+ * Addon processed after the model of a node has been updated through the node form.
+ */
+export interface IOnUpdateAddon {
+  type: IInteractionType.ON_UPDATE;
+  activationFn: (vizNode: IVisualizationNode) => boolean;
+  callback: (parameters: { vizNode: IVisualizationNode }) => void;
 }
 
 export interface INodeInteractionAddonContext {

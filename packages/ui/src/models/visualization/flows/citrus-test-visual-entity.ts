@@ -224,28 +224,15 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     return snapshot;
   }
 
-  updateModel(path: string | undefined, value: Record<string, unknown>): boolean {
-    if (!path) return false;
+  updateModel(path: string | undefined, value: Record<string, unknown>): void {
+    if (!path) return;
 
     if (path === this.getRootPath()) {
       this.id = this.test.name;
-      return false;
+      return;
     }
 
-    const modelPath = this.toModelPath(path);
-    const actionName = path.split('.').pop();
-
-    let needsRebuild = false;
-    if (actionName === 'waitFor') {
-      const previousValue = getValue(this.test, modelPath) as Record<string, unknown> | undefined;
-      const hadAction = isDefined(previousValue?.['action']);
-      const hasAction = isDefined(value?.['action']);
-      needsRebuild = hasAction !== hadAction;
-    }
-
-    setValue(this.test, modelPath, value);
-
-    return needsRebuild;
+    setValue(this.test, this.toModelPath(path), value);
   }
 
   /**
