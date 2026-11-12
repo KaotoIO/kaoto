@@ -1,6 +1,6 @@
 import { FunctionComponent, useMemo } from 'react';
 
-import { DocumentDefinition, DocumentInitializationModel } from '../../../models/datamapper';
+import { DocumentDefinition, DocumentInitializationModel, IStepSettingsResult } from '../../../models/datamapper';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DataMapperDndProvider } from '../../../providers/datamapper-dnd.provider';
@@ -9,7 +9,9 @@ import { DebugLayout } from './DebugLayout';
 
 type DataMapperDebuggerProps = {
   documentInitializationModel?: DocumentInitializationModel;
-  onUpdateDocument?: (definition: DocumentDefinition) => void;
+  onUpdateDocument?: (
+    definition: DocumentDefinition,
+  ) => IStepSettingsResult | undefined | Promise<IStepSettingsResult | undefined>;
   initialXsltFile?: string;
   onUpdateMappings?: (xsltFile: string) => void;
 };

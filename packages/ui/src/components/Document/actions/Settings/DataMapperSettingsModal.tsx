@@ -12,10 +12,14 @@ import {
 import { FunctionComponent, useCallback, useMemo, useState } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
-import { DocumentDefinitionType, IDataMapperSettings } from '../../../../models/datamapper';
+import { IDataMapperSettings } from '../../../../models/datamapper';
+import { DataMapperOutputValidationService } from '../../../../services/datamapper-output-validation.service';
 import { DataMapperSettingsService } from '../../../../services/datamapper-settings.service';
 import { DataMapperStepService } from '../../../../services/datamapper-step.service';
 import { OutputVariableField } from '../../../DataMapper/OutputVariableField';
+
+const VALIDATE_OUTPUT_DESCRIPTION =
+  'Adds a Validator step after this step that checks the output against the target schema at runtime.';
 
 type DataMapperSettingsModalProps = {
   isModalOpen: boolean;
@@ -39,12 +43,13 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
     [targetBodyDocument.definitionType],
   );
 
-  const isTargetPrimitive = useMemo(
-    () => targetBodyDocument.definitionType === DocumentDefinitionType.Primitive,
+  const isValidationSupported = useMemo(
+    () => DataMapperOutputValidationService.isValidationSupported(targetBodyDocument.definitionType),
     [targetBodyDocument.definitionType],
   );
-  // Output validation UI: set to true when feature is complete
-  const showOutputValidation = false as boolean;
+  const validationUnsupportedReason = DataMapperOutputValidationService.describeUnsupportedValidation(
+    targetBodyDocument.definitionType,
+  );
 
   const outputVariable = localOptions.outputVariable ?? '';
   const isSaveDisabled = !!DataMapperStepService.getOutputVariableNameError(outputVariable);
@@ -90,20 +95,19 @@ export const DataMapperSettingsModal: FunctionComponent<DataMapperSettingsModalP
               description={!isOmitXmlDeclarationSupported ? 'Only available when target document is XML' : undefined}
             />
           </FormGroup>
-          {/* Output validation UI: set to true when feature is complete */}
-          {showOutputValidation && !isTargetPrimitive && (
-            <FormGroup label="Output Validation">
-              <Checkbox
-                id="validate-output-settings"
-                label="Validate output"
-                isChecked={localOptions.isOutputValidationEnabled}
-                onChange={(_event, checked) => {
-                  handleFieldChange('isOutputValidationEnabled', checked);
-                }}
-                data-testid="validate-output-settings-checkbox"
-              />
-            </FormGroup>
-          )}
+          <FormGroup label="Output validation">
+            <Checkbox
+              id="validate-output-settings"
+              label="Validate output"
+              isChecked={isValidationSupported ? localOptions.isOutputValidationEnabled : false}
+              onChange={(_event, checked) => {
+                handleFieldChange('isOutputValidationEnabled', checked);
+              }}
+              isDisabled={!isValidationSupported}
+              data-testid="validate-output-settings-checkbox"
+              description={isValidationSupported ? VALIDATE_OUTPUT_DESCRIPTION : validationUnsupportedReason}
+            />
+          </FormGroup>
           <OutputVariableField
             value={outputVariable}
             onChange={(value) => {

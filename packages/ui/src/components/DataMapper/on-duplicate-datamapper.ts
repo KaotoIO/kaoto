@@ -6,7 +6,6 @@ import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
-import { clearXsltUri, setXsltUri } from './datamapper-utils';
 
 export const onDuplicateDataMapper = async (
   api: IMetadataApi | undefined,
@@ -23,7 +22,7 @@ export const onDuplicateDataMapper = async (
   if (!newStepId) return parameters.content;
 
   if (!api) {
-    clearXsltUri(stepDef);
+    DataMapperStepService.clearResources(stepDef);
     return parameters.content;
   }
 
@@ -38,7 +37,7 @@ export const onDuplicateDataMapper = async (
 
     await api.setMetadata(newStepId, newMetadata);
 
-    clearXsltUri(stepDef);
+    DataMapperStepService.clearResources(stepDef);
 
     return parameters.content;
   }
@@ -48,9 +47,8 @@ export const onDuplicateDataMapper = async (
 
   await api.setMetadata(newStepId, newMetadata);
 
-  await DataMapperMetadataService.duplicateXsltFile(api, originalMetadata, newXsltPath);
-
-  setXsltUri(stepDef, newXsltPath);
+  const renames = await DataMapperMetadataService.duplicateMetadataFiles(api, originalMetadata, newXsltPath);
+  DataMapperStepService.applyCopiedResources(stepDef, renames);
 
   return parameters.content;
 };

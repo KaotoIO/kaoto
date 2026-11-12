@@ -7,6 +7,10 @@ import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
+import {
+  GENERATED_WRAPPER_MARKER,
+  GENERATED_WRAPPER_NOTICE,
+} from '../../services/document/xml-schema/xml-schema-wrapper-generator.service';
 import { XSLT_COMPONENT_NAME } from '../../utils';
 import { onDuplicateDataMapper } from './on-duplicate-datamapper';
 
@@ -27,6 +31,10 @@ describe('onDuplicateDataMapper', () => {
       askUserForFileSelection: vi.fn(),
       shouldSaveSchema: true,
     } as unknown as Mocked<IMetadataApi>;
+
+    mockApi.isResourceExist.mockImplementation(
+      async (path: string) => (await mockApi.getResourceContent(path)) !== undefined,
+    );
 
     mockVizNode = {} as Mocked<IVisualizationNode>;
 
@@ -54,7 +62,7 @@ describe('onDuplicateDataMapper', () => {
       name: 'step',
       definition: {
         id: newStepId,
-        steps: [{ to: { uri: 'xslt-saxon:test.xsl' } }],
+        steps: [{ to: { uri: `xslt-saxon:${originalMetadataId}.xsl` } }],
       },
     };
 
@@ -134,8 +142,221 @@ describe('onDuplicateDataMapper', () => {
 
     await onDuplicateDataMapper(mockApi, { sourceVizNode: mockVizNode, content });
 
-    expect(mockApi.setMetadata).toHaveBeenCalled();
+    expect(mockApi.setMetadata).toHaveBeenCalledTimes(1);
+    expect(mockApi.setMetadata).toHaveBeenCalledWith(
+      newStepId,
+      expect.objectContaining({ xsltPath: `${newStepId}.xsl` }),
+    );
 
     expect(mockApi.saveResourceContent).not.toHaveBeenCalled();
+  });
+
+  it('should copy the generated validation wrapper and point the validator to the copy', async () => {
+    const originalMetadata: IDataMapperMetadata = {
+      sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      sourceParameters: {},
+      targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['a.xsd', 'b.xsd'] },
+      xsltPath: `${originalMetadataId}.xsl`,
+    };
+    const wrapper = `${GENERATED_WRAPPER_MARKER}. ${GENERATED_WRAPPER_NOTICE}`;
+    mockApi.getMetadata.mockResolvedValue(originalMetadata);
+    mockApi.getResourceContent.mockImplementation((path: string) =>
+      Promise.resolve(
+        {
+          [`${originalMetadataId}-validation-wrapper.xsd`]: wrapper,
+          [`${originalMetadataId}.xsl`]: '<xsl:stylesheet/>',
+        }[path],
+      ),
+    );
+
+    const content: IClipboardContent = {
+      name: 'step',
+      definition: {
+        id: newStepId,
+        steps: [
+          { to: { uri: `xslt-saxon:${originalMetadataId}.xsl` } },
+          { to: { uri: `validator:${originalMetadataId}-validation-wrapper.xsd` } },
+        ],
+      },
+    };
+
+    await onDuplicateDataMapper(mockApi, { sourceVizNode: mockVizNode, content });
+
+    expect(mockApi.saveResourceContent).toHaveBeenCalledWith(`${newStepId}-validation-wrapper.xsd`, wrapper);
+    const steps = (content.definition as { steps: Array<{ to: { uri: string } }> }).steps;
+    expect(steps[1].to.uri).toBe(`validator:${newStepId}-validation-wrapper.xsd`);
+  });
+
+  it('should not touch the validator when there is no wrapper to copy', async () => {
+    const originalMetadata: IDataMapperMetadata = {
+      sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      sourceParameters: {},
+      targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['a.xsd'] },
+      xsltPath: `${originalMetadataId}.xsl`,
+    };
+    mockApi.getMetadata.mockResolvedValue(originalMetadata);
+    mockApi.getResourceContent.mockImplementation((path: string) =>
+      Promise.resolve(path.endsWith('.xsl') ? '<xsl:stylesheet/>' : undefined),
+    );
+
+    const content: IClipboardContent = {
+      name: 'step',
+      definition: {
+        id: newStepId,
+        steps: [{ to: { uri: `xslt-saxon:${originalMetadataId}.xsl` } }, { to: { uri: 'validator:a.xsd' } }],
+      },
+    };
+
+    await onDuplicateDataMapper(mockApi, { sourceVizNode: mockVizNode, content });
+
+    const steps = (content.definition as { steps: Array<{ to: { uri: string } }> }).steps;
+    expect(steps[1].to.uri).toBe('validator:a.xsd');
+  });
+
+  it('should keep the query options of the validator URI when pointing it to the copy', async () => {
+    const originalMetadata: IDataMapperMetadata = {
+      sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      sourceParameters: {},
+      targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['a.xsd', 'b.xsd'] },
+      xsltPath: `${originalMetadataId}.xsl`,
+    };
+    const wrapper = `${GENERATED_WRAPPER_MARKER}. ${GENERATED_WRAPPER_NOTICE}`;
+    mockApi.getMetadata.mockResolvedValue(originalMetadata);
+    mockApi.getResourceContent.mockImplementation((path: string) =>
+      Promise.resolve(
+        {
+          [`${originalMetadataId}-validation-wrapper.xsd`]: wrapper,
+          [`${originalMetadataId}.xsl`]: '<xsl:stylesheet/>',
+        }[path],
+      ),
+    );
+    const content: IClipboardContent = {
+      name: 'step',
+      definition: {
+        id: newStepId,
+        steps: [
+          { to: { uri: `xslt-saxon:${originalMetadataId}.xsl` } },
+          { to: { uri: `validator:${originalMetadataId}-validation-wrapper.xsd?failOnNullBody=false` } },
+        ],
+      },
+    };
+
+    await onDuplicateDataMapper(mockApi, { sourceVizNode: mockVizNode, content });
+
+    const steps = (content.definition as { steps: Array<{ to: { uri: string } }> }).steps;
+    expect(steps[1].to.uri).toBe(`validator:${newStepId}-validation-wrapper.xsd?failOnNullBody=false`);
+  });
+
+  it('should drop a validator that still points to the original wrapper when the wrapper could not be copied', async () => {
+    const originalMetadata: IDataMapperMetadata = {
+      sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      sourceParameters: {},
+      targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['a.xsd', 'b.xsd'] },
+      xsltPath: `${originalMetadataId}.xsl`,
+    };
+    mockApi.getMetadata.mockResolvedValue(originalMetadata);
+    mockApi.getResourceContent.mockImplementation((path: string) =>
+      Promise.resolve(path === `${originalMetadataId}.xsl` ? '<xsl:stylesheet/>' : undefined),
+    );
+    const content: IClipboardContent = {
+      name: 'step',
+      definition: {
+        id: newStepId,
+        steps: [
+          { to: { uri: `xslt-saxon:${originalMetadataId}.xsl` } },
+          { to: { uri: `validator:${originalMetadataId}-validation-wrapper.xsd` } },
+        ],
+      },
+    };
+
+    await onDuplicateDataMapper(mockApi, { sourceVizNode: mockVizNode, content });
+
+    const steps = (content.definition as { steps: Array<{ to: { uri: string } }> }).steps;
+    expect(steps).toHaveLength(1);
+  });
+
+  it('should warn, drop the validator of the copy and leave the original files alone when the wrapper copy fails', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const originalMetadata: IDataMapperMetadata = {
+      sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      sourceParameters: {},
+      targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['a.xsd', 'b.xsd'] },
+      xsltPath: `${originalMetadataId}.xsl`,
+    };
+    const originalWrapper = `${originalMetadataId}-validation-wrapper.xsd`;
+    const files: Record<string, string> = {
+      [`${originalMetadataId}.xsl`]: '<xsl:stylesheet/>',
+      [originalWrapper]: `${GENERATED_WRAPPER_MARKER}. ${GENERATED_WRAPPER_NOTICE}`,
+    };
+    mockApi.getMetadata.mockResolvedValue(originalMetadata);
+    mockApi.getResourceContent.mockImplementation((path: string) => Promise.resolve(files[path]));
+    // The XSLT copy works, writing the wrapper copy does not
+    mockApi.saveResourceContent.mockImplementation((path: string) =>
+      path === `${newStepId}-validation-wrapper.xsd` ? Promise.reject(new Error('disk full')) : Promise.resolve(),
+    );
+    const content: IClipboardContent = {
+      name: 'step',
+      definition: {
+        id: newStepId,
+        steps: [
+          { to: { uri: `xslt-saxon:${originalMetadataId}.xsl` } },
+          { to: { uri: `validator:${originalWrapper}` } },
+        ],
+      },
+    };
+
+    await onDuplicateDataMapper(mockApi, { sourceVizNode: mockVizNode, content });
+
+    const steps = (content.definition as { steps: Array<{ to: { uri: string } }> }).steps;
+    expect(steps).toHaveLength(1);
+    expect(steps[0].to.uri).toBe(`${XSLT_COMPONENT_NAME}:${newStepId}.xsl`);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('disk full'));
+    // The original step keeps its files
+    expect(mockApi.deleteResource).not.toHaveBeenCalled();
+    expect(mockApi.saveResourceContent).not.toHaveBeenCalledWith(originalWrapper, expect.anything());
+  });
+
+  it('should not warn when the original has no wrapper at all', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    mockApi.getMetadata.mockResolvedValue({
+      sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [] },
+      sourceParameters: {},
+      targetBody: { type: DocumentDefinitionType.XML_SCHEMA, filePath: ['a.xsd'] },
+      xsltPath: `${originalMetadataId}.xsl`,
+    });
+    mockApi.getResourceContent.mockImplementation((path: string) =>
+      Promise.resolve(path.endsWith('.xsl') ? '<xsl:stylesheet/>' : undefined),
+    );
+
+    await onDuplicateDataMapper(mockApi, {
+      sourceVizNode: mockVizNode,
+      content: {
+        name: 'step',
+        definition: { id: newStepId, steps: [{ to: { uri: `xslt-saxon:${originalMetadataId}.xsl` } }] },
+      },
+    });
+
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it('should drop a validator that points to the original wrapper when the original has no metadata', async () => {
+    mockApi.getMetadata.mockResolvedValue(undefined);
+    const content: IClipboardContent = {
+      name: 'step',
+      definition: {
+        id: newStepId,
+        steps: [
+          { to: { uri: `xslt-saxon:${originalMetadataId}.xsl` } },
+          { to: { uri: `validator:${originalMetadataId}-validation-wrapper.xsd` } },
+        ],
+      },
+    };
+
+    await onDuplicateDataMapper(mockApi, { sourceVizNode: mockVizNode, content });
+
+    const steps = (content.definition as { steps: Array<{ to: { uri: string } }> }).steps;
+    expect(steps).toHaveLength(1);
+    expect(steps[0].to.uri).toBe(`${XSLT_COMPONENT_NAME}:`);
   });
 });

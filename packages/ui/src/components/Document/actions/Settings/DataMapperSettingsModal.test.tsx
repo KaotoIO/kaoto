@@ -5,6 +5,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import { DocumentDefinitionType, DocumentInitializationModel, DocumentType } from '../../../../models/datamapper';
 import { DataMapperProvider } from '../../../../providers/datamapper.provider';
 import { DataMapperStepService } from '../../../../services/datamapper-step.service';
+import { getShipOrderJsonSchema, getShipOrderXsd } from '../../../../stubs/datamapper/data-mapper';
 import { DataMapperSettingsModal } from './DataMapperSettingsModal';
 
 describe('DataMapperSettingsModal', () => {
@@ -16,7 +17,7 @@ describe('DataMapperSettingsModal', () => {
     onUpdateStepSettings?: (settings: {
       outputVariable: string | undefined;
       isOutputValidationEnabled: boolean;
-    }) => void,
+    }) => undefined,
     isOutputValidationEnabled?: boolean,
   ): FunctionComponent<PropsWithChildren> => {
     const initialStepSettings =
@@ -26,6 +27,16 @@ describe('DataMapperSettingsModal', () => {
             ...(isOutputValidationEnabled !== undefined ? { isOutputValidationEnabled } : {}),
           }
         : undefined;
+
+    const getDefinitionFiles = (): Record<string, string> => {
+      if (targetDocType === DocumentDefinitionType.XML_SCHEMA) {
+        return { 'ShipOrder.xsd': getShipOrderXsd() };
+      }
+      if (targetDocType === DocumentDefinitionType.JSON_SCHEMA) {
+        return { 'schema.json': getShipOrderJsonSchema() };
+      }
+      return {};
+    };
 
     return ({ children }) => (
       <DataMapperProvider
@@ -41,6 +52,7 @@ describe('DataMapperSettingsModal', () => {
               documentType: DocumentType.TARGET_BODY,
               definitionType: targetDocType,
               name: 'target',
+              definitionFiles: getDefinitionFiles(),
             },
           )
         }
@@ -231,30 +243,32 @@ describe('DataMapperSettingsModal', () => {
     });
   });
 
-  // Output validation UI: skipped until feature is complete
-  describe.skip('Output Validation', () => {
-    it('should show Validate output checkbox when target is XML', async () => {
+  describe('Output Validation', () => {
+    it('should show an enabled Validate output checkbox when target is XML', async () => {
       const wrapper = createWrapper(DocumentDefinitionType.XML_SCHEMA);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
-      await screen.findByTestId('validate-output-settings-checkbox');
-      expect(screen.getByText('Output Validation')).toBeInTheDocument();
+      const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
+      expect(screen.getByText('Output validation')).toBeInTheDocument();
+      expect(checkbox).toBeEnabled();
     });
 
-    it('should show Validate output checkbox when target is JSON', async () => {
+    it('should show a disabled Validate output checkbox, with the JSON reason, when target is JSON', async () => {
       const wrapper = createWrapper(DocumentDefinitionType.JSON_SCHEMA);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
-      await screen.findByTestId('validate-output-settings-checkbox');
-      expect(screen.getByText('Output Validation')).toBeInTheDocument();
+      const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
+      expect(checkbox).toBeDisabled();
+      expect(screen.getByText('Output validation for JSON schemas is not supported yet.')).toBeInTheDocument();
     });
 
-    it('should hide Validate output checkbox when target is Primitive', async () => {
+    it('should show a disabled Validate output checkbox, with the attach-schema reason, when target is Primitive', async () => {
       const wrapper = createWrapper(DocumentDefinitionType.Primitive);
       render(<DataMapperSettingsModal isModalOpen onModalClose={mockOnModalClose} />, { wrapper });
 
-      await screen.findByTestId('datamapper-settings-modal');
-      expect(screen.queryByTestId('validate-output-settings-checkbox')).not.toBeInTheDocument();
+      const checkbox = await screen.findByTestId('validate-output-settings-checkbox');
+      expect(checkbox).toBeDisabled();
+      expect(screen.getByText('Attach a target schema to enable validation.')).toBeInTheDocument();
     });
 
     it('should render checkbox as checked when isOutputValidationEnabled is true', async () => {
