@@ -9,19 +9,32 @@
   &__pane {
     height: 100%;
     overflow-y: auto;
+
+    // Only the list scrolls, so the filter input stays visible in long lists.
+    &--list {
+      display: flex;
+      flex-direction: column;
+      overflow-y: hidden;
+    }
   }
 
   &__candidate-list {
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: 0.5rem;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   &__candidate-item {
     padding: 0.25rem 0.75rem;
     border-radius: 4px;
 
-    &:hover,
+    &:hover {
+      background-color: var(--pf-t--global--background--color--action--plain--hover);
+    }
+
     &[data-selected] {
       background-color: var(--pf-t--global--background--color--secondary--default);
     }

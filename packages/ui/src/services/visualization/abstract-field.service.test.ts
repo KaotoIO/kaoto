@@ -239,6 +239,45 @@ describe('AbstractFieldService', () => {
 
       expect(result).toHaveLength(0);
     });
+
+    it('should take the details from the matching substitute child of the wrapper', () => {
+      const cat = mockField({
+        name: 'Cat',
+        namespaceURI: 'http://test',
+        description: 'A cat',
+        type: Types.Container,
+        typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'anyType'),
+        fields: [
+          mockField({
+            name: 'lives',
+            displayName: 'lives',
+            typeQName: new QName('http://www.w3.org/2001/XMLSchema', 'int'),
+          }),
+        ],
+      });
+      const abstractField = mockField({ wrapperKind: 'abstract', fields: [cat] });
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
+        'ns:Cat': mockSubstituteInfo('Cat'),
+      });
+
+      const [candidate] = AbstractFieldService.buildAbstractCandidates(abstractField, namespaceMap);
+
+      expect(candidate.typeLabel).toBe('xs:anyType');
+      expect(candidate.description).toBe('A cat');
+      expect(candidate.children).toEqual([{ name: 'lives', typeLabel: 'xs:int' }]);
+    });
+
+    it('should fall back to the substitute info type when the wrapper has no matching child', () => {
+      const abstractField = mockField({ wrapperKind: 'abstract' });
+      vi.spyOn(FieldOverrideService, 'getFieldSubstitutionCandidates').mockReturnValue({
+        'ns:Cat': mockSubstituteInfo('Cat'),
+      });
+
+      const [candidate] = AbstractFieldService.buildAbstractCandidates(abstractField, namespaceMap);
+
+      expect(candidate.typeLabel).toBe(Types.Container);
+      expect(candidate.children).toBeUndefined();
+    });
   });
 
   describe('resolveSubstitutionCandidates', () => {

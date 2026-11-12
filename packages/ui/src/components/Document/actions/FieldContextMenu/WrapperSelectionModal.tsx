@@ -86,7 +86,7 @@ export const WrapperSelectionModal: FunctionComponent<WrapperSelectionModalProps
             leftPanelLabel="Candidates"
             rightPanelLabel="Candidate details"
             leftPanel={
-              <div className="wrapper-selection-modal__pane">
+              <div className="wrapper-selection-modal__pane wrapper-selection-modal__pane--list">
                 {showSearch && (
                   <div className="wrapper-selection-modal__search">
                     <SearchInput
@@ -136,7 +136,7 @@ export const WrapperSelectionModal: FunctionComponent<WrapperSelectionModalProps
               </div>
             }
             rightPanel={
-              <div className="wrapper-selection-modal__pane" data-testid={`${testId}-details`}>
+              <div className="wrapper-selection-modal__pane" aria-live="polite" data-testid={`${testId}-details`}>
                 <CandidateDetails candidate={selectedCandidate} />
               </div>
             }
@@ -169,7 +169,7 @@ const CandidateDetails: FunctionComponent<{ candidate?: IWrapperCandidate }> = (
         <Title headingLevel="h3" size="md">
           {candidate.label}
         </Title>
-        <Label isCompact>{candidate.typeBadge}</Label>
+        <Label isCompact>{candidate.typeLabel ?? candidate.typeBadge}</Label>
       </div>
       {candidate.description && <p className="wrapper-selection-modal__details-description">{candidate.description}</p>}
       {hasChildren && (
@@ -181,7 +181,7 @@ const CandidateDetails: FunctionComponent<{ candidate?: IWrapperCandidate }> = (
             {children.map((child, index) => (
               <li key={`${index}-${child.name}`} className="wrapper-selection-modal__details-field">
                 <span>{child.name}</span>
-                <Label isCompact>{child.type}</Label>
+                <Label isCompact>{child.typeLabel}</Label>
               </li>
             ))}
           </ul>

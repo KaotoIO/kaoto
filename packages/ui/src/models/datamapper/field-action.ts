@@ -52,6 +52,8 @@ export interface IWrapperCandidate {
   key: string;
   label: string;
   typeBadge: Types;
+  /** Qualified type name (e.g. `tns:Email_t`) for the details pane; the category from {@link typeBadge} when the type is anonymous. */
+  typeLabel?: string;
   description?: string;
   /** Direct child fields of the candidate, shown in the selection modal's details pane. */
   children?: IWrapperCandidateChild[];
@@ -61,7 +63,8 @@ export interface IWrapperCandidate {
 /** A direct child field of an {@link IWrapperCandidate}, for display only. */
 export interface IWrapperCandidateChild {
   name: string;
-  type: Types;
+  /** Qualified type name (e.g. `xs:int`); the type category when the type is anonymous. */
+  typeLabel: string;
 }
 
 // ── Resolved-state contracts ──

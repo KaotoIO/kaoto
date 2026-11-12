@@ -13,8 +13,8 @@ function makeCandidates(count: number): IWrapperCandidate[] {
     children:
       i % 3 === 0
         ? [
-            { name: 'child1', type: Types.String },
-            { name: 'child2', type: Types.Numeric },
+            { name: 'child1', typeLabel: 'xs:string' },
+            { name: 'child2', typeLabel: 'xs:int' },
           ]
         : undefined,
     selection: { memberIndex: i },
@@ -76,7 +76,32 @@ describe('WrapperSelectionModal', () => {
     expect(within(details).getByText('Fields')).toBeInTheDocument();
     expect(within(details).getByText('child1')).toBeInTheDocument();
     expect(within(details).getByText('child2')).toBeInTheDocument();
-    expect(within(details).getByText(Types.Numeric)).toBeInTheDocument();
+    expect(within(details).getByText('xs:int')).toBeInTheDocument();
+  });
+
+  it('should show the qualified type name in the details pane and the type category in the list', () => {
+    const candidates: IWrapperCandidate[] = [
+      {
+        key: 'email',
+        label: 'Email',
+        typeBadge: Types.Container,
+        typeLabel: 'tns:Email_t',
+        selection: { memberIndex: 0, substituteQName: 'tns:Email' },
+      },
+    ];
+    renderModal({ candidates });
+
+    fireEvent.click(screen.getByTestId('wrapper-radio-email'));
+
+    const details = screen.getByTestId('test-modal-details');
+    expect(within(details).getByText('tns:Email_t')).toBeInTheDocument();
+    expect(within(details).queryByText(Types.Container)).not.toBeInTheDocument();
+    expect(within(screen.getByTestId('test-modal')).getByText(Types.Container)).toBeInTheDocument();
+  });
+
+  it('should announce details changes to screen readers', () => {
+    renderModal();
+    expect(screen.getByTestId('test-modal-details')).toHaveAttribute('aria-live', 'polite');
   });
 
   it('should update the details pane when the selection changes', () => {
