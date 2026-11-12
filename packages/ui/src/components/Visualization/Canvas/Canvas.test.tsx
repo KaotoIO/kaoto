@@ -222,37 +222,115 @@ describe('Canvas', () => {
     expect(container.querySelector('[id="canvas-main"]')).toHaveFocus();
   });
 
-  it('should restore focus to the selected canvas node when closing the sidebar', async () => {
-    const { container, controller } = await renderCanvas();
+  describe('focus return to the last step', () => {
+    /** Two routes with the same step paths, so only the topology id tells their steps apart */
+    async function buildTwoRoutes(secondRouteSteps = [{ log: { message: 'second' } }]) {
+      const camelResource = new CamelRouteResource([
+        { route: { id: 'route-first', from: { uri: 'timer:first', steps: [{ log: { message: 'first' } }] } } },
+        { route: { id: 'route-second', from: { uri: 'timer:second', steps: secondRouteSteps } } },
+      ]);
+      await camelResource.initialize();
+      const vizNodes = await Promise.all(camelResource.getVisualEntities().map((entity) => entity.toVizNode()));
+      return { camelResource, canvasProps: getCanvasPropsFromVizNodes(vizNodes, 2) };
+    }
 
-    // Inject a fake canvas <g> element with the expected testid for route.from
-    const fakeNode = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    fakeNode.setAttribute('class', 'custom-node');
-    fakeNode.setAttribute('data-testid', 'custom-node__route.from');
-    fakeNode.setAttribute('tabindex', '-1');
-    container.appendChild(fakeNode);
+    async function renderTwoRoutes() {
+      const { camelResource, canvasProps } = await buildTwoRoutes();
+      const { Provider } = await TestProvidersWrapper({ camelResource });
+      const controller = ControllerService.createController();
+      // jsdom has no viewport dimensions; keep the real node renderers mounted
+      controller.setRenderConstraint(false);
 
-    // Open sidebar by selecting the timer `from` step
-    act(() => {
-      controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+      const renderWith = (props: typeof canvasProps) => (
+        <Provider>
+          <VisualizationProvider controller={controller}>
+            <Canvas {...props} />
+          </VisualizationProvider>
+        </Provider>
+      );
+      const result = render(renderWith(canvasProps));
+      const flushFrames = () =>
+        act(async () => {
+          await vi.runAllTimersAsync();
+        });
+      await flushFrames();
+
+      const step = (routeId: string, path: string) =>
+        result.container.querySelector<SVGGElement>(`[data-id="${routeId}|${path}"] > g`)!;
+      // Arrow-key navigation moves focus with element.focus(); hotkeys-js itself is mocked in unit tests
+      const focusStep = (routeId: string, path: string) => {
+        act(() => {
+          step(routeId, path).focus();
+        });
+        return step(routeId, path);
+      };
+      // user.click() cannot be used on the graph: the d3 pan/drag handlers fail on mousedown in jsdom
+      const clickBackground = async () => {
+        fireEvent.click(result.container.querySelector('[data-kind="graph"] > rect')!);
+        await flushFrames();
+      };
+      const deleteSecondLog = async () => {
+        result.rerender(renderWith((await buildTwoRoutes([])).canvasProps));
+        await flushFrames();
+      };
+
+      const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+      return { ...result, user, focusStep, flushFrames, clickBackground, deleteSecondLog };
+    }
+
+    it('keeps focus on the selected step of its own route across repeated background clicks', async () => {
+      const { user, focusStep, clickBackground } = await renderTwoRoutes();
+      const secondLog = focusStep('route-second', 'route.from.steps.0.log');
+
+      await user.keyboard('{Enter}');
+      expect(await screen.findByTestId('close-side-bar')).toBeInTheDocument();
+
+      for (let click = 0; click < 3; click++) {
+        await clickBackground();
+        expect(secondLog).toHaveFocus();
+        expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+      }
     });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
+    it('keeps focus on a focused step without opening the properties', async () => {
+      const { focusStep, clickBackground } = await renderTwoRoutes();
+      const secondTimer = focusStep('route-second', 'route.from');
+
+      await clickBackground();
+      await clickBackground();
+
+      expect(secondTimer).toHaveFocus();
+      expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
     });
 
-    // Close via Escape — clearSelection should focus the canvas node, not #canvas-main
-    fireEvent.keyDown(container.firstChild!, { key: 'Escape' });
+    it('returns focus to the selected step when the properties are closed with Escape', async () => {
+      // Without a schema the side panel renders the node source instead of the form (and its search input)
+      setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+      onTestFinished(() => {
+        DynamicCatalogRegistry.get().clearRegistry();
+      });
+      const { user, focusStep, flushFrames } = await renderTwoRoutes();
+      const secondLog = focusStep('route-second', 'route.from.steps.0.log');
 
-    await waitFor(() => {
-      expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
+      await user.keyboard('{Enter}');
+      await flushFrames();
+      expect(screen.getByTestId('filter-fields')).toHaveFocus();
+      await user.keyboard('{Escape}');
+      await flushFrames();
+
+      expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+      expect(secondLog).toHaveFocus();
     });
 
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    it('focuses the canvas when the last step was deleted', async () => {
+      const { container, focusStep, clickBackground, deleteSecondLog } = await renderTwoRoutes();
+      focusStep('route-second', 'route.from.steps.0.log');
 
-    expect(fakeNode).toHaveFocus();
+      await deleteSecondLog();
+      await clickBackground();
+
+      expect(container.querySelector('#canvas-main')).toHaveFocus();
+    });
   });
 
   it('should schedule a graph.fit(80) upon loading', async () => {
