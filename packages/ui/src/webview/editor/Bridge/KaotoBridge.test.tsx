@@ -3,6 +3,7 @@ import { ComponentProps } from 'react';
 
 import { SourceSchemaType } from '../../../models/camel';
 import { TestReportEntry } from '../../../models/citrus/entities/TestResult';
+import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { CitrusTestVisualEntity } from '../../../models/visualization/flows';
 import { EntitiesContext, EntitiesContextResult } from '../../../providers/entities.provider';
 import { KaotoBridge } from './KaotoBridge';
@@ -69,7 +70,7 @@ describe('KaotoBridge', () => {
       actions: [],
     };
 
-    const createEntitiesContext = (visualEntities: CitrusTestVisualEntity[]): EntitiesContextResult => ({
+    const createEntitiesContext = (visualEntities: BaseVisualEntity[]): EntitiesContextResult => ({
       entities: [],
       currentSchemaType: SourceSchemaType.Test,
       visualEntities,
@@ -109,6 +110,22 @@ describe('KaotoBridge', () => {
         </EntitiesContext.Provider>,
       );
 
+      expect(mockGetTestReport).not.toHaveBeenCalled();
+    });
+
+    it('should skip loading reports when entities exist but none are CitrusTestVisualEntity', async () => {
+      const nonCitrusEntity = { id: 'route-1' } as unknown as BaseVisualEntity;
+      const mockGetTestReport = vi.fn().mockResolvedValue(mockReport);
+
+      render(
+        <EntitiesContext.Provider value={createEntitiesContext([nonCitrusEntity])}>
+          <KaotoBridge {...defaultProps} getTestReport={mockGetTestReport}>
+            <div>Test Child</div>
+          </KaotoBridge>
+        </EntitiesContext.Provider>,
+      );
+
+      await new Promise((r) => setTimeout(r, 50));
       expect(mockGetTestReport).not.toHaveBeenCalled();
     });
 
@@ -214,6 +231,20 @@ describe('KaotoBridge', () => {
 
       await new Promise((r) => setTimeout(r, 50));
       expect(applyTestReportSpy).not.toHaveBeenCalled();
+    });
+
+    it('should handle clearTestReports safely when EntitiesContext is null', async () => {
+      render(
+        <EntitiesContext.Provider value={null}>
+          <KaotoBridge {...defaultProps}>
+            <div>Test Child</div>
+          </KaotoBridge>
+        </EntitiesContext.Provider>,
+      );
+
+      window.dispatchEvent(new MessageEvent('message', { data: { type: 'kaoto__testRunStarted' } }));
+
+      await new Promise((r) => setTimeout(r, 50));
     });
 
     it('should re-fetch test reports when kaoto__testReportReady message is received', async () => {
