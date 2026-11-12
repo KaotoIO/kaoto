@@ -171,4 +171,63 @@ describe('CustomNode', () => {
     fireEvent.keyDown(nodeG, { key: 'F10', shiftKey: true });
     expect(onContextMenu).toHaveBeenCalledTimes(1);
   });
+
+  it('should set data-verified when vizNode.isVerified returns true', async () => {
+    const { vizNode } = await renderCustomNode();
+    vi.spyOn(vizNode, 'isVerified').mockReturnValue(true);
+
+    const { controller, element } = createNodeInController({ vizNode });
+    const { Provider } = await TestProvidersWrapper();
+    render(
+      <Provider>
+        <TopologyElementWrapper controller={controller} element={element}>
+          <CustomNodeObserver element={element} />
+        </TopologyElementWrapper>
+      </Provider>,
+    );
+
+    const nodeG = screen.getAllByTestId('custom-node__route.from.steps.0.log')[1].closest('g')!;
+    expect(nodeG).toHaveAttribute('data-verified', 'true');
+  });
+
+  it('should render warning icon and open validation error modal on click', async () => {
+    const vizNode = createVisualizationNode('route.from.steps.0.log', {
+      name: 'log',
+      path: 'route.from.steps.0.log',
+      isPlaceholder: false,
+      isGroup: false,
+      title: '',
+      description: '',
+      iconUrl: '',
+    }) as IVisualizationNode;
+    vi.spyOn(vizNode, 'getNodeLabel').mockReturnValue('log');
+    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue('Missing required field');
+    vi.spyOn(vizNode, 'canDragNode').mockReturnValue(false);
+    vi.spyOn(vizNode, 'canDropOnNode').mockReturnValue(false);
+
+    const { controller, element } = createNodeInController({ vizNode });
+    const { Provider } = await TestProvidersWrapper();
+
+    render(
+      <Provider>
+        <TopologyElementWrapper controller={controller} element={element}>
+          <CustomNodeObserver element={element} />
+        </TopologyElementWrapper>
+      </Provider>,
+    );
+
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+
+    const warningIcons = screen.getAllByTitle('Missing required field');
+    expect(warningIcons.length).toBeGreaterThanOrEqual(1);
+
+    fireEvent.click(warningIcons[0]);
+
+    expect(screen.getByTestId('validation-error-modal')).toBeInTheDocument();
+
+    const closeButton = screen.getByTestId('validation-error-modal-btn-close');
+    fireEvent.click(closeButton);
+  });
 });
