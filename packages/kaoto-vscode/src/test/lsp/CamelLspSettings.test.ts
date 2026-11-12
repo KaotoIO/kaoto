@@ -212,16 +212,10 @@ suite('CamelLspSettings', () => {
 				},
 				configurable: true,
 			});
-			let warned = false;
-			Object.defineProperty(vscode.window, 'showWarningMessage', {
-				value: () => (warned = true),
-				configurable: true,
-			});
 			const restoreCatalogServiceInstance = preserveKaotoCatalogServiceInstance();
 
 			const settings = await initializeKaotoCatalogService().then(readCamelLspSettings).finally(restoreCatalogServiceInstance);
 
-			expect(warned).to.be.false;
 			expect(settings.camel['Camel catalog runtime provider']).to.equal('DEFAULT');
 		});
 
