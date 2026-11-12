@@ -28,6 +28,9 @@ import { CitrusTestDefaultService } from './support/citrus-test-default.service'
 import { CitrusTestContainerSettings, CitrusTestSchemaService } from './support/citrus-test-schema.service';
 import { ModelValidationService } from './support/validators/model-validation.service';
 
+const GROUP_DELIMITER = /[:-]/;
+const GROUP_DELIMITER_GLOBAL = /[:-]/g;
+
 /**
  * Type guard to determine whether an object is a Citrus Test.
  *
@@ -160,7 +163,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
 
     const name = path.split('.').pop() || '';
-    const tokens = name.split(/[:-]/);
+    const tokens = name.split(GROUP_DELIMITER);
     if (tokens.length > 2) {
       const delimiter = name.includes(':') ? ':' : '-';
       return tokens.slice(1).join(delimiter);
@@ -644,7 +647,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   }
 
   private toModelPath(path: string) {
-    return path.replace(/[:-]/g, '.');
+    return path.replace(GROUP_DELIMITER_GLOBAL, '.');
   }
 
   /**
