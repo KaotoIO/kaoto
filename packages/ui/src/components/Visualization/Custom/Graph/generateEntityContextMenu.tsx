@@ -1,9 +1,10 @@
 import './generateEntityContextMenu.scss';
 
-import { ContextMenuItem, ContextSubMenuItem } from '@patternfly/react-topology';
+import { ContextMenuItem } from '@patternfly/react-topology';
 import React from 'react';
 
 import { CanvasEntities } from '../../../../hooks/useCanvasEntities';
+import { CanvasContextSubMenu as ContextSubMenuItem } from '../ContextMenu/CanvasContextMenu';
 
 export const generateEntityContextMenu = (entityData: CanvasEntities) => {
   const { commonEntities, groupedEntities, createEntity } = entityData;
@@ -34,12 +35,7 @@ export const generateEntityContextMenu = (entityData: CanvasEntities) => {
       <ContextMenuItem
         key={`new-entity-${entity.name}`}
         data-testid={`new-entity-${entity.name}`}
-        /**
-         * We can't use onClick due to a race condition in the underlying Popper component from the ContextMenuItem
-         * that cancels the event bubble up, so we use onMouseDown to pick the event before the onClick. This is
-         * on Patternfly library.
-         */
-        onMouseDown={() => {
+        onClick={() => {
           createEntity(entity.name);
         }}
         description={

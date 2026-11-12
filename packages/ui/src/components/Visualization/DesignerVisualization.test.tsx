@@ -1,11 +1,12 @@
 import { isNode, Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
 import { act, render, screen, waitFor } from '@testing-library/react';
-import type { ReactElement } from 'react';
+import userEvent from '@testing-library/user-event';
+import { ReactElement, useMemo, useReducer } from 'react';
 import type { MockInstance } from 'vitest';
 
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../models/visualization/flows';
-import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
+import { VisibleFlowsReducer, VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
 import { VisibleFlowsContext } from '../../providers/visible-flows.provider';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../stubs';
 import { camelRouteJson } from '../../stubs/camel-route';
@@ -178,6 +179,53 @@ describe('DesignerVisualization', () => {
       expect(screen.queryByTestId('visualization-empty-state') !== null).toBe(!visible);
     }
   });
+
+  it.each(['{ContextMenu}', '{Shift>}{F10}{/Shift}'])(
+    'restores focus through actual Hide/Show all menu actions using %s',
+    async (keys) => {
+      const { Provider } = await TestProvidersWrapper();
+      const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+      const entities = [entity];
+      const View = () => {
+        const [visibleFlows, dispatch] = useReducer(VisibleFlowsReducer, map);
+        const visualFlowsApi = useMemo(() => new VisualFlowsApi(dispatch), []);
+        const visibility = useMemo(
+          () => ({ visibleFlows, allFlowsVisible: visibleFlows['route-8888'], visualFlowsApi }),
+          [visibleFlows, visualFlowsApi],
+        );
+        return (
+          <VisibleFlowsContext.Provider value={visibility}>
+            <VisualizationProvider controller={controller}>
+              <DesignerVisualization entities={entities} />
+            </VisualizationProvider>
+          </VisibleFlowsContext.Provider>
+        );
+      };
+      render(
+        <RuntimeProvider>
+          <Provider>
+            <View />
+          </Provider>
+        </RuntimeProvider>,
+      );
+      const canvas = await screen.findByRole('region', { name: 'Route canvas' });
+      await waitFor(() => expect(canvas).not.toHaveClass('hidden'));
+      canvas.focus();
+      const user = userEvent.setup();
+      for (let cycle = 0; cycle < 2; cycle++) {
+        await user.keyboard(keys);
+        expect(await screen.findByRole('menuitem', { name: 'Show all' })).toHaveFocus();
+        await user.keyboard('{ArrowDown}{Enter}');
+        await screen.findByTestId('visualization-empty-state');
+        await waitFor(() => expect(screen.getByRole('region', { name: 'Route canvas' })).toHaveFocus());
+        await user.keyboard(keys);
+        expect(await screen.findByRole('menuitem', { name: 'Show all' })).toHaveFocus();
+        await user.keyboard('{Enter}');
+        await waitFor(() => expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument());
+        await waitFor(() => expect(screen.getByRole('region', { name: 'Route canvas' })).toHaveFocus());
+      }
+    },
+  );
 
   describe.each([
     { name: 'designer', View: DesignerVisualization },

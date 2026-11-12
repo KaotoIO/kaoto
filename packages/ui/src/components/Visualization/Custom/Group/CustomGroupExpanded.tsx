@@ -68,7 +68,7 @@ interface CustomGroupExpandedInnerProps extends CustomGroupProps {
 }
 
 export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInnerProps> = observer(
-  ({ element, vizNode: groupVizNode, onContextMenu, onCollapseToggle, selected, onSelect }) => {
+  ({ element, vizNode: groupVizNode, onContextMenu, contextMenuOpen, onCollapseToggle, selected, onSelect }) => {
     if (!isNode(element)) {
       throw new Error('CustomGroupExpanded must be used only on Node elements');
     }
@@ -100,15 +100,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           event.preventDefault();
           onSelect?.(event as unknown as React.MouseEvent);
         } else if ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') {
-          event.preventDefault();
-          const rect = event.currentTarget.getBoundingClientRect?.() ?? { left: 0, bottom: 0 };
-          onContextMenu?.({
-            preventDefault: () => {},
-            stopPropagation: () => {},
-            clientX: rect.left,
-            clientY: rect.bottom,
-            currentTarget: event.currentTarget,
-          } as unknown as React.MouseEvent);
+          onContextMenu?.(event as unknown as React.MouseEvent);
         }
       },
       [onContextMenu, onSelect],
@@ -231,6 +223,8 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           role="button"
           aria-label={label ?? groupVizNode.id}
           aria-pressed={selected}
+          aria-haspopup={onContextMenu ? 'menu' : undefined}
+          aria-expanded={onContextMenu ? contextMenuOpen : undefined}
           onClick={onSelect}
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}

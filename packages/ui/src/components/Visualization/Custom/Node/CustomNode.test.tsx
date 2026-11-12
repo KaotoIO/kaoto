@@ -1,5 +1,6 @@
 import { action, BaseEdge, NodeModel } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
@@ -172,3 +173,32 @@ describe('CustomNode', () => {
     expect(onContextMenu).toHaveBeenCalledTimes(1);
   });
 });
+
+it.each(['{ContextMenu}', '{Shift>}{F10}{/Shift}'])(
+  'opens the real step menu and focuses an action using %s',
+  async (keys) => {
+    const vizNode = createVisualizationNode('route.from.steps.0.log', {
+      name: 'log',
+      path: 'route.from.steps.0.log',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    }) as IVisualizationNode;
+    const { controller, element } = createNodeInController({ vizNode });
+    const { Provider } = await TestProvidersWrapper();
+    render(
+      <Provider>
+        <TopologyElementWrapper controller={controller} element={element}>
+          <CustomNodeWithSelection element={element} />
+        </TopologyElementWrapper>
+      </Provider>,
+    );
+    screen.getByTestId(`custom-node__${vizNode.id}`).focus();
+    await userEvent.setup().keyboard(keys);
+    expect(await screen.findByRole('menuitem', { name: 'Copy' })).toHaveFocus();
+    expect(screen.getByTestId(`custom-node__${vizNode.id}`)).toHaveAttribute('aria-haspopup', 'menu');
+    expect(screen.getByTestId(`custom-node__${vizNode.id}`)).toHaveAttribute('aria-expanded', 'true');
+  },
+);

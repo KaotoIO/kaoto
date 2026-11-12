@@ -9,6 +9,7 @@ import {
   Visualization,
 } from '@patternfly/react-topology';
 import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { CatalogModalContext, CatalogModalContextValue } from '../../../../dynamic-catalog/catalog-modal.provider';
@@ -17,6 +18,7 @@ import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
 import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
+import { CustomGroupWithSelection } from './CustomGroup';
 import { CustomGroupExpanded } from './CustomGroupExpanded';
 
 const GROUP_ID = 'node-choice-1';
@@ -80,6 +82,30 @@ describe('CustomGroupExpanded', () => {
 
     return vizNode;
   };
+
+  it.each([
+    { collapsed: false, keys: '{ContextMenu}' },
+    { collapsed: false, keys: '{Shift>}{F10}{/Shift}' },
+    { collapsed: true, keys: '{ContextMenu}' },
+    { collapsed: true, keys: '{Shift>}{F10}{/Shift}' },
+  ])('focuses an action from the real group keyboard trigger ($collapsed, $keys)', async ({ collapsed, keys }) => {
+    const vizNode = createChoiceVizNode({ isGroup: true });
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+    act(
+      action(() => {
+        element.setCollapsed(collapsed);
+      }),
+    );
+    const { container } = await renderInContext(<CustomGroupWithSelection element={element} />);
+    const group = container.querySelector<SVGGElement>(collapsed ? '.custom-node' : '.custom-group');
+    expect(group).not.toBeNull();
+    group?.focus();
+    await userEvent.setup().keyboard(keys);
+    expect(await screen.findByRole('menuitem', { name: 'Copy' })).toHaveFocus();
+    expect(group).toHaveAttribute('aria-haspopup', 'menu');
+    expect(group).toHaveAttribute('aria-expanded', 'true');
+  });
 
   it.each(['self', 'ancestor'] as const)(
     'dims the SVG wrapper during %s drag without applying opacity to foreignObject and restores it after cancellation',

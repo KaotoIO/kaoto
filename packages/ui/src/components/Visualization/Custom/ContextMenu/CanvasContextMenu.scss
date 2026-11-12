@@ -1,0 +1,11 @@
+.pf-v6-c-menu.canvas-context-menu {
+  --pf-v6-c-menu--Width: max-content;
+
+  // PatternFly's flyout offset calculation requires a list-padding default.
+  --pf-v6-c-menu__list--PaddingBlockStart: 0px;
+
+  // Apply collision offsets immediately, including when background animations are throttled.
+  transition-property: opacity;
+  display: grid;
+  max-width: min(30rem, calc(100vw - 2rem));
+}

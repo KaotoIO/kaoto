@@ -1,3 +1,4 @@
+import { Menu, MenuContent, MenuList } from '@patternfly/react-core';
 import { fireEvent, render, within } from '@testing-library/react';
 
 import { EntityType } from '../../../../models/entities';
@@ -52,7 +53,13 @@ describe('generateEntityContextMenu', () => {
       createEntity,
     });
 
-    const { getByTestId } = render(<>{items}</>);
+    const { getByTestId } = render(
+      <Menu>
+        <MenuContent>
+          <MenuList>{items}</MenuList>
+        </MenuContent>
+      </Menu>,
+    );
 
     commonEntities.forEach((entity) => {
       const item = getByTestId(`new-entity-${entity.name}`);
@@ -68,7 +75,13 @@ describe('generateEntityContextMenu', () => {
       createEntity,
     });
 
-    const { getByTestId } = render(<>{items}</>);
+    const { getByTestId } = render(
+      <Menu>
+        <MenuContent>
+          <MenuList>{items}</MenuList>
+        </MenuContent>
+      </Menu>,
+    );
 
     commonEntities.forEach((entity) => {
       const item = getByTestId(`new-entity-${entity.name}`);
@@ -84,12 +97,18 @@ describe('generateEntityContextMenu', () => {
       createEntity,
     });
 
-    const { getByText, findByTestId } = render(<>{items}</>);
+    const { getByText, findByTestId } = render(
+      <Menu>
+        <MenuContent>
+          <MenuList>{items}</MenuList>
+        </MenuContent>
+      </Menu>,
+    );
 
     for (const [groupName, entities] of Object.entries(groupedEntities)) {
       expect(getByText(groupName)).toBeInTheDocument();
       /* The submenu items are rendered once the submenu is hovered */
-      fireEvent.mouseEnter(getByText(groupName));
+      fireEvent.mouseOver(getByText(groupName));
       for (const entity of entities) {
         const item = await findByTestId(`new-entity-${entity.name}`);
         expect(item).toBeInTheDocument();
@@ -98,21 +117,27 @@ describe('generateEntityContextMenu', () => {
     }
   });
 
-  it('calls createEntity when groupedEntities menu item is mouse downed', async () => {
+  it('calls createEntity when groupedEntities menu item is clicked', async () => {
     const items = generateEntityContextMenu({
       commonEntities: [],
       groupedEntities,
       createEntity,
     });
 
-    const { getByText, findByTestId } = render(<>{items}</>);
+    const { getByText, findByTestId } = render(
+      <Menu>
+        <MenuContent>
+          <MenuList>{items}</MenuList>
+        </MenuContent>
+      </Menu>,
+    );
 
     for (const [groupName, entities] of Object.entries(groupedEntities)) {
       /* The submenu items are rendered once the submenu is hovered */
-      fireEvent.mouseEnter(getByText(groupName));
+      fireEvent.mouseOver(getByText(groupName));
       for (const entity of entities) {
         const item = await findByTestId(`new-entity-${entity.name}`);
-        fireEvent.mouseDown(within(item).getByRole('menuitem'));
+        fireEvent.click(within(item).getByRole('menuitem'));
         expect(createEntity).toHaveBeenCalledWith(entity.name);
       }
     }

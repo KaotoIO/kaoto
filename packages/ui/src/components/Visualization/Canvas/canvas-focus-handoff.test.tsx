@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { StrictMode } from 'react';
 
-import { CanvasFocusProvider, useCanvasFocusTarget } from './canvas-focus-handoff';
+import { CanvasFocusProvider, useCanvasFocusReturn, useCanvasFocusTarget } from './canvas-focus-handoff';
 
 const Surface = ({ name, ready = true }: { name: string; ready?: boolean }) => {
   const ref = useCanvasFocusTarget(ready);
@@ -141,3 +141,65 @@ it('discards pending focus when the owning visualization is unmounted', () => {
   rerender(view('Replacement'));
   expect(document.body).toHaveFocus();
 });
+
+const PortalAction = () => {
+  const returnFocus = useCanvasFocusReturn();
+  return <button onClick={() => returnFocus(screen.getByLabelText('Step'))}>Portal action</button>;
+};
+
+const portalView = (name?: string, ready = true) => (
+  <CanvasFocusProvider>
+    {name && <Surface key={name} name={name} ready={ready} />}
+    <PortalAction />
+    <button>Dialog action</button>
+  </CanvasFocusProvider>
+);
+
+const nextFrame = async () => {
+  await act(async () => {
+    await new Promise(requestAnimationFrame);
+  });
+};
+
+it('returns portal focus to the connected SVG trigger', async () => {
+  render(portalView('Original'));
+  const action = screen.getByText('Portal action');
+  action.focus();
+  fireEvent.click(action);
+  action.blur();
+  await nextFrame();
+  expect(screen.getByLabelText('Step')).toHaveFocus();
+});
+
+it('waits for a ready canvas when a portal action removes the trigger', async () => {
+  const { rerender } = render(portalView('Original'));
+  const action = screen.getByText('Portal action');
+  action.focus();
+  fireEvent.click(action);
+  action.blur();
+  rerender(portalView());
+  await nextFrame();
+  rerender(portalView('Replacement', false));
+  expect(document.body).toHaveFocus();
+  rerender(portalView('Replacement'));
+  expect(screen.getByLabelText('Replacement')).toHaveFocus();
+});
+
+it.each(['keep', 'blur', 'remove'] as const)(
+  'respects intervening dialog focus after a portal request (%s)',
+  async (mode) => {
+    const { rerender } = render(portalView('Original'));
+    fireEvent.click(screen.getByText('Portal action'));
+    const dialog = screen.getByText('Dialog action');
+    dialog.focus();
+    if (mode === 'blur') dialog.blur();
+    if (mode === 'remove')
+      rerender(
+        <CanvasFocusProvider>
+          <Surface name="Replacement" />
+        </CanvasFocusProvider>,
+      );
+    await nextFrame();
+    expect(mode === 'keep' ? dialog : document.body).toHaveFocus();
+  },
+);

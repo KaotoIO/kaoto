@@ -64,6 +64,8 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                             transform="translate(0, 0)"
                           >
                             <g
+                              aria-expanded="false"
+                              aria-haspopup="menu"
                               aria-label="route-8888"
                               aria-pressed="false"
                               class="custom-group"
@@ -140,6 +142,8 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                             transform="translate(0, 0)"
                           >
                             <g
+                              aria-expanded="false"
+                              aria-haspopup="menu"
                               aria-label="choice"
                               aria-pressed="false"
                               class="custom-group"
@@ -216,6 +220,8 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                             transform="translate(0, 0)"
                           >
                             <g
+                              aria-expanded="false"
+                              aria-haspopup="menu"
                               aria-label="when"
                               aria-pressed="false"
                               class="custom-group"
@@ -1174,6 +1180,8 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                             transform="translate(0, 0)"
                           >
                             <g
+                              aria-expanded="false"
+                              aria-haspopup="menu"
                               aria-label="route-8888"
                               aria-pressed="false"
                               class="custom-group"
@@ -1250,6 +1258,8 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                             transform="translate(0, 0)"
                           >
                             <g
+                              aria-expanded="false"
+                              aria-haspopup="menu"
                               aria-label="choice"
                               aria-pressed="false"
                               class="custom-group"
@@ -1326,6 +1336,8 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                             transform="translate(0, 0)"
                           >
                             <g
+                              aria-expanded="false"
+                              aria-haspopup="menu"
                               aria-label="when"
                               aria-pressed="false"
                               class="custom-group"
@@ -2333,6 +2345,8 @@ exports[`Canvas > should render correctly 1`] = `
                             transform="translate(0, 0)"
                           >
                             <g
+                              aria-expanded="false"
+                              aria-haspopup="menu"
                               aria-label="route-8888"
                               aria-pressed="false"
                               class="custom-group"
@@ -2409,6 +2423,8 @@ exports[`Canvas > should render correctly 1`] = `
                             transform="translate(0, 0)"
                           >
                             <g
+                              aria-expanded="false"
+                              aria-haspopup="menu"
                               aria-label="choice"
                               aria-pressed="false"
                               class="custom-group"
@@ -2485,6 +2501,8 @@ exports[`Canvas > should render correctly 1`] = `
                             transform="translate(0, 0)"
                           >
                             <g
+                              aria-expanded="false"
+                              aria-haspopup="menu"
                               aria-label="when"
                               aria-pressed="false"
                               class="custom-group"

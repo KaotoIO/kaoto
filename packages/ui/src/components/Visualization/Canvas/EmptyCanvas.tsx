@@ -1,8 +1,10 @@
 import './Canvas.scss';
 
-import { TopologyView } from '@patternfly/react-topology';
+import { TopologyView, WithContextMenuProps } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 
+import { withNodeContextMenu } from '../Custom/ContextMenu/withNodeContextMenu';
+import { CanvasBackgroundMenu } from '../Custom/Graph/CustomGraph';
 import { VisualizationEmptyState } from '../EmptyState';
 import { CanvasDefaults } from './canvas.defaults';
 import { useCanvasFocusTarget } from './canvas-focus-handoff';
@@ -13,10 +15,11 @@ interface EmptyCanvasProps {
   isModelResolving?: boolean;
 }
 
-export const EmptyCanvas: FunctionComponent<PropsWithChildren<EmptyCanvasProps>> = ({
+const EmptyCanvasView: FunctionComponent<PropsWithChildren<EmptyCanvasProps & WithContextMenuProps>> = ({
   entitiesNumber,
   contextToolbar,
   isModelResolving,
+  onContextMenu,
 }) => {
   const canvasRef = useCanvasFocusTarget(!isModelResolving);
   if (isModelResolving) {
@@ -26,6 +29,7 @@ export const EmptyCanvas: FunctionComponent<PropsWithChildren<EmptyCanvasProps>>
   return (
     <TopologyView
       ref={canvasRef}
+      onContextMenu={onContextMenu}
       id={CanvasDefaults.CANVAS_MAIN_ID}
       tabIndex={0}
       role="region"
@@ -40,3 +44,7 @@ export const EmptyCanvas: FunctionComponent<PropsWithChildren<EmptyCanvasProps>>
     </TopologyView>
   );
 };
+
+export const EmptyCanvas = withNodeContextMenu(() => [<CanvasBackgroundMenu key="empty-menu" />], {
+  canvasBackground: true,
+})(EmptyCanvasView);

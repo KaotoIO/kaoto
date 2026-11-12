@@ -2,24 +2,47 @@ import { createContext, PropsWithChildren, useCallback, useContext, useEffect, u
 
 function createFocusHandoff() {
   let pending = false;
+  let origin: HTMLElement | SVGElement | null = null;
+  let target: { element: HTMLDivElement; ready: boolean } | undefined;
+  let frame: number | undefined;
+
+  const cancel = () => {
+    pending = false;
+    origin = null;
+    if (frame !== undefined) cancelAnimationFrame(frame);
+    frame = undefined;
+  };
+  const restore = () => {
+    if (!pending || !target?.ready || !target.element.isConnected) return;
+    const { element } = target;
+    if (element.ownerDocument.activeElement !== element.ownerDocument.body) return;
+    const destination = origin?.isConnected && element.contains(origin) ? origin : element;
+    cancel();
+    destination.focus({ preventScroll: true });
+    // A surface may not be focusable yet; retain the handoff until it is.
+    pending = element.ownerDocument.activeElement === element.ownerDocument.body;
+  };
+
   return {
-    cancel: () => {
-      pending = false;
+    cancel,
+    request: (trigger: HTMLElement | SVGElement | null) => {
+      cancel();
+      pending = true;
+      origin = trigger;
+      // Menu actions may remove both the portal and the originating canvas in this commit.
+      frame = requestAnimationFrame(() => {
+        frame = undefined;
+        restore();
+      });
     },
     register: (element: HTMLDivElement, ready: boolean) => {
-      const owner = element.ownerDocument;
-      if (pending && ready && element.isConnected) {
-        pending = false;
-        if (owner.activeElement === owner.body) {
-          element.focus({ preventScroll: true });
-          // A surface may not be focusable yet; retain the handoff until it is.
-          pending = owner.activeElement === owner.body;
-        }
-      }
-
+      const registration = { element, ready };
+      target = registration;
+      restore();
       // React runs ref cleanup before removing the focused DOM subtree.
       return () => {
-        if (element.contains(owner.activeElement)) pending = true;
+        if (element.contains(element.ownerDocument.activeElement)) pending = true;
+        if (target === registration) target = undefined;
       };
     },
   };
@@ -35,6 +58,7 @@ export const CanvasFocusProvider = ({ children }: PropsWithChildren) => {
     document.addEventListener('focusin', handoff.cancel, true);
     return () => {
       document.removeEventListener('focusin', handoff.cancel, true);
+      handoff.cancel();
     };
   }, [handoff]);
 
@@ -50,4 +74,10 @@ export const useCanvasFocusTarget = (isReady: boolean) => {
     },
     [handoff, isReady],
   );
+};
+
+/** Requests focus return after a portaled menu closes, unless another destination takes focus. */
+export const useCanvasFocusReturn = () => {
+  const handoff = useContext(CanvasFocusContext);
+  return useCallback((origin: HTMLElement | SVGElement | null) => handoff?.request(origin), [handoff]);
 };

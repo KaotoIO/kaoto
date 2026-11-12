@@ -1,15 +1,18 @@
 import { Add, View, ViewOff } from '@carbon/icons-react';
 import { Divider } from '@patternfly/react-core';
-import { ContextSubMenuItem, ElementContext, GraphComponent, withContextMenu } from '@patternfly/react-topology';
-import { createContext, FunctionComponent, PropsWithChildren, ReactElement, useContext, useMemo } from 'react';
+import { ElementContext, GraphComponent } from '@patternfly/react-topology';
+import { FunctionComponent, PropsWithChildren, ReactElement, useContext } from 'react';
 
+import { useCanvasEntities } from '../../../../hooks/useCanvasEntities';
 import { IDataTestID } from '../../../../models';
 import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
 import { CanvasToolbar } from '../../Canvas/CanvasToolbar/CanvasToolbar';
+import { CanvasContextSubMenu as ContextSubMenuItem } from '../ContextMenu/CanvasContextMenu';
+import { withNodeContextMenu } from '../ContextMenu/withNodeContextMenu';
 import { withCustomPanZoom } from './customUsePanZoom';
+import { generateEntityContextMenu } from './generateEntityContextMenu';
 import { ItemPasteEntity } from './ItemPasteEntity';
 import { ShowOrHideAllFlows } from './ShowOrHideAllFlows';
-import { withEntityContextMenu, WithEntityContextMenuProps } from './withEntityContextMenu';
 
 interface GraphContextMenuOptions {
   entityContextMenuFn: () => ReactElement[];
@@ -55,24 +58,20 @@ export const GraphContextMenuFn = ({
 
 const PanZoomGraphComponent = withCustomPanZoom({ enableSpacebarPanning: true })(GraphComponent);
 
-const GraphMenuContext = createContext<GraphContextMenuOptions>({ entityContextMenuFn: () => [] });
-const GraphContextMenu: FunctionComponent = () => {
-  const options = useContext(GraphMenuContext);
-  return <>{GraphContextMenuFn(options)}</>;
+export const CanvasBackgroundMenu = () => {
+  const entityData = useCanvasEntities();
+  return <>{GraphContextMenuFn({ entityContextMenuFn: () => generateEntityContextMenu(entityData) })}</>;
 };
-const EnhancedGraphComponent = withContextMenu(() => [<GraphContextMenu key="graph-menu" />])(PanZoomGraphComponent);
+const EnhancedGraphComponent = withNodeContextMenu(() => [<CanvasBackgroundMenu key="graph-menu" />], {
+  canvasBackground: true,
+})(PanZoomGraphComponent);
 
-const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({ entityContextMenuFn, ...rest }) => {
+export const CustomGraphWithSelection: FunctionComponent = (props) => {
   const element = useContext(ElementContext);
-  const menuOptions = useMemo(() => ({ entityContextMenuFn }), [entityContextMenuFn]);
   return (
     <CanvasToolbarProvider>
-      <GraphMenuContext.Provider value={menuOptions}>
-        <EnhancedGraphComponent {...rest} element={element} />
-      </GraphMenuContext.Provider>
+      <EnhancedGraphComponent {...props} element={element} />
       <CanvasToolbar />
     </CanvasToolbarProvider>
   );
 };
-
-export const CustomGraphWithSelection = withEntityContextMenu(BaseCustomGraph);

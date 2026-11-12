@@ -64,7 +64,7 @@ interface CustomNodeInnerProps extends CustomNodeProps {
 }
 
 const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
-  ({ element, vizNode, onContextMenu, onCollapseToggle, selected, onSelect }) => {
+  ({ element, vizNode, onContextMenu, contextMenuOpen, onCollapseToggle, selected, onSelect }) => {
     if (!isNode(element)) {
       throw new Error('CustomNodeInner must be used only on Node elements');
     }
@@ -114,16 +114,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           event.preventDefault();
           onSelect?.(event as unknown as React.MouseEvent);
         } else if ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') {
-          event.preventDefault();
-          // Position the context menu at the bottom-left of the node (keyboard convention)
-          const rect = event.currentTarget.getBoundingClientRect?.() ?? { left: 0, bottom: 0 };
-          onContextMenu?.({
-            preventDefault: () => {},
-            stopPropagation: () => {},
-            clientX: rect.left,
-            clientY: rect.bottom,
-            currentTarget: event.currentTarget,
-          } as unknown as React.MouseEvent);
+          onContextMenu?.(event as unknown as React.MouseEvent);
         }
       },
       [onContextMenu, onSelect],
@@ -258,6 +249,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           role="button"
           aria-label={label}
           aria-pressed={selected}
+          aria-haspopup={onContextMenu ? 'menu' : undefined}
+          aria-expanded={onContextMenu ? contextMenuOpen : undefined}
           onClick={onSelect}
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
