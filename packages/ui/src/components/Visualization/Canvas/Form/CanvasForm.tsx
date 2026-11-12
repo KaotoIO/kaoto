@@ -63,7 +63,7 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClos
         </div>
 
         <div className="canvas-form__body">
-          <CanvasFormBody vizNode={vizNode} />
+          <CanvasFormBody vizNode={vizNode} onDismiss={onCloseFn} />
         </div>
       </div>
     </CanvasSidePanelErrorBoundary>

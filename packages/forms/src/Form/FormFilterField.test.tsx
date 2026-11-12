@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FunctionComponent, useContext } from 'react';
 
@@ -43,5 +43,44 @@ describe('FormFilterField', () => {
 
     expect(searchInput).toHaveValue('');
     await waitFor(() => expect(screen.getByTestId('filter-probe')).toHaveTextContent(''));
+  });
+
+  describe('Escape key', () => {
+    it.each([
+      { scenario: 'on an empty search field', text: '', escapes: 1, expectedDismissals: 1 },
+      {
+        scenario: 'on a field with content (clears the filter first)',
+        text: 'period',
+        escapes: 1,
+        expectedDismissals: 0,
+      },
+      { scenario: 'a second time after the filter was cleared', text: 'period', escapes: 2, expectedDismissals: 1 },
+    ])(
+      'Escape $scenario calls onDismiss $expectedDismissals time(s)',
+      async ({ text, escapes, expectedDismissals }) => {
+        const onDismiss = vi.fn();
+        render(
+          <FilteredFieldProvider>
+            <FormFilterField onDismiss={onDismiss} />
+          </FilteredFieldProvider>,
+        );
+
+        const input = screen.getByTestId('filter-fields');
+        if (text) {
+          await userEvent.type(input, text);
+          expect(input).toHaveValue(text);
+        }
+
+        for (let i = 0; i < escapes; i++) {
+          fireEvent.keyDown(input, { key: 'Escape' });
+          // Our handler returns early on non-empty content and Carbon clears the text
+          if (i === 0 && text) {
+            expect(input).toHaveValue('');
+          }
+        }
+
+        expect(onDismiss).toHaveBeenCalledTimes(expectedDismissals);
+      },
+    );
   });
 });
