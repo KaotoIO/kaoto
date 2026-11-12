@@ -1,4 +1,5 @@
 import { Test, TestActions } from '../../models/citrus/entities/Test';
+import { escapeXml } from './utils/xml-utils';
 
 export const CITRUS_XML_NAMESPACE = 'http://citrusframework.org/schema/xml/testcase'; // NOSONAR - XML namespace URI, not an HTTP request
 
@@ -671,13 +672,4 @@ function serializeJsonArray(
     }
   }
   lines.push(`${indent}  </${key}>`);
-}
-
-function escapeXml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&apos;');
 }
