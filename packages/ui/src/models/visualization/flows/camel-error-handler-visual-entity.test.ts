@@ -155,6 +155,12 @@ describe('CamelErrorHandlerVisualEntity', () => {
     expect(await entity.getNodeValidationText()).toBeUndefined();
   });
 
+  it('isVerified should return undefined', () => {
+    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+
+    expect(entity.isVerified('errorHandler')).toBeUndefined();
+  });
+
   it('toVizNode should return visualization node', async () => {
     const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
 

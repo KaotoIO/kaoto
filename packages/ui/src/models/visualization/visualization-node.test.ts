@@ -432,6 +432,40 @@ describe('VisualizationNode', () => {
     });
   });
 
+  describe('isVerified', () => {
+    it('should return undefined when the underlying BaseVisualEntity is not defined', () => {
+      node = createVisualizationNode('test', {
+        name: 'log',
+        isGroup: false,
+        isPlaceholder: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+      expect(node.isVerified()).toBeUndefined();
+    });
+
+    it('should delegate to the underlying BaseVisualEntity', () => {
+      const isVerifiedSpy = vi.fn().mockReturnValue(true);
+      const visualEntity = {
+        isVerified: isVerifiedSpy,
+      } as unknown as BaseVisualEntity;
+
+      node = createVisualizationNode('test', {
+        name: 'log',
+        path: 'test-path',
+        entity: visualEntity,
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+      });
+      expect(node.isVerified()).toBe(true);
+      expect(isVerifiedSpy).toHaveBeenCalledWith('test-path');
+    });
+  });
+
   describe('getCopiedContent', () => {
     it('should return undefined when the underlying BaseVisualCamelEntity is not defined', () => {
       node = createVisualizationNode('test', {

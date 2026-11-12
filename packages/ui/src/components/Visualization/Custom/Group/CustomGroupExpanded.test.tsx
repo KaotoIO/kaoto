@@ -261,6 +261,36 @@ describe('CustomGroupExpanded', () => {
     expect(document.querySelector('.custom-group__container__icon-placeholder')).toBeInTheDocument();
   });
 
+  it('should render verified icon when group isVerified returns true', async () => {
+    const vizNode = createChoiceVizNode();
+    vi.spyOn(vizNode, 'isVerified').mockReturnValue(true);
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+
+    await renderInContext(<CustomGroupExpanded element={element} />);
+
+    const group = await screen.findByTestId('custom-group__choice-1');
+    expect(group.querySelector('.custom-group__success-icon')).toBeInTheDocument();
+  });
+
+  it('should render warning icon and open modal on click when group has validation warnings', async () => {
+    const vizNode = createChoiceVizNode();
+    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue('Some validation error');
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+
+    await renderInContext(<CustomGroupExpanded element={element} />);
+
+    const warningButton = screen.getByLabelText('Show error details');
+    expect(warningButton).toBeInTheDocument();
+    await act(async () => {
+      warningButton.click();
+    });
+
+    expect(screen.getByTestId('validation-error-modal')).toBeInTheDocument();
+    expect(screen.getByText('Some validation error')).toBeInTheDocument();
+  });
+
   it('calls getNodeDragAndDropDirection when droppable, canDrop and hover are true (line 162)', async () => {
     /** The group parent accepts special children, so the dragged `when` can be dropped into the `choice` group */
     const parentVizNode = createVisualizationNode('route', {

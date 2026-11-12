@@ -172,6 +172,50 @@ describe('KaotoBridge', () => {
       expect(entity['report']).toBeUndefined();
     });
 
+    it('should ignore messages from a different source', async () => {
+      const entity = new CitrusTestVisualEntity({ name: 'test-1', actions: [] });
+      const mockGetTestReport = vi.fn().mockResolvedValue(mockReport);
+
+      render(
+        <EntitiesContext.Provider value={createEntitiesContext([entity])}>
+          <KaotoBridge {...defaultProps} getTestReport={mockGetTestReport}>
+            <div>Test Child</div>
+          </KaotoBridge>
+        </EntitiesContext.Provider>,
+      );
+
+      await waitFor(() => {
+        expect(mockGetTestReport).toHaveBeenCalledTimes(1);
+      });
+
+      mockGetTestReport.mockClear();
+      const iframe = document.createElement('iframe');
+      document.body.appendChild(iframe);
+      window.dispatchEvent(
+        new MessageEvent('message', { data: { type: 'kaoto__testReportReady' }, source: iframe.contentWindow }),
+      );
+
+      await new Promise((r) => setTimeout(r, 50));
+      expect(mockGetTestReport).not.toHaveBeenCalled();
+      document.body.removeChild(iframe);
+    });
+
+    it('should not load reports when getTestReport is not provided', async () => {
+      const entity = new CitrusTestVisualEntity({ name: 'test-1', actions: [] });
+      const applyTestReportSpy = vi.spyOn(entity, 'applyTestReport');
+
+      render(
+        <EntitiesContext.Provider value={createEntitiesContext([entity])}>
+          <KaotoBridge {...defaultProps} getTestReport={undefined}>
+            <div>Test Child</div>
+          </KaotoBridge>
+        </EntitiesContext.Provider>,
+      );
+
+      await new Promise((r) => setTimeout(r, 50));
+      expect(applyTestReportSpy).not.toHaveBeenCalled();
+    });
+
     it('should re-fetch test reports when kaoto__testReportReady message is received', async () => {
       const entity = new CitrusTestVisualEntity({ name: 'test-1', actions: [] });
       const mockGetTestReport = vi.fn().mockResolvedValue(undefined);

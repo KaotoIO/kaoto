@@ -535,6 +535,12 @@ describe('Pipe', () => {
     });
   });
 
+  describe('isVerified', () => {
+    it('should return undefined', () => {
+      expect(pipeVisualEntity.isVerified('source')).toBeUndefined();
+    });
+  });
+
   describe('toVizNode', () => {
     it('should return the viz node and set the initial path to `#`', async () => {
       const vizNode = await pipeVisualEntity.toVizNode();
