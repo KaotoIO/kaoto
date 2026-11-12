@@ -288,8 +288,14 @@ describe('Canvas', () => {
       controller.fireEvent(SELECTION_EVENT, ['route-second|route.from.steps.0.log']);
     });
     const closeButton = await screen.findByTestId('close-side-bar');
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+    closeButton.focus();
+    expect(closeButton).toHaveFocus();
+    expect(steps[1]).not.toHaveFocus();
     if (dismissal === 'Escape') {
-      fireEvent.keyDown(container.firstChild!, { key: 'Escape' });
+      fireEvent.keyDown(closeButton, { key: 'Escape' });
     } else {
       fireEvent.click(closeButton);
     }
