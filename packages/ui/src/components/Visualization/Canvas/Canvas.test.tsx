@@ -322,6 +322,18 @@ describe('Canvas', () => {
       expect(secondLog).toHaveFocus();
     });
 
+    it('returns focus to the selected step when the properties are closed with the close button', async () => {
+      const { user, focusStep, flushFrames } = await renderTwoRoutes();
+      const secondLog = focusStep('route-second', 'route.from.steps.0.log');
+
+      await user.keyboard('{Enter}');
+      await user.click(await screen.findByTestId('close-side-bar'));
+      await flushFrames();
+
+      expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+      expect(secondLog).toHaveFocus();
+    });
+
     it('focuses the canvas when the last step was deleted', async () => {
       const { container, focusStep, clickBackground, deleteSecondLog } = await renderTwoRoutes();
       focusStep('route-second', 'route.from.steps.0.log');
