@@ -197,9 +197,11 @@ export class CitrusTestSchemaService {
         return { name: 'when', type: 'branch' };
 
       case 'soap-assertFault':
+      case 'soap:assertFault':
         return { name: 'when', type: 'single-node' };
 
       case 'agent-run':
+      case 'agent:run':
         return { name: 'actions', type: 'branch' };
 
       default:
@@ -244,7 +246,8 @@ export class CitrusTestSchemaService {
     for (const key in jsonRecord) {
       if (jsonRecord[key] === undefined) continue;
 
-      const candidateName = `${groupName}-${key}`;
+      const colonCandidate = `${groupName}:${key}`;
+      const candidateName = colonCandidate in CitrusTestSchemaService.kindMap ? colonCandidate : `${groupName}-${key}`;
       const kind = CitrusTestSchemaService.kindMap[candidateName];
       if (kind === undefined) continue;
 

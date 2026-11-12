@@ -20,8 +20,8 @@ export class CitrusTestDefaultService {
    */
   static getDefaultTestActionDefinitionValue(definedComponent: DefinedComponent): TestActions {
     const def = definedComponent.definition as ICitrusComponentDefinition | undefined;
-    const groupSegments = def?.group ? def.group.split('-') : [];
-    const leafKey = definedComponent.name.split('-').pop()!;
+    const groupSegments = def?.group ? def.group.split(/[:-]/) : [];
+    const leafKey = definedComponent.name.split(/[:-]/).pop()!;
 
     // Build inside-out: start from the leaf, wrap in each group segment outermost-last
     let result: Record<string, unknown> = { [leafKey]: {} };
