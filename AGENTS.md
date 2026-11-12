@@ -103,8 +103,8 @@ Additionally:
 | Job (inside `build-lint-test.yml`) | Triggers when | Local equivalent |
 |---|---|---|
 | `commitlint` | All PRs | `yarn commitlint --from $(git merge-base HEAD main) --to HEAD` |
-| `packages` | One job per affected workspace except the VS Code ones, shown as e.g. "Packages (@kaoto/forms)"; a change in `packages/forms/` also checks `@kaoto/kaoto`, `@kaoto/kaoto-tests` and `@kaoto/kaoto-web`, which depend on it | `yarn workspaces foreach --all --include <workspace> run <script>` for `lint`, `lint:style`, `build`, `build:lib` and `test` (Yarn skips a script the workspace doesn't define) |
-| `vscode` | `packages/kaoto-vscode/`, `packages/ui-tests-vscode/` or a package the extension embeds (`packages/ui/`, `packages/forms/`) changed; a change in the extension or its UI tests runs every UI test group, any other change the smoke groups | See [`packages/kaoto-vscode/AGENTS.md`](packages/kaoto-vscode/AGENTS.md) |
+| `packages` | One job per affected workspace, shown as e.g. "Packages (@kaoto/forms)"; a change in `packages/forms/` also checks `@kaoto/kaoto`, `@kaoto/kaoto-tests`, `@kaoto/kaoto-web`, `vscode-kaoto` and `@kaoto/ui-tests-vscode`, which depend on it | `yarn workspaces foreach --all --include <workspace> run <script>` for `lint`, `lint:style`, `build`, `build:lib` and `test` (Yarn skips a script the workspace doesn't define) |
+| `vscode` (VSIX build and UI tests) | `packages/kaoto-vscode/`, `packages/ui-tests-vscode/` or a package the extension embeds (`packages/ui/`, `packages/forms/`) changed; a change in the extension or its UI tests runs every UI test group, any other change the smoke groups | See [`packages/kaoto-vscode/AGENTS.md`](packages/kaoto-vscode/AGENTS.md) |
 | `e2e` (Cypress) | `packages/ui-tests/`, `packages/ui/` or `packages/forms/` changed | Run locally via `packages/ui-tests` |
 | `chromatic` (visual regression) | Same as `e2e`, on non-draft PRs targeting `main` | Storybook stories |
 | `build` | All PRs; the required check, which fails if a selected job fails or is cancelled | — |

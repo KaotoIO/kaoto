@@ -23,4 +23,3 @@ jobs:
     with:
       run-full-ui-tests: true
       full-matrix: true
-    secrets: inherit
