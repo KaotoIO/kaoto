@@ -189,6 +189,11 @@ async function deleteDataMapperStep(driver: WebDriver, workspaceFolder: string, 
 	await workaroundToRedrawContextualMenu(kaotoWebview);
 
 	await KaotoCanvas.resetView(driver, 5_000);
+
+	// The step toolbar opens on hover by default, and resetting the view moves the node away from the mouse pointer
+	const kaotoNodeAfterReset = await KaotoCanvas.findNodeByTestIdOrLabel(driver, 'custom-node__kaoto-datamapper', 'kaoto-datamapper');
+	await driver.actions().move({ origin: kaotoNodeAfterReset }).perform();
+
 	await KaotoCanvas.deleteStep(driver, 'kaoto-datamapper', 5_000);
 	await KaotoCanvas.confirmDeleteStepAndFile(driver, 5_000);
 
