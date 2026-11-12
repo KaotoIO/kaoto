@@ -99,11 +99,21 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   /** Track which viz-node id was selected so focus can return to it on sidebar close */
   const selectedVizNodeIdRef = useRef<string | undefined>(undefined);
+  const focusReturnFrame = useRef<number | undefined>(undefined);
+
+  useEffect(
+    () => () => {
+      if (focusReturnFrame.current !== undefined) cancelAnimationFrame(focusReturnFrame.current);
+    },
+    [],
+  );
 
   const clearSelection = useCallback(() => {
     const vizNodeId = selectedVizNodeIdRef.current;
     setSelectedIds([]);
-    requestAnimationFrame(() => {
+    if (focusReturnFrame.current !== undefined) cancelAnimationFrame(focusReturnFrame.current);
+    focusReturnFrame.current = requestAnimationFrame(() => {
+      focusReturnFrame.current = undefined;
       // Prefer restoring focus to the canvas node that was selected (matches any type: custom-node, placeholder-node, custom-group)
       const canvasNode = vizNodeId ? document.querySelector<HTMLElement>(`[data-testid$="__${vizNodeId}"]`) : null;
       if (canvasNode) {

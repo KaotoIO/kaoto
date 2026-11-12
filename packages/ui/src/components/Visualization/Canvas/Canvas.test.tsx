@@ -26,8 +26,10 @@ import { useReplaceStep } from '../Custom/hooks/replace-step.hook';
 import { buildDesignerCanvasModel } from '../designer-canvas-model';
 import { Canvas } from './Canvas';
 import { LayoutType } from './canvas.models';
+import { CanvasFocusProvider } from './canvas-focus-handoff';
 import { COLLAPSE_STATE } from './collapse-handler-state';
 import { ControllerService } from './controller.service';
+import { EmptyCanvas } from './EmptyCanvas';
 
 function getCanvasPropsFromVizNodes(vizNodes: IVisualizationNode[], entitiesCount: number) {
   const { nodes, edges } = buildDesignerCanvasModel(vizNodes);
@@ -215,6 +217,54 @@ describe('Canvas', () => {
 
     expect(fakeNode).toHaveFocus();
   });
+
+  it.each(['before', 'after'])(
+    'does not restore queued focus after unmount when outside focus moves %s replacement',
+    async (timing) => {
+      const { Provider } = await TestProvidersWrapper();
+      const vizNode = await entity.toVizNode();
+      const controller = ControllerService.createController();
+      const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+      const view = (empty = false) => (
+        <RuntimeProvider>
+          <Provider>
+            <VisualizationProvider controller={controller}>
+              <CanvasFocusProvider>
+                {empty ? <EmptyCanvas entitiesNumber={0} /> : <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />}
+              </CanvasFocusProvider>
+              <button>Outside</button>
+            </VisualizationProvider>
+          </Provider>
+        </RuntimeProvider>
+      );
+      const { container, rerender } = render(view());
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+      act(() => {
+        controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+      });
+      await screen.findByTestId('close-side-bar');
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      const canvas = container.querySelector<HTMLElement>('#canvas-main')!;
+      canvas.focus();
+      fireEvent.keyDown(canvas, { key: 'Escape' });
+      fireEvent.keyDown(canvas, { key: 'Escape', repeat: true });
+      const outside = screen.getByRole('button', { name: 'Outside' });
+      if (timing === 'before') outside.focus();
+      rerender(view(true));
+      if (timing === 'after') outside.focus();
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(outside).toHaveFocus();
+      expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument();
+    },
+  );
 
   it('should schedule a graph.fit(80) upon loading', async () => {
     // Cannot use renderCanvas() here: fitSpy and layoutSpy must be installed on controller.getGraph()
