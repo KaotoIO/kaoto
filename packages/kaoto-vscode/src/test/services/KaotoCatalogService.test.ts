@@ -188,7 +188,7 @@ suite('KaotoCatalogService Test Suite', () => {
 	});
 
 	suite('resolveSelectedIntegrationCatalog', () => {
-		const useRuntimeCatalogName = (name: string) => {
+		const useRuntimeCatalogName = (name?: string) => {
 			Object.defineProperty(vscode.workspace, 'getConfiguration', {
 				value: (section?: string, scope?: vscode.ConfigurationScope | null) => {
 					const config = originalGetConfiguration(section, scope);
@@ -202,6 +202,12 @@ suite('KaotoCatalogService Test Suite', () => {
 			});
 		};
 
+		test('resolves to the default catalog when no catalog is configured', () => {
+			useRuntimeCatalogName(undefined);
+
+			expect(catalogService.resolveSelectedIntegrationCatalog()).to.equal(catalogService.getDefaultIntegrationCatalog());
+		});
+
 		test('resolves the integration catalog selected for the window', () => {
 			const quarkusCatalog = catalogService.getCatalogs().find((catalog) => catalog.runtime === 'Quarkus');
 			useRuntimeCatalogName(quarkusCatalog!.name);
@@ -211,17 +217,14 @@ suite('KaotoCatalogService Test Suite', () => {
 
 		test('resolves an invalid catalog name to the default catalog, without a warning', () => {
 			useRuntimeCatalogName('Camel Main 0.0.0');
-			const warnings: string[] = [];
+			let warned = false;
 			Object.defineProperty(vscode.window, 'showWarningMessage', {
-				value: (message: string) => {
-					warnings.push(message);
-					return Promise.resolve(undefined);
-				},
+				value: () => (warned = true),
 				configurable: true,
 			});
 
 			expect(catalogService.resolveSelectedIntegrationCatalog()).to.equal(catalogService.getDefaultIntegrationCatalog());
-			expect(warnings).to.be.empty;
+			expect(warned).to.be.false;
 		});
 	});
 
