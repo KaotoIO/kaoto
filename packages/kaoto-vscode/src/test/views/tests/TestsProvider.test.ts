@@ -18,8 +18,7 @@ import * as vscode from 'vscode';
 import { TestsProvider } from '../../../views/tests/TestsProvider';
 
 function stub(target: object, key: string, value: unknown, restoreFns: Array<() => void>): void {
-	const original =
-		Object.getOwnPropertyDescriptor(target, key) ?? Object.getOwnPropertyDescriptor(Object.getPrototypeOf(target), key);
+	const original = Object.getOwnPropertyDescriptor(target, key) ?? Object.getOwnPropertyDescriptor(Object.getPrototypeOf(target), key);
 	Object.defineProperty(target, key, { value, configurable: true, writable: true });
 	restoreFns.push(() => {
 		if (original) {
@@ -67,7 +66,10 @@ suite('TestsProvider — readTestResult', function () {
 
 	teardown(() => {
 		provider.dispose();
-		restoreFns.splice(0).reverse().forEach((fn) => fn());
+		restoreFns
+			.splice(0)
+			.reverse()
+			.forEach((fn) => fn());
 	});
 
 	test('returns success when report JSON has SUCCESS result', async function () {
@@ -76,10 +78,15 @@ suite('TestsProvider — readTestResult', function () {
 			result: { name: 'my-test', result: 'SUCCESS', success: true },
 			actions: [],
 		};
-		stub(vscode.workspace, 'fs', {
-			...vscode.workspace.fs,
-			readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
-		}, restoreFns);
+		stub(
+			vscode.workspace,
+			'fs',
+			{
+				...vscode.workspace.fs,
+				readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
+			},
+			restoreFns,
+		);
 
 		const result = await provider.readTestResult('/tmp/tests/my-test.citrus.yaml');
 		assert.strictEqual(result, 'success');
@@ -91,10 +98,15 @@ suite('TestsProvider — readTestResult', function () {
 			result: { name: 'my-test', result: 'FAILURE', failed: true },
 			actions: [],
 		};
-		stub(vscode.workspace, 'fs', {
-			...vscode.workspace.fs,
-			readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
-		}, restoreFns);
+		stub(
+			vscode.workspace,
+			'fs',
+			{
+				...vscode.workspace.fs,
+				readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
+			},
+			restoreFns,
+		);
 
 		const result = await provider.readTestResult('/tmp/tests/my-test.citrus.yaml');
 		assert.strictEqual(result, 'failure');
@@ -106,20 +118,32 @@ suite('TestsProvider — readTestResult', function () {
 			result: { name: 'my-test' },
 			actions: [],
 		};
-		stub(vscode.workspace, 'fs', {
-			...vscode.workspace.fs,
-			readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
-		}, restoreFns);
+		stub(
+			vscode.workspace,
+			'fs',
+			{
+				...vscode.workspace.fs,
+				readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
+			},
+			restoreFns,
+		);
 
 		const result = await provider.readTestResult('/tmp/tests/my-test.citrus.yaml');
 		assert.strictEqual(result, 'none');
 	});
 
 	test('returns none when readFile throws (file not found)', async function () {
-		stub(vscode.workspace, 'fs', {
-			...vscode.workspace.fs,
-			readFile: async () => { throw new Error('File not found'); },
-		}, restoreFns);
+		stub(
+			vscode.workspace,
+			'fs',
+			{
+				...vscode.workspace.fs,
+				readFile: async () => {
+					throw new Error('File not found');
+				},
+			},
+			restoreFns,
+		);
 
 		const result = await provider.readTestResult('/tmp/tests/missing.citrus.yaml');
 		assert.strictEqual(result, 'none');
@@ -131,10 +155,15 @@ suite('TestsProvider — readTestResult', function () {
 			result: { name: 'my-test', result: 'SUCCESS', success: true },
 			actions: [{ name: 'print', path: 'actions.0.print' }],
 		};
-		stub(vscode.workspace, 'fs', {
-			...vscode.workspace.fs,
-			readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
-		}, restoreFns);
+		stub(
+			vscode.workspace,
+			'fs',
+			{
+				...vscode.workspace.fs,
+				readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
+			},
+			restoreFns,
+		);
 
 		await provider.readTestResult('/tmp/tests/my-test.citrus.yaml');
 
@@ -154,10 +183,15 @@ suite('TestsProvider — readTestResult', function () {
 			result: { name: 'alpha-test', result: 'SUCCESS', success: true },
 			actions: [],
 		};
-		stub(vscode.workspace, 'fs', {
-			...vscode.workspace.fs,
-			readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
-		}, restoreFns);
+		stub(
+			vscode.workspace,
+			'fs',
+			{
+				...vscode.workspace.fs,
+				readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
+			},
+			restoreFns,
+		);
 
 		await provider.readTestResult('/tmp/tests/alpha-test.citrus.yaml');
 		assert.isUndefined(provider.getTestReport('beta-test'));
