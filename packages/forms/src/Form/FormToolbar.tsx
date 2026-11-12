@@ -14,6 +14,10 @@ interface FormToolbarProps {
    * Skip it when an ancestor already provides one.
    */
   withLayer?: boolean;
+  /**
+   * Called when Escape is pressed on the empty filter field.
+   */
+  onDismiss?: () => void;
 }
 
 /**
@@ -21,14 +25,19 @@ interface FormToolbarProps {
  * a sibling placed before `<Form>`, otherwise the `.kaoto-form:has(*) + .kaoto-form__empty` rule breaks.
  * It is rendered outside the form `<Layer>`, so its surface matches the container the form lives in.
  */
-export const FormToolbar: FunctionComponent<FormToolbarProps> = ({ showFilterField, showSectionTabs, withLayer }) => {
+export const FormToolbar: FunctionComponent<FormToolbarProps> = ({
+  showFilterField,
+  showSectionTabs,
+  withLayer,
+  onDismiss,
+}) => {
   const LayerWrapper = withLayer ? Layer : Fragment;
 
   return (
     <div className="kaoto-form-toolbar" data-testid="kaoto-form-toolbar">
       <LayerWrapper>
         {showSectionTabs && <FormSectionTabs />}
-        {showFilterField && <FormFilterField />}
+        {showFilterField && <FormFilterField onDismiss={onDismiss} />}
       </LayerWrapper>
     </div>
   );

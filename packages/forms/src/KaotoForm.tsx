@@ -66,6 +66,11 @@ export interface KaotoFormProps extends IDataTestID {
    * the form providers, `<Layer>` and `<Layout>`, so it gets the same background, density and field state.
    */
   children?: ReactNode;
+  /**
+   * Called when Escape is pressed on the empty "Find properties by name" field, so the consumer can close
+   * the container hosting the form. Only relevant when `showFilterField` is set.
+   */
+  onDismiss?: () => void;
   onChange?: (value: unknown) => void;
   onChangeProp?: (propName: string, value: unknown) => void;
   customFieldsFactory?: CustomFieldsFactory;
@@ -84,6 +89,7 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
       showSectionTabs = false,
       defaultSectionTab = 'All',
       children,
+      onDismiss,
       onChange,
       onChangeProp,
       customFieldsFactory,
@@ -196,6 +202,7 @@ export const KaotoForm = forwardRef<KaotoFormApi, KaotoFormProps>(
                         showFilterField={showFilterField}
                         showSectionTabs={showSectionTabs}
                         withLayer={shouldAddLayer}
+                        onDismiss={onDismiss}
                       />
                     )}
 

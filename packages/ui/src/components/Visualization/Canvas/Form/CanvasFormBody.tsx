@@ -12,9 +12,10 @@ import { SuggestionRegistrar } from './suggestions/SuggestionsProvider';
 
 interface CanvasFormTabsProps {
   vizNode: IVisualizationNode;
+  onDismiss?: () => void;
 }
 
-export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode }) => {
+export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode, onDismiss }) => {
   const entitiesContext = useContext(EntitiesContext);
   const [omitFields] = useState(() => vizNode.getOmitFormFields() ?? []);
   const schema = vizNode.data.schema;
@@ -66,6 +67,7 @@ export const CanvasFormBody: FunctionComponent<CanvasFormTabsProps> = ({ vizNode
         showFilterField
         showSectionTabs
         defaultSectionTab="Required"
+        onDismiss={onDismiss}
       >
         <RenderingAnchor anchorTag={Anchors.CanvasFormHeader} vizNode={vizNode} />
       </KaotoForm>
