@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { createContext, useCallback, useContext, useState } from 'react';
 
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
+import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 import { CanvasFocusProvider, useCanvasFocusTarget } from '../../Canvas/canvas-focus-handoff';
 import { ControllerService } from '../../Canvas/controller.service';
 import { CanvasContextMenu, CanvasContextSubMenu as ContextSubMenuItem } from './CanvasContextMenu';
@@ -30,38 +31,46 @@ const ActionItem = () => {
   return <ContextMenuItem onClick={activate}>First</ContextMenuItem>;
 };
 
-function setup(submenus = false, outcome: 'action' | 'delete' | 'dialog' = 'action', secondTrigger = false) {
+function setup(
+  submenus = false,
+  outcome: 'action' | 'delete' | 'dialog' = 'action',
+  secondTrigger = false,
+  canvasBackground = false,
+) {
   const action = vi.fn();
   const canvasEscape = vi.fn();
   const controller = ControllerService.createController();
   controller.fromModel({ graph: { id: 'graph', type: 'graph' }, nodes: [{ id: 'step', type: 'node' }] }, false);
-  const WithMenu = withNodeContextMenu(() => [
-    <ContextMenuItem key="disabled" isDisabled>
-      Unavailable
-    </ContextMenuItem>,
-    <ActionItem key="first" />,
-    <Divider key="divider" />,
-    <ContextMenuItem key="last" onClick={action}>
-      Last
-    </ContextMenuItem>,
-    ...(submenus
-      ? [
-          <ContextSubMenuItem key="new" label="New">
-            <ContextMenuItem key="disabled" isDisabled>
-              Disabled child
-            </ContextMenuItem>
-            <ContextMenuItem key="child" onClick={action}>
-              Child
-            </ContextMenuItem>
-            <ContextSubMenuItem key="nested" label="Nested">
-              <ContextMenuItem key="nested-child" onClick={action}>
-                Nested child
+  const WithMenu = withNodeContextMenu(
+    () => [
+      <ContextMenuItem key="disabled" isDisabled>
+        Unavailable
+      </ContextMenuItem>,
+      <ActionItem key="first" />,
+      <Divider key="divider" />,
+      <ContextMenuItem key="last" onClick={action}>
+        Last
+      </ContextMenuItem>,
+      ...(submenus
+        ? [
+            <ContextSubMenuItem key="new" label="New">
+              <ContextMenuItem key="disabled" isDisabled>
+                Disabled child
               </ContextMenuItem>
-            </ContextSubMenuItem>
-          </ContextSubMenuItem>,
-        ]
-      : []),
-  ])(Target);
+              <ContextMenuItem key="child" onClick={action}>
+                Child
+              </ContextMenuItem>
+              <ContextSubMenuItem key="nested" label="Nested">
+                <ContextMenuItem key="nested-child" onClick={action}>
+                  Nested child
+                </ContextMenuItem>
+              </ContextSubMenuItem>
+            </ContextSubMenuItem>,
+          ]
+        : []),
+    ],
+    { canvasBackground },
+  )(Target);
   const Surface = () => {
     const [result, setResult] = useState('');
     const activate = useCallback(() => {
@@ -71,6 +80,7 @@ function setup(submenus = false, outcome: 'action' | 'delete' | 'dialog' = 'acti
     return (
       <ActionContext.Provider value={activate}>
         <div
+          id={canvasBackground ? CanvasDefaults.CANVAS_MAIN_ID : undefined}
           ref={useCanvasFocusTarget(true)}
           tabIndex={0}
           aria-label="Canvas"
@@ -79,8 +89,10 @@ function setup(submenus = false, outcome: 'action' | 'delete' | 'dialog' = 'acti
           }}
         >
           <TopologyElementWrapper controller={controller} element={controller.getNodeById('step')!}>
-            {result !== 'delete' && <WithMenu />}
-            {secondTrigger && <WithMenu name="Other step" />}
+            <g className={canvasBackground ? 'pf-topology-content' : undefined}>
+              {result !== 'delete' && <WithMenu />}
+              {secondTrigger && <WithMenu name="Other step" />}
+            </g>
           </TopologyElementWrapper>
         </div>
         {result === 'dialog' && (
@@ -267,6 +279,51 @@ it('dismisses on outside pointer interaction without returning focus', async () 
   expect(screen.getByRole('button', { name: 'Outside' })).toHaveFocus();
   expect(screen.queryByRole('menu')).not.toBeInTheDocument();
 });
+
+it('activates a pointer-selected action and restores its originating step', async () => {
+  const { user, trigger, action } = setup();
+  fireEvent.contextMenu(trigger, { clientX: 30, clientY: 40 });
+  await user.click(await screen.findByRole('menuitem', { name: 'First' }));
+  await settle();
+  expect(action).toHaveBeenCalledExactlyOnceWith();
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  expect(trigger).toHaveFocus();
+});
+
+it('retains pending flyout focus across repeated ArrowRight presses', async () => {
+  const { user } = setup(true);
+  await user.keyboard('{ContextMenu}{End}');
+  const submenu = await screen.findByRole('menuitem', { name: 'New' });
+  fireEvent.keyDown(submenu, { key: 'ArrowRight' });
+  fireEvent.keyDown(submenu, { key: 'ArrowRight' });
+  await settle();
+  expect(screen.getByRole('menuitem', { name: 'Child' })).toHaveFocus();
+});
+
+it.each([true, false])(
+  'positions the keyboard canvas menu at the drawing surface or its canvas fallback (%s)',
+  async (drawingSurface) => {
+    const { user } = setup(false, 'action', false, true);
+    const canvas = screen.getByLabelText('Canvas');
+    vi.spyOn(canvas, 'getBoundingClientRect').mockReturnValue(new DOMRect(20, 30, 500, 400));
+    const graph = canvas.querySelector<SVGElement>('.pf-topology-content')!;
+    if (drawingSurface) vi.spyOn(graph, 'getBoundingClientRect').mockReturnValue(new DOMRect(80, 90, 300, 200));
+    else graph.removeAttribute('class');
+    canvas.focus();
+    await user.keyboard('{ContextMenu}');
+    const menu = await screen.findByRole('menu', { name: 'Canvas actions' });
+    await waitFor(() =>
+      expect(menu.closest('.pf-v6-c-menu')?.parentElement).toHaveStyle({
+        transform: drawingSurface ? 'translate(80px, 90px)' : 'translate(20px, 30px)',
+      }),
+    );
+    expect(screen.getByRole('menuitem', { name: 'First' })).toHaveFocus();
+    await user.keyboard('{Escape}');
+    await settle();
+    expect(canvas).toHaveFocus();
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  },
+);
 
 it.each(['{Enter}', ' '])('enters a submenu at its first enabled item with %s', async (keys) => {
   const { user } = setup(true);
