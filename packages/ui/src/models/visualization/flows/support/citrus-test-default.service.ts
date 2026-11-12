@@ -2,6 +2,8 @@ import { DefinedComponent } from '../../../camel/camel-catalog-index';
 import { ICitrusComponentDefinition } from '../../../citrus/citrus-catalog';
 import { TestActions } from '../../../citrus/entities/Test';
 
+const GROUP_DELIMITER = /[:-]/;
+
 export class CitrusTestDefaultService {
   /**
    * Gets the default definition for a test action.
@@ -20,8 +22,8 @@ export class CitrusTestDefaultService {
    */
   static getDefaultTestActionDefinitionValue(definedComponent: DefinedComponent): TestActions {
     const def = definedComponent.definition as ICitrusComponentDefinition | undefined;
-    const groupSegments = def?.group ? def.group.split(/[:-]/) : [];
-    const leafKey = definedComponent.name.split(/[:-]/).pop()!;
+    const groupSegments = def?.group ? def.group.split(GROUP_DELIMITER) : [];
+    const leafKey = definedComponent.name.split(GROUP_DELIMITER).pop()!;
 
     // Build inside-out: start from the leaf, wrap in each group segment outermost-last
     let result: Record<string, unknown> = { [leafKey]: {} };
