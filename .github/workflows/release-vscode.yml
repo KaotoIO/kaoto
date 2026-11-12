@@ -30,6 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       vsix_name: ${{ steps.compute.outputs.vsix_name }}
+      ui_test_matrix: ${{ steps.ui-test-matrix.outputs.matrix }}
 
     steps:
       - name: '🛰️ Checkout source code'
@@ -54,6 +55,14 @@ jobs:
         run: |
           VSIX_NAME="vscode-kaoto-${RELEASE_TAG}.vsix"
           echo "vsix_name=${VSIX_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: '🧪 Select UI test groups'
+        id: ui-test-matrix
+        if: ${{ inputs.run_ui_tests }}
+        uses: ./.github/actions/kaoto-vscode-ui-test-matrix
+        with:
+          full: 'true'
+          all-os: 'true'
 
       - name: '🔧 Build UI lib'
         run: yarn workspace @kaoto/kaoto build:lib
@@ -112,9 +121,7 @@ jobs:
     with:
       vsix-artifact-name: vscode-kaoto-vsix-release
       vsix-file: ${{ needs.release.outputs.vsix_name }}
-      run-full-ui-tests: true
-      run-deploy-tests: true
-      full-matrix: true
+      matrix: ${{ needs.release.outputs.ui_test_matrix }}
       retention-days: ${{ inputs.snapshot && 2 || 7 }}
 
   publish:

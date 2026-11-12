@@ -98,17 +98,18 @@ Additionally:
 
 ### What CI runs on a PR
 
-`build-lint-test.yml` is the primary PR workflow. It runs a `changes` job first to select only the jobs relevant to the files you modified — not all jobs run on every PR.
+`build-lint-test.yml` is the primary PR workflow. Its `changes` job first lists the workspaces that hold a changed file and every workspace that depends on them, and only the jobs for those workspaces run — not all jobs run on every PR. A change outside `packages/` that isn't documentation, such as `yarn.lock`, a root config or a workflow, runs every job.
 
 | Job (inside `build-lint-test.yml`) | Triggers when | Local equivalent |
 |---|---|---|
 | `commitlint` | All PRs | `yarn commitlint --from $(git merge-base HEAD main) --to HEAD` |
-| `ui` | `packages/ui/` or `packages/ui-tests/` changed | `yarn workspace @kaoto/kaoto lint && yarn workspace @kaoto/kaoto lint:style && yarn workspace @kaoto/kaoto-tests lint && yarn workspace @kaoto/kaoto build && yarn workspace @kaoto/kaoto build:lib && yarn workspace @kaoto/kaoto test` |
-| `web` | `packages/kaoto-web/` changed | `yarn workspace @kaoto/kaoto-web lint && yarn workspace @kaoto/kaoto-web build && yarn workspace @kaoto/kaoto-web test` |
-| `vscode-smoke` | `packages/ui/` changed (reduced VS Code checks) | See [`packages/kaoto-vscode/AGENTS.md`](packages/kaoto-vscode/AGENTS.md) |
-| `vscode-full` | `packages/kaoto-vscode/` or `packages/ui-tests-vscode/` changed (all VS Code checks) | See [`packages/kaoto-vscode/AGENTS.md`](packages/kaoto-vscode/AGENTS.md) |
-| `e2e` (Cypress) | `packages/ui/` or `packages/ui-tests/` changed | Run locally via `packages/ui-tests` |
-| `chromatic` (visual regression) | UI/story changes, non-draft PRs targeting `main` | Storybook stories |
+| `packages` | One job per affected workspace except the VS Code ones, shown as e.g. "Packages (@kaoto/forms)"; a change in `packages/forms/` also checks `@kaoto/kaoto`, `@kaoto/kaoto-tests` and `@kaoto/kaoto-web`, which depend on it | `yarn workspaces foreach --all --include <workspace> run <script>` for `lint`, `lint:style`, `build`, `build:lib` and `test` (Yarn skips a script the workspace doesn't define) |
+| `vscode` | `packages/kaoto-vscode/`, `packages/ui-tests-vscode/` or a package the extension embeds (`packages/ui/`, `packages/forms/`) changed; a change in the extension or its UI tests runs every UI test group, any other change the smoke groups | See [`packages/kaoto-vscode/AGENTS.md`](packages/kaoto-vscode/AGENTS.md) |
+| `e2e` (Cypress) | `packages/ui-tests/`, `packages/ui/` or `packages/forms/` changed | Run locally via `packages/ui-tests` |
+| `chromatic` (visual regression) | Same as `e2e`, on non-draft PRs targeting `main` | Storybook stories |
+| `build` | All PRs; the required check, which fails if a selected job fails or is cancelled | — |
+
+**VS Code UI test groups:** CI runs only the groups listed in the `ciTestGroups` field of `packages/ui-tests-vscode/package.json`. When you add a group (a folder under `packages/ui-tests-vscode/src/` with a `test:ui:vsix:<group>` script), add its name to `ciTestGroups.all`, and to `ciTestGroups.smoke` if changes to the UI library or forms should run it too. See [Test groups in CI](packages/ui-tests-vscode/README.md#test-groups-in-ci).
 
 **Not on PRs** (no local equivalent needed):
 

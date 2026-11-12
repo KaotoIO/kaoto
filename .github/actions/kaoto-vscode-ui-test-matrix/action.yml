@@ -1,0 +1,52 @@
+name: UI Test Matrix (kaoto-vscode)
+description: Builds the UI-test matrix from the ciTestGroups field in the package.json of @kaoto/ui-tests-vscode
+
+inputs:
+  full:
+    description: Whether to run every test group ('true') or only the smoke groups ('false')
+    required: true
+  all-os:
+    description: Whether to run on Linux, macOS and Windows ('true') or on Windows only ('false')
+    required: true
+
+outputs:
+  matrix:
+    description: The matrix for kaoto-vscode-ui-tests.yml, as JSON with one include entry per group and OS
+    value: ${{ steps.matrix.outputs.matrix }}
+
+runs:
+  using: composite
+  steps:
+    - name: Build the UI-test matrix
+      id: matrix
+      shell: bash
+      env:
+        FULL: ${{ inputs.full }}
+        ALL_OS: ${{ inputs.all-os }}
+      run: |
+        # A full run gets every group in ciTestGroups.all and any other run the groups in ciTestGroups.smoke. The groups
+        # in ciTestGroups.linuxOnly run on Ubuntu only.
+        if [ "$ALL_OS" = true ]; then
+          oses='["ubuntu-latest","macos-latest","windows-latest"]'
+        else
+          oses='["windows-latest"]'
+        fi
+        matrix=$(jq -c --arg full "$FULL" --argjson oses "$oses" '
+          (.ciTestGroups.all // []) as $all
+          | (.ciTestGroups.smoke // []) as $smoke
+          | (.ciTestGroups.linuxOnly // []) as $linuxOnly
+          | (($smoke + $linuxOnly) - $all) as $unlisted
+          | if ($smoke | length) == 0 then
+              error("ciTestGroups.smoke lists no group")
+            elif ($unlisted | length) > 0 then
+              error("ciTestGroups.all is missing groups named in smoke or linuxOnly: \($unlisted | join(", "))")
+            else
+              {include: [
+                (if $full == "true" then $all else $smoke end)[] as $group
+                | (if any($linuxOnly[]; . == $group) then ["ubuntu-latest"] else $oses end)[]
+                | {group: $group, os: .}
+              ]}
+            end
+        ' packages/ui-tests-vscode/package.json)
+        jq -r '.include[] | "\(.group) (\(.os))"' <<< "$matrix"
+        echo "matrix=$matrix" >> "$GITHUB_OUTPUT"

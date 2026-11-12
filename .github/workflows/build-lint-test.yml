@@ -152,32 +152,19 @@ jobs:
           files: packages/kaoto-web/coverage/lcov.info
           flags: web
 
-  # The extension embeds the UI. A change in a package it embeds runs the smoke groups; a change in the
-  # extension or its UI tests runs all groups and the deployment tests (KaotoIO/kaoto#3852).
-  vscode-smoke:
-    name: VS Code (smoke)
+  # The UI tests of the extension depend on it, so a change in the extension, its UI tests or a package the
+  # extension embeds affects them. This job then runs the smoke test groups listed in
+  # packages/ui-tests-vscode/package.json, or every group listed there if the extension or its UI tests changed
+  # (KaotoIO/kaoto#3852).
+  vscode:
+    name: VS Code
     needs: changes
-    if: >-
-      contains(fromJSON(needs.changes.outputs.affected), 'vscode-kaoto') &&
-      !contains(fromJSON(needs.changes.outputs.changed), 'vscode-kaoto') &&
-      !contains(fromJSON(needs.changes.outputs.changed), '@kaoto/ui-tests-vscode')
+    if: contains(fromJSON(needs.changes.outputs.affected), '@kaoto/ui-tests-vscode')
     uses: ./.github/workflows/kaoto-vscode-build-lint-test.yml
     with:
-      run-full-ui-tests: false
-      run-deploy-tests: false
-      full-matrix: false
-    secrets: inherit
-
-  vscode-full:
-    name: VS Code (full)
-    needs: changes
-    if: >-
-      contains(fromJSON(needs.changes.outputs.changed), 'vscode-kaoto') ||
-      contains(fromJSON(needs.changes.outputs.changed), '@kaoto/ui-tests-vscode')
-    uses: ./.github/workflows/kaoto-vscode-build-lint-test.yml
-    with:
-      run-full-ui-tests: true
-      run-deploy-tests: true
+      run-full-ui-tests: >-
+        ${{ contains(fromJSON(needs.changes.outputs.changed), 'vscode-kaoto') ||
+        contains(fromJSON(needs.changes.outputs.changed), '@kaoto/ui-tests-vscode') }}
       full-matrix: false
     secrets: inherit
 
@@ -202,7 +189,7 @@ jobs:
 
   # Keep the existing required check name, including on documentation-only PRs.
   build:
-    needs: [commitlint, changes, packages, vscode-smoke, vscode-full, e2e, chromatic]
+    needs: [commitlint, changes, packages, vscode, e2e, chromatic]
     if: always()
     runs-on: ubuntu-latest
     steps:

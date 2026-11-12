@@ -18,6 +18,22 @@
     "test:ui:vsix:deploy": "yarn test:ui:vsix --code_settings ./src/vscode-settings-minikube.json 'out/deploy/*.test.js'",
     "test:ui:clean": "rimraf ./test-resources && rimraf ./out && rimraf *.vsix"
   },
+  "ciTestGroups": {
+    "all": [
+      "settings",
+      "editor",
+      "views",
+      "export",
+      "deploy"
+    ],
+    "smoke": [
+      "editor",
+      "settings"
+    ],
+    "linuxOnly": [
+      "deploy"
+    ]
+  },
   "dependencies": {
     "vscode-kaoto": "workspace:*"
   },
