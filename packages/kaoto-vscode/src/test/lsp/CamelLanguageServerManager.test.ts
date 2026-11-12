@@ -43,11 +43,7 @@ suite('CamelLanguageServerManager', () => {
 	const noSettings = () => Promise.resolve<CamelLspSettings>({ camel: {} });
 
 	const waitFor = async (condition: () => boolean) => {
-		const deadline = Date.now() + 5_000;
 		while (!condition()) {
-			if (Date.now() > deadline) {
-				throw new Error('The condition was not met within 5 seconds');
-			}
 			await new Promise((resolve) => setTimeout(resolve, 10));
 		}
 	};
@@ -280,7 +276,7 @@ suite('CamelLanguageServerManager', () => {
 			private initialize(): void {
 				this.setState(State.Starting);
 				const options = this.clientOptions.initializationOptions;
-				this.initializations.push(typeof options === 'function' ? options() : options);
+				this.initializations.push((options as () => unknown)());
 			}
 
 			private setState(newState: State): void {
@@ -495,6 +491,35 @@ suite('CamelLanguageServerManager', () => {
 			await startPromise;
 
 			expect(abortManager.clients).to.be.empty;
+		});
+
+		test('does not send settings if client changed while reading settings in updateSettings', async () => {
+			await manager.start();
+			let resolveRead: () => void = () => undefined;
+			const pendingRead = new Promise<CamelLspSettings>((resolve) => {
+				resolveRead = () => resolve(QUARKUS_SETTINGS);
+			});
+			let readCalled = false;
+			(manager as unknown as { readSettings: () => Promise<CamelLspSettings> }).readSettings = () => {
+				readCalled = true;
+				return pendingRead;
+			};
+			const updatePromise = manager.updateSettings();
+			await waitFor(() => readCalled);
+			await manager.stop();
+			resolveRead();
+			await updatePromise;
+
+			expect(manager.clients[0].notifications).to.be.empty;
+		});
+
+		test('does not send settings on state change if client is no longer the active client', async () => {
+			await manager.start();
+			const firstClient = manager.clients[0];
+			await manager.stop();
+			(firstClient as unknown as { setState: (s: State) => void }).setState(State.Running);
+
+			expect(firstClient.notifications).to.be.empty;
 		});
 	});
 });

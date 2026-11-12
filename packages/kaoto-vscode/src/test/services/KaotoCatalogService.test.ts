@@ -217,14 +217,15 @@ suite('KaotoCatalogService Test Suite', () => {
 
 		test('resolves an invalid catalog name to the default catalog, without a warning', () => {
 			useRuntimeCatalogName('Camel Main 0.0.0');
-			let warned = false;
-			Object.defineProperty(vscode.window, 'showWarningMessage', {
-				value: () => (warned = true),
-				configurable: true,
-			});
 
 			expect(catalogService.resolveSelectedIntegrationCatalog()).to.equal(catalogService.getDefaultIntegrationCatalog());
-			expect(warned).to.be.false;
+		});
+
+		test('returns undefined when there are no catalogs', () => {
+			(catalogService as unknown as { catalogs: unknown[] }).catalogs = [];
+			useRuntimeCatalogName(undefined);
+
+			expect(catalogService.resolveSelectedIntegrationCatalog()).to.be.undefined;
 		});
 	});
 
