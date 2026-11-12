@@ -61,4 +61,19 @@ describe('NavSideItems', () => {
     const { container } = renderItems(routes, '/');
     expect(container.querySelector('a')).toBeNull();
   });
+
+  it('renders an external href link for a sub-menu item without a path', () => {
+    const routes: RouteConfigArray = [
+      {
+        path: '/parent',
+        carbon: {
+          label: 'Parent',
+          inSideNav: true,
+          subMenu: [{ index: true, carbon: { label: 'External', href: 'https://example.com/docs' } }],
+        },
+      },
+    ];
+    renderItems(routes, '/');
+    expect(screen.getByRole('link', { name: 'External' })).toHaveAttribute('href', 'https://example.com/docs');
+  });
 });

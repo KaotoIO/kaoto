@@ -56,4 +56,53 @@ describe('NavHeaderItems', () => {
     const { container } = renderItems(routes, '/');
     expect(container.querySelector('a')).toBeNull();
   });
+
+  it('uses the virtual path of the route as link target', () => {
+    const routes: RouteConfigArray = [{ index: true, carbon: { label: 'Home', inHeader: true, virtualPath: '/home' } }];
+    renderItems(routes, '/');
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('href', '/home');
+  });
+
+  it('skips routes without a path or a virtual path', () => {
+    const routes: RouteConfigArray = [{ index: true, carbon: { label: 'Nowhere', inHeader: true } }];
+    const { container } = renderItems(routes, '/');
+    expect(container.querySelector('a')).toBeNull();
+  });
+
+  it('marks the item as active for nested paths', () => {
+    const routes: RouteConfigArray = [{ path: '/dashboard', carbon: { label: 'Dashboard', inHeader: true } }];
+    renderItems(routes, '/dashboard/123');
+    expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute('aria-current', 'true');
+  });
+
+  it('does not mark the item as active for a different path', () => {
+    const routes: RouteConfigArray = [{ path: '/dashboard', carbon: { label: 'Dashboard', inHeader: true } }];
+    renderItems(routes, '/dashboard-other');
+    expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('does not mark the item as active when there is no current path', () => {
+    const routes: RouteConfigArray = [{ path: '/dashboard', carbon: { label: 'Dashboard', inHeader: true } }];
+    renderItems(routes, '');
+    expect(screen.getByRole('link', { name: 'Dashboard' })).not.toHaveAttribute('aria-current');
+  });
+
+  it('skips sub-menu items without a path', () => {
+    const routes: RouteConfigArray = [
+      {
+        path: '/parent',
+        carbon: {
+          label: 'Parent',
+          inHeader: true,
+          subMenu: [
+            { index: true, carbon: { label: 'No path' } },
+            { path: '/parent/child', carbon: { label: 'Child' } },
+          ],
+        },
+      },
+    ];
+    renderItems(routes, '/');
+    expect(screen.queryByText('No path')).not.toBeInTheDocument();
+    expect(screen.getByText('Child')).toBeInTheDocument();
+  });
 });
