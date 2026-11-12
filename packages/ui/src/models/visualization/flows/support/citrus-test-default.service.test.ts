@@ -64,5 +64,31 @@ describe('CitrusTestDefaultService', () => {
       expect(json.jbang).toBeDefined();
       expect(json.jbang.run).toBeDefined();
     });
+
+    it('should return the default value for an action with colon-delimited test group', () => {
+      const definitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue({
+        type: 'testAction',
+        name: 'kubernetes:createService',
+        definition: { group: 'kubernetes' },
+      } as DefinedComponent);
+      expect(definitionValue).toBeDefined();
+      expect(definitionValue.kubernetes).toBeDefined();
+      const json = definitionValue.kubernetes as Record<string, unknown>;
+      expect(json.createService).toBeDefined();
+    });
+
+    it('should return the default value for an action with colon-delimited multiple test groups', () => {
+      const definitionValue = CitrusTestDefaultService.getDefaultTestActionDefinitionValue({
+        type: 'testAction',
+        name: 'camel:cli:cmd:send',
+        definition: { group: 'camel:cli:cmd' },
+      } as DefinedComponent);
+      expect(definitionValue).toBeDefined();
+      expect(definitionValue.camel).toBeDefined();
+      const json = definitionValue.camel as Record<string, Record<string, Record<string, unknown>>>;
+      expect(json.cli).toBeDefined();
+      expect(json.cli.cmd).toBeDefined();
+      expect(json.cli.cmd.send).toBeDefined();
+    });
   });
 });

@@ -176,6 +176,21 @@ describe('CitrusTestVisualEntity', () => {
 
       expect(result).toBe('print');
     });
+
+    it('should shorten a colon-delimited multi-level group name', () => {
+      const label = citrusTestEntity.getNodeLabel('actions.0.camel:cli:cmd:receive');
+      expect(label).toBe('cli:cmd:receive');
+    });
+
+    it('should shorten a colon-delimited two-segment name when long', () => {
+      const label = citrusTestEntity.getNodeLabel('actions.0.soap:assertFault');
+      expect(label).toBe('assertFault');
+    });
+
+    it('should return full colon-delimited name when short enough', () => {
+      const label = citrusTestEntity.getNodeLabel('actions.0.http:send');
+      expect(label).toBe('http:send');
+    });
   });
 
   describe('fetchNodeSchema', () => {
@@ -1190,7 +1205,7 @@ describe('CitrusTestVisualEntity', () => {
       /** soap action */
       expect(soapNode.data.path).toBe('actions.0.soap-assertFault');
       expect(soapNode.data.isGroup).toBeTruthy();
-      expect(soapNode.getNodeLabel()).toBe('soap-assertFault');
+      expect(soapNode.getNodeLabel()).toBe('assertFault');
       /** Since this is the last child node, there's no next action */
       expect(soapNode.getPreviousNode()).toBeUndefined();
       expect(soapNode.getNextNode()).toBeDefined();
@@ -1230,7 +1245,7 @@ describe('CitrusTestVisualEntity', () => {
       /** soap action */
       expect(soapNode.data.path).toBe('actions.0.soap-assertFault');
       expect(soapNode.data.isGroup).toBeTruthy();
-      expect(soapNode.getNodeLabel()).toBe('soap-assertFault');
+      expect(soapNode.getNodeLabel()).toBe('assertFault');
       /** Since this is the last child node, there's no next action */
       expect(soapNode.getPreviousNode()).toBeUndefined();
       expect(soapNode.getNextNode()).toBeDefined();

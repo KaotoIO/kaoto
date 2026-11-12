@@ -160,7 +160,9 @@ describe('CitrusTestSchemaService', () => {
       ['catch', 'when', 'branch'],
       ['assert', 'when', 'branch'],
       ['soap-assertFault', 'when', 'single-node'],
+      ['soap:assertFault', 'when', 'single-node'],
       ['agent-run', 'actions', 'branch'],
+      ['agent:run', 'actions', 'branch'],
       ['actions.1.iterate', 'actions', 'branch'],
     ])('should map test container settings', (path, name, type) => {
       const settings = CitrusTestSchemaService.getTestContainerSettings(path);

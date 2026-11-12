@@ -160,10 +160,11 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
 
     const name = path.split('.').pop() || '';
-    const tokens = name.split('-');
+    const tokens = name.split(/[:-]/);
     if (tokens.length > 2) {
-      return tokens.slice(1).join('-');
-    } else if (tokens.length > 1 && name.length > 18) {
+      const delimiter = name.includes(':') ? ':' : '-';
+      return tokens.slice(1).join(delimiter);
+    } else if (tokens.length > 1 && name.length > 12) {
       // name too long - use shortcut
       return tokens.pop() || '';
     }
@@ -643,7 +644,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
   }
 
   private toModelPath(path: string) {
-    return path.replace(/-/g, '.');
+    return path.replace(/[:-]/g, '.');
   }
 
   /**
@@ -745,8 +746,14 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     const jsonRecord = action as Record<string, unknown>;
     for (const key in jsonRecord) {
       if (jsonRecord[key] === undefined) continue;
-      const candidateName = `${groupName}-${key}`;
-      const candidateResult = await CitrusTestSchemaService.getTestActionDefinition(candidateName);
+      const colonCandidate = `${groupName}:${key}`;
+      let candidateResult = await CitrusTestSchemaService.getTestActionDefinition(colonCandidate);
+      let candidateName = colonCandidate;
+      if (!candidateResult) {
+        const hyphenCandidate = `${groupName}-${key}`;
+        candidateResult = await CitrusTestSchemaService.getTestActionDefinition(hyphenCandidate);
+        candidateName = hyphenCandidate;
+      }
       if (!candidateResult) continue;
       if (candidateResult.definition.kind === CatalogKind.TestActionGroup) {
         return CitrusTestVisualEntity.resolveGroupActionName(jsonRecord[key] as TestAction, candidateName);
