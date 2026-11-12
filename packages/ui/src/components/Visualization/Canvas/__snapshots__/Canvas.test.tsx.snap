@@ -6,6 +6,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
     aria-label="Route canvas"
     class="pf-v6-l-stack"
     id="canvas-main"
+    role="region"
     tabindex="0"
   >
     <div
@@ -1115,6 +1116,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
     aria-label="Route canvas"
     class="pf-v6-l-stack"
     id="canvas-main"
+    role="region"
     tabindex="0"
   >
     <div
@@ -2273,6 +2275,7 @@ exports[`Canvas > should render correctly 1`] = `
     aria-label="Route canvas"
     class="pf-v6-l-stack"
     id="canvas-main"
+    role="region"
     tabindex="0"
   >
     <div

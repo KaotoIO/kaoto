@@ -24,6 +24,9 @@ describe('EmptyCanvas', () => {
       expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument();
     });
     expect(result?.asFragment()).toMatchSnapshot();
+    const canvas = screen.getByRole('region', { name: 'Route canvas' });
+    canvas.focus();
+    expect(canvas).toHaveFocus();
   });
 
   it('should render empty state when there are routes but none are visible', async () => {

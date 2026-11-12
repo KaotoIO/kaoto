@@ -4,6 +4,8 @@ import { TopologyView } from '@patternfly/react-topology';
 import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 
 import { VisualizationEmptyState } from '../EmptyState';
+import { CanvasDefaults } from './canvas.defaults';
+import { useCanvasFocusTarget } from './canvas-focus-handoff';
 
 interface EmptyCanvasProps {
   entitiesNumber: number;
@@ -16,12 +18,20 @@ export const EmptyCanvas: FunctionComponent<PropsWithChildren<EmptyCanvasProps>>
   contextToolbar,
   isModelResolving,
 }) => {
+  const canvasRef = useCanvasFocusTarget(!isModelResolving);
   if (isModelResolving) {
     return null;
   }
 
   return (
-    <TopologyView contextToolbar={contextToolbar}>
+    <TopologyView
+      ref={canvasRef}
+      id={CanvasDefaults.CANVAS_MAIN_ID}
+      tabIndex={0}
+      role="region"
+      aria-label="Route canvas"
+      contextToolbar={contextToolbar}
+    >
       <VisualizationEmptyState
         className="canvas-empty-state"
         data-testid="visualization-empty-state"

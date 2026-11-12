@@ -3,6 +3,7 @@ import './Visualization.scss';
 import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
 
 import { ErrorBoundary } from '../ErrorBoundary';
+import { CanvasFocusProvider } from './Canvas/canvas-focus-handoff';
 import { CanvasFallback } from './CanvasFallback';
 
 interface VisualizationShellProps {
@@ -16,8 +17,10 @@ export const VisualizationShell: FunctionComponent<PropsWithChildren<Visualizati
   children,
 }) => {
   return (
-    <div className={`canvas-surface ${className ?? ''}`}>
-      <ErrorBoundary fallback={fallback ?? <CanvasFallback />}>{children}</ErrorBoundary>
-    </div>
+    <CanvasFocusProvider>
+      <div className={`canvas-surface ${className ?? ''}`}>
+        <ErrorBoundary fallback={fallback ?? <CanvasFallback />}>{children}</ErrorBoundary>
+      </div>
+    </CanvasFocusProvider>
   );
 };

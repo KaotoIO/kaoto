@@ -1,17 +1,19 @@
 import { isNode, Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import type { MockInstance } from 'vitest';
 
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../models/visualization/flows';
 import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
-import { TestProvidersWrapper } from '../../stubs';
+import { VisibleFlowsContext } from '../../providers/visible-flows.provider';
+import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../stubs';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { COLLAPSE_STATE } from './Canvas/collapse-handler-state';
 import { ControllerService } from './Canvas/controller.service';
 import { buildDesignerCanvasModel } from './designer-canvas-model';
 import { DesignerVisualization } from './DesignerVisualization';
+import { TopologyVisualization } from './TopologyVisualization';
 
 describe('DesignerVisualization', () => {
   const entity = new CamelRouteVisualEntity(camelRouteJson);
@@ -141,5 +143,93 @@ describe('DesignerVisualization', () => {
     /* The single existing entity is reported as hidden */
     expect(empty).toHaveTextContent('There are no visible routes');
     expect(fromModelSpy).not.toHaveBeenCalled();
+  });
+
+  it('hands focus to each replacement canvas when routes are hidden and shown repeatedly', async () => {
+    const { Provider } = await TestProvidersWrapper();
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+    const entities = [entity];
+    const view = (visible: boolean) => (
+      <RuntimeProvider>
+        <Provider>
+          <VisibleFlowsContext.Provider
+            value={{
+              visibleFlows: { 'route-8888': visible },
+              allFlowsVisible: visible,
+              visualFlowsApi: new VisualFlowsApi(vi.fn()),
+            }}
+          >
+            <VisualizationProvider controller={controller}>
+              <DesignerVisualization entities={entities} />
+            </VisualizationProvider>
+          </VisibleFlowsContext.Provider>
+        </Provider>
+      </RuntimeProvider>
+    );
+    const { rerender } = render(view(true));
+    const initialCanvas = await screen.findByRole('region', { name: 'Route canvas' });
+    await waitFor(() => expect(initialCanvas).not.toHaveClass('hidden'));
+    initialCanvas.focus();
+
+    for (const visible of [false, true, false, true]) {
+      rerender(view(visible));
+      await waitFor(() => expect(screen.getByLabelText('Route canvas')).toHaveFocus());
+      expect(screen.getByLabelText('Route canvas')).not.toHaveClass('hidden');
+      expect(screen.queryByTestId('visualization-empty-state') !== null).toBe(!visible);
+    }
+  });
+
+  describe.each([
+    { name: 'designer', View: DesignerVisualization },
+    { name: 'topology', View: TopologyVisualization },
+  ])('$name first-route transition', ({ View }) => {
+    it.each(['canvas', 'outside', 'blurred', 'removed'] as const)(
+      'respects the focus destination (%s) when the first route resolves',
+      async (destination) => {
+        const { Provider } = await TestProvidersWrapper();
+        const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+        const view = (entities: CamelRouteVisualEntity[], showOutside = true) => (
+          <>
+            <RuntimeProvider>
+              <Provider>
+                <VisibleFlowsContext.Provider
+                  value={{ visibleFlows: map, allFlowsVisible: true, visualFlowsApi: new VisualFlowsApi(vi.fn()) }}
+                >
+                  <VisualizationProvider controller={controller}>
+                    <View entities={entities} />
+                  </VisualizationProvider>
+                </VisibleFlowsContext.Provider>
+              </Provider>
+            </RuntimeProvider>
+            {showOutside && <button>Outside</button>}
+          </>
+        );
+        const vizNode = await entity.toVizNode();
+        let resolveRoute!: (node: IVisualizationNode) => void;
+        vi.spyOn(entity, 'toVizNode').mockReturnValue(
+          new Promise((resolve) => {
+            resolveRoute = resolve;
+          }),
+        );
+        const { rerender } = render(view([]));
+        const emptyCanvas = await screen.findByLabelText('Route canvas');
+        emptyCanvas.focus();
+        rerender(view([entity]));
+        expect(document.body).toHaveFocus();
+        const outside = screen.getByRole('button', { name: 'Outside' });
+        if (destination !== 'canvas') outside.focus();
+        if (destination === 'blurred') outside.blur();
+        if (destination === 'removed') rerender(view([entity], false));
+
+        await act(async () => {
+          resolveRoute(vizNode);
+        });
+        await waitFor(() => expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument());
+        await waitFor(() => expect(screen.getByLabelText('Route canvas')).not.toHaveClass('hidden'));
+        if (destination === 'canvas') expect(screen.getByLabelText('Route canvas')).toHaveFocus();
+        else expect(destination === 'outside' ? outside : document.body).toHaveFocus();
+        expect(screen.getByLabelText('Route canvas')).not.toBe(emptyCanvas);
+      },
+    );
   });
 });
