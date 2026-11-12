@@ -1,7 +1,23 @@
+ignore:
+  # The VS Code unit test coverage also reports the test files themselves
+  - packages/kaoto-vscode/src/test
+  - packages/kaoto-vscode/out-unit-tests
+
 flags:
+  # CI tests only the affected packages, so a flag that a commit doesn't upload keeps its last coverage.
   ui:
     paths:
-      - packages/ui/coverage
-  catalog-generator:
+      - packages/ui/src
+    carryforward: true
+  forms:
     paths:
-      - packages/catalog-generator/target/jacoco
+      - packages/forms/src
+    carryforward: true
+  web:
+    paths:
+      - packages/kaoto-web/src
+    carryforward: true
+  vscode:
+    paths:
+      - packages/kaoto-vscode/src
+    carryforward: true

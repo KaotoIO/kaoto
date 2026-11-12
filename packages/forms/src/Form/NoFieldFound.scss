@@ -1,4 +1,11 @@
+/* stylelint-disable selector-class-pattern */
 .no-field-found {
+  // Carbon caps the notification width per breakpoint, stretch it to the form area instead
+  &.cds--actionable-notification {
+    width: 100%;
+    max-width: 100%;
+  }
+
   &.cds--actionable-notification--low-contrast.cds--actionable-notification--info {
     background-color: var(--cds-field);
   }
@@ -18,6 +25,6 @@
 
   &.cds--actionable-notification--hide-close-button .cds--actionable-notification__action-button.cds--btn--ghost {
     margin-inline-start: 1.1rem;
-    border: 1px solid currentColor;
+    border: 1px solid currentcolor;
   }
 }

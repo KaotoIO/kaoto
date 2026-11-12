@@ -1,4 +1,26 @@
+/* stylelint-disable selector-class-pattern */
 .key-value-grid.cds--css-grid {
   align-items: center;
   padding-inline: unset;
+
+  // The content columns share the available space, the icon column only takes the space of its button
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+
+  // IndexedValue: narrow index column, wide value column
+  &.key-value-grid--indexed {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 4fr) auto;
+  }
+
+  > .cds--css-grid-column {
+    grid-column: auto;
+  }
+
+  > .cds--css-grid-column:last-child {
+    padding-inline: var(--cds-spacing-03);
+  }
+
+  // KeyValueField renders an empty label, which would push the input off-center
+  .cds--text-input__label-wrapper {
+    display: none;
+  }
 }

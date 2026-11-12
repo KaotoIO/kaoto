@@ -1,15 +1,13 @@
 import './CanvasForm.scss';
 
-import { Card, CardBody, CardHeader } from '@patternfly/react-core';
+import { Close } from '@carbon/icons-react';
+import { IconButton } from '@carbon/react';
 import { FunctionComponent, useCallback, useContext, useEffect, useRef } from 'react';
 
 import { IVisualizationNode } from '../../../../models';
 import { VisibleFlowsContext } from '../../../../providers';
-import { Anchors } from '../../../registers/anchors';
-import { RenderingAnchor } from '../../../RenderingAnchor/RenderingAnchor';
 import { CanvasSidePanelErrorBoundary } from '../CanvasSidePanelErrorBoundary';
 import { CanvasFormBody } from './CanvasFormBody';
-import { CanvasFormHeader } from './CanvasFormHeader';
 
 interface CanvasFormProps {
   vizNode: IVisualizationNode;
@@ -42,16 +40,32 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClos
       title={title || undefined}
       errorTitle="This node cannot be configured"
     >
-      <Card className="canvas-form">
-        <CardHeader>
-          <CanvasFormHeader nodeId={vizNode.id} title={title} onClose={onCloseFn} iconUrl={vizNode.data.iconUrl} />
-          <RenderingAnchor anchorTag={Anchors.CanvasFormHeader} vizNode={vizNode} />
-        </CardHeader>
+      <div className="canvas-form">
+        <div className="canvas-form__header">
+          <div className="form-header-row">
+            <div className="form-header">
+              {vizNode.data.iconUrl && (
+                <img src={vizNode.data.iconUrl} className={`form-header__icon-${vizNode.id}`} alt={title} />
+              )}
+              <h2 className="form-header__title">{title}</h2>
+            </div>
+            <IconButton
+              data-testid="close-side-bar"
+              kind="ghost"
+              size="sm"
+              label="Close"
+              onClick={onCloseFn}
+              className="canvas-header-close"
+            >
+              <Close />
+            </IconButton>
+          </div>
+        </div>
 
-        <CardBody className="canvas-form__body">
-          <CanvasFormBody vizNode={vizNode} />
-        </CardBody>
-      </Card>
+        <div className="canvas-form__body">
+          <CanvasFormBody vizNode={vizNode} onDismiss={onCloseFn} />
+        </div>
+      </div>
     </CanvasSidePanelErrorBoundary>
   );
 };

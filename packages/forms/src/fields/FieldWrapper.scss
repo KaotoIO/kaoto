@@ -1,3 +1,4 @@
+/* stylelint-disable selector-class-pattern */
 .kaoto-field-wrapper {
   &__label-container {
     display: flex;
@@ -26,7 +27,7 @@
     display: flex;
     align-items: flex-start;
     gap: 0.5rem;
-    color: #da1e28;
+    color: var(--cds-text-error);
   }
 
   &__error-icon {

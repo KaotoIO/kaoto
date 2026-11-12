@@ -1,8 +1,9 @@
-import { DocumentType } from './document';
+import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from './document';
 import { MappingTree, VariableItem } from './mapping';
 import { NodePath } from './nodepath';
 import { VARIABLES_DOCUMENT_ID } from './nodepath';
-import { SourceVariableNodeData } from './visualization';
+import { SourceVariableNodeData, TargetDocumentNodeData } from './visualization';
 
 describe('visualization.ts', () => {
   describe('NodeIdentifier', () => {
@@ -49,6 +50,20 @@ describe('visualization.ts', () => {
       expect(nodeData.isSource).toBe(true);
       expect(nodeData.isPrimitive).toBe(true);
       expect(nodeData.isDocument).toBe(false);
+    });
+  });
+
+  describe('TargetDocumentNodeData', () => {
+    it('should refresh the target document of its mapping tree', () => {
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const first = TestUtil.createTargetOrderDoc();
+      const replacement = TestUtil.createTargetOrderDoc();
+
+      new TargetDocumentNodeData(first, tree);
+      expect(tree.targetDocument).toBe(first);
+      new TargetDocumentNodeData(replacement, tree);
+
+      expect(tree.targetDocument).toBe(replacement);
     });
   });
 });

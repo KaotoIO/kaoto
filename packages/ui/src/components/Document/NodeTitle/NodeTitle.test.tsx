@@ -8,17 +8,11 @@ import {
   DocumentType,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
-import {
-  CopyOfSelector,
-  CopyOfType,
-  FieldItem,
-  IfItem,
-  MappingTree,
-  UnknownMappingItem,
-} from '../../../models/datamapper/mapping';
+import { CopyOfSelector, FieldItem, IfItem, MappingTree, UnknownMappingItem } from '../../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   ChoiceFieldNodeData,
+  CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -29,7 +23,7 @@ import {
 } from '../../../models/datamapper/visualization';
 import { VisualizationService } from '../../../services/visualization/visualization.service';
 import { TestUtil } from '../../../stubs/datamapper/data-mapper';
-import { createGuardedCsvRows } from '../../../stubs/datamapper/target-render-test-helpers';
+import { createGuardedCsvCopyOfRow, createGuardedCsvRows } from '../../../stubs/datamapper/target-render-test-helpers';
 import { NodeTitle } from './NodeTitle';
 
 describe('NodeTitle', () => {
@@ -361,6 +355,18 @@ describe('NodeTitle', () => {
       );
     });
 
+    it('should mark and explain the Opt badge of a guarded copy-of row too', async () => {
+      const user = userEvent.setup();
+      const copyOfRow = createGuardedCsvCopyOfRow();
+      expect(copyOfRow.autoOptionalIfItem).toBeDefined();
+      render(<NodeTitle nodeData={copyOfRow} isDocument={false} rank={0} />);
+
+      const badge = screen.getByRole('img', { name: /written only when its source exists/ });
+      expect(badge).toHaveClass('datamapper-marker-field--active-guard');
+      await user.hover(badge);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent('Optional guard');
+    });
+
     it('should keep the plain Opt badge, without a tooltip, on an optional field without a guard', async () => {
       const user = userEvent.setup();
       render(<NodeTitle nodeData={createGuardedCsvRows().unguardedOptional} isDocument={false} rank={0} />);
@@ -373,28 +379,37 @@ describe('NodeTitle', () => {
   });
 
   describe('copy-of label on FieldNodeTitle', () => {
-    const createFieldItemNodeData = (copyOfType: CopyOfType) => {
+    const createCopyOfFieldNodeData = () => {
       const targetDoc = TestUtil.createTargetOrderDoc();
       const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
       const targetDocNodeData = new TargetDocumentNodeData(targetDoc, tree);
       const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNodeData);
       const shipOrderField = (docChildren[0] as FieldNodeData).field;
-      const shipOrderFI = new FieldItem(tree, shipOrderField);
-      tree.children.push(shipOrderFI);
-      shipOrderFI.children.push(new CopyOfSelector(shipOrderFI, copyOfType));
-      return new FieldItemNodeData(targetDocNodeData, shipOrderFI);
+      const copyOf = new CopyOfSelector(tree);
+      tree.children.push(copyOf);
+      return new CopyOfFieldNodeData(targetDocNodeData, copyOf, shipOrderField);
     };
 
-    it('should show copy-of label badge on FieldItemNodeData with inline CopyOfSelector (CONTAINER)', () => {
-      render(<NodeTitle nodeData={createFieldItemNodeData(CopyOfType.CONTAINER)} isDocument={false} rank={0} />);
+    it('should show copy-of label badge on a CopyOfFieldNodeData', () => {
+      render(<NodeTitle nodeData={createCopyOfFieldNodeData()} isDocument={false} rank={0} />);
 
       const badge = screen.getByTestId('field-copy-of-label');
       expect(badge).toBeInTheDocument();
       expect(badge).toHaveTextContent('copy');
     });
 
-    it('should NOT show copy-of label badge when CopyOfSelector has CONTAINER_NODE type', () => {
-      render(<NodeTitle nodeData={createFieldItemNodeData(CopyOfType.CONTAINER_NODE)} isDocument={false} rank={0} />);
+    it('should NOT show copy-of label badge on a FieldItemNodeData that holds a copy-of inside its element', () => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const targetDocNodeData = new TargetDocumentNodeData(targetDoc, tree);
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNodeData);
+      const shipOrderFI = new FieldItem(tree, (docChildren[0] as FieldNodeData).field);
+      tree.children.push(shipOrderFI);
+      shipOrderFI.children.push(new CopyOfSelector(shipOrderFI));
+
+      render(
+        <NodeTitle nodeData={new FieldItemNodeData(targetDocNodeData, shipOrderFI)} isDocument={false} rank={0} />,
+      );
 
       expect(screen.queryByTestId('field-copy-of-label')).not.toBeInTheDocument();
     });

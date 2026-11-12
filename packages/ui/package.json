@@ -61,7 +61,7 @@
     "build:webview:dev": "vite build --config vite.config.webview.mjs --mode development",
     "write-version": "node ./scripts/write-version-file.mjs",
     "preview": "vite preview",
-    "test": "vitest run --config vitest.config.mts",
+    "test": "vitest run --config vitest.config.mts --coverage",
     "test:watch": "vitest --config vitest.config.mts",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "yarn lint --fix",
@@ -69,17 +69,17 @@
     "lint:style:fix": "yarn lint:style --fix"
   },
   "dependencies": {
+    "@carbon/ibm-products": "^2.74.0",
     "@carbon/icons-react": "^11.89.0",
     "@carbon/react": "^1.117.0",
     "@dnd-kit/core": "^6.1.0",
     "@dnd-kit/modifiers": "^9.0.0",
-    "@kaoto/forms": "^1.9.0",
+    "@kaoto/forms": "workspace:*",
     "@monaco-editor/react": "^4.7.0",
     "@patternfly/patternfly": "^6.6.1",
     "@patternfly/react-code-editor": "6.6.1",
     "@patternfly/react-core": "6.6.1",
     "@patternfly/react-drag-drop": "^6.6.2",
-    "@patternfly/react-icons": "^6.6.1",
     "@patternfly/react-table": "6.6.1",
     "@patternfly/react-topology": "^6.6.0",
     "@visx/shape": "^4.0.0",
@@ -107,7 +107,7 @@
     "zustand": "^5.0.11"
   },
   "peerDependencies": {
-    "@kaoto/camel-catalog": "^0.10.7",
+    "@kaoto/camel-catalog": "^0.10.8",
     "monaco-editor": "^0.55.1",
     "monaco-yaml": "^5.5.1",
     "react": "^19.2.4",
@@ -115,7 +115,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",
-    "@kaoto/camel-catalog": "^0.10.7",
+    "@kaoto/camel-catalog": "^0.10.8",
     "@redux-devtools/extension": "^3.3.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",

@@ -1,5 +1,4 @@
 import { CamelYamlDsl } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 import { parse } from 'yaml';
@@ -33,11 +32,7 @@ describe('CanvasSideBar', () => {
   });
 
   it('does not render anything if there is no selectedVizNode', async () => {
-    const wrapper = render(
-      <CanvasFormTabsProvider>
-        <CanvasSideBar vizNode={undefined} onClose={() => {}} />
-      </CanvasFormTabsProvider>,
-    );
+    const wrapper = render(<CanvasSideBar vizNode={undefined} onClose={() => {}} />);
 
     expect(wrapper.container).toBeEmptyDOMElement();
   });
@@ -45,13 +40,10 @@ describe('CanvasSideBar', () => {
   it('displays selected node information', async () => {
     const wrapper = render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasSideBar vizNode={selectedVizNode} onClose={() => {}} />
-        </CanvasFormTabsProvider>
+        <CanvasSideBar vizNode={selectedVizNode} onClose={() => {}} />
       </Provider>,
     );
 
-    await wrapper.findByRole('button', { name: 'All' });
     expect(wrapper.asFragment()).toMatchSnapshot();
   });
 
@@ -60,9 +52,7 @@ describe('CanvasSideBar', () => {
 
     const wrapper = render(
       <Provider>
-        <CanvasFormTabsProvider>
-          <CanvasSideBar vizNode={selectedVizNode} onClose={onCloseSpy} />
-        </CanvasFormTabsProvider>
+        <CanvasSideBar vizNode={selectedVizNode} onClose={onCloseSpy} />
       </Provider>,
     );
 
@@ -92,9 +82,7 @@ describe('CanvasSideBar', () => {
       const onClose = vi.fn();
       render(
         <Provider>
-          <CanvasFormTabsProvider>
-            <CanvasSideBar vizNode={selectedVizNode} onClose={onClose} />
-          </CanvasFormTabsProvider>
+          <CanvasSideBar vizNode={selectedVizNode} onClose={onClose} />
         </Provider>,
       );
 

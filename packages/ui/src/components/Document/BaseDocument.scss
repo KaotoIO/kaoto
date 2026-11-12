@@ -3,7 +3,7 @@
 .document {
   &__actions {
     flex: 1;
-    display: flex !important;
+    display: flex;
     flex-flow: row nowrap;
     justify-content: flex-end;
     align-items: center;
@@ -15,7 +15,7 @@
     --pf-v6-c-action-list--group--spacer-base: 0.5rem;
 
     /* stylelint-disable-next-line selector-class-pattern */
-    .pf-v6-c-button {
+    button.pf-v6-c-button {
       @include header-button-style;
     }
 
@@ -106,7 +106,7 @@
     --pf-v6-c-action-list--group--spacer-base: 0.5rem;
 
     /* stylelint-disable-next-line selector-class-pattern */
-    .pf-v6-c-button {
+    button.pf-v6-c-button {
       @include header-button-style;
     }
 

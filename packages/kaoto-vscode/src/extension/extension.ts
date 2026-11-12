@@ -39,8 +39,10 @@ import { DeploymentsRegistrar } from './registrars/DeploymentsRegistrar';
 import { TestsRegistrar } from './registrars/TestsRegistrar';
 import { InfrastructureRegistrar } from './registrars/InfrastructureRegistrar';
 import { OpenApiRegistrar } from './registrars/OpenApiRegistrar';
+import { LanguageServerRegistrar } from './registrars/LanguageServerRegistrar';
 
 let telemetryService: TelemetryService;
+let languageServerRegistrar: LanguageServerRegistrar;
 
 export async function activate(context: vscode.ExtensionContext) {
 	KaotoOutputChannel.logInfo('Kaoto extension is alive.');
@@ -90,6 +92,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	 */
 	context.subscriptions.push(vscode.window.registerTreeDataProvider(VIEW_HELP, new HelpFeedbackProvider(context.extensionUri.path)));
 
+	languageServerRegistrar = new LanguageServerRegistrar(context, catalogService);
+
 	const registrars: IRegistrar[] = [
 		new EditorRegistrar(context, editors, telemetryService),
 		new IntegrationsRegistrar(context, telemetryService, portManager),
@@ -99,6 +103,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		new OpenApiRegistrar(context, telemetryService),
 		new ExecutorRegistrar(context, telemetryService, catalogService),
 		new LifecycleRegistrar(context, telemetryService),
+		languageServerRegistrar,
 	];
 
 	for (const registrar of registrars) {
@@ -115,6 +120,9 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 export async function deactivate() {
+	if (languageServerRegistrar) {
+		await languageServerRegistrar.stop();
+	}
 	await telemetryService.sendShutdownEvent();
 	KaotoOutputChannel.dispose();
 }

@@ -12,4 +12,9 @@ describe('KaotoAboutModal', () => {
     expect(screen.getByText('Git commit hash')).toBeInTheDocument();
     expect(screen.getByText('Git last commit date')).toBeInTheDocument();
   });
+
+  it('renders nothing when closed', () => {
+    render(<KaotoAboutModal isOpen={false} onClose={vi.fn()} />);
+    expect(screen.queryByTestId('kaoto-about-modal')).not.toBeInTheDocument();
+  });
 });

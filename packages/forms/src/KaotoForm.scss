@@ -2,6 +2,15 @@
   box-sizing: border-box;
 }
 
+/*
+ * Carbon's OverflowMenu portals its menu into the closest `.cds--layout` and, when that container
+ * is static, positions it relative to the page. Making it the positioning context keeps the menu
+ * next to its trigger even when an ancestor (e.g. the canvas sidebar) is absolutely positioned.
+ */
+.kaoto-form-layout {
+  position: relative;
+}
+
 .kaoto-form {
   padding: 0.5rem 0;
   max-width: 100%;

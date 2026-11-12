@@ -95,6 +95,13 @@ describe('DataMapperLauncher', () => {
     </MemoryRouter>
   );
 
+  /** Waits for the document name input to be rendered and focuses it, which reveals the save and cancel buttons */
+  const focusNameInput = async () => {
+    const input = await screen.findByRole('textbox', { name: 'XSLT document name' });
+    await userEvent.click(input);
+    return input;
+  };
+
   let getXsltFileNameSpy: MockInstance<typeof DataMapperStepService.getXsltFileName>;
   let getDataMapperMetadataIdSpy: MockInstance<typeof DataMapperStepService.getDataMapperMetadataId>;
   let updateXsltFileNameSpy: MockInstance<typeof DataMapperStepService.updateXsltFileName>;
@@ -168,9 +175,8 @@ describe('DataMapperLauncher', () => {
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
       await waitFor(() => {
-        expect(screen.getByText('Document')).toBeInTheDocument();
+        expect(screen.getByText('Document', { selector: 'label' })).toBeInTheDocument();
       });
-      expect(screen.getByTestId('xslt-document-name')).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Launch the Kaoto DataMapper editor/i })).toBeInTheDocument();
     });
 
@@ -180,8 +186,8 @@ describe('DataMapperLauncher', () => {
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
-      const span = await screen.findByTestId('xslt-document-name');
-      expect(span).toHaveTextContent('my-transformation.xsl');
+      const input = await screen.findByRole('textbox', { name: 'XSLT document name' });
+      expect(input).toHaveValue('my-transformation.xsl');
     });
 
     it('should show error state when XSLT document is not defined', () => {
@@ -228,7 +234,7 @@ describe('DataMapperLauncher', () => {
 
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
-      const helpButton = await screen.findByRole('button', { name: 'More info' });
+      const helpButton = await screen.findByRole('button', { name: 'More info for Document field' });
       expect(helpButton).toBeInTheDocument();
     });
 
@@ -239,7 +245,7 @@ describe('DataMapperLauncher', () => {
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
       const configureButton = screen.getByRole('button', { name: /Launch the Kaoto DataMapper editor/i });
-      expect(configureButton).toHaveClass('pf-m-primary');
+      expect(configureButton).toHaveClass('cds--btn--primary');
       expect(configureButton).toHaveTextContent('Configure');
     });
 
@@ -252,7 +258,7 @@ describe('DataMapperLauncher', () => {
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
         await waitFor(() => {
-          expect(screen.queryByText('Document')).not.toBeInTheDocument();
+          expect(screen.queryByText('Document', { selector: 'label' })).not.toBeInTheDocument();
         });
       });
 
@@ -264,7 +270,7 @@ describe('DataMapperLauncher', () => {
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
         await waitFor(() => {
-          expect(screen.getByText('Document')).toBeInTheDocument();
+          expect(screen.getByText('Document', { selector: 'label' })).toBeInTheDocument();
         });
       });
 
@@ -277,7 +283,7 @@ describe('DataMapperLauncher', () => {
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
         await waitFor(() => {
-          expect(screen.queryByText('Document')).not.toBeInTheDocument();
+          expect(screen.queryByText('Document', { selector: 'label' })).not.toBeInTheDocument();
         });
         expect(isResourceExistSpy).not.toHaveBeenCalled();
       });
@@ -292,7 +298,7 @@ describe('DataMapperLauncher', () => {
           expect(screen.getByText('The Kaoto DataMapper cannot be configured')).toBeInTheDocument();
         });
 
-        expect(screen.queryByText('Document')).not.toBeInTheDocument();
+        expect(screen.queryByText('Document', { selector: 'label' })).not.toBeInTheDocument();
       });
     });
 
@@ -311,14 +317,7 @@ describe('DataMapperLauncher', () => {
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
-        await waitFor(() => {
-          expect(screen.getByText('Document')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
+        const input = await focusNameInput();
         fireEvent.change(input, { target: { value: '' } });
 
         await waitFor(() => {
@@ -326,25 +325,20 @@ describe('DataMapperLauncher', () => {
         });
       });
 
-      it('should show specific error message for invalid format', async () => {
+      it('should show specific error message for invalid format and disable the save button', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
         getXsltFileNameSpy.mockReturnValue('test-document.xsl');
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
-        await waitFor(() => {
-          expect(screen.getByText('Document')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
+        const input = await focusNameInput();
         fireEvent.change(input, { target: { value: 'invalid.txt' } });
 
         await waitFor(() => {
           expect(screen.getByText('XSLT document name must be a valid filename ending with .xsl.')).toBeInTheDocument();
         });
+        expect(input).toHaveAttribute('aria-invalid', 'true');
+        expect(screen.getByRole('button', { name: 'Save value' })).toBeDisabled();
       });
 
       it('should show specific error message for existing file', async () => {
@@ -358,176 +352,11 @@ describe('DataMapperLauncher', () => {
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
-        await waitFor(() => {
-          expect(screen.getByText('Document')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
+        const input = await focusNameInput();
         fireEvent.change(input, { target: { value: 'existing.xsl' } });
 
         await waitFor(() => {
           expect(screen.getByText('An XSLT document with this name already exists.')).toBeInTheDocument();
-        });
-      });
-
-      // Old tests have been replaced by the new inline edit integration tests above
-    });
-
-    describe('inline edit integration', () => {
-      beforeEach(() => {
-        mockMetadataContext.isResourceExist = vi.fn().mockResolvedValue(true);
-      });
-
-      it('should render InlineEdit component with correct props', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name')).toBeInTheDocument();
-        });
-
-        expect(screen.getByTestId('xslt-document-name')).toHaveTextContent('test-document.xsl');
-      });
-
-      it('should allow editing the document name', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
-        expect(input).toBeInTheDocument();
-        expect(input).toHaveValue('test-document.xsl');
-      });
-
-      it('should show save and cancel buttons in edit mode', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--save')).toBeInTheDocument();
-          expect(screen.getByTestId('xslt-document-name--cancel')).toBeInTheDocument();
-        });
-      });
-
-      it('should cancel editing and restore original value', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
-        fireEvent.change(input, { target: { value: 'changed.xsl' } });
-
-        const cancelButton = screen.getByTestId('xslt-document-name--cancel');
-        fireEvent.click(cancelButton);
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name')).toHaveTextContent('test-document.xsl');
-        });
-      });
-
-      it('should disable save button when validation fails', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
-        fireEvent.change(input, { target: { value: 'invalid' } });
-
-        await waitFor(() => {
-          const saveButton = screen.getByTestId('xslt-document-name--save');
-          expect(saveButton).toBeDisabled();
-        });
-      });
-
-      it('should enable save button when validation passes', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-
-        mockMetadataContext.isResourceExist = vi.fn().mockImplementation((path: string) => {
-          if (path === 'test-document.xsl') return Promise.resolve(true);
-          return Promise.resolve(false);
-        });
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
-        fireEvent.change(input, { target: { value: 'valid-name.xsl' } });
-
-        await waitFor(() => {
-          const saveButton = screen.getByTestId('xslt-document-name--save');
-          expect(saveButton).not.toBeDisabled();
-        });
-      });
-
-      it('should display error message below input when errorPosition is bottom', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
-        fireEvent.change(input, { target: { value: '' } });
-
-        await waitFor(() => {
-          // Error message should be displayed below the input
-          expect(screen.getByText('XSLT document name is required.')).toBeInTheDocument();
-
-          // Verify the helper text is rendered as a sibling to the input group (errorPosition="bottom")
-          const form = screen.getByTestId('xslt-document-name--form');
-          const helperText = form.querySelector('.pf-v6-c-helper-text');
-          expect(helperText).toBeInTheDocument();
         });
       });
     });
@@ -540,108 +369,7 @@ describe('DataMapperLauncher', () => {
         });
       });
 
-      it('should trigger rename when save button is clicked after editing', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-        getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
-
-        const mockMetadata: IDataMapperMetadata = {
-          sourceBody: { type: DocumentDefinitionType.Primitive, filePath: [], fieldTypeOverrides: [] },
-          sourceParameters: {},
-          targetBody: { type: DocumentDefinitionType.Primitive, filePath: [], fieldTypeOverrides: [] },
-          xsltPath: 'test-document.xsl',
-          namespaceMap: {},
-        };
-
-        mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(mockMetadata);
-        mockMetadataContext.getResourceContent = vi.fn().mockResolvedValue('mock xslt content');
-        mockMetadataContext.saveResourceContent = vi.fn().mockResolvedValue(undefined);
-        mockMetadataContext.deleteResource = vi.fn().mockResolvedValue(undefined);
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
-        fireEvent.change(input, { target: { value: 'renamed.xsl' } });
-
-        const saveButton = await screen.findByTestId('xslt-document-name--save');
-        fireEvent.click(saveButton);
-
-        await waitFor(() => {
-          expect(mockMetadataContext.saveResourceContent).toHaveBeenCalledWith('renamed.xsl', 'mock xslt content');
-          expect(updateXsltFileNameSpy).toHaveBeenCalledWith(vizNode, 'renamed.xsl', mockEntitiesContext);
-          expect(mockMetadataContext.deleteResource).toHaveBeenCalledWith('test-document.xsl');
-        });
-      });
-
-      it('should not trigger rename when save is clicked without changes', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-
-        mockMetadataContext.saveResourceContent = vi.fn();
-        mockMetadataContext.deleteResource = vi.fn();
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--save')).toBeInTheDocument();
-        });
-
-        const saveButton = screen.getByTestId('xslt-document-name--save');
-        fireEvent.click(saveButton);
-
-        await waitFor(() => {
-          expect(mockMetadataContext.saveResourceContent).not.toHaveBeenCalled();
-          expect(mockMetadataContext.deleteResource).not.toHaveBeenCalled();
-        });
-      });
-
-      it('should handle case when metadata is not found', async () => {
-        const vizNode = createMockVizNode('test-document.xsl');
-        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
-        getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
-
-        // Mock getMetadata to return null (metadata not found)
-        mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(null);
-        mockMetadataContext.saveResourceContent = vi.fn();
-        mockMetadataContext.deleteResource = vi.fn();
-
-        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
-        fireEvent.change(input, { target: { value: 'renamed.xsl' } });
-
-        const saveButton = await screen.findByTestId('xslt-document-name--save');
-        fireEvent.click(saveButton);
-
-        // Should not proceed with rename operations when metadata is not found
-        await waitFor(() => {
-          expect(mockMetadataContext.saveResourceContent).not.toHaveBeenCalled();
-          expect(mockMetadataContext.deleteResource).not.toHaveBeenCalled();
-        });
-      });
-
-      it('should return to readonly mode after successful save', async () => {
+      it('should rename the document when save is clicked after editing', async () => {
         const vizNode = createMockVizNode('test-document.xsl');
         getXsltFileNameSpy.mockReturnValue('test-document.xsl');
         getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
@@ -671,22 +399,43 @@ describe('DataMapperLauncher', () => {
 
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
-        await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name--edit')).toBeInTheDocument();
-        });
-
-        const editButton = screen.getByTestId('xslt-document-name--edit');
-        fireEvent.click(editButton);
-
-        const input = await screen.findByTestId('xslt-document-name--text-input');
+        const input = await focusNameInput();
         fireEvent.change(input, { target: { value: 'renamed.xsl' } });
 
-        const saveButton = await screen.findByTestId('xslt-document-name--save');
+        const saveButton = await screen.findByRole('button', { name: 'Save value' });
         fireEvent.click(saveButton);
 
         await waitFor(() => {
-          expect(screen.getByTestId('xslt-document-name')).toBeInTheDocument();
-          expect(screen.queryByTestId('xslt-document-name--text-input')).not.toBeInTheDocument();
+          expect(mockMetadataContext.saveResourceContent).toHaveBeenCalledWith('renamed.xsl', 'mock xslt content');
+          expect(updateXsltFileNameSpy).toHaveBeenCalledWith(vizNode, 'renamed.xsl', mockEntitiesContext);
+          expect(mockMetadataContext.deleteResource).toHaveBeenCalledWith('test-document.xsl');
+          expect(input).toHaveValue('renamed.xsl');
+          expect(screen.getByRole('button', { name: 'Save value' })).toBeDisabled();
+        });
+      });
+
+      it('should handle case when metadata is not found', async () => {
+        const vizNode = createMockVizNode('test-document.xsl');
+        getXsltFileNameSpy.mockReturnValue('test-document.xsl');
+        getDataMapperMetadataIdSpy.mockReturnValue('test-node-id');
+
+        // Mock getMetadata to return null (metadata not found)
+        mockMetadataContext.getMetadata = vi.fn().mockResolvedValue(null);
+        mockMetadataContext.saveResourceContent = vi.fn();
+        mockMetadataContext.deleteResource = vi.fn();
+
+        render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+        const input = await focusNameInput();
+        fireEvent.change(input, { target: { value: 'renamed.xsl' } });
+
+        const saveButton = await screen.findByRole('button', { name: 'Save value' });
+        fireEvent.click(saveButton);
+
+        // Should not proceed with rename operations when metadata is not found
+        await waitFor(() => {
+          expect(mockMetadataContext.saveResourceContent).not.toHaveBeenCalled();
+          expect(mockMetadataContext.deleteResource).not.toHaveBeenCalled();
         });
       });
     });
@@ -733,7 +482,7 @@ describe('DataMapperLauncher', () => {
         render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
         await waitFor(() => {
-          expect(screen.queryByText('Document')).toBeInTheDocument();
+          expect(screen.queryByText('Document', { selector: 'label' })).toBeInTheDocument();
         });
         expect(screen.queryByTestId('validate-output-checkbox')).not.toBeInTheDocument();
       });
@@ -820,6 +569,18 @@ describe('DataMapperLauncher', () => {
       expect(screen.queryByTestId('save-as-variable-toggle')).not.toBeInTheDocument();
     });
 
+    it('should expose the output variable input and its help button by the field label', () => {
+      const vizNode = createMockVizNode('test-document.xsl');
+      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue(undefined);
+
+      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
+
+      expect(screen.getByRole('textbox', { name: 'Save as variable' })).toBe(
+        screen.getByTestId('output-variable-name-input'),
+      );
+      expect(screen.getByRole('button', { name: 'More info for Save as variable field' })).toBeInTheDocument();
+    });
+
     it('should prefill the input when an output variable is set', () => {
       const vizNode = createMockVizNode('test-document.xsl');
       (DataMapperStepService.getOutputVariable as Mock).mockReturnValue('existingVar');
@@ -827,26 +588,6 @@ describe('DataMapperLauncher', () => {
       render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
 
       expect(screen.getByTestId('output-variable-name-input')).toHaveValue('existingVar');
-    });
-
-    it('should not show an error or a success state when the input is empty', () => {
-      const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue(undefined);
-
-      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-      expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
-      expect(screen.getByTestId('output-variable-name-input').closest('.pf-m-success')).toBeNull();
-    });
-
-    it('should show the success state when a valid variable name is filled', () => {
-      const vizNode = createMockVizNode('test-document.xsl');
-      (DataMapperStepService.getOutputVariable as Mock).mockReturnValue('existingVar');
-
-      render(<DataMapperLauncher vizNode={vizNode} />, { wrapper });
-
-      expect(screen.getByTestId('output-variable-name-input').closest('.pf-m-success')).not.toBeNull();
-      expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
     });
 
     it('should show the success state after typing a valid name and drop it when cleared', async () => {
@@ -859,10 +600,10 @@ describe('DataMapperLauncher', () => {
 
       const input = screen.getByTestId('output-variable-name-input');
       await user.type(input, 'myVar');
-      expect(input.closest('.pf-m-success')).not.toBeNull();
+      expect(input.closest('.output-variable-field--success')).not.toBeNull();
 
       await user.clear(input);
-      expect(input.closest('.pf-m-success')).toBeNull();
+      expect(input.closest('.output-variable-field--success')).toBeNull();
       expect(screen.queryByTestId('output-variable-name-error')).not.toBeInTheDocument();
     });
 

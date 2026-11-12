@@ -18,7 +18,7 @@ import { BeanFactory } from '@kaoto/camel-catalog/types';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
 import { CatalogKind } from '../../../models';
-import { ElementType, StepXmlSerializer } from './step-xml-serializer';
+import { AttributeValue, ElementType, StepXmlSerializer } from './step-xml-serializer';
 
 export class BeansXmlSerializer {
   static async serialize(beanElement: BeanFactory, doc: Document): Promise<Element | undefined> {
@@ -56,7 +56,7 @@ export class BeansXmlSerializer {
     const propertiesElement = doc.createElement('properties');
 
     for (const [propKey, propValue] of Object.entries(properties as { [key: string]: unknown })) {
-      if (propValue === undefined) continue;
+      if (propValue === undefined || propValue === null) continue;
 
       if (typeof propValue === 'object') {
         const flattened = this.flattenObject(propValue as Record<string, unknown>, propKey);
@@ -66,7 +66,7 @@ export class BeansXmlSerializer {
           this.appendPropertyElement(doc, propertiesElement, key, value);
         }
       } else {
-        this.appendPropertyElement(doc, propertiesElement, propKey, String(propValue));
+        this.appendPropertyElement(doc, propertiesElement, propKey, String(propValue as AttributeValue));
       }
     }
     return propertiesElement;
@@ -83,12 +83,12 @@ export class BeansXmlSerializer {
   private static flattenObject(obj: Record<string, unknown>, prefix = ''): { key: string; value: string }[] {
     return Object.entries(obj).reduce(
       (acc, [key, value]) => {
-        if (value === undefined) return acc;
+        if (value === undefined || value === null) return acc;
 
         if (typeof value === 'object') {
           return acc.concat(this.flattenObject(value as Record<string, unknown>, `${prefix}.${key}`));
         }
-        return acc.concat(acc, { key: `${prefix}.${key}`, value: String(value) });
+        return acc.concat({ key: `${prefix}.${key}`, value: String(value as AttributeValue) });
       },
       [] as { key: string; value: string }[],
     );

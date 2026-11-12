@@ -5,6 +5,7 @@ import { FunctionComponent } from 'react';
 
 import {
   AddMappingNodeData,
+  CopyOfFieldNodeData,
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
@@ -23,7 +24,10 @@ interface INodeTitle {
 }
 
 export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, nodeData, isDocument }) => {
-  if (nodeData instanceof MappingNodeData && !(nodeData instanceof FieldItemNodeData)) {
+  if (
+    nodeData instanceof MappingNodeData &&
+    !(nodeData instanceof FieldItemNodeData || nodeData instanceof CopyOfFieldNodeData)
+  ) {
     return <MappingItemNodeTitle className={className} rank={rank} nodeData={nodeData} />;
   }
 
@@ -37,6 +41,7 @@ export const NodeTitle: FunctionComponent<INodeTitle> = ({ className, rank, node
   if (
     nodeData instanceof FieldNodeData ||
     nodeData instanceof FieldItemNodeData ||
+    nodeData instanceof CopyOfFieldNodeData ||
     nodeData instanceof AddMappingNodeData
   ) {
     return <FieldNodeTitle className={className} rank={rank} title={title} nodeData={nodeData} />;

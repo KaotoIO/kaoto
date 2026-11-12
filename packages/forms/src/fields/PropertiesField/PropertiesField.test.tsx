@@ -56,6 +56,13 @@ describe('PropertiesField', () => {
     expect(screen.getByDisplayValue('value2')).toBeInTheDocument();
   });
 
+  it('should render the properties count as an inline element', () => {
+    const { container } = renderField();
+
+    expect(container.querySelector('label div')).not.toBeInTheDocument();
+    expect(container.querySelector('p div')).not.toBeInTheDocument();
+  });
+
   it('should propagate changes through onPropertyChange', () => {
     const onPropertyChange = vi.fn();
     renderField({ model: { [PROP_NAME]: { key1: 'value1' } }, onPropertyChange });

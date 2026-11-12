@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
+import { IntegrationHeaderContext } from '../../context/IntegrationHeaderContext';
 import { Nav } from './Nav';
 
 const renderNav = (path = '/') =>
@@ -53,5 +54,32 @@ describe('Nav', () => {
     const sideNavLink = screen.getByRole('link', { name: /open project/i });
     await userEvent.click(sideNavLink);
     expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument();
+  });
+
+  it('does not render the breadcrumb without an active integration', () => {
+    renderNav();
+    expect(screen.queryByTestId('nav-breadcrumb')).not.toBeInTheDocument();
+  });
+
+  it('renders the breadcrumb of the active integration', () => {
+    render(
+      <MemoryRouter>
+        <IntegrationHeaderContext.Provider
+          value={{
+            breadcrumbItems: [{ label: 'my-project', href: '/projects/my-project' }],
+            current: 'my-flow',
+            viewMode: 'design',
+            setViewMode: () => {},
+            setBreadcrumbItems: () => {},
+            setCurrent: () => {},
+          }}
+        >
+          <Nav />
+        </IntegrationHeaderContext.Provider>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId('nav-breadcrumb')).toHaveTextContent('my-project');
+    expect(screen.getByTestId('nav-breadcrumb')).toHaveTextContent('my-flow');
   });
 });

@@ -32,7 +32,7 @@ describe('SedaEndpointNameField', () => {
   it('treats only seda routes as existing', async () => {
     await renderField([{ from: { uri: 'direct:start', steps: [] } }]);
 
-    const input = screen.getByRole('textbox', { name: 'Name' });
+    const input = await screen.findByRole('combobox', { name: 'Name' });
     const button = screen.getByRole('button', { name: 'Create Route' });
 
     fireEvent.change(input, { target: { value: 'start' } });
@@ -47,7 +47,7 @@ describe('SedaEndpointNameField', () => {
     ]);
     const addNewEntitySpy = vi.spyOn(camelResource, 'addNewEntity');
 
-    const input = screen.getByRole('textbox', { name: 'Name' });
+    const input = await screen.findByRole('combobox', { name: 'Name' });
     const button = screen.getByRole('button', { name: 'Create Route' });
 
     fireEvent.change(input, { target: { value: 'existing' } });

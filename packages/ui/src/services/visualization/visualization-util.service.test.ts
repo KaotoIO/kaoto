@@ -1,8 +1,9 @@
 import { DocumentDefinitionType, IField } from '../../models/datamapper/document';
-import { CopyOfSelector, CopyOfType, FieldItem, MappingTree } from '../../models/datamapper/mapping';
+import { CopyOfSelector, FieldItem, MappingTree } from '../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   ChoiceFieldNodeData,
+  CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -414,25 +415,27 @@ describe('VisualizationUtilService', () => {
   });
 
   describe('getInlineContainerCopyOf', () => {
-    const createFieldItemNodeDataWithCopyOf = (copyOfType: CopyOfType) => {
+    const createTargetNode = () => {
       const tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
-      const treeNode = new TargetDocumentNodeData(targetDoc, tree);
-      const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
-      tree.children.push(shipOrderFI);
-      shipOrderFI.children.push(new CopyOfSelector(shipOrderFI, copyOfType));
-      return new FieldItemNodeData(treeNode, shipOrderFI);
+      return { tree, treeNode: new TargetDocumentNodeData(targetDoc, tree) };
     };
 
-    it('should return the CopyOfSelector for a CONTAINER-typed copy-of', () => {
-      const nodeData = createFieldItemNodeDataWithCopyOf(CopyOfType.CONTAINER);
-      const result = VisualizationUtilService.getInlineContainerCopyOf(nodeData);
-      expect(result).toBeInstanceOf(CopyOfSelector);
-      expect(result?.valueType).toBe(CopyOfType.CONTAINER);
+    it('should return the CopyOfSelector of a CopyOfFieldNodeData', () => {
+      const { tree, treeNode } = createTargetNode();
+      const copyOf = new CopyOfSelector(tree);
+      tree.children.push(copyOf);
+      const nodeData = new CopyOfFieldNodeData(treeNode, copyOf, targetDoc.fields[0]);
+      expect(VisualizationUtilService.getInlineContainerCopyOf(nodeData)).toBe(copyOf);
     });
 
-    it('should return undefined for a CONTAINER_NODE-typed copy-of', () => {
-      const nodeData = createFieldItemNodeDataWithCopyOf(CopyOfType.CONTAINER_NODE);
-      expect(VisualizationUtilService.getInlineContainerCopyOf(nodeData)).toBeUndefined();
+    it('should return undefined for a FieldItemNodeData, whose copy-of is nested inside the element', () => {
+      const { tree, treeNode } = createTargetNode();
+      const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(shipOrderFI);
+      shipOrderFI.children.push(new CopyOfSelector(shipOrderFI));
+      expect(
+        VisualizationUtilService.getInlineContainerCopyOf(new FieldItemNodeData(treeNode, shipOrderFI)),
+      ).toBeUndefined();
     });
 
     it('should return undefined for a plain FieldNodeData with no mapping', () => {

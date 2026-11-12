@@ -170,9 +170,14 @@
 
       // Keep the native switch input and focus styles, but avoid positioned HTML
       // layers and transforms inside foreignObject (WebKit bug 23113).
-      position: static;
-
+      // The switch is lazy-loaded, so PatternFly's `.pf-v6-c-switch { position: relative }`
+      // arrives in a later stylesheet. Use a second class so this override does not
+      // depend on stylesheet order.
       /* stylelint-disable selector-class-pattern -- PatternFly's published component class names */
+      &.pf-v6-c-switch {
+        position: static;
+      }
+
       .pf-v6-c-switch__input,
       .pf-v6-c-switch__toggle {
         position: static;

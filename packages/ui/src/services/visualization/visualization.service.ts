@@ -4,7 +4,6 @@ import { qname } from 'xml-name-validator';
 import { IDocument, IField } from '../../models/datamapper/document';
 import {
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   IExpressionHolder,
   IfItem,
@@ -21,6 +20,7 @@ import {
   AbstractFieldNodeData,
   AddMappingNodeData,
   ChoiceFieldNodeData,
+  CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -41,6 +41,7 @@ import {
 import { DocumentService } from '../document/document.service';
 import { DocumentUtilService } from '../document/document-util.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { MappingService } from '../mapping/mapping.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
@@ -286,7 +287,12 @@ export class VisualizationService {
     const answer: NodeData[] = [];
     VisualizationService.collectPriorityMappings(answer, parent, mappings);
 
+    const anchored = VisualizationService.groupAnchoredCopyOfs(fields, mappings);
     for (const field of fields) {
+      // A copy-of of several fields is written where the earliest of them sits in the target's sequence.
+      for (const copyOf of anchored.get(field) ?? []) {
+        answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, copyOf));
+      }
       if (VisualizationService.processWrapperField(answer, parent, field, mappings)) continue;
       VisualizationService.processRegularField(answer, parent, field, mappings);
     }
@@ -295,21 +301,43 @@ export class VisualizationService {
     return answer;
   }
 
+  /**
+   * The standalone copy-ofs that name fields among `fields`, keyed by the earliest field they name, the one
+   * the serializer places them before. A copy-of that is 1-to-1 with a field is drawn on that field's row
+   * instead, and one that names none stays after the fields.
+   */
+  private static groupAnchoredCopyOfs(
+    fields: IField[],
+    mappings: MappingItem[] | undefined,
+  ): Map<IField, CopyOfSelector[]> {
+    const grouped = new Map<IField, CopyOfSelector[]>();
+    for (const m of mappings ?? []) {
+      if (!(m instanceof CopyOfSelector) || CopyOfPlacementService.isLeadingCopyOf(m)) continue;
+      if (CopyOfPlacementService.getInlineField(m)) continue;
+      const anchor = CopyOfPlacementService.getAnchorFields(m)
+        .filter((f) => fields.includes(f))
+        .sort((a, b) => fields.indexOf(a) - fields.indexOf(b))[0];
+      if (!anchor) continue;
+      grouped.set(anchor, [...(grouped.get(anchor) ?? []), m]);
+    }
+    return grouped;
+  }
+
   private static collectPriorityMappings(
     answer: NodeData[],
     parent: NodeData,
     mappings: MappingItem[] | undefined,
   ): void {
     if (!mappings) return;
-    const isCopyOfContainerNode = (m: MappingItem) =>
-      m instanceof CopyOfSelector && m.valueType === CopyOfType.CONTAINER_NODE;
+    // Only an empty copy-of leads. Any other separate copy-of can't be tied to a child field, and the
+    // serializer emits it after the fields, so it renders after them too (collectUnrenderedMappings).
     let filterPriorityMappingItem: (m: MappingItem) => boolean = (m) =>
-      m instanceof UnknownMappingItem || m instanceof VariableItem || isCopyOfContainerNode(m);
+      m instanceof UnknownMappingItem || m instanceof VariableItem || CopyOfPlacementService.isLeadingCopyOf(m);
     if (parent.isPrimitive) {
       filterPriorityMappingItem = (m) =>
         m instanceof UnknownMappingItem ||
         VisualizationUtilService.isInlineValueSelector(m) ||
-        isCopyOfContainerNode(m);
+        CopyOfPlacementService.isLeadingCopyOf(m);
     }
     for (const m of mappings.filter(filterPriorityMappingItem)) {
       answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, m));
@@ -349,7 +377,8 @@ export class VisualizationService {
     const rendered = new Set<MappingParentType | undefined>();
     for (const n of answer.filter((x): x is TargetNodeData => 'mapping' in x)) {
       rendered.add(n.mapping);
-      if (n instanceof FieldItemNodeData && n.autoOptionalIfItem) rendered.add(n.autoOptionalIfItem);
+      if ((n instanceof FieldItemNodeData || n instanceof CopyOfFieldNodeData) && n.autoOptionalIfItem)
+        rendered.add(n.autoOptionalIfItem);
     }
     for (const m of mappings) {
       if (
@@ -480,6 +509,11 @@ export class VisualizationService {
         'mapping' in parent ? parent.mapping?.children : undefined,
       );
     }
+    if (parent instanceof CopyOfFieldNodeData) {
+      // The copied subtree is not mapped field by field: its schema fields show as plain, unmapped rows.
+      DocumentUtilService.resolveTypeFragment(parent.field);
+      return VisualizationService.doGenerateNodeDataFromFields(parent, parent.field.fields);
+    }
     if (parent instanceof MappingNodeData) {
       if (!parent.mapping?.children) return [];
       const sorted = [...parent.mapping.children].sort((left, right) => MappingService.sortMappingItem(left, right));
@@ -512,7 +546,16 @@ export class VisualizationService {
   private static createNodeDataFromMappingItem(parent: TargetNodeData, mapping: MappingItem): MappingNodeData {
     if (mapping instanceof IfItem) {
       const absorbingField = parent.renderIndex.getAbsorbingField(mapping);
-      if (absorbingField) {
+      if (absorbingField instanceof CopyOfSelector) {
+        // The snapshot may be older than the copy-of's expression; when it no longer selects a field the
+        // guard is simply drawn as a regular `if` until the next rebuild.
+        const field = CopyOfPlacementService.getInlineField(absorbingField);
+        if (field) {
+          const nodeData = new CopyOfFieldNodeData(parent, absorbingField, field);
+          nodeData.autoOptionalIfItem = mapping;
+          return nodeData;
+        }
+      } else if (absorbingField) {
         const wrapperField = VisualizationService.findWrapperFieldForFieldItem(absorbingField);
         const nodeData = new FieldItemNodeData(parent, absorbingField, wrapperField);
         nodeData.autoOptionalIfItem = mapping;
@@ -522,6 +565,10 @@ export class VisualizationService {
     if (mapping instanceof FieldItem) {
       const wrapperField = VisualizationService.findWrapperFieldForFieldItem(mapping);
       return new FieldItemNodeData(parent, mapping, wrapperField);
+    }
+    if (mapping instanceof CopyOfSelector) {
+      const field = CopyOfPlacementService.getInlineField(mapping);
+      if (field) return new CopyOfFieldNodeData(parent, mapping, field);
     }
     if (mapping instanceof UnknownMappingItem) return new UnknownMappingNodeData(parent, mapping);
     if (mapping instanceof VariableItem) return new VariableNodeData(parent, mapping);
@@ -536,6 +583,7 @@ export class VisualizationService {
     if (nodeData instanceof DocumentNodeData) return VisualizationService.documentHasChildren(nodeData);
     if (nodeData instanceof FieldNodeData) return VisualizationService.fieldNodeHasChildren(nodeData);
     if (nodeData instanceof FieldItemNodeData) return VisualizationService.fieldItemNodeHasChildren(nodeData);
+    if (nodeData instanceof CopyOfFieldNodeData) return DocumentService.hasChildren(nodeData.field);
     if (nodeData instanceof MappingNodeData) return nodeData.mapping.children.length > 0;
     return false;
   }

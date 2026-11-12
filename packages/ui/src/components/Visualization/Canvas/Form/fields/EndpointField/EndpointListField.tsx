@@ -1,7 +1,8 @@
-import { AddAlt, Edit, TrashCan } from '@carbon/icons-react';
+import './EndpointListField.scss';
+
+import { Add, Edit, TrashCan } from '@carbon/icons-react';
+import { Column, Grid, IconButton } from '@carbon/react';
 import { FieldProps, FieldWrapper, useFieldValue } from '@kaoto/forms';
-import { Button } from '@patternfly/react-core';
-import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
 import { FunctionComponent, useCallback, useContext, useMemo, useState } from 'react';
 
 import { useEntityContext } from '../../../../../../hooks/useEntityContext/useEntityContext';
@@ -109,46 +110,60 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
 
   return (
     <>
-      <FieldWrapper propName={propName} required={required} title="" type="string">
-        <Table aria-label="endpoint-table" variant={TableVariant.compact} borders>
-          <Thead>
-            <Tr>
-              <Th>Name</Th>
-              <Th>Type</Th>
-              <Th>Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {items.map((item, index) => (
-              <Tr key={item.name}>
-                <Td style={{ textTransform: 'none' }}>{item.name}</Td>
-                <Td style={{ textTransform: 'none' }}>{item.type}</Td>
-                <Td>
-                  <Button
-                    title={`Edit ${item.name}`}
-                    data-testid={'endpoint-edit-' + index + '-btn'}
-                    icon={<Edit />}
-                    variant="link"
-                    onClick={() => {
-                      handleEdit(index);
-                    }}
-                  />
-                  <Button
-                    title={`Delete ${item.name}`}
-                    data-testid={'endpoint-delete-' + index + '-btn'}
-                    icon={<TrashCan />}
-                    variant="link"
-                    onClick={() => handleDelete(index)}
-                  />
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
+      <FieldWrapper propName={propName} required={required} title="" type="string" hideInfo>
+        <div role="table" aria-label="endpoint-table">
+          <Grid className="endpoint-list-grid" role="row">
+            <Column sm={2} md={3} lg={6} role="columnheader">
+              <strong>Name</strong>
+            </Column>
+            <Column sm={2} md={3} lg={6} role="columnheader">
+              <strong>Type</strong>
+            </Column>
+            <Column sm={4} md={2} lg={4} role="columnheader">
+              <IconButton
+                kind="ghost"
+                onClick={handleAdd}
+                label="Add a new endpoint"
+                data-testid="create-new-endpoint-btn"
+              >
+                <Add />
+              </IconButton>
+            </Column>
+          </Grid>
 
-        <Button icon={<AddAlt />} key="create" variant="link" onClick={handleAdd} data-testid="create-new-endpoint-btn">
-          Add
-        </Button>
+          <hr />
+
+          {items.map((item, index) => (
+            <Grid className="endpoint-list-grid" role="row" key={item.name}>
+              <Column sm={2} md={3} lg={6} role="cell">
+                {item.name}
+              </Column>
+              <Column sm={2} md={3} lg={6} role="cell">
+                {item.type}
+              </Column>
+              <Column sm={4} md={2} lg={4} role="cell">
+                <IconButton
+                  kind="ghost"
+                  label={`Edit ${item.name}`}
+                  data-testid={'endpoint-edit-' + index + '-btn'}
+                  onClick={() => {
+                    handleEdit(index);
+                  }}
+                >
+                  <Edit />
+                </IconButton>
+                <IconButton
+                  kind="ghost"
+                  label={`Delete ${item.name}`}
+                  data-testid={'endpoint-delete-' + index + '-btn'}
+                  onClick={() => handleDelete(index)}
+                >
+                  <TrashCan />
+                </IconButton>
+              </Column>
+            </Grid>
+          ))}
+        </div>
       </FieldWrapper>
 
       {isOpen && (

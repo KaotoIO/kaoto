@@ -1,6 +1,6 @@
 import { getCamelRandomId } from '../../camel-utils/camel-random-id';
 import { XPathService } from '../../services/xpath/xpath.service';
-import { DocumentDefinitionType, DocumentType, IField } from './document';
+import { DocumentDefinitionType, DocumentType, IField, IParentType } from './document';
 import { NodePath } from './nodepath';
 import { Types } from './types';
 import { PathExpression } from './xpath';
@@ -28,6 +28,11 @@ export class MappingTree {
   nodePath: NodePath;
   contextPath?: PathExpression;
   namespaceMap: { [prefix: string]: string } = {};
+  /**
+   * The target document this tree maps into, set when the tree is loaded or rendered. A `xsl:copy-of`
+   * directly under the tree is classified against its fields.
+   */
+  targetDocument?: IParentType;
 }
 
 /**
@@ -342,23 +347,6 @@ export enum ValueOfType {
 }
 
 /**
- * How a {@link CopyOfSelector} produces its output in the generated XSLT.
- *
- * - `CONTAINER` — always rendered **inline**. Used for 1-to-1 container copy-of
- *   from DnD. `FieldItemHandler` skips target element creation so `xsl:copy-of`
- *   appears directly under the parent XSLT element.
- * - `CONTAINER_NODE` — always rendered as a dedicated **tree node**. Used for
- *   explicit copy-of added from the context menu or xs:anyType mappings. Target
- *   element is always created, with `xsl:copy-of` nested inside it.
- */
-export enum CopyOfType {
-  /** Emits `xsl:copy-of`. Always inline — `FieldItemHandler` skips target element creation. */
-  CONTAINER = 'container',
-  /** Emits `xsl:copy-of` inside a target element. Always rendered as a tree node. */
-  CONTAINER_NODE = 'container_node',
-}
-
-/**
  * Abstract base for leaf nodes that supply the value for a target {@link FieldItem}.
  * Concrete subclasses:
  * - {@link ValueOfSelector} — `xsl:value-of` and `xsl:text`
@@ -414,28 +402,23 @@ export class ValueOfSelector extends ValueSelector {
 }
 
 /**
- * Leaf node that copies a subtree via `xsl:copy-of`.
- * {@link valueType} is {@link CopyOfType.CONTAINER} (inline, wrapper element skipped)
- * or {@link CopyOfType.CONTAINER_NODE} (separate tree node, wrapper element kept).
+ * Leaf node that copies a subtree via `xsl:copy-of`. It is always a standalone child of the item
+ * that contains it; whether it is drawn on a field row or as a node of its own is decided by
+ * `CopyOfPlacementService.classifyItem` from its expression, and the model is never rewritten for it.
  */
 export class CopyOfSelector extends ValueSelector {
-  constructor(
-    public parent: MappingParentType,
-    public valueType: CopyOfType = CopyOfType.CONTAINER,
-  ) {
+  constructor(public parent: MappingParentType) {
     super(parent, 'copy');
   }
   /**
-   * {@link CopyOfType.CONTAINER_NODE} appends `/node()` so `xsl:copy-of` copies the children
-   * rather than the wrapper element (see {@link MappingService.mapToFieldWithValueType}); the
-   * addressed path is the expression without it. A getter rather than a stored value because
-   * {@link valueType} is reassigned when a container mapping is re-applied.
+   * The expression without a trailing `/node()`, which makes `xsl:copy-of` copy the children of the
+   * addressed element rather than the element itself (see {@link MappingService.mapToFieldWithCopyOf}).
    */
   override get sourcePath(): string {
-    return this.valueType === CopyOfType.CONTAINER_NODE ? this.expression.replace(/\/node\(\)$/, '') : this.expression;
+    return this.expression.replace(/\/node\(\)$/, '');
   }
   doClone() {
-    return new CopyOfSelector(this.parent, this.valueType);
+    return new CopyOfSelector(this.parent);
   }
 }
 

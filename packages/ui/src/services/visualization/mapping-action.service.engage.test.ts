@@ -8,10 +8,10 @@ import {
 } from '../../models/datamapper/document';
 import {
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachItem,
   IfItem,
+  MappingItem,
   MappingTree,
   ValueOfSelector,
   ValueSelector,
@@ -19,6 +19,7 @@ import {
 } from '../../models/datamapper/mapping';
 import {
   ChoiceFieldNodeData,
+  CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -44,11 +45,21 @@ import {
 import { expectNoDecisionChange } from '../../stubs/datamapper/target-render-test-helpers';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingActionService } from './mapping-action.service';
 import { TargetRenderService } from './target-render.service';
 import { VisualizationService } from './visualization.service';
+
+const MappingActionServiceTestUtil = {
+  /** The name of the field a loop body draws: its field item, or the field its bare copy-of is 1-to-1 with. */
+  wrappedFieldName: (loop: { children: MappingItem[] }): string | undefined => {
+    const first = loop.children[0];
+    if (first instanceof FieldItem) return first.field.name;
+    return first instanceof CopyOfSelector ? CopyOfPlacementService.getInlineField(first)?.name : undefined;
+  },
+};
 
 describe('MappingActionService — mapping engagement', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -116,11 +127,10 @@ describe('MappingActionService — mapping engagement', () => {
         targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const forEachNode = targetShipOrderChildren[3] as MappingNodeData;
         const forEachChildren = VisualizationService.generateNonDocumentNodeDataChildren(forEachNode);
-        const itemNode = forEachChildren[0] as FieldItemNodeData;
-        const itemMapping = itemNode.mapping;
-        expect(
-          itemMapping.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),
-        ).toBe(true);
+        const itemNode = forEachChildren[0] as CopyOfFieldNodeData;
+        const forEachItem = (forEachNode as MappingNodeData).mapping;
+        expect(itemNode).toBeInstanceOf(CopyOfFieldNodeData);
+        expect(forEachItem.children).toEqual([itemNode.mapping]);
 
         const sourceItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceShipOrderChildren[3]);
         const sourceTitleField = sourceItemChildren[0] as FieldNodeData;
@@ -128,13 +138,14 @@ describe('MappingActionService — mapping engagement', () => {
         const targetTitleField = targetItemChildren[0] as TargetFieldNodeData;
         MappingActionService.engageMapping(tree, sourceTitleField, targetTitleField);
 
-        expect(
-          itemMapping.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),
-        ).toBe(false);
-        expect(itemMapping.children.some((c) => c instanceof FieldItem && c.field.name === 'Title')).toBe(true);
+        // The first explicit child mapping replaces the wholesale copy with the element's own field item.
+        expect(forEachItem.children.some((c) => c instanceof CopyOfSelector)).toBe(false);
+        const itemFieldItem = forEachItem.children[0] as FieldItem;
+        expect(itemFieldItem.field.name).toBe('Item');
+        expect(itemFieldItem.children.some((c) => c instanceof FieldItem && c.field.name === 'Title')).toBe(true);
       });
 
-      it('should preserve explicit CONTAINER_NODE copy-of when child field is mapped via DnD', () => {
+      it('should preserve an explicit copy-of inside the element when a child field is mapped via DnD', () => {
         const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const targetShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(targetDocChildren[0]);
         const targetShipTo = targetShipOrderChildren.find(
@@ -146,9 +157,7 @@ describe('MappingActionService — mapping engagement', () => {
         const shipToMapping = shipOrderMapping.children.find(
           (c) => c instanceof FieldItem && c.field.name === 'ShipTo',
         ) as FieldItem;
-        expect(
-          shipToMapping.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER_NODE),
-        ).toBe(true);
+        expect(shipToMapping.children.some((c) => c instanceof CopyOfSelector)).toBe(true);
 
         const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
         const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
@@ -172,9 +181,7 @@ describe('MappingActionService — mapping engagement', () => {
         ) as TargetFieldNodeData;
         MappingActionService.engageMapping(tree, sourceNameField, targetNameField);
 
-        expect(
-          shipToMapping.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER_NODE),
-        ).toBe(true);
+        expect(shipToMapping.children.some((c) => c instanceof CopyOfSelector)).toBe(true);
         expect(shipToMapping.children.some((c) => c instanceof FieldItem && c.field.name === 'Name')).toBe(true);
       });
     });
@@ -304,11 +311,11 @@ describe('MappingActionService — mapping engagement', () => {
         const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
         const sourceItemChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceShipOrderChildren[3]);
         MappingActionService.deleteMappingItem(targetForEachChildren[0] as TargetNodeData);
-        // index 0 is the whole-element copy-of selector, which renders first; index 1 is the "Title" field
+        // the whole-element copy-of selector is not empty, so it renders after the fields; index 0 is "Title"
         MappingActionService.engageMapping(
           tree,
           sourceItemChildren[0] as FieldNodeData,
-          targetItemChildren[1] as TargetFieldNodeData,
+          targetItemChildren[0] as TargetFieldNodeData,
         );
 
         targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
@@ -421,13 +428,12 @@ describe('MappingActionService — mapping engagement', () => {
         expect(forEachItem).toBeDefined();
         expect(forEachItem.expression).toBe('/ns0:ShipOrder/Item');
 
-        const innerFieldItem = forEachItem.children.find((c) => c instanceof FieldItem) as FieldItem;
-        expect(innerFieldItem).toBeDefined();
-        expect(innerFieldItem.field.name).toBe('Item');
-
-        const copyOf = innerFieldItem.children.find((c) => c instanceof ValueSelector) as ValueSelector;
+        // The copy-of brings the element itself, so it stands directly in the loop with no field item.
+        expect(forEachItem.children.some((c) => c instanceof FieldItem)).toBe(false);
+        const copyOf = forEachItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
         expect(copyOf).toBeDefined();
         expect(copyOf.expression).toBe('.');
+        expect(CopyOfPlacementService.getInlineField(copyOf)?.name).toBe('Item');
       });
 
       it('should place ForEachItem with inner FieldItem when collections have different names', () => {
@@ -555,7 +561,7 @@ describe('MappingActionService — mapping engagement', () => {
         const hl7Item = hl7Tree.children[0] as FieldItem;
         const forEachItems = hl7Item.children.filter((c) => c instanceof ForEachItem) as ForEachItem[];
         expect(forEachItems).toHaveLength(2);
-        const wrappedNames = forEachItems.map((f) => (f.children[0] as FieldItem).field.name);
+        const wrappedNames = forEachItems.map((f) => MappingActionServiceTestUtil.wrappedFieldName(f));
         expect(wrappedNames).toEqual(['NK1Loop', 'OBXLoop']);
       });
     });
@@ -617,9 +623,8 @@ describe('MappingActionService — mapping engagement', () => {
           expect.stringContaining('Address'),
           expect.stringContaining('Phone'),
         ]);
-        const mappedFields = loops.map((loop) => loop.children[0] as FieldItem);
-        expect(mappedFields.map((field) => field.field.name)).toEqual(['Address', 'Phone']);
-        expect(mappedFields.every((field) => field.children.length > 0)).toBe(true);
+        expect(loops.map((loop) => MappingActionServiceTestUtil.wrappedFieldName(loop))).toEqual(['Address', 'Phone']);
+        expect(loops.every((loop) => loop.children.length > 0)).toBe(true);
 
         const xslt = MappingSerializerService.serialize(tgtTree, new Map());
         for (const loop of loops) {
@@ -644,7 +649,11 @@ describe('MappingActionService — mapping engagement', () => {
 
         const rootItem = tgtTree.children[0] as FieldItem;
         const loops = rootItem.children.filter((c) => c instanceof ForEachItem) as ForEachItem[];
-        expect(loops.map((loop) => (loop.children[0] as FieldItem).field.name)).toEqual(['Address', 'Fax', 'Phone']);
+        expect(loops.map((loop) => MappingActionServiceTestUtil.wrappedFieldName(loop))).toEqual([
+          'Address',
+          'Fax',
+          'Phone',
+        ]);
       });
 
       it('should remove the stray field item when a sibling for-each already wraps the same field', () => {
@@ -675,7 +684,7 @@ describe('MappingActionService — mapping engagement', () => {
         const rootItem = tgtTree.children[0] as FieldItem;
         expect(rootItem.children.every((c) => c instanceof ForEachItem)).toBe(true);
         const loops = rootItem.children as ForEachItem[];
-        expect(loops.map((loop) => (loop.children[0] as FieldItem).field.name)).toEqual(['Address', 'Phone']);
+        expect(loops.map((loop) => MappingActionServiceTestUtil.wrappedFieldName(loop))).toEqual(['Address', 'Phone']);
       });
     });
 
@@ -893,7 +902,9 @@ describe('MappingActionService — mapping engagement', () => {
         const shipToItem = shipOrderFieldItem.children.find(
           (c) => c instanceof FieldItem && c.field.name === 'ShipTo',
         ) as FieldItem;
-        expect(shipToItem.children.some((c) => c instanceof CopyOfSelector)).toBe(true);
+        const wholesaleCopy = () =>
+          shipOrderFieldItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector | undefined;
+        expect(shipToItem.children.some((c) => c instanceof CopyOfSelector) || wholesaleCopy()).toBeTruthy();
 
         // Re-drop onto the guarded child: the container copy-of has to go, or the output both
         // copies the subtree and emits Name explicitly. The guard is in the way of finding it.
@@ -904,6 +915,7 @@ describe('MappingActionService — mapping engagement', () => {
         );
 
         expect(shipToItem.children.some((c) => c instanceof CopyOfSelector)).toBe(false);
+        expect(wholesaleCopy()).toBeUndefined();
       });
 
       it('should report a drop onto the copy-of row of a guarded field as structural', () => {
@@ -916,12 +928,14 @@ describe('MappingActionService — mapping engagement', () => {
         hl7Item.children.push(ifItem);
         const pidItem = new FieldItem(ifItem, childField(hl7Field, 'PID'));
         ifItem.children.push(pidItem);
-        const copyOf = new CopyOfSelector(pidItem, CopyOfType.CONTAINER_NODE);
+        const copyOf = new CopyOfSelector(pidItem);
         copyOf.expression = '/HL7/PID/node()';
         pidItem.children.push(copyOf);
         const renderIndex = adt.buildRenderIndex();
         const pidNode = adt.targetNode('PID', renderIndex) as FieldItemNodeData;
-        const copyOfNode = VisualizationService.generateNonDocumentNodeDataChildren(pidNode)[0] as MappingNodeData;
+        const copyOfNode = VisualizationService.generateNonDocumentNodeDataChildren(pidNode).find(
+          (n) => 'mapping' in n && n.mapping === copyOf,
+        ) as MappingNodeData;
         expect(pidNode.autoOptionalIfItem).toBe(ifItem);
         expect(copyOfNode.mapping).toBe(copyOf);
 
@@ -1015,11 +1029,9 @@ describe('MappingActionService — mapping engagement', () => {
         const ifItem = hl7Item.children.find((c) => c instanceof IfItem) as IfItem;
         expect(structural).toBe(true);
         expect(ifItem.expression).toBe('/HL7/PID');
-        const fieldItem = ifItem.children.find((c) => c instanceof FieldItem) as FieldItem;
-        expect(fieldItem.field.name).toBe('PID');
-        expect(
-          fieldItem.children.some((c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),
-        ).toBe(true);
+        const copyOf = ifItem.children[0] as CopyOfSelector;
+        expect(copyOf).toBeInstanceOf(CopyOfSelector);
+        expect(CopyOfPlacementService.getInlineField(copyOf)?.name).toBe('PID');
         expect(adt.buildRenderIndex().isAbsorbed(ifItem)).toBe(true);
       });
 
@@ -1192,7 +1204,7 @@ describe('MappingActionService — mapping engagement', () => {
     });
 
     describe('xs:anyType container mapping', () => {
-      it('should create copy-of with CONTAINER_NODE when xs:anyType source is mapped to a container target', () => {
+      it('should create a /node() copy-of when xs:anyType source is mapped to a container target', () => {
         const anyTypeDef = new DocumentDefinition(
           DocumentType.SOURCE_BODY,
           DocumentDefinitionType.XML_SCHEMA,
@@ -1226,8 +1238,55 @@ describe('MappingActionService — mapping engagement', () => {
 
         const copyOf = itemFieldItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
         expect(copyOf).toBeDefined();
-        expect(copyOf.valueType).toEqual(CopyOfType.CONTAINER_NODE);
         expect(copyOf.expression).toMatch(/\/node\(\)$/);
+      });
+    });
+
+    describe('xs:anyType …/node() copy-of placement', () => {
+      it('should keep the dragged node() copy-of as a separate node inside its wrapper and round-trip it unchanged', () => {
+        const anyTypeDef = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          { 'Envelope.xsd': getEnvelopeXsd() },
+        );
+        const anyTypeDoc = XmlSchemaDocumentService.createXmlSchemaDocument(anyTypeDef).document!;
+        const anyTypeDocChildren = VisualizationService.generateStructuredDocumentChildren(
+          new DocumentNodeData(anyTypeDoc),
+        );
+        const payloadField = VisualizationService.generateNonDocumentNodeDataChildren(
+          anyTypeDocChildren[0],
+        )[0] as FieldNodeData;
+        const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const targetItem = VisualizationService.generateNonDocumentNodeDataChildren(
+          targetDocChildren[0],
+        )[3] as TargetFieldNodeData;
+
+        MappingActionService.engageMapping(tree, payloadField, targetItem);
+
+        const itemFieldItem = (tree.children[0] as FieldItem).children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'Item',
+        ) as FieldItem;
+        const copyOf = itemFieldItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
+        expect(
+          CopyOfPlacementService.classify(copyOf.expression, itemFieldItem.field, () => '', itemFieldItem).kind,
+        ).toBe('other');
+        expect(CopyOfPlacementService.getInlineField(copyOf)).toBeUndefined();
+
+        const xslt = MappingSerializerService.serialize(tree, paramsMap);
+        expect(xslt).toMatch(/<Item[^>]*>\s*<xsl:copy-of select="[^"]*\/node\(\)"\/>/);
+
+        const reloadedTree = new MappingTree(
+          targetDoc.documentType,
+          targetDoc.documentId,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        MappingSerializerService.deserialize(xslt, targetDoc, reloadedTree, paramsMap);
+        const reloadedItem = (reloadedTree.children[0] as FieldItem).children.find(
+          (c) => c instanceof FieldItem && c.field.name === 'Item',
+        ) as FieldItem;
+        expect(reloadedItem.children.some((c) => c instanceof CopyOfSelector)).toBe(true);
+        expect(MappingSerializerService.serialize(reloadedTree, paramsMap)).toEqual(xslt);
       });
     });
 

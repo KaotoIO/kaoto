@@ -3,7 +3,6 @@ import { DocumentDefinitionType, DocumentType, IField } from './document';
 import {
   ChooseItem,
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -59,7 +58,7 @@ describe('mapping.ts', () => {
 
     it('should return the sole CopyOfSelector', () => {
       const fieldItem = new FieldItem(tree, field);
-      const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER);
+      const selector = new CopyOfSelector(fieldItem);
       fieldItem.children.push(selector);
       expect(fieldItem.soleSelector).toBe(selector);
     });
@@ -88,23 +87,14 @@ describe('mapping.ts', () => {
       expect(selector.sourcePath).toBe('/ns0:ShipOrder/ns0:OrderPerson');
     });
 
-    it('should strip the trailing /node() for a CONTAINER_NODE CopyOfSelector', () => {
-      const selector = new CopyOfSelector(tree, CopyOfType.CONTAINER_NODE);
-      selector.expression = '/ns0:ShipOrder/ns0:ShipTo/node()';
-      expect(selector.sourcePath).toBe('/ns0:ShipOrder/ns0:ShipTo');
-    });
-
-    it('should leave a CONTAINER CopyOfSelector expression untouched', () => {
-      const selector = new CopyOfSelector(tree, CopyOfType.CONTAINER);
-      selector.expression = '/ns0:ShipOrder/ns0:ShipTo';
-      expect(selector.sourcePath).toBe('/ns0:ShipOrder/ns0:ShipTo');
-    });
-
-    it('should follow a valueType reassignment', () => {
-      const selector = new CopyOfSelector(tree, CopyOfType.CONTAINER_NODE);
-      selector.expression = '/ns0:ShipOrder/ns0:ShipTo/node()';
-      selector.valueType = CopyOfType.CONTAINER;
-      expect(selector.sourcePath).toBe('/ns0:ShipOrder/ns0:ShipTo/node()');
+    it.each([
+      ['strip a trailing /node()', '/ns0:ShipOrder/ns0:ShipTo/node()', '/ns0:ShipOrder/ns0:ShipTo'],
+      ['leave a path without /node() untouched', '/ns0:ShipOrder/ns0:ShipTo', '/ns0:ShipOrder/ns0:ShipTo'],
+      ['keep a /node() that is not at the end', '/ns0:ShipOrder/node()/ns0:ShipTo', '/ns0:ShipOrder/node()/ns0:ShipTo'],
+    ])('should %s in the sourcePath of a CopyOfSelector', (_name, expression, expected) => {
+      const selector = new CopyOfSelector(tree);
+      selector.expression = expression;
+      expect(selector.sourcePath).toBe(expected);
     });
   });
 

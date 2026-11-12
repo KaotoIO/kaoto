@@ -1,6 +1,15 @@
 .debug-layout {
   height: 100%;
 
+  // The filled StackItem that holds DataMapperControl. min-height: 0 lets it shrink
+  // below its content's intrinsic height so SourceTargetView (height: 100%) keeps its
+  // own scrollbars instead of pushing the layout open — this is the scroll behaviour
+  // that a naive Page removal lost (issue #2263).
+  &__body {
+    min-height: 0;
+    height: 100%;
+  }
+
   &__drawer-content {
     height: 100%;
   }

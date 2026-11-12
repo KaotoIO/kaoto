@@ -25,6 +25,7 @@ export class XmlSchemaAnnotated extends XmlSchemaObject {
     this.unhandledAttributes = unhandledAttributes;
   }
   toString() {
-    return this.id == null ? super.toString() : super.toString() + `[id:${this.id}]`;
+    const name = 'XmlSchemaAnnotated';
+    return this.id == null ? name : `${name}[id:${this.id}]`;
   }
 }

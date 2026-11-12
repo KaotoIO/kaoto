@@ -26,7 +26,6 @@ import {
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
-  TargetNodeData,
 } from '../../models/datamapper/visualization';
 import { getTestDocumentXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { QName } from '../../xml-schema-ts/QName';
@@ -1062,11 +1061,12 @@ describe('VisualizationService / choice fields', () => {
 
       const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
       const targetDocChildren = VisualizationService.generateStructuredDocumentChildren(localTargetDocNode);
-      MappingActionService.engageMapping(
+      // An existing mapped field: a field item carrying a value selector.
+      const existingFieldItem = MappingService.createFieldItem(
         tree,
-        sourceDocChildren[0] as FieldNodeData,
-        targetDocChildren[0] as TargetNodeData,
+        (targetDocChildren[0] as TargetFieldNodeData).field,
       );
+      MappingService.mapToField((sourceDocChildren[0] as FieldNodeData).field, existingFieldItem);
 
       const updatedTargetDocChildren = VisualizationService.generateStructuredDocumentChildren(localTargetDocNode);
       const fieldItemNode = updatedTargetDocChildren[0] as FieldItemNodeData;

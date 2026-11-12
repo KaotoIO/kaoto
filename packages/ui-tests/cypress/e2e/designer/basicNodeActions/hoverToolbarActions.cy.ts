@@ -63,6 +63,7 @@ describe('Test toolbar on hover actions', () => {
 
     cy.openStepConfigurationTab('setHeader');
 
+    cy.selectFormTab('All');
     cy.expandWrappedSection('#-Advanced');
     cy.checkConfigCheckboxObject('disabled', false);
   });

@@ -1,12 +1,12 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { CanvasFormTabsProvider } from '@kaoto/forms';
 import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
+import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../models';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
@@ -126,6 +126,11 @@ describe('Canvas', () => {
 
   it('should move focus to the search input when sidebar opens', async () => {
     const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
+    // Without a schema the side panel renders the node source instead of the form (and its search input)
+    setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+    onTestFinished(() => {
+      DynamicCatalogRegistry.get().clearRegistry();
+    });
     const { controller } = await renderCanvas();
 
     // Open sidebar by selecting the timer `from` step — this resolves to a real vizNode
@@ -143,7 +148,7 @@ describe('Canvas', () => {
       await vi.runAllTimersAsync();
     });
 
-    const searchInput = screen.getByTestId('filter-fields').querySelector('input')!;
+    const searchInput = screen.getByTestId('filter-fields');
     expect(searchInput).toHaveFocus();
     // The drawer is still animating in, so focusing must not scroll its container (canvas jump)
     expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
@@ -176,6 +181,45 @@ describe('Canvas', () => {
     // Focus should now be on the canvas container (id=canvas-main)
     const canvasEl = container.querySelector('[id="canvas-main"]');
     expect(canvasEl).toHaveFocus();
+  });
+
+  it('should close the sidebar and restore focus when Escape is pressed from the focused search input', async () => {
+    // Without a schema the side panel renders the node source instead of the form (and its search input)
+    setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+    onTestFinished(() => {
+      DynamicCatalogRegistry.get().clearRegistry();
+    });
+    const { container, controller } = await renderCanvas();
+
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('filter-fields')).toBeInTheDocument();
+    });
+
+    // Flush requestAnimationFrame so the auto-focus fires
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    const searchInput = screen.getByTestId('filter-fields');
+    expect(searchInput).toHaveFocus();
+
+    // The search is empty, so Escape dismisses the panel
+    fireEvent.keyDown(searchInput, { key: 'Escape' });
+
+    await waitFor(() => {
+      expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
+    });
+
+    // Flush requestAnimationFrame so the focus() call in clearSelection fires
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(container.querySelector('[id="canvas-main"]')).toHaveFocus();
   });
 
   it('should restore focus to the selected canvas node when closing the sidebar', async () => {
@@ -349,6 +393,37 @@ describe('Canvas', () => {
     // Check if the remove function is called
     expect(removeSpy).toHaveBeenCalled();
     expect(removeSpy).toHaveBeenCalledWith(['route-8888']);
+  });
+
+  it('should drop the previous context menu as soon as the node is right-clicked again', async () => {
+    const camelResource = new CamelRouteResource([camelRouteJson]);
+    await camelResource.initialize();
+    const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
+
+    const { Provider } = await TestProvidersWrapper({ camelResource });
+
+    render(
+      <Provider>
+        <VisualizationProvider controller={ControllerService.createController()}>
+          <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} />
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    const route = screen.getByText('route-8888');
+    fireEvent.contextMenu(route);
+    const firstDelete = await screen.findByRole('menuitem', { name: 'Delete' });
+
+    fireEvent.contextMenu(route);
+
+    /* The items of the first menu must not stay clickable while the second menu is being built (#3529) */
+    expect(firstDelete).not.toBeInTheDocument();
+    const secondDelete = await screen.findByRole('menuitem', { name: 'Delete' });
+    expect(secondDelete).not.toBe(firstDelete);
   });
 
   it('should be able to delete the kamelets', async () => {
@@ -763,6 +838,9 @@ describe('Canvas', () => {
   ] as const)('selects an inserted Avro step and opens its properties (%s)', async (mode, targetPath, expectedPath) => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+    onTestFinished(() => {
+      DynamicCatalogRegistry.get().clearRegistry();
+    });
     const resource = new CamelRouteResource([
       {
         route: {
@@ -799,14 +877,12 @@ describe('Canvas', () => {
     };
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider>
-        <CanvasFormTabsProvider>
-          <CatalogModalContext.Provider value={catalog}>
-            <VisualizationProvider controller={controller}>
-              <InsertButton />
-              {children}
-            </VisualizationProvider>
-          </CatalogModalContext.Provider>
-        </CanvasFormTabsProvider>
+        <CatalogModalContext.Provider value={catalog}>
+          <VisualizationProvider controller={controller}>
+            <InsertButton />
+            {children}
+          </VisualizationProvider>
+        </CatalogModalContext.Provider>
       </Provider>
     );
     const { rerender } = render(<Canvas {...initial} />, { wrapper });

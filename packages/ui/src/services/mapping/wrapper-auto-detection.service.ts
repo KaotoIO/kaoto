@@ -20,6 +20,7 @@ import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.mo
 import { ensureNamespaceRegistered, formatWithPrefix } from '../namespace-util';
 import { SchemaPathService } from '../schema-path.service';
 import { XPathService } from '../xpath/xpath.service';
+import { CopyOfPlacementService } from './copy-of-placement.service';
 
 /**
  * Derives and repairs target-side wrapper state from the mapping tree: abstract substitutions,
@@ -56,42 +57,63 @@ export class WrapperAutoDetectionService {
   ): void {
     for (const child of parent.children) {
       if (child instanceof FieldItem) {
-        WrapperAutoDetectionService.processFieldItem(child, targetDocument, namespaceMap, processedWrappers);
+        WrapperAutoDetectionService.processIdentifyingField(
+          child.field,
+          child,
+          targetDocument,
+          namespaceMap,
+          processedWrappers,
+        );
         WrapperAutoDetectionService.tryPersistNonAbstractSubstitution(child, targetDocument, namespaceMap);
+      } else if (child instanceof CopyOfSelector) {
+        const field = CopyOfPlacementService.getInlineField(child);
+        if (field) {
+          WrapperAutoDetectionService.processIdentifyingField(
+            field,
+            child,
+            targetDocument,
+            namespaceMap,
+            processedWrappers,
+          );
+        }
       }
       WrapperAutoDetectionService.walkMappingTree(child, targetDocument, namespaceMap, processedWrappers);
     }
   }
 
-  private static processFieldItem(
-    fieldItem: FieldItem,
+  private static processIdentifyingField(
+    startField: IField,
+    mappingItem: FieldItem | CopyOfSelector,
     targetDocument: IDocument,
     namespaceMap: Record<string, string>,
     processedWrappers: Set<IField>,
   ): void {
-    let identifyingField: IField = fieldItem.field;
+    let identifyingField: IField = startField;
     let current: IParentType = identifyingField.parent;
 
     while ('wrapperKind' in current && current.wrapperKind) {
       if (!processedWrappers.has(current)) {
-        processedWrappers.add(current);
+        let selected = false;
         if (current.wrapperKind === 'abstract') {
-          WrapperAutoDetectionService.tryAutoDetectAbstractSelection(
+          selected = WrapperAutoDetectionService.tryAutoDetectAbstractSelection(
             current,
             identifyingField,
-            fieldItem,
+            mappingItem,
             targetDocument,
             namespaceMap,
           );
         } else if (current.wrapperKind === 'choice') {
-          WrapperAutoDetectionService.tryAutoDetectChoiceSelection(
+          selected = WrapperAutoDetectionService.tryAutoDetectChoiceSelection(
             current,
             identifyingField,
-            fieldItem,
+            mappingItem,
             targetDocument,
             namespaceMap,
           );
         }
+        // Mark processed only once a selection is actually accepted. A rejected candidate (e.g. one
+        // inside a conditional wrapper) must not block a later, eligible candidate for the same member.
+        if (selected) processedWrappers.add(current);
       }
       identifyingField = current;
       current = current.parent;
@@ -101,18 +123,19 @@ export class WrapperAutoDetectionService {
   private static tryAutoDetectAbstractSelection(
     wrapperField: IField,
     candidateField: IField,
-    fieldItem: FieldItem,
+    mappingItem: FieldItem | CopyOfSelector,
     targetDocument: IDocument,
     namespaceMap: Record<string, string>,
-  ): void {
-    if (wrapperField.selectedMemberQName) return;
-    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return;
-    if (!WrapperAutoDetectionService.isUniqueInWrapper(candidateField, wrapperField)) return;
-    if (WrapperAutoDetectionService.hasConditionalWrapper(fieldItem)) return;
-    if (WrapperAutoDetectionService.hasExistingSubstitutionMetadata(wrapperField, targetDocument, namespaceMap)) return;
+  ): boolean {
+    if (wrapperField.selectedMemberQName) return false;
+    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return false;
+    if (!WrapperAutoDetectionService.isUniqueInWrapper(candidateField, wrapperField)) return false;
+    if (WrapperAutoDetectionService.hasConditionalWrapper(mappingItem)) return false;
+    if (WrapperAutoDetectionService.hasExistingSubstitutionMetadata(wrapperField, targetDocument, namespaceMap))
+      return false;
 
     wrapperField.selectedMemberQName = new QName(candidateField.namespaceURI, candidateField.name);
-    fieldItem.isUserCreated = true;
+    if (mappingItem instanceof FieldItem) mappingItem.isUserCreated = true;
 
     ensureNamespaceRegistered(candidateField.namespaceURI, namespaceMap, candidateField.namespacePrefix ?? undefined);
     ensureNamespaceRegistered(wrapperField.namespaceURI, namespaceMap, wrapperField.namespacePrefix ?? undefined);
@@ -125,26 +148,27 @@ export class WrapperAutoDetectionService {
     };
     targetDocument.definition.fieldSubstitutions ??= [];
     targetDocument.definition.fieldSubstitutions.push(entry);
+    return true;
   }
 
   private static tryAutoDetectChoiceSelection(
     wrapperField: IField,
     memberField: IField,
-    fieldItem: FieldItem,
+    mappingItem: FieldItem | CopyOfSelector,
     targetDocument: IDocument,
     namespaceMap: Record<string, string>,
-  ): void {
-    if (wrapperField.selectedMemberIndex !== undefined) return;
-    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return;
-    if (!WrapperAutoDetectionService.isUniqueInWrapper(memberField, wrapperField)) return;
-    if (WrapperAutoDetectionService.hasConditionalWrapper(fieldItem)) return;
-    if (WrapperAutoDetectionService.hasExistingChoiceMetadata(wrapperField, targetDocument, namespaceMap)) return;
+  ): boolean {
+    if (wrapperField.selectedMemberIndex !== undefined) return false;
+    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return false;
+    if (!WrapperAutoDetectionService.isUniqueInWrapper(memberField, wrapperField)) return false;
+    if (WrapperAutoDetectionService.hasConditionalWrapper(mappingItem)) return false;
+    if (WrapperAutoDetectionService.hasExistingChoiceMetadata(wrapperField, targetDocument, namespaceMap)) return false;
 
     const memberIndex = wrapperField.fields.indexOf(memberField);
-    if (memberIndex < 0) return;
+    if (memberIndex < 0) return false;
 
     wrapperField.selectedMemberIndex = memberIndex;
-    fieldItem.isUserCreated = true;
+    if (mappingItem instanceof FieldItem) mappingItem.isUserCreated = true;
 
     const schemaPath = SchemaPathService.build(wrapperField, namespaceMap);
     const entry: IChoiceSelection = {
@@ -153,6 +177,7 @@ export class WrapperAutoDetectionService {
     };
     targetDocument.definition.choiceSelections ??= [];
     targetDocument.definition.choiceSelections.push(entry);
+    return true;
   }
 
   /**
@@ -270,10 +295,22 @@ export class WrapperAutoDetectionService {
    * @returns `true` to wrap the field in an `xsl:if` guard
    */
   static shouldWrapWithOptionalGuard(
-    fieldItem: FieldItem,
+    fieldItem: FieldItem | CopyOfSelector,
     sourceField: PrimitiveDocument | IField,
     hadExistingContent: boolean,
   ): boolean {
+    if (fieldItem instanceof CopyOfSelector) {
+      if (hadExistingContent) return false;
+      const sourcePath = XPathService.toPathExpression(
+        fieldItem.mappingTree.namespaceMap,
+        sourceField,
+        fieldItem.parent.contextPath,
+      );
+      return (
+        !!WrapperAutoDetectionService.getHiddenGuardSelector(fieldItem) &&
+        WrapperAutoDetectionService.isOptionalSourcePath(sourceField, sourcePath)
+      );
+    }
     if (fieldItem.parent instanceof IfItem || fieldItem.field.minOccurs !== 0) return false;
     const sourcePath = XPathService.toPathExpression(
       fieldItem.mappingTree.namespaceMap,
@@ -292,16 +329,22 @@ export class WrapperAutoDetectionService {
   /**
    * The target-side half of "can this field carry a see-through guard": not already under an
    * `IfItem`, optional on the target, and mapped by a single selector whose source path is simple —
-   * the shape {@link matchSimpleOptionalGuard} recognises once the guard is in place. Shared by
-   * {@link shouldWrapWithOptionalGuard} (drag-and-drop) and the "Add optional guard" menu action
-   * ({@link TargetRenderService.canAddOptionalGuard}), which `MappingActionService.addOptionalGuard`
-   * re-checks before wrapping.
-   * @param fieldItem - the target field item to inspect
+   * the shape {@link matchSimpleOptionalGuard} recognises once the guard is in place. A bare
+   * {@link CopyOfSelector} stands for the field it is 1-to-1 with and is its own selector.
+   * Shared by {@link shouldWrapWithOptionalGuard} (drag-and-drop) and the "Add optional guard" menu
+   * action ({@link TargetRenderService.canAddOptionalGuard}), which
+   * `MappingActionService.addOptionalGuard` re-checks before wrapping.
+   * @param item - the target field item, or copy-of drawn on a field row, to inspect
    * @returns the selector whose `sourcePath` becomes the guard's `test`, or `undefined`
    */
-  static getHiddenGuardSelector(fieldItem: FieldItem): ValueOfSelector | CopyOfSelector | undefined {
-    if (fieldItem.parent instanceof IfItem || fieldItem.field.minOccurs !== 0) return undefined;
-    const selector = fieldItem.soleSelector;
+  static getHiddenGuardSelector(item: FieldItem | CopyOfSelector): ValueOfSelector | CopyOfSelector | undefined {
+    if (item.parent instanceof IfItem) return undefined;
+    if (item instanceof CopyOfSelector) {
+      const field = CopyOfPlacementService.getInlineField(item);
+      return field?.minOccurs === 0 && XPathService.isSimplePath(item.sourcePath) ? item : undefined;
+    }
+    if (item.field.minOccurs !== 0) return undefined;
+    const selector = item.soleSelector;
     return selector && XPathService.isSimplePath(selector.sourcePath) ? selector : undefined;
   }
 
@@ -359,8 +402,8 @@ export class WrapperAutoDetectionService {
    * - `test` is a simple path (no operators, functions, or predicates)
    * - that `FieldItem` has exactly one `ValueOfSelector`/`CopyOfSelector` child (not
    *   recursive `FieldItem` children)
-   * - the selector's source path matches `test` (a `CopyOfType.CONTAINER_NODE`
-   *   selector's trailing `/node()` is stripped before comparing)
+   * - the selector's source path matches `test` (a copy-of's trailing `/node()`
+   *   is stripped before comparing)
    *
    * This is the target-side, structural half of the see-through rule only: it does not resolve the
    * source field the test refers to. {@link TargetRenderService.computeSeeThroughField} adds that
@@ -368,12 +411,21 @@ export class WrapperAutoDetectionService {
    * @param ifItem - the `IfItem` to test
    * @param test - the test to check the shape against; defaults to the `IfItem`'s own expression,
    *   and lets a caller ask about a candidate test without writing it to the model
-   * @returns the matched inner `FieldItem`, or `undefined`
+   * @returns the matched inner `FieldItem` or bare `CopyOfSelector`, or `undefined`
    */
-  static matchSimpleOptionalGuard(ifItem: IfItem, test: string = ifItem.expression): FieldItem | undefined {
+  static matchSimpleOptionalGuard(
+    ifItem: IfItem,
+    test: string = ifItem.expression,
+  ): FieldItem | CopyOfSelector | undefined {
     if (ifItem.children.length !== 1) return undefined;
-    const fieldItem = ifItem.children[0];
-    if (!(fieldItem instanceof FieldItem)) return undefined;
+    const guarded = ifItem.children[0];
+    if (guarded instanceof CopyOfSelector) {
+      const field = CopyOfPlacementService.getInlineField(guarded);
+      if (field?.minOccurs !== 0 || guarded.sourcePath !== test) return undefined;
+      return XPathService.isSimplePath(test) ? guarded : undefined;
+    }
+    if (!(guarded instanceof FieldItem)) return undefined;
+    const fieldItem = guarded;
     if (fieldItem.field.minOccurs !== 0) return undefined;
 
     const selector = fieldItem.soleSelector;

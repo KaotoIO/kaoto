@@ -4,12 +4,12 @@
   --pf-v6-c-button--PaddingLeft: var(--datamapper-header-button-padding);
   --pf-v6-c-button--PaddingRight: var(--datamapper-header-button-padding);
 
-  width: var(--datamapper-header-control-size) !important;
-  height: var(--datamapper-header-control-size) !important;
+  width: var(--datamapper-header-control-size);
+  height: var(--datamapper-header-control-size);
   min-width: var(--datamapper-header-control-size);
   max-width: var(--datamapper-header-control-size);
   font-size: var(--datamapper-header-control-font-size);
-  display: inline-flex !important;
+  display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;

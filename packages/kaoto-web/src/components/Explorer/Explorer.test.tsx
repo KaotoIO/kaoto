@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { describe, expect, it } from 'vitest';
@@ -184,5 +184,82 @@ describe('Explorer', () => {
     });
     expect(screen.getByTestId('explorer-file-main-flow')).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByTestId('explorer-file-error-handler')).toHaveAttribute('aria-selected', 'false');
+  });
+
+  describe('opening files', () => {
+    const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
+
+    it('does not navigate when a non-integration file is clicked', async () => {
+      const user = userEvent.setup();
+      renderWithNavigation(<LocationDisplay />);
+
+      const folderNode = screen.getByTestId('explorer-folder-resources');
+      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+      await user.click(screen.getByTestId('explorer-file-schema'));
+
+      expect(screen.getByTestId('location')).toHaveTextContent('/projects/my-project');
+      expect(screen.getByTestId('location')).not.toHaveTextContent('/integration/');
+    });
+
+    it('does not navigate when the project id is not valid', async () => {
+      const user = userEvent.setup();
+      render(
+        <MemoryRouter initialEntries={['/projects/invalid.id']}>
+          <Routes>
+            <Route
+              path="/projects/:projectId"
+              element={
+                <>
+                  <Explorer />
+                  <LocationDisplay />
+                </>
+              }
+            />
+          </Routes>
+        </MemoryRouter>,
+      );
+
+      const folderNode = screen.getByTestId('explorer-folder-integrations');
+      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+      await user.click(screen.getByTestId('explorer-file-main-flow'));
+
+      expect(screen.getByTestId('location')).toHaveTextContent('/projects/invalid.id');
+    });
+  });
+
+  describe('resizing', () => {
+    const drag = (fromX: number, toX: number) => {
+      fireEvent.mouseDown(screen.getByRole('button', { name: 'Resize explorer panel' }), { clientX: fromX });
+      fireEvent.mouseMove(document, { clientX: toX });
+    };
+
+    it('grows the panel following the mouse', () => {
+      renderComponent();
+
+      drag(100, 160);
+
+      expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '300px' });
+    });
+
+    it('clamps the panel to the minimum and maximum widths', () => {
+      renderComponent();
+
+      drag(100, -1000);
+      expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '160px' });
+
+      fireEvent.mouseUp(document);
+      drag(100, 1000);
+      expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '480px' });
+    });
+
+    it('stops resizing after the mouse is released', () => {
+      renderComponent();
+
+      drag(100, 160);
+      fireEvent.mouseUp(document);
+      fireEvent.mouseMove(document, { clientX: 300 });
+
+      expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '300px' });
+    });
   });
 });

@@ -35,9 +35,9 @@ describe('Test Camel Route source-to-canvas-to-source round trip', () => {
     cy.openStepConfigurationTab(variant.stepName, variant.stepIndex);
     cy.selectFormTab('All');
     if (variant.editViaUriInput) {
-      cy.get('[data-testid="#.uri--edit"]').click();
-      cy.get('[data-testid="#.uri--text-input"]').clear().type(variant.uriInputValue!);
-      cy.get('[data-testid="#.uri--save"]').click();
+      // EditInPlace renders the input with `id` set to the property path and saves the value on Enter
+      cy.get('input[id="#.uri"]').clear();
+      cy.get('input[id="#.uri"]').type(`${variant.uriInputValue!}{enter}`);
     } else {
       cy.interactWithConfigInputObject('parameters.loggerName', 'changed-testing');
     }

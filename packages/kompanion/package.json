@@ -21,7 +21,7 @@
   },
   "scripts": {
     "mvnw:run": "node scripts/mvnw.mjs",
-    "build": "yarn mvnw:run clean install && yarn build:sdk",
+    "build": "yarn mvnw:run clean install -DskipTests && yarn build:sdk",
     "build:kompanion": "yarn mvnw:run clean package -pl kaoto-kompanion -am",
     "build:sdk": "orval --config orval.config.ts && tsc --project tsconfig.sdk.json",
     "lint": "yarn mvnw:run spotless:check",

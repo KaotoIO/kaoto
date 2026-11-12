@@ -26,6 +26,14 @@
     font-weight: normal;
   }
 
+  // Group heading row inside a shared table; mirrors the look of the former table caption
+  &__group-caption {
+    color: var(--pf-t--global--text--color--subtle);
+    font-size: var(--pf-t--global--font--size--sm);
+    font-weight: normal;
+    text-align: start;
+  }
+
   &__body {
     height: 75vh;
 

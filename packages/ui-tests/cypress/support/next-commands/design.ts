@@ -145,22 +145,15 @@ Cypress.Commands.add('performNodeAction', (nodeName: string, action: ActionType,
   // Get the node and ensure it's visible
   cy.get(nodeSelector).eq(nodeIndex).should('be.visible');
 
-  // Wrap the retry logic
-  cy.wrap(null).then(() => {
-    // Right-click the node (query fresh from DOM)
-    cy.get(nodeSelector).eq(nodeIndex).rightclick({ force: true });
-
-    // Check if menu appeared, if not, right-click again
-    cy.wait(200).then(() => {
-      cy.get('body').then(($body) => {
-        if ($body.find(menuItemSelector).length === 0) {
-          cy.log('Context menu not visible, retrying right-click...');
-          // Query fresh from DOM again
-          cy.get(nodeSelector).eq(nodeIndex).rightclick({ force: true });
-          cy.wait(200);
-        }
-      });
-    });
+  // Right-click the node, querying fresh from the DOM.
+  cy.get(nodeSelector).eq(nodeIndex).rightclick({ force: true });
+  cy.wait(200);
+  cy.get('body').then(($body) => {
+    if ($body.find(menuItemSelector).length === 0) {
+      cy.log('Context menu not visible, retrying right-click...');
+      cy.get(nodeSelector).eq(nodeIndex).rightclick({ force: true });
+      cy.wait(200);
+    }
   });
   // Now the menu should be visible, click it
   cy.get(menuItemSelector).should('be.visible').click();

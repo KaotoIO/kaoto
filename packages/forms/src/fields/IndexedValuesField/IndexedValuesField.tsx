@@ -24,7 +24,10 @@ export const IndexedValuesField: FunctionComponent<FieldProps> = ({ propName, re
       required={required}
       title={
         <span className="indexed-values-field-title">
-          {title} <Tag title={`${items.length} properties`}>{items.length}</Tag>
+          {title}{' '}
+          <Tag as="span" title={`${items.length} properties`}>
+            {items.length}
+          </Tag>
         </span>
       }
       type="object"

@@ -10,7 +10,6 @@ import {
 import {
   ChooseItem,
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -45,6 +44,7 @@ import { MappingLinksService } from '../visualization/mapping-links.service';
 import { TargetRenderService } from '../visualization/target-render.service';
 import { XPathService } from '../xpath/xpath.service';
 import { FunctionGroup } from '../xpath/xpath-model';
+import { CopyOfPlacementService } from './copy-of-placement.service';
 import { FieldMatchingService } from './field-matching.service';
 import { MappingService } from './mapping.service';
 import { MappingSerializerService } from './mapping-serializer.service';
@@ -1218,6 +1218,19 @@ describe('MappingService', () => {
       expect(tree.children).toHaveLength(0);
     });
 
+    it('should delete a copy-of that sits directly under an xsl:for-each', () => {
+      const forEachItem = new ForEachItem(tree.children[0]);
+      forEachItem.expression = '/ns0:ShipOrder/Item';
+      tree.children[0].children.push(forEachItem);
+      const copyOf = new CopyOfSelector(forEachItem);
+      copyOf.expression = '.';
+      forEachItem.children.push(copyOf);
+
+      MappingService.deleteMappingItem(copyOf);
+
+      expect(forEachItem.children).not.toContain(copyOf);
+    });
+
     it('should delete VariableItem from FieldItem parent', () => {
       const parent = tree.children[0];
       const variable = MappingService.addVariable(parent, 'myVar');
@@ -1260,7 +1273,7 @@ describe('MappingService', () => {
     });
 
     it('should delete CopyOfSelector with MappingTree parent', () => {
-      const copyOf = new CopyOfSelector(tree, CopyOfType.CONTAINER_NODE);
+      const copyOf = new CopyOfSelector(tree);
       tree.children.push(copyOf);
       expect(tree.children).toContain(copyOf);
       MappingService.deleteMappingItem(copyOf);
@@ -1974,11 +1987,26 @@ describe('MappingService', () => {
       const shipToItem = new FieldItem(rootItem, targetShipTo);
       rootItem.children.push(shipToItem);
 
-      MappingService.applyContainerMapping(sourceShipTo, targetShipTo, shipToItem);
+      const copyOf = MappingService.applyContainerMapping(sourceShipTo, targetShipTo, shipToItem);
 
-      const vs = shipToItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
-      expect(vs).toBeDefined();
-      expect(vs.valueType).toBe(CopyOfType.CONTAINER);
+      // The copy-of brings the element itself, so it replaces the field item in the parent.
+      expect(copyOf).toBeInstanceOf(CopyOfSelector);
+      expect(rootItem.children).toEqual([copyOf]);
+      expect(CopyOfPlacementService.getInlineField(copyOf as CopyOfSelector)).toBe(targetShipTo);
+    });
+
+    it('applyContainerMapping should keep the comment of the field item the copy-of replaces', () => {
+      const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
+      const rootItem = new FieldItem(tree, targetRoot);
+      tree.children = [rootItem];
+      const shipToItem = MappingService.createFieldItem(rootItem, targetShipTo);
+      shipToItem.comment = 'keep me';
+
+      const copyOf = MappingService.applyContainerMapping(sourceShipTo, targetShipTo, shipToItem);
+
+      expect(copyOf).toBeInstanceOf(CopyOfSelector);
+      expect(copyOf.comment).toBe('keep me');
     });
 
     it('generateAutoChildMappings should create value-of for terminal matching children', () => {
@@ -2085,11 +2113,11 @@ describe('MappingService', () => {
 
       const childFieldItems = rootItem.children.filter((c) => c instanceof FieldItem);
       expect(childFieldItems.length).toBeGreaterThan(0);
-      const shipToChild = childFieldItems.find((c) => c.field.name === 'ShipTo')!;
-      expect(shipToChild).toBeDefined();
-      const shipToVs = shipToChild.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
-      expect(shipToVs).toBeDefined();
-      expect(shipToVs.valueType).toBe(CopyOfType.CONTAINER);
+      const shipToCopyOf = rootItem.children.find(
+        (c) => c instanceof CopyOfSelector && CopyOfPlacementService.getInlineField(c)?.name === 'ShipTo',
+      );
+      expect(shipToCopyOf).toBeDefined();
+      expect(childFieldItems.some((c) => c.field.name === 'ShipTo')).toBe(false);
     });
 
     it('applyContainerMapping should recurse when canUseCopyOf is false', () => {
@@ -2118,10 +2146,10 @@ describe('MappingService', () => {
       vi.restoreAllMocks();
     });
 
-    it('getContainerValueType should return CONTAINER for normal fields', () => {
+    it('copiesChildrenOnly should be false for normal fields', () => {
       const targetShipTo = targetRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
       const sourceShipTo = sourceRoot.fields.find((f: IField) => f.name === 'ShipTo')!;
-      expect(MappingService.getContainerValueType(sourceShipTo, targetShipTo)).toBe(CopyOfType.CONTAINER);
+      expect(MappingService.copiesChildrenOnly(sourceShipTo, targetShipTo)).toBe(false);
     });
   });
 

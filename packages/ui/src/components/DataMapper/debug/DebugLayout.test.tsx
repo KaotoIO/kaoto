@@ -30,6 +30,20 @@ describe('DebugLayout', () => {
     useDocumentTreeStore.getState().clearSelection();
   });
 
+  // Regression test for #2263: the debugger renders inside Kaoto's main layout, which
+  // already provides a PatternFly Page. DebugLayout must not render its own Page/Masthead,
+  // otherwise it produces a Page-in-Page. This fails on main and passes with the fix.
+  it('should not render its own PatternFly Page or Masthead', () => {
+    vi.spyOn(console, 'debug').mockImplementation(() => {});
+    const { container } = render(
+      <TestProviders>
+        <DebugLayout />
+      </TestProviders>,
+    );
+    expect(container.querySelector('.pf-v6-c-page')).toBeNull();
+    expect(container.querySelector('.pf-v6-c-masthead')).toBeNull();
+  });
+
   // Skipped: JSDOM cannot render the full DataMapperControl layout (expansion panels require real dimensions)
   it.skip('should render Documents and mappings', async () => {
     let mappingLinks: IMappingLink[] = [];

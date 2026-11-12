@@ -1087,7 +1087,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/colors@npm:^11.59.0":
+"@carbon/colors@npm:^11.58.0, @carbon/colors@npm:^11.59.0":
   version: 11.59.0
   resolution: "@carbon/colors@npm:11.59.0"
   dependencies:
@@ -1114,6 +1114,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@carbon/feature-flags@npm:^1.9.0":
+  version: 1.9.0
+  resolution: "@carbon/feature-flags@npm:1.9.0"
+  dependencies:
+    "@ibm/telemetry-js": "npm:^1.5.0"
+  checksum: 10/a4f29f2fdb4448912c206d8278a4de32de7b9471dd3c1d6574f5a10fe344281d094f2b41446969bdf450ff0dc62c5e1a958944991832986091e1adba9a0534c1
+  languageName: node
+  linkType: hard
+
 "@carbon/grid@npm:^11.0.0, @carbon/grid@npm:^11.61.0":
   version: 11.61.0
   resolution: "@carbon/grid@npm:11.61.0"
@@ -1121,6 +1130,16 @@ __metadata:
     "@carbon/layout": "npm:^11.58.0"
     "@ibm/telemetry-js": "npm:^1.5.0"
   checksum: 10/dc5dd6eacffd886d468e808f224008e33aa650db29754df23498c21e612387b90a1ae136adaa7a35b127ba38f6fc5b9232840d9b52e3812e5a2d9ca7f4a74028
+  languageName: node
+  linkType: hard
+
+"@carbon/grid@npm:^11.62.0":
+  version: 11.62.0
+  resolution: "@carbon/grid@npm:11.62.0"
+  dependencies:
+    "@carbon/layout": "npm:^11.59.0"
+    "@ibm/telemetry-js": "npm:^1.5.0"
+  checksum: 10/a93d903fbfcea451d38a03720f47878eef4240cc646afa1dd447b2a7fc787fbbadc8b540f77a03a0ca3f712f47f447fe82d27a0f69f238069e06360b3ee52cfb
   languageName: node
   linkType: hard
 
@@ -1235,6 +1254,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@carbon/layout@npm:^11.59.0":
+  version: 11.59.0
+  resolution: "@carbon/layout@npm:11.59.0"
+  dependencies:
+    "@ibm/telemetry-js": "npm:^1.5.0"
+  checksum: 10/5628344e37345c7c75cf6da4a64fa08a1a8136aed3ea14d46157c3e8142d9be1c965ff944203ad086acd4b6cf21b132e79c92fa43a5f2056fd333adcc43395a1
+  languageName: node
+  linkType: hard
+
 "@carbon/layout@npm:^11.60.0":
   version: 11.60.0
   resolution: "@carbon/layout@npm:11.60.0"
@@ -1253,7 +1281,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/motion@npm:^11.53.0":
+"@carbon/motion@npm:^11.52.0, @carbon/motion@npm:^11.53.0":
   version: 11.53.0
   resolution: "@carbon/motion@npm:11.53.0"
   dependencies:
@@ -1262,7 +1290,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/react@npm:^1.117.0":
+"@carbon/react@npm:^1.102.0, @carbon/react@npm:^1.117.0":
   version: 1.117.0
   resolution: "@carbon/react@npm:1.117.0"
   dependencies:
@@ -1324,6 +1352,36 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@carbon/styles@npm:^1.99.0":
+  version: 1.115.0
+  resolution: "@carbon/styles@npm:1.115.0"
+  dependencies:
+    "@carbon/colors": "npm:^11.58.0"
+    "@carbon/feature-flags": "npm:^1.9.0"
+    "@carbon/grid": "npm:^11.62.0"
+    "@carbon/layout": "npm:^11.59.0"
+    "@carbon/motion": "npm:^11.52.0"
+    "@carbon/themes": "npm:^11.81.0"
+    "@carbon/type": "npm:^11.67.0"
+    "@ibm/plex": "npm:6.4.1"
+    "@ibm/plex-mono": "npm:2.5.0"
+    "@ibm/plex-sans": "npm:1.1.0"
+    "@ibm/plex-sans-arabic": "npm:1.1.0"
+    "@ibm/plex-sans-devanagari": "npm:1.1.0"
+    "@ibm/plex-sans-hebrew": "npm:1.1.0"
+    "@ibm/plex-sans-thai": "npm:1.1.0"
+    "@ibm/plex-sans-thai-looped": "npm:1.1.0"
+    "@ibm/plex-serif": "npm:2.0.0"
+    "@ibm/telemetry-js": "npm:^1.5.0"
+  peerDependencies:
+    sass: ^1.33.0
+  peerDependenciesMeta:
+    sass:
+      optional: true
+  checksum: 10/aa75a8c8e215b32ba873a6b4d5eabfe6788698b96f4ee7f3a5af6e92aeb0f477665cdc29d48fa4458c6f7f09aaa817d50008436c8602a05b828df15b5089e6ee
+  languageName: node
+  linkType: hard
+
 "@carbon/telemetry@npm:^0.1.0":
   version: 0.1.0
   resolution: "@carbon/telemetry@npm:0.1.0"
@@ -1343,6 +1401,19 @@ __metadata:
     "@ibm/telemetry-js": "npm:^1.5.0"
     color: "npm:^4.0.0"
   checksum: 10/5afa080fd1106732d1a20ebcc2095e4f33641552de881bc9b819aeebea9774b0e45868e849d991f6d365ee8e9f77ba6fb65848e5758df300b20c840dad521e80
+  languageName: node
+  linkType: hard
+
+"@carbon/themes@npm:^11.81.0":
+  version: 11.81.0
+  resolution: "@carbon/themes@npm:11.81.0"
+  dependencies:
+    "@carbon/colors": "npm:^11.58.0"
+    "@carbon/layout": "npm:^11.59.0"
+    "@carbon/type": "npm:^11.67.0"
+    "@ibm/telemetry-js": "npm:^1.5.0"
+    color: "npm:^4.0.0"
+  checksum: 10/186f3d7ee4bdd1471f24b31b0bcde86f6dc4de71d1f1af91f88c4d1889057ce29fe978aa5c1ed7cd2e263f24d09e2f3c1b1964022de5020599928520a8b38866
   languageName: node
   linkType: hard
 
@@ -1367,6 +1438,17 @@ __metadata:
     "@carbon/layout": "npm:^11.58.0"
     "@ibm/telemetry-js": "npm:^1.5.0"
   checksum: 10/a63ab631ad5feb808b925317a9dcb5d0605f456a1f28ae17c82d9495abb7fcf70c5eab78f1fd03a840d72f99bb7bb9375c3d4eede33c8ea289384e5f8214ec87
+  languageName: node
+  linkType: hard
+
+"@carbon/type@npm:^11.67.0":
+  version: 11.67.0
+  resolution: "@carbon/type@npm:11.67.0"
+  dependencies:
+    "@carbon/grid": "npm:^11.62.0"
+    "@carbon/layout": "npm:^11.59.0"
+    "@ibm/telemetry-js": "npm:^1.5.0"
+  checksum: 10/f33d6e24aba2d317a8da475b907440499fa3d1ea5b499e2b1ad025c0c582129f66a28ee965e64ca5ee0bff1c884a3c288a903c95313bbf14c08b3f1453572f27
   languageName: node
   linkType: hard
 
@@ -3638,30 +3720,72 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@kaoto/camel-catalog@npm:^0.10.7":
-  version: 0.10.7
-  resolution: "@kaoto/camel-catalog@npm:0.10.7"
-  checksum: 10/bd5935bb6d813afe14324f7c9b54fd3e87113448d0db2c8c43b0f001259049aff46b6fca8827b588c590a6462f0b8174d80dbff0336098234cb2282c021490b2
+"@kaoto/camel-catalog@npm:^0.10.8":
+  version: 0.10.8
+  resolution: "@kaoto/camel-catalog@npm:0.10.8"
+  checksum: 10/d6fa39b834ad9d9e6e7e9268aa303d5b81bbb230edb920f59bdbf5f144a5266a543142176710e8443f63ba27cf5aae9f3793c0919455fbe07fdd7439c748999d
   languageName: node
   linkType: hard
 
-"@kaoto/forms@npm:^1.9.0":
-  version: 1.9.0
-  resolution: "@kaoto/forms@npm:1.9.0"
+"@kaoto/forms@workspace:*, @kaoto/forms@workspace:packages/forms":
+  version: 0.0.0-use.local
+  resolution: "@kaoto/forms@workspace:packages/forms"
   dependencies:
+    "@carbon/ibm-products": "npm:^2.74.0"
+    "@carbon/icons-react": "npm:^11.89.0"
+    "@carbon/react": "npm:^1.102.0"
+    "@carbon/styles": "npm:^1.99.0"
+    "@eslint/js": "npm:^9.10.0"
+    "@testing-library/dom": "npm:^10.4.1"
+    "@testing-library/jest-dom": "npm:^6.9.1"
+    "@testing-library/react": "npm:^16.3.2"
+    "@testing-library/user-event": "npm:^14.6.1"
+    "@types/json-schema": "npm:^7.0.15"
+    "@types/lodash": "npm:^4"
+    "@types/node": "npm:^22.0.0"
+    "@types/react": "npm:^19.2.14"
+    "@types/react-dom": "npm:^19.2.3"
+    "@vitejs/plugin-react": "npm:^6.1.1"
+    "@vitest/coverage-v8": "npm:^5.0.1"
+    "@vitest/eslint-plugin": "npm:^1.6.27"
     ajv: "npm:^8.12.0"
     clsx: "npm:^2.1.0"
-    lodash.clonedeep: "npm:^4.5.0"
+    copyfiles: "npm:^2.4.1"
+    eslint: "npm:^9.10.0"
+    eslint-config-prettier: "npm:^9.1.2"
+    eslint-plugin-prettier: "npm:^5.5.6"
+    eslint-plugin-react: "npm:^7.37.5"
+    eslint-plugin-react-hooks: "npm:^7.1.1"
+    globals: "npm:^15.9.0"
+    jsdom: "npm:^25.0.0"
+    lodash: "npm:^4.17.21"
+    prettier: "npm:^3.0.0"
+    react: "npm:^19.2.4"
+    react-dom: "npm:^19.2.4"
+    react-is: "npm:^19.0.0"
+    react-test-renderer: "npm:^19.2.4"
+    rimraf: "npm:^6.1.3"
+    sass: "npm:sass-embedded@^1.105.1"
+    sass-embedded: "npm:^1.105.1"
+    stylelint: "npm:^17.16.0"
+    stylelint-config-standard-scss: "npm:^17.0.0"
+    stylelint-prettier: "npm:^5.0.0"
+    typescript: "npm:^6.0.0"
+    typescript-eslint: "npm:^8.71.0"
     usehooks-ts: "npm:^3.0.0"
+    vite: "npm:^8.3.0"
+    vite-plugin-dts: "npm:^5.1.1"
+    vite-plugin-static-copy: "npm:^4.1.1"
+    vitest: "npm:^5.0.1"
   peerDependencies:
-    "@patternfly/patternfly": ^6.5.2
-    "@patternfly/react-core": ^6.5.1
-    "@patternfly/react-icons": ^6.5.1
-    react: ^19.2.0
-    react-dom: ^19.2.0
-  checksum: 10/e450f30c3e0a8f60eda703c884f192ea13263be5e14464e15e8043c8f2aee933cb4f38abc901679aef2be41ba01ff0bfc5f64c63c2574263bc3988d3d6b36d3e
-  languageName: node
-  linkType: hard
+    "@carbon/ibm-products": ^2.74.0
+    "@carbon/icons-react": ^11.67.0
+    "@carbon/react": ^1.102.0
+    "@carbon/styles": ^1.99.0
+    react: ^19.2.4
+    react-dom: ^19.2.4
+  languageName: unknown
+  linkType: soft
 
 "@kaoto/kaoto-tests@workspace:packages/ui-tests":
   version: 0.0.0-use.local
@@ -3669,8 +3793,8 @@ __metadata:
   dependencies:
     "@cypress/grep": "npm:^7.0.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.10.7"
-    "@kaoto/forms": "npm:^1.9.0"
+    "@kaoto/camel-catalog": "npm:^0.10.8"
+    "@kaoto/forms": "workspace:*"
     "@kaoto/kaoto": "workspace:*"
     "@patternfly/patternfly": "npm:^6.6.1"
     "@patternfly/react-core": "npm:6.6.1"
@@ -3679,6 +3803,7 @@ __metadata:
     "@storybook/react": "npm:^10.6.1"
     "@storybook/react-vite": "npm:^10.6.1"
     "@storybook/testing-library": "npm:^0.2.2"
+    "@testing-library/dom": "npm:^10.4.1"
     "@types/eslint__js": "npm:^8.42.3"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
@@ -3686,6 +3811,7 @@ __metadata:
     cypress: "npm:^16.0.0"
     cypress-file-upload: "npm:^5.0.8"
     cypress-real-events: "npm:^1.15.1"
+    cypress-vite: "npm:^1.10.2"
     eslint: "npm:^9.10.0"
     eslint-config-prettier: "npm:^9.1.2"
     eslint-plugin-import: "npm:^2.32.0"
@@ -3730,7 +3856,7 @@ __metadata:
     "@double-great/stylelint-a11y": "npm:^3.0.4"
     "@eslint/js": "npm:^9.10.0"
     "@ibm/plex": "npm:^6.4.1"
-    "@kaoto/camel-catalog": "npm:^0.10.7"
+    "@kaoto/camel-catalog": "npm:^0.10.8"
     "@kaoto/kaoto": "workspace:*"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
@@ -3787,19 +3913,19 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@kaoto/kaoto@workspace:packages/ui"
   dependencies:
+    "@carbon/ibm-products": "npm:^2.74.0"
     "@carbon/icons-react": "npm:^11.89.0"
     "@carbon/react": "npm:^1.117.0"
     "@dnd-kit/core": "npm:^6.1.0"
     "@dnd-kit/modifiers": "npm:^9.0.0"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.10.7"
-    "@kaoto/forms": "npm:^1.9.0"
+    "@kaoto/camel-catalog": "npm:^0.10.8"
+    "@kaoto/forms": "workspace:*"
     "@monaco-editor/react": "npm:^4.7.0"
     "@patternfly/patternfly": "npm:^6.6.1"
     "@patternfly/react-code-editor": "npm:6.6.1"
     "@patternfly/react-core": "npm:6.6.1"
     "@patternfly/react-drag-drop": "npm:^6.6.2"
-    "@patternfly/react-icons": "npm:^6.6.1"
     "@patternfly/react-table": "npm:6.6.1"
     "@patternfly/react-topology": "npm:^6.6.0"
     "@redux-devtools/extension": "npm:^3.3.0"
@@ -3881,7 +4007,7 @@ __metadata:
     zundo: "npm:^2.3.0"
     zustand: "npm:^5.0.11"
   peerDependencies:
-    "@kaoto/camel-catalog": ^0.10.7
+    "@kaoto/camel-catalog": ^0.10.8
     monaco-editor: ^0.55.1
     monaco-yaml: ^5.5.1
     react: ^19.2.4
@@ -11547,6 +11673,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cypress-vite@npm:^1.10.2":
+  version: 1.10.2
+  resolution: "cypress-vite@npm:1.10.2"
+  peerDependencies:
+    chokidar: ^2 || ^3 || ^4 || ^5
+    debug: ^2 || ^3 || ^4
+    vite: ^2.9 || ^3 || ^4 || ^5 || ^6 || ^7 || ^8
+  checksum: 10/b220b63a3dba983a2c60b2f3ffec879b0e1c23268a79571cb2d21a8fd535a7c171b9678645dfa4351812c59229868bb7c84a4f86d88c478ffa81bdc30f68c95d
+  languageName: node
+  linkType: hard
+
 "cypress@npm:^16.0.0":
   version: 16.0.0
   resolution: "cypress@npm:16.0.0"
@@ -17854,13 +17991,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash.clonedeep@npm:^4.5.0":
-  version: 4.5.0
-  resolution: "lodash.clonedeep@npm:4.5.0"
-  checksum: 10/957ed243f84ba6791d4992d5c222ffffca339a3b79dbe81d2eaf0c90504160b500641c5a0f56e27630030b18b8e971ea10b44f928a977d5ced3c8948841b555f
-  languageName: node
-  linkType: hard
-
 "lodash.debounce@npm:^4.0.8":
   version: 4.0.8
   resolution: "lodash.debounce@npm:4.0.8"
@@ -22954,7 +23084,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.8.5, semver@npm:^7.3.4, semver@npm:^7.6.2, semver@npm:^7.8.5":
+"semver@npm:7.8.5, semver@npm:^7.3.4, semver@npm:^7.6.2, semver@npm:^7.8.1, semver@npm:^7.8.5":
   version: 7.8.5
   resolution: "semver@npm:7.8.5"
   bin:
@@ -26109,13 +26239,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"vscode-jsonrpc@npm:9.0.3":
+  version: 9.0.3
+  resolution: "vscode-jsonrpc@npm:9.0.3"
+  checksum: 10/af981d95491a5648cfa24642c0dd0a81888ddf25f462b399109e67690757fb4aed7e3631ca0be84c5e9de09063450fecaa6ece7a04bea63f41682e4a4d2335ec
+  languageName: node
+  linkType: hard
+
 "vscode-kaoto@workspace:*, vscode-kaoto@workspace:packages/kaoto-vscode":
   version: 0.0.0-use.local
   resolution: "vscode-kaoto@workspace:packages/kaoto-vscode"
   dependencies:
     "@cyclonedx/cdxgen": "npm:12.8.4"
     "@eslint/js": "npm:^9.10.0"
-    "@kaoto/camel-catalog": "npm:^0.10.7"
+    "@kaoto/camel-catalog": "npm:^0.10.8"
     "@kaoto/kaoto": "workspace:*"
     "@redhat-developer/vscode-extension-proposals": "npm:^0.0.23"
     "@redhat-developer/vscode-redhat-telemetry": "npm:^0.10.2"
@@ -26152,6 +26289,7 @@ __metadata:
     typescript: "npm:^6.0.0"
     valid-filename: "npm:5.0.0"
     vite: "npm:^8.3.0"
+    vscode-languageclient: "npm:^10.0.0"
     wait-on: "npm:^9.1.0"
     webpack: "npm:5.109.2"
     webpack-cli: "npm:7.2.2"
@@ -26160,6 +26298,28 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"vscode-languageclient@npm:^10.0.0":
+  version: 10.1.2
+  resolution: "vscode-languageclient@npm:10.1.2"
+  dependencies:
+    minimatch: "npm:^10.2.6"
+    semver: "npm:^7.8.1"
+    vscode-languageserver-protocol: "npm:3.18.4"
+    vscode-languageserver-textdocument: "npm:1.0.15"
+  checksum: 10/310604d2f6a770a27c5eda1e571faa4b99d4e8b5cef7897e2076f459c99cb7860f8815af669248db28430080ed33bb47e80833aa13af4d5eee144fa89feebb44
+  languageName: node
+  linkType: hard
+
+"vscode-languageserver-protocol@npm:3.18.4":
+  version: 3.18.4
+  resolution: "vscode-languageserver-protocol@npm:3.18.4"
+  dependencies:
+    vscode-jsonrpc: "npm:9.0.3"
+    vscode-languageserver-types: "npm:3.18.4"
+  checksum: 10/6cbbe25a67e78e57d9ca735809d6342992d10f3f13d1fe0a1156c155f75291d85ea54ef7f198854d81942df73165dfcdbff9ab1f1310166f16c58068af8fdedb
+  languageName: node
+  linkType: hard
+
 "vscode-languageserver-protocol@npm:^3.0.0":
   version: 3.17.5
   resolution: "vscode-languageserver-protocol@npm:3.17.5"
@@ -26167,6 +26327,13 @@ __metadata:
     vscode-jsonrpc: "npm:8.2.0"
     vscode-languageserver-types: "npm:3.17.5"
   checksum: 10/aeb9c190184c365fa6b835e5aa7574c86cb3ecb2789386bcff76a09b22bc8b8e0d5da47c28193a9c73cfb32c10a12a91191779280324a38efb401e3ef7bad294
+  languageName: node
+  linkType: hard
+
+"vscode-languageserver-textdocument@npm:1.0.15":
+  version: 1.0.15
+  resolution: "vscode-languageserver-textdocument@npm:1.0.15"
+  checksum: 10/35843f62ad93b02f17d072a9c83140863826da7acd7bb6f40f2c26928e85fd15e1ee57db4f0c8a8caa6787fff132b58233dcf9a182808b0e6c07fe5929810ae9
   languageName: node
   linkType: hard
 
@@ -26181,6 +26348,13 @@ __metadata:
   version: 3.17.5
   resolution: "vscode-languageserver-types@npm:3.17.5"
   checksum: 10/900d0b81df5bef8d90933e75be089142f6989cc70fdb2d5a3a5f11fa20feb396aaea23ccffc8fbcc83a2f0e1b13c6ee48ff8151f236cbd6e61a4f856efac1a58
+  languageName: node
+  linkType: hard
+
+"vscode-languageserver-types@npm:3.18.4":
+  version: 3.18.4
+  resolution: "vscode-languageserver-types@npm:3.18.4"
+  checksum: 10/e399241413ab69e35e422862f935e6bdfe312834dd6202342c15418ea76f44d60e933fb343fc157a8905bd63f334be3b57f74f8fd4234b94179ac476068ac822
   languageName: node
   linkType: hard
 

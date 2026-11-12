@@ -13,6 +13,7 @@ suite('KaotoCatalogService Test Suite', () => {
 	let originalGetConfiguration: typeof vscode.workspace.getConfiguration;
 	let originalShowWarningMessage: typeof vscode.window.showWarningMessage;
 	let originalShowInformationMessage: typeof vscode.window.showInformationMessage;
+	let originalShowQuickPick: typeof vscode.window.showQuickPick;
 	let originalFetch: typeof globalThis.fetch;
 	let restoreCatalogServiceInstance: () => void;
 
@@ -30,6 +31,7 @@ suite('KaotoCatalogService Test Suite', () => {
 		originalGetConfiguration = vscode.workspace.getConfiguration;
 		originalShowWarningMessage = vscode.window.showWarningMessage;
 		originalShowInformationMessage = vscode.window.showInformationMessage;
+		originalShowQuickPick = vscode.window.showQuickPick;
 		originalFetch = globalThis.fetch;
 		// Dismiss prompts such as "Reopen editor to apply changes" instead of waiting on them.
 		Object.defineProperty(vscode.window, 'showInformationMessage', {
@@ -51,6 +53,10 @@ suite('KaotoCatalogService Test Suite', () => {
 		});
 		Object.defineProperty(vscode.window, 'showInformationMessage', {
 			value: originalShowInformationMessage,
+			configurable: true,
+		});
+		Object.defineProperty(vscode.window, 'showQuickPick', {
+			value: originalShowQuickPick,
 			configurable: true,
 		});
 		Object.defineProperty(globalThis, 'fetch', {
@@ -143,6 +149,84 @@ suite('KaotoCatalogService Test Suite', () => {
 		expect(warningMessages).to.have.lengthOf(1);
 		expect(warningMessages[0]).to.include(KAOTO_CATALOG_URL_SETTING_ID);
 		expect(warningMessages[0]).to.include('Falling back to local node_modules catalog');
+	});
+
+	test('fires onDidReloadCatalogs when it loads the catalogs of the extension', async () => {
+		catalogService = new KaotoCatalogService(context);
+		let reloads = 0;
+		const listener = catalogService.onDidReloadCatalogs(() => reloads++);
+
+		await catalogService.initialize();
+		listener.dispose();
+
+		expect(reloads).to.equal(1);
+	});
+
+	test('fires onDidReloadCatalogs when the catalog picker loads the catalogs of kaoto.catalog.url again', async () => {
+		Object.defineProperty(vscode.workspace, 'getConfiguration', {
+			value: () =>
+				({
+					get: (key: string) => (key === KAOTO_CATALOG_URL_SETTING_ID ? 'https://example.com/catalog/index.json' : undefined),
+				}) as vscode.WorkspaceConfiguration,
+			configurable: true,
+		});
+		Object.defineProperty(globalThis, 'fetch', {
+			value: async () => ({ ok: true, json: async () => ({ definitions: [], version: 1, name: 'remote-catalog' }) }) as Response,
+			configurable: true,
+		});
+		// the user dismisses the picker
+		Object.defineProperty(vscode.window, 'showQuickPick', { value: async () => undefined, configurable: true });
+		catalogService = new KaotoCatalogService(context);
+		await catalogService.initialize();
+		let reloads = 0;
+		const listener = catalogService.onDidReloadCatalogs(() => reloads++);
+
+		await catalogService.showCatalogPicker();
+		listener.dispose();
+
+		expect(reloads).to.equal(1);
+	});
+
+	suite('resolveSelectedIntegrationCatalog', () => {
+		const useRuntimeCatalogName = (name?: string) => {
+			Object.defineProperty(vscode.workspace, 'getConfiguration', {
+				value: (section?: string, scope?: vscode.ConfigurationScope | null) => {
+					const config = originalGetConfiguration(section, scope);
+					return {
+						...config,
+						get: (key: string, defaultValue?: unknown) =>
+							section === 'kaoto' && key === 'runtimeCatalogName' ? name : config.get(key, defaultValue),
+					};
+				},
+				configurable: true,
+			});
+		};
+
+		test('resolves to the default catalog when no catalog is configured', () => {
+			useRuntimeCatalogName(undefined);
+
+			expect(catalogService.resolveSelectedIntegrationCatalog()).to.equal(catalogService.getDefaultIntegrationCatalog());
+		});
+
+		test('resolves the integration catalog selected for the window', () => {
+			const quarkusCatalog = catalogService.getCatalogs().find((catalog) => catalog.runtime === 'Quarkus');
+			useRuntimeCatalogName(quarkusCatalog!.name);
+
+			expect(catalogService.resolveSelectedIntegrationCatalog()).to.equal(quarkusCatalog);
+		});
+
+		test('resolves an invalid catalog name to the default catalog, without a warning', () => {
+			useRuntimeCatalogName('Camel Main 0.0.0');
+
+			expect(catalogService.resolveSelectedIntegrationCatalog()).to.equal(catalogService.getDefaultIntegrationCatalog());
+		});
+
+		test('returns undefined when there are no catalogs', () => {
+			(catalogService as unknown as { catalogs: unknown[] }).catalogs = [];
+			useRuntimeCatalogName(undefined);
+
+			expect(catalogService.resolveSelectedIntegrationCatalog()).to.be.undefined;
+		});
 	});
 
 	test('should group catalogs by runtime', () => {

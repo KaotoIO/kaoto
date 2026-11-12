@@ -11,7 +11,7 @@ on:
       snapshot:
         type: boolean
         description: |
-          Snapshot/pre-release mode — skips UI package & container image release;
+          Snapshot/pre-release mode — skips Forms & UI packages and container image release;
           creates a snapshot VS Code VSIX and a GitHub pre-release tagged <tag_version>-SNAPSHOT-<sha>
         required: false
         default: true
@@ -61,8 +61,20 @@ jobs:
       run_ui_tests: ${{ inputs.run_ui_tests }}
     secrets: inherit
 
-  call-release-ui:
+  call-release-forms:
     needs: setup
+    if: ${{ !inputs.snapshot }}
+    uses: ./.github/workflows/release-forms.yml
+    with:
+      release_tag: ${{ needs.setup.outputs.release_tag }}
+    secrets: inherit
+
+  call-release-ui:
+    # @kaoto/kaoto depends on @kaoto/forms via `workspace:*`, which yarn rewrites to the exact
+    # release version on publish — so @kaoto/forms must be on NPM before @kaoto/kaoto is published.
+    needs:
+      - setup
+      - call-release-forms
     if: ${{ !inputs.snapshot }}
     uses: ./.github/workflows/release-ui.yml
     with:
@@ -71,7 +83,11 @@ jobs:
     secrets: inherit
 
   call-release-container:
-    needs: setup
+    # Gate on call-release-ui so the image (built from the same @kaoto/kaoto web app) is only
+    # pushed — including the floating `stable` tag — after the Cypress E2E tests have passed.
+    needs:
+      - setup
+      - call-release-ui
     if: ${{ !inputs.snapshot }}
     uses: ./.github/workflows/release-container.yml
     with:
@@ -85,14 +101,16 @@ jobs:
     needs:
       - setup
       - call-release-vscode
+      - call-release-forms
       - call-release-ui
       - call-release-container
     # !cancelled() prevents tagging and releasing when the workflow is cancelled while still
-    # allowing tag-and-release to run when UI or Container jobs are skipped on snapshot runs.
+    # allowing tag-and-release to run when Forms, UI or Container jobs are skipped on snapshot runs.
     if: |
       !cancelled() &&
       needs.setup.result == 'success' &&
       needs.call-release-vscode.result == 'success' &&
+      (needs.call-release-forms.result == 'success' || needs.call-release-forms.result == 'skipped') &&
       (needs.call-release-ui.result == 'success' || needs.call-release-ui.result == 'skipped') &&
       (needs.call-release-container.result == 'success' || needs.call-release-container.result == 'skipped')
 
