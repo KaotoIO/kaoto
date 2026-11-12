@@ -42,6 +42,10 @@ describe('formatters', () => {
       expect(formatDate(undefined)).toBe('N/A');
     });
 
+    it('should return "Invalid Date" when the input cannot be formatted', () => {
+      expect(formatDate(Object.create(null) as Date)).toBe('Invalid Date');
+    });
+
     it('should return "Invalid Date" for invalid date string', () => {
       expect(formatDate('invalid-date')).toBe('Invalid Date');
     });
@@ -88,6 +92,10 @@ describe('formatters', () => {
 
     it('should return "N/A" for null', () => {
       expect(formatRelativeTime(null)).toBe('N/A');
+    });
+
+    it('should return "Invalid date" when the input cannot be processed', () => {
+      expect(formatRelativeTime({} as unknown as Date)).toBe('Invalid date');
     });
 
     it('should return "Invalid Date" for invalid input', () => {

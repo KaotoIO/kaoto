@@ -49,4 +49,15 @@ describe('ErrorBoundary', () => {
     expect(screen.queryByText('Custom fallback')).not.toBeInTheDocument();
     expect(screen.getByText('Safe content')).toBeInTheDocument();
   });
+
+  it('renders the generic message when the error has no message', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    render(
+      <ErrorBoundary>
+        <ThrowingComponent message="" />
+      </ErrorBoundary>,
+    );
+    expect(screen.getByText('An unexpected error occurred')).toBeInTheDocument();
+    consoleError.mockRestore();
+  });
 });
