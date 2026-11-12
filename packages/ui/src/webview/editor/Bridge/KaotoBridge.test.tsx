@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import { ComponentProps } from 'react';
 
+import { EntitiesContext, EntitiesContextResult } from '../../../providers/entities.provider';
 import { KaotoBridge } from './KaotoBridge';
 
 describe('KaotoBridge', () => {
@@ -28,25 +29,32 @@ describe('KaotoBridge', () => {
     onStepUpdated: vi.fn(),
   };
 
+  const entitiesContext = {
+    entities: [],
+    visualEntities: [],
+    updateEntitiesFromCamelResource: vi.fn(),
+  } as unknown as EntitiesContextResult;
+
+  const renderBridge = () =>
+    render(
+      <EntitiesContext.Provider value={entitiesContext}>
+        <KaotoBridge {...defaultProps}>
+          <div>Test Child</div>
+        </KaotoBridge>
+      </EntitiesContext.Provider>,
+    );
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should render children components', () => {
-    const { getByText } = render(
-      <KaotoBridge {...defaultProps}>
-        <div>Test Child</div>
-      </KaotoBridge>,
-    );
+    const { getByText } = renderBridge();
     expect(getByText('Test Child')).toBeInTheDocument();
   });
 
   it('should call onReady on mount', () => {
-    render(
-      <KaotoBridge {...defaultProps}>
-        <div>Test Child</div>
-      </KaotoBridge>,
-    );
+    renderBridge();
     expect(mockOnReady).toHaveBeenCalledTimes(1);
   });
 });

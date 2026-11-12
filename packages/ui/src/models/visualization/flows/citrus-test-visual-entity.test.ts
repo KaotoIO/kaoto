@@ -381,34 +381,6 @@ describe('CitrusTestVisualEntity', () => {
 
       expect(citrusTestEntity.test.actions[0].print?.message).toBe('Updated message');
     });
-
-    it('should return true when waitFor gains the action condition', () => {
-      citrusTestEntity.test.actions.push({ waitFor: { http: { url: 'http://localhost' } } } as unknown as TestActions);
-      const result = citrusTestEntity.updateModel('actions.1.waitFor', { action: {} });
-
-      expect(result).toBe(true);
-    });
-
-    it('should return true when waitFor loses the action condition', () => {
-      citrusTestEntity.test.actions.push({ waitFor: { action: {} } } as unknown as TestActions);
-      const result = citrusTestEntity.updateModel('actions.1.waitFor', { http: { url: 'http://localhost' } });
-
-      expect(result).toBe(true);
-    });
-
-    it('should return false when waitFor retains action condition with other properties', () => {
-      citrusTestEntity.test.actions.push({ waitFor: { action: {} } } as unknown as TestActions);
-      const result = citrusTestEntity.updateModel('actions.1.waitFor', { action: {}, timeout: '10000' });
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false for waitFor without action condition', () => {
-      citrusTestEntity.test.actions.push({ waitFor: { http: { url: 'http://localhost' } } } as unknown as TestActions);
-      const result = citrusTestEntity.updateModel('actions.1.waitFor', { http: { url: 'http://localhost:8080' } });
-
-      expect(result).toBe(false);
-    });
   });
 
   describe('addStep', () => {

@@ -43,7 +43,7 @@ export interface BaseVisualEntity extends BaseEntity {
   getOmitFormFields: () => string[];
 
   /** Given a path, update the model */
-  updateModel(path: string | undefined, value: unknown): boolean | void;
+  updateModel(path: string | undefined, value: unknown): void;
 
   /** Add a step to the underlying Camel entity and return its path when supported. */
   addStep: (options: {
@@ -143,7 +143,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
   /** Return fields that should be omitted when configuring this entity */
   getOmitFormFields(): string[];
 
-  updateModel(value: unknown): boolean;
+  updateModel(value: unknown): void;
   switchComponentMode(processorName: string): boolean;
 
   getParentNode(): IVisualizationNode | undefined;
