@@ -334,6 +334,14 @@ describe('Canvas', () => {
       expect(secondLog).toHaveFocus();
     });
 
+    it('focuses the canvas on a background click before any step was focused', async () => {
+      const { container, clickBackground } = await renderTwoRoutes();
+
+      await clickBackground();
+
+      expect(container.querySelector('#canvas-main')).toHaveFocus();
+    });
+
     it('focuses the canvas when the last step was deleted', async () => {
       const { container, focusStep, clickBackground, deleteSecondLog } = await renderTwoRoutes();
       focusStep('route-second', 'route.from.steps.0.log');
