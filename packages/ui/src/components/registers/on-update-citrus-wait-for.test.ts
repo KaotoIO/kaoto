@@ -24,44 +24,43 @@ describe('onUpdateCitrusWaitFor', () => {
   const createVizNode = (definition: unknown, isGroup: boolean) =>
     ({ data: { definition, isGroup } }) as unknown as IVisualizationNode;
 
-  it('should rebuild when the action condition is added to a leaf node', () => {
+  it.each([
+    {
+      scenario: 'should rebuild when the action condition is added to a leaf node',
+      definition: { action: {} },
+      isGroup: false,
+      shouldRebuild: true,
+    },
+    {
+      scenario: 'should rebuild when the action condition is removed from a group node',
+      definition: { http: { url: 'http://localhost' } },
+      isGroup: true,
+      shouldRebuild: true,
+    },
+    {
+      scenario: 'should not rebuild when the group node keeps the action condition',
+      definition: { action: {}, timeout: '10000' },
+      isGroup: true,
+      shouldRebuild: false,
+    },
+    {
+      scenario: 'should not rebuild when the leaf node has no action condition',
+      definition: { http: { url: 'http://localhost:8080' } },
+      isGroup: false,
+      shouldRebuild: false,
+    },
+    {
+      scenario: 'should treat an undefined definition as a leaf node and not rebuild',
+      definition: undefined,
+      isGroup: false,
+      shouldRebuild: false,
+    },
+  ])('$scenario', ({ definition, isGroup, shouldRebuild }) => {
     const rebuild = vi.fn();
 
-    onUpdateCitrusWaitFor(createVizNode({ action: {} }, false), rebuild);
+    onUpdateCitrusWaitFor(createVizNode(definition, isGroup), rebuild);
 
-    expect(rebuild).toHaveBeenCalledTimes(1);
-  });
-
-  it('should rebuild when the action condition is removed from a group node', () => {
-    const rebuild = vi.fn();
-
-    onUpdateCitrusWaitFor(createVizNode({ http: { url: 'http://localhost' } }, true), rebuild);
-
-    expect(rebuild).toHaveBeenCalledTimes(1);
-  });
-
-  it('should not rebuild when the group node keeps the action condition', () => {
-    const rebuild = vi.fn();
-
-    onUpdateCitrusWaitFor(createVizNode({ action: {}, timeout: '10000' }, true), rebuild);
-
-    expect(rebuild).not.toHaveBeenCalled();
-  });
-
-  it('should not rebuild when the leaf node has no action condition', () => {
-    const rebuild = vi.fn();
-
-    onUpdateCitrusWaitFor(createVizNode({ http: { url: 'http://localhost:8080' } }, false), rebuild);
-
-    expect(rebuild).not.toHaveBeenCalled();
-  });
-
-  it('should treat an undefined definition as a leaf node', () => {
-    const rebuild = vi.fn();
-
-    onUpdateCitrusWaitFor(createVizNode(undefined, false), rebuild);
-
-    expect(rebuild).not.toHaveBeenCalled();
+    expect(rebuild).toHaveBeenCalledTimes(shouldRebuild ? 1 : 0);
   });
 
   describe('with a CitrusTestVisualEntity', () => {
@@ -79,44 +78,45 @@ describe('onUpdateCitrusWaitFor', () => {
       waitForNode.updateModel(definition);
     };
 
-    it('should rebuild once the form update adds the action condition', async () => {
+    it.each([
+      {
+        scenario: 'should rebuild once the form update adds the action condition',
+        waitFor: { http: { url: 'http://localhost' } },
+        initialIsGroup: false,
+        edit: (definition: Record<string, unknown>) => {
+          delete definition.http;
+          definition.action = {};
+        },
+        shouldRebuild: true,
+      },
+      {
+        scenario: 'should rebuild once the form update removes the action condition',
+        waitFor: { action: {} },
+        initialIsGroup: true,
+        edit: (definition: Record<string, unknown>) => {
+          delete definition.action;
+          definition.http = { url: 'http://localhost' };
+        },
+        shouldRebuild: true,
+      },
+      {
+        scenario: 'should not rebuild when updating a non-structural property',
+        waitFor: { action: {} },
+        initialIsGroup: true,
+        edit: (definition: Record<string, unknown>) => {
+          definition.timeout = '10000';
+        },
+        shouldRebuild: false,
+      },
+    ])('$scenario', async ({ waitFor, initialIsGroup, edit, shouldRebuild }) => {
       const rebuild = vi.fn();
-      const waitForNode = await getWaitForNode({ http: { url: 'http://localhost' } });
-      expect(waitForNode.data.isGroup).toBe(false);
+      const waitForNode = await getWaitForNode(waitFor);
+      expect(waitForNode.data.isGroup).toBe(initialIsGroup);
 
-      editFromForm(waitForNode, (definition) => {
-        delete definition.http;
-        definition.action = {};
-      });
+      editFromForm(waitForNode, edit);
       onUpdateCitrusWaitFor(waitForNode, rebuild);
 
-      expect(rebuild).toHaveBeenCalledTimes(1);
-    });
-
-    it('should rebuild once the form update removes the action condition', async () => {
-      const rebuild = vi.fn();
-      const waitForNode = await getWaitForNode({ action: {} });
-      expect(waitForNode.data.isGroup).toBe(true);
-
-      editFromForm(waitForNode, (definition) => {
-        delete definition.action;
-        definition.http = { url: 'http://localhost' };
-      });
-      onUpdateCitrusWaitFor(waitForNode, rebuild);
-
-      expect(rebuild).toHaveBeenCalledTimes(1);
-    });
-
-    it('should not rebuild when updating a non-structural property', async () => {
-      const rebuild = vi.fn();
-      const waitForNode = await getWaitForNode({ action: {} });
-
-      editFromForm(waitForNode, (definition) => {
-        definition.timeout = '10000';
-      });
-      onUpdateCitrusWaitFor(waitForNode, rebuild);
-
-      expect(rebuild).not.toHaveBeenCalled();
+      expect(rebuild).toHaveBeenCalledTimes(shouldRebuild ? 1 : 0);
     });
 
     it('should reselect the waitFor node once it is rebuilt from a leaf into a group', async () => {
