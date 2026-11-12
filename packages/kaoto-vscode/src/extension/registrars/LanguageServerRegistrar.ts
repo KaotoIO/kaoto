@@ -22,19 +22,28 @@ import {
 	KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID,
 } from '../../constants';
 import { CamelLanguageServerManager } from '../../lsp/CamelLanguageServerManager';
-import { isCamelLspDocument } from '../../lsp/CamelLspDocumentFilter';
+import { hasOpenCamelLspDocument, isCamelLspDocument, isCamelLspTabActive } from '../../lsp/CamelLspDocumentFilter';
 import { readCamelLspSettings } from '../../lsp/CamelLspSettings';
 import { KaotoCatalogService } from '../../services/KaotoCatalogService';
 import { KaotoOutputChannel } from '../KaotoOutputChannel';
 import { IRegistrar } from './IRegistrar';
 
 export class LanguageServerRegistrar implements IRegistrar {
+	/** How long the server keeps running after the last file it serves is closed, so that switching files does not restart Java. */
+	static readonly IDLE_STOP_DELAY_MS = 60_000;
+
 	private lspManager: CamelLanguageServerManager | undefined;
-	private camelDocumentListener: vscode.Disposable | undefined;
+	private camelDocumentListeners: vscode.Disposable | undefined;
+	private idleStopTimer: NodeJS.Timeout | undefined;
+	/** Whether the server is to run, for the open files or until the idle stop: a start that waited for a stop checks it. */
+	private serverRequested = false;
+	/** All the stops in progress: a start waits for them, so that it neither joins a cancelled start nor overlaps a server that stops. */
+	private stopping: Promise<unknown> | undefined;
 
 	constructor(
 		private readonly context: vscode.ExtensionContext,
 		private readonly catalogService: KaotoCatalogService,
+		private readonly idleStopDelayMs = LanguageServerRegistrar.IDLE_STOP_DELAY_MS,
 	) {}
 
 	register(): void {
@@ -44,25 +53,25 @@ export class LanguageServerRegistrar implements IRegistrar {
 		// early return below so that re-enabling at runtime also works when the LSP was disabled
 		// at activation time (otherwise no listener would exist to catch the change).
 		this.context.subscriptions.push(
-			this.lspManager.onDidRequestRetry(() => this.startInBackground()),
+			this.lspManager.onDidRequestRetry(() => this.retryStart()),
 			// the catalogs of a new kaoto.catalog.url can change what the selected catalog is
 			this.catalogService.onDidReloadCatalogs(() => this.lspManager?.updateSettings()),
 			vscode.workspace.onDidChangeConfiguration(async (event) => {
 				if (event.affectsConfiguration(KAOTO_LSP_ENABLED_SETTING_ID)) {
 					if (LanguageServerRegistrar.isEnabled()) {
 						KaotoOutputChannel.logInfo('Camel Language Server re-enabled.');
-						this.startWhenCamelFileOpens();
+						this.startWhileCamelFilesAreOpen();
 					} else {
 						// also cancels a download or a start in progress
 						KaotoOutputChannel.logInfo('Camel Language Server disabled, stopping...');
-						this.disposeCamelDocumentListener();
-						await this.lspManager?.stop();
+						this.disposeCamelDocumentListeners();
+						await this.stopServer();
 					}
 				} else if (event.affectsConfiguration(KAOTO_LSP_SERVER_JAR_SETTING_ID) && LanguageServerRegistrar.isEnabled()) {
 					// a start in progress would still run the previous JAR, so it is cancelled too
 					KaotoOutputChannel.logInfo('Camel Language Server JAR changed, restarting...');
-					await this.lspManager?.stop();
-					this.startWhenCamelFileOpens();
+					await this.stopServer();
+					this.startWhileCamelFilesAreOpen();
 				}
 				// not an else: the same change can also touch kaoto.lsp.enabled, which leaves a running server as it is
 				if (
@@ -81,54 +90,137 @@ export class LanguageServerRegistrar implements IRegistrar {
 			return;
 		}
 
-		this.startWhenCamelFileOpens();
+		this.startWhileCamelFilesAreOpen();
 	}
 
 	/**
-	 * Starts the LSP now when a Camel or application properties file is open, otherwise when the first one is opened,
-	 * so that windows without such files don't download or run the server.
+	 * Runs the LSP while a Camel or application properties file is open, so that windows without such files don't download
+	 * or run the server: it starts when the first one is opened, and stops some time after the last one is closed.
+	 * Its status bar item shows only while the active tab is such a file.
 	 */
-	private startWhenCamelFileOpens(): void {
-		if (vscode.workspace.textDocuments.some(isCamelLspDocument)) {
-			this.startInBackground();
+	private startWhileCamelFilesAreOpen(): void {
+		this.camelDocumentListeners ??= vscode.Disposable.from(
+			vscode.workspace.onDidOpenTextDocument((document) => {
+				// a document can open after its tab is active
+				this.updateStatusBarVisibility();
+				if (isCamelLspDocument(document)) {
+					this.startForOpenCamelFiles();
+				}
+			}),
+			vscode.workspace.onDidCloseTextDocument((closed) => {
+				if (isCamelLspDocument(closed) && !hasOpenCamelLspDocument(closed)) {
+					this.stopWhenIdle();
+				}
+			}),
+			vscode.window.tabGroups.onDidChangeTabs(() => this.updateStatusBarVisibility()),
+			vscode.window.tabGroups.onDidChangeTabGroups(() => this.updateStatusBarVisibility()),
+		);
+		// the tab that is active now, also when the server is enabled later than the window opened
+		this.updateStatusBarVisibility();
+
+		if (hasOpenCamelLspDocument()) {
+			this.startForOpenCamelFiles();
+		} else {
+			KaotoOutputChannel.logInfo('Camel Language Server will start when a Camel or application properties file is opened.');
+		}
+	}
+
+	private disposeCamelDocumentListeners(): void {
+		this.camelDocumentListeners?.dispose();
+		this.camelDocumentListeners = undefined;
+	}
+
+	/**
+	 * Keeps a server that runs, also one that was about to stop, and starts one that was stopped or that failed to start:
+	 * each opened file tries again, so that the server follows a JDK installed or a network back meanwhile.
+	 */
+	private startForOpenCamelFiles(): void {
+		this.cancelIdleStop();
+		this.serverRequested = true;
+		this.startInBackground();
+	}
+
+	/**
+	 * Stops the server after the grace period, unless a file that it serves is opened meanwhile.
+	 */
+	private stopWhenIdle(): void {
+		this.cancelIdleStop();
+		if (!this.serverRequested) {
 			return;
 		}
-
-		if (!this.camelDocumentListener) {
-			KaotoOutputChannel.logInfo('Camel Language Server will start when a Camel or application properties file is opened.');
-			this.camelDocumentListener = vscode.workspace.onDidOpenTextDocument((document) => {
-				if (isCamelLspDocument(document) && LanguageServerRegistrar.isEnabled()) {
-					this.disposeCamelDocumentListener();
-					this.startInBackground();
-				}
+		// an opened file that the server serves cancels the timer
+		this.idleStopTimer = setTimeout(() => {
+			this.idleStopTimer = undefined;
+			const seconds = Math.round(this.idleStopDelayMs / 1000);
+			KaotoOutputChannel.logInfo(`No Camel or application properties file was open for ${seconds} seconds, stopping the Camel Language Server...`);
+			this.stopServer().catch((error) => {
+				KaotoOutputChannel.logError('Could not stop the Camel Language Server', error);
 			});
-		}
+		}, this.idleStopDelayMs);
 	}
 
-	private disposeCamelDocumentListener(): void {
-		this.camelDocumentListener?.dispose();
-		this.camelDocumentListener = undefined;
+	private cancelIdleStop(): void {
+		clearTimeout(this.idleStopTimer);
+		this.idleStopTimer = undefined;
 	}
 
-	private startInBackground(): void {
-		// a retry or an opened file never starts a disabled server, not even its download
+	/**
+	 * Starts the server again after a download that failed. With no file left to serve, the server is still downloaded
+	 * and started, as asked, and stops after the grace period.
+	 */
+	private retryStart(): void {
+		// a retry never starts a disabled server, not even its download
 		if (!LanguageServerRegistrar.isEnabled()) {
 			return;
 		}
-		// Start LSP in background — do not block extension activation
-		this.lspManager?.start().catch((error) => {
-			KaotoOutputChannel.logError('Background LSP startup failed', error);
+		this.serverRequested = true;
+		this.startInBackground();
+		if (!hasOpenCamelLspDocument()) {
+			this.stopWhenIdle();
+		}
+	}
+
+	private startInBackground(): void {
+		// Start LSP in background — do not block extension activation.
+		// The stops in progress end first: a start would join the one that a stop cancels, or run a second server.
+		Promise.resolve(this.stopping)
+			.then(() => {
+				// stopped or disabled again meanwhile: an opened file never starts a disabled server, not even its download
+				if (this.serverRequested && LanguageServerRegistrar.isEnabled()) {
+					return this.lspManager?.start();
+				}
+			})
+			.catch((error) => {
+				KaotoOutputChannel.logError('Background LSP startup failed', error);
+			});
+	}
+
+	/**
+	 * Stops the server, and cancels its start when it is still starting. The next opened file starts it again.
+	 */
+	private async stopServer(): Promise<void> {
+		this.cancelIdleStop();
+		this.serverRequested = false;
+		// a stop during another one ends at once, as the client is already dropped: the earlier stop is waited for too
+		const stopping = Promise.all([this.stopping, this.lspManager?.stop()]).finally(() => {
+			if (this.stopping === stopping) {
+				this.stopping = undefined;
+			}
 		});
+		this.stopping = stopping;
+		await stopping;
+	}
+
+	private updateStatusBarVisibility(): void {
+		this.lspManager?.setStatusBarVisible(isCamelLspTabActive());
 	}
 
 	/**
 	 * Stop the language server. Called from extension.ts deactivate().
 	 */
 	async stop(): Promise<void> {
-		this.disposeCamelDocumentListener();
-		if (this.lspManager) {
-			await this.lspManager.stop();
-		}
+		this.disposeCamelDocumentListeners();
+		await this.stopServer();
 	}
 
 	private static isEnabled(): boolean {

@@ -1408,7 +1408,7 @@
           "kaoto.lsp.enabled": {
             "type": "boolean",
             "default": true,
-            "markdownDescription": "Enable Camel Language Server for source code features (completion, validation, hover). Requires Java 17+ on the system PATH or JAVA_HOME. The server starts when a Camel route, Kamelet or application properties file is opened, and is downloaded from Maven Central the first time.",
+            "markdownDescription": "Enable Camel Language Server for source code features (completion, validation, hover). Requires Java 17+ on the system PATH or JAVA_HOME. The server starts when a Camel route, Kamelet or application properties file is opened, and stops about a minute after the last one is closed. It is downloaded from Maven Central the first time.",
             "scope": "window",
             "order": 0
           },

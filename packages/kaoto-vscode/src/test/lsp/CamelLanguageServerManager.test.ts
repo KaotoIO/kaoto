@@ -355,6 +355,90 @@ suite('CamelLanguageServerManager', () => {
 			Object.defineProperty(vscode.workspace, 'getConfiguration', { value: originalGetConfiguration, configurable: true });
 		});
 
+		test('shows the status bar item only when it is set visible and the server is not stopped', async () => {
+			const originalCreateStatusBarItem = vscode.window.createStatusBarItem;
+			let shown = false;
+			Object.defineProperty(vscode.window, 'createStatusBarItem', {
+				value: () => ({ show: () => (shown = true), hide: () => (shown = false), dispose: () => undefined }),
+				configurable: true,
+			});
+			let statusManager: TestManager;
+			try {
+				statusManager = new TestManager(context, noSettings, new CamelLspServerDownloader(storageDir, { version: '1.2.3', sha256: '0'.repeat(64) }));
+			} finally {
+				Object.defineProperty(vscode.window, 'createStatusBarItem', { value: originalCreateStatusBarItem, configurable: true });
+			}
+
+			statusManager.setStatusBarVisible(true);
+			expect(shown, 'stopped server').to.be.false;
+
+			await statusManager.start();
+			expect(shown, 'running server on a Camel file').to.be.true;
+
+			statusManager.setStatusBarVisible(false);
+			expect(shown, 'running server on another file').to.be.false;
+
+			statusManager.setStatusBarVisible(true);
+			await statusManager.stop();
+			expect(shown, 'server stopped again').to.be.false;
+		});
+
+		test('starts no second server while the client restarts its server', async () => {
+			await manager.start();
+			let openRestartGate: () => void = () => undefined;
+			const restart = manager.clients[0].restart(
+				new Promise((resolve) => {
+					openRestartGate = resolve;
+				}),
+			);
+
+			await manager.start();
+			openRestartGate();
+			await restart;
+
+			expect(manager.clients).to.have.lengthOf(1);
+		});
+
+		test('starts a new client when the previous one stopped for good', async () => {
+			await manager.start();
+			await manager.clients[0].stop();
+
+			await manager.start();
+
+			expect(manager.clients).to.have.lengthOf(2);
+			expect(manager.isRunning()).to.be.true;
+		});
+
+		test('tells a problem in one notification until the server starts, and in the log each time', async () => {
+			const originalShowWarningMessage = vscode.window.showWarningMessage;
+			const warnings: string[] = [];
+			Object.defineProperty(vscode.window, 'showWarningMessage', {
+				value: (message: string) => {
+					warnings.push(message);
+					return Promise.resolve(undefined);
+				},
+				configurable: true,
+			});
+			try {
+				CamelLanguageServerManager.getJavaVersion = () => Promise.resolve(11);
+				await manager.start();
+				await manager.start();
+				expect(warnings, 'same problem again').to.have.lengthOf(1);
+				expect(manager.isRunning()).to.be.false;
+
+				CamelLanguageServerManager.getJavaVersion = () => Promise.resolve(21);
+				await manager.start();
+				expect(manager.isRunning()).to.be.true;
+				await manager.stop();
+
+				CamelLanguageServerManager.getJavaVersion = () => Promise.resolve(11);
+				await manager.start();
+				expect(warnings, 'after a successful start').to.have.lengthOf(2);
+			} finally {
+				Object.defineProperty(vscode.window, 'showWarningMessage', { value: originalShowWarningMessage, configurable: true });
+			}
+		});
+
 		test('starts the server with the settings in its initializationOptions', async () => {
 			await manager.start();
 

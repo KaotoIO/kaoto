@@ -47,7 +47,16 @@ export class CamelLanguageServerManager {
 	private starting: Promise<void> | undefined;
 	private startAbort: AbortController | undefined;
 	private readonly statusBarItem: vscode.StatusBarItem;
+	/** The state of the server that the status bar item tells, none while the server is stopped. */
+	private statusBarState: StatusBarState | undefined;
+	/** Whether the active tab is a file that the server serves: the status bar item shows only there. */
+	private statusBarVisible = false;
 	private readonly retryRequested = new vscode.EventEmitter<void>();
+	/**
+	 * The problems already told in a notification. A start that failed is tried again for each opened file:
+	 * the log and the status bar item tell each failure, a notification only the first one.
+	 */
+	private readonly notifiedProblems = new Set<string>();
 
 	/** Fires when the user asks to retry a failed download of the server. */
 	readonly onDidRequestRetry = this.retryRequested.event;
@@ -75,7 +84,8 @@ export class CamelLanguageServerManager {
 	}
 
 	private async startOnce(): Promise<void> {
-		if (this.isRunning()) {
+		// a client that restarts its server is not running, and needs no second server
+		if (this.languageClient && this.languageClient.state !== State.Stopped) {
 			return;
 		}
 		// stop() aborts the start, so that a stopped server is neither downloaded nor started
@@ -169,6 +179,7 @@ export class CamelLanguageServerManager {
 			return;
 		}
 		this.updateStatusBar('running');
+		this.notifiedProblems.clear();
 		this.logServerInfo();
 		KaotoOutputChannel.logInfo('Camel Language Server started successfully.');
 	}
@@ -181,7 +192,18 @@ export class CamelLanguageServerManager {
 		// the start sees the abort and disposes what it created
 		await this.starting?.catch(() => undefined);
 		await this.disposeClient();
-		this.statusBarItem.hide();
+		this.statusBarState = undefined;
+		this.renderStatusBar();
+	}
+
+	/**
+	 * Shows the status bar item of a server that is not stopped, or hides it: it belongs to the files that the server serves.
+	 */
+	setStatusBarVisible(visible: boolean): void {
+		if (visible !== this.statusBarVisible) {
+			this.statusBarVisible = visible;
+			this.renderStatusBar();
+		}
 	}
 
 	/**
@@ -347,7 +369,9 @@ export class CamelLanguageServerManager {
 			}
 			const msg = `The Camel Language Server JAR set in ${KAOTO_LSP_SERVER_JAR_SETTING_ID} does not exist: ${configuredJar}`;
 			KaotoOutputChannel.logError(msg);
-			void vscode.window.showErrorMessage(msg);
+			if (this.isFirstNotification(msg)) {
+				void vscode.window.showErrorMessage(msg);
+			}
 			return undefined;
 		}
 
@@ -394,11 +418,27 @@ export class CamelLanguageServerManager {
 	private showDownloadError(subject: string, error: unknown): void {
 		const msg = `Could not download ${subject}: ${reasonOf(error)}`;
 		KaotoOutputChannel.logError(msg);
+		if (!this.isFirstNotification(msg)) {
+			return;
+		}
 		void vscode.window.showErrorMessage(msg, 'Retry').then((selection) => {
 			if (selection === 'Retry') {
+				// a retry that the user asked for tells its failure again
+				this.notifiedProblems.delete(msg);
 				this.retryRequested.fire();
 			}
 		});
+	}
+
+	/**
+	 * @returns whether the problem was not told in a notification yet, since the last successful start
+	 */
+	private isFirstNotification(problem: string): boolean {
+		if (this.notifiedProblems.has(problem)) {
+			return false;
+		}
+		this.notifiedProblems.add(problem);
+		return true;
 	}
 
 	private updateStatusBar(state: StatusBarState): void {
@@ -416,7 +456,16 @@ export class CamelLanguageServerManager {
 				this.statusBarItem.tooltip = 'Camel Language Server failed to start';
 				break;
 		}
-		this.statusBarItem.show();
+		this.statusBarState = state;
+		this.renderStatusBar();
+	}
+
+	private renderStatusBar(): void {
+		if (this.statusBarState && this.statusBarVisible) {
+			this.statusBarItem.show();
+		} else {
+			this.statusBarItem.hide();
+		}
 	}
 
 	private logServerInfo(): void {
@@ -445,18 +494,22 @@ export class CamelLanguageServerManager {
 			'Java 17+ is required for Camel Language Server features (completion, hover, validation). ' +
 			'Please install a JDK and set JAVA_HOME, or add java to your PATH.';
 		KaotoOutputChannel.logWarning(msg);
-		void vscode.window.showWarningMessage(msg, 'Install JDK').then((selection) => {
-			if (selection === 'Install JDK') {
-				void vscode.env.openExternal(vscode.Uri.parse('https://adoptium.net/installation/'));
-			}
-		});
+		if (this.isFirstNotification(msg)) {
+			void vscode.window.showWarningMessage(msg, 'Install JDK').then((selection) => {
+				if (selection === 'Install JDK') {
+					void vscode.env.openExternal(vscode.Uri.parse('https://adoptium.net/installation/'));
+				}
+			});
+		}
 		this.updateStatusBar('error');
 	}
 
 	private showJavaVersionWarning(foundVersion: number): void {
 		const msg = `Java ${CamelLanguageServerManager.REQUIRED_JAVA_VERSION}+ is required for Camel Language Server, but found Java ${foundVersion}.`;
 		KaotoOutputChannel.logWarning(msg);
-		void vscode.window.showWarningMessage(msg);
+		if (this.isFirstNotification(msg)) {
+			void vscode.window.showWarningMessage(msg);
+		}
 		this.updateStatusBar('error');
 	}
 }
