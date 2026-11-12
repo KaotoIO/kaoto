@@ -1,5 +1,4 @@
 import { WarningFilled } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 
@@ -40,15 +39,14 @@ export const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
       })}
     >
       {doesHaveWarnings && (
-        <Icon
-          status="danger"
+        <span
           title={validationText}
           aria-label={validationText || 'Warning'}
           role="img"
           data-warning={doesHaveWarnings}
         >
           <WarningFilled />
-        </Icon>
+        </span>
       )}
       <span title={label}>{label}</span>
     </div>

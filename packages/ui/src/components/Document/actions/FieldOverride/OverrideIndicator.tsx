@@ -1,5 +1,5 @@
 import { ArrowsHorizontal, Tools } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
+import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 
 import { IField } from '../../../../models/datamapper/document';
@@ -22,14 +22,15 @@ export const OverrideIndicator: FunctionComponent<OverrideIndicatorProps> = ({ f
   const title = `${displayInfo.currentLabel}: ${displayInfo.original} \u2192 ${displayInfo.current}`;
 
   return (
-    <Icon
-      className="node__spacer node__override-indicator"
-      size="md"
-      status={isSubstitution ? 'info' : 'warning'}
-      isInline
+    <span
+      className={clsx(
+        'node__spacer',
+        'node__override-indicator',
+        isSubstitution ? 'node__override-indicator--substitution' : 'node__override-indicator--type',
+      )}
       title={title}
     >
       {isSubstitution ? <ArrowsHorizontal /> : <Tools />}
-    </Icon>
+    </span>
   );
 };

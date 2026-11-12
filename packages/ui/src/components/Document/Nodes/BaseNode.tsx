@@ -1,7 +1,8 @@
 import './BaseNode.scss';
 
 import { At, ChevronDown, ChevronRight, Choices, DocumentComment, Draggable, Layers } from '@carbon/icons-react';
-import { Button, Icon, Label, Tooltip } from '@patternfly/react-core';
+import { Button, Label, Tooltip } from '@patternfly/react-core';
+import clsx from 'clsx';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
 import { IDataTestID } from '../../../models';
@@ -127,43 +128,43 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       )}
 
       {isExpandable ? (
-        <Icon className="node__expand" onClick={onExpandChange}>
+        <span className="node__expand" onClick={onExpandChange} role="none">
           {isExpanded && <ChevronDown data-testid={`expand-icon-${dataTestId}`} />}
           {!isExpanded && <ChevronRight data-testid={`collapse-icon-${dataTestId}`} />}
-        </Icon>
+        </span>
       ) : (
         <span className="node__expand" aria-hidden="true" />
       )}
 
       {isDraggable && (
-        <Icon className="node__spacer" data-drag-handler>
+        <span className="node__spacer" data-drag-handler>
           <Draggable />
-        </Icon>
+        </span>
       )}
       {title}
       {optionalGuard?.comment && onUpdate && (
         <Tooltip
           content={<span className="node__comment-tooltip">{`Optional guard comment: ${optionalGuard.comment}`}</span>}
         >
-          <Icon className="node__spacer" data-testid="guard-comment-indicator-icon">
+          <span className="node__spacer" data-testid="guard-comment-indicator-icon">
             <Button
               variant="plain"
               icon={<DocumentComment />}
               onClick={handleOpenGuardCommentModal}
               aria-label="Edit optional guard comment"
             />
-          </Icon>
+          </span>
         </Tooltip>
       )}
       {isCollectionField && (
-        <Icon className="node__spacer" data-testid="collection-field-icon">
+        <span className="node__spacer" data-testid="collection-field-icon">
           <Layers />
-        </Icon>
+        </span>
       )}
       {isChoiceField && !isSelectedChoice && (
-        <Icon className="node__spacer" data-testid="choice-field-icon">
+        <span className="node__spacer" data-testid="choice-field-icon">
           <Choices />
-        </Icon>
+        </span>
       )}
       {isSelectedChoice && (
         <Label className="node__spacer" color="green" icon={<Choices />} isCompact data-testid="choice-field-icon">
@@ -171,40 +172,38 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
         </Label>
       )}
       {isAbstractField && (
-        <Icon
-          className="node__spacer"
-          status={isSelectedAbstract ? 'success' : undefined}
+        <span
+          className={clsx('node__spacer', { 'node__icon--success': isSelectedAbstract })}
           data-testid="abstract-field-icon"
         >
           <Choices />
-        </Icon>
+        </span>
       )}
       {(isAbstractWrapperMember || isChoiceWrapperMember) && (
-        <Icon
-          className="node__spacer"
-          status={field?.wrapperKind ? undefined : 'success'}
+        <span
+          className={clsx('node__spacer', { 'node__icon--success': !field?.wrapperKind })}
           data-testid={field?.wrapperKind ? 'abstract-field-icon' : 'wrapper-member-icon'}
         >
           <Choices />
-        </Icon>
+        </span>
       )}
       <FieldIcon className="node__spacer node__icon--no-popover" type={iconType} />
 
       {isAttributeField && (
-        <Icon className="node__spacer" data-testid="attribute-field-icon">
+        <span className="node__spacer" data-testid="attribute-field-icon">
           <At />
-        </Icon>
+        </span>
       )}
       {mapping?.comment && mapping && onUpdate && (
         <Tooltip content={<span className="node__comment-tooltip">{mapping?.comment}</span>}>
-          <Icon className="node__spacer" data-testid="comment-indicator-icon">
+          <span className="node__spacer" data-testid="comment-indicator-icon">
             <Button
               variant="plain"
               icon={<DocumentComment />}
               onClick={handleOpenCommentModal}
               aria-label="Edit comment"
             />
-          </Icon>
+          </span>
         </Tooltip>
       )}
       <FieldNodePopover nodeData={nodeData} namespaceMap={namespaceMap} />

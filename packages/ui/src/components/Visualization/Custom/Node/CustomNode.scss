@@ -122,6 +122,7 @@
             color: var(--custom-node-BorderColor);
 
             & > span:first-of-type {
+              display: inline-flex;
               margin-right: var(--pf-t--global--spacer--xs);
             }
           }
