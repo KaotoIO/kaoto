@@ -16,6 +16,15 @@ table.flows-list-table {
     vertical-align: middle;
   }
 
+  /*
+    The action buttons are inline-flex boxes aligned on the text baseline inside the cell's line box.
+    Carbon icons have no baseline offset, so center the buttons instead of relying on the baseline.
+  */
+  & td > button,
+  & th > button {
+    vertical-align: middle;
+  }
+
   /* This is to make the last two columns (Edit and Delete) to be the same width */
 
   /* Select the last two td elements from each tr */
