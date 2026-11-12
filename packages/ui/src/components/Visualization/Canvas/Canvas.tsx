@@ -64,9 +64,9 @@ const CANVAS_NODE_SELECTOR = 'g.custom-node, g.placeholder-node, g.custom-group'
  * Finds the focusable canvas node by its topology id. The id includes the route scope,
  * so equal step paths in different routes resolve to their own node.
  */
-const findCanvasNode = (canvas: HTMLElement, nodeId: string): SVGGElement | null => {
+const findCanvasNode = (nodeId: string): SVGGElement | null => {
   const wrapper = `[data-id="${CSS.escape(nodeId)}"]`;
-  return canvas.querySelector<SVGGElement>(
+  return document.querySelector<SVGGElement>(
     `${wrapper} > g.custom-node, ${wrapper} > g.placeholder-node, ${wrapper} > g.custom-group`,
   );
 };
@@ -117,18 +117,13 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const clearSelection = useCallback(() => {
     setSelectedIds([]);
     requestAnimationFrame(() => {
-      const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
-      if (!canvas) {
-        return;
-      }
-
       const nodeId = lastNodeIdRef.current;
-      const canvasNode = nodeId ? findCanvasNode(canvas, nodeId) : null;
+      const canvasNode = nodeId ? findCanvasNode(nodeId) : null;
       canvasNode?.focus({ preventScroll: true });
-      // The node was removed, collapsed away or cannot take focus
+      // No node was focused yet, or it was removed, collapsed away or cannot take focus
       if (!canvasNode || document.activeElement !== canvasNode) {
         lastNodeIdRef.current = undefined;
-        canvas.focus({ preventScroll: true });
+        document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.focus({ preventScroll: true });
       }
     });
   }, []);
