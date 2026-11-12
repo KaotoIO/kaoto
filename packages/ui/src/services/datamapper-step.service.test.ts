@@ -1,4 +1,4 @@
-import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
+import { ProcessorDefinition, Step } from '@kaoto/camel-catalog/types';
 import type { Mocked, MockInstance } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../dynamic-catalog/dynamic-catalog-registry';
@@ -363,7 +363,7 @@ describe('DataMapperStepService', () => {
     });
   });
 
-  describe('updateXsltFileName', () => {
+  describe('applyResourceRenamesToNode: XSLT file name', () => {
     let vizNode: IVisualizationNode;
 
     beforeEach(() => {
@@ -377,95 +377,78 @@ describe('DataMapperStepService', () => {
       });
     });
 
+    const uriOf = (step: ProcessorDefinition): string | undefined =>
+      step.to && typeof step.to === 'object' && 'uri' in step.to ? step.to.uri : undefined;
+
     it('should update XSLT filename in the URI', () => {
       const model = {
         id: 'step-id',
-        steps: [
-          {
-            to: {
-              uri: `${XSLT_COMPONENT_NAME}:old-file.xsl`,
-            },
-          } as ProcessorDefinition,
-        ],
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:old-file.xsl` } } as ProcessorDefinition],
       };
 
       vizNode.data.definition = model;
       const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
-      DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
+      DataMapperStepService.applyResourceRenamesToNode(
+        vizNode,
+        { 'old-file.xsl': 'new-file.xsl' },
+        mockEntitiesContext,
+      );
 
       expect(updateModelSpy).toHaveBeenCalledWith(model);
       expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalled();
-      const step = model.steps[0];
-      if (step.to && typeof step.to === 'object' && 'uri' in step.to) {
-        expect(step.to.uri).toBe(`${XSLT_COMPONENT_NAME}:new-file.xsl`);
-      }
+      expect(uriOf(model.steps[0])).toBe(`${XSLT_COMPONENT_NAME}:new-file.xsl`);
     });
 
     it('should handle filename with different extension', () => {
       const model = {
         id: 'step-id',
-        steps: [
-          {
-            to: {
-              uri: `${XSLT_COMPONENT_NAME}:transform.xsl`,
-            },
-          } as ProcessorDefinition,
-        ],
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:transform.xsl` } } as ProcessorDefinition],
       };
 
       vizNode.data.definition = model;
-      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
-      DataMapperStepService.updateXsltFileName(vizNode, 'transform.xslt', mockEntitiesContext);
+      DataMapperStepService.applyResourceRenamesToNode(
+        vizNode,
+        { 'transform.xsl': 'transform.xslt' },
+        mockEntitiesContext,
+      );
 
-      expect(updateModelSpy).toHaveBeenCalledWith(model);
-      const step = model.steps[0];
-      if (step.to && typeof step.to === 'object' && 'uri' in step.to) {
-        expect(step.to.uri).toBe(`${XSLT_COMPONENT_NAME}:transform.xslt`);
-      }
+      expect(uriOf(model.steps[0])).toBe(`${XSLT_COMPONENT_NAME}:transform.xslt`);
     });
 
-    it('should not update when XSLT step is not found', () => {
+    it('should leave the URI alone when XSLT step is not found', () => {
       const model = {
         id: 'step-id',
-        steps: [
-          {
-            to: {
-              uri: 'direct:test',
-            },
-          } as ProcessorDefinition,
-        ],
+        steps: [{ to: { uri: 'direct:test' } } as ProcessorDefinition],
       };
 
       vizNode.data.definition = model;
-      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
-      DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
+      DataMapperStepService.applyResourceRenamesToNode(
+        vizNode,
+        { 'old-file.xsl': 'new-file.xsl' },
+        mockEntitiesContext,
+      );
 
-      expect(updateModelSpy).not.toHaveBeenCalled();
-      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+      expect(uriOf(model.steps[0])).toBe('direct:test');
     });
 
-    it('should not update when to property is missing', () => {
+    it('should leave the step alone when to property is missing', () => {
       const model = {
         id: 'step-id',
-        steps: [
-          {
-            from: {
-              uri: 'direct:test',
-            },
-          } as ProcessorDefinition,
-        ],
+        steps: [{ from: { uri: 'direct:test' } } as ProcessorDefinition],
       };
 
       vizNode.data.definition = model;
-      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
 
-      DataMapperStepService.updateXsltFileName(vizNode, 'new-file.xsl', mockEntitiesContext);
+      DataMapperStepService.applyResourceRenamesToNode(
+        vizNode,
+        { 'old-file.xsl': 'new-file.xsl' },
+        mockEntitiesContext,
+      );
 
-      expect(updateModelSpy).not.toHaveBeenCalled();
-      expect(mockEntitiesContext.updateSourceCodeFromEntities).not.toHaveBeenCalled();
+      expect(model.steps[0].to).toBeUndefined();
     });
   });
 
@@ -1180,6 +1163,156 @@ describe('DataMapperStepService', () => {
 
     it('should return undefined for a valid name', () => {
       expect(DataMapperStepService.getOutputVariableNameError('myVar')).toBeUndefined();
+    });
+  });
+
+  describe('resource renames', () => {
+    const definition = () =>
+      ({
+        id: 'step-id',
+        steps: [
+          { to: { uri: `${XSLT_COMPONENT_NAME}:old.xsl` } },
+          { to: { uri: 'validator:old-validation-wrapper.xsd?failOnNullBody=false' } },
+        ],
+      }) as unknown as Step;
+    const uris = (def: Step) => (def.steps as Array<{ to: { uri: string } }>).map((s) => s.to.uri);
+
+    it('should retarget the validator, keeping its options, and update the XSLT step of a node', () => {
+      const vizNode = createVisualizationNode('test', {
+        name: 'step',
+        isPlaceholder: false,
+        isGroup: false,
+        title: '',
+        description: '',
+        iconUrl: '',
+        definition: definition(),
+      });
+      const updateModelSpy = vi.spyOn(vizNode, 'updateModel');
+
+      DataMapperStepService.applyResourceRenamesToNode(
+        vizNode,
+        { 'old.xsl': 'new.xsl', 'old-validation-wrapper.xsd': 'new-validation-wrapper.xsd' },
+        mockEntitiesContext,
+      );
+
+      expect(uris(vizNode.data.definition as Step)).toEqual([
+        `${XSLT_COMPONENT_NAME}:new.xsl`,
+        'validator:new-validation-wrapper.xsd?failOnNullBody=false',
+      ]);
+      expect(updateModelSpy).toHaveBeenCalledTimes(1);
+      expect(mockEntitiesContext.updateSourceCodeFromEntities).toHaveBeenCalledTimes(1);
+    });
+
+    it('should point a copy to its own files', () => {
+      const def = definition();
+
+      DataMapperStepService.applyCopiedResources(def, {
+        'old.xsl': 'new.xsl',
+        'old-validation-wrapper.xsd': 'new-validation-wrapper.xsd',
+      });
+
+      expect(uris(def)).toEqual([
+        `${XSLT_COMPONENT_NAME}:new.xsl`,
+        'validator:new-validation-wrapper.xsd?failOnNullBody=false',
+      ]);
+    });
+
+    it('should drop the validator of a copy that got no wrapper of its own', () => {
+      const def = definition();
+
+      DataMapperStepService.applyCopiedResources(def, { 'old.xsl': 'new.xsl' });
+
+      expect(uris(def)).toEqual([`${XSLT_COMPONENT_NAME}:new.xsl`]);
+    });
+
+    describe('a copy that predates a rename of the original', () => {
+      const staleDefinition = () =>
+        ({
+          id: 'step-id',
+          steps: [
+            { to: { uri: `${XSLT_COMPONENT_NAME}:stale.xsl` } },
+            { to: { uri: 'validator:stale-validation-wrapper.xsd?failOnNullBody=false' } },
+          ],
+        }) as unknown as Step;
+
+      it('should point the XSLT step to the copy and drop the validator that names the stale file', () => {
+        const def = staleDefinition();
+
+        DataMapperStepService.applyCopiedResources(def, { 'old.xsl': 'new.xsl' }, 'old.xsl');
+
+        expect(uris(def)).toEqual([`${XSLT_COMPONENT_NAME}:new.xsl`]);
+      });
+
+      it('should keep a validator that was already retargeted to the wrapper of the copy', () => {
+        const def = staleDefinition();
+
+        DataMapperStepService.applyCopiedResources(
+          def,
+          { 'old.xsl': 'new.xsl', 'stale-validation-wrapper.xsd': 'new-validation-wrapper.xsd' },
+          'old.xsl',
+        );
+
+        expect(uris(def)).toEqual([
+          `${XSLT_COMPONENT_NAME}:new.xsl`,
+          'validator:new-validation-wrapper.xsd?failOnNullBody=false',
+        ]);
+      });
+
+      it('should change nothing when the original is not in the map', () => {
+        const def = staleDefinition();
+
+        DataMapperStepService.applyCopiedResources(def, { 'other.xsl': 'new.xsl' }, 'old.xsl');
+
+        expect(uris(def)).toEqual([
+          `${XSLT_COMPONENT_NAME}:stale.xsl`,
+          'validator:stale-validation-wrapper.xsd?failOnNullBody=false',
+        ]);
+      });
+    });
+
+    it('should follow the entry of the current XSLT file, whatever the order of the map', () => {
+      const def = definition();
+
+      DataMapperStepService.applyResourceRenames(def, {
+        'other.xml': 'moved.xml',
+        'old-validation-wrapper.xsd': 'new-validation-wrapper.xsd',
+        'old.xsl': 'new.xsl',
+      });
+
+      expect(uris(def)).toEqual([
+        `${XSLT_COMPONENT_NAME}:new.xsl`,
+        'validator:new-validation-wrapper.xsd?failOnNullBody=false',
+      ]);
+    });
+
+    it('should not take an XSLT file that is not in the map from an unrelated entry', () => {
+      const def = definition();
+
+      DataMapperStepService.applyResourceRenames(def, { 'other.xml': 'moved.xml' });
+
+      expect(uris(def)).toEqual([
+        `${XSLT_COMPONENT_NAME}:old.xsl`,
+        'validator:old-validation-wrapper.xsd?failOnNullBody=false',
+      ]);
+    });
+
+    it('should rename an XSLT file that has an .xsd extension', () => {
+      const def = {
+        id: 'step-id',
+        steps: [{ to: { uri: `${XSLT_COMPONENT_NAME}:old.xsd` } }],
+      } as unknown as Step;
+
+      DataMapperStepService.applyResourceRenames(def, { 'old.xsd': 'new.xsl' });
+
+      expect(uris(def)).toEqual([`${XSLT_COMPONENT_NAME}:new.xsl`]);
+    });
+
+    it('should clear the XSLT file and drop the wrapper validator of a copy without files', () => {
+      const def = definition();
+
+      DataMapperStepService.clearResources(def);
+
+      expect(uris(def)).toEqual([`${XSLT_COMPONENT_NAME}:`]);
     });
   });
 });

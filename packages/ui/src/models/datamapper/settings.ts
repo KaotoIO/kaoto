@@ -22,11 +22,23 @@ export interface IStepSettings {
 }
 
 /**
+ * What applying {@link IStepSettings} to the Camel step reports back to the host.
+ */
+export interface IStepSettingsResult {
+  /** What the step really holds after the call; the provider applies it to its settings state. */
+  settings: Partial<IStepSettings>;
+  /** Problems the user should see (e.g. validating against part of the schema files only). */
+  warnings: string[];
+  /** Set when a setting could not be applied: the full user-facing sentence. */
+  error?: string;
+}
+
+/**
  * Full DataMapper settings: XSLT output settings combined with Camel step-level settings.
  */
 export type IDataMapperSettings = IXslOutputSettings & IStepSettings;
 
-const DEFAULT_XSL_OUTPUT_SETTINGS: IXslOutputSettings = {
+export const DEFAULT_XSL_OUTPUT_SETTINGS: IXslOutputSettings = {
   omitXmlDeclaration: false,
 };
 

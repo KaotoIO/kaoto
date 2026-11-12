@@ -19,22 +19,44 @@ import { Tools } from '@carbon/icons-react';
 import { Button, Callout, Checkbox, FormGroup, InlineNotification, Link } from '@carbon/react';
 import { ProcessorDefinition } from '@kaoto/camel-catalog/types';
 import { FieldWrapper, isDefined } from '@kaoto/forms';
-import { type ChangeEvent, FunctionComponent, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  type ChangeEvent,
+  FunctionComponent,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+} from 'react';
 import { useNavigate } from 'react-router';
 
 import { IVisualizationNode, ValidationResult, ValidationStatus } from '../../models';
 import { DocumentDefinitionType } from '../../models/datamapper/document';
-import { IDataMapperMetadata } from '../../models/datamapper/metadata';
+import { IStepSettingsResult } from '../../models/datamapper/settings';
 import { EntitiesContext } from '../../providers';
 import { MetadataContext } from '../../providers/metadata.provider';
 import { Links } from '../../router/links.models';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperOutputValidationService } from '../../services/datamapper-output-validation.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
-import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
+import { DataMapperStepSettingsService } from '../../services/datamapper-step-settings.service';
 import { isXSLTComponent } from '../../utils';
 import type { XsltComponentDef } from '../../utils/is-xslt-component';
 import { OutputVariableField } from './OutputVariableField';
 import XsltDocumentRenameInput from './XsltDocumentRenameInput';
+
+const VALIDATE_OUTPUT_DESCRIPTION =
+  'Adds a Validator step after this step that checks the output against the target schema at runtime.';
+
+/** Error and warnings are rendered as mutually exclusive, so one state holds at most one of them, never both. */
+type ValidationMessage = { kind: 'error'; text: string } | { kind: 'warnings'; items: string[] };
+
+function toValidationMessage(result: IStepSettingsResult): ValidationMessage | undefined {
+  if (result.error) return { kind: 'error', text: result.error };
+  if (result.warnings.length > 0) return { kind: 'warnings', items: result.warnings };
+  return undefined;
+}
 
 // XSLT filename validation regex
 // Valid filename rules:
@@ -57,11 +79,21 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
   const [currentFileName, setCurrentFileName] = useState<string | undefined>(undefined);
   const [isEditingFilename, setIsEditingFilename] = useState<boolean>(false);
   const [isSavingFile, setIsSavingFile] = useState<boolean>(false);
-  const [isValidationEnabled, setIsValidationEnabled] = useState<boolean>(false);
+  const [renameError, setRenameError] = useState<string | undefined>(undefined);
+  // useState lazy initializer: a synchronous model read, so a step with validation on never flashes an
+  // unchecked box while the async checks below are still running.
+  const [isValidationEnabled, setIsValidationEnabled] = useState<boolean>(() =>
+    vizNode ? DataMapperStepSettingsService.getStepSettings(vizNode).isOutputValidationEnabled : false,
+  );
   const [isValidationTogglePending, setIsValidationTogglePending] = useState<boolean>(false);
-  const [isTargetPrimitive, setIsTargetPrimitive] = useState<boolean>(true);
-  // Output validation UI: set to true when feature is complete
-  const showOutputValidation = false as boolean;
+  const [validationMessage, setValidationMessage] = useState<ValidationMessage | undefined>(undefined);
+  // Unknown until the async check below resolves the real target type. Treated as supported in the meantime (see
+  // isValidationSupported below), so a step with validation on does not flash unchecked while this is unresolved.
+  const [targetType, setTargetType] = useState<DocumentDefinitionType | undefined>(undefined);
+  // The async checks decide whether the checkbox can be enabled. Until they, or a later re-check, are done it is
+  // rendered disabled. The group itself only depends on the XSLT document being defined (a synchronous, model-only
+  // check), so it is never hidden or shown again by the async checks, and nothing in the panel shifts after paint.
+  const [isChecking, setIsChecking] = useState<boolean>(true);
   // useState lazy initializer: getOutputVariable is called once at mount, not on every render.
   const [outputVariableName, setOutputVariableName] = useState<string>(
     () => (vizNode ? DataMapperStepService.getOutputVariable(vizNode) : undefined) ?? '',
@@ -83,28 +115,52 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
 
   useEffect(() => {
     let cancelled = false;
+    // Messages of an earlier toggle must not come back when the Output Validation group is shown again.
+    const clearValidationMessages = () => {
+      setValidationMessage(undefined);
+    };
     const checkFile = async () => {
       if (!xsltDocumentName || !metadata) {
         setXsltFileExists(false);
+        clearValidationMessages();
         return;
       }
       const exists = await metadata.isResourceExist(xsltDocumentName);
       if (cancelled) return;
       setXsltFileExists(exists);
+      if (!exists) clearValidationMessages();
 
       if (vizNode) {
-        setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+        setIsValidationEnabled(DataMapperStepSettingsService.getStepSettings(vizNode).isOutputValidationEnabled);
         const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
-        const meta = await metadata.getMetadata<IDataMapperMetadata>(metadataId);
+        const type = await DataMapperMetadataService.getTargetBodyType(metadata, metadataId);
         if (cancelled) return;
-        setIsTargetPrimitive(!meta?.targetBody || meta.targetBody.type === DocumentDefinitionType.Primitive);
+        setTargetType(type);
+        if (!DataMapperOutputValidationService.isValidationSupported(type)) clearValidationMessages();
       }
     };
-    checkFile().catch(() => {});
+    checkFile()
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setIsChecking(false);
+      });
     return () => {
       cancelled = true;
     };
   }, [xsltDocumentName, metadata, vizNode]);
+
+  const isValidationGroupShown = isXsltDocumentDefined;
+  // Assumed supported while targetType is still unknown, so a step with validation on does not flash unchecked.
+  const isValidationSupported =
+    targetType === undefined || DataMapperOutputValidationService.isValidationSupported(targetType);
+  // A pending toggle only gets `aria-disabled`, not `disabled`: the checkbox the user just interacted with keeps
+  // keyboard focus instead of dropping it. `handleValidationToggle` itself refuses a second call while pending.
+  const isValidationCheckboxDisabled = isChecking || !xsltFileExists || !isValidationSupported || isSavingFile;
+  const validationDescription =
+    targetType !== undefined && !isValidationSupported
+      ? DataMapperOutputValidationService.describeUnsupportedValidation(targetType)
+      : VALIDATE_OUTPUT_DESCRIPTION;
+  const validationMessageId = useId();
 
   const validateDocumentName = useCallback(
     async (value: string): Promise<ValidationResult> => {
@@ -138,63 +194,60 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
         return;
       }
 
-      const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
-      const meta = await metadata.getMetadata<IDataMapperMetadata>(metadataId);
-
-      if (!meta) {
-        return;
-      }
-
-      const oldFileExists = await metadata.isResourceExist(oldPath);
-
-      if (!oldFileExists) {
-        return;
-      }
-
       setIsSavingFile(true);
+      setRenameError(undefined);
       try {
-        const content = await metadata.getResourceContent(oldPath);
-
-        if (content === undefined) {
-          return;
+        // A toggle that is still running could write the wrapper under the old name.
+        if (isValidationTogglePending) {
+          throw new Error('Output validation is being updated, try again in a moment.');
         }
-
-        await metadata.saveResourceContent(newPath, content);
-        await DataMapperMetadataService.updateXsltPath(metadata, metadataId, meta, newPath);
-        DataMapperStepService.updateXsltFileName(vizNode, newPath, entitiesContext);
-        await metadata.deleteResource(oldPath);
-        setCurrentFileName(newPath);
-        setXsltFileExists(true);
+        const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
+        await DataMapperMetadataService.renameXsltFile(metadata, metadataId, newPath, (renames) => {
+          DataMapperStepService.applyResourceRenamesToNode(vizNode, renames, entitiesContext);
+          // The route points to the new files from here on, whatever happens to the old ones.
+          setCurrentFileName(newPath);
+          setXsltFileExists(true);
+        });
+      } catch (error) {
+        // The input shows its own generic message; this is the reason.
+        setRenameError(error instanceof Error ? error.message : String(error));
+        throw error;
       } finally {
         setIsSavingFile(false);
       }
     },
-    [xsltDocumentName, metadata, entitiesContext, vizNode],
+    [xsltDocumentName, metadata, entitiesContext, vizNode, isValidationTogglePending],
   );
 
+  const handleEditingStateChange = useCallback((isEditing: boolean) => {
+    setIsEditingFilename(isEditing);
+    // A reason belongs to the edit it came from: cancelling the edit removes it.
+    setRenameError(undefined);
+  }, []);
+
   const handleValidationToggle = useCallback(
-    (_event: ChangeEvent<HTMLInputElement>, { checked }: { checked: boolean }) => {
-      if (!vizNode || !entitiesContext) return;
-      if (checked) {
-        setIsValidationTogglePending(true);
-        const metadataId = DataMapperStepService.getDataMapperMetadataId(vizNode);
-        void metadata
-          ?.getMetadata<IDataMapperMetadata>(metadataId)
-          .then((meta) => {
-            if (meta?.targetBody) {
-              DataMapperValidationStepService.addValidationStep(vizNode, meta.targetBody, entitiesContext);
-            }
-            setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
-          })
-          .finally(() => {
-            setIsValidationTogglePending(false);
-          });
-      } else {
-        DataMapperValidationStepService.removeValidationStep(vizNode, entitiesContext);
-        setIsValidationEnabled(DataMapperValidationStepService.isValidationEnabled(vizNode));
+    async (_event: ChangeEvent<HTMLInputElement>, { checked }: { checked: boolean }) => {
+      if (!vizNode || !entitiesContext || !metadata || isValidationTogglePending) return;
+      setIsValidationTogglePending(true);
+      setValidationMessage(undefined);
+      try {
+        const result = await DataMapperStepSettingsService.updateStepSettings(metadata, vizNode, entitiesContext, {
+          ...DataMapperStepSettingsService.getStepSettings(vizNode),
+          isOutputValidationEnabled: checked,
+        });
+        setValidationMessage(toValidationMessage(result));
+      } catch (err) {
+        console.warn('[DataMapperLauncher] Failed to toggle output validation:', err);
+        setValidationMessage({
+          kind: 'error',
+          text: `Could not ${checked ? 'enable' : 'disable'} output validation, see the log for details.`,
+        });
+      } finally {
+        setIsValidationEnabled(DataMapperStepSettingsService.getStepSettings(vizNode).isOutputValidationEnabled);
+        setIsValidationTogglePending(false);
       }
     },
-    [vizNode, entitiesContext, metadata],
+    [vizNode, entitiesContext, metadata, isValidationTogglePending],
   );
 
   const handleOutputVariableNameChange = useCallback(
@@ -254,34 +307,73 @@ const DataMapperLauncherContent: FunctionComponent<{ vizNode?: IVisualizationNod
   return (
     <section className="data-mapper-launcher">
       {xsltFileExists && (
-        <FieldWrapper
-          propName="xslt-document"
-          title="Document"
-          description="The name of the XSLT document that is used by the Kaoto DataMapper"
-          defaultValue=""
-        >
-          <XsltDocumentRenameInput
-            value={xsltDocumentName}
-            onChange={handleChange}
-            onEditingStateChange={setIsEditingFilename}
-            validator={validateDocumentName}
-            textTitle="XSLT document name"
-            editTitle="Edit document name"
-            data-testid="xslt-document-name"
-          />
-        </FieldWrapper>
+        <>
+          <FieldWrapper
+            propName="xslt-document"
+            title="Document"
+            description="The name of the XSLT document that is used by the Kaoto DataMapper"
+            defaultValue=""
+          >
+            <XsltDocumentRenameInput
+              value={xsltDocumentName}
+              onChange={handleChange}
+              onEditingStateChange={handleEditingStateChange}
+              validator={validateDocumentName}
+              textTitle="XSLT document name"
+              editTitle="Edit document name"
+              data-testid="xslt-document-name"
+            />
+          </FieldWrapper>
+          {renameError && (
+            <InlineNotification
+              data-testid="xslt-document-rename-error"
+              kind="error"
+              lowContrast
+              hideCloseButton
+              title=""
+              subtitle={renameError}
+            />
+          )}
+        </>
       )}
-      {/* Output validation UI: set to true when feature is complete */}
-      {showOutputValidation && xsltFileExists && !isTargetPrimitive && (
-        <FormGroup legendText="Output Validation">
+      {isValidationGroupShown && (
+        <FormGroup legendText="Output validation">
           <Checkbox
             id="validate-output"
             labelText="Validate output"
-            checked={isValidationEnabled}
-            disabled={isValidationTogglePending}
+            helperText={validationDescription}
+            checked={isValidationSupported && isValidationEnabled}
+            disabled={isValidationCheckboxDisabled}
+            aria-disabled={isValidationTogglePending || undefined}
+            aria-describedby={validationMessage ? validationMessageId : undefined}
             onChange={handleValidationToggle}
             data-testid="validate-output-checkbox"
           />
+          {validationMessage && (
+            <div id={validationMessageId} data-testid="validate-output-helper-text">
+              {validationMessage.kind === 'error' ? (
+                <InlineNotification
+                  kind="error"
+                  role="alert"
+                  lowContrast
+                  hideCloseButton
+                  title=""
+                  subtitle={validationMessage.text}
+                />
+              ) : (
+                validationMessage.items.map((warning) => (
+                  <InlineNotification
+                    key={warning}
+                    kind="warning"
+                    lowContrast
+                    hideCloseButton
+                    title=""
+                    subtitle={warning}
+                  />
+                ))
+              )}
+            </div>
+          )}
         </FormGroup>
       )}
       <OutputVariableField

@@ -5,8 +5,8 @@ import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { IClipboardContent } from '../../models/visualization/clipboard';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperStepService } from '../../services/datamapper-step.service';
 import { isDataMapperNode } from '../../utils/is-datamapper';
-import { clearXsltUri, setXsltUri } from './datamapper-utils';
 
 type DataMapperNodeCollection = { idMap: Map<string, string>; updatedNodes: Map<string, Step> };
 
@@ -68,7 +68,7 @@ const generateDataMapperMetadata = async (
   if (!api) {
     const updatedNode = updatedNodes.get(newId);
     if (updatedNode) {
-      clearXsltUri(updatedNode);
+      DataMapperStepService.clearResources(updatedNode);
     }
     return;
   }
@@ -82,7 +82,7 @@ const generateDataMapperMetadata = async (
 
     const updatedNode = updatedNodes.get(newId);
     if (updatedNode) {
-      clearXsltUri(updatedNode);
+      DataMapperStepService.clearResources(updatedNode);
     }
     return;
   }
@@ -92,11 +92,11 @@ const generateDataMapperMetadata = async (
 
   await api.setMetadata(newId, newMetadata);
 
-  await DataMapperMetadataService.duplicateXsltFile(api, originalMetadata, newXsltPath);
+  const renames = await DataMapperMetadataService.duplicateMetadataFiles(api, originalMetadata, newXsltPath);
 
   const updatedNode = updatedNodes.get(newId);
   if (updatedNode) {
-    setXsltUri(updatedNode, newXsltPath);
+    DataMapperStepService.applyCopiedResources(updatedNode, renames, originalMetadata.xsltPath);
   }
 };
 

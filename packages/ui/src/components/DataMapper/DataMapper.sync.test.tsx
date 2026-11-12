@@ -21,13 +21,15 @@ import { DocumentDefinitionType } from '../../models/datamapper/document';
 import { IDataMapperMetadata } from '../../models/datamapper/metadata';
 import { EntitiesContext, EntitiesContextResult, IMetadataApi, MetadataProvider } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
+import { DataMapperOutputValidationService } from '../../services/datamapper-output-validation.service';
+import { DataMapperStepSettingsService } from '../../services/datamapper-step-settings.service';
 import { DataMapperValidationStepService } from '../../services/datamapper-validation-step.service';
+import { GENERATED_WRAPPER_MARKER } from '../../services/document/xml-schema/xml-schema-wrapper-generator.service';
 import { EMPTY_XSL } from '../../services/mapping/mapping-serializer.service';
 import { getCartXsd, getShipOrderJsonSchema, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { DataMapper } from './DataMapper';
 
-// Output validation auto-sync: skipped until feature is complete
-describe.skip('DataMapper sync — onUpdateDocument validation step synchronization', () => {
+describe('DataMapper sync — onUpdateDocument validation step synchronization', () => {
   const mockEntitiesContext = {
     updateSourceCodeFromEntities: vi.fn(),
     updateEntitiesFromCamelResource: vi.fn(),
@@ -167,6 +169,7 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
         vizNodeWithValidator,
         expect.objectContaining({ type: DocumentDefinitionType.XML_SCHEMA, filePath: ['NewOrder.xsd'] }),
         mockEntitiesContext,
+        'NewOrder.xsd',
       );
     });
     expect(addSpy).not.toHaveBeenCalled();
@@ -192,13 +195,65 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
         vizNodeWithoutValidator,
         expect.objectContaining({ type: DocumentDefinitionType.XML_SCHEMA, filePath: ['ShipOrder.xsd'] }),
         mockEntitiesContext,
+        'ShipOrder.xsd',
       );
     });
     expect(updateSpy).not.toHaveBeenCalled();
   });
 
-  it('3. type changed from XML to JSON, validation enabled → updateValidationStep with JSON metadata', async () => {
+  it('2a. schema target replaced with another, validation NOT enabled → stays off', async () => {
+    // metadata.targetBody is already XML_SCHEMA (see beforeEach): this is not a "newly attached" transition, so
+    // it must not be treated like test 2 (Primitive -> schema) even though validation is off in both.
+    const addSpy = vi.spyOn(DataMapperValidationStepService, 'addValidationStep').mockImplementation(() => {});
+    const isValidationEnabledSpy = vi
+      .spyOn(DataMapperValidationStepService, 'isValidationEnabled')
+      .mockReturnValue(false);
+
+    renderDataMapper(vizNodeWithoutValidator);
+    await screen.findByTestId('source-parameters-header');
+
+    const callCountBefore = isValidationEnabledSpy.mock.calls.length;
+
+    await attachTargetSchema(['NewOrder.xsd']);
+
+    await waitFor(() => {
+      expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
+    });
+    // Positive anchor: confirms the sync actually ran, not just that it never got a chance to.
+    await waitFor(() => {
+      expect(isValidationEnabledSpy.mock.calls.length).toBeGreaterThan(callCountBefore);
+    });
+    expect(addSpy).not.toHaveBeenCalled();
+  });
+
+  it('2b. a validator the user turned off is not re-added by a later target edit', async () => {
+    // Same code path as 2a (a schema target was already attached), named for the specific guarantee it protects:
+    // disabling the toggle must stick across later edits to an already-attached target.
+    const addSpy = vi.spyOn(DataMapperValidationStepService, 'addValidationStep').mockImplementation(() => {});
+    const isValidationEnabledSpy = vi
+      .spyOn(DataMapperValidationStepService, 'isValidationEnabled')
+      .mockReturnValue(false);
+
+    renderDataMapper(vizNodeWithoutValidator);
+    await screen.findByTestId('source-parameters-header');
+
+    const callCountBefore = isValidationEnabledSpy.mock.calls.length;
+
+    await attachTargetSchema(['ShipOrder.xsd', 'CustomTypes.xsd']);
+
+    await waitFor(() => {
+      expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
+    });
+    // Positive anchor: confirms the sync actually ran, not just that it never got a chance to.
+    await waitFor(() => {
+      expect(isValidationEnabledSpy.mock.calls.length).toBeGreaterThan(callCountBefore);
+    });
+    expect(addSpy).not.toHaveBeenCalled();
+  });
+
+  it('3. type changed from XML to JSON, validation enabled → removed (JSON is gated until #3612)', async () => {
     const updateSpy = vi.spyOn(DataMapperValidationStepService, 'updateValidationStep').mockImplementation(() => {});
+    const removeSpy = vi.spyOn(DataMapperValidationStepService, 'removeValidationStep').mockImplementation(() => {});
     vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(true);
 
     renderDataMapper(vizNodeWithValidator);
@@ -210,16 +265,14 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
     });
     await waitFor(() => {
-      expect(updateSpy).toHaveBeenCalledWith(
-        vizNodeWithValidator,
-        expect.objectContaining({ type: DocumentDefinitionType.JSON_SCHEMA, filePath: ['schema.json'] }),
-        mockEntitiesContext,
-      );
+      expect(removeSpy).toHaveBeenCalledWith(vizNodeWithValidator, mockEntitiesContext);
     });
+    expect(updateSpy).not.toHaveBeenCalled();
   });
 
-  it('4. schema removed (→Primitive), validation enabled → updateValidationStep with Primitive metadata', async () => {
+  it('4. schema removed (→Primitive), validation enabled → removed through removeValidationStep', async () => {
     const updateSpy = vi.spyOn(DataMapperValidationStepService, 'updateValidationStep').mockImplementation(() => {});
+    const removeSpy = vi.spyOn(DataMapperValidationStepService, 'removeValidationStep').mockImplementation(() => {});
     vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(true);
 
     renderDataMapper(vizNodeWithValidator);
@@ -231,27 +284,33 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
     });
     await waitFor(() => {
-      expect(updateSpy).toHaveBeenCalledWith(
-        vizNodeWithValidator,
-        expect.objectContaining({ type: DocumentDefinitionType.Primitive, filePath: [] }),
-        mockEntitiesContext,
-      );
+      expect(removeSpy).toHaveBeenCalledWith(vizNodeWithValidator, mockEntitiesContext);
     });
+    expect(updateSpy).not.toHaveBeenCalled();
   });
 
   it('5. schema removed (→Primitive), validation NOT enabled → no service calls', async () => {
     const updateSpy = vi.spyOn(DataMapperValidationStepService, 'updateValidationStep').mockImplementation(() => {});
     const addSpy = vi.spyOn(DataMapperValidationStepService, 'addValidationStep').mockImplementation(() => {});
     const removeSpy = vi.spyOn(DataMapperValidationStepService, 'removeValidationStep').mockImplementation(() => {});
-    vi.spyOn(DataMapperValidationStepService, 'isValidationEnabled').mockReturnValue(false);
+    const isValidationEnabledSpy = vi
+      .spyOn(DataMapperValidationStepService, 'isValidationEnabled')
+      .mockReturnValue(false);
 
     renderDataMapper(vizNodeWithoutValidator);
     await screen.findByTestId('source-parameters-header');
+
+    const callCountBefore = isValidationEnabledSpy.mock.calls.length;
 
     await detachTargetSchema();
 
     await waitFor(() => {
       expect(DataMapperMetadataService.updateTargetBodyMetadata).toHaveBeenCalled();
+    });
+    // Positive anchor: confirms the sync actually ran (isValidationEnabled is read both to decide the branch and
+    // to return the final state), not just that it never got a chance to do anything.
+    await waitFor(() => {
+      expect(isValidationEnabledSpy.mock.calls.length).toBeGreaterThan(callCountBefore);
     });
     expect(updateSpy).not.toHaveBeenCalled();
     expect(addSpy).not.toHaveBeenCalled();
@@ -278,11 +337,13 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
           filePath: expect.arrayContaining(['ShipOrder.xsd', 'CustomTypes.xsd']),
         }),
         mockEntitiesContext,
+        'kaoto-datamapper-1234-validation-wrapper.xsd',
       );
     });
+    expect(fileContents['kaoto-datamapper-1234-validation-wrapper.xsd']).toContain(GENERATED_WRAPPER_MARKER);
   });
 
-  it('7. isOutputValidationEnabled state refreshed after sync', async () => {
+  it('7. the validation state is read again after sync', async () => {
     const isValidationEnabledSpy = vi
       .spyOn(DataMapperValidationStepService, 'isValidationEnabled')
       .mockReturnValue(true);
@@ -302,5 +363,36 @@ describe.skip('DataMapper sync — onUpdateDocument validation step synchronizat
       // isValidationEnabled should be called again after sync to refresh state
       expect(isValidationEnabledSpy.mock.calls.length).toBeGreaterThan(callCountBefore);
     });
+  });
+
+  it('8. the host passes the target change to the step settings service and shows what it reports', async () => {
+    const settingsSyncSpy = vi.spyOn(DataMapperStepSettingsService, 'syncOnTargetChange').mockResolvedValue({
+      settings: { isOutputValidationEnabled: true },
+      warnings: ['Schema file(s) missing or empty, not included in validation: Missing.xsd'],
+    });
+    const validationSyncSpy = vi.spyOn(DataMapperOutputValidationService, 'syncOnTargetChange');
+    const setValidationSpy = vi.spyOn(DataMapperOutputValidationService, 'setOutputValidation');
+
+    renderDataMapper(vizNodeWithValidator);
+    await screen.findByTestId('source-parameters-header');
+
+    await attachTargetSchema(['NewOrder.xsd']);
+
+    await waitFor(() => {
+      expect(settingsSyncSpy).toHaveBeenCalledWith(
+        expect.anything(),
+        vizNodeWithValidator,
+        mockEntitiesContext,
+        expect.objectContaining({ xsltPath: 'kaoto-datamapper-1234.xsl' }),
+        expect.objectContaining({ definitionType: DocumentDefinitionType.XML_SCHEMA }),
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+    });
+    expect(
+      await screen.findByText('Schema file(s) missing or empty, not included in validation: Missing.xsd'),
+    ).toBeInTheDocument();
+    // The host knows the step settings service only, not the validation
+    expect(validationSyncSpy).not.toHaveBeenCalled();
+    expect(setValidationSpy).not.toHaveBeenCalled();
   });
 });

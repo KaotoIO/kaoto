@@ -2,6 +2,10 @@ import { createVisualizationNode } from '../../models';
 import { IMetadataApi } from '../../providers';
 import { DataMapperMetadataService } from '../../services/datamapper-metadata.service';
 import { DataMapperStepService } from '../../services/datamapper-step.service';
+import {
+  GENERATED_WRAPPER_MARKER,
+  GENERATED_WRAPPER_NOTICE,
+} from '../../services/document/xml-schema/xml-schema-wrapper-generator.service';
 import { ACTION_ID_DELETE_STEP_AND_FILE, ACTION_ID_DELETE_STEP_ONLY, onDeleteDataMapper } from './on-delete-datamapper';
 
 describe('onDeleteDataMapper', () => {
@@ -97,5 +101,55 @@ describe('onDeleteDataMapper', () => {
     expect(DataMapperStepService.getDataMapperMetadataId).toHaveBeenCalledWith(vizNode);
     expect(DataMapperMetadataService.deleteXsltFile).not.toHaveBeenCalled();
     expect(DataMapperMetadataService.deleteMetadata).toHaveBeenCalledWith(mockApi, metadataId);
+  });
+
+  describe('generated validation wrapper', () => {
+    const WRAPPER = 'mapping-validation-wrapper.xsd';
+    const vizNode = createVisualizationNode('test', {
+      name: 'log',
+      isPlaceholder: false,
+      isGroup: false,
+      iconUrl: '',
+      title: '',
+      description: '',
+    });
+
+    beforeEach(() => {
+      vi.mocked(DataMapperMetadataService.deleteMetadata).mockRestore();
+      vi.mocked(DataMapperMetadataService.deleteXsltFile).mockRestore();
+      vi.mocked(mockApi.getMetadata).mockResolvedValue({ xsltPath: 'mapping.xsl' });
+      vi.mocked(mockApi.getResourceContent).mockImplementation((path: string) =>
+        Promise.resolve(path === WRAPPER ? `${GENERATED_WRAPPER_MARKER}. ${GENERATED_WRAPPER_NOTICE}` : undefined),
+      );
+      vi.mocked(mockApi.isResourceExist).mockImplementation(
+        async (path: string) => (await mockApi.getResourceContent(path)) !== undefined,
+      );
+      vi.mocked(mockApi.deleteResource).mockResolvedValue(true);
+    });
+
+    it.each([ACTION_ID_DELETE_STEP_ONLY, ACTION_ID_DELETE_STEP_AND_FILE, undefined])(
+      'should remove the wrapper and the metadata when the modal answer is %s',
+      async (answer) => {
+        await onDeleteDataMapper(mockApi, vizNode, answer);
+
+        expect(mockApi.deleteResource).toHaveBeenCalledWith(WRAPPER);
+        expect(mockApi.setMetadata).toHaveBeenCalledWith(metadataId, undefined);
+      },
+    );
+
+    it('should keep the XSLT file when only the step is deleted', async () => {
+      await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_ONLY);
+
+      expect(mockApi.deleteResource).not.toHaveBeenCalledWith('mapping.xsl');
+    });
+
+    it('should still remove the metadata when deleting the wrapper fails', async () => {
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      vi.mocked(mockApi.deleteResource).mockRejectedValue(new Error('boom'));
+
+      await onDeleteDataMapper(mockApi, vizNode, ACTION_ID_DELETE_STEP_ONLY);
+
+      expect(mockApi.setMetadata).toHaveBeenCalledWith(metadataId, undefined);
+    });
   });
 });
