@@ -58,6 +58,19 @@ interface CanvasState {
   [SETTLED_EMPTY_STATE]?: boolean;
 }
 
+const CANVAS_NODE_SELECTOR = 'g.custom-node, g.placeholder-node, g.custom-group';
+
+/**
+ * Finds the focusable canvas node by its topology id. The id includes the route scope,
+ * so equal step paths in different routes resolve to their own node.
+ */
+const findCanvasNode = (canvas: HTMLElement, nodeId: string): SVGGElement | null => {
+  const wrapper = `[data-id="${CSS.escape(nodeId)}"]`;
+  return canvas.querySelector<SVGGElement>(
+    `${wrapper} > g.custom-node, ${wrapper} > g.placeholder-node, ${wrapper} > g.custom-group`,
+  );
+};
+
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   nodes,
   edges,
@@ -95,21 +108,36 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
   }, [controller, isGraphEmpty, isModelResolving]);
 
-  /** Track which viz-node id was selected so focus can return to it on sidebar close */
-  const selectedVizNodeIdRef = useRef<string | undefined>(undefined);
+  /**
+   * Topology id of the node that was last focused or selected. It is kept when the selection is cleared,
+   * so focus can return to the same node on every Escape or background click.
+   */
+  const lastNodeIdRef = useRef<string | undefined>(undefined);
 
   const clearSelection = useCallback(() => {
-    const vizNodeId = selectedVizNodeIdRef.current;
     setSelectedIds([]);
     requestAnimationFrame(() => {
-      // Prefer restoring focus to the canvas node that was selected (matches any type: custom-node, placeholder-node, custom-group)
-      const canvasNode = vizNodeId ? document.querySelector<HTMLElement>(`[data-testid$="__${vizNodeId}"]`) : null;
-      if (canvasNode) {
-        canvasNode.focus({ preventScroll: true });
-      } else {
-        document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.focus({ preventScroll: true });
+      const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+      if (!canvas) {
+        return;
+      }
+
+      const nodeId = lastNodeIdRef.current;
+      const canvasNode = nodeId ? findCanvasNode(canvas, nodeId) : null;
+      canvasNode?.focus({ preventScroll: true });
+      // The node was removed, collapsed away or cannot take focus
+      if (!canvasNode || document.activeElement !== canvasNode) {
+        lastNodeIdRef.current = undefined;
+        canvas.focus({ preventScroll: true });
       }
     });
+  }, []);
+
+  const handleFocus = useCallback((event: React.FocusEvent) => {
+    const target = event.target;
+    if (target instanceof SVGElement && target.matches(CANVAS_NODE_SELECTOR)) {
+      lastNodeIdRef.current = target.closest<SVGElement>('[data-id]')?.dataset.id;
+    }
   }, []);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
@@ -118,6 +146,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {
       setSelectedIds(ids);
+      if (ids.length === 1) {
+        lastNodeIdRef.current = ids[0];
+      }
       setInitialized(controller.hasGraph() && controller.getGraph().getLayout() !== undefined);
     },
     [controller],
@@ -228,8 +259,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const handleCanvasClick = useCallback(
     (event: React.MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (target.tagName === 'rect') {
+      // Only the graph's own background rectangle counts, not rects inside nodes, groups or toolbars
+      const target = event.target;
+      if (target instanceof SVGElement && target.matches('[data-kind="graph"] > rect')) {
         clearSelection();
       }
     },
@@ -249,18 +281,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
 
-  /** Track the selected node id and move focus to the search bar when sidebar opens */
+  /** Move focus to the search bar when the sidebar opens */
   useEffect(() => {
     if (selectedVizNode) {
-      selectedVizNodeIdRef.current = selectedVizNode.id;
       requestAnimationFrame(() => {
         const searchInput = document.querySelector<HTMLElement>('[data-testid="filter-fields"]');
         // preventScroll: the drawer panel is still sliding in from off-screen at this point, so a plain
         // focus() would scroll the drawer's overflow container and make the canvas jump sideways
         searchInput?.focus({ preventScroll: true });
       });
-    } else {
-      selectedVizNodeIdRef.current = undefined;
     }
   }, [selectedVizNode]);
 
@@ -280,6 +309,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       sideBar={isSidebarOpen ? <CanvasSideBar vizNode={selectedVizNode} onClose={clearSelection} /> : null}
       contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
+      onFocus={handleFocus}
       onClick={handleCanvasClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
