@@ -1,5 +1,6 @@
 import { ReportMessage, SchemaAnalysisReport } from '../../../models/datamapper/schema';
 import { PathUtil } from '../../path-util';
+import { stronglyConnectedComponents } from './graph-util';
 
 interface SchemaDirective {
   type: 'include' | 'import';
@@ -461,5 +462,49 @@ export class XmlSchemaAnalysisService {
     filePaths.filter((path) => !result.includes(path)).forEach((path) => result.push(path));
 
     return result;
+  }
+
+  /**
+   * Finds the unreferenced schemas of the schema dependency graph: the files that no other file
+   * references through `xs:include` / `xs:import`. Every other file is reachable from them.
+   *
+   * Files are grouped into strongly connected components first, so that an import or include cycle
+   * yields a single unreferenced schema (the member that comes first in `fileInfos` order) instead of none.
+   * A single unreferenced schema means the whole set is already one reachable graph.
+   *
+   * @param report - Analysis report produced by {@link XmlSchemaAnalysisService.analyze}
+   * @returns Unreferenced schema file paths, in `fileInfos` (input) order
+   */
+  static findUnreferencedSchemas(report: Pick<XmlSchemaAnalysisReport, 'fileInfos' | 'edges'>): string[] {
+    return XmlSchemaAnalysisService.computeUnreferencedSchemas(Array.from(report.fileInfos.keys()), report.edges);
+  }
+
+  private static computeUnreferencedSchemas(nodes: string[], edges: DependencyEdge[]): string[] {
+    const successorsOf = new Map<string, string[]>(nodes.map((node) => [node, []]));
+    for (const edge of edges) {
+      successorsOf.get(edge.from)?.push(edge.to);
+    }
+    const components = stronglyConnectedComponents(nodes, (node) => successorsOf.get(node) ?? []);
+    const componentOf = new Map<string, number>();
+    components.forEach((component, index) => {
+      for (const node of component) componentOf.set(node, index);
+    });
+
+    const hasIncoming = new Set<number>();
+    for (const edge of edges) {
+      const from = componentOf.get(edge.from);
+      const to = componentOf.get(edge.to);
+      if (from !== undefined && to !== undefined && from !== to) {
+        hasIncoming.add(to);
+      }
+    }
+
+    const order = new Map(nodes.map((node, index) => [node, index]));
+    const byInputOrder = (a: string, b: string) => (order.get(a) ?? 0) - (order.get(b) ?? 0);
+
+    return components
+      .filter((_component, index) => !hasIncoming.has(index))
+      .map((component) => [...component].sort(byInputOrder)[0])
+      .sort(byInputOrder);
   }
 }
