@@ -12,16 +12,18 @@ Extension-specific contribution guidance (development launch, debug, release pro
 
 All commands run from `packages/kaoto-vscode/` unless stated otherwise.
 
-| Task                         | Command                |
-| ---------------------------- | ---------------------- |
-| Compile TypeScript + webpack | `yarn run compile`     |
-| Watch mode (dev)             | `yarn run watch`       |
-| Production build             | `yarn run build:prod`  |
-| Development build            | `yarn run build:dev`   |
-| Lint                         | `yarn run lint`        |
-| Unit tests                   | `yarn run test:unit`   |
-| Build VSIX package           | `yarn run build:vsix`  |
-| Web mode (browser env)       | `yarn run run:webmode` |
+| Task                                      | Command                |
+| ----------------------------------------- | ---------------------- |
+| Compile TypeScript + webpack              | `yarn run compile`     |
+| Watch mode (dev)                          | `yarn run watch`       |
+| Build (webview + extension, as CI)        | `yarn run build`       |
+| Production build                          | `yarn run build:prod`  |
+| Development build                         | `yarn run build:dev`   |
+| Lint                                      | `yarn run lint`        |
+| Unit tests                                | `yarn run test:unit`   |
+| Unit tests with coverage, as CI runs them | `yarn run test`        |
+| Build VSIX package                        | `yarn run build:vsix`  |
+| Web mode (browser env)                    | `yarn run run:webmode` |
 
 ### Definition of Done for this package
 

@@ -14,7 +14,8 @@
   "homepage": "https://kaoto.io/",
   "author": "The Kaoto Team",
   "scripts": {
-    "build:prod": "yarn workspace @kaoto/kaoto build:webview && rimraf dist && yarn run compile && yarn run lint",
+    "build": "yarn workspace @kaoto/kaoto build:webview && rimraf dist && yarn run compile",
+    "build:prod": "yarn run build && yarn run lint",
     "build:dev": "rimraf dist && yarn run watch && yarn run lint",
     "build:test:unit": "tsc --project tsconfig.unit-tests.json && vite build --config vite.config.unit-tests.mjs",
     "build:vsix": "yarn vsce package --no-dependencies --yarn",
@@ -22,6 +23,7 @@
     "sbom:generate": "cdxgen -o manifest.json",
     "watch": "webpack --env dev",
     "run:webmode": "yarn vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --open-devtools ./resources",
+    "test": "yarn test:unit --coverage",
     "test:unit": "yarn build:test:unit && vscode-test",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "yarn lint --fix"

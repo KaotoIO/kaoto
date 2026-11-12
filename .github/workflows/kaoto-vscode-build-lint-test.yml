@@ -12,16 +12,14 @@ on:
         required: false
         type: boolean
         default: true
-    secrets:
-      CODECOV_TOKEN:
-        description: Token used to upload the unit test coverage to Codecov
-        required: false
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  # Builds the VSIX that the UI tests install. The extension's lint, build and unit tests run in its Packages job in
+  # build-lint-test.yml, like those of every other workspace.
+  vsix:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
@@ -42,29 +40,12 @@ jobs:
 
       - name: Setup tools
         uses: ./.github/actions/kaoto-vscode-setup-tools
-        with:
-          allow-unprivileged-userns: 'true'
 
       - name: Install dependencies
         run: yarn install --immutable --mode=skip-build
 
-      - name: Build webview, build and lint extension
-        run: yarn workspace vscode-kaoto build:prod
-
-      - name: Build and lint UI tests
-        run: |
-          yarn workspace @kaoto/ui-tests-vscode build
-          yarn workspace @kaoto/ui-tests-vscode lint
-
-      - name: Run unit tests
-        run: xvfb-run -a yarn workspace vscode-kaoto test:unit --coverage
-
-      - name: Upload unit test coverage
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/kaoto-vscode/coverage/lcov.info
-          flags: vscode
+      - name: Build webview and extension
+        run: yarn workspace vscode-kaoto build
 
       - name: Build VSIX
         run: yarn workspace vscode-kaoto build:vsix --out kaoto-ci.vsix
@@ -77,18 +58,9 @@ jobs:
           if-no-files-found: error
           retention-days: 2
 
-      - name: Upload unit test logs
-        if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: unit-test-logs
-          path: packages/kaoto-vscode/.vscode-test/user-data/logs/*
-          include-hidden-files: true
-          retention-days: 2
-
   ui-tests:
-    needs: build
+    needs: vsix
     uses: ./.github/workflows/kaoto-vscode-ui-tests.yml
     with:
       vsix-artifact-name: vscode-kaoto-vsix
-      matrix: ${{ needs.build.outputs.ui-test-matrix }}
+      matrix: ${{ needs.vsix.outputs.ui-test-matrix }}

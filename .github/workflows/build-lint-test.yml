@@ -40,11 +40,9 @@ jobs:
     name: Select CI jobs
     runs-on: ubuntu-latest
     outputs:
-      # JSON arrays of workspace names: those that hold a changed file, those plus their dependents, and the
-      # affected ones that get a Packages job each because no other job checks them.
+      # JSON arrays of workspace names: those that hold a changed file, and those plus their dependents.
       changed: ${{ steps.select.outputs.changed }}
       affected: ${{ steps.select.outputs.affected }}
-      packages: ${{ steps.select.outputs.packages }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -79,11 +77,9 @@ jobs:
           list() { yarn workspaces list "${since[@]}" "$@" --json | jq -sc 'map(select(.location != ".") | .name // .location)'; }
           changed=$(list)
           affected=$(list --recursive)
-          packages=$(jq -c 'map(select(IN("vscode-kaoto", "@kaoto/ui-tests-vscode") | not))' <<<"$affected")
           {
             echo "changed=$changed"
             echo "affected=$affected"
-            echo "packages=$packages"
           } | tee -a "$GITHUB_OUTPUT"
 
   # Lint, build and test each affected workspace in a job of its own, shown as e.g. "Packages (@kaoto/forms)",
@@ -93,12 +89,15 @@ jobs:
   packages:
     name: Packages
     needs: changes
-    if: needs.changes.outputs.packages != '[]'
+    if: needs.changes.outputs.affected != '[]'
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ fromJSON(needs.changes.outputs.packages) }}
+        package: ${{ fromJSON(needs.changes.outputs.affected) }}
     runs-on: ubuntu-latest
+    # As for the VSIX job of the VS Code workflow, so that a VS Code instance that hangs in the extension's tests
+    # stops the job.
+    timeout-minutes: 30
     env:
       PACKAGE: ${{ matrix.package }}
     steps:
@@ -116,6 +115,14 @@ jobs:
           distribution: temurin
           java-version: '21'
           cache: maven
+      # The tests of the VS Code extension start VS Code, which needs unprivileged user namespaces on Ubuntu and
+      # a display. The display runs until the job ends; the other workspaces need neither.
+      - name: Set up VS Code for the extension's tests
+        if: matrix.package == 'vscode-kaoto'
+        run: |
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+          Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
+          echo "DISPLAY=:99" >> "$GITHUB_ENV"
       - name: Install dependencies
         run: yarn install --immutable --mode=skip-build
       - name: Lint
@@ -151,11 +158,28 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/kaoto-web/coverage/lcov.info
           flags: web
+      - name: Upload VS Code coverage
+        if: hashFiles('packages/kaoto-vscode/coverage/lcov.info') != ''
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: packages/kaoto-vscode/coverage/lcov.info
+          flags: vscode
+      # The logs of the VS Code instance that ran the extension's tests.
+      - name: Upload VS Code test logs
+        if: failure() && matrix.package == 'vscode-kaoto'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unit-test-logs
+          path: packages/kaoto-vscode/.vscode-test/user-data/logs/*
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 2
 
   # The UI tests of the extension depend on it, so a change in the extension, its UI tests or a package the
-  # extension embeds affects them. This job then runs the smoke test groups listed in
+  # extension embeds affects them. This job then builds the VSIX and runs the smoke test groups listed in
   # packages/ui-tests-vscode/package.json, or every group listed there if the extension or its UI tests changed
-  # (KaotoIO/kaoto#3852).
+  # (KaotoIO/kaoto#3852). The extension's lint, build and unit tests run in its Packages job.
   vscode:
     name: VS Code
     needs: changes
@@ -166,7 +190,6 @@ jobs:
         ${{ contains(fromJSON(needs.changes.outputs.changed), 'vscode-kaoto') ||
         contains(fromJSON(needs.changes.outputs.changed), '@kaoto/ui-tests-vscode') }}
       full-matrix: false
-    secrets: inherit
 
   # Cypress tests the UI through the end-to-end specs of the UI tests package.
   e2e:
