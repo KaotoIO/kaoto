@@ -6,7 +6,7 @@ import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, use
 
 import { IDataTestID } from '../../../models';
 import { MappingItem } from '../../../models/datamapper/mapping';
-import { FieldItemNodeData, NodeData } from '../../../models/datamapper/visualization';
+import { CopyOfFieldNodeData, FieldItemNodeData, NodeData } from '../../../models/datamapper/visualization';
 import { MappingValidationService } from '../../../services/visualization/mapping-validation.service';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { CommentModal } from '../actions/MappingMenu/Comment/CommentModal';
@@ -80,7 +80,10 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
   const isAttributeField = VisualizationUtilService.isAttributeField(nodeData);
   const isDraggable = MappingValidationService.isDraggable(nodeData);
   const isSource = nodeData.isSource;
-  const optionalGuard = nodeData instanceof FieldItemNodeData ? nodeData.autoOptionalIfItem : undefined;
+  const optionalGuard =
+    nodeData instanceof FieldItemNodeData || nodeData instanceof CopyOfFieldNodeData
+      ? nodeData.autoOptionalIfItem
+      : undefined;
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [isGuardCommentModalOpen, setIsGuardCommentModalOpen] = useState(false);
 

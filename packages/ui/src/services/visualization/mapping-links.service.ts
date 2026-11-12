@@ -26,6 +26,7 @@ import {
   VARIABLES_SECTION_ANCHOR,
 } from '../../models/datamapper';
 import { DocumentService } from '../document/document.service';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { MappingService } from '../mapping/mapping.service';
 import { XPathService } from '../xpath/xpath.service';
 import { TargetRenderService } from './target-render.service';
@@ -96,6 +97,11 @@ export class MappingLinksService {
   }
 
   private static getOwnLineStyle(item: MappingTree | MappingItem, context: IMappingLinkContext): MappingLineStyle {
+    // A copy-of drawn on a field row copies that whole container, whatever its parent's style is.
+    const inlineField = item instanceof CopyOfSelector ? CopyOfPlacementService.getInlineField(item) : undefined;
+    if (inlineField) {
+      return DocumentService.hasChildren(inlineField) ? MappingLineStyle.COPY_OF : MappingLineStyle.REGULAR;
+    }
     if (!(item instanceof FieldItem)) return MappingLineStyle.REGULAR;
     const lineStyle = MappingLinksService.classifyContainerLineStyle(item, context.renderIndex);
     return lineStyle === MappingLineStyle.COMPLETE && MappingLinksService.hasExtraSourceChildren(item, context)
@@ -263,9 +269,16 @@ export class MappingLinksService {
     const targetChildren = item.field.fields.filter((f) => !VisualizationUtilService.isWrapperField(f));
     if (childFieldItems.length < targetChildren.length) return MappingLineStyle.PARTIAL;
 
+    // A copy-of absorbed by a guard comes from the render snapshot; its live expression may have been edited
+    // off a field since, in which case it has no field to look at.
+    const fieldOf = (child: FieldItem | CopyOfSelector) =>
+      child instanceof CopyOfSelector ? CopyOfPlacementService.getInlineField(child) : child.field;
     const allContainerChildrenCopyOf = childFieldItems
-      .filter((child) => DocumentService.hasChildren(child.field))
-      .every((child) => MappingLinksService.hasCopyOfDescendant(child));
+      .filter((child) => {
+        const field = fieldOf(child);
+        return !!field && DocumentService.hasChildren(field);
+      })
+      .every((child) => child instanceof CopyOfSelector || MappingLinksService.hasCopyOfDescendant(child));
 
     return allContainerChildrenCopyOf ? MappingLineStyle.COMPLETE : MappingLineStyle.PARTIAL;
   }
@@ -276,7 +289,10 @@ export class MappingLinksService {
     const mappedSourceChildren = new Set<string>();
 
     for (const child of childFieldItems) {
-      const vs = child.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined;
+      const vs =
+        child instanceof CopyOfSelector
+          ? child
+          : (child.children.find((c) => c instanceof ValueSelector) as ValueSelector | undefined);
       if (!vs || !isExpressionHolder(vs)) continue;
       const resolved = MappingService.resolveSourceFields(vs, context.sourceParameterMap, context.sourceBody);
       for (const { field } of resolved) {

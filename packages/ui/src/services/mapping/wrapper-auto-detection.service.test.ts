@@ -11,7 +11,6 @@ import {
 } from '../../models/datamapper/document';
 import {
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachItem,
   IfItem,
@@ -117,6 +116,86 @@ describe('WrapperAutoDetectionService', () => {
       const subs = targetDoc.definition.fieldSubstitutions;
       expect(subs).toBeDefined();
       expect(subs!.some((s) => s.name.includes('Nickname'))).toBe(true);
+    });
+
+    it('should set selectedMemberQName when a bare copy-of resolves to the abstract member', () => {
+      const targetDoc = createTargetDoc(getFieldSubstitutionXsd(), 'FieldSubstitution.xsd');
+      const xslt = makeXslt(
+        { ns0: NS_SUBSTITUTION },
+        `    <ns0:Zoo>
+      <xsl:copy-of select="/ns0:Zoo/ns0:Nickname"/>
+    </ns0:Zoo>`,
+      );
+
+      const mappingTree = deserializeAndAutoDetect(xslt, targetDoc);
+      const abstractLabel = targetDoc.fields[0].fields.find(
+        (f) => f.wrapperKind === 'abstract' && f.name === 'AbstractLabel',
+      );
+      expect(abstractLabel).toBeDefined();
+      expect(abstractLabel!.selectedMemberQName).toBeDefined();
+      expect(abstractLabel!.selectedMemberQName!.getLocalPart()).toBe('Nickname');
+
+      const zooFieldItem = mappingTree.children[0] as FieldItem;
+      const copyOf = zooFieldItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
+      expect(copyOf).toBeDefined();
+
+      const subs = targetDoc.definition.fieldSubstitutions;
+      expect(subs).toBeDefined();
+      expect(subs!.some((s) => s.name.includes('Nickname'))).toBe(true);
+    });
+
+    it('should NOT auto-detect when a bare copy-of is not 1-to-1 with the abstract member', () => {
+      const targetDoc = createTargetDoc(getFieldSubstitutionXsd(), 'FieldSubstitution.xsd');
+      const xslt = makeXslt(
+        { ns0: NS_SUBSTITUTION },
+        `    <ns0:Zoo>
+      <xsl:copy-of select="/ns0:Zoo/ns0:Nickname, /ns0:Zoo/ns0:Other"/>
+    </ns0:Zoo>`,
+      );
+
+      deserializeAndAutoDetect(xslt, targetDoc);
+      const abstractLabel = targetDoc.fields[0].fields.find(
+        (f) => f.wrapperKind === 'abstract' && f.name === 'AbstractLabel',
+      );
+      expect(abstractLabel!.selectedMemberQName).toBeUndefined();
+    });
+
+    it('should NOT auto-detect when a bare copy-of is inside xsl:if', () => {
+      const targetDoc = createTargetDoc(getFieldSubstitutionXsd(), 'FieldSubstitution.xsd');
+      const xslt = makeXslt(
+        { ns0: NS_SUBSTITUTION },
+        `    <ns0:Zoo>
+      <xsl:if test="true()">
+        <xsl:copy-of select="/ns0:Zoo/ns0:Nickname"/>
+      </xsl:if>
+    </ns0:Zoo>`,
+      );
+
+      deserializeAndAutoDetect(xslt, targetDoc);
+      const abstractLabel = targetDoc.fields[0].fields.find(
+        (f) => f.wrapperKind === 'abstract' && f.name === 'AbstractLabel',
+      );
+      expect(abstractLabel!.selectedMemberQName).toBeUndefined();
+    });
+
+    it('should not let a rejected conditional candidate block a later unconditional one for the same wrapper', () => {
+      const targetDoc = createTargetDoc(getFieldSubstitutionXsd(), 'FieldSubstitution.xsd');
+      const xslt = makeXslt(
+        { ns0: NS_SUBSTITUTION },
+        `    <ns0:Zoo>
+      <xsl:if test="true()">
+        <ns0:Nickname>conditional</ns0:Nickname>
+      </xsl:if>
+      <ns0:Nickname>unconditional</ns0:Nickname>
+    </ns0:Zoo>`,
+      );
+
+      deserializeAndAutoDetect(xslt, targetDoc);
+      const abstractLabel = targetDoc.fields[0].fields.find(
+        (f) => f.wrapperKind === 'abstract' && f.name === 'AbstractLabel',
+      );
+      expect(abstractLabel!.selectedMemberQName).toBeDefined();
+      expect(abstractLabel!.selectedMemberQName!.getLocalPart()).toBe('Nickname');
     });
 
     it('should NOT auto-detect when abstract wrapper has maxOccurs > 1', () => {
@@ -279,6 +358,59 @@ describe('WrapperAutoDetectionService', () => {
       <ns0:Short>
         <xsl:if test="true()">
           <ns0:Webhook><ns0:url>http://example.com</ns0:url></ns0:Webhook>
+        </xsl:if>
+      </ns0:Short>
+    </ns0:Notification>`,
+      );
+
+      deserializeAndAutoDetect(xslt, targetDoc);
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short');
+      const choiceWrapper = short!.fields.find((f) => f.wrapperKind === 'choice');
+      expect(choiceWrapper!.selectedMemberIndex).toBeUndefined();
+    });
+
+    it('should set selectedMemberIndex when a bare copy-of resolves to the choice member', () => {
+      const targetDoc = createTargetDoc(getChoiceWithAbstractXsd(), 'ChoiceWithAbstract.xsd', {
+        rootElementChoice: NOTIFICATION_ROOT,
+      });
+      const xslt = makeXslt(
+        { ns0: NS_CHOICE_ABSTRACT },
+        `    <ns0:Notification>
+      <ns0:Short>
+        <xsl:copy-of select="/ns0:Notification/ns0:Short/ns0:Webhook"/>
+      </ns0:Short>
+    </ns0:Notification>`,
+      );
+
+      const mappingTree = deserializeAndAutoDetect(xslt, targetDoc);
+      const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short');
+      const choiceWrapper = short!.fields.find((f) => f.wrapperKind === 'choice');
+      expect(choiceWrapper).toBeDefined();
+      const webhookMember = choiceWrapper!.fields.find((f) => f.name === 'Webhook');
+      expect(choiceWrapper!.selectedMemberIndex).toBe(choiceWrapper!.fields.indexOf(webhookMember!));
+
+      const notifFieldItem = mappingTree.children[0] as FieldItem;
+      const shortFieldItem = notifFieldItem.children.find(
+        (c) => c instanceof FieldItem && c.field.name === 'Short',
+      ) as FieldItem;
+      const copyOf = shortFieldItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
+      expect(copyOf).toBeDefined();
+
+      const selections = targetDoc.definition.choiceSelections;
+      expect(selections).toBeDefined();
+      expect(selections!.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should NOT auto-detect when a bare copy-of resolving to the choice member is inside xsl:if', () => {
+      const targetDoc = createTargetDoc(getChoiceWithAbstractXsd(), 'ChoiceWithAbstract.xsd', {
+        rootElementChoice: NOTIFICATION_ROOT,
+      });
+      const xslt = makeXslt(
+        { ns0: NS_CHOICE_ABSTRACT },
+        `    <ns0:Notification>
+      <ns0:Short>
+        <xsl:if test="true()">
+          <xsl:copy-of select="/ns0:Notification/ns0:Short/ns0:Webhook"/>
         </xsl:if>
       </ns0:Short>
     </ns0:Notification>`,
@@ -759,11 +891,18 @@ describe('WrapperAutoDetectionService', () => {
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(true);
       });
 
-      it('should return true for a CopyOfType.CONTAINER_NODE selector despite its /node() suffix', () => {
-        const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+      it('should return true for a copy-of selector despite its /node() suffix', () => {
+        const selector = new CopyOfSelector(fieldItem);
         selector.expression = `${LOOP_NOTE_PATH}/node()`;
         fieldItem.children.push(selector);
         expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(fieldItem, sourceField, false)).toBe(true);
+      });
+
+      it('should return false for a bare copy-of when its field already had mapping content', () => {
+        // A copy-of standing for Item/Note on the loop's element, with the field's own item gone.
+        const copyOf = new CopyOfSelector(fieldItem.parent);
+        copyOf.expression = LOOP_NOTE_PATH;
+        expect(WrapperAutoDetectionService.shouldWrapWithOptionalGuard(copyOf, sourceField, true)).toBe(false);
       });
 
       it('should return false when the selector already carries another source', () => {
@@ -994,11 +1133,11 @@ describe('WrapperAutoDetectionService', () => {
         expect(matched).toBe(ifItem.children[0]);
       });
 
-      it('should strip the CopyOfType.CONTAINER_NODE /node() suffix before comparing', () => {
+      it('should strip the /node() suffix before comparing', () => {
         const ifItem = new IfItem(tree);
         ifItem.expression = NOTE_PATH;
         const fieldItem = new FieldItem(ifItem, targetField);
-        const selector = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+        const selector = new CopyOfSelector(fieldItem);
         selector.expression = `${NOTE_PATH}/node()`;
         fieldItem.children.push(selector);
         ifItem.children.push(fieldItem);

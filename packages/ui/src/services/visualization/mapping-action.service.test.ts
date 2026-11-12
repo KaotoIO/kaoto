@@ -10,7 +10,6 @@ import {
 import {
   ChooseItem,
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -172,7 +171,7 @@ describe('MappingActionService', () => {
     });
 
     describe('applyCopyOfSelector()', () => {
-      it('should create CONTAINER_NODE ValueSelector', () => {
+      it('should create a standalone copy-of selector', () => {
         expect(tree.children).toHaveLength(0);
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
@@ -183,10 +182,21 @@ describe('MappingActionService', () => {
         expect(orderIdFI.children).toHaveLength(1);
         const vs = orderIdFI.children[0] as CopyOfSelector;
         expect(vs).toBeInstanceOf(CopyOfSelector);
-        expect(vs.valueType).toBe(CopyOfType.CONTAINER_NODE);
       });
 
-      it('should allow multiple CONTAINER_NODE ValueSelectors', () => {
+      it('should focus the new copy-of selector, not its parent row', () => {
+        const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+        MappingActionService.applyCopyOfSelector(shipOrderChildren[0] as TargetNodeData);
+
+        const shipOrderFI = tree.children[0] as FieldItem;
+        const orderIdFI = shipOrderFI.children[0] as FieldItem;
+        const copyOfSelector = orderIdFI.children[0] as CopyOfSelector;
+        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(copyOfSelector.nodePath.toString());
+        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).not.toBe(orderIdFI.nodePath.toString());
+      });
+
+      it('should allow multiple copy-of selectors', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         MappingActionService.applyCopyOfSelector(shipOrderChildren[1] as TargetNodeData);
@@ -203,9 +213,7 @@ describe('MappingActionService', () => {
 
         const shipOrderFI = tree.children[0] as FieldItem;
         const orderPersonFI = shipOrderFI.children[0] as FieldItem;
-        const containerSelectors = orderPersonFI.children.filter(
-          (c) => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER_NODE,
-        );
+        const containerSelectors = orderPersonFI.children.filter((c) => c instanceof CopyOfSelector);
         expect(containerSelectors).toHaveLength(2);
       });
     });
@@ -228,7 +236,7 @@ describe('MappingActionService', () => {
         expect(MappingActionService.hasValueOfSelector(updatedShipOrderChildren[0] as TargetNodeData)).toBe(true);
       });
 
-      it('should return false when only CONTAINER ValueSelector exists', () => {
+      it('should return false when only a copy-of selector exists', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         MappingActionService.applyCopyOfSelector(shipOrderChildren[0] as TargetNodeData);
@@ -976,6 +984,33 @@ describe('MappingActionService', () => {
         expect(copyOfNodeData).toBeInstanceOf(MappingNodeData);
         MappingActionService.deleteMappingItem(copyOfNodeData);
         expect(tree.children).toHaveLength(0);
+      });
+
+      it('should report a structural change when a source is dropped onto a copy-of selector', () => {
+        const primitiveTargetDoc = new PrimitiveDocument(
+          new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+        );
+        tree = new MappingTree(
+          primitiveTargetDoc.documentType,
+          primitiveTargetDoc.documentId,
+          DocumentDefinitionType.Primitive,
+        );
+        targetDocNode = new TargetDocumentNodeData(primitiveTargetDoc, tree);
+        MappingActionService.applyCopyOfSelector(targetDocNode);
+        const copyOfNodeData = VisualizationService.generatePrimitiveDocumentChildren(
+          targetDocNode,
+        )[0] as MappingNodeData;
+        const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);
+        const sourceShipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(sourceDocChildren[0]);
+
+        const structural = MappingActionService.engageMapping(
+          tree,
+          sourceShipOrderChildren[1] as FieldNodeData,
+          copyOfNodeData,
+        );
+
+        expect(structural).toBe(true);
+        expect((tree.children[0] as CopyOfSelector).expression).toBe('/ns0:ShipOrder/ns0:OrderPerson');
       });
     });
   });
@@ -1986,6 +2021,22 @@ describe('MappingActionService', () => {
         expectNoDecisionChange(tree, renderIndex);
       });
 
+      it('should re-sync the guard test when the committed selector is a separate copy-of that reclassifies', () => {
+        const { ifItem, noteFieldItem, selector } = addNote('Note', 'Note');
+        noteFieldItem.children = [];
+        const copyOf = new CopyOfSelector(noteFieldItem);
+        copyOf.expression = 'Note';
+        noteFieldItem.children.push(copyOf);
+        const noteNode = findNoteNode(renderItemChildren(buildRenderIndex()));
+        expect(noteNode.autoOptionalIfItem).toBe(ifItem);
+        expect(selector.parent).toBe(noteFieldItem);
+
+        MappingService.updateExpression(copyOf, './Note');
+
+        expect(MappingActionService.commitExpression(noteNode, copyOf)).toBe('update');
+        expect(ifItem.expression).toBe('./Note');
+      });
+
       it('should return none when a field whose source is required commits the path it already had', () => {
         const { ifItem, selector } = addNote('Title', 'Title');
         const renderIndex = buildRenderIndex();
@@ -2108,7 +2159,7 @@ describe('MappingActionService', () => {
         const adt = setUpAdtIn();
         const { ifItem, pidFieldItem } = addGuardedPid(adt.hl7Item);
         ifItem.expression = 'exists(/HL7/PID)';
-        const copyOf = new CopyOfSelector(pidFieldItem, CopyOfType.CONTAINER_NODE);
+        const copyOf = new CopyOfSelector(pidFieldItem);
         copyOf.expression = '/HL7/PID/node()';
         pidFieldItem.children.push(copyOf);
         const ifNode = adt
@@ -2161,7 +2212,7 @@ describe('MappingActionService', () => {
       it('should remove the guard together with the emptied field when deleting the copy-of row of a guarded field', () => {
         const adt = setUpAdtIn();
         const { ifItem, pidFieldItem } = addGuardedPid(adt.hl7Item);
-        const copyOf = new CopyOfSelector(pidFieldItem, CopyOfType.CONTAINER_NODE);
+        const copyOf = new CopyOfSelector(pidFieldItem);
         copyOf.expression = '/HL7/PID/node()';
         pidFieldItem.children.push(copyOf);
         const { pidNode, selectorNode } = renderPidSelectorNode(adt.renderHl7Children(), copyOf);

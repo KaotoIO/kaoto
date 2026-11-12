@@ -11,7 +11,6 @@ import {
 } from '../../models/datamapper/document';
 import {
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -210,7 +209,7 @@ describe('TargetRenderService', () => {
       guard.expression = NOTE;
       itemItem.children.push(guard);
       const fieldItem = MappingService.createFieldItem(guard, noteField);
-      const copyOf = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+      const copyOf = new CopyOfSelector(fieldItem);
       copyOf.expression = `${NOTE}/node()`;
       fieldItem.children.push(copyOf);
 
@@ -642,7 +641,7 @@ describe('TargetRenderService', () => {
     it('should apply the snapshot absorption to the live path of an item added under an absorbed guard', () => {
       const { fieldItem } = addGuard(itemItem, noteField, NOTE);
       const renderIndex = buildIndex();
-      const copyOf = new CopyOfSelector(fieldItem, CopyOfType.CONTAINER_NODE);
+      const copyOf = new CopyOfSelector(fieldItem);
       copyOf.expression = `${NOTE}/node()`;
       fieldItem.children.push(copyOf);
       const copyOfPath = targetPath(shipOrderItem, itemLoop, itemItem, fieldItem, copyOf);
@@ -801,7 +800,7 @@ describe('TargetRenderService', () => {
 
     it('should return the field row of a selector shown as a row of its own', () => {
       const noteItem = MappingService.createFieldItem(itemItem, noteField);
-      const copyOf = new CopyOfSelector(noteItem, CopyOfType.CONTAINER_NODE);
+      const copyOf = new CopyOfSelector(noteItem);
       copyOf.expression = `${NOTE}/node()`;
       noteItem.children.push(copyOf);
       const noteNode = new FieldItemNodeData(itemNode, noteItem);
@@ -835,7 +834,7 @@ describe('TargetRenderService', () => {
     });
 
     it('should return a container copy-of, which has a row of its own', () => {
-      const copyOf = new CopyOfSelector(itemItem, CopyOfType.CONTAINER_NODE);
+      const copyOf = new CopyOfSelector(itemItem);
       copyOf.expression = '/ns0:ShipOrder/Item/node()';
       itemItem.children.push(copyOf);
 

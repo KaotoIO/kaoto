@@ -9,14 +9,7 @@ import {
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import {
-  CopyOfType,
-  FieldItem,
-  IfItem,
-  MappingParentType,
-  MappingTree,
-  VariableItem,
-} from '../../models/datamapper/mapping';
+import { FieldItem, IfItem, MappingParentType, MappingTree, VariableItem } from '../../models/datamapper/mapping';
 import {
   DocumentNodeData,
   FieldItemNodeData,
@@ -563,7 +556,7 @@ describe('TreeUIService', () => {
     const mapSegment = (name: string) => {
       const sourceField = findField(findField(adtSourceDoc, 'HL7'), name);
       const fieldItem = MappingService.createFieldItem(hl7Item, findField(hl7Item.field, name));
-      MappingService.mapToFieldWithValueType(sourceField, fieldItem, CopyOfType.CONTAINER);
+      MappingService.mapToFieldWithCopyOf(sourceField, fieldItem);
       return { sourceField, fieldItem };
     };
 

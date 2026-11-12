@@ -2,7 +2,6 @@ import { IField, PrimitiveDocument } from '../../models/datamapper/document';
 import {
   ChooseItem,
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   ForEachGroupItem,
   ForEachItem,
@@ -22,6 +21,7 @@ import { Types } from '../../models/datamapper/types';
 import {
   AddMappingNodeData,
   ChoiceFieldNodeData,
+  CopyOfFieldNodeData,
   FieldItemNodeData,
   ForEachCapableNodeData,
   MappingNodeData,
@@ -36,6 +36,7 @@ import {
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingService } from '../mapping/mapping.service';
 import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
@@ -91,10 +92,12 @@ export class MappingActionService {
    * @param nodeData - the field row whose guard to remove
    * @returns the field item, or `undefined` when the row has no see-through guard
    */
-  static removeOptionalGuard(nodeData: FieldItemNodeData): FieldItem | undefined {
+  static removeOptionalGuard(
+    nodeData: FieldItemNodeData | CopyOfFieldNodeData,
+  ): FieldItem | CopyOfSelector | undefined {
     const guard = nodeData.autoOptionalIfItem;
     if (!guard) return undefined;
-    const field = nodeData.mapping;
+    const field: FieldItem | CopyOfSelector = nodeData.mapping;
     if (MappingService.unwrapItem(guard) !== field) return undefined;
     const comments = [guard.comment, field.comment].filter((comment): comment is string => !!comment);
     field.comment = comments.length > 0 ? comments.join('\n') : undefined;
@@ -145,7 +148,8 @@ export class MappingActionService {
   static restoreFocusAfterAbsorb(nodeData: TargetNodeData, expressionItem: IExpressionHolder & MappingItem) {
     if (!(expressionItem instanceof IfItem)) return;
     const field = TargetRenderService.computeSeeThroughField(expressionItem, nodeData.renderIndex.sourceContext);
-    if (!field || TargetRenderService.getSelectorInputOwner(field) !== field) return;
+    if (!field) return;
+    if (field instanceof FieldItem && TargetRenderService.getSelectorInputOwner(field) !== field) return;
     useDocumentTreeStore.getState().requestXPathInputFocus(field.nodePath.toString(), nodeData.renderIndex.generation);
   }
 
@@ -176,7 +180,10 @@ export class MappingActionService {
     } else if (nodeData instanceof AddMappingNodeData) {
       const fieldItem = MappingActionService.getOrCreateFieldItem(nodeData);
       MappingService.wrapWithIf(fieldItem);
-    } else if (nodeData instanceof FieldItemNodeData && nodeData.autoOptionalIfItem) {
+    } else if (
+      (nodeData instanceof FieldItemNodeData || nodeData instanceof CopyOfFieldNodeData) &&
+      nodeData.autoOptionalIfItem
+    ) {
       const guard = nodeData.autoOptionalIfItem;
       guard.expression = `exists(${guard.expression})`;
     } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
@@ -197,13 +204,13 @@ export class MappingActionService {
    * confirmed optional ({@link TargetRenderService}).
    * @param nodeData - the field node to wrap
    */
-  static addOptionalGuard(nodeData: FieldItemNodeData): void {
-    const fieldItem = nodeData.mapping;
-    const selector = WrapperAutoDetectionService.getHiddenGuardSelector(fieldItem);
+  static addOptionalGuard(nodeData: FieldItemNodeData | CopyOfFieldNodeData): void {
+    const item = nodeData.mapping;
+    const selector = WrapperAutoDetectionService.getHiddenGuardSelector(item);
     if (!selector) return;
 
-    MappingService.wrapWithIf(fieldItem);
-    const ifItem = fieldItem.parent as IfItem;
+    MappingService.wrapWithIf(item);
+    const ifItem = item.parent as IfItem;
     ifItem.expression = selector.sourcePath;
   }
 
@@ -230,7 +237,10 @@ export class MappingActionService {
     } else if (nodeData instanceof MappingNodeData || nodeData instanceof TargetFieldNodeData) {
       if (nodeData.mapping?.children.some((c) => c instanceof ChooseItem)) return;
 
-      if (nodeData instanceof FieldItemNodeData && nodeData.autoOptionalIfItem) {
+      if (
+        (nodeData instanceof FieldItemNodeData || nodeData instanceof CopyOfFieldNodeData) &&
+        nodeData.autoOptionalIfItem
+      ) {
         MappingActionService.wrapGuardedFieldWithChoose(nodeData, nodeData.autoOptionalIfItem);
         return;
       }
@@ -246,7 +256,7 @@ export class MappingActionService {
    * {@link MappingService.wrapWithChooseWhenOtherwise} always puts the field into a new `when` and a
    * copy of it into a new `otherwise`, which the casts rely on.
    */
-  private static wrapGuardedFieldWithChoose(nodeData: FieldItemNodeData, guard: IfItem) {
+  private static wrapGuardedFieldWithChoose(nodeData: FieldItemNodeData | CopyOfFieldNodeData, guard: IfItem) {
     const guardTest = guard.expression;
     const fieldComment = nodeData.mapping.comment;
     const field = MappingActionService.removeOptionalGuard(nodeData) ?? nodeData.mapping;
@@ -463,9 +473,9 @@ export class MappingActionService {
         ? MappingActionService.getOrCreateFieldItem(nodeData)
         : nodeData.mapping;
     if (!mapping) return;
-    const copyOfSelector = new CopyOfSelector(mapping, CopyOfType.CONTAINER_NODE);
+    const copyOfSelector = new CopyOfSelector(mapping);
     mapping.children.push(copyOfSelector);
-    useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
+    useDocumentTreeStore.getState().requestXPathInputFocus(copyOfSelector.nodePath.toString());
   }
 
   /**
@@ -479,8 +489,9 @@ export class MappingActionService {
    * {@link MappingItem} such as a `FieldItem`/`ForEachItem`/`ChooseItem` or an optional guard was
    * added, removed, or replaced), or the drop changed whether an optional guard is see-through
    * ({@link TargetRenderService.hasDecisionChanged}) — e.g. a second source dropped onto a guarded
-   * field appends to its selector, so the guard shows as a regular `if`. `false` when only an
-   * expression changed and every row stays as it is.
+   * field appends to its selector, so the guard shows as a regular `if`; or the drop updated a
+   * {@link CopyOfSelector}'s expression, which decides whether it is inlined or standalone. `false`
+   * when only an expression changed and every row stays as it is.
    */
   static engageMapping(mappingTree: MappingTree, sourceNode: SourceNodeDataType, targetNode: TargetNodeData): boolean {
     if (MappingActionService.applyEngageMapping(mappingTree, sourceNode, targetNode)) return true;
@@ -498,8 +509,19 @@ export class MappingActionService {
 
     const sourceField = 'document' in sourceNode ? (sourceNode.document as PrimitiveDocument) : sourceNode.field;
 
-    if (sourceNode instanceof ChoiceFieldNodeData && VisualizationUtilService.isFieldNode(targetNode)) {
+    if (
+      sourceNode instanceof ChoiceFieldNodeData &&
+      VisualizationUtilService.isFieldNode(targetNode) &&
+      !(targetNode instanceof CopyOfFieldNodeData)
+    ) {
       return MappingActionService.engageChoiceMapping(sourceNode, targetNode, sourceField);
+    }
+
+    if (targetNode instanceof CopyOfFieldNodeData) {
+      // Dropping onto a copy-of row adds the source to the copy-of's own expression. Its placement is
+      // judged again from the new expression, as for any other edit of it.
+      MappingService.mapToCondition(targetNode.mapping, sourceField);
+      return true;
     }
 
     const targetWasUnmapped = !targetNode.mapping;
@@ -515,7 +537,9 @@ export class MappingActionService {
       return targetWasUnmapped || wrapOrGuardChanged;
     } else if (targetNode instanceof MappingNodeData) {
       MappingService.mapToCondition(targetNode.mapping, sourceField);
-      return false;
+      // A copy-of selector's expression decides whether it is inlined on its field row or kept as a
+      // standalone node, so the tree must be rebuilt for `filterMappingsForField()` to re-place it.
+      return targetNode.mapping instanceof CopyOfSelector;
     } else if (targetNode instanceof TargetDocumentNodeData) {
       const hadRootValueSelector = mappingTree.children.some((c) => c instanceof ValueOfSelector);
       MappingService.mapToDocument(mappingTree, sourceField);
@@ -641,7 +665,7 @@ export class MappingActionService {
     if (anyTypeInvolved && (!sourceHasChildren || !targetHasChildren)) {
       const item = MappingActionService.getOrCreateFieldItem(targetNode);
       const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(item, sourceFieldFromNode, () => {
-        MappingService.mapToFieldWithValueType(sourceFieldFromNode, item, CopyOfType.CONTAINER_NODE);
+        MappingService.mapToFieldWithCopyOf(sourceFieldFromNode, item, true);
       });
       return { handled: true, structural: structural || wrapOrGuardChanged };
     }
@@ -665,10 +689,13 @@ export class MappingActionService {
     // generateAutoChildMappings (the non-copy-of branch of applyContainerMapping) always adds new
     // child FieldItems, so it's structural regardless of whether `item` itself pre-existed.
     const canUseCopyOf = FieldMatchingService.canUseCopyOf(sourceFieldFromNode, targetFieldFromNode);
-    const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(item, sourceFieldFromNode, () => {
-      MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item);
-    });
-    return { handled: true, structural: structural || !canUseCopyOf || wrapOrGuardChanged };
+    const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(item, sourceFieldFromNode, () =>
+      MappingService.applyContainerMapping(sourceFieldFromNode, targetFieldFromNode, item),
+    );
+    // The copy-of may have taken the place of the empty field item the row was drawn from, which only a
+    // rebuild of the tree can reflect.
+    const itemReplaced = !item.parent.children.includes(item);
+    return { handled: true, structural: structural || !canUseCopyOf || wrapOrGuardChanged || itemReplaced };
   }
 
   /**
@@ -681,10 +708,14 @@ export class MappingActionService {
    * {@link TargetRenderService.hasDecisionChanged}.
    * @returns whether a guard was created, which changes the tree's shape
    */
-  private static applyFieldMappingWithGuard(item: MappingItem, sourceField: IField, mutate: () => void): boolean {
+  private static applyFieldMappingWithGuard(
+    item: MappingItem,
+    sourceField: IField,
+    mutate: () => MappingItem | void,
+  ): boolean {
     const hadExistingContent = MappingActionService.hasMappingContent(item);
-    mutate();
-    return !!MappingService.tryAutoOptionalIfWrap(item, sourceField, hadExistingContent);
+    const mapped = mutate() ?? item;
+    return !!MappingService.tryAutoOptionalIfWrap(mapped, sourceField, hadExistingContent);
   }
 
   /**
@@ -737,12 +768,7 @@ export class MappingActionService {
     MappingService.mapToCondition(forEachItem, sourceField);
 
     const innerFieldItem = MappingService.createFieldItem(forEachItem, targetField);
-    if (FieldMatchingService.canUseCopyOf(sourceField, targetField)) {
-      const valueType = MappingService.getContainerValueType(sourceField, targetField);
-      MappingService.mapToFieldWithValueType(sourceField, innerFieldItem, valueType);
-    } else {
-      MappingService.generateAutoChildMappings(sourceField, targetField, innerFieldItem);
-    }
+    MappingService.applyContainerMapping(sourceField, targetField, innerFieldItem);
 
     MappingActionService.insertInTargetOrder(parentOfItem, forEachItem, targetField);
   }
@@ -769,6 +795,7 @@ export class MappingActionService {
 
   private static getFirstTargetField(item: MappingItem): IField | undefined {
     if (item instanceof FieldItem) return item.field;
+    if (item instanceof CopyOfSelector) return CopyOfPlacementService.getInlineField(item);
     for (const child of item.children) {
       const field = MappingActionService.getFirstTargetField(child);
       if (field) return field;
@@ -877,12 +904,27 @@ export class MappingActionService {
   }
 
   /**
+   * Gives a copy-of row the {@link FieldItem} its children need, in the copy-of's place. Mapping a child of a
+   * copied container explicitly replaces the wholesale copy: otherwise the output would both copy the
+   * subtree and emit the child. A guard around the copy-of ends up around the field item.
+   */
+  private static materializeCopyOfField(nodeData: CopyOfFieldNodeData): FieldItem {
+    const copyOf = nodeData.mapping;
+    const parent = copyOf.parent;
+    const fieldItem = new FieldItem(parent, nodeData.field);
+    fieldItem.comment = copyOf.comment;
+    parent.children = parent.children.map((child) => (child === copyOf ? fieldItem : child));
+    return fieldItem;
+  }
+
+  /**
    * Recursively resolves or creates ancestor {@link FieldItem}s for a node's
    * parent chain, skipping schema-structural nodes that produce no XML element:
    * unselected xs:choice wrappers, unselected abstract wrappers, and
    * xs:sequence containers.
    */
   private static getOrCreateParentFieldItem(nodeData: TargetNodeData): MappingItem {
+    if (nodeData instanceof CopyOfFieldNodeData) return MappingActionService.materializeCopyOfField(nodeData);
     if (nodeData.mapping) return nodeData.mapping as MappingItem;
     const fieldNodeData = nodeData as TargetFieldNodeData;
     if (fieldNodeData instanceof TargetChoiceFieldNodeData && !fieldNodeData.choiceField) {
@@ -902,14 +944,14 @@ export class MappingActionService {
    * Drops the enclosing container's wholesale copy-of once one of its children is mapped
    * explicitly, since otherwise the output both copies the subtree and emits the child.
    *
-   * Walks to the owning container rather than reading `item.parent`: after an auto-optional wrap
-   * the immediate parent is the guard, and scanning its children finds nothing.
+   * Only a copy-of inside the container's field item is dropped here. One that stood for the container
+   * on its own row is replaced by the field item beforehand ({@link materializeCopyOfField}).
    */
   private static removeParentContainerCopyOf(item: MappingItem): void {
     const container = MappingService.findEnclosingFieldItem(item);
     if (!(container instanceof FieldItem)) return;
     container.children = container.children.filter(
-      (c) => !(c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER),
+      (c) => !(c instanceof CopyOfSelector && CopyOfPlacementService.selectsElementOf(c, container)),
     );
   }
 }

@@ -16,12 +16,15 @@ import {
 } from '../../models/datamapper/mapping';
 import { NodePath } from '../../models/datamapper/nodepath';
 import {
+  CopyOfFieldNodeData,
+  CopyOfRenderPlacement,
   ExpressionHolderNodeData,
   FieldItemNodeData,
   ISourceDocumentContext,
   MappingNodeData,
   TargetRenderIndex,
 } from '../../models/datamapper/visualization';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { MappingService } from '../mapping/mapping.service';
 import { WrapperAutoDetectionService } from '../mapping/wrapper-auto-detection.service';
 import { VisualizationUtilService } from './visualization-util.service';
@@ -63,11 +66,11 @@ export class TargetRenderService {
     ifItem: IfItem,
     sourceContext: ISourceDocumentContext | undefined,
     test: string = ifItem.expression,
-  ): FieldItem | undefined {
-    const fieldItem = WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem, test);
-    const selector = fieldItem?.soleSelector;
-    if (!fieldItem || !selector) return undefined;
-    return TargetRenderService.isOptionalSourceSelector(selector, sourceContext) ? fieldItem : undefined;
+  ): FieldItem | CopyOfSelector | undefined {
+    const guarded = WrapperAutoDetectionService.matchSimpleOptionalGuard(ifItem, test);
+    const selector = guarded instanceof CopyOfSelector ? guarded : guarded?.soleSelector;
+    if (!guarded || !selector) return undefined;
+    return TargetRenderService.isOptionalSourceSelector(selector, sourceContext) ? guarded : undefined;
   }
 
   /**
@@ -101,7 +104,7 @@ export class TargetRenderService {
    * of the node's snapshot. The menu shows the action only when this holds.
    * @param nodeData - the field row the action would apply to
    */
-  static canAddOptionalGuard(nodeData: FieldItemNodeData): boolean {
+  static canAddOptionalGuard(nodeData: FieldItemNodeData | CopyOfFieldNodeData): boolean {
     const selector = WrapperAutoDetectionService.getHiddenGuardSelector(nodeData.mapping);
     return !!selector && TargetRenderService.isOptionalSourceSelector(selector, nodeData.renderIndex.sourceContext);
   }
@@ -115,8 +118,9 @@ export class TargetRenderService {
    * @param sourceContext - the source documents the decisions are made against
    */
   static buildIndex(mappingTree: MappingTree, sourceContext: ISourceDocumentContext): TargetRenderIndex {
-    const absorbedFields = new Map<IfItem, FieldItem>();
+    const absorbedFields = new Map<IfItem, FieldItem | CopyOfSelector>();
     const targetPaths = new Map<MappingItem, string>();
+    const copyOfPlacements = new Map<CopyOfSelector, CopyOfRenderPlacement>();
     const visit = (item: MappingItem, parentPath: NodePath): void => {
       const absorbingField =
         item instanceof IfItem ? TargetRenderService.computeSeeThroughField(item, sourceContext) : undefined;
@@ -127,6 +131,7 @@ export class TargetRenderService {
         path = TargetRenderService.childTargetPath(item, parentPath);
         targetPaths.set(item, path.toString());
       }
+      if (item instanceof CopyOfSelector) copyOfPlacements.set(item, TargetRenderService.getCopyOfPlacement(item));
       for (const child of item.children) {
         visit(child, path);
       }
@@ -135,7 +140,13 @@ export class TargetRenderService {
       visit(child, mappingTree.nodePath);
     }
     TargetRenderService.lastGeneration += 1;
-    return new TargetRenderIndex(absorbedFields, targetPaths, sourceContext, TargetRenderService.lastGeneration);
+    return new TargetRenderIndex(
+      absorbedFields,
+      targetPaths,
+      sourceContext,
+      TargetRenderService.lastGeneration,
+      copyOfPlacements,
+    );
   }
 
   /**
@@ -180,15 +191,17 @@ export class TargetRenderService {
   }
 
   /**
-   * The child fields `fieldItem` renders: its direct `FieldItem` children, plus the fields absorbed
+   * The child fields `fieldItem` renders: its direct `FieldItem` children, the copy-ofs drawn on a field row, plus the fields absorbed
    * from see-through guard children, which are shown as plain field rows.
    * @param fieldItem - the container field item
    * @param renderIndex - the render index whose absorption decisions apply
    */
-  static getRenderedChildFields(fieldItem: FieldItem, renderIndex: TargetRenderIndex): FieldItem[] {
-    const fields: FieldItem[] = [];
+  static getRenderedChildFields(fieldItem: FieldItem, renderIndex: TargetRenderIndex): (FieldItem | CopyOfSelector)[] {
+    const fields: (FieldItem | CopyOfSelector)[] = [];
     for (const child of fieldItem.children) {
       if (child instanceof FieldItem) {
+        fields.push(child);
+      } else if (child instanceof CopyOfSelector && CopyOfPlacementService.getInlineField(child)) {
         fields.push(child);
       } else if (child instanceof IfItem) {
         const absorbedField = renderIndex.getAbsorbingField(child);
@@ -240,8 +253,8 @@ export class TargetRenderService {
   static findGuardOwner(
     nodeData: ExpressionHolderNodeData,
     mapping: MappingParentType | IExpressionHolder | undefined,
-  ): FieldItemNodeData | undefined {
-    if (nodeData instanceof FieldItemNodeData) return nodeData;
+  ): FieldItemNodeData | CopyOfFieldNodeData | undefined {
+    if (nodeData instanceof FieldItemNodeData || nodeData instanceof CopyOfFieldNodeData) return nodeData;
     if (
       nodeData instanceof MappingNodeData &&
       nodeData.parent instanceof FieldItemNodeData &&
@@ -263,7 +276,24 @@ export class TargetRenderService {
     return selector && !VisualizationUtilService.isInlineValueSelector(selector) ? selector : fieldItem;
   }
 
+  private static getCopyOfPlacement(selector: CopyOfSelector): CopyOfRenderPlacement {
+    const anchorFields = [...CopyOfPlacementService.getAnchorFields(selector)].sort(
+      (a, b) => a.parent.fields.indexOf(a) - b.parent.fields.indexOf(b),
+    );
+    return {
+      field: CopyOfPlacementService.getInlineField(selector),
+      anchor: anchorFields[0],
+      leads: CopyOfPlacementService.isLeadingCopyOf(selector),
+    };
+  }
+
   private static isDecisionChanged(item: MappingItem, renderIndex: TargetRenderIndex): boolean {
+    if (item instanceof CopyOfSelector) {
+      const snapshot = renderIndex.getCopyOfPlacement(item);
+      if (!snapshot) return renderIndex.hasSnapshot;
+      const live = TargetRenderService.getCopyOfPlacement(item);
+      return snapshot.field !== live.field || snapshot.anchor !== live.anchor || snapshot.leads !== live.leads;
+    }
     if (!(item instanceof IfItem)) return false;
     const isSeeThrough = !!TargetRenderService.computeSeeThroughField(item, renderIndex.sourceContext);
     return isSeeThrough !== renderIndex.isAbsorbed(item);

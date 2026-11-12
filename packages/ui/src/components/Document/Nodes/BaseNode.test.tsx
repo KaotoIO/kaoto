@@ -18,6 +18,7 @@ import {
 } from '../../../models/datamapper/mapping';
 import {
   AddMappingNodeData,
+  CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -602,7 +603,7 @@ describe('BaseNode', () => {
   });
 
   describe('Optional guard comment', () => {
-    let guardedRow: FieldItemNodeData;
+    let guardedRow: FieldItemNodeData | CopyOfFieldNodeData;
     let guard: IfItem;
     let mockOnUpdate: Mock;
 

@@ -1,7 +1,6 @@
 import { IField, IParentType } from '../../models/datamapper/document';
 import {
   CopyOfSelector,
-  CopyOfType,
   FieldItem,
   MappingItem,
   ValueOfSelector,
@@ -12,6 +11,7 @@ import {
   AbstractFieldNodeData,
   AddMappingNodeData,
   ChoiceFieldNodeData,
+  CopyOfFieldNodeData,
   FieldItemNodeData,
   FieldNodeData,
   MappingNodeData,
@@ -256,14 +256,22 @@ export class VisualizationUtilService {
    * @param nodeData - The node to extract the field from.
    */
   static getField(nodeData: NodeData): IField | undefined {
-    if (nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData) {
+    if (
+      nodeData instanceof FieldNodeData ||
+      nodeData instanceof FieldItemNodeData ||
+      nodeData instanceof CopyOfFieldNodeData
+    ) {
       return nodeData.field;
     }
     return undefined;
   }
 
-  static isFieldNode(nodeData: NodeData): nodeData is FieldItemNodeData | TargetFieldNodeData {
-    return nodeData instanceof FieldItemNodeData || nodeData instanceof TargetFieldNodeData;
+  static isFieldNode(nodeData: NodeData): nodeData is FieldItemNodeData | TargetFieldNodeData | CopyOfFieldNodeData {
+    return (
+      nodeData instanceof FieldItemNodeData ||
+      nodeData instanceof TargetFieldNodeData ||
+      nodeData instanceof CopyOfFieldNodeData
+    );
   }
 
   static isMappingNode(nodeData: NodeData): nodeData is MappingNodeData {
@@ -271,26 +279,22 @@ export class VisualizationUtilService {
   }
 
   /**
-   * Returns the inline `CONTAINER`-typed {@link CopyOfSelector} for a {@link FieldItemNodeData}
-   * whose mapping is a {@link FieldItem}, or `undefined` if no such selector exists.
-   * Used by {@link FieldNodeTitle} to render the "copy" badge on container fields.
+   * Returns the {@link CopyOfSelector} drawn on a field row, for {@link FieldNodeTitle} to render the
+   * "copy" badge on container fields, or `undefined` for any other node.
    */
   static getInlineContainerCopyOf(nodeData: NodeData): CopyOfSelector | undefined {
-    if (!(nodeData instanceof FieldItemNodeData) || !(nodeData.mapping instanceof FieldItem)) return undefined;
-    return nodeData.mapping.children.find(
-      (c): c is CopyOfSelector => c instanceof CopyOfSelector && c.valueType === CopyOfType.CONTAINER,
-    );
+    return nodeData instanceof CopyOfFieldNodeData ? nodeData.mapping : undefined;
   }
 
   /**
    * Whether `item` is a selector edited inline in its parent's row rather than rendered as a row of
-   * its own. A value-of on a field with child fields and a `CONTAINER_NODE` copy-of get their own row.
+   * its own. A value-of on a field with child fields and every copy-of get their own row.
    * Lives here rather than in {@link VisualizationService} so that services which must not depend on
    * the tree builder, such as {@link TargetRenderService}, can ask the same question.
    * @param item - the mapping item to test
    */
   static isInlineValueSelector(item: MappingItem): item is ValueSelector {
-    if (item instanceof CopyOfSelector) return item.valueType !== CopyOfType.CONTAINER_NODE;
+    if (item instanceof CopyOfSelector) return false;
     if (!(item instanceof ValueOfSelector)) return false;
     if (item.valueType === ValueOfType.ATTRIBUTE) return true;
     return !(item.parent instanceof FieldItem && DocumentService.hasChildren(item.parent.field));
