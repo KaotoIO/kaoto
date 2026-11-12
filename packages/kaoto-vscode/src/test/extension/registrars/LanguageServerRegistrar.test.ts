@@ -16,7 +16,12 @@
 import { expect } from 'chai';
 import * as os from 'os';
 import * as vscode from 'vscode';
-import { KAOTO_CATALOG_URL_SETTING_ID, KAOTO_LSP_ENABLED_SETTING_ID, KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID } from '../../../constants';
+import {
+	KAOTO_CATALOG_URL_SETTING_ID,
+	KAOTO_LSP_ENABLED_SETTING_ID,
+	KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID,
+	KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID,
+} from '../../../constants';
 import { LanguageServerRegistrar } from '../../../extension/registrars/LanguageServerRegistrar';
 import { CamelLanguageServerManager } from '../../../lsp/CamelLanguageServerManager';
 import { KaotoCatalogService } from '../../../services/KaotoCatalogService';
@@ -75,6 +80,12 @@ suite('LanguageServerRegistrar', () => {
 
 	test('sends the settings to the server when the selected catalog changes', async () => {
 		await changeConfiguration(changeOf(KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID));
+
+		expect(updates).to.equal(1);
+	});
+
+	test('sends the settings to the server when kaoto.lsp.extraComponents changes', async () => {
+		await changeConfiguration(changeOf(KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID));
 
 		expect(updates).to.equal(1);
 	});

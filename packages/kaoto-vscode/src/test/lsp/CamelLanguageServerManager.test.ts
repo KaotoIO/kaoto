@@ -26,6 +26,20 @@ import { CamelLspServerDownloader, FileDownload } from '../../lsp/CamelLspServer
 import { CamelLspSettings } from '../../lsp/CamelLspSettings';
 
 suite('CamelLanguageServerManager', () => {
+	test('createLanguageClient returns a LanguageClient instance', () => {
+		class DefaultClientManager extends CamelLanguageServerManager {
+			public testCreateClient(serverOptions: Executable, clientOptions: LanguageClientOptions): LanguageClient {
+				return this.createLanguageClient(serverOptions, clientOptions);
+			}
+		}
+		const mgr = new DefaultClientManager(
+			{ subscriptions: [] } as unknown as vscode.ExtensionContext,
+			() => Promise.resolve({ camel: {} }),
+			new CamelLspServerDownloader(os.tmpdir(), { version: '1.2.3', sha256: '0'.repeat(64) }),
+		);
+		const client = mgr.testCreateClient({ command: 'java', args: ['-jar', 'server.jar'] }, {});
+		expect(client).to.be.an.instanceOf(LanguageClient);
+	});
 	const noSettings = () => Promise.resolve<CamelLspSettings>({ camel: {} });
 
 	const waitFor = async (condition: () => boolean) => {
@@ -444,6 +458,43 @@ suite('CamelLanguageServerManager', () => {
 			expect(manager.clients).to.have.lengthOf(2);
 			expect(manager.clients[1].initializations).to.deep.equal([QUARKUS_SETTINGS]);
 			expect(manager.clients[1].notifications).to.be.empty;
+		});
+
+		test('logs error when updateSettings fails to read settings', async () => {
+			await manager.start();
+
+			readError = new Error('failed to read settings');
+			await manager.updateSettings();
+
+			expect(manager.clients[0].notifications).to.be.empty;
+		});
+
+		test('logs error when sendNotification fails', async () => {
+			await manager.start();
+
+			manager.clients[0].sendNotification = () => Promise.reject(new Error('notification error'));
+			settings = QUARKUS_SETTINGS;
+			await manager.updateSettings();
+
+			expect(manager.clients[0].notifications).to.be.empty;
+		});
+
+		test('does not start language client if start was aborted while reading settings', async () => {
+			let abortResolve: () => void = () => undefined;
+			const pendingRead = new Promise<CamelLspSettings>((resolve) => {
+				abortResolve = () => resolve(MAIN_SETTINGS);
+			});
+			const abortManager = new TestManager(
+				context,
+				() => pendingRead,
+				new CamelLspServerDownloader(storageDir, { version: '1.2.3', sha256: '0'.repeat(64) }),
+			);
+			const startPromise = abortManager.start();
+			await abortManager.stop();
+			abortResolve();
+			await startPromise;
+
+			expect(abortManager.clients).to.be.empty;
 		});
 	});
 });

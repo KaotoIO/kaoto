@@ -163,6 +163,7 @@ suite('CamelLspSettings', () => {
 
 		test('sends no extra components when there are none', () => {
 			expect(toCamelLspSettings(mainCatalog, null).camel).to.not.have.property('extra-components');
+			expect(toCamelLspSettings(mainCatalog, undefined).camel).to.not.have.property('extra-components');
 			expect(toCamelLspSettings(mainCatalog, []).camel).to.not.have.property('extra-components');
 		});
 
@@ -211,19 +212,16 @@ suite('CamelLspSettings', () => {
 				},
 				configurable: true,
 			});
-			const warnings: string[] = [];
+			let warned = false;
 			Object.defineProperty(vscode.window, 'showWarningMessage', {
-				value: (message: string) => {
-					warnings.push(message);
-					return Promise.resolve(undefined);
-				},
+				value: () => (warned = true),
 				configurable: true,
 			});
 			const restoreCatalogServiceInstance = preserveKaotoCatalogServiceInstance();
 
 			const settings = await initializeKaotoCatalogService().then(readCamelLspSettings).finally(restoreCatalogServiceInstance);
 
-			expect(warnings).to.be.empty;
+			expect(warned).to.be.false;
 			expect(settings.camel['Camel catalog runtime provider']).to.equal('DEFAULT');
 		});
 
@@ -242,6 +240,16 @@ suite('CamelLspSettings', () => {
 
 		test('reads the selected catalog in a window without a folder', async () => {
 			useWorkspaceFolders();
+			const catalogService = {
+				resolveSelectedIntegrationCatalog: () => quarkusCatalog,
+				getDefaultIntegrationCatalog: () => mainCatalog,
+			} as unknown as KaotoCatalogService;
+
+			expect((await readCamelLspSettings(catalogService)).camel['Camel catalog runtime provider']).to.equal('QUARKUS');
+		});
+
+		test('reads the selected catalog when workspaceFolders is undefined', async () => {
+			Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => undefined, configurable: true });
 			const catalogService = {
 				resolveSelectedIntegrationCatalog: () => quarkusCatalog,
 				getDefaultIntegrationCatalog: () => mainCatalog,
