@@ -85,13 +85,16 @@ export class CamelLanguageServerManager {
 
 	private async startOnce(): Promise<void> {
 		// a client that restarts its server is not running, and needs no second server
-		if (this.languageClient && this.languageClient.state !== State.Stopped) {
+		const state = this.languageClient?.state;
+		if (state === State.Running || state === State.Starting) {
 			return;
 		}
 		// stop() aborts the start, so that a stopped server is neither downloaded nor started
 		const abort = new AbortController();
 		this.startAbort = abort;
 		try {
+			// a client whose restart failed does not start again: a new client replaces it
+			await this.disposeClient();
 			await this.startClient(abort.signal);
 		} finally {
 			this.startAbort = undefined;
@@ -264,6 +267,11 @@ export class CamelLanguageServerManager {
 		const client = this.languageClient;
 		this.languageClient = undefined;
 		this.sentSettings = undefined;
+		if (client?.state === State.Starting) {
+			// the client restarts the server that stopped: a client that starts cannot be stopped, and the server that it
+			// starts would run on with no client left to stop it. start() joins the restart in progress.
+			await client.start().catch(() => undefined);
+		}
 		if (client?.isRunning()) {
 			try {
 				await client.stop();

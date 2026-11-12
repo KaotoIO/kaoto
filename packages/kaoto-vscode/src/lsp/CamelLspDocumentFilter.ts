@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { DocumentFilter } from 'vscode-languageclient';
+import { KAOTO_EDITOR_VIEW_TYPE } from '../constants';
 
 /**
  * Document selectors for Camel-specific files.
@@ -45,10 +46,11 @@ export function isCamelLspTabActive(): boolean {
 }
 
 /**
- * @returns the documents that a tab shows: one for an editor, the two sides of a diff, none for the other tabs
+ * @returns the documents that a tab shows: one for a text editor or the Kaoto editor, the two sides of a diff, none for
+ * the other tabs, also those of other custom editors
  */
 function getTabUris(input: unknown): vscode.Uri[] {
-	if (input instanceof vscode.TabInputText || input instanceof vscode.TabInputCustom) {
+	if (input instanceof vscode.TabInputText || (input instanceof vscode.TabInputCustom && input.viewType === KAOTO_EDITOR_VIEW_TYPE)) {
 		return [input.uri];
 	}
 	if (input instanceof vscode.TabInputTextDiff) {

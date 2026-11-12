@@ -18,11 +18,13 @@ import * as os from 'os';
 import * as vscode from 'vscode';
 import {
 	KAOTO_CATALOG_URL_SETTING_ID,
+	KAOTO_EDITOR_VIEW_TYPE,
 	KAOTO_LSP_ENABLED_SETTING_ID,
 	KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID,
 	KAOTO_LSP_SERVER_JAR_SETTING_ID,
 	KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID,
 } from '../../../constants';
+import { KaotoOutputChannel } from '../../../extension/KaotoOutputChannel';
 import { LanguageServerRegistrar } from '../../../extension/registrars/LanguageServerRegistrar';
 import { CamelLanguageServerManager } from '../../../lsp/CamelLanguageServerManager';
 import { KaotoCatalogService } from '../../../services/KaotoCatalogService';
@@ -118,6 +120,7 @@ suite('LanguageServerRegistrar', () => {
 		const originalOnDidOpenTextDocument = vscode.workspace.onDidOpenTextDocument;
 		const originalOnDidCloseTextDocument = vscode.workspace.onDidCloseTextDocument;
 		const originalTabGroups = Object.getOwnPropertyDescriptor(vscode.window, 'tabGroups');
+		const originalLogError = KaotoOutputChannel.logError;
 		let idleRegistrar: LanguageServerRegistrar;
 		let enabled: boolean;
 		let openDocuments: vscode.TextDocument[];
@@ -148,6 +151,14 @@ suite('LanguageServerRegistrar', () => {
 		const activate = (input: unknown) => {
 			activeTabInput = input;
 			tabListeners.forEach((listener) => listener());
+		};
+		/** @returns the messages of the errors logged from now on */
+		const captureErrors = () => {
+			const errors: string[] = [];
+			KaotoOutputChannel.logError = (message: string) => {
+				errors.push(message);
+			};
+			return errors;
 		};
 		const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 		// the server starts once a stop in progress ended, and stops when its timer fires
@@ -235,6 +246,7 @@ suite('LanguageServerRegistrar', () => {
 			resolveStop?.();
 			resolveStop = undefined;
 			await idleRegistrar.stop();
+			KaotoOutputChannel.logError = originalLogError;
 			CamelLanguageServerManager.prototype.stop = originalStop;
 			CamelLanguageServerManager.prototype.setStatusBarVisible = originalSetStatusBarVisible;
 			Object.defineProperty(vscode.workspace, 'getConfiguration', { value: originalGetConfiguration, configurable: true });
@@ -529,9 +541,55 @@ suite('LanguageServerRegistrar', () => {
 			openDocuments = [route];
 			register();
 
-			activate(new vscode.TabInputCustom(route.uri, 'kaoto'));
+			activate(new vscode.TabInputCustom(route.uri, KAOTO_EDITOR_VIEW_TYPE));
 
 			expect(statusBarVisible).to.be.true;
+		});
+
+		test('hides the status bar item on a Camel file in another custom editor', () => {
+			openDocuments = [route];
+			register();
+
+			activate(new vscode.TabInputCustom(route.uri, 'hexEditor.hexedit'));
+
+			expect(statusBarVisible).to.be.false;
+		});
+
+		test('arms no idle stop for a closed Camel file when no server was asked for', async () => {
+			register();
+
+			close(route);
+			await pastGracePeriod();
+
+			expect(stops).to.equal(0);
+		});
+
+		test('logs a start that fails', async () => {
+			const errors = captureErrors();
+			CamelLanguageServerManager.prototype.start = () => Promise.reject(new Error('start failed'));
+
+			openDocuments = [route];
+			register();
+			await settle();
+
+			expect(errors).to.include('Background LSP startup failed');
+		});
+
+		test('logs an idle stop that fails', async () => {
+			const errors = captureErrors();
+			openDocuments = [route];
+			register();
+			await settle();
+			const fakeStop = CamelLanguageServerManager.prototype.stop;
+			CamelLanguageServerManager.prototype.stop = () => Promise.reject(new Error('stop failed'));
+			try {
+				close(route);
+				await pastGracePeriod();
+			} finally {
+				CamelLanguageServerManager.prototype.stop = fakeStop;
+			}
+
+			expect(errors).to.include('Could not stop the Camel Language Server');
 		});
 
 		test('shows the status bar item once the document of the active tab is open', () => {

@@ -219,6 +219,36 @@ suite('CamelLanguageServerManager', () => {
 			expect(errorMessages).to.be.empty;
 			expect(fs.readdirSync(path.join(storageDir, 'camel-lsp-server', '1.2.3'))).to.be.empty;
 		});
+
+		test('tells a failed download in one notification, and again after a Retry click', async () => {
+			let selection: string | undefined = 'Retry';
+			Object.defineProperty(vscode.window, 'showErrorMessage', {
+				value: (message: string) => {
+					errorMessages.push(message);
+					const clicked = selection;
+					selection = undefined;
+					return Promise.resolve(clicked);
+				},
+				configurable: true,
+			});
+			const failingDownload: FileDownload = () => Promise.reject(new Error('offline'));
+			const manager = new CamelLanguageServerManager(
+				{ subscriptions: [] } as unknown as vscode.ExtensionContext,
+				noSettings,
+				new CamelLspServerDownloader(storageDir, { version: '1.2.3', sha256: '0'.repeat(64) }, failingDownload),
+			);
+			let retries = 0;
+			manager.onDidRequestRetry(() => retries++);
+
+			await manager.start();
+			await waitFor(() => retries === 1);
+			await manager.start();
+			await manager.start();
+
+			expect(errorMessages, 'once before the Retry click, once after it').to.have.lengthOf(2);
+			expect(errorMessages[0]).to.contain('offline');
+			expect(retries).to.equal(1);
+		});
 	});
 
 	suite('settings', () => {
@@ -238,7 +268,7 @@ suite('CamelLanguageServerManager', () => {
 		class FakeLanguageClient {
 			readonly initializations: unknown[] = [];
 			readonly notifications: unknown[] = [];
-			private state = State.Stopped;
+			private currentState = State.Stopped;
 			private readonly stateChanged = new vscode.EventEmitter<StateChangeEvent>();
 			readonly onDidChangeState = this.stateChanged.event;
 
@@ -247,22 +277,28 @@ suite('CamelLanguageServerManager', () => {
 				private readonly startGate: Promise<void>,
 			) {}
 
-			async start(): Promise<void> {
-				this.initialize();
-				await this.startGate;
-				this.setState(State.Running);
+			private pendingStart: Promise<void> | undefined;
+
+			get state(): State {
+				return this.currentState;
 			}
 
-			/** Restarts the server as LanguageClient does when the server stops: it runs again once the gate opens. */
-			async restart(gate: Promise<void> = Promise.resolve()): Promise<void> {
+			/** Like LanguageClient, a start while the client starts joins that start. */
+			start(): Promise<void> {
+				return this.run(this.startGate);
+			}
+
+			/**
+			 * Restarts the server as LanguageClient does when the server stops: it runs again once the gate opens, or its
+			 * start fails.
+			 */
+			restart(gate: Promise<void> = Promise.resolve(), endState = State.Running): Promise<void> {
 				this.setState(State.Stopped);
-				this.initialize();
-				await gate;
-				this.setState(State.Running);
+				return this.run(gate, endState);
 			}
 
 			isRunning(): boolean {
-				return this.state === State.Running;
+				return this.currentState === State.Running;
 			}
 
 			async stop(): Promise<void> {
@@ -273,6 +309,19 @@ suite('CamelLanguageServerManager', () => {
 				this.notifications.push(params);
 			}
 
+			private run(gate: Promise<void>, endState = State.Running): Promise<void> {
+				this.pendingStart ??= (async () => {
+					this.initialize();
+					try {
+						await gate;
+						this.setState(endState);
+					} finally {
+						this.pendingStart = undefined;
+					}
+				})();
+				return this.pendingStart;
+			}
+
 			private initialize(): void {
 				this.setState(State.Starting);
 				const options = this.clientOptions.initializationOptions;
@@ -280,8 +329,8 @@ suite('CamelLanguageServerManager', () => {
 			}
 
 			private setState(newState: State): void {
-				const oldState = this.state;
-				this.state = newState;
+				const oldState = this.currentState;
+				this.currentState = newState;
 				this.stateChanged.fire({ oldState, newState });
 			}
 		}
@@ -407,6 +456,80 @@ suite('CamelLanguageServerManager', () => {
 
 			expect(manager.clients).to.have.lengthOf(2);
 			expect(manager.isRunning()).to.be.true;
+		});
+
+		test('starts a new client when the client failed to restart its server', async () => {
+			await manager.start();
+			await manager.clients[0].restart(Promise.resolve(), State.StartFailed);
+
+			await manager.start();
+
+			expect(manager.clients).to.have.lengthOf(2);
+			expect(manager.isRunning()).to.be.true;
+		});
+
+		test('stops the server that the client restarts once it runs, instead of leaving it running', async () => {
+			await manager.start();
+			let openRestartGate: () => void = () => undefined;
+			const restart = manager.clients[0].restart(
+				new Promise((resolve) => {
+					openRestartGate = resolve;
+				}),
+			);
+
+			const stop = manager.stop();
+			openRestartGate();
+			await stop;
+			await restart;
+
+			expect(manager.clients[0].isRunning()).to.be.false;
+			expect(manager.isRunning()).to.be.false;
+		});
+
+		test('tells a missing Java in one notification until the server starts', async () => {
+			const originalShowWarningMessage = vscode.window.showWarningMessage;
+			const warnings: string[] = [];
+			Object.defineProperty(vscode.window, 'showWarningMessage', {
+				value: (message: string) => {
+					warnings.push(message);
+					return Promise.resolve(undefined);
+				},
+				configurable: true,
+			});
+			try {
+				CamelLanguageServerManager.findJavaExecutable = () => Promise.resolve(undefined);
+				await manager.start();
+				await manager.start();
+
+				expect(warnings).to.have.lengthOf(1);
+				expect(warnings[0]).to.contain('install a JDK');
+			} finally {
+				Object.defineProperty(vscode.window, 'showWarningMessage', { value: originalShowWarningMessage, configurable: true });
+			}
+		});
+
+		test('tells a missing JAR in one notification until the server starts', async () => {
+			const originalShowErrorMessage = vscode.window.showErrorMessage;
+			const errors: string[] = [];
+			Object.defineProperty(vscode.window, 'showErrorMessage', {
+				value: (message: string) => {
+					errors.push(message);
+					return Promise.resolve(undefined);
+				},
+				configurable: true,
+			});
+			const existingJar = serverJar;
+			try {
+				serverJar = path.join(storageDir, 'missing.jar');
+				await manager.start();
+				await manager.start();
+
+				expect(errors).to.have.lengthOf(1);
+				expect(errors[0]).to.contain('missing.jar');
+			} finally {
+				serverJar = existingJar;
+				Object.defineProperty(vscode.window, 'showErrorMessage', { value: originalShowErrorMessage, configurable: true });
+			}
 		});
 
 		test('tells a problem in one notification until the server starts, and in the log each time', async () => {
