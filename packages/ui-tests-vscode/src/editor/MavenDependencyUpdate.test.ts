@@ -17,19 +17,8 @@ import * as path from 'path';
 import { checkTopologyLoaded, closeEditor, openAndSwitchToKaotoFrame, workaroundToRedrawContextualMenu } from '../utils/editor';
 import { openResourcesAndWaitForActivation } from '../utils/extension';
 import { resetUserSettings } from '../utils/settings';
-import { expandFolderItemsInTreeStructuredView, getTreeItem } from '../utils/tree-view';
-import {
-	EditorView,
-	VSBrowser,
-	WebDriver,
-	Workbench,
-	NotificationType,
-	WebView,
-	ActivityBar,
-	TextEditor,
-	CheckboxSetting,
-	before,
-} from 'vscode-extension-tester';
+import { expandFolderItemsInTreeStructuredView, expandViews, getKaotoViewControl, getTreeItem } from '../utils/tree-view';
+import { EditorView, VSBrowser, WebDriver, Workbench, NotificationType, WebView, TextEditor, CheckboxSetting, before } from 'vscode-extension-tester';
 import { KaotoCanvas, KaotoEditor } from '../pageObjects';
 import { assert, expect } from 'chai';
 import * as fs from 'fs';
@@ -169,8 +158,8 @@ describe('Maven dependency update pom.xml', function () {
 			await addComponentAndSave();
 
 			// invoke the context menu dependencies update
-			const kaotoController = await new ActivityBar().getViewControl('Kaoto');
-			const kaotoView = await kaotoController?.openView();
+			const { kaotoViewContainer: kaotoController, kaotoView } = await getKaotoViewControl();
+			await expandViews(kaotoView, 'Integrations');
 			const integrationsSection = await kaotoView?.getContent().getSection('Integrations');
 
 			// expand folders
