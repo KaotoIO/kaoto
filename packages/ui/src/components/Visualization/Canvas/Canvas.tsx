@@ -101,7 +101,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       // Topology IDs include the route scope; visualization paths alone are shared across routes.
       const canvasNode = selectedNodeId
         ? Array.from(document.querySelectorAll<SVGElement>('g.custom-node, g.placeholder-node, g.custom-group')).find(
-            (node) => node.closest('[data-id]')?.getAttribute('data-id') === selectedNodeId,
+            (node) => node.closest<SVGElement>('[data-id]')?.dataset.id === selectedNodeId,
           )
         : undefined;
       if (canvasNode) {
