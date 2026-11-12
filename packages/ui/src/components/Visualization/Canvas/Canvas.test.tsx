@@ -124,6 +124,38 @@ describe('Canvas', () => {
     });
   });
 
+  it.each([
+    { selection: [], name: 'no nodes are selected' },
+    {
+      selection: ['route-8888|route.from', 'route-8888|route.from.steps.0.set-header'],
+      name: 'multiple nodes are selected',
+    },
+  ])('returns focus to the canvas on Escape when $name', async ({ selection }) => {
+    const { container, controller } = await renderCanvas();
+    const canvas = container.querySelector<HTMLElement>('#canvas-main')!;
+    // JSDOM does not paint graph steps. Supply a focusable step so choosing the first selection would fail.
+    const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    wrapper.setAttribute('data-id', 'route-8888|route.from');
+    const step = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    step.setAttribute('class', 'custom-node');
+    step.setAttribute('tabindex', '-1');
+    wrapper.appendChild(step);
+    canvas.appendChild(wrapper);
+
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, selection);
+    });
+    step.focus();
+    expect(step).toHaveFocus();
+    fireEvent.keyDown(step, { key: 'Escape' });
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(canvas).toHaveFocus();
+    expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
+  });
+
   it('should move focus to the search input when sidebar opens', async () => {
     const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
     // Without a schema the side panel renders the node source instead of the form (and its search input)
