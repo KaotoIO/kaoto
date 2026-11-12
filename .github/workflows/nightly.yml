@@ -22,6 +22,5 @@ jobs:
     uses: ./.github/workflows/kaoto-vscode-build-lint-test.yml
     with:
       run-full-ui-tests: true
-      run-deploy-tests: true
       full-matrix: true
     secrets: inherit

@@ -50,6 +50,22 @@ yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:deploy     # out/deploy/*.tes
 CI also sets `CODE_VERSION=max` (latest VS Code that ExTester supports), `TEST_RESOURCES` (ExTester storage, uploaded
 on failure) and `KAOTO_DISABLE_WHATS_NEW=true`.
 
+### Test groups in CI
+
+CI runs the groups listed in the `ciTestGroups` field of `package.json`, each in a job of its own with its
+`test:ui:vsix:<group>` script, on Windows for pull requests and on Linux, macOS and Windows in the nightly and release
+runs.
+
+- `all` lists every group. The nightly and release runs get all of them, and so does a pull request that changes the
+  extension or these tests.
+- `smoke` lists the groups for a pull request that affects the extension only through a package it embeds, such as the
+  UI library or forms.
+- `linuxOnly` lists the groups that run on Linux only; deploy is one, because it needs minikube.
+
+To add a group, add its folder under `src/`, a `test:ui:vsix:<group>` script, its glob in `extester.config.json` so that
+`test:ui:vsix` runs it too, and its name in `ciTestGroups.all`. **CI does not run a group that is missing from
+`ciTestGroups.all`.** Add it to `ciTestGroups.smoke` only if changes to the UI library or forms should run it as well.
+
 ## Linux/Wayland troubleshooting
 
 On Fedora/GNOME Wayland, command palette or file-picker input can stall while a `wl-clipboard` taskbar entry appears;

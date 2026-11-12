@@ -4,11 +4,7 @@ on:
   workflow_call:
     inputs:
       run-full-ui-tests:
-        description: Run all four integration test groups (views + export in addition to settings + editor)
-        required: true
-        type: boolean
-      run-deploy-tests:
-        description: Run Linux deployment tests for extension or shared-tooling changes
+        description: Run every UI test group listed in packages/ui-tests-vscode/package.json, not only the smoke groups
         required: true
         type: boolean
       full-matrix:
@@ -28,12 +24,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      ui-test-matrix: ${{ steps.ui-test-matrix.outputs.matrix }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      - name: Select UI test groups
+        id: ui-test-matrix
+        uses: ./.github/actions/kaoto-vscode-ui-test-matrix
+        with:
+          full: ${{ inputs.run-full-ui-tests }}
+          all-os: ${{ inputs.full-matrix }}
 
       - name: Setup tools
         uses: ./.github/actions/kaoto-vscode-setup-tools
@@ -86,6 +91,4 @@ jobs:
     uses: ./.github/workflows/kaoto-vscode-ui-tests.yml
     with:
       vsix-artifact-name: vscode-kaoto-vsix
-      run-full-ui-tests: ${{ inputs.run-full-ui-tests }}
-      run-deploy-tests: ${{ inputs.run-deploy-tests }}
-      full-matrix: ${{ inputs.full-matrix }}
+      matrix: ${{ needs.build.outputs.ui-test-matrix }}
