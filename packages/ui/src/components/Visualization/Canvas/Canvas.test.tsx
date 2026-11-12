@@ -186,12 +186,15 @@ describe('Canvas', () => {
   it('should restore focus to the selected canvas node when closing the sidebar', async () => {
     const { container, controller } = await renderCanvas();
 
-    // Inject a fake canvas <g> element with the expected testid for route.from
+    // The layout does not paint nodes in JSDOM, so supply the focusable SVG and its topology wrapper.
     const fakeNode = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     fakeNode.setAttribute('class', 'custom-node');
     fakeNode.setAttribute('data-testid', 'custom-node__route.from');
     fakeNode.setAttribute('tabindex', '-1');
-    container.appendChild(fakeNode);
+    const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    wrapper.setAttribute('data-id', 'route-8888|route.from');
+    wrapper.appendChild(fakeNode);
+    container.appendChild(wrapper);
 
     // Open sidebar by selecting the timer `from` step
     act(() => {
@@ -214,6 +217,57 @@ describe('Canvas', () => {
     });
 
     expect(fakeNode).toHaveFocus();
+  });
+
+  it.each(['Escape', 'Close'])('returns focus to the originating route after %s', async (dismissal) => {
+    const camelResource = new CamelRouteResource(
+      ['route-first', 'route-second'].map((id) => ({
+        route: { id, from: { uri: `timer:${id}`, steps: [{ log: { message: id } }] } },
+      })),
+    );
+    const { Provider } = await TestProvidersWrapper({ camelResource });
+    const vizNodes = await Promise.all(camelResource.getVisualEntities().map((entity) => entity.toVizNode()));
+    const controller = ControllerService.createController();
+    const { container } = render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas {...getCanvasPropsFromVizNodes(vizNodes, 2)} />
+        </VisualizationProvider>
+      </Provider>,
+    );
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    // JSDOM does not paint the graph's steps. Mirror the topology wrappers around focusable SVG nodes.
+    const steps = ['route-first', 'route-second'].map((routeId) => {
+      const wrapper = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      wrapper.setAttribute('data-id', `${routeId}|route.from.steps.0.log`);
+      const step = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      step.setAttribute('class', 'custom-node');
+      step.setAttribute('data-testid', 'custom-node__route.from.steps.0.log');
+      step.setAttribute('tabindex', '-1');
+      wrapper.appendChild(step);
+      container.appendChild(wrapper);
+      return step;
+    });
+    steps[1].focus();
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, ['route-second|route.from.steps.0.log']);
+    });
+    const closeButton = await screen.findByTestId('close-side-bar');
+    if (dismissal === 'Escape') {
+      fireEvent.keyDown(container.firstChild!, { key: 'Escape' });
+    } else {
+      fireEvent.click(closeButton);
+    }
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(screen.queryByTestId('close-side-bar')).not.toBeInTheDocument();
+    expect(steps[1]).toHaveFocus();
+    expect(steps[0]).not.toHaveFocus();
   });
 
   it('should schedule a graph.fit(80) upon loading', async () => {

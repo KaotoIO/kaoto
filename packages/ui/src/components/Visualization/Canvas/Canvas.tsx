@@ -24,7 +24,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 
@@ -95,22 +94,23 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
   }, [controller, isGraphEmpty, isModelResolving]);
 
-  /** Track which viz-node id was selected so focus can return to it on sidebar close */
-  const selectedVizNodeIdRef = useRef<string | undefined>(undefined);
-
   const clearSelection = useCallback(() => {
-    const vizNodeId = selectedVizNodeIdRef.current;
+    const selectedNodeId = selectedIds.length === 1 ? selectedIds[0] : undefined;
     setSelectedIds([]);
     requestAnimationFrame(() => {
-      // Prefer restoring focus to the canvas node that was selected (matches any type: custom-node, placeholder-node, custom-group)
-      const canvasNode = vizNodeId ? document.querySelector<HTMLElement>(`[data-testid$="__${vizNodeId}"]`) : null;
+      // Topology IDs include the route scope; visualization paths alone are shared across routes.
+      const canvasNode = selectedNodeId
+        ? Array.from(document.querySelectorAll<SVGElement>('g.custom-node, g.placeholder-node, g.custom-group')).find(
+            (node) => node.closest('[data-id]')?.getAttribute('data-id') === selectedNodeId,
+          )
+        : undefined;
       if (canvasNode) {
         canvasNode.focus({ preventScroll: true });
       } else {
         document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.focus({ preventScroll: true });
       }
     });
-  }, []);
+  }, [selectedIds]);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
   useDeleteHotkey(selectedVizNode, clearSelection);
@@ -249,18 +249,15 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
 
-  /** Track the selected node id and move focus to the search bar when sidebar opens */
+  /** Move focus to the search bar when the sidebar opens */
   useEffect(() => {
     if (selectedVizNode) {
-      selectedVizNodeIdRef.current = selectedVizNode.id;
       requestAnimationFrame(() => {
         const searchInput = document.querySelector<HTMLElement>('[data-testid="filter-fields"]');
         // preventScroll: the drawer panel is still sliding in from off-screen at this point, so a plain
         // focus() would scroll the drawer's overflow container and make the canvas jump sideways
         searchInput?.focus({ preventScroll: true });
       });
-    } else {
-      selectedVizNodeIdRef.current = undefined;
     }
   }, [selectedVizNode]);
 
