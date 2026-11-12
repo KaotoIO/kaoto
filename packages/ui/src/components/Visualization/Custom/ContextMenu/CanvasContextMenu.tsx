@@ -30,7 +30,7 @@ function moveMenuFocus(event: KeyboardEvent, list: Element) {
       next = (index + 1) % items.length;
       break;
     case 'ArrowUp':
-      next = (index - 1 + items.length) % items.length;
+      next = index === -1 ? items.length - 1 : (index - 1 + items.length) % items.length;
       break;
     case 'Home':
       next = 0;

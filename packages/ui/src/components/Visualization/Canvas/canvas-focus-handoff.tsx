@@ -1,8 +1,10 @@
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
 
+type CanvasFocusOrigin = HTMLElement | SVGElement | null;
+
 function createFocusHandoff() {
   let pending = false;
-  let origin: HTMLElement | SVGElement | null = null;
+  let origin: CanvasFocusOrigin = null;
   let target: { element: HTMLDivElement; ready: boolean } | undefined;
   let frame: number | undefined;
 
@@ -25,7 +27,7 @@ function createFocusHandoff() {
 
   return {
     cancel,
-    request: (trigger: HTMLElement | SVGElement | null) => {
+    request: (trigger: CanvasFocusOrigin) => {
       cancel();
       pending = true;
       origin = trigger;
@@ -79,5 +81,5 @@ export const useCanvasFocusTarget = (isReady: boolean) => {
 /** Requests focus return after a portaled menu closes, unless another destination takes focus. */
 export const useCanvasFocusReturn = () => {
   const handoff = useContext(CanvasFocusContext);
-  return useCallback((origin: HTMLElement | SVGElement | null) => handoff?.request(origin), [handoff]);
+  return useCallback((origin: CanvasFocusOrigin) => handoff?.request(origin), [handoff]);
 };

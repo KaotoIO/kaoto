@@ -7,7 +7,7 @@ import { createContext, useCallback, useContext, useState } from 'react';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { CanvasFocusProvider, useCanvasFocusTarget } from '../../Canvas/canvas-focus-handoff';
 import { ControllerService } from '../../Canvas/controller.service';
-import { CanvasContextSubMenu as ContextSubMenuItem } from './CanvasContextMenu';
+import { CanvasContextMenu, CanvasContextSubMenu as ContextSubMenuItem } from './CanvasContextMenu';
 import { withNodeContextMenu } from './withNodeContextMenu';
 
 const Target = ({ onContextMenu, name = 'Step' }: WithContextMenuProps & { name?: string }) => (
@@ -128,6 +128,38 @@ it('keeps navigation within enabled actions and wraps', async () => {
   expect(screen.getByRole('menuitem', { name: 'First' })).toHaveFocus();
 });
 
+it.each(['{ArrowLeft}', '{ArrowRight}'])('keeps a root leaf focused without activating it on %s', async (key) => {
+  const { user, action } = setup();
+  await user.keyboard('{ContextMenu}');
+  const first = await screen.findByRole('menuitem', { name: 'First' });
+  await user.keyboard(key);
+  expect(first).toHaveFocus();
+  expect(screen.getByRole('menu')).toBeInTheDocument();
+  expect(action).not.toHaveBeenCalled();
+});
+
+it('keeps keyboard focus on the menu list when all actions are disabled', async () => {
+  render(
+    <CanvasContextMenu
+      reference={{ x: 30, y: 40 }}
+      keyboard
+      label="Unavailable actions"
+      onClose={vi.fn()}
+      onTab={vi.fn()}
+    >
+      {[
+        <ContextMenuItem key="disabled" isDisabled>
+          Unavailable
+        </ContextMenuItem>,
+      ]}
+    </CanvasContextMenu>,
+  );
+  const menu = await screen.findByRole('menu', { name: 'Unavailable actions' });
+  expect(menu).toHaveFocus();
+  await userEvent.setup().keyboard('{ArrowUp}{ArrowDown}{Home}{End}');
+  expect(menu).toHaveFocus();
+});
+
 it.each(['{Enter}', ' '])('activates a leaf exactly once using %s and returns focus', async (keys) => {
   const { user, trigger, action } = setup();
   await user.keyboard('{ContextMenu}');
@@ -163,6 +195,18 @@ it('keeps pointer opening positioned without focusing an action', async () => {
   expect(trigger).toHaveFocus();
 });
 
+it.each([
+  { key: '{ArrowUp}', action: 'New' },
+  { key: '{ArrowDown}', action: 'First' },
+])('starts pointer-opened menu navigation with $key at $action', async ({ key, action }) => {
+  const { user, trigger } = setup(true);
+  fireEvent.contextMenu(trigger, { clientX: 30, clientY: 40 });
+  const menu = await screen.findByRole('menu');
+  expect(menu).toHaveFocus();
+  await user.keyboard(key);
+  expect(screen.getByRole('menuitem', { name: action })).toHaveFocus();
+});
+
 it.each([false, true])('enters nested menus including previously hovered flyouts (%s)', async (hover) => {
   const { user, trigger, action } = setup(true);
   await user.keyboard('{ContextMenu}');
@@ -188,6 +232,17 @@ it.each([false, true])('enters nested menus including previously hovered flyouts
   expect(action).toHaveBeenCalledTimes(1);
   expect(trigger).toHaveFocus();
   expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+});
+
+it('cancels pending flyout focus when the menu closes before the next frame', async () => {
+  const { user, trigger } = setup(true);
+  await user.keyboard('{ContextMenu}{End}');
+  const submenu = await screen.findByRole('menuitem', { name: 'New' });
+  fireEvent.keyDown(submenu, { key: 'ArrowRight' });
+  fireEvent.keyDown(submenu, { key: 'Escape' });
+  await settle();
+  expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  expect(trigger).toHaveFocus();
 });
 
 it.each([false, true])('dismisses on Tab without preventing native traversal (%s)', async (shiftKey) => {
