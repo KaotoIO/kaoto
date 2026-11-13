@@ -702,7 +702,7 @@ suite('Native Kaoto text document provider', () => {
 		const shimAt = fixture.panel.webview.html.indexOf('/dist/webview/kaoto-host-shim.js"');
 		ok(shimAt !== -1, 'the host shim script is present');
 		ok(shimAt < fixture.panel.webview.html.indexOf('type="module"'), 'the host shim loads before the editor module');
-		ok(fixture.panel.webview.html.includes('<output class="kaoto-loading"'));
+		ok(fixture.panel.webview.html.includes('class="cds--loading"'), 'the shell draws the Carbon spinner of the editor');
 		ok(!fixture.panel.webview.html.includes('role="status"'));
 		ok(fixture.panel.webview.html.includes('Loading Kaoto'));
 		ok(fixture.panel.webview.html.includes('class="kaoto-loading"'));
