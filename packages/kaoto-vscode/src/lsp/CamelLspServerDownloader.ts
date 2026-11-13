@@ -15,10 +15,9 @@
  */
 import * as crypto from 'crypto'; // NOSONAR
 import * as fs from 'fs'; // NOSONAR
-import type { IncomingMessage } from 'http'; // NOSONAR
-import * as https from 'https'; // NOSONAR
 import * as path from 'path'; // NOSONAR
-import { pipeline } from 'stream/promises'; // NOSONAR
+
+import { DownloadProgress, downloadFile, downloadIntoPlace, FileDownload } from '../utils/Download';
 
 /**
  * The Camel Language Server release used by Kaoto, and the SHA-256 of its JAR on Maven Central.
@@ -31,13 +30,6 @@ export interface CamelLspServerRelease {
 }
 
 const MAVEN_CENTRAL_URL = 'https://repo1.maven.org/maven2/com/github/camel-tooling/camel-lsp-server';
-const DOWNLOAD_TIMEOUT_MS = 60_000;
-const MAX_REDIRECTS = 5;
-
-/** Reports the bytes received so far, and the total size when the server sends it. */
-export type DownloadProgress = (receivedBytes: number, totalBytes: number | undefined) => void;
-
-export type FileDownload = (url: string, targetPath: string, onProgress?: DownloadProgress, signal?: AbortSignal) => Promise<void>;
 
 /**
  * Downloads the Camel Language Server JAR from Maven Central into the extension storage, once per release.
@@ -95,35 +87,16 @@ export async function downloadVerifiedFile(
 	onProgress?: DownloadProgress,
 	signal?: AbortSignal,
 ): Promise<void> {
-	await fs.promises.mkdir(path.dirname(targetPath), { recursive: true });
-	// download next to the target, so that an interrupted download is never taken for the file;
-	// one partial file per download, because all the windows of a profile share the storage
-	const partPath = `${targetPath}.${process.pid}-${crypto.randomUUID()}.part`;
-	try {
-		await download(url, partPath, onProgress, signal);
-		const actualHash = await computeSha256(partPath);
-		if (actualHash !== sha256) {
-			throw new Error(`Checksum mismatch for ${url}: expected SHA-256 ${sha256}, got ${actualHash}`);
-		}
-		await moveIntoPlace(partPath, targetPath);
-	} finally {
-		// nothing is left to remove after the rename
-		await fs.promises.rm(partPath, { force: true });
-	}
-}
-
-/**
- * Renames a verified download to its target. Another window can put the same release there first and run it;
- * Windows cannot replace a JAR in use, and the one in place is kept.
- */
-async function moveIntoPlace(partPath: string, targetPath: string): Promise<void> {
-	try {
-		await fs.promises.rename(partPath, targetPath);
-	} catch (error) {
-		if (!fs.existsSync(targetPath)) {
-			throw error;
-		}
-	}
+	await downloadIntoPlace(download, url, targetPath, {
+		onProgress,
+		signal,
+		verify: async (downloadedPath) => {
+			const actualHash = await computeSha256(downloadedPath);
+			if (actualHash !== sha256) {
+				throw new Error(`Checksum mismatch for ${url}: expected SHA-256 ${sha256}, got ${actualHash}`);
+			}
+		},
+	});
 }
 
 /**
@@ -137,46 +110,6 @@ export async function removeOtherVersions(dir: string, keptVersion: string): Pro
 	} catch {
 		// the other versions only take disk space, they are removed on the next download
 	}
-}
-
-/**
- * Downloads a file over HTTPS, following redirects.
- */
-export async function downloadFile(url: string, targetPath: string, onProgress?: DownloadProgress, signal?: AbortSignal): Promise<void> {
-	const response = await get(url, DOWNLOAD_TIMEOUT_MS, signal);
-	const totalBytes = Number(response.headers['content-length']) || undefined;
-	let receivedBytes = 0;
-	response.on('data', (chunk: Buffer) => {
-		receivedBytes += chunk.length;
-		onProgress?.(receivedBytes, totalBytes);
-	});
-	await pipeline(response, fs.createWriteStream(targetPath), { signal });
-}
-
-/**
- * Sends a GET request over HTTPS, following redirects.
- * @returns the response of the last URL, rejected unless it is 200 OK, when no data comes for the timeout, or when the signal aborts
- */
-function get(url: string, timeoutMs: number, signal?: AbortSignal, redirects = MAX_REDIRECTS): Promise<IncomingMessage> {
-	return new Promise((resolve, reject) => {
-		const request = https.get(url, { timeout: timeoutMs, signal }, (response) => {
-			const statusCode = response.statusCode ?? 0;
-			const location = response.headers.location;
-			if (statusCode >= 300 && statusCode < 400 && location && redirects > 0) {
-				response.resume();
-				get(new URL(location, url).toString(), timeoutMs, signal, redirects - 1).then(resolve, reject);
-				return;
-			}
-			if (statusCode !== 200) {
-				response.resume();
-				reject(new Error(`HTTP ${statusCode} for ${url}`));
-				return;
-			}
-			resolve(response);
-		});
-		request.on('timeout', () => request.destroy(new Error(`No data from ${url} for ${timeoutMs / 1000} seconds`)));
-		request.on('error', reject);
-	});
 }
 
 async function computeSha256(filePath: string): Promise<string> {

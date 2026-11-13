@@ -1,9 +1,9 @@
 import * as fs from 'fs'; // NOSONAR
 import * as path from 'path'; // NOSONAR
-import * as https from 'https'; // NOSONAR
 import * as os from 'os'; // NOSONAR
 import { ExtensionContext } from 'vscode';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
+import { downloadFile, downloadIntoPlace, FileDownload, HttpStatusError } from '../utils/Download';
 import { isRedHatBuild } from '../utils/Version';
 
 /**
@@ -24,7 +24,11 @@ export class CamelLauncherDownloader {
 	private static readonly REDHAT_MAVEN_BASE = 'https://maven.repository.redhat.com/ga/org/apache/camel/camel-launcher';
 	private readonly storageDir: string;
 
-	constructor(context?: ExtensionContext, customStorageDir?: string) {
+	constructor(
+		context?: ExtensionContext,
+		customStorageDir?: string,
+		private readonly download: FileDownload = downloadFile,
+	) {
 		// Use custom storage dir, extension global storage, or fallback to temp
 		this.storageDir = customStorageDir || context?.globalStorageUri.fsPath || path.join(os.tmpdir(), 'vscode-kaoto-camel-launcher');
 
@@ -52,12 +56,6 @@ export class CamelLauncherDownloader {
 		// Download JAR
 		KaotoOutputChannel.logInfo(`Downloading Camel Launcher ${version}...`);
 		await this.downloadLauncher(version, launcherDir);
-
-		// Verify JAR was downloaded
-		if (!fs.existsSync(jarPath)) {
-			throw new Error(`Camel Launcher JAR not found after download in ${launcherDir}`);
-		}
-
 		return jarPath;
 	}
 
@@ -74,71 +72,20 @@ export class CamelLauncherDownloader {
 	private async downloadLauncher(version: string, targetDir: string): Promise<void> {
 		const jarPath = path.join(targetDir, `camel-launcher-${version}.jar`);
 		const mavenBaseUrl = this.getMavenBaseUrl(version);
-
-		// Ensure target directory exists
-		if (!fs.existsSync(targetDir)) {
-			fs.mkdirSync(targetDir, { recursive: true });
-		}
-
-		// Download JAR file
 		const downloadUrl = `${mavenBaseUrl}/${version}/camel-launcher-${version}.jar`;
 
 		try {
 			KaotoOutputChannel.logInfo(`Downloading JAR from: ${downloadUrl}`);
-			await this.downloadFile(downloadUrl, jarPath);
+			await downloadIntoPlace(this.download, downloadUrl, jarPath);
 			KaotoOutputChannel.logInfo(`JAR downloaded successfully to: ${jarPath}`);
 		} catch (error) {
 			// Handle 404 errors with a specific error type
-			if (error instanceof Error && error.message.includes('HTTP 404')) {
+			if (error instanceof HttpStatusError && error.statusCode === 404) {
 				throw new LauncherNotFoundError(version, downloadUrl);
 			}
 			// For other errors, throw with details
 			throw new Error(`Failed to download Camel Launcher ${version} from ${downloadUrl}: ${error instanceof Error ? error.message : String(error)}`);
 		}
-	}
-
-	/**
-	 * Download file from URL
-	 */
-	private downloadFile(url: string, targetPath: string): Promise<void> {
-		return new Promise((resolve, reject) => {
-			const file = fs.createWriteStream(targetPath);
-
-			https
-				.get(url, (response) => {
-					// Handle redirects
-					if (response.statusCode === 301 || response.statusCode === 302) {
-						const redirectUrl = response.headers.location;
-						if (redirectUrl) {
-							file.close();
-							fs.unlinkSync(targetPath);
-							this.downloadFile(redirectUrl, targetPath).then(resolve).catch(reject);
-							return;
-						}
-					}
-
-					if (response.statusCode !== 200) {
-						file.close();
-						fs.unlinkSync(targetPath);
-						reject(new Error(`Failed to download: HTTP ${response.statusCode}`));
-						return;
-					}
-
-					response.pipe(file);
-
-					file.on('finish', () => {
-						file.close();
-						resolve();
-					});
-				})
-				.on('error', (error) => {
-					file.close();
-					if (fs.existsSync(targetPath)) {
-						fs.unlinkSync(targetPath);
-					}
-					reject(error);
-				});
-		});
 	}
 
 	/**

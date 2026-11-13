@@ -22,8 +22,9 @@ import * as vscode from 'vscode';
 import { Executable, LanguageClient, LanguageClientOptions, State, StateChangeEvent } from 'vscode-languageclient/node';
 import { KAOTO_LSP_SERVER_JAR_SETTING_ID } from '../../constants';
 import { CamelLanguageServerManager } from '../../lsp/CamelLanguageServerManager';
-import { CamelLspServerDownloader, FileDownload } from '../../lsp/CamelLspServerDownloader';
+import { CamelLspServerDownloader } from '../../lsp/CamelLspServerDownloader';
 import { CamelLspSettings } from '../../lsp/CamelLspSettings';
+import { FileDownload } from '../../utils/Download';
 
 suite('CamelLanguageServerManager', () => {
 	test('createLanguageClient returns a LanguageClient instance', () => {

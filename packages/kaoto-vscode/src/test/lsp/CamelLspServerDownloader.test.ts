@@ -19,7 +19,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { CamelLspServerDownloader, CamelLspServerRelease, FileDownload } from '../../lsp/CamelLspServerDownloader';
+import { CamelLspServerDownloader, CamelLspServerRelease } from '../../lsp/CamelLspServerDownloader';
+import { FileDownload } from '../../utils/Download';
 
 const JAR_CONTENT = 'camel-lsp-server jar content';
 const JAR_SHA256 = crypto.createHash('sha256').update(JAR_CONTENT).digest('hex');
