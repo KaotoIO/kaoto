@@ -21,8 +21,9 @@ import { DidChangeConfigurationNotification, Executable, LanguageClient, Languag
 import { KAOTO_LSP_SERVER_JAR_SETTING_ID } from '../constants';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { CAMEL_LSP_DOCUMENT_SELECTORS } from './CamelLspDocumentFilter';
-import { CamelLspServerDownloader, DownloadProgress } from './CamelLspServerDownloader';
+import { CamelLspServerDownloader } from './CamelLspServerDownloader';
 import { CamelLspSettings } from './CamelLspSettings';
+import { DownloadProgress } from '../utils/Download';
 
 const LANGUAGE_CLIENT_ID = 'LANGUAGE_ID_APACHE_CAMEL_KAOTO';
 // also the name of the client's output channel, listed next to the 'Kaoto' channel

@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
 import { CamelLauncherDownloader, LauncherNotFoundError } from '../../services/CamelLauncherDownloader';
+import { FileDownload, HttpStatusError } from '../../utils/Download';
 import { isRedHatBuild } from '../../utils/Version';
 
 suite('CamelLauncherDownloader Tests', () => {
@@ -83,19 +84,66 @@ suite('CamelLauncherDownloader Tests', () => {
 			fs.rmSync(launcherDir, { recursive: true, force: true });
 		}
 
-		// Stub the private downloadFile method to simulate HTTP 404 without hitting the network
-		const originalDownloadFile = (downloader as any).downloadFile;
-		(downloader as any).downloadFile = () => Promise.reject(new Error('Failed to download: HTTP 404'));
+		// Inject a download that answers HTTP 404 without hitting the network
+		const notFoundDownload: FileDownload = (url) => Promise.reject(new HttpStatusError(404, url));
+		const notFoundDownloader = new CamelLauncherDownloader(undefined, testStoragePath, notFoundDownload);
 
 		try {
-			await downloader.ensureLauncher(version);
+			await notFoundDownloader.ensureLauncher(version);
 			assert.fail('Should have thrown an error');
 		} catch (error) {
 			assert.instanceOf(error, LauncherNotFoundError);
 			assert.include(error.message, 'is not available');
-		} finally {
-			(downloader as any).downloadFile = originalDownloadFile;
 		}
+	});
+
+	test('Should download the launcher JAR from Maven Central into the storage', async () => {
+		const version = '4.18.0';
+		const requestedUrls: string[] = [];
+		const download: FileDownload = async (url, targetPath) => {
+			requestedUrls.push(url);
+			await fs.promises.writeFile(targetPath, 'downloaded jar content');
+		};
+		const launcherDir = path.join(testStoragePath, `camel-launcher-${version}`);
+
+		const result = await new CamelLauncherDownloader(undefined, testStoragePath, download).ensureLauncher(version);
+
+		assert.equal(result, path.join(launcherDir, `camel-launcher-${version}.jar`));
+		assert.equal(fs.readFileSync(result, 'utf8'), 'downloaded jar content');
+		assert.deepEqual(requestedUrls, [`https://repo1.maven.org/maven2/org/apache/camel/camel-launcher/${version}/camel-launcher-${version}.jar`]);
+		assert.deepEqual(fs.readdirSync(launcherDir), [`camel-launcher-${version}.jar`]);
+	});
+
+	test('Should download a RedHat build from the RedHat Maven repository', async () => {
+		const version = '4.14.2.redhat-00006';
+		const requestedUrls: string[] = [];
+		const download: FileDownload = async (url, targetPath) => {
+			requestedUrls.push(url);
+			await fs.promises.writeFile(targetPath, 'downloaded jar content');
+		};
+
+		await new CamelLauncherDownloader(undefined, testStoragePath, download).ensureLauncher(version);
+
+		assert.deepEqual(requestedUrls, [`https://maven.repository.redhat.com/ga/org/apache/camel/camel-launcher/${version}/camel-launcher-${version}.jar`]);
+	});
+
+	test('Should keep no partial JAR when the download fails', async () => {
+		const version = '4.18.0';
+		const failingDownload: FileDownload = async (_url, targetPath) => {
+			await fs.promises.writeFile(targetPath, 'partial content');
+			throw new Error('No data for 60 seconds');
+		};
+		const failingDownloader = new CamelLauncherDownloader(undefined, testStoragePath, failingDownload);
+
+		try {
+			await failingDownloader.ensureLauncher(version);
+			assert.fail('Should have thrown an error');
+		} catch (error) {
+			assert.notInstanceOf(error, LauncherNotFoundError);
+			assert.include((error as Error).message, `Failed to download Camel Launcher ${version}`);
+			assert.include((error as Error).message, 'No data for 60 seconds');
+		}
+		assert.isEmpty(fs.readdirSync(path.join(testStoragePath, `camel-launcher-${version}`)));
 	});
 
 	test('Should return JAR path directly', async () => {
