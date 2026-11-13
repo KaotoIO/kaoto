@@ -91,7 +91,7 @@ export const RegisterNodeInteractionAddons: FunctionComponent<PropsWithChildren>
       } as IOnUpdateAddon,
     ];
 
-    const unregister = addonsToRegister.map(registerInteractionAddon);
+    const unregister = addonsToRegister.map((addon) => registerInteractionAddon(addon));
     return () => {
       unregister.forEach((cleanup) => cleanup?.());
     };
