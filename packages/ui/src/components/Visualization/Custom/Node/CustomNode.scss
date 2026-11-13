@@ -3,23 +3,10 @@
 
 .custom-node {
   @include custom.highligth {
-    &[data-selected='true'] {
-      --custom-node-BorderColor: var(--pf-t--global--color--brand--default);
-    }
+    @include custom.interaction-indicator('.custom-node__indicator');
 
     &[data-warning='true'] {
       --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
-    }
-
-    /*
-     * Keyboard focus ring — uses :focus (not :focus-visible) because Chromium
-     * does not set :focus-visible on SVG <g> elements focused via .focus().
-     * These nodes are only reached via the arrow-key hook, never by mouse.
-     * Only the main icon container gets the ring — not the floating badge.
-     */
-    &:focus &__container__image {
-      outline: 3px solid var(--pf-t--global--color--brand--default);
-      outline-offset: 2px;
     }
 
     &__container {
@@ -78,20 +65,6 @@
       // Drag preview under the pointer (already dragging — use grabbing, not grab).
       &__grabbing-cursor {
         @include dnd.cursor-grabbing;
-      }
-
-      &:hover &__image,
-      &:hover .step-icon,
-      [data-toolbar-open='true'] & &__image,
-      [data-toolbar-open='true'] & .step-icon,
-      [data-selected='true'] & &__image {
-        border-color: var(--custom-node-BorderColor-hover);
-        box-shadow: var(--custom-node-Shadow);
-      }
-
-      [data-selected='true'] & &__image,
-      [data-selected='true'] & .step-icon {
-        @include custom.selected;
       }
 
       [data-disabled='true'] & {

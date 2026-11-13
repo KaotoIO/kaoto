@@ -2,22 +2,15 @@
 
 .placeholder-node {
   @include custom.highligth {
+    // Keyboard focus recolours the dashed border of the tile instead of drawing a second line around it
+    @include custom.interaction-indicator('.placeholder-node__indicator', $with-focus: false);
+
     &[data-selected='true'] {
       --custom-node-BorderColor: var(--pf-t--global--color--brand--default);
     }
 
     &[data-warning='true'] {
       --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
-    }
-
-    /*
-     * Keyboard focus ring — uses :focus (not :focus-visible) because Chromium
-     * does not set :focus-visible on SVG <g> elements focused via .focus().
-     * These nodes are only reached via the arrow-key hook, never by mouse.
-     */
-    &:focus &__container__image {
-      outline: 3px solid var(--pf-t--global--color--brand--default);
-      outline-offset: 2px;
     }
 
     &__container {
@@ -34,6 +27,15 @@
         padding: var(--pf-t--global--spacer--sm);
         color: var(--pf-topology__edge--Stroke);
 
+        .placeholder-node:focus & {
+          border-color: var(--pf-t--global--color--brand--default);
+
+          // Forced colours replace the border colour, so focus turns the dashed border solid
+          @media (forced-colors: active) {
+            border-style: solid;
+          }
+        }
+
         &__possibleDropTargets {
           border: var(--custom-node-border-width) dashed var(--custom-component-possibleDropTarget);
         }
@@ -41,11 +43,6 @@
         &__dropTarget {
           border: var(--custom-node-border-width) dashed var(--custom-component-dropTarget);
         }
-      }
-
-      &:hover &__image {
-        border-color: var(--custom-node-BorderColor-hover);
-        box-shadow: var(--custom-node-Shadow);
       }
     }
 

@@ -47,7 +47,8 @@ export const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
           role="img"
           data-warning={doesHaveWarnings}
         >
-          <WarningFilled />
+          {/* Carbon draws 16px by default; the PatternFly icon box is 14px and would clip it */}
+          <WarningFilled size={14} />
         </Icon>
       )}
       <span title={label}>{label}</span>

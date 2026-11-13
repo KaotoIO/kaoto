@@ -171,4 +171,15 @@ describe('CustomNode', () => {
     fireEvent.keyDown(nodeG, { key: 'F10', shiftKey: true });
     expect(onContextMenu).toHaveBeenCalledTimes(1);
   });
+
+  it('should draw the interaction indicator behind the node content', async () => {
+    await renderCustomNode({ selected: true });
+
+    const nodeG = screen.getByTestId('custom-node__route.from.steps.0.log').closest('g')!;
+    const indicator = nodeG.querySelector(':scope > rect.custom-node__indicator');
+    const foreignObject = nodeG.querySelector(':scope > foreignObject')!;
+
+    expect(indicator).toHaveAttribute('aria-hidden', 'true');
+    expect(indicator!.compareDocumentPosition(foreignObject) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
 });

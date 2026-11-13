@@ -47,6 +47,64 @@
   cursor: pointer;
 }
 
+// Shared hover / selection / keyboard focus indicator for a step or group host `g`.
+// $indicator is the selector of the SVG rect drawn with the bounds from `interaction-indicator.ts`.
+// All states share its size: hover is a thin grey line, selection a solid brand line with a tint and
+// keyboard focus a dashed brand line, so selected and selected + focused stay apart without colour.
+// Hosts that show keyboard focus on their own pass `$with-focus: false`.
+@mixin interaction-indicator($indicator, $with-focus: true) {
+  > #{$indicator} {
+    fill: none;
+    stroke: none;
+    pointer-events: none;
+  }
+
+  &:hover > #{$indicator},
+  &[data-toolbar-open='true'] > #{$indicator} {
+    fill: color-mix(in srgb, var(--pf-t--global--text--color--regular) 4%, transparent);
+    stroke: var(--pf-t--global--border--color--nonstatus--gray--hover);
+    stroke-width: 1px;
+  }
+
+  &[data-selected='true'] > #{$indicator} {
+    fill: color-mix(in srgb, var(--pf-t--global--color--brand--default) 8%, transparent);
+    stroke: var(--pf-t--global--color--brand--default);
+    stroke-width: 2px;
+  }
+
+  // :focus instead of :focus-visible: Chromium sets no :focus-visible on SVG groups focused via .focus().
+  &:focus {
+    outline: none;
+  }
+
+  @if $with-focus {
+    &:focus > #{$indicator} {
+      stroke: var(--pf-t--global--color--brand--default);
+      stroke-width: 2px;
+      stroke-dasharray: 6 4;
+    }
+  }
+
+  @media (forced-colors: active) {
+    &:hover > #{$indicator},
+    &[data-toolbar-open='true'] > #{$indicator} {
+      fill: none;
+      stroke: GrayText;
+    }
+
+    &[data-selected='true'] > #{$indicator} {
+      fill: none;
+      stroke: Highlight;
+    }
+
+    @if $with-focus {
+      &:focus > #{$indicator} {
+        stroke: CanvasText;
+      }
+    }
+  }
+}
+
 @mixin selected {
   border: 2px solid var(--custom-node-BorderColor);
 }
