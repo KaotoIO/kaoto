@@ -13,6 +13,12 @@
     justify-self: start;
     margin-left: calc(-12px + var(--pf-t--global--spacer--xs) - var(--pf-t--global--spacer--sm));
   }
+
+  &__warning {
+    place-self: end end;
+    margin-right: calc(-12px + var(--pf-t--global--spacer--xs) - var(--pf-t--global--spacer--sm));
+    margin-bottom: calc(-12px + var(--pf-t--global--spacer--xs) - var(--pf-t--global--spacer--sm));
+  }
 }
 
 @mixin highligth {

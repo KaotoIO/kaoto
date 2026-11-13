@@ -103,6 +103,22 @@ describe('CitrusTestReportService', () => {
       expect(result).toBeUndefined();
     });
 
+    it('should not match when structural segment indices differ', () => {
+      const actions: TestActionResult[] = [{ name: 'print', path: 'actions.0.print' }];
+
+      const result = CitrusTestReportService.findResult('actions.1.print', actions);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should not match when sorted name parts differ', () => {
+      const actions: TestActionResult[] = [{ name: 'http:send-request', path: 'actions.0.http:send-request' }];
+
+      const result = CitrusTestReportService.findResult('actions.0.kafka-consume', actions);
+
+      expect(result).toBeUndefined();
+    });
+
     it('should not stop searching siblings when nested search returns undefined', () => {
       const actions: TestActionResult[] = [
         {
