@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { StrictMode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 import { createPostMessageBridge } from '../../host-bridge/bridge';
@@ -41,6 +42,33 @@ describe('KaotoEditor', () => {
     expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
+  it('mounts under React Strict Mode and accepts the host content', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+
+    render(
+      <StrictMode>
+        <KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={defaultInit} />
+      </StrictMode>,
+    );
+
+    await expect(
+      hostBus.request('host:document:setContent', {
+        reason: 'init',
+        fileUri: 'file:///route.camel.yaml',
+        content: '- route: {}',
+        readonly: false,
+      }),
+    ).resolves.toEqual(expect.objectContaining({ revision: expect.any(Number) }));
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
+
   it('accepts the host content after the editor re-renders', async () => {
     const { host, editor } = createMemoryTransports();
     const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
@@ -61,6 +89,33 @@ describe('KaotoEditor', () => {
         readonly: false,
       }),
     ).resolves.toEqual(expect.objectContaining({ revision: expect.any(Number) }));
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
+
+  it('asks the host for the document and renders past the loading state once it arrives', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+    // The host only sends the document after `editor:ready`
+    hostBus.on('editor:ready', () => {
+      void hostBus.request('host:document:setContent', {
+        reason: 'init',
+        fileUri: 'file:///route.camel.yaml',
+        content: '- route: {}',
+        readonly: false,
+      });
+    });
+
+    render(<KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={defaultInit} />);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading-kaoto-resource')).not.toBeInTheDocument();
+    });
 
     hostBridge.dispose();
     editorBridge.dispose();

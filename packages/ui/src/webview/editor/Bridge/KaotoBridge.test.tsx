@@ -5,7 +5,6 @@ import { EntitiesContext, EntitiesContextResult } from '../../../providers/entit
 import { KaotoBridge } from './KaotoBridge';
 
 describe('KaotoBridge', () => {
-  const mockOnReady = vi.fn();
   const mockGetMetadata = vi.fn();
   const mockSetMetadata = vi.fn();
   const mockGetResourceContent = vi.fn();
@@ -16,7 +15,6 @@ describe('KaotoBridge', () => {
   const mockGetSuggestions = vi.fn();
 
   const defaultProps: ComponentProps<typeof KaotoBridge> = {
-    onReady: mockOnReady,
     getMetadata: mockGetMetadata,
     setMetadata: mockSetMetadata,
     getResourceContent: mockGetResourceContent,
@@ -51,10 +49,5 @@ describe('KaotoBridge', () => {
   it('should render children components', () => {
     const { getByText } = renderBridge();
     expect(getByText('Test Child')).toBeInTheDocument();
-  });
-
-  it('should call onReady on mount', () => {
-    renderBridge();
-    expect(mockOnReady).toHaveBeenCalledTimes(1);
   });
 });

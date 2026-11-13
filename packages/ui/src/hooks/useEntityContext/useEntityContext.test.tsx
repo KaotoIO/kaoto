@@ -4,15 +4,15 @@ import type { Mock } from 'vitest';
 
 import { EntitiesProvider } from '../../providers/entities.provider';
 import { KaotoResourceProvider } from '../../providers/kaoto-resource.provider';
-import { SourceCodeSync } from '../../providers/source-code-sync';
+import { inMemorySourceCodeAdapter, SourceCodeProvider } from '../../providers/source-code.provider';
 import { errorMessage, useEntityContext } from './useEntityContext';
 
 const wrapper = ({ children }: PropsWithChildren) => (
-  <SourceCodeSync>
+  <SourceCodeProvider adapter={inMemorySourceCodeAdapter()}>
     <KaotoResourceProvider>
       <EntitiesProvider>{children}</EntitiesProvider>
     </KaotoResourceProvider>
-  </SourceCodeSync>
+  </SourceCodeProvider>
 );
 
 describe('useEntityContext', () => {

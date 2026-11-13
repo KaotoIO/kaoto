@@ -11,17 +11,17 @@ import { pipeYaml } from '../stubs/pipe';
 import { EventNotifier } from '../utils';
 import { EntitiesContext, EntitiesProvider } from './entities.provider';
 import { KaotoResourceContext, KaotoResourceProvider } from './kaoto-resource.provider';
-import { SourceCodeSync } from './source-code-sync';
+import { inMemorySourceCodeAdapter, SourceCodeProvider } from './source-code.provider';
 
 describe('KaotoResourceProvider', () => {
   it('builds the resource and entities from the source code present at mount', async () => {
     const { result } = renderHook(() => useContext(EntitiesContext), {
       wrapper: ({ children }: PropsWithChildren) => (
-        <SourceCodeSync initialSourceCode={camelRouteYaml}>
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter(camelRouteYaml)}>
           <KaotoResourceProvider>
             <EntitiesProvider>{children}</EntitiesProvider>
           </KaotoResourceProvider>
-        </SourceCodeSync>
+        </SourceCodeProvider>
       ),
     });
 
@@ -35,9 +35,9 @@ describe('KaotoResourceProvider', () => {
 
     renderHook(() => useContext(KaotoResourceContext), {
       wrapper: ({ children }: PropsWithChildren) => (
-        <SourceCodeSync>
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter()}>
           <KaotoResourceProvider>{children}</KaotoResourceProvider>
-        </SourceCodeSync>
+        </SourceCodeProvider>
       ),
     });
 
@@ -49,9 +49,9 @@ describe('KaotoResourceProvider', () => {
   it('falls back to fileExtension when the mount event carries no path', () => {
     const { result } = renderHook(() => useContext(KaotoResourceContext), {
       wrapper: ({ children }: PropsWithChildren) => (
-        <SourceCodeSync initialSourceCode={camelRouteYaml}>
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter(camelRouteYaml)}>
           <KaotoResourceProvider fileExtension=".xml">{children}</KaotoResourceProvider>
-        </SourceCodeSync>
+        </SourceCodeProvider>
       ),
     });
 
@@ -62,9 +62,9 @@ describe('KaotoResourceProvider', () => {
   it('prefers an explicit path from the event over fileExtension', () => {
     const { result } = renderHook(() => useContext(KaotoResourceContext), {
       wrapper: ({ children }: PropsWithChildren) => (
-        <SourceCodeSync>
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter()}>
           <KaotoResourceProvider fileExtension=".xml">{children}</KaotoResourceProvider>
-        </SourceCodeSync>
+        </SourceCodeProvider>
       ),
     });
 
@@ -86,9 +86,9 @@ describe('KaotoResourceProvider', () => {
 
     const { result } = renderHook(() => useContext(KaotoResourceContext), {
       wrapper: ({ children }: PropsWithChildren) => (
-        <SourceCodeSync initialSourceCode="- from: {">
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter('- from: {')}>
           <KaotoResourceProvider>{children}</KaotoResourceProvider>
-        </SourceCodeSync>
+        </SourceCodeProvider>
       ),
     });
 
@@ -102,11 +102,11 @@ describe('KaotoResourceProvider', () => {
   it('keeps the last valid resource when a keystroke makes the source transiently invalid', async () => {
     const { result } = renderHook(() => useContext(EntitiesContext), {
       wrapper: ({ children }: PropsWithChildren) => (
-        <SourceCodeSync initialSourceCode={pipeYaml}>
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter(pipeYaml)}>
           <KaotoResourceProvider>
             <EntitiesProvider>{children}</EntitiesProvider>
           </KaotoResourceProvider>
-        </SourceCodeSync>
+        </SourceCodeProvider>
       ),
     });
 

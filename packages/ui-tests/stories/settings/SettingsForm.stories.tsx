@@ -2,11 +2,12 @@ import { SettingsForm } from '@kaoto/kaoto';
 import {
   CatalogSchemaLoader,
   DefaultSettingsAdapter,
+  inMemorySourceCodeAdapter,
   KaotoResourceProvider,
   ReloadContext,
   RuntimeProvider,
   SettingsProvider,
-  SourceCodeSync,
+  SourceCodeProvider,
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn } from '@storybook/react';
 import { useMemo } from 'react';
@@ -22,7 +23,7 @@ const Template: StoryFn<typeof SettingsForm> = (args) => {
   const reloadContextValue = useMemo(() => ({ reloadPage: () => {}, lastRender: 0 }), []);
   return (
     <ReloadContext.Provider value={reloadContextValue}>
-      <SourceCodeSync initialSourceCode="">
+      <SourceCodeProvider adapter={inMemorySourceCodeAdapter('')}>
         <KaotoResourceProvider>
           <RuntimeProvider
             catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
@@ -34,7 +35,7 @@ const Template: StoryFn<typeof SettingsForm> = (args) => {
             </SettingsProvider>
           </RuntimeProvider>
         </KaotoResourceProvider>
-      </SourceCodeSync>
+      </SourceCodeProvider>
     </ReloadContext.Provider>
   );
 };
