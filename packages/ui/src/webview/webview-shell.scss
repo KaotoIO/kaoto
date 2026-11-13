@@ -3,7 +3,9 @@
  * them: the stylesheet of the editor, which `kaoto-editor.html` links in production, already includes them, but
  * in development the editor styles only arrive once its modules are loaded.
  *
- * The theme follows the system preference, as the editor stylesheet does before the editor applies the settings.
+ * The theme follows the `data-theme-setting` attribute of the page, as the editor stylesheet does. The host fills it
+ * with the resolved scheme, so a webview does not depend on `prefers-color-scheme`, which follows the OS instead of
+ * the VS Code theme.
  */
 // Same fonts as the editor stylesheet (`carbon-overrides.scss`), so the message does not change typeface.
 @use '@carbon/react/scss/config' with (
@@ -20,8 +22,6 @@
   @include theme(themes.$g10);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    @include theme(themes.$g100);
-  }
+:root[data-theme-setting='dark'] {
+  @include theme(themes.$g100);
 }
