@@ -1,11 +1,7 @@
 name: Setup Tools (kaoto-vscode)
-description: Sets up Node.js with yarn cache; optionally sets up Java and JBang for integration tests
+description: Optionally sets up Java and JBang for integration tests and lets VS Code start on Linux. Set up Node.js first, e.g. with kaoto-setup-workspace.
 
 inputs:
-  node-version:
-    description: Node.js version
-    required: false
-    default: '24'
   install-jbang:
     description: Whether to install Java and JBang (needed by the UI test groups that run Camel JBang)
     required: false
@@ -18,11 +14,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-      with:
-        node-version: ${{ inputs.node-version }}
-        cache: yarn
-
     - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
       if: ${{ inputs.install-jbang == 'true' }}
       with:

@@ -21,17 +21,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: '🛰️ Setup Node'
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '24.x'
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto'
-          cache: 'yarn'
-
-      # Install dependencies
-      - name: 🔧 Install dependencies
-        run: yarn install --immutable --mode=skip-build
+      - name: '🔧 Setup workspace'
+        uses: ./.github/actions/kaoto-setup-workspace
 
       # Only the web application is deployed. Workspaces import each other from source, so it needs no other build.
       - name: '🔧 Build web application'

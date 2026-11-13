@@ -38,11 +38,8 @@ jobs:
           full: ${{ inputs.run-full-ui-tests }}
           all-os: ${{ inputs.full-matrix }}
 
-      - name: Setup tools
-        uses: ./.github/actions/kaoto-vscode-setup-tools
-
-      - name: Install dependencies
-        run: yarn install --immutable --mode=skip-build
+      - name: Setup workspace
+        uses: ./.github/actions/kaoto-setup-workspace
 
       - name: Build webview and extension
         run: yarn workspace vscode-kaoto build
