@@ -19,7 +19,7 @@ process.on('exit', () => {
 
 // Open a copy of the fixture so tests never modify the committed files.
 const workspaceFolder = path.join(runRoot, fixtureName);
-fs.cpSync(path.join(projectRoot, fixtureName), workspaceFolder, { recursive: true });
+fs.cpSync(path.join(projectRoot, 'src', 'test', 'fixtures', fixtureName), workspaceFolder, { recursive: true });
 
 // A workspace file keeps workspace-scoped settings written by the tests out of the fixture.
 // The folders[0].path must be absolute because the file is not next to the folder.

@@ -86,7 +86,7 @@ Running a single test group or a prebuilt VSIX is described in that package's RE
 
 ### Test layout
 
-- **`src/test/`** — Unit tests (mirrors source structure): `commands/`, `executors/`, `extension/`, `lsp/`, `services/`, `utils/`, `views/`, `webview/`
+- **`src/test/`** — Unit tests (mirrors source structure): `commands/`, `executors/`, `extension/`, `lsp/`, `services/`, `utils/`, `views/`, `webview/`. The workspace the tests open is `fixtures/test Fixture with speci@l chars/`, which `.vscode-test.mjs` copies to a temporary folder for each run
 - **[`packages/ui-tests-vscode`](../ui-tests-vscode/)** — UI/integration tests (ExTester) that run against the packaged VSIX
 
 ### Build
