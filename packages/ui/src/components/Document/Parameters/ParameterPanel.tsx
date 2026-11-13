@@ -1,5 +1,4 @@
 import { ChevronDown, ChevronRight } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Virtuoso } from 'react-virtuoso';
 
@@ -127,11 +126,12 @@ export const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
           <ParameterInputPlaceholder parameter={parameterName} onComplete={onStopRename} />
         ) : (
           <div className="parameter-panel__summary">
-            {hasSchema && (
-              <Icon isInline className="parameter-panel__chevron">
-                {isExpanded ? <ChevronDown /> : <ChevronRight />}
-              </Icon>
-            )}
+            {hasSchema &&
+              (isExpanded ? (
+                <ChevronDown className="parameter-panel__chevron" />
+              ) : (
+                <ChevronRight className="parameter-panel__chevron" />
+              ))}
             <DocumentHeader
               header={<span className="panel-header-text panel-header-text--parameter">{parameterName}</span>}
               document={document}

@@ -1,18 +1,14 @@
 import './ErrorPage.scss';
 
 import { ArrowLeft, WarningFilled } from '@carbon/icons-react';
-import { Bullseye, Button, EmptyState, EmptyStateBody, EmptyStateVariant, Icon } from '@patternfly/react-core';
+import { Bullseye, Button, EmptyState, EmptyStateBody, EmptyStateVariant } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 import { useRouteError } from 'react-router';
 
 import { useComponentLink } from '../hooks/ComponentLink';
 import { Links } from '../router/links.models';
 
-const ErrorIcon: FunctionComponent = () => (
-  <Icon className="error__icon" status="danger" size="xl">
-    <WarningFilled />
-  </Icon>
-);
+const ErrorIcon: FunctionComponent = () => <WarningFilled size={24} className="error__icon" />;
 
 export const ErrorPage: FunctionComponent = () => {
   const backLink = useComponentLink(Links.Home);

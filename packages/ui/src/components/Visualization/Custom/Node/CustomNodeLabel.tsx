@@ -1,5 +1,4 @@
 import { WarningFilled } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
 
@@ -40,16 +39,14 @@ export const CustomNodeLabel: FunctionComponent<CustomNodeLabelProps> = ({
       })}
     >
       {doesHaveWarnings && (
-        <Icon
-          status="danger"
-          title={validationText}
+        <WarningFilled
+          size={14}
+          className="custom-node__label__warning-icon"
           aria-label={validationText || 'Warning'}
-          role="img"
           data-warning={doesHaveWarnings}
         >
-          {/* Carbon draws 16px by default; the PatternFly icon box is 14px and would clip it */}
-          <WarningFilled size={14} />
-        </Icon>
+          {validationText && <title>{validationText}</title>}
+        </WarningFilled>
       )}
       <span title={label}>{label}</span>
     </div>

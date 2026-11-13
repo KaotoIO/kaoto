@@ -1,6 +1,10 @@
 button.flow-clipboard-control[data-copied='true'] {
-  --pf-v6-c-button--m-clicked--BorderColor: var(--pf-t--global--icon--color--status--success--default);
-  --pf-v6-c-button--hover--BorderColor: var(--pf-t--global--icon--color--status--success--default);
+  --pf-v6-c-button--m-clicked--BorderColor: var(--cds-support-success);
+  --pf-v6-c-button--hover--BorderColor: var(--cds-support-success);
 
-  border-color: var(--pf-t--global--icon--color--status--success--default);
+  border-color: var(--cds-support-success);
+
+  svg {
+    fill: var(--cds-support-success);
+  }
 }

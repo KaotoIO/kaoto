@@ -2,3 +2,17 @@
   max-height: 300px;
   overflow-y: auto;
 }
+
+.attach-schema-status-icon {
+  &--success {
+    fill: var(--cds-support-success);
+  }
+
+  &--warning {
+    fill: var(--cds-support-warning);
+  }
+
+  &--error {
+    fill: var(--cds-support-error);
+  }
+}

@@ -93,11 +93,13 @@
 
           &__error {
             color: var(--custom-node-BorderColor);
-
-            & > span:first-of-type {
-              margin-right: var(--pf-t--global--spacer--xs);
-            }
           }
+        }
+
+        &__warning-icon {
+          flex-shrink: 0;
+          margin-right: var(--cds-spacing-02);
+          fill: var(--cds-support-error);
         }
       }
     }

@@ -230,6 +230,10 @@
     text-align: center;
   }
 
+  &__warning-icon {
+    fill: var(--cds-support-error);
+  }
+
   &__warning-icon--floating {
     border-radius: 15px;
 
