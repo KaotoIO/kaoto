@@ -33,8 +33,8 @@
   // Header controls sizing (buttons, inputs, icons in panel headers)
   --datamapper-header-control-size: 1.4rem; // Size of buttons and inputs in headers (1.75rem * 0.8)
   --datamapper-header-control-font-size: 0.7rem; // Font size for header controls (0.875rem * 0.8)
-  --datamapper-header-icon-size: 0.75rem; // Size of icons in headers
-  --datamapper-header-button-padding: 0.325rem; // Padding for header buttons
+  --datamapper-header-icon-size: 1rem; // Size of icons in headers, matches the field row icons at default zoom
+  --datamapper-header-button-padding: 0.2rem; // Padding for header buttons, keeps them at the control size around the icon
 
   &__source-split {
     width: 30%;
