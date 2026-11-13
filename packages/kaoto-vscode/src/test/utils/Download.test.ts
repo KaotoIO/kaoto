@@ -74,6 +74,20 @@ suite('Download', () => {
 			expect(acceptEncoding).to.equal('identity');
 		});
 
+		test('reports the progress without a total when the server sends no size', async () => {
+			handler = (_request, response) => {
+				// no Content-Length: the body comes in chunks
+				response.write(CONTENT);
+				response.end();
+			};
+			const progress: Array<[number, number | undefined]> = [];
+
+			await download()(`${baseUrl}/file.jar`, targetPath, (receivedBytes, totalBytes) => progress.push([receivedBytes, totalBytes]));
+
+			expect(fs.readFileSync(targetPath, 'utf8')).to.equal(CONTENT);
+			expect(progress.at(-1)).to.deep.equal([CONTENT.length, undefined]);
+		});
+
 		test('follows the redirects of every kind', async () => {
 			const redirects: Record<string, [number, string]> = {
 				'/301': [301, `${baseUrl}/302`],
@@ -127,6 +141,19 @@ suite('Download', () => {
 			expect(error.message).to.equal(`HTTP 404 for ${baseUrl}/missing.jar`);
 		});
 
+		test('rejects a 200 OK response without a body', async () => {
+			const originalFetch = globalThis.fetch;
+			globalThis.fetch = () => Promise.resolve(new Response(null, { status: 200 }));
+			let error: Error;
+			try {
+				error = await getRejection(download()(`${baseUrl}/file.jar`, targetPath));
+			} finally {
+				globalThis.fetch = originalFetch;
+			}
+
+			expect(error.message).to.equal(`Empty response from ${baseUrl}/file.jar`);
+		});
+
 		test('fails when no response comes for the timeout', async () => {
 			handler = () => {
 				// never answers
@@ -135,6 +162,16 @@ suite('Download', () => {
 			const error = await getRejection(download(100)(`${baseUrl}/file.jar`, targetPath));
 
 			expect(error.message).to.contain('No data from').and.contain('0.1 seconds');
+		});
+
+		test('fails with the timeout, not a cancel, when the signal did not abort', async () => {
+			handler = () => {
+				// never answers
+			};
+
+			const error = await getRejection(download(100)(`${baseUrl}/file.jar`, targetPath, undefined, new AbortController().signal));
+
+			expect(error.message).to.contain('No data from');
 		});
 
 		test('fails when the data stops coming for the timeout', async () => {
@@ -214,6 +251,20 @@ suite('Download', () => {
 			const error = await getRejection(downloadIntoPlace(writing, `${baseUrl}/file.jar`, targetPath, { verify }));
 
 			expect(error.message).to.equal('Checksum mismatch');
+			expect(fs.readdirSync(tempDir)).to.be.empty;
+		});
+
+		test('keeps nothing when the download cannot be put in place', async () => {
+			const originalRename = fs.promises.rename;
+			fs.promises.rename = () => Promise.reject(Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' }));
+			let error: Error;
+			try {
+				error = await getRejection(downloadIntoPlace(writing, `${baseUrl}/file.jar`, targetPath));
+			} finally {
+				fs.promises.rename = originalRename;
+			}
+
+			expect(error.message).to.contain('EACCES');
 			expect(fs.readdirSync(tempDir)).to.be.empty;
 		});
 	});
