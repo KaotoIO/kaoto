@@ -19,6 +19,10 @@ export default defineConfig(({ mode }) => {
     define: buildInfoDefines,
     build: {
       outDir: 'dist-webview',
+      // One stylesheet, linked by the webview HTML before the bundle runs. Split chunks are only fetched with the
+      // dynamic import that needs them, so the styles of components shared with the entry, such as the loaders shown
+      // while the editor starts, would be missing until a lazy page loads.
+      cssCodeSplit: false,
       emptyOutDir: true,
       sourcemap: isDevelopment ? 'inline' : false,
       minify: !isDevelopment,

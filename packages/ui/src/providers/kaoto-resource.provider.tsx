@@ -1,4 +1,3 @@
-import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useLayoutEffect, useMemo, useState } from 'react';
 
 import { Loading } from '../components/Loading';
@@ -63,10 +62,8 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
 
   if (!kaotoResource) {
     return (
-      <Loading fullPage>
-        <Content data-testid="loading-kaoto-resource" component={ContentVariants.h3}>
-          Loading Kaoto resource...
-        </Content>
+      <Loading fullPage data-testid="loading-kaoto-resource">
+        Loading Kaoto resource...
       </Loading>
     );
   }

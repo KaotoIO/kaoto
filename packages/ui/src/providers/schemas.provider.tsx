@@ -1,5 +1,4 @@
 import type { CatalogDefinition } from '@kaoto/camel-catalog/types';
-import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
 
 import { LoadDefaultCatalog } from '../components/LoadDefaultCatalog';
@@ -69,10 +68,8 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
   return (
     <SchemasContext.Provider value={schemas}>
       {loadingStatus === LoadingStatus.Loading && (
-        <Loading fullPage>
-          <Content data-testid="loading-schemas" component={ContentVariants.h3}>
-            Loading Schemas...
-          </Content>
+        <Loading fullPage data-testid="loading-schemas">
+          Loading Schemas...
         </Loading>
       )}
 

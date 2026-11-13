@@ -32,6 +32,7 @@ import type { FileTypes } from '@kaoto/kaoto/models';
 import * as vscode from 'vscode';
 import { KAOTO_EDITOR_VIEW_TYPE } from '../constants';
 import { KaotoHostServices } from '../services/KaotoHostServices';
+import { fillDevWebviewHtml, fillWebviewHtml } from '../utils/WebviewHtml';
 import type { SuggestionRequestContext } from '../services/SuggestionRegistry';
 import { KaotoOutputChannel } from './KaotoOutputChannel';
 
@@ -625,35 +626,29 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			if (!response.ok) {
 				throw new Error(`Could not load Vite webview HTML: ${response.status} ${response.statusText}`);
 			}
-			let html = await response.text();
 			const csp = `default-src 'none'; script-src ${webview.cspSource} ${origin} 'unsafe-inline' 'unsafe-eval'; style-src ${webview.cspSource} ${origin} 'unsafe-inline'; img-src ${webview.cspSource} ${origin} data: blob: https:; font-src ${webview.cspSource} ${origin} data:; connect-src ${webview.cspSource} ${origin} ws: wss: https: http: data: blob:; worker-src ${webview.cspSource} blob:;`;
-			html = replaceDevHtmlToken(html, '__KAOTO_CSP__', escapeAttribute(csp));
-			html = replaceDevHtmlToken(html, '__KAOTO_FILE_EXTENSION__', escapeAttribute(extension));
-			html = replaceDevHtmlToken(html, '__KAOTO_HOST_SHIM__', escapeAttribute(this.hostShimUri(webview)));
-			html = replaceDevHtmlToken(html, '__KAOTO_RESOURCES_PATH_PREFIX__', escapeAttribute(origin));
-			for (const path of ['/@vite/client', '/@react-refresh', '/src/webview/start.tsx']) {
-				html = replaceDevHtmlToken(html, `"${path}"`, `"${escapeAttribute(origin)}${path}"`);
-			}
-			return html;
+			return fillDevWebviewHtml(await response.text(), origin, { csp, fileExtension: extension, hostShim: this.hostShimUri(webview) });
 		}
 
 		const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, '0')).join('');
 		const script = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist/webview/KaotoEditor.js')).toString();
 		const stylesheet = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'dist/webview/KaotoEditor.css')).toString();
 		const template = new TextDecoder().decode(
-			await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this.context.extensionUri, 'assets/kaoto-editor.html')),
+			// The same page the Vite dev server serves, copied next to the bundle by webpack
+			await vscode.workspace.fs.readFile(vscode.Uri.joinPath(this.context.extensionUri, 'dist/webview/kaoto-editor.html')),
 		);
 		// connect-src allows http(s) because the editor fetches user-configured remote resources: a custom Camel
 		// catalog URL, the Apicurio registry and OpenAPI documents to import. Styles stay 'unsafe-inline' because the UI libraries inject them.
 		const csp = `default-src 'none'; script-src ${webview.cspSource} 'nonce-${nonce}' 'unsafe-eval'; style-src ${webview.cspSource} 'unsafe-inline'; img-src ${webview.cspSource} data: blob: https:; font-src ${webview.cspSource} data:; connect-src ${webview.cspSource} https: http: data: blob:; worker-src ${webview.cspSource} blob:;`;
-		return template
-			.replaceAll('__KAOTO_CSP__', escapeAttribute(csp))
-			.replaceAll('__KAOTO_NONCE__', nonce)
-			.replaceAll('__KAOTO_STYLESHEET__', escapeAttribute(stylesheet))
-			.replaceAll('__KAOTO_FILE_EXTENSION__', escapeAttribute(extension))
-			.replaceAll('__KAOTO_RESOURCES_PATH_PREFIX__', escapeAttribute(this.resourcesPrefix(webview)))
-			.replaceAll('__KAOTO_HOST_SHIM__', escapeAttribute(this.hostShimUri(webview)))
-			.replaceAll('__KAOTO_SCRIPT__', escapeAttribute(script));
+		return fillWebviewHtml(template, {
+			csp,
+			nonce,
+			fileExtension: extension,
+			resourcesPathPrefix: this.resourcesPrefix(webview),
+			hostShim: this.hostShimUri(webview),
+			stylesheet,
+			script,
+		});
 	}
 	private disposeDocument(state: DocumentState): void {
 		if (state.disposed) {
@@ -710,15 +705,6 @@ function report(error: unknown): void {
 	}
 	KaotoOutputChannel.logError('Kaoto editor operation failed', error);
 }
-function escapeAttribute(value: string): string {
-	return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-}
 function viteDevUrl(): string | undefined {
 	return typeof process === 'undefined' ? undefined : process.env['KAOTO_DEV_URL'];
-}
-function replaceDevHtmlToken(html: string, token: string, replacement: string): string {
-	if (!html.includes(token)) {
-		throw new Error(`The Vite webview HTML is missing ${token}`);
-	}
-	return html.replaceAll(token, replacement);
 }
