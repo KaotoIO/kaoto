@@ -1,32 +1,28 @@
-import './Canvas.scss';
-
-import { TopologyView } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
+import { FunctionComponent } from 'react';
 
 import { VisualizationEmptyState } from '../EmptyState';
+import { CanvasDefaults } from './canvas.defaults';
 
 interface EmptyCanvasProps {
   entitiesNumber: number;
-  contextToolbar?: ReactNode;
   isModelResolving?: boolean;
 }
 
-export const EmptyCanvas: FunctionComponent<PropsWithChildren<EmptyCanvasProps>> = ({
-  entitiesNumber,
-  contextToolbar,
-  isModelResolving,
-}) => {
+/**
+ * The empty state shown over the empty graph, as a child of `Canvas`, so the canvas and its toolbars stay mounted.
+ * Its title describes the canvas for screen readers.
+ */
+export const EmptyCanvas: FunctionComponent<EmptyCanvasProps> = ({ entitiesNumber, isModelResolving }) => {
   if (isModelResolving) {
     return null;
   }
 
   return (
-    <TopologyView contextToolbar={contextToolbar}>
-      <VisualizationEmptyState
-        className="canvas-empty-state"
-        data-testid="visualization-empty-state"
-        entitiesNumber={entitiesNumber}
-      />
-    </TopologyView>
+    <VisualizationEmptyState
+      className="canvas-empty-state"
+      data-testid="visualization-empty-state"
+      entitiesNumber={entitiesNumber}
+      titleId={CanvasDefaults.EMPTY_STATE_TITLE_ID}
+    />
   );
 };

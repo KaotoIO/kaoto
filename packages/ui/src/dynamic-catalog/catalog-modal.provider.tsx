@@ -8,12 +8,14 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 
 import { Catalog, ITile, TileFilter } from '../components/Catalog';
+import { focusElement, getFocusOrigin } from '../components/Visualization/Canvas/canvas-focus';
 import { CatalogKind, DefinedComponent } from '../models';
 import { CatalogContext } from './catalog.provider';
 import { useCatalogTiles } from './use-catalog-tiles.hook';
@@ -51,6 +53,19 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
     reject: (error: unknown) => unknown;
   }>(undefined);
 
+  /**
+   * Element that opened the catalog. PatternFly only returns focus to HTML elements when the modal closes,
+   * so focus is returned here, which also covers the SVG canvas nodes.
+   */
+  const openerRef = useRef<Element | null>(null);
+
+  useEffect(() => {
+    if (isModalOpen) return;
+    // Runs after the modal and its focus trap are unmounted
+    focusElement(openerRef.current);
+    openerRef.current = null;
+  }, [isModalOpen]);
+
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
     componentSelectionRef.current?.resolve(undefined);
@@ -58,6 +73,8 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
 
   const handleSelectComponent = useCallback(
     async (tile: ITile) => {
+      // A chosen component changes the canvas; focus then follows the new selection instead
+      openerRef.current = null;
       setIsModalOpen(false);
 
       const definition = await catalogRegistry.getEntity(tile.type as CatalogKind, tile.name, {
@@ -76,6 +93,8 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
 
   const getNewComponent = useCallback(
     async (catalogFilter?: TileFilter): Promise<DefinedComponent | undefined> => {
+      // Taken before the tiles load, so a focus change while they load does not replace the opener
+      const opener = getFocusOrigin();
       let tiles: ITile[];
       try {
         tiles = await fetchTiles();
@@ -96,6 +115,7 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
         componentSelectionRef.current = { resolve, reject };
       });
 
+      openerRef.current = opener;
       setIsModalOpen(true);
 
       return componentSelectorPromise;

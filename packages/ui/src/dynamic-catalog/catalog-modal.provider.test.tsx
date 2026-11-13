@@ -1,4 +1,5 @@
-import { fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FunctionComponent, PropsWithChildren, useContext } from 'react';
 import type { Mock } from 'vitest';
 
@@ -299,6 +300,82 @@ describe('CatalogModalProvider', () => {
       await waitFor(() => {
         expect(selectedComponent).toBeUndefined();
       });
+    });
+
+    it('should return focus to the canvas node that opened the catalog when it is closed with Escape', async () => {
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <svg>
+            <g
+              data-testid="placeholder-node"
+              tabIndex={0}
+              role="button"
+              aria-label="Add step"
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') void getNewComponent();
+              }}
+            />
+          </svg>
+        );
+      };
+      render(<TestComponent />, { wrapper: createWrapper() });
+      const user = userEvent.setup();
+      const node = screen.getByTestId('placeholder-node');
+      act(() => {
+        node.focus();
+      });
+
+      await user.keyboard('{Enter}');
+      await screen.findByText('Catalog');
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(screen.queryByText('Catalog')).not.toBeInTheDocument());
+      expect(node).toHaveFocus();
+    });
+
+    it('should return focus to the canvas node that opened the catalog even if the focus moved while the tiles loaded', async () => {
+      let resolveTiles: (tiles: ITile[]) => void = () => {};
+      const fetchTiles = () =>
+        new Promise<ITile[]>((resolve) => {
+          resolveTiles = resolve;
+        });
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <svg>
+            <g
+              data-testid="opener-node"
+              tabIndex={0}
+              role="button"
+              aria-label="Add step"
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') void getNewComponent();
+              }}
+            />
+            <g data-testid="other-node" tabIndex={0} role="button" aria-label="Other step" />
+          </svg>
+        );
+      };
+      render(<TestComponent />, { wrapper: createWrapper(fetchTiles) });
+      const user = userEvent.setup();
+      const opener = screen.getByTestId('opener-node');
+      act(() => {
+        opener.focus();
+      });
+
+      await user.keyboard('{Enter}');
+      act(() => {
+        screen.getByTestId('other-node').focus();
+      });
+      await act(async () => {
+        resolveTiles(mockTiles);
+      });
+      await screen.findByText('Catalog');
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(screen.queryByText('Catalog')).not.toBeInTheDocument());
+      expect(opener).toHaveFocus();
     });
 
     it('should handle fetchTiles error gracefully', async () => {

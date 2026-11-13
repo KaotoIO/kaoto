@@ -53,6 +53,17 @@ interface CanvasProps {
 }
 
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
+/*
+ * The canvas relies on the DOM that PatternFly Topology renders for these elements, also in `Canvas.scss`. The test
+ * 'finds the PatternFly elements the canvas relies on' fails when an update changes them.
+ */
+/** The PatternFly element that holds the graph */
+const STALE_GRAPH_SURFACE = '[data-test-id="topology"]';
+/** The background rectangle of the graph, which takes the right-clicks for the canvas menu */
+export const GRAPH_BACKGROUND = '[data-kind="graph"] > rect';
+/** The visible area of the graph, without the toolbars and the side panel */
+export const GRAPH_CONTENT = '.pf-topology-content';
+const STALE_GRAPH_INPUT_EVENTS = ['mousedown', 'pointerdown', 'click', 'dblclick', 'contextmenu', 'keydown'] as const;
 
 interface CanvasState {
   [SETTLED_EMPTY_STATE]?: boolean;
@@ -78,6 +89,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   isModelResolving = false,
   contextToolbar,
   applyCollapseOnUpdate = false,
+  children,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
   const settingsLayout = useMemo(
@@ -136,7 +148,26 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, []);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
-  useDeleteHotkey(selectedVizNode, clearSelection);
+  // While the model resolves, the selected node belongs to the previous model and may point to another step
+  useDeleteHotkey(isModelResolving ? undefined : selectedVizNode, clearSelection);
+
+  /**
+   * While the model resolves, the previous graph stays mounted, so the focus stays on its step. Its nodes still act
+   * on the previous model, so mouse and keyboard input on them is dropped until the new graph is drawn.
+   */
+  useEffect(() => {
+    if (!isModelResolving) return;
+    const surface = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.querySelector(STALE_GRAPH_SURFACE);
+    if (!surface) return;
+
+    const dropInput = (event: Event) => {
+      event.stopPropagation();
+    };
+    for (const type of STALE_GRAPH_INPUT_EVENTS) surface.addEventListener(type, dropInput, true);
+    return () => {
+      for (const type of STALE_GRAPH_INPUT_EVENTS) surface.removeEventListener(type, dropInput, true);
+    };
+  }, [isModelResolving]);
 
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {
@@ -256,7 +287,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     (event: React.MouseEvent) => {
       // Only the graph's own background rectangle counts, not rects inside nodes, groups or toolbars
       const target = event.target;
-      if (target instanceof SVGElement && target.matches('[data-kind="graph"] > rect')) {
+      if (target instanceof SVGElement && target.matches(GRAPH_BACKGROUND)) {
         clearSelection();
       }
     },
@@ -269,6 +300,21 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     (event: React.KeyboardEvent) => {
       if (event.key === 'Escape') {
         clearSelection();
+      } else if (
+        ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') &&
+        event.target === event.currentTarget
+      ) {
+        // Open the background menu like a right-click would, near the top-left corner of the visible graph
+        const content = event.currentTarget.querySelector(GRAPH_CONTENT);
+        const background = event.currentTarget.querySelector(GRAPH_BACKGROUND);
+        if (!content || !background) return;
+
+        event.preventDefault();
+        const { left, top } = content.getBoundingClientRect();
+        const inset = CanvasDefaults.KEYBOARD_MENU_INSET;
+        background.dispatchEvent(
+          new MouseEvent('contextmenu', { bubbles: true, clientX: left + inset, clientY: top + inset }),
+        );
       }
     },
     [clearSelection],
@@ -288,14 +334,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
   }, [selectedVizNode]);
 
-  if (isModelResolving) {
-    return null;
-  }
-
   return (
     <TopologyView
       id={CanvasDefaults.CANVAS_MAIN_ID}
-      className={clsx({ hidden: !initialized })}
+      className={clsx({ 'canvas-uninitialized': !initialized })}
       defaultSideBarSize={sidebarWidth + 'px'}
       minSideBarSize="210px"
       onSideBarResize={setSidebarWidth}
@@ -309,11 +351,14 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label="Route canvas"
+      aria-busy={isModelResolving}
+      aria-describedby={isGraphEmpty && !isModelResolving ? CanvasDefaults.EMPTY_STATE_TITLE_ID : undefined}
     >
       <CanvasOverlayContext.Provider
         value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}
       >
         <VisualizationSurface state={{ selectedIds }} />
+        {children}
       </CanvasOverlayContext.Provider>
     </TopologyView>
   );

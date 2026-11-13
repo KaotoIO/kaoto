@@ -1,10 +1,12 @@
 import { ContextMenuItem, WithContextMenuProps } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import type { Mock } from 'vitest';
 
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
+import { CanvasContextSubMenuItem } from './CanvasContextSubMenuItem';
 import { withNodeContextMenu } from './withNodeContextMenu';
 
 describe('withNodeContextMenu', () => {
@@ -23,6 +25,7 @@ describe('withNodeContextMenu', () => {
   const Target: FunctionComponent<TargetProps> = ({ onContextMenu, contextMenuOpen, count }) => (
     <g
       data-testid="target"
+      tabIndex={-1}
       data-menu-open={String(contextMenuOpen)}
       data-count={count !== undefined ? String(count) : undefined}
       onContextMenu={onContextMenu}
@@ -133,6 +136,156 @@ describe('withNodeContextMenu', () => {
     expect(item).not.toBeInTheDocument();
     expect(await screen.findByTestId('item-b')).toBeInTheDocument();
     expect(actions).toHaveBeenCalledTimes(2);
+  });
+
+  it('focuses the first enabled action and skips disabled ones with the arrow keys, Home and End', async () => {
+    const createDisabledItem = (id: string, label: string) => (
+      <ContextMenuItem key={id} data-testid={id} isDisabled>
+        {label}
+      </ContextMenuItem>
+    );
+    const actions = vi
+      .fn()
+      .mockReturnValue([
+        createDisabledItem('disabled-first', 'Disabled first'),
+        itemA,
+        createDisabledItem('disabled-middle', 'Disabled middle'),
+        itemB,
+        createDisabledItem('disabled-last', 'Disabled last'),
+      ]);
+    const { target } = renderWithMenu(actions);
+    const user = userEvent.setup();
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    await settle();
+    const menu = screen.getByRole('menu', { name: 'Step actions' });
+    const itemAButton = within(menu).getByRole('menuitem', { name: 'Item A' });
+    const itemBButton = within(menu).getByRole('menuitem', { name: 'Item B' });
+    expect(itemAButton).toHaveFocus();
+
+    await user.keyboard('{ArrowDown}');
+    expect(itemBButton).toHaveFocus();
+    await user.keyboard('{ArrowUp}');
+    expect(itemAButton).toHaveFocus();
+    await user.keyboard('{End}');
+    expect(itemBButton).toHaveFocus();
+    await user.keyboard('{Home}');
+    expect(itemAButton).toHaveFocus();
+  });
+
+  it('moves to the first and last action on Home and End pressed outside of the menu list', async () => {
+    const actions = vi.fn().mockReturnValue([itemA, itemB]);
+    const { target } = renderWithMenu(actions);
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    await settle();
+    const menu = screen.getByRole('menu', { name: 'Step actions' });
+    const wrapper = menu.parentElement!;
+    expect(wrapper.closest('[role="menu"]')).toBeNull();
+
+    fireEvent.keyDown(wrapper, { key: 'End' });
+    expect(within(menu).getByRole('menuitem', { name: 'Item B' })).toHaveFocus();
+    fireEvent.keyDown(wrapper, { key: 'Home' });
+    expect(within(menu).getByRole('menuitem', { name: 'Item A' })).toHaveFocus();
+  });
+
+  it('names the menu with the given label', async () => {
+    const actions = vi.fn().mockReturnValue([itemA]);
+    const controller = ControllerService.createController();
+    controller.fromModel({ graph: { id: 'g1', type: 'graph' }, nodes: [{ id: 'node-1', type: 'node' }] }, false);
+    const WithMenu = withNodeContextMenu(actions, { label: 'Route actions' })(Target);
+    render(
+      <TopologyElementWrapper controller={controller} element={controller.getNodeById('node-1')!}>
+        <WithMenu />
+      </TopologyElementWrapper>,
+    );
+
+    fireEvent.contextMenu(screen.getByTestId('target'), { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+
+    expect(screen.getByRole('menu', { name: 'Route actions' })).toBeInTheDocument();
+  });
+
+  it('closes when the step gets a new model and returns the focus to where it was', async () => {
+    const actions = vi.fn().mockReturnValue([itemA]);
+    const { element, target } = renderWithMenu(actions);
+    act(() => {
+      element.setData({ vizNode: { id: 'previous' } });
+      target.focus();
+    });
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    await settle();
+    expect(within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Item A' })).toHaveFocus();
+
+    act(() => {
+      element.setData({ vizNode: { id: 'next' } });
+    });
+
+    expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
+    expect(target).toHaveAttribute('data-menu-open', 'false');
+    expect(target).toHaveFocus();
+  });
+
+  it('stays open when the step keeps its model', async () => {
+    const actions = vi.fn().mockReturnValue([itemA]);
+    const { element, target } = renderWithMenu(actions);
+    const vizNode = { id: 'same' };
+    act(() => {
+      element.setData({ vizNode });
+    });
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    act(() => {
+      element.setData({ vizNode });
+    });
+
+    expect(screen.getByTestId('item-a')).toBeInTheDocument();
+  });
+
+  it('does not move the focus once a menu that was asked to close from a submenu is gone', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const actions = vi.fn().mockReturnValue([
+        <CanvasContextSubMenuItem key="sub" label="Sub" data-testid="sub">
+          {itemA}
+        </CanvasContextSubMenuItem>,
+      ]);
+      const { element, target } = renderWithMenu(actions);
+      act(() => {
+        element.setData({ vizNode: { id: 'previous' } });
+        target.focus();
+      });
+      fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+      await settle();
+      const sub = within(screen.getByRole('menu', { name: 'Step actions' })).getByRole('menuitem', { name: 'Sub' });
+      expect(sub).toHaveFocus();
+      fireEvent.keyDown(sub, { key: 'ArrowRight' });
+      expect(within(screen.getByRole('menu', { name: 'Sub' })).getByRole('menuitem')).toHaveFocus();
+
+      /* A click outside while the focus is in the submenu defers the close to a timer */
+      fireEvent.mouseDown(document.body);
+      act(() => {
+        element.setData({ vizNode: { id: 'next' } });
+      });
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      const elsewhere = document.createElement('button');
+      document.body.appendChild(elsewhere);
+      elsewhere.focus();
+
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(elsewhere).toHaveFocus();
+      elsewhere.remove();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('closes on Escape', async () => {

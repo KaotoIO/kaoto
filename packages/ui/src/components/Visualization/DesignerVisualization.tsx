@@ -43,22 +43,15 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
 
   return (
     <VisualizationShell className={className} fallback={fallback}>
-      {!emptyState && (
-        <Canvas
-          contextToolbar={contextToolbar}
-          nodes={nodes}
-          edges={edges}
-          isModelResolving={isResolving}
-          applyCollapseOnUpdate
-        />
-      )}
-      {emptyState && (
-        <EmptyCanvas
-          entitiesNumber={emptyState.entitiesNumber}
-          isModelResolving={isResolving}
-          contextToolbar={contextToolbar}
-        />
-      )}
+      <Canvas
+        contextToolbar={contextToolbar}
+        nodes={nodes}
+        edges={edges}
+        isModelResolving={isResolving}
+        applyCollapseOnUpdate
+      >
+        {emptyState && <EmptyCanvas entitiesNumber={emptyState.entitiesNumber} isModelResolving={isResolving} />}
+      </Canvas>
     </VisualizationShell>
   );
 };

@@ -30,5 +30,10 @@ export class CanvasDefaults {
 
   static readonly CANVAS_FIT_PADDING = 80;
 
+  /** Inset of the background menu opened from the keyboard, so it sits visibly inside the drawing surface */
+  static readonly KEYBOARD_MENU_INSET = 12;
+
   static readonly CANVAS_MAIN_ID = 'canvas-main';
+  /** The title of the empty state, which describes the empty canvas */
+  static readonly EMPTY_STATE_TITLE_ID = 'canvas-empty-state-title';
 }
