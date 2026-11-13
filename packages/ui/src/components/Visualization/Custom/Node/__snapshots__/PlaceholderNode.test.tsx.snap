@@ -26,6 +26,15 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render CodeBranchI
           role="button"
           tabindex="-1"
         >
+          <rect
+            aria-hidden="true"
+            class="placeholder-node__indicator"
+            height="48"
+            rx="14"
+            width="48"
+            x="21"
+            y="13.5"
+          />
           <foreignobject
             data-nodelabel="test-placeholder"
             height="75"
@@ -118,6 +127,15 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleI
           role="button"
           tabindex="-1"
         >
+          <rect
+            aria-hidden="true"
+            class="placeholder-node__indicator"
+            height="48"
+            rx="14"
+            width="48"
+            x="21"
+            y="13.5"
+          />
           <foreignobject
             data-nodelabel="test-placeholder"
             height="75"
@@ -212,6 +230,15 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleI
           role="button"
           tabindex="-1"
         >
+          <rect
+            aria-hidden="true"
+            class="placeholder-node__indicator"
+            height="48"
+            rx="14"
+            width="48"
+            x="21"
+            y="13.5"
+          />
           <foreignobject
             data-nodelabel="test-placeholder"
             height="75"

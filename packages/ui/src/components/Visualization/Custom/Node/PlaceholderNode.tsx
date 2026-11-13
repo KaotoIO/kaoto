@@ -35,6 +35,7 @@ import { getDragPreviewTransform } from '../../Canvas/CanvasUtils';
 import { GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useInsertStep } from '../hooks/insert-step.hook';
 import { useReplaceStep } from '../hooks/replace-step.hook';
+import { getPlaceholderIndicatorBounds, INDICATOR_RADIUS } from '../interaction-indicator';
 import { TargetAnchor } from '../target-anchor';
 import { checkNodeDropCompatibility } from './CustomNodeUtils';
 
@@ -230,6 +231,7 @@ const PlaceholderContent: FunctionComponent<PlaceholderContentProps> = observer(
     boxYRef.current = box.y;
   }
 
+  const indicatorBounds = getPlaceholderIndicatorBounds(boxRef.current);
   const labelX = (box.width - CanvasDefaults.DEFAULT_LABEL_WIDTH) / 2;
   const labelY = boxRef.current.height - 1;
   const labelTransform =
@@ -259,6 +261,8 @@ const PlaceholderContent: FunctionComponent<PlaceholderContentProps> = observer(
         onClick={handleClick}
         onKeyDown={handleKeyDown}
       >
+        {/* Hover and focus are drawn behind the tile, as for steps */}
+        <rect className="placeholder-node__indicator" aria-hidden="true" rx={INDICATOR_RADIUS} {...indicatorBounds} />
         {/** The original placeholder node */}
         {(!dndDropProps.droppable || isDraggingNodeType || (isDraggingGroupType && !isDraggingWithinGroup)) && (
           <foreignObject

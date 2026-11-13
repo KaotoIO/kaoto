@@ -17,8 +17,4 @@
   &.step-icon-collection {
     gap: 4px;
   }
-
-  [data-selected='true'] & {
-    @include custom.selected;
-  }
 }

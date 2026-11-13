@@ -41,6 +41,7 @@ import { withNodeContextMenu } from '../ContextMenu/withNodeContextMenu';
 import { getDropTargetContainerClassNames, GROUP_DRAG_TYPE, NODE_DRAG_TYPE } from '../customComponentUtils';
 import { useGraphLayout } from '../hooks/use-graph-layout.hook';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
+import { getNodeIndicatorBounds, INDICATOR_RADIUS } from '../interaction-indicator';
 import { TargetAnchor } from '../target-anchor';
 import { CustomNodeContainer } from './CustomNodeContainer';
 import { CustomNodeLabel } from './CustomNodeLabel';
@@ -218,6 +219,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
       boxYRef.current = box.y;
     }
     const labelX = (box.width - CanvasDefaults.DEFAULT_LABEL_WIDTH) / 2;
+    const indicatorBounds = getNodeIndicatorBounds(box);
     const dropDirection: 'forward' | 'backward' | null =
       dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode
         ? getNodeDragAndDropDirection(draggedVizNode, vizNode, false)
@@ -262,6 +264,8 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
+          {/* Hover, selection and focus are drawn behind the node content; the tile and badges keep their look */}
+          <rect className="custom-node__indicator" aria-hidden="true" rx={INDICATOR_RADIUS} {...indicatorBounds} />
           <CanvasNodeOverlays
             overlays={overlays}
             bounds={{ x: (box.width - 60) / 2, y: (box.height - 60) / 2, width: 60, height: 60 }}
