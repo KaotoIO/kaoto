@@ -1,4 +1,5 @@
-import { render } from '@testing-library/react';
+import { act, render } from '@testing-library/react';
+import { FunctionComponent, lazy } from 'react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../models';
 import { RenderingAnchorContext } from './rendering.provider';
@@ -65,5 +66,34 @@ describe('RenderingAnchor', () => {
 
     expect(wrapper.getByText('Component 1')).toBeInTheDocument();
     expect(wrapper.getByText('Component 2')).toBeInTheDocument();
+  });
+
+  it('should show a small spinner in place of a lazy component while it loads, keeping the rest of the tree', async () => {
+    let resolveComponent!: (module: { default: FunctionComponent }) => void;
+    const LazyComponent = lazy(
+      () =>
+        new Promise<{ default: FunctionComponent }>((resolve) => {
+          resolveComponent = resolve;
+        }),
+    );
+    renderingAnchorContext.getRegisteredComponents = vi.fn().mockReturnValue([{ key: '1', Component: LazyComponent }]);
+
+    const wrapper = render(
+      <RenderingAnchorContext.Provider value={renderingAnchorContext}>
+        <p>Canvas</p>
+        <RenderingAnchor anchorTag={anchorTag} vizNode={vizNode} />
+      </RenderingAnchorContext.Provider>,
+    );
+
+    expect(wrapper.getByText('Canvas')).toBeInTheDocument();
+    expect(wrapper.getByRole('img', { name: 'Loading' })).toBeInTheDocument();
+
+    await act(async () => {
+      resolveComponent({ default: () => <p>Lazy component</p> });
+    });
+
+    expect(wrapper.getByText('Lazy component')).toBeInTheDocument();
+    expect(wrapper.getByText('Canvas')).toBeInTheDocument();
+    expect(wrapper.queryByRole('img', { name: 'Loading' })).not.toBeInTheDocument();
   });
 });
