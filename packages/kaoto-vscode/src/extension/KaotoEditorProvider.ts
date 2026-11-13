@@ -352,6 +352,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 	private async prepareSave(state: DocumentState): Promise<void> {
 		const cancellation = new vscode.CancellationTokenSource();
 		const timer = setTimeout(() => cancellation.cancel(), this.timeouts.saveSnapshotMs);
+		let pendingWrite: Promise<void> | undefined;
 		try {
 			await Promise.race([
 				this.enqueue(state, async () => {
@@ -374,13 +375,16 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 					}
 					// A source edit that arrived during the snapshot must not be overwritten.
 					if (version === state.sourceVersion) {
-						await this.updateSource(state);
+						pendingWrite = this.updateSource(state);
+						await pendingWrite;
 					}
 				}),
 				new Promise<void>((resolve) => {
 					cancellation.token.onCancellationRequested(() => resolve());
 				}),
 			]);
+			// The deadline cannot stop a source write that already started. Wait for it so the save includes it.
+			await pendingWrite;
 		} catch (error) {
 			if (!(error instanceof BridgeError && (error.code === 'TIMEOUT' || error.code === 'CANCELLED'))) {
 				throw error;
