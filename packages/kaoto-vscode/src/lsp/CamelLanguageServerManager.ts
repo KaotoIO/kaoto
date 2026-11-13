@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 import * as vscode from 'vscode';
-import * as path from 'path'; // NOSONAR
 import * as fs from 'fs'; // NOSONAR
-import { execFile } from 'node:child_process';
 import { DidChangeConfigurationNotification, Executable, LanguageClient, LanguageClientOptions, State } from 'vscode-languageclient/node';
 import { KAOTO_LSP_SERVER_JAR_SETTING_ID } from '../constants';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
+import { JavaLookup, JavaVersionChecker } from '../utils/JavaVersionChecker';
 import { CAMEL_LSP_DOCUMENT_SELECTORS } from './CamelLspDocumentFilter';
 import { CamelLspServerDownloader } from './CamelLspServerDownloader';
 import { CamelLspSettings } from './CamelLspSettings';
@@ -28,6 +27,10 @@ import { DownloadProgress } from '../utils/Download';
 const LANGUAGE_CLIENT_ID = 'LANGUAGE_ID_APACHE_CAMEL_KAOTO';
 // also the name of the client's output channel, listed next to the 'Kaoto' channel
 const LANGUAGE_CLIENT_NAME = 'Kaoto - Camel Language Server';
+
+const INSTALL_JDK_ACTION = 'Install JDK';
+const INSTALL_JDK_URL = 'https://adoptium.net/installation/';
+const SHOW_OUTPUT_ACTION = 'Show Output';
 
 type StatusBarState = 'starting' | 'running' | 'error';
 
@@ -105,21 +108,12 @@ export class CamelLanguageServerManager {
 	private async startClient(signal: AbortSignal): Promise<void> {
 		this.updateStatusBar('starting');
 
-		const javaExecutable = await CamelLanguageServerManager.findJavaExecutable();
+		const java = await JavaVersionChecker.findJava(CamelLanguageServerManager.REQUIRED_JAVA_VERSION);
 		if (signal.aborted) {
 			return;
 		}
-		if (!javaExecutable) {
-			this.showJavaNotFoundWarning();
-			return;
-		}
-
-		const javaVersion = await CamelLanguageServerManager.getJavaVersion(javaExecutable);
-		if (signal.aborted) {
-			return;
-		}
-		if (javaVersion < CamelLanguageServerManager.REQUIRED_JAVA_VERSION) {
-			this.showJavaVersionWarning(javaVersion);
+		if (java.status !== 'found') {
+			this.showJavaWarning(java);
 			return;
 		}
 
@@ -132,11 +126,11 @@ export class CamelLanguageServerManager {
 			return;
 		}
 
-		KaotoOutputChannel.logInfo(`Starting Camel Language Server with Java ${javaVersion} at ${javaExecutable}`);
+		KaotoOutputChannel.logInfo(`Starting Camel Language Server with Java ${java.version} at ${java.executable}`);
 		KaotoOutputChannel.logInfo(`Camel LSP server JAR: ${jarPath} (${this.getJarFileSize(jarPath)})`);
 
 		const serverOptions: Executable = {
-			command: javaExecutable,
+			command: java.executable,
 			args: ['-jar', jarPath],
 		};
 
@@ -309,63 +303,6 @@ export class CamelLanguageServerManager {
 	}
 
 	/**
-	 * Find a Java executable on the system.
-	 * Checks JAVA_HOME first, then falls back to java on PATH.
-	 */
-	static async findJavaExecutable(): Promise<string | undefined> {
-		const javaHome = process.env['JAVA_HOME'];
-		if (javaHome) {
-			const javaPath = CamelLanguageServerManager.getJavaHomeExecutable(javaHome);
-			if (fs.existsSync(javaPath)) {
-				return javaPath;
-			}
-		}
-
-		// Fall back to java on PATH
-		try {
-			const version = await CamelLanguageServerManager.getJavaVersion('java');
-			if (version > 0) {
-				return 'java';
-			}
-		} catch {
-			// java not on PATH
-		}
-
-		return undefined;
-	}
-
-	/**
-	 * @returns the java executable of a Java home, java.exe on Windows
-	 */
-	static getJavaHomeExecutable(javaHome: string, platform: NodeJS.Platform = process.platform): string {
-		return path.join(javaHome, 'bin', platform === 'win32' ? 'java.exe' : 'java');
-	}
-
-	/**
-	 * Get the major Java version by running java -version.
-	 * Returns 0 if the version cannot be determined.
-	 */
-	static async getJavaVersion(javaPath: string): Promise<number> {
-		return new Promise<number>((resolve) => {
-			execFile(javaPath, ['-version'], { timeout: 10000 }, (_error, stdout, stderr) => {
-				// java -version writes to stderr
-				const output = stderr || stdout || '';
-				const match = output.match(/version\s+"(\d+)(?:\.(\d+))?/);
-				if (match) {
-					let major = Number.parseInt(match[1], 10);
-					// Handle legacy 1.x format
-					if (major === 1 && match[2]) {
-						major = Number.parseInt(match[2], 10);
-					}
-					resolve(major);
-				} else {
-					resolve(0);
-				}
-			});
-		});
-	}
-
-	/**
 	 * @param signal cancels the download of the release, without reporting it
 	 * @returns the JAR set in the settings, or the release, downloaded first when needed;
 	 * undefined, after reporting the problem, when there is no JAR to run
@@ -498,26 +435,35 @@ export class CamelLanguageServerManager {
 		}
 	}
 
-	private showJavaNotFoundWarning(): void {
-		const msg =
-			'Java 17+ is required for Camel Language Server features (completion, hover, validation). ' +
-			'Please install a JDK and set JAVA_HOME, or add java to your PATH.';
+	private showJavaWarning(java: Exclude<JavaLookup, { status: 'found' }>): void {
+		const required = CamelLanguageServerManager.REQUIRED_JAVA_VERSION;
+		const installHint = 'Please install a JDK and set JAVA_HOME, or add java to your PATH.';
+		let msg: string;
+		let action: string;
+		switch (java.status) {
+			case 'notFound':
+				msg = `Java ${required}+ is required for Camel Language Server features (completion, hover, validation). ${installHint}`;
+				action = INSTALL_JDK_ACTION;
+				break;
+			case 'tooOld':
+				msg = `Java ${required}+ is required for Camel Language Server, but found Java ${java.version} at ${java.executable}. ${installHint}`;
+				action = INSTALL_JDK_ACTION;
+				break;
+			case 'notRunnable':
+				// JavaVersionChecker.findJava() logged the error
+				msg = `Could not run Java at ${java.executable} for Camel Language Server. See the Kaoto output for the error.`;
+				action = SHOW_OUTPUT_ACTION;
+				break;
+		}
 		KaotoOutputChannel.logWarning(msg);
 		if (this.isFirstNotification(msg)) {
-			void vscode.window.showWarningMessage(msg, 'Install JDK').then((selection) => {
-				if (selection === 'Install JDK') {
-					void vscode.env.openExternal(vscode.Uri.parse('https://adoptium.net/installation/'));
+			void vscode.window.showWarningMessage(msg, action).then((selection) => {
+				if (selection === INSTALL_JDK_ACTION) {
+					void vscode.env.openExternal(vscode.Uri.parse(INSTALL_JDK_URL));
+				} else if (selection === SHOW_OUTPUT_ACTION) {
+					KaotoOutputChannel.getInstance().show();
 				}
 			});
-		}
-		this.updateStatusBar('error');
-	}
-
-	private showJavaVersionWarning(foundVersion: number): void {
-		const msg = `Java ${CamelLanguageServerManager.REQUIRED_JAVA_VERSION}+ is required for Camel Language Server, but found Java ${foundVersion}.`;
-		KaotoOutputChannel.logWarning(msg);
-		if (this.isFirstNotification(msg)) {
-			void vscode.window.showWarningMessage(msg);
 		}
 		this.updateStatusBar('error');
 	}

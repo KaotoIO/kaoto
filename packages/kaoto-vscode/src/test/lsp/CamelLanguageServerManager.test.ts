@@ -21,10 +21,12 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import { Executable, LanguageClient, LanguageClientOptions, State, StateChangeEvent } from 'vscode-languageclient/node';
 import { KAOTO_LSP_SERVER_JAR_SETTING_ID } from '../../constants';
+import { KaotoOutputChannel } from '../../extension/KaotoOutputChannel';
 import { CamelLanguageServerManager } from '../../lsp/CamelLanguageServerManager';
 import { CamelLspServerDownloader } from '../../lsp/CamelLspServerDownloader';
 import { CamelLspSettings } from '../../lsp/CamelLspSettings';
 import { FileDownload } from '../../utils/Download';
+import { JavaLookup, JavaVersionChecker } from '../../utils/JavaVersionChecker';
 
 suite('CamelLanguageServerManager', () => {
 	test('createLanguageClient returns a LanguageClient instance', () => {
@@ -42,6 +44,8 @@ suite('CamelLanguageServerManager', () => {
 		expect(client).to.be.an.instanceOf(LanguageClient);
 	});
 	const noSettings = () => Promise.resolve<CamelLspSettings>({ camel: {} });
+	const JAVA_21: JavaLookup = { status: 'found', executable: 'java', version: 21 };
+	const JAVA_11: JavaLookup = { status: 'tooOld', executable: 'java', version: 11 };
 
 	const waitFor = async (condition: () => boolean) => {
 		while (!condition()) {
@@ -49,63 +53,10 @@ suite('CamelLanguageServerManager', () => {
 		}
 	};
 
-	test('findJavaExecutable should return a string or undefined', async () => {
-		const result = await CamelLanguageServerManager.findJavaExecutable();
-		// In CI/test environments, Java may or may not be available
-		expect(result === undefined || typeof result === 'string').to.be.true;
-	});
-
-	test('getJavaVersion should return a number for valid java path', async () => {
-		const javaPath = await CamelLanguageServerManager.findJavaExecutable();
-		if (javaPath) {
-			const version = await CamelLanguageServerManager.getJavaVersion(javaPath);
-			expect(version).to.be.a('number');
-			expect(version).to.be.greaterThan(0);
-		}
-	});
-
-	test('getJavaVersion should return 0 for invalid java path', async () => {
-		const version = await CamelLanguageServerManager.getJavaVersion('/nonexistent/bin/java');
-		expect(version).to.equal(0);
-	});
-
 	test('isRunning should return false before start', () => {
 		// We cannot fully construct the manager without a real ExtensionContext,
 		// but we can verify the static methods work correctly
 		expect(CamelLanguageServerManager.REQUIRED_JAVA_VERSION).to.equal(17);
-	});
-
-	suite('findJavaExecutable with JAVA_HOME', () => {
-		const originalJavaHome = process.env['JAVA_HOME'];
-		let javaHome: string;
-
-		setup(() => {
-			javaHome = fs.mkdtempSync(path.join(os.tmpdir(), 'kaoto-java-home-'));
-		});
-
-		teardown(() => {
-			if (originalJavaHome === undefined) {
-				delete process.env['JAVA_HOME'];
-			} else {
-				process.env['JAVA_HOME'] = originalJavaHome;
-			}
-			fs.rmSync(javaHome, { recursive: true, force: true });
-		});
-
-		test('runs the java executable of JAVA_HOME', async () => {
-			const javaPath = CamelLanguageServerManager.getJavaHomeExecutable(javaHome);
-			fs.mkdirSync(path.dirname(javaPath), { recursive: true });
-			fs.writeFileSync(javaPath, '');
-			process.env['JAVA_HOME'] = javaHome;
-
-			expect(await CamelLanguageServerManager.findJavaExecutable()).to.equal(javaPath);
-		});
-
-		test('looks for java.exe on Windows', () => {
-			expect(CamelLanguageServerManager.getJavaHomeExecutable('jdk', 'win32')).to.equal(path.join('jdk', 'bin', 'java.exe'));
-			expect(CamelLanguageServerManager.getJavaHomeExecutable('jdk', 'linux')).to.equal(path.join('jdk', 'bin', 'java'));
-			expect(CamelLanguageServerManager.getJavaHomeExecutable('jdk', 'darwin')).to.equal(path.join('jdk', 'bin', 'java'));
-		});
 	});
 
 	suite('resolveJarPath', () => {
@@ -170,8 +121,7 @@ suite('CamelLanguageServerManager', () => {
 	});
 
 	suite('stop', () => {
-		const originalFindJavaExecutable = CamelLanguageServerManager.findJavaExecutable;
-		const originalGetJavaVersion = CamelLanguageServerManager.getJavaVersion;
+		const originalFindJava = JavaVersionChecker.findJava;
 		const originalShowErrorMessage = vscode.window.showErrorMessage;
 		let storageDir: string;
 		let errorMessages: string[];
@@ -179,8 +129,7 @@ suite('CamelLanguageServerManager', () => {
 		setup(() => {
 			storageDir = fs.mkdtempSync(path.join(os.tmpdir(), 'kaoto-lsp-manager-'));
 			errorMessages = [];
-			CamelLanguageServerManager.findJavaExecutable = () => Promise.resolve('java');
-			CamelLanguageServerManager.getJavaVersion = () => Promise.resolve(21);
+			JavaVersionChecker.findJava = () => Promise.resolve(JAVA_21);
 			Object.defineProperty(vscode.window, 'showErrorMessage', {
 				value: (message: string) => {
 					errorMessages.push(message);
@@ -191,8 +140,7 @@ suite('CamelLanguageServerManager', () => {
 		});
 
 		teardown(() => {
-			CamelLanguageServerManager.findJavaExecutable = originalFindJavaExecutable;
-			CamelLanguageServerManager.getJavaVersion = originalGetJavaVersion;
+			JavaVersionChecker.findJava = originalFindJava;
 			Object.defineProperty(vscode.window, 'showErrorMessage', { value: originalShowErrorMessage, configurable: true });
 			fs.rmSync(storageDir, { recursive: true, force: true });
 		});
@@ -347,8 +295,7 @@ suite('CamelLanguageServerManager', () => {
 			}
 		}
 
-		const originalFindJavaExecutable = CamelLanguageServerManager.findJavaExecutable;
-		const originalGetJavaVersion = CamelLanguageServerManager.getJavaVersion;
+		const originalFindJava = JavaVersionChecker.findJava;
 		const originalGetConfiguration = vscode.workspace.getConfiguration;
 		const context = { subscriptions: [] } as unknown as vscode.ExtensionContext;
 		let storageDir: string;
@@ -379,8 +326,7 @@ suite('CamelLanguageServerManager', () => {
 		});
 
 		setup(() => {
-			CamelLanguageServerManager.findJavaExecutable = () => Promise.resolve('java');
-			CamelLanguageServerManager.getJavaVersion = () => Promise.resolve(21);
+			JavaVersionChecker.findJava = () => Promise.resolve(JAVA_21);
 			Object.defineProperty(vscode.workspace, 'getConfiguration', {
 				value: (section?: string, scope?: vscode.ConfigurationScope | null) => {
 					const config = originalGetConfiguration(section, scope);
@@ -400,8 +346,7 @@ suite('CamelLanguageServerManager', () => {
 
 		teardown(async () => {
 			await manager.stop();
-			CamelLanguageServerManager.findJavaExecutable = originalFindJavaExecutable;
-			CamelLanguageServerManager.getJavaVersion = originalGetJavaVersion;
+			JavaVersionChecker.findJava = originalFindJava;
 			Object.defineProperty(vscode.workspace, 'getConfiguration', { value: originalGetConfiguration, configurable: true });
 		});
 
@@ -498,7 +443,7 @@ suite('CamelLanguageServerManager', () => {
 				configurable: true,
 			});
 			try {
-				CamelLanguageServerManager.findJavaExecutable = () => Promise.resolve(undefined);
+				JavaVersionChecker.findJava = () => Promise.resolve({ status: 'notFound' });
 				await manager.start();
 				await manager.start();
 
@@ -507,6 +452,107 @@ suite('CamelLanguageServerManager', () => {
 			} finally {
 				Object.defineProperty(vscode.window, 'showWarningMessage', { value: originalShowWarningMessage, configurable: true });
 			}
+		});
+
+		suite('Java warnings', () => {
+			const originalShowWarningMessage = vscode.window.showWarningMessage;
+			const originalOpenExternal = vscode.env.openExternal;
+			const outputChannel = KaotoOutputChannel.getInstance();
+			const ownShow = Object.getOwnPropertyDescriptor(outputChannel, 'show');
+			let warnings: { message: string; actions: string[] }[];
+			/** the button that the user clicks in the warning */
+			let selection: string | undefined;
+			let openedUris: string[];
+			let outputShown: boolean;
+
+			setup(async () => {
+				// a successful start forgets the problems that earlier tests notified
+				await manager.start();
+				await manager.stop();
+				warnings = [];
+				selection = undefined;
+				openedUris = [];
+				outputShown = false;
+				Object.defineProperty(vscode.window, 'showWarningMessage', {
+					value: (message: string, ...actions: string[]) => {
+						warnings.push({ message, actions });
+						return Promise.resolve(selection);
+					},
+					configurable: true,
+				});
+				Object.defineProperty(vscode.env, 'openExternal', {
+					value: (uri: vscode.Uri) => {
+						openedUris.push(uri.toString());
+						return Promise.resolve(true);
+					},
+					configurable: true,
+				});
+				Object.defineProperty(outputChannel, 'show', { value: () => (outputShown = true), configurable: true, writable: true });
+			});
+
+			teardown(() => {
+				Object.defineProperty(vscode.window, 'showWarningMessage', { value: originalShowWarningMessage, configurable: true });
+				Object.defineProperty(vscode.env, 'openExternal', { value: originalOpenExternal, configurable: true });
+				if (ownShow) {
+					Object.defineProperty(outputChannel, 'show', ownShow);
+				} else {
+					delete (outputChannel as { show?: unknown }).show;
+				}
+			});
+
+			test('offers to install a JDK when no Java is found', async () => {
+				JavaVersionChecker.findJava = () => Promise.resolve({ status: 'notFound' });
+
+				await manager.start();
+
+				expect(manager.isRunning()).to.be.false;
+				expect(warnings).to.have.lengthOf(1);
+				expect(warnings[0].actions).to.deep.equal(['Install JDK']);
+			});
+
+			test('offers to install a JDK when the Java found is too old', async () => {
+				JavaVersionChecker.findJava = () => Promise.resolve({ status: 'tooOld', executable: '/jdk11/bin/java', version: 11 });
+
+				await manager.start();
+
+				expect(manager.isRunning()).to.be.false;
+				expect(warnings).to.have.lengthOf(1);
+				expect(warnings[0].message).to.contain('found Java 11 at /jdk11/bin/java');
+				expect(warnings[0].actions).to.deep.equal(['Install JDK']);
+			});
+
+			test('tells a Java that cannot run, instead of asking to install a JDK', async () => {
+				JavaVersionChecker.findJava = () => Promise.resolve({ status: 'notRunnable', executable: '/jdk/bin/java', error: new Error('spawn EACCES') });
+
+				await manager.start();
+
+				expect(manager.isRunning()).to.be.false;
+				expect(warnings).to.have.lengthOf(1);
+				expect(warnings[0].message).to.contain('Could not run Java at /jdk/bin/java');
+				expect(warnings[0].message).not.to.contain('install a JDK');
+				expect(warnings[0].actions).to.deep.equal(['Show Output']);
+			});
+
+			test('opens the JDK installation guide when Install JDK is clicked', async () => {
+				JavaVersionChecker.findJava = () => Promise.resolve({ status: 'tooOld', executable: '/jdk11/bin/java', version: 11 });
+				selection = 'Install JDK';
+
+				await manager.start();
+				await waitFor(() => openedUris.length > 0);
+
+				expect(openedUris).to.deep.equal(['https://adoptium.net/installation/']);
+				expect(outputShown).to.be.false;
+			});
+
+			test('shows the Kaoto output when Show Output is clicked', async () => {
+				JavaVersionChecker.findJava = () => Promise.resolve({ status: 'notRunnable', executable: '/jdk/bin/java', error: new Error('spawn EACCES') });
+				selection = 'Show Output';
+
+				await manager.start();
+				await waitFor(() => outputShown);
+
+				expect(openedUris).to.be.empty;
+			});
 		});
 
 		test('tells a missing JAR in one notification until the server starts', async () => {
@@ -544,18 +590,18 @@ suite('CamelLanguageServerManager', () => {
 				configurable: true,
 			});
 			try {
-				CamelLanguageServerManager.getJavaVersion = () => Promise.resolve(11);
+				JavaVersionChecker.findJava = () => Promise.resolve(JAVA_11);
 				await manager.start();
 				await manager.start();
 				expect(warnings, 'same problem again').to.have.lengthOf(1);
 				expect(manager.isRunning()).to.be.false;
 
-				CamelLanguageServerManager.getJavaVersion = () => Promise.resolve(21);
+				JavaVersionChecker.findJava = () => Promise.resolve(JAVA_21);
 				await manager.start();
 				expect(manager.isRunning()).to.be.true;
 				await manager.stop();
 
-				CamelLanguageServerManager.getJavaVersion = () => Promise.resolve(11);
+				JavaVersionChecker.findJava = () => Promise.resolve(JAVA_11);
 				await manager.start();
 				expect(warnings, 'after a successful start').to.have.lengthOf(2);
 			} finally {
