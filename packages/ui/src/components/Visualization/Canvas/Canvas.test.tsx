@@ -222,7 +222,7 @@ describe('Canvas', () => {
       // jsdom has no viewport dimensions; keep the real node renderers mounted
       controller.setRenderConstraint(false);
 
-      const renderWith = (props: typeof canvasProps) => (
+      const renderWith = (props: typeof canvasProps & { isModelResolving?: boolean }) => (
         <Provider>
           <Wrapper>
             <VisualizationProvider controller={controller}>
@@ -262,8 +262,23 @@ describe('Canvas', () => {
         await flushFrames();
       };
 
+      // The canvas keeps the previous graph while the visualization resolves the changed model
+      const setModelResolving = async (isModelResolving: boolean) => {
+        result.rerender(renderWith({ ...canvasProps, isModelResolving }));
+        await flushFrames();
+      };
+
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      return { ...result, camelResource, user, focusStep, flushFrames, clickBackground, deleteSecondLog };
+      return {
+        ...result,
+        camelResource,
+        user,
+        focusStep,
+        flushFrames,
+        clickBackground,
+        deleteSecondLog,
+        setModelResolving,
+      };
     }
 
     it('keeps focus on the selected step of its own route across repeated background clicks', async () => {
@@ -357,6 +372,25 @@ describe('Canvas', () => {
         const menu = screen.getByRole('menu', { name: 'Step actions' });
         return { ...rendered, secondLog, menu, items: within(menu).getAllByRole('menuitem') };
       }
+
+      it('ignores input on the previous graph while the model resolves, keeping the focus on its step', async () => {
+        const { user, focusStep, flushFrames, setModelResolving } = await renderTwoRoutes();
+        const secondLog = focusStep('route-second', 'route.from.steps.0.log');
+
+        await setModelResolving(true);
+        await user.keyboard(SHIFT_F10);
+        fireEvent.contextMenu(secondLog);
+        await flushFrames();
+
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+        expect(secondLog).toHaveFocus();
+
+        await setModelResolving(false);
+        await user.keyboard(SHIFT_F10);
+        await flushFrames();
+
+        expect(screen.getByRole('menu', { name: 'Step actions' })).toBeInTheDocument();
+      });
 
       it.each([SHIFT_F10, '{ContextMenu}'])(
         'opens the step menu with %s and focuses its first enabled action',

@@ -56,6 +56,9 @@ interface CanvasProps {
 }
 
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
+/** The PatternFly element that holds the graph */
+const STALE_GRAPH_SURFACE = '[data-test-id="topology"]';
+const STALE_GRAPH_INPUT_EVENTS = ['mousedown', 'pointerdown', 'click', 'dblclick', 'contextmenu', 'keydown'] as const;
 
 interface CanvasState {
   [SETTLED_EMPTY_STATE]?: boolean;
@@ -140,7 +143,26 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, []);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
-  useDeleteHotkey(selectedVizNode, clearSelection);
+  // While the model resolves, the selected node belongs to the previous model and may point to another step
+  useDeleteHotkey(isModelResolving ? undefined : selectedVizNode, clearSelection);
+
+  /**
+   * While the model resolves, the previous graph stays mounted, so the focus stays on its step. Its nodes still act
+   * on the previous model, so mouse and keyboard input on them is dropped until the new graph is drawn.
+   */
+  useEffect(() => {
+    if (!isModelResolving) return;
+    const surface = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.querySelector(STALE_GRAPH_SURFACE);
+    if (!surface) return;
+
+    const dropInput = (event: Event) => {
+      event.stopPropagation();
+    };
+    for (const type of STALE_GRAPH_INPUT_EVENTS) surface.addEventListener(type, dropInput, true);
+    return () => {
+      for (const type of STALE_GRAPH_INPUT_EVENTS) surface.removeEventListener(type, dropInput, true);
+    };
+  }, [isModelResolving]);
 
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {
