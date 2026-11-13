@@ -306,7 +306,9 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
           </Button>
         </div>
       )}
-      {!documentState.initialized && !documentState.error && <output>Loading document…</output>}
+      {!documentState.initialized && !documentState.error && (
+        <output className="kaoto-editor-document-status">Loading document…</output>
+      )}
       <div
         inert={
           !documentState.initialized ||

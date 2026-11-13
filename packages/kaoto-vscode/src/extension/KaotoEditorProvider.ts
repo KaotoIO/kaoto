@@ -631,7 +631,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			html = replaceDevHtmlToken(html, '__KAOTO_FILE_EXTENSION__', escapeAttribute(extension));
 			html = replaceDevHtmlToken(html, '__KAOTO_HOST_SHIM__', escapeAttribute(this.hostShimUri(webview)));
 			html = replaceDevHtmlToken(html, '__KAOTO_RESOURCES_PATH_PREFIX__', escapeAttribute(origin));
-			for (const path of ['/@vite/client', '/@react-refresh', '/src/webview/start.tsx']) {
+			for (const path of ['/@vite/client', '/@react-refresh', '/src/webview/webview-shell.scss', '/src/webview/start.tsx']) {
 				html = replaceDevHtmlToken(html, `"${path}"`, `"${escapeAttribute(origin)}${path}"`);
 			}
 			return html;
