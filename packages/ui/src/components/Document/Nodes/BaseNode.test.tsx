@@ -286,7 +286,7 @@ describe('BaseNode', () => {
       const { container } = render(
         <BaseNode nodeData={createMockNodeData({ type: Types.String })} title="Title" data-testid="test-node" />,
       );
-      expect(container.querySelector('.node__spacer')).toBeInTheDocument();
+      expect(container.querySelector('.node__icon')).toBeInTheDocument();
     });
 
     it('should render collection icon when isCollectionField is true (ARRAY type)', () => {
@@ -517,7 +517,7 @@ describe('BaseNode', () => {
         );
 
         // Click the comment button
-        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        const commentButton = screen.getByTestId('comment-indicator-icon');
         expect(commentButton).toBeInTheDocument();
         fireEvent.click(commentButton!);
 
@@ -537,7 +537,7 @@ describe('BaseNode', () => {
           />,
         );
 
-        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        const commentButton = screen.getByTestId('comment-indicator-icon');
         const stopPropagationSpy = vi.fn();
 
         // Create a click event
@@ -569,7 +569,7 @@ describe('BaseNode', () => {
 
         // Modal component should be in the DOM (even if not visible)
         // When closed, the modal is not rendered, so we need to open it first
-        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        const commentButton = screen.getByTestId('comment-indicator-icon');
         fireEvent.click(commentButton!);
 
         expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
@@ -588,7 +588,7 @@ describe('BaseNode', () => {
         );
 
         // Open the modal
-        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        const commentButton = screen.getByTestId('comment-indicator-icon');
         fireEvent.click(commentButton!);
         expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
 

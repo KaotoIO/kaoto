@@ -50,11 +50,11 @@
     }
 
     &--success {
-      color: var(--pf-t--global--icon--color--status--success--default);
+      color: var(--cds-support-success);
     }
 
     &--error {
-      color: var(--pf-t--global--icon--color--status--danger--default);
+      color: var(--cds-support-error);
     }
   }
 }
