@@ -53,6 +53,9 @@
 // keyboard focus a dashed brand line, so selected and selected + focused stay apart without colour.
 // Hosts that show keyboard focus on their own pass `$with-focus: false`.
 @mixin interaction-indicator($indicator, $with-focus: true) {
+  // The indicator replaces the browser focus outline of the host.
+  outline: none;
+
   > #{$indicator} {
     fill: none;
     stroke: none;
@@ -72,12 +75,8 @@
     stroke-width: 2px;
   }
 
-  // :focus instead of :focus-visible: Chromium sets no :focus-visible on SVG groups focused via .focus().
-  &:focus {
-    outline: none;
-  }
-
   @if $with-focus {
+    // :focus instead of :focus-visible: Chromium sets no :focus-visible on SVG groups focused via .focus().
     &:focus > #{$indicator} {
       stroke: var(--pf-t--global--color--brand--default);
       stroke-width: 2px;
