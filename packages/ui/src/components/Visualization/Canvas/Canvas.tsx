@@ -36,7 +36,6 @@ import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { SettingsContext } from '../../../providers/settings.provider';
 import { getInitialLayout } from '../../../utils/get-initial-layout';
 import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
-import { VisualizationEmptyState } from '../EmptyState';
 import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas-overlays';
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
@@ -51,13 +50,19 @@ interface CanvasProps {
   isModelResolving?: boolean;
   contextToolbar?: ReactNode;
   applyCollapseOnUpdate?: boolean;
-  /** Shows the empty state over the (empty) graph, keeping the canvas and its toolbars mounted */
-  emptyState?: { entitiesNumber: number };
 }
 
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
+/*
+ * The canvas relies on the DOM that PatternFly Topology renders for these elements, also in `Canvas.scss`. The test
+ * 'finds the PatternFly elements the canvas relies on' fails when an update changes them.
+ */
 /** The PatternFly element that holds the graph */
 const STALE_GRAPH_SURFACE = '[data-test-id="topology"]';
+/** The background rectangle of the graph, which takes the right-clicks for the canvas menu */
+export const GRAPH_BACKGROUND = '[data-kind="graph"] > rect';
+/** The visible area of the graph, without the toolbars and the side panel */
+export const GRAPH_CONTENT = '.pf-topology-content';
 const STALE_GRAPH_INPUT_EVENTS = ['mousedown', 'pointerdown', 'click', 'dblclick', 'contextmenu', 'keydown'] as const;
 
 interface CanvasState {
@@ -84,7 +89,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   isModelResolving = false,
   contextToolbar,
   applyCollapseOnUpdate = false,
-  emptyState,
+  children,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
   const settingsLayout = useMemo(
@@ -282,7 +287,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     (event: React.MouseEvent) => {
       // Only the graph's own background rectangle counts, not rects inside nodes, groups or toolbars
       const target = event.target;
-      if (target instanceof SVGElement && target.matches('[data-kind="graph"] > rect')) {
+      if (target instanceof SVGElement && target.matches(GRAPH_BACKGROUND)) {
         clearSelection();
       }
     },
@@ -299,15 +304,17 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
         ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') &&
         event.target === event.currentTarget
       ) {
-        event.preventDefault();
         // Open the background menu like a right-click would, near the top-left corner of the visible graph
-        const { left, top } = event.currentTarget.querySelector('.pf-topology-content')!.getBoundingClientRect();
+        const content = event.currentTarget.querySelector(GRAPH_CONTENT);
+        const background = event.currentTarget.querySelector(GRAPH_BACKGROUND);
+        if (!content || !background) return;
+
+        event.preventDefault();
+        const { left, top } = content.getBoundingClientRect();
         const inset = CanvasDefaults.KEYBOARD_MENU_INSET;
-        event.currentTarget
-          .querySelector('[data-kind="graph"] > rect')
-          ?.dispatchEvent(
-            new MouseEvent('contextmenu', { bubbles: true, clientX: left + inset, clientY: top + inset }),
-          );
+        background.dispatchEvent(
+          new MouseEvent('contextmenu', { bubbles: true, clientX: left + inset, clientY: top + inset }),
+        );
       }
     },
     [clearSelection],
@@ -344,18 +351,14 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label="Route canvas"
+      aria-busy={isModelResolving}
+      aria-describedby={isGraphEmpty && !isModelResolving ? CanvasDefaults.EMPTY_STATE_TITLE_ID : undefined}
     >
       <CanvasOverlayContext.Provider
         value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}
       >
         <VisualizationSurface state={{ selectedIds }} />
-        {emptyState && !isModelResolving && (
-          <VisualizationEmptyState
-            className="canvas-empty-state"
-            data-testid="visualization-empty-state"
-            entitiesNumber={emptyState.entitiesNumber}
-          />
-        )}
+        {children}
       </CanvasOverlayContext.Provider>
     </TopologyView>
   );

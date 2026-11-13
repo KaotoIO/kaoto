@@ -26,10 +26,12 @@ import { useAddStep } from '../Custom/hooks/add-step.hook';
 import { useInsertStep } from '../Custom/hooks/insert-step.hook';
 import { useReplaceStep } from '../Custom/hooks/replace-step.hook';
 import { buildDesignerCanvasModel } from '../designer-canvas-model';
-import { Canvas } from './Canvas';
+import { Canvas, GRAPH_BACKGROUND, GRAPH_CONTENT } from './Canvas';
+import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { COLLAPSE_STATE } from './collapse-handler-state';
 import { ControllerService } from './controller.service';
+import { EmptyCanvas } from './EmptyCanvas';
 
 function getCanvasPropsFromVizNodes(vizNodes: IVisualizationNode[], entitiesCount: number) {
   const { nodes, edges } = buildDesignerCanvasModel(vizNodes);
@@ -86,6 +88,40 @@ describe('Canvas', () => {
       expect(screen.getByText('Reset View')).toBeInTheDocument();
     });
     expect(result.asFragment()).toMatchSnapshot();
+  });
+
+  it('finds the PatternFly elements the canvas relies on', async () => {
+    const { container } = await renderCanvas();
+    const canvas = container.querySelector(`#${CanvasDefaults.CANVAS_MAIN_ID}`)!;
+
+    expect(canvas.querySelector(GRAPH_BACKGROUND)).toBeInTheDocument();
+    expect(canvas.querySelector(GRAPH_CONTENT)).toBeInTheDocument();
+    expect(canvas.querySelector('[data-test-id="topology"]')).toBeInTheDocument();
+    // Hidden by Canvas.scss until the graph is fitted to the view
+    expect(canvas.querySelector('.pf-topology-visualization-surface')).toBeInTheDocument();
+  });
+
+  it.each([
+    [0, 'There are no routes defined'],
+    [1, 'There are no visible routes'],
+  ])('shows the empty state for %i routes over the canvas and describes the canvas with it', async (count, title) => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+    const { Provider } = await TestProvidersWrapper();
+    render(
+      <RuntimeProvider>
+        <Provider>
+          <VisualizationProvider controller={ControllerService.createController()}>
+            <Canvas nodes={[]} edges={[]}>
+              <EmptyCanvas entitiesNumber={count} />
+            </Canvas>
+          </VisualizationProvider>
+        </Provider>
+      </RuntimeProvider>,
+    );
+
+    const canvas = screen.getByRole('generic', { name: 'Route canvas', description: title });
+    expect(within(canvas).getByTestId('visualization-empty-state')).toHaveTextContent(title);
+    expect(within(canvas).getByRole('button', { name: 'Reset View' })).toBeInTheDocument();
   });
 
   it('keeps the canvas and its toolbars in sight while the first model resolves', async () => {
@@ -390,6 +426,23 @@ describe('Canvas', () => {
         await flushFrames();
 
         expect(screen.getByRole('menu', { name: 'Step actions' })).toBeInTheDocument();
+      });
+
+      it('does not open the canvas menu with Shift+F10 on the canvas while the model resolves', async () => {
+        const { user, flushFrames, container, setModelResolving } = await renderTwoRoutes();
+        await user.tab();
+        const canvas = container.querySelector('#canvas-main');
+        expect(canvas).toHaveFocus();
+
+        await setModelResolving(true);
+        await user.keyboard(SHIFT_F10);
+        await flushFrames();
+
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+        expect(canvas).toHaveAttribute('aria-busy', 'true');
+
+        await setModelResolving(false);
+        expect(canvas).toHaveAttribute('aria-busy', 'false');
       });
 
       it.each([SHIFT_F10, '{ContextMenu}'])(

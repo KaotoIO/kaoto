@@ -6,6 +6,7 @@ import type { Mock } from 'vitest';
 
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
+import { CanvasContextSubMenuItem } from './CanvasContextSubMenuItem';
 import { withNodeContextMenu } from './withNodeContextMenu';
 
 describe('withNodeContextMenu', () => {
@@ -244,6 +245,47 @@ describe('withNodeContextMenu', () => {
     });
 
     expect(screen.getByTestId('item-a')).toBeInTheDocument();
+  });
+
+  it('does not move the focus once a menu that was asked to close from a submenu is gone', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const actions = vi.fn().mockReturnValue([
+        <CanvasContextSubMenuItem key="sub" label="Sub" data-testid="sub">
+          {itemA}
+        </CanvasContextSubMenuItem>,
+      ]);
+      const { element, target } = renderWithMenu(actions);
+      act(() => {
+        element.setData({ vizNode: { id: 'previous' } });
+        target.focus();
+      });
+      fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+      await settle();
+      const sub = within(screen.getByRole('menu', { name: 'Step actions' })).getByRole('menuitem', { name: 'Sub' });
+      expect(sub).toHaveFocus();
+      fireEvent.keyDown(sub, { key: 'ArrowRight' });
+      expect(within(screen.getByRole('menu', { name: 'Sub' })).getByRole('menuitem')).toHaveFocus();
+
+      /* A click outside while the focus is in the submenu defers the close to a timer */
+      fireEvent.mouseDown(document.body);
+      act(() => {
+        element.setData({ vizNode: { id: 'next' } });
+      });
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      const elsewhere = document.createElement('button');
+      document.body.appendChild(elsewhere);
+      elsewhere.focus();
+
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(elsewhere).toHaveFocus();
+      elsewhere.remove();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('closes on Escape', async () => {

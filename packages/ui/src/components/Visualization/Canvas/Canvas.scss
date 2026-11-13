@@ -23,7 +23,10 @@
   }
 }
 
-/* The graph is drawn but not yet fitted to the view: keep it out of sight, not the toolbars around it */
+/*
+ * The graph is drawn but not yet fitted to the view: keep it out of sight, not the toolbars around it.
+ * The class is PatternFly Topology's; the test 'finds the PatternFly elements the canvas relies on' covers it.
+ */
 .canvas-uninitialized .pf-topology-visualization-surface {
   visibility: hidden;
 }

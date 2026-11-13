@@ -4,6 +4,7 @@ import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
 import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
 import { VisibleFlowsContext } from '../../providers/visible-flows.provider';
 import { Canvas } from './Canvas';
+import { EmptyCanvas } from './Canvas/EmptyCanvas';
 import { buildDesignerCanvasModel } from './designer-canvas-model';
 import { VisualizationShell } from './VisualizationShell';
 
@@ -48,8 +49,9 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
         edges={edges}
         isModelResolving={isResolving}
         applyCollapseOnUpdate
-        emptyState={emptyState}
-      />
+      >
+        {emptyState && <EmptyCanvas entitiesNumber={emptyState.entitiesNumber} isModelResolving={isResolving} />}
+      </Canvas>
     </VisualizationShell>
   );
 };

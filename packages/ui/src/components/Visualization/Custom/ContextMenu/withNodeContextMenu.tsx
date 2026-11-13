@@ -15,7 +15,9 @@ import {
   useState,
 } from 'react';
 
-import { focusCanvasAfterRender } from '../../Canvas/canvas-focus';
+import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
+import { CanvasNodeData } from '../../Canvas/canvas.models';
+import { focusCanvasAfterRender, focusElement, getFocusOrigin } from '../../Canvas/canvas-focus';
 
 interface OpenMenu {
   /** Increases on every right-click, so each open mounts its own `ContextMenu` */
@@ -24,7 +26,7 @@ interface OpenMenu {
   /** The element that had the focus when the menu opened, focused again once the menu closes */
   origin: Element | null;
   /** The model of the step the actions were built for */
-  vizNode: unknown;
+  vizNode: IVisualizationNode | undefined;
 }
 
 interface NodeContextMenuPopupProps {
@@ -37,29 +39,34 @@ interface NodeContextMenuPopupProps {
   children: ReactElement[];
 }
 
-/** `ContextMenu` passes `popperRef` on to its `Popper`, which calls it with the PopperJS instance of the open menu */
+/**
+ * `ContextMenu` passes `popperRef` on to its `Popper`, which calls it with the PopperJS instance of the open menu.
+ * `ContextMenuProps` does not declare it; should a PatternFly update stop passing it on, the tests for the focus of the
+ * first enabled action on open fail.
+ */
 const ContextMenuWithPopperRef = ContextMenu as FunctionComponent<
-  ComponentProps<typeof ContextMenu> & { popperRef: (instance: { popper: Element } | null) => void }
+  ComponentProps<typeof ContextMenu> & { popperRef: (instance: { popper: HTMLElement } | null) => void }
 >;
 
 /** The actions of a menu that can be focused */
 export const ENABLED_ITEM = '[role="menuitem"]:not(:disabled):not([aria-disabled="true"])';
-/**
- * The submenus of `CanvasContextSubMenuItem`, which close themselves on Escape. Only these menus are labelled by
- * another element, their entry; the context menu itself has an `aria-label`.
- */
-export const SUBMENU = '[role="menu"][aria-labelledby]';
+/** Marks the submenus of `CanvasContextSubMenuItem`, which close themselves on Escape */
+export const SUBMENU_ATTRIBUTE = 'data-canvas-submenu';
+const SUBMENU = `[${SUBMENU_ATTRIBUTE}]`;
 
 interface ContextMenuControls {
   /** Closes the whole context menu, for actions in submenus, which have a `Menu` of their own */
   close: () => void;
   /** Called by a submenu that closed itself on Escape, so the context menu stays open */
   keepOpenOnEscape: () => void;
+  /** The element of the open context menu, which its submenus are placed in */
+  getContainer: () => HTMLElement | null;
 }
 
 export const ContextMenuControlsContext = createContext<ContextMenuControls>({
   close: () => {},
   keepOpenOnEscape: () => {},
+  getContainer: () => null,
 });
 
 /**
@@ -94,17 +101,20 @@ const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
     onRequestClose(id);
     // PatternFly only gives the focus back to HTML elements, not to the SVG steps. It moves back right away, so a
     // dialog opened by the chosen action, like the catalog, finds the step as the element to return to.
-    (origin as HTMLOrSVGElement | null | undefined)?.focus({ preventScroll: true });
+    focusElement(origin);
     focusCanvasAfterRender(origin);
   }, [id, onRequestClose, origin]);
 
   const escapedInSubmenu = useRef(false);
+  /** The popper element of the open menu, with the keyboard listener attached to it */
+  const attached = useRef<{ popper: HTMLElement; listener: EventListener } | null>(null);
   const controls = useMemo<ContextMenuControls>(
     () => ({
       close,
       keepOpenOnEscape: () => {
         escapedInSubmenu.current = true;
       },
+      getContainer: () => attached.current?.popper ?? null,
     }),
     [close],
   );
@@ -116,13 +126,15 @@ const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
    * before it sees the key. So with the focus in a submenu, the menu decides once the event has been dispatched: it
    * closes unless the submenu reported that it handled Escape.
    */
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const onContextMenuRequestClose = useCallback(() => {
     if (!document.activeElement?.closest(SUBMENU)) {
       close();
       return;
     }
     escapedInSubmenu.current = false;
-    setTimeout(() => {
+    clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => {
       if (!escapedInSubmenu.current) close();
     });
   }, [close]);
@@ -145,12 +157,19 @@ const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
     [close],
   );
 
+  /** Called with `null` and a new instance whenever PatternFly sets the menu up again, and with `null` on close */
   const popperRef = useCallback(
-    (instance: { popper: Element } | null) => {
-      const popper = instance?.popper;
+    (instance: { popper: HTMLElement } | null) => {
+      const popper = instance?.popper ?? null;
+      const listener = onKeyDown as EventListener;
+      if (attached.current?.popper === popper && attached.current.listener === listener) return;
+
+      attached.current?.popper.removeEventListener('keydown', attached.current.listener);
+      attached.current = null;
       if (!popper) return;
 
-      popper.addEventListener('keydown', onKeyDown as EventListener);
+      popper.addEventListener('keydown', listener);
+      attached.current = { popper, listener };
       if (!popper.contains(document.activeElement)) {
         popper.querySelector<HTMLElement>(ENABLED_ITEM)?.focus();
       }
@@ -160,9 +179,11 @@ const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
 
   useEffect(
     () => () => {
+      // A close requested from a submenu must not move the focus once the menu is gone
+      clearTimeout(closeTimer.current);
       // A menu removed without closing, because its step got a new model, leaves the focus nowhere
       if (document.activeElement === document.body) {
-        (origin as HTMLOrSVGElement | null | undefined)?.focus({ preventScroll: true });
+        focusElement(origin);
       }
     },
     [origin],
@@ -189,8 +210,9 @@ const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
   );
 };
 
-const getVizNode = (element: GraphElement): unknown =>
-  (element.getData() as { vizNode?: unknown } | undefined)?.vizNode;
+/** The model of a step or group; the graph has none */
+const getVizNode = (element: GraphElement): IVisualizationNode | undefined =>
+  (element.getData() as CanvasNodeData | undefined)?.vizNode;
 
 /**
  * Adds a context menu to a canvas node or group, in place of PatternFly's `withContextMenu`.
@@ -212,7 +234,9 @@ export const withNodeContextMenu =
       const element = useContext(ElementContext) as E;
       const vizNode = getVizNode(element);
       const [menu, setMenu] = useState<OpenMenu | null>(null);
-      // The actions act on the model they were built for; once the step gets a new one, they could change another step
+      // The actions act on the model they were built for; once the step gets a new one, they could change another step.
+      // Setting the state while rendering is intended: React renders again right away, before anything is committed,
+      // so the stale actions are never shown. An effect would show them for one render and be one render late.
       if (menu !== null && menu.vizNode !== vizNode) {
         setMenu(null);
       }
@@ -227,11 +251,11 @@ export const withNodeContextMenu =
           setMenu({
             id: openCount.current,
             reference: { x: event.clientX, y: event.clientY },
-            origin: document.activeElement,
-            vizNode: getVizNode(element),
+            origin: getFocusOrigin(),
+            vizNode,
           });
         },
-        [element],
+        [vizNode],
       );
 
       const onRequestClose = useCallback((id: OpenMenu['id']) => {

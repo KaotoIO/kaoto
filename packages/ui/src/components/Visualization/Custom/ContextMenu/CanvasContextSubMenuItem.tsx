@@ -2,7 +2,7 @@ import { ChevronRight } from '@carbon/icons-react';
 import { Menu, MenuContent, MenuList, Popper } from '@patternfly/react-core';
 import { FunctionComponent, KeyboardEvent, ReactNode, useContext, useId, useRef, useState } from 'react';
 
-import { ContextMenuControlsContext, ENABLED_ITEM } from './withNodeContextMenu';
+import { ContextMenuControlsContext, ENABLED_ITEM, SUBMENU_ATTRIBUTE } from './withNodeContextMenu';
 
 interface CanvasContextSubMenuItemProps {
   label: ReactNode;
@@ -26,8 +26,8 @@ const focusFirstItem = (list: HTMLUListElement | null) => {
  * click outside the context menu, and the parent `Menu` does not take over its arrow keys. Being a React child of the
  * entry, moving the pointer onto the submenu does not leave the entry.
  *
- * The submenu is labelled by its entry with `aria-labelledby`: that is how the context menu tells a submenu apart
- * (`SUBMENU` in `withNodeContextMenu`) to leave Escape to it.
+ * The submenu is labelled by its entry with `aria-labelledby`. It is marked with `SUBMENU_ATTRIBUTE`, which tells the
+ * context menu to leave Escape to it.
  */
 export const CanvasContextSubMenuItem: FunctionComponent<CanvasContextSubMenuItemProps> = ({
   label,
@@ -103,11 +103,15 @@ export const CanvasContextSubMenuItem: FunctionComponent<CanvasContextSubMenuIte
         <Popper
           triggerRef={triggerRef}
           placement="right-start"
-          appendTo={() => triggerRef.current!.closest('.pf-v6-c-menu')!.parentElement!}
+          appendTo={() => contextMenu.getContainer() ?? document.body}
           popper={
             <Menu onSelect={contextMenu.close} onKeyDown={onSubMenuKeyDown}>
               <MenuContent>
-                <MenuList aria-labelledby={id} ref={open === 'focus' ? focusFirstItem : undefined}>
+                <MenuList
+                  aria-labelledby={id}
+                  {...{ [SUBMENU_ATTRIBUTE]: '' }}
+                  ref={open === 'focus' ? focusFirstItem : undefined}
+                >
                   {children}
                 </MenuList>
               </MenuContent>
