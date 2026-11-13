@@ -2,6 +2,7 @@ import {
   Array,
   Boolean,
   CalendarHeatMap,
+  CarbonIconProps,
   CharacterDecimal,
   Document,
   EventSchedule,
@@ -13,8 +14,7 @@ import {
   StringText,
   Time,
 } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
-import { FunctionComponent, useMemo } from 'react';
+import { FunctionComponent } from 'react';
 
 import { Types } from '../../models/datamapper';
 
@@ -23,61 +23,58 @@ interface FieldIconProps {
   className?: string;
 }
 
-export const FieldIcon: FunctionComponent<FieldIconProps> = ({ type, className }) => {
-  const iconNode = useMemo(() => {
-    switch (type) {
-      case Types.String:
-        return <StringText />;
+const renderFieldIcon = (type: Types | undefined, props: CarbonIconProps) => {
+  const title = <title>{type}</title>;
 
-      case Types.Integer:
-      case Types.PositiveInteger:
-        return <StringInteger />;
+  switch (type) {
+    case Types.String:
+      return <StringText {...props}>{title}</StringText>;
 
-      case Types.Float:
-      case Types.Double:
-      case Types.Decimal:
-      case Types.Numeric:
-        return <CharacterDecimal />;
+    case Types.Integer:
+    case Types.PositiveInteger:
+      return <StringInteger {...props}>{title}</StringInteger>;
 
-      case Types.Boolean:
-        return <Boolean />;
-      case Types.Date:
-        return <CalendarHeatMap />;
-      case Types.Time:
-        return <Time />;
+    case Types.Float:
+    case Types.Double:
+    case Types.Decimal:
+    case Types.Numeric:
+      return <CharacterDecimal {...props}>{title}</CharacterDecimal>;
 
-      case Types.DateTime:
-        return <EventSchedule />;
-      case Types.Duration:
-      case Types.DayTimeDuration:
-        return <Hourglass />;
+    case Types.Boolean:
+      return <Boolean {...props}>{title}</Boolean>;
+    case Types.Date:
+      return <CalendarHeatMap {...props}>{title}</CalendarHeatMap>;
+    case Types.Time:
+      return <Time {...props}>{title}</Time>;
 
-      case Types.Container:
-        return <Object />;
-      case Types.Array:
-        return <Array />;
-      case Types.DocumentNode:
-        return <Document />;
-      case Types.AnyURI:
-        return <Http />;
+    case Types.DateTime:
+      return <EventSchedule {...props}>{title}</EventSchedule>;
+    case Types.Duration:
+    case Types.DayTimeDuration:
+      return <Hourglass {...props}>{title}</Hourglass>;
 
-      case Types.AnyAtomicType:
-      case Types.AnyType:
-        return <Help />;
+    case Types.Container:
+      return <Object {...props}>{title}</Object>;
+    case Types.Array:
+      return <Array {...props}>{title}</Array>;
+    case Types.DocumentNode:
+      return <Document {...props}>{title}</Document>;
+    case Types.AnyURI:
+      return <Http {...props}>{title}</Http>;
 
-      case Types.QName:
-      case Types.NCName:
-      case Types.Item:
-      case Types.Element:
-      case Types.Node:
-      default:
-        return null;
-    }
-  }, [type]);
+    case Types.AnyAtomicType:
+    case Types.AnyType:
+      return <Help {...props}>{title}</Help>;
 
-  return (
-    <Icon className={className} title={type}>
-      {iconNode}
-    </Icon>
-  );
+    case Types.QName:
+    case Types.NCName:
+    case Types.Item:
+    case Types.Element:
+    case Types.Node:
+    default:
+      return null;
+  }
 };
+
+export const FieldIcon: FunctionComponent<FieldIconProps> = ({ type, className }) =>
+  renderFieldIcon(type, { className });

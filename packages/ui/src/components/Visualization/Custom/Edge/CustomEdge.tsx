@@ -1,7 +1,6 @@
 import './CustomEdge.scss';
 
 import { AddAlt } from '@carbon/icons-react';
-import { Icon } from '@patternfly/react-core';
 import {
   ConnectorArrow,
   DefaultEdge,
@@ -41,9 +40,7 @@ interface EdgeAddStepIconSlotProps {
 const EdgeAddStepIconSlot: FunctionComponent<EdgeAddStepIconSlotProps> = ({ x, y, vizNode, className }) => (
   <foreignObject x={x} y={y} width={CanvasDefaults.ADD_STEP_ICON_SIZE} height={CanvasDefaults.ADD_STEP_ICON_SIZE}>
     <AddStepIcon className={className} title="Add step" vizNode={vizNode} mode={AddStepMode.PrependStep}>
-      <Icon size="lg">
-        <AddAlt />
-      </Icon>
+      <AddAlt />
     </AddStepIcon>
   </foreignObject>
 );

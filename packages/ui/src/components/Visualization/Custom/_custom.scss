@@ -13,6 +13,14 @@
     justify-self: start;
     margin-left: calc(-12px + var(--pf-t--global--spacer--xs) - var(--pf-t--global--spacer--sm));
   }
+
+  &__info-icon {
+    fill: var(--cds-support-info);
+  }
+
+  &__danger-icon {
+    fill: var(--cds-support-error);
+  }
 }
 
 @mixin highligth {
@@ -29,12 +37,6 @@
 
   foreignObject:first-of-type {
     overflow: visible;
-  }
-
-  // Positioned HTML descendants of foreignObject can ignore SVG transforms in Safari.
-  // Canvas icons do not use the Icon component's absolutely positioned loading state.
-  .pf-v6-c-icon {
-    position: static;
   }
 
   @content;

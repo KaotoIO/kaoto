@@ -43,7 +43,7 @@
     .pf-v6-c-divider {
       margin: 0 var(--pf-t--global--spacer--xs);
       align-self: center;
-      height: calc(var(--datamapper-header-icon-size, 0.75rem) + 0.25rem);
+      height: calc(var(--datamapper-header-icon-size, 1rem) + 0.25rem);
     }
   }
 }
@@ -65,17 +65,11 @@
     }
   }
 
-  /* stylelint-disable-next-line selector-class-pattern */
-  .node__spacer {
-    margin: 0 var(--pf-t--global--spacer--sm);
-    display: flex;
-    align-items: center;
-
-    svg {
-      display: block;
-      width: var(--datamapper-header-icon-size);
-      height: var(--datamapper-header-icon-size);
-    }
+  &__drag-handle {
+    flex-shrink: 0;
+    margin: 0 var(--cds-spacing-03);
+    width: var(--datamapper-header-icon-size);
+    height: var(--datamapper-header-icon-size);
   }
 }
 

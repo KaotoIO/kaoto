@@ -24,7 +24,7 @@
     .pf-v6-c-divider {
       margin: 0 var(--pf-t--global--spacer--xs);
       align-self: center;
-      height: calc(var(--datamapper-header-icon-size, 0.75rem) + 0.25rem);
+      height: calc(var(--datamapper-header-icon-size, 1rem) + 0.25rem);
     }
   }
 }
@@ -51,15 +51,10 @@
 
   &__chevron {
     flex-shrink: 0;
-    margin-left: var(--pf-t--global--spacer--sm);
-    margin-right: var(--pf-t--global--spacer--sm);
-    color: var(--pf-t--global--icon--color--regular);
-
-    /* stylelint-disable-next-line no-descending-specificity */
-    svg {
-      width: var(--datamapper-header-icon-size);
-      height: var(--datamapper-header-icon-size);
-    }
+    margin: 0 var(--cds-spacing-03);
+    width: var(--datamapper-header-icon-size);
+    height: var(--datamapper-header-icon-size);
+    fill: var(--cds-icon-primary);
   }
 
   /* stylelint-disable-next-line selector-class-pattern */

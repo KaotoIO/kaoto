@@ -107,16 +107,16 @@ describe('FieldIcon', () => {
   });
 
   describe('props', () => {
-    it('should apply className prop to Icon', () => {
+    it('should apply className prop to the icon', () => {
       const wrapper = render(<FieldIcon type={Types.String} className="test-class" />);
 
       expect(wrapper.container.querySelector('.test-class')).toBeInTheDocument();
     });
 
-    it('should set title attribute with type value', () => {
+    it('should render a title element with the type value', () => {
       const wrapper = render(<FieldIcon type={Types.String} />);
 
-      expect(wrapper.container.querySelector(`[title="${Types.String}"]`)).toBeInTheDocument();
+      expect(wrapper.container.querySelector('svg > title')).toHaveTextContent(Types.String);
     });
   });
 });

@@ -1,7 +1,8 @@
 import './BaseNode.scss';
 
 import { At, ChevronDown, ChevronRight, Choices, DocumentComment, Draggable, Layers } from '@carbon/icons-react';
-import { Button, Icon, Label, Tooltip } from '@patternfly/react-core';
+import { Button, Label, Tooltip } from '@patternfly/react-core';
+import clsx from 'clsx';
 import { FunctionComponent, MouseEventHandler, PropsWithChildren, ReactNode, useCallback, useState } from 'react';
 
 import { IDataTestID } from '../../../models';
@@ -127,84 +128,79 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       )}
 
       {isExpandable ? (
-        <Icon className="node__expand" onClick={onExpandChange}>
+        /*
+         * A native button on purpose: Carbon `IconButton` is at least 24px and always adds a tooltip, which does not
+         * fit the 16px chevron slot the rank guide lines align to, and PatternFly `Button` is being phased out.
+         * Carbon's own TreeView renders this toggle as a clickable span; a button keeps it semantic.
+         * Preventing the mousedown default keeps the focus on the treeitem, so Enter still selects the row after a
+         * click on the chevron instead of toggling it again.
+         */
+        <button
+          type="button"
+          className="node__expand"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
+          onClick={onExpandChange}
+          aria-label={isExpanded ? 'Collapse' : 'Expand'}
+          aria-expanded={isExpanded}
+          tabIndex={-1}
+        >
           {isExpanded && <ChevronDown data-testid={`expand-icon-${dataTestId}`} />}
           {!isExpanded && <ChevronRight data-testid={`collapse-icon-${dataTestId}`} />}
-        </Icon>
+        </button>
       ) : (
         <span className="node__expand" aria-hidden="true" />
       )}
 
-      {isDraggable && (
-        <Icon className="node__spacer" data-drag-handler>
-          <Draggable />
-        </Icon>
-      )}
+      {isDraggable && <Draggable className="node__icon" data-drag-handler />}
       {title}
       {optionalGuard?.comment && onUpdate && (
         <Tooltip
           content={<span className="node__comment-tooltip">{`Optional guard comment: ${optionalGuard.comment}`}</span>}
         >
-          <Icon className="node__spacer" data-testid="guard-comment-indicator-icon">
-            <Button
-              variant="plain"
-              icon={<DocumentComment />}
-              onClick={handleOpenGuardCommentModal}
-              aria-label="Edit optional guard comment"
-            />
-          </Icon>
+          <Button
+            className="node__spacer"
+            data-testid="guard-comment-indicator-icon"
+            variant="plain"
+            icon={<DocumentComment />}
+            onClick={handleOpenGuardCommentModal}
+            aria-label="Edit optional guard comment"
+          />
         </Tooltip>
       )}
-      {isCollectionField && (
-        <Icon className="node__spacer" data-testid="collection-field-icon">
-          <Layers />
-        </Icon>
-      )}
-      {isChoiceField && !isSelectedChoice && (
-        <Icon className="node__spacer" data-testid="choice-field-icon">
-          <Choices />
-        </Icon>
-      )}
+      {isCollectionField && <Layers className="node__icon" data-testid="collection-field-icon" />}
+      {isChoiceField && !isSelectedChoice && <Choices className="node__icon" data-testid="choice-field-icon" />}
       {isSelectedChoice && (
         <Label className="node__spacer" color="green" icon={<Choices />} isCompact data-testid="choice-field-icon">
           {choiceDepth >= 2 ? <>&times;{choiceDepth}</> : ''}
         </Label>
       )}
       {isAbstractField && (
-        <Icon
-          className="node__spacer"
-          status={isSelectedAbstract ? 'success' : undefined}
+        <Choices
+          className={clsx('node__icon', { 'node__icon--success': isSelectedAbstract })}
           data-testid="abstract-field-icon"
-        >
-          <Choices />
-        </Icon>
+        />
       )}
       {(isAbstractWrapperMember || isChoiceWrapperMember) && (
-        <Icon
-          className="node__spacer"
-          status={field?.wrapperKind ? undefined : 'success'}
+        <Choices
+          className={clsx('node__icon', { 'node__icon--success': !field?.wrapperKind })}
           data-testid={field?.wrapperKind ? 'abstract-field-icon' : 'wrapper-member-icon'}
-        >
-          <Choices />
-        </Icon>
+        />
       )}
-      <FieldIcon className="node__spacer node__icon--no-popover" type={iconType} />
+      <FieldIcon className="node__icon node__icon--no-popover" type={iconType} />
 
-      {isAttributeField && (
-        <Icon className="node__spacer" data-testid="attribute-field-icon">
-          <At />
-        </Icon>
-      )}
+      {isAttributeField && <At className="node__icon" data-testid="attribute-field-icon" />}
       {mapping?.comment && mapping && onUpdate && (
         <Tooltip content={<span className="node__comment-tooltip">{mapping?.comment}</span>}>
-          <Icon className="node__spacer" data-testid="comment-indicator-icon">
-            <Button
-              variant="plain"
-              icon={<DocumentComment />}
-              onClick={handleOpenCommentModal}
-              aria-label="Edit comment"
-            />
-          </Icon>
+          <Button
+            className="node__spacer"
+            data-testid="comment-indicator-icon"
+            variant="plain"
+            icon={<DocumentComment />}
+            onClick={handleOpenCommentModal}
+            aria-label="Edit comment"
+          />
         </Tooltip>
       )}
       <FieldNodePopover nodeData={nodeData} namespaceMap={namespaceMap} />

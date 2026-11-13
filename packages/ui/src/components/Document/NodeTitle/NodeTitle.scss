@@ -38,20 +38,22 @@ div.node-title-container {
   height: 1.25rem;
 
   &--active-guard {
-    color: var(--pf-t--global--color--status--info--default);
+    color: var(--cds-support-info);
 
     rect {
       fill: currentcolor;
-      stroke: var(--pf-t--global--color--status--info--hover);
+
+      // A darker shade of the fill, so the marker keeps a visible outline
+      stroke: color-mix(in srgb, currentcolor 70%, black);
       stroke-width: 2;
     }
 
     text {
-      fill: var(--pf-t--global--icon--color--status--on-info--default);
+      fill: var(--cds-icon-on-color);
     }
 
     .droppable-invalid & {
-      color: var(--pf-t--global--text--color--disabled);
+      color: var(--cds-icon-disabled);
 
       rect {
         stroke: currentcolor;

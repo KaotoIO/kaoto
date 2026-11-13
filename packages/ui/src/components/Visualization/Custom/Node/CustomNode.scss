@@ -6,7 +6,7 @@
     @include custom.interaction-indicator('.custom-node__indicator');
 
     &[data-warning='true'] {
-      --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
+      --custom-node-BorderColor: var(--cds-support-error);
     }
 
     &__container {
@@ -80,7 +80,7 @@
           max-width: 100%;
           cursor: pointer;
 
-          span:not([data-warning='true']) {
+          span {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -92,12 +92,14 @@
           border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
 
           &__error {
-            color: var(--custom-node-BorderColor);
-
-            & > span:first-of-type {
-              margin-right: var(--pf-t--global--spacer--xs);
-            }
+            color: var(--cds-support-error);
           }
+        }
+
+        &__warning-icon {
+          flex-shrink: 0;
+          margin-right: var(--cds-spacing-02);
+          fill: var(--cds-support-error);
         }
       }
     }

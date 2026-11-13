@@ -238,6 +238,23 @@ describe('BaseNode', () => {
 
       expect(onExpandChange).toHaveBeenCalledTimes(1);
     });
+
+    it('should not take the focus away from the treeitem on mouse down', () => {
+      render(
+        <BaseNode
+          nodeData={createMockNodeData()}
+          title="Title"
+          data-testid="test-node"
+          isExpandable
+          isExpanded
+          onExpandChange={vi.fn()}
+        />,
+      );
+
+      const expandButton = screen.getByRole('button', { name: 'Collapse' });
+
+      expect(fireEvent.mouseDown(expandButton)).toBe(false);
+    });
   });
 
   describe('Draggable Controls', () => {
@@ -286,7 +303,7 @@ describe('BaseNode', () => {
       const { container } = render(
         <BaseNode nodeData={createMockNodeData({ type: Types.String })} title="Title" data-testid="test-node" />,
       );
-      expect(container.querySelector('.node__spacer')).toBeInTheDocument();
+      expect(container.querySelector('.node__icon')).toBeInTheDocument();
     });
 
     it('should render collection icon when isCollectionField is true (ARRAY type)', () => {
@@ -517,7 +534,7 @@ describe('BaseNode', () => {
         );
 
         // Click the comment button
-        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        const commentButton = screen.getByTestId('comment-indicator-icon');
         expect(commentButton).toBeInTheDocument();
         fireEvent.click(commentButton!);
 
@@ -537,7 +554,7 @@ describe('BaseNode', () => {
           />,
         );
 
-        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        const commentButton = screen.getByTestId('comment-indicator-icon');
         const stopPropagationSpy = vi.fn();
 
         // Create a click event
@@ -569,7 +586,7 @@ describe('BaseNode', () => {
 
         // Modal component should be in the DOM (even if not visible)
         // When closed, the modal is not rendered, so we need to open it first
-        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        const commentButton = screen.getByTestId('comment-indicator-icon');
         fireEvent.click(commentButton!);
 
         expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
@@ -588,7 +605,7 @@ describe('BaseNode', () => {
         );
 
         // Open the modal
-        const commentButton = screen.getByTestId('comment-indicator-icon').querySelector('button');
+        const commentButton = screen.getByTestId('comment-indicator-icon');
         fireEvent.click(commentButton!);
         expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
 

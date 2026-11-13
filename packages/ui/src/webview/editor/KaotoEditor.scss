@@ -46,6 +46,12 @@ html body {
     }
   }
 
+  &__tab-icon {
+    inline-size: 14px;
+    block-size: 14px;
+    object-fit: contain;
+  }
+
   // Tab content for Design canvas is not scrollable
   div#{&}__tab-content {
     flex-grow: 1;

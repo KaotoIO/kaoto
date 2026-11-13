@@ -117,7 +117,7 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
       {repeatingField1 && (
         <Repeat1Icon className="node__spacer datamapper-marker-field" role="img" aria-label="Repeat1" />
       )}
-      {nodeData.field.nillable && <NullSign className="node__spacer datamapper-marker-field" aria-label="Nullable" />}
+      {nodeData.field.nillable && <NullSign className="node__icon" aria-label="Nullable" />}
     </div>
   );
 };

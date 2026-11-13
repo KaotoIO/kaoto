@@ -37,9 +37,9 @@ type SchemaFileDataListProps = {
 };
 
 const STATUS_ICONS = {
-  success: <CheckmarkFilled color="var(--pf-t--global--icon--color--status--success--default)" />,
-  warning: <WarningAlt color="var(--pf-t--global--icon--color--status--warning--default)" />,
-  error: <WarningFilled color="var(--pf-t--global--icon--color--status--danger--default)" />,
+  success: <CheckmarkFilled className="attach-schema-status-icon--success" />,
+  warning: <WarningAlt className="attach-schema-status-icon--warning" />,
+  error: <WarningFilled className="attach-schema-status-icon--error" />,
 };
 
 const FILTER_OPTIONS: { status: SchemaFileItem['status']; label: string }[] = [

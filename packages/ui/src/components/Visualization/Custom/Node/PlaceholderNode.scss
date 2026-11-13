@@ -10,7 +10,7 @@
     }
 
     &[data-warning='true'] {
-      --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
+      --custom-node-BorderColor: var(--cds-support-error);
     }
 
     &__container {
@@ -26,6 +26,10 @@
         background-color: var(--custom-node-BackgroundColor);
         padding: var(--pf-t--global--spacer--sm);
         color: var(--pf-topology__edge--Stroke);
+
+        svg {
+          fill: var(--cds-icon-primary);
+        }
 
         .placeholder-node:focus & {
           border-color: var(--pf-t--global--color--brand--default);
@@ -54,7 +58,7 @@
           max-width: 100%;
           cursor: pointer;
 
-          span:not([data-warning='true']) {
+          span {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
