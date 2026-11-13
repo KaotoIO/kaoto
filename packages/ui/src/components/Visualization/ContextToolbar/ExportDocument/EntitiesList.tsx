@@ -38,9 +38,13 @@ const EntityOption: FunctionComponent<IEntityOption> = ({
         <MenuItemAction
           icon={
             isVisible ? (
-              <View title={`Hide ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-hide`} />
+              <View data-testid={`toggle-btn-${entityLabel}-hide`}>
+                <title>{`Hide ${entityLabel}`}</title>
+              </View>
             ) : (
-              <ViewOff title={`Show ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-show`} />
+              <ViewOff data-testid={`toggle-btn-${entityLabel}-show`}>
+                <title>{`Show ${entityLabel}`}</title>
+              </ViewOff>
             )
           }
           actionId="toggle"
