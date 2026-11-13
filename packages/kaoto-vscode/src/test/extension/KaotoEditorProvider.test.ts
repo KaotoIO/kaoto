@@ -21,7 +21,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { createEventBus, createPostMessageBridge, type ContentSnapshot, type SetContentRequest } from '@kaoto/kaoto/host-bridge';
-import { KaotoEditorProvider } from '../../extension/KaotoEditorProvider';
+import { KaotoEditorProvider, type KaotoEditorProviderTimeouts } from '../../extension/KaotoEditorProvider';
 import { getExtensionUri } from '../utils/TestSetup';
 
 suite('Native Kaoto text document provider', () => {
@@ -92,9 +92,9 @@ suite('Native Kaoto text document provider', () => {
 		await fixture.connect();
 	}
 	/** Replaces the provider with one that gives up on an unresponsive canvas quickly. */
-	function useShortDeadlines() {
+	function useShortDeadlines(timeouts: Partial<KaotoEditorProviderTimeouts> = {}) {
 		provider.dispose();
-		provider = new KaotoEditorProvider({ extensionUri: getExtensionUri() }, undefined, { saveSnapshotMs: 200, hostUpdateMs: 200 });
+		provider = new KaotoEditorProvider({ extensionUri: getExtensionUri() }, undefined, { saveSnapshotMs: 200, hostUpdateMs: 200, ...timeouts });
 	}
 	async function editSource(content: string, source = document) {
 		const edit = new vscode.WorkspaceEdit();
@@ -529,7 +529,8 @@ suite('Native Kaoto text document provider', () => {
 	});
 
 	test('saving while a host update is stalled completes within the save budget and preserves native text', async () => {
-		useShortDeadlines();
+		// The host update outlives the whole test, so only the save deadline can end the wait behind it.
+		useShortDeadlines({ hostUpdateMs: 10_000 });
 		await open();
 		fixture.edit('initial', 1);
 		await eventually(() => document.getText() === 'initial' && document.isDirty);
@@ -537,6 +538,7 @@ suite('Native Kaoto text document provider', () => {
 
 		fixture.applying = () => new Promise<void>(() => {});
 		await editSource('native change while stalled');
+		await eventually(() => fixture.requests.some(({ reason }) => reason === 'hostUpdate'));
 		const started = Date.now();
 		ok(await document.save());
 		ok(Date.now() - started < 1_500, 'The save exceeded the VS Code save participant timeout');
@@ -545,7 +547,8 @@ suite('Native Kaoto text document provider', () => {
 	});
 
 	test('a save snapshot does not overwrite native text when host update was not applied', async () => {
-		useShortDeadlines();
+		// The save waits for the host update to time out, so only the applied-version check can protect the native text.
+		useShortDeadlines({ saveSnapshotMs: 10_000 });
 		await open();
 		fixture.edit('initial', 1);
 		await eventually(() => document.getText() === 'initial' && document.isDirty);
@@ -553,13 +556,60 @@ suite('Native Kaoto text document provider', () => {
 
 		fixture.applying = () => new Promise<void>(() => {});
 		await editSource('newer native');
-		// Wait for hostUpdate timeout to expire
 		await eventually(() => fixture.requests.some(({ reason }) => reason === 'hostUpdate'));
-		// Snapshot returns the old canvas content
+		// The canvas still answers with its old content at the same revision
 		fixture.getSnapshot = () => ({ content: 'initial', revision: 1 });
 		ok(await document.save());
 		equal(await read(document.uri), 'newer native');
 		equal(document.getText(), 'newer native');
+	});
+
+	test('a canvas change does not overwrite native text while a host update was not applied', async () => {
+		useShortDeadlines({ saveSnapshotMs: 10_000 });
+		await open();
+		fixture.applying = () => new Promise<void>(() => {});
+		await editSource('newer native');
+		await eventually(() => fixture.requests.some(({ reason }) => reason === 'hostUpdate'));
+		// The canvas never received the native edit, so this change builds on its old content
+		fixture.edit('old canvas with an edit', 1);
+		await fixture.flush();
+		// The save runs after the stalled host update times out and the canvas change is processed
+		ok(await document.save());
+		equal(await read(document.uri), 'newer native');
+		equal(document.getText(), 'newer native');
+	});
+
+	test('a source edit made during initialization is not counted as applied when its host update stalls', async () => {
+		useShortDeadlines({ saveSnapshotMs: 10_000 });
+		await open();
+		fixture.applying = async () => {
+			// The first request is the init: edit the source while it is in flight, then stall its host update.
+			fixture.applying = () => new Promise<void>(() => {});
+			await editSource('native during init');
+		};
+		await fixture.reconnect();
+		await eventually(() => fixture.requests.some(({ reason }) => reason === 'hostUpdate'));
+		ok(await document.save());
+		equal(await read(document.uri), 'native during init');
+		equal(document.getText(), 'native during init');
+	});
+
+	test('a canvas change is synchronized after a host update the canvas already held', async () => {
+		await open();
+		const release = deferred<void>();
+		fixture.applying = () => release.promise;
+		await editSource('first');
+		await eventually(() => fixture.requests.some(({ content }) => content === 'first'));
+		// The newest edit returns to the content the canvas is applying, so the canvas answers `applied: false`
+		await editSource('second');
+		await editSource('first');
+		fixture.applying = undefined;
+		release.resolve();
+		await eventually(() => fixture.requests.filter(({ content }) => content === 'first').length === 2);
+		await fixture.flush();
+
+		fixture.edit('canvas edit', fixture.content.revision + 1);
+		await eventually(() => document.getText() === 'canvas edit');
 	});
 
 	test('closing the canvas keeps the unsaved source available for reopening', async () => {
@@ -712,7 +762,7 @@ function editorFixture() {
 		requests: [] as SetContentRequest[],
 		content: { content: '', revision: 0 } as ContentSnapshot,
 		getSnapshot: (): ContentSnapshot | Promise<ContentSnapshot> => ({ ...value.content }),
-		/** Lets a test hold the canvas while it applies a host update. */
+		/** Lets a test hold the canvas while it applies a request. */
 		applying: undefined as (() => Promise<void>) | undefined,
 		receive: (message: unknown) => incoming.fire(message),
 		panel: {
@@ -735,8 +785,10 @@ function editorFixture() {
 			init = deferred<void>();
 			value.bus.onRequest('host:document:setContent', async (request) => {
 				value.requests.push(request);
-				if (request.reason !== 'init') {
-					await value.applying?.();
+				await value.applying?.();
+				// Like the real canvas, content it already holds is not applied again.
+				if (request.reason !== 'init' && request.content === value.content.content) {
+					return { applied: false, revision: value.content.revision };
 				}
 				value.content = { content: request.content, revision: request.reason === 'init' ? 0 : value.content.revision + 1 };
 				if (request.reason === 'init') {
