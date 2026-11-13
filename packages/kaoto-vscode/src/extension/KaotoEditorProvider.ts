@@ -125,8 +125,9 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 					if (result.applied) {
 						state.content = content;
 						state.revision = result.revision;
-						state.appliedSourceVersion = version;
 					}
+					// `applied: false` means the canvas already holds this content, so it is in sync either way.
+					state.appliedSourceVersion = version;
 				}).catch(report);
 			}),
 			vscode.workspace.onWillSaveTextDocument((event) => {
@@ -372,7 +373,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 						throw error;
 					}
 					// A source edit that arrived during the snapshot must not be overwritten.
-					if (version === state.sourceVersion && state.appliedSourceVersion === version) {
+					if (version === state.sourceVersion) {
 						await this.updateSource(state);
 					}
 				}),
@@ -401,6 +402,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		 * when that session ends, so `state.content` can be older than the document.
 		 */
 		state.content = state.document.getText();
+		const version = state.sourceVersion;
 		try {
 			const result = await session.bus.request('host:document:setContent', {
 				reason: 'init',
@@ -410,7 +412,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			});
 			this.requireSession(state, session, epoch);
 			state.revision = result.revision;
-			state.appliedSourceVersion = state.sourceVersion;
+			state.appliedSourceVersion = version;
 			session.initialized = true;
 			session.whenReady.resolve();
 		} catch (error) {
@@ -432,8 +434,9 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 	private syncSource(state: DocumentState): void {
 		const version = state.sourceVersion;
 		void this.enqueue(state, async () => {
-			// A newer source edit already queued its own update to the canvas.
-			if (version === state.sourceVersion) {
+			// A newer source edit already queued its own update to the canvas. If that update did not reach the canvas,
+			// the native text stays authoritative: the canvas content is stale.
+			if (version === state.sourceVersion && state.appliedSourceVersion === version) {
 				await this.updateSource(state);
 			}
 		}).catch(report);
@@ -481,7 +484,7 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		this.requireSession(state, session, epoch);
 		const snapshot = await this.request(session.bus, 'host:document:getContent', null, token, this.timeouts.saveSnapshotMs);
 		this.requireSession(state, session, epoch);
-		if (snapshot.revision >= state.revision && state.appliedSourceVersion === state.sourceVersion) {
+		if (snapshot.revision >= state.revision) {
 			state.content = snapshot.content;
 			state.revision = snapshot.revision;
 		}
