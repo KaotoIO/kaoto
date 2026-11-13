@@ -17,7 +17,7 @@ A compact guide for AI agents: common tasks, the files to read first, the files 
 
 Changes to how routes, nodes, groups, edges, or placeholders are rendered or behave on the visual canvas.
 
-**Rendering guidance**: Before changing HTML embedded in SVG `foreignObject`, its positioning or stacking, or surrounding decorations, read [SVG `foreignObject` rendering in Safari](architecture.md#svg-foreignobject-rendering-in-safari) for implementation guidance, an observed failure, and browser validation checks.
+**Rendering guidance**: Before changing HTML embedded in SVG `foreignObject`, its positioning or stacking, or surrounding decorations, read [SVG `foreignObject` rendering in Safari](architecture.md#svg-foreignobject-rendering-in-safari) for implementation guidance, observed failures, and browser validation checks.
 
 | What                                | Where                                                                                                                                        |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
