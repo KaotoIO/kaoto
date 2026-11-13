@@ -17,6 +17,8 @@ import { assert } from 'chai';
 import { DeploymentsProvider, PortFileKey } from '../../../views/deployments/DeploymentsProvider';
 import { PortManager } from '../../../services/PortManager';
 import { CamelTask, CamelTaskDefinition } from '../../../tasks/CamelTask';
+import { setImmediate } from 'node:timers/promises';
+import { deferred } from '../../utils/Deferred';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -180,5 +182,154 @@ suite('DeploymentsProvider — reachability poll uses 3-second timeout', functio
 			waitForPortReachableCalls.some((c) => c.port === 8080 && c.timeout === 3_000),
 			`Expected waitForPortReachable(8080, 3000) but got: ${JSON.stringify(waitForPortReachableCalls)}`,
 		);
+	});
+});
+
+suite('DeploymentsProvider snapshots', () => {
+	const createProvider = useDeploymentsProviders();
+	test('keeps different full paths with the same basename separate', async () => {
+		const { portManager } = makePortManager(true);
+		portManager.getUsedPorts().add(9876);
+		const original = global.fetch;
+		global.fetch = async () =>
+			new Response(
+				JSON.stringify({
+					route: {
+						routes: [
+							{ routeId: 'same', source: 'file:/one/orders.camel.yaml:1', state: 'Started', statistics: {} },
+							{ routeId: 'same', source: 'file:/two/orders.camel.yaml:1', state: 'Stopped', statistics: {} },
+						],
+					},
+				}),
+			);
+		try {
+			const provider = createProvider(portManager);
+			await provider.refresh();
+			assert.deepEqual(
+				provider
+					.getSnapshot()
+					.map((r) => r.sourcePath)
+					.sort(),
+				['/one/orders.camel.yaml', '/two/orders.camel.yaml'],
+			);
+		} finally {
+			global.fetch = original;
+		}
+	});
+});
+
+suite('DeploymentsProvider refresh ownership', () => {
+	const createProvider = useDeploymentsProviders();
+	test('keeps polling with an editor lease while the tree is hidden', async () => {
+		const interval = global.setInterval;
+		const clear = global.clearInterval;
+		const callbacks = new Map<NodeJS.Timeout, () => Promise<void>>();
+		global.setInterval = ((callback: () => Promise<void>) => {
+			const handle = {} as NodeJS.Timeout;
+			callbacks.set(handle, callback);
+			return handle;
+		}) as typeof setInterval;
+		global.clearInterval = ((handle: NodeJS.Timeout) => {
+			callbacks.delete(handle);
+		}) as typeof clearInterval;
+		try {
+			const { portManager, waitForPortReachableCalls } = makePortManager(false);
+			portManager.getUsedPorts().add(9876);
+			const provider = createProvider(portManager);
+			provider.setVisible(false);
+			assert.equal(callbacks.size, 0);
+			const lease = provider.acquireRefresh();
+			assert.equal(callbacks.size, 1);
+			await [...callbacks.values()][0]();
+			assert.lengthOf(waitForPortReachableCalls, 1);
+			lease.dispose();
+			assert.equal(callbacks.size, 0);
+			provider.dispose();
+		} finally {
+			global.setInterval = interval;
+			global.clearInterval = clear;
+		}
+	});
+	test('overlapping refreshes wait for a fresh snapshot after the pending poll', async () => {
+		const original = global.fetch;
+		let finishOld!: (response: Response) => void;
+		let calls = 0;
+		const body = (state: string) =>
+			new Response(JSON.stringify({ route: { routes: [{ routeId: 'orders', source: 'file:/p/orders.yaml:1', state, statistics: {} }] } }));
+		global.fetch = async () =>
+			++calls === 1
+				? new Promise<Response>((resolve) => {
+						finishOld = resolve;
+					})
+				: body('Stopped');
+		try {
+			const { portManager } = makePortManager(true);
+			portManager.getUsedPorts().add(9876);
+			const provider = createProvider(portManager);
+			const old = provider.refresh();
+			await setImmediate();
+			const newer = provider.refresh();
+			finishOld(body('Started'));
+			await old;
+			await newer;
+			assert.equal(calls, 2);
+			assert.equal(provider.getSnapshot()[0].state, 'Stopped');
+		} finally {
+			global.fetch = original;
+		}
+	});
+	test('completes callers after their poll while further refreshes remain pending', async () => {
+		const originalSet = global.setInterval;
+		const originalClear = global.clearInterval;
+		const originalFetch = global.fetch;
+		const timers = new Map<NodeJS.Timeout, () => Promise<void>>();
+		const polls: ReturnType<typeof deferred<Response>>[] = [];
+		global.setInterval = ((callback: () => Promise<void>) => {
+			const handle = {} as NodeJS.Timeout;
+			timers.set(handle, callback);
+			return handle;
+		}) as typeof setInterval;
+		global.clearInterval = ((handle: NodeJS.Timeout) => {
+			timers.delete(handle);
+		}) as typeof clearInterval;
+		global.fetch = () => {
+			const poll = deferred<Response>();
+			polls.push(poll);
+			return poll.promise;
+		};
+		const { portManager } = makePortManager(true);
+		portManager.getUsedPorts().add(9876);
+		const provider = createProvider(portManager);
+		const completePoll = (index: number) => polls[index].resolve(new Response(JSON.stringify({ route: { routes: [] } })));
+		let initialCompleted = false;
+		let overlappingCompleted = false;
+		const initial = provider.refresh().then(() => {
+			initialCompleted = true;
+		});
+		try {
+			await setImmediate();
+			const overlapping = provider.refresh().then(() => {
+				overlappingCompleted = true;
+			});
+			completePoll(0);
+			await setImmediate();
+			assert.isTrue(initialCompleted, 'The first caller must not wait for the second poll');
+			assert.isFalse(overlappingCompleted, 'An overlapping request must wait for a fresh poll');
+			const trailing = [...timers.values()][0]();
+			completePoll(1);
+			await setImmediate();
+			assert.isTrue(overlappingCompleted, 'The second caller must not wait for the third poll');
+			assert.lengthOf(polls, 3);
+			provider.dispose();
+			completePoll(2);
+			await Promise.all([initial, overlapping, trailing]);
+		} finally {
+			provider.dispose();
+			polls.at(-1)?.resolve(new Response('{}'));
+			await initial;
+			global.fetch = originalFetch;
+			global.setInterval = originalSet;
+			global.clearInterval = originalClear;
+		}
 	});
 });

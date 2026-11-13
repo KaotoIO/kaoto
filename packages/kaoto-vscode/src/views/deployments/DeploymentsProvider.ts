@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { EventEmitter, tasks, TreeDataProvider, TreeItem, TreeItemCollapsibleState, workspace } from 'vscode';
+import { Disposable, EventEmitter, tasks, TreeDataProvider, TreeItem, TreeItemCollapsibleState, workspace } from 'vscode';
 import { basename } from 'path'; // NOSONAR
 import { KAOTO_VIEWS_REFRESH_INTERVAL_SETTING_ID } from '../../constants';
 import { PortManager } from '../../services/PortManager';
 import { CamelTaskDefinition } from '../../tasks/CamelTask';
 import { KaotoOutputChannel } from '../../extension/KaotoOutputChannel';
 import { Route } from './Route';
+import type { LocalDeploymentRoute } from '../../services/SendMessageRuntimeService';
 import { RootItem } from './RootItem';
 import { ParentItem } from './ParentItem';
 import { ChildItem } from './ChildItem';
@@ -32,6 +33,11 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 	private readonly CONTEXT_INTEGRATION_LOCALHOST_ITEM = 'parent-localhost';
 	private readonly CONTEXT_ROUTE_LOCALHOST_ITEM = 'child-localhost';
 
+	private readonly subscriptions: Disposable[] = [];
+	private refreshUsers = 0;
+	private visible = true;
+	private disposed = false;
+	private pendingRefresh?: Promise<void>;
 	private interval: number;
 	private autoRefreshHandle?: NodeJS.Timeout;
 	private localhostData = new Map<string, { associatedFile: string; routes: Route[] }>();
@@ -40,30 +46,65 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 		this.interval = this.getRefreshInterval();
 		this.startAutoRefresh();
 
-		workspace.onDidChangeConfiguration((e) => {
-			if (e.affectsConfiguration(KAOTO_VIEWS_REFRESH_INTERVAL_SETTING_ID)) {
-				this.updateIntervalFromSettings();
-			}
-		});
-
-		tasks.onDidStartTaskProcess(async (e) => {
-			const def = e.execution.task.definition as CamelTaskDefinition;
-			if (def.type === 'camel' && def.port > 0) {
-				console.log(`[DeploymentsProvider] Task started on port ${def.port}`);
-				const ready = await this.waitForIntegrationReady(def.port);
-				if (ready) {
-					console.log(`[DeploymentsProvider] Camel integration running on port ${def.port}`);
-					void this.refresh();
+		this.subscriptions.push(
+			workspace.onDidChangeConfiguration((e) => {
+				if (e.affectsConfiguration(KAOTO_VIEWS_REFRESH_INTERVAL_SETTING_ID)) {
+					this.updateIntervalFromSettings();
 				}
-			}
-		});
-		tasks.onDidEndTaskProcess((e) => {
-			this.handleTaskEnd(e.execution.task.definition as CamelTaskDefinition);
-		});
+			}),
+			tasks.onDidStartTaskProcess(async (e) => {
+				const def = e.execution.task.definition as CamelTaskDefinition;
+				if (def.type === 'camel' && def.port > 0) {
+					console.log(`[DeploymentsProvider] Task started on port ${def.port}`);
+					const ready = await this.waitForIntegrationReady(def.port);
+					if (ready) {
+						console.log(`[DeploymentsProvider] Camel integration running on port ${def.port}`);
+						void this.refresh();
+					}
+				}
+			}),
+			tasks.onDidEndTaskProcess((e) => {
+				this.handleTaskEnd(e.execution.task.definition as CamelTaskDefinition);
+			}),
+		);
 	}
 
 	dispose(): void {
+		this.disposed = true;
 		this.stopAutoRefresh();
+		this.subscriptions.forEach((subscription) => subscription.dispose());
+		this._onDidChangeTreeData.dispose();
+	}
+
+	setVisible(visible: boolean): void {
+		this.visible = visible;
+		this.startAutoRefresh();
+	}
+
+	acquireRefresh(): Disposable {
+		this.refreshUsers++;
+		this.startAutoRefresh();
+		let released = false;
+		return new Disposable(() => {
+			if (released) {
+				return;
+			}
+			released = true;
+			this.refreshUsers--;
+			this.startAutoRefresh();
+		});
+	}
+
+	getSnapshot(): readonly LocalDeploymentRoute[] {
+		return Array.from(this.localhostData.entries()).flatMap(([key, data]) =>
+			data.routes.map((route) => ({
+				sourcePath: route.associatedFile,
+				routeId: route.routeId,
+				state: route.state ?? '',
+				consolePort: PortFileKey.fromString(key).port,
+				label: this.getDisplayName(basename(route.associatedFile)),
+			})),
+		);
 	}
 
 	/** Exposed for testing: handles task-end events — releases the port and triggers a refresh. */
@@ -75,9 +116,20 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 		}
 	}
 
+	/** Waits for a poll started after this request, independently of subsequent refreshes. */
 	refresh(): Promise<void> {
 		console.log('[DeploymentsProvider] Refreshing data...');
-		return this.updateData();
+		const pending = this.pendingRefresh ?? Promise.resolve();
+		return pending.then(() => {
+			if (this.disposed) {
+				return;
+			}
+			// Coalesce callers waiting for the same poll into one following poll.
+			this.pendingRefresh ??= this.updateData().finally(() => {
+				this.pendingRefresh = undefined;
+			});
+			return this.pendingRefresh;
+		});
 	}
 
 	getTreeItem(element: TreeItem): TreeItem {
@@ -93,7 +145,7 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 			return Array.from(this.localhostData.entries()).map(([key, data]) => {
 				const k = PortFileKey.fromString(key);
 				return new ParentItem(
-					this.getDisplayName(k.file),
+					this.getDisplayName(basename(k.file)),
 					data.routes.length ? TreeItemCollapsibleState.Expanded : TreeItemCollapsibleState.None,
 					this.CONTEXT_INTEGRATION_LOCALHOST_ITEM,
 					k.port,
@@ -105,7 +157,7 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 
 		if (element.contextValue === this.CONTEXT_INTEGRATION_LOCALHOST_ITEM) {
 			const parentItem = element as ParentItem;
-			const key = new PortFileKey(parentItem.port, parentItem.description as string); // description stores a file name
+			const key = new PortFileKey(parentItem.port, parentItem.tooltip as string); // tooltip stores the full source path
 			const data = this.localhostData.get(key.toString());
 			return (
 				data?.routes.map(
@@ -118,7 +170,14 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 	}
 
 	private async updateData(): Promise<void> {
-		this.localhostData = await this.fetchLocalhostRoutes();
+		if (this.disposed) {
+			return;
+		}
+		const data = await this.fetchLocalhostRoutes();
+		if (this.disposed) {
+			return;
+		}
+		this.localhostData = data;
 
 		if (this.portManager.getUsedPorts().size > 0) {
 			this.startAutoRefresh();
@@ -132,13 +191,13 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 		console.log('[DeploymentsProvider] Auto-refreshing data...');
 		this.stopAutoRefresh();
 
-		if (this.portManager.getUsedPorts().size === 0) {
+		if (this.disposed || (!this.visible && this.refreshUsers === 0) || this.portManager.getUsedPorts().size === 0) {
 			console.warn('[DeploymentsProvider] Auto-refresh paused: no active ports.');
 			return;
 		}
 
 		console.warn(`[DeploymentsProvider] Auto-refresh started @ ${this.interval}ms`);
-		this.autoRefreshHandle = setInterval(() => this.updateData(), this.interval);
+		this.autoRefreshHandle = setInterval(() => this.refresh(), this.interval);
 	}
 
 	private stopAutoRefresh(): void {
@@ -185,7 +244,7 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 
 				for (const r of data.route.routes) {
 					const route = new Route(r.routeId, r.source, r.from, r.remote, r.state, r.uptime, r.statistics);
-					const file = basename(route.associatedFile);
+					const file = route.associatedFile;
 
 					const keyStr = new PortFileKey(port, file).toString();
 					if (!deployments.has(keyStr)) {
@@ -205,6 +264,7 @@ export class DeploymentsProvider implements TreeDataProvider<TreeItem> {
 	private async fetchFromConsole(port: number): Promise<any> {
 		const response = await fetch(`http://localhost:${port}/q/dev/route`, {
 			headers: { Accept: 'application/json' },
+			signal: AbortSignal.timeout(3000),
 		});
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);

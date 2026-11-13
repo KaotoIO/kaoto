@@ -1,3 +1,5 @@
+import type { SendMessageTarget } from './send-message-runtime';
+
 export interface IHeaderEntry {
   id: string;
   key: string;
@@ -28,5 +30,6 @@ export interface ISendMessageModalOptions {
   subtitle?: string;
   initialBody?: string;
   initialHeaders?: Array<{ key: string; value: string }>;
-  onSend?: (payload: ICamelMessagePayload) => Promise<void> | void;
+  targets?: SendMessageTarget[];
+  onSend?: (payload: ICamelMessagePayload, targetId?: string) => Promise<void> | void;
 }

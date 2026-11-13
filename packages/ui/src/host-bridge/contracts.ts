@@ -1,6 +1,8 @@
 import { CatalogKind } from '../models/catalog-kind';
 import { FileTypes, type FileTypesResponse } from '../models/file-types';
 import type { RuntimeMavenInformation } from '../models/runtime-maven-information';
+import type { ICamelMessagePayload } from '../models/send-message';
+import type { SendMessageRequest, SendMessageRuntimeSnapshot, SendMessageTarget } from '../models/send-message-runtime';
 import {
   CanvasLayoutDirection,
   ColorScheme,
@@ -111,6 +113,8 @@ export interface SuggestionDto {
 }
 
 export type KaotoRequests = {
+  'editor:sendMessage:getTargets': null;
+  'editor:sendMessage:send': SendMessageRequest;
   'host:document:setContent': SetContentRequest;
   'host:document:getContent': null;
   'editor:undoRedo:apply': { command: 'undo' | 'redo'; revision: number };
@@ -128,6 +132,8 @@ export type KaotoRequests = {
 };
 
 export type KaotoResponses = {
+  'editor:sendMessage:getTargets': SendMessageRuntimeSnapshot;
+  'editor:sendMessage:send': null;
   'host:document:setContent': { applied: boolean; revision: number };
   'host:document:getContent': ContentSnapshot;
   'editor:undoRedo:apply': null;
@@ -145,6 +151,7 @@ export type KaotoResponses = {
 };
 
 export type KaotoEvents = {
+  'host:sendMessage:targetsUpdated': SendMessageRuntimeSnapshot;
   'editor:ready': null;
   'editor:document:changed': ContentSnapshot;
   'host:settings:updated': SettingsSnapshot;
@@ -229,6 +236,27 @@ function object<T>(fields: { [K in keyof T]-?: Validator<T[K]> }): Validator<T> 
 function json<T>(validate: Validator<T>): Validator<T> {
   return (value): value is T => isJsonValue(value) && validate(value);
 }
+
+const positiveInteger: Validator<number> = (value): value is number => integer(value) && value > 0;
+const sendTarget = object<SendMessageTarget>({
+  id: string,
+  routeId: string,
+  label: string,
+  pid: nullable(positiveInteger),
+  state: string,
+});
+const sendSnapshot = object<SendMessageRuntimeSnapshot>({ supported: boolean, targets: arrayOf(sendTarget) });
+const stringRecord: Validator<Record<string, string>> = (value): value is Record<string, string> =>
+  record(value) && Object.values(value).every(string);
+const sendPayload = object<ICamelMessagePayload>({
+  endpoint: string,
+  body: optional(string),
+  bodyType: optional(oneOf('text', 'file')),
+  bodyEncoding: optional(string),
+  bodyFile: optional(object({ name: string, content: string, type: optional(string), size: optional(integer) })),
+  headers: optional(stringRecord),
+});
+const sendRequest = object<SendMessageRequest>({ targetId: string, routeId: string, payload: sendPayload });
 
 const contentSnapshot = object<ContentSnapshot>({ content: string, revision: integer });
 const initialContent = object<Extract<SetContentRequest, { reason: 'init' }>>({
@@ -315,6 +343,8 @@ function request<Request, Response>(
 export const requestCatalog: {
   readonly [R in keyof KaotoRequests]: RequestDefinition<KaotoRequests[R], KaotoResponses[R]>;
 } = {
+  'editor:sendMessage:getTargets': request('editor', nil, sendSnapshot, 30000),
+  'editor:sendMessage:send': request('editor', sendRequest, nil, 90000),
   // Parsing a large document can take a while, and a timed-out init would leave the two sides disagreeing.
   'host:document:setContent': request('host', setContent, object({ applied: boolean, revision: integer }), null),
   'host:document:getContent': request('host', nil, contentSnapshot, null),
@@ -373,6 +403,7 @@ const catalogKind = oneOf(
   CatalogKind.TestValidationMatcher,
 );
 export const eventCatalog: { readonly [E in keyof KaotoEvents]: EventDefinition<KaotoEvents[E]> } = {
+  'host:sendMessage:targetsUpdated': event('host', sendSnapshot),
   'editor:ready': event('editor', nil),
   'editor:document:changed': event('editor', contentSnapshot),
   'host:settings:updated': event('host', settingsSnapshot),

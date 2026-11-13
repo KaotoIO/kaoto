@@ -483,19 +483,18 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 	private bindServices(state: DocumentState, session: EditorSession, listeners: (vscode.Disposable | Unsubscribe)[]): void {
 		const host = session.bus;
 		const services = state.services;
-		const on = <R extends keyof KaotoRequests>(name: R, handler: (payload: KaotoRequests[R]) => Promise<KaotoResponses[R]>) => {
+		const on = <R extends keyof KaotoRequests>(name: R, handler: (payload: KaotoRequests[R], signal: AbortSignal) => Promise<KaotoResponses[R]>) => {
 			listeners.push(
 				host.onRequest(name, async (payload, { signal }) => {
-					if (signal.aborted) {
-						throw new BridgeError('CANCELLED', 'The request was cancelled');
-					}
 					try {
-						const response = await handler(payload);
+						signal.throwIfAborted();
+						const response = await handler(payload, signal);
+						signal.throwIfAborted();
+						return response;
+					} catch (error) {
 						if (signal.aborted) {
 							throw new BridgeError('CANCELLED', 'The request was cancelled');
 						}
-						return response;
-					} catch (error) {
 						if (error instanceof BridgeError) {
 							throw error;
 						}
@@ -525,6 +524,18 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 		on('editor:suggestions:get', async ({ topic, word, context }) => ({
 			suggestions: await services.getSuggestions(topic, word, context as SuggestionRequestContext),
 		}));
+		on('editor:sendMessage:getTargets', () => services.getSendMessageTargets());
+		on('editor:sendMessage:send', async (request, signal) => {
+			await services.sendMessage(request, signal);
+			return null;
+		});
+		listeners.push(
+			services.watchSendMessageTargets((snapshot) => {
+				if (!session.stopped && state.session === session) {
+					host.emit('host:sendMessage:targetsUpdated', snapshot);
+				}
+			}),
+		);
 		on('editor:maven:getRuntimeInfo', async () => ({ runtimeInfo: (await services.getRuntimeInfoFromMavenContext()) ?? null }));
 	}
 	private async settings(state: DocumentState, session: EditorSession): Promise<SettingsSnapshot> {
