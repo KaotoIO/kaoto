@@ -105,14 +105,18 @@ export class ChoiceFieldService extends WrapperBaseService {
   }
 
   /** Converts a schema field into an {@link IWrapperCandidate} for inline menus and the selection modal. */
-  static fieldToCandidate(field: IField, key: string, memberIndex: number): IWrapperCandidate {
+  static fieldToCandidate(
+    field: IField,
+    key: string,
+    memberIndex: number,
+    namespaceMap: Record<string, string> = {},
+  ): IWrapperCandidate {
     const label = ChoiceFieldService.getChoiceFieldDisplayName(field);
     return {
       key,
       label,
       typeBadge: field.type,
-      description: field.description,
-      childrenPreview: this.formatChildrenPreview(field),
+      ...this.buildCandidateDetails(field, namespaceMap),
       selection: { memberIndex },
     };
   }
@@ -133,12 +137,13 @@ export class ChoiceFieldService extends WrapperBaseService {
           key: `${index}:${qname}`,
           label: info.displayName,
           typeBadge: info.type,
+          ...this.buildSubstituteDetails(member, qname, info, candidates, namespaceMap),
           selection: { memberIndex: index, substituteQName: qname },
         }));
       }
       // Plain elements and xs:sequence branches both map to a single candidate; fieldToCandidate
       // derives a dissolved "(child | child)" label for the sequence from its children.
-      return [this.fieldToCandidate(member, String(index), index)];
+      return [this.fieldToCandidate(member, String(index), index, namespaceMap)];
     });
   }
 

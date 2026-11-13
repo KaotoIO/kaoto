@@ -1,4 +1,4 @@
-import { DocumentDefinitionType, DocumentType, IField } from '../../models/datamapper/document';
+import { DocumentDefinition, DocumentDefinitionType, DocumentType, IField } from '../../models/datamapper/document';
 import { IChoiceMenuGroupsConfig, IWrapperCandidate } from '../../models/datamapper/field-action';
 import { FieldItem, MappingTree } from '../../models/datamapper/mapping';
 import { FieldOverrideVariant, IFieldSubstituteInfo, Types } from '../../models/datamapper/types';
@@ -8,11 +8,12 @@ import {
   TargetDocumentNodeData,
   TargetFieldNodeData,
 } from '../../models/datamapper/visualization';
-import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { getChoiceWithAbstractXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { QName } from '../../xml-schema-ts/QName';
 import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
+import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingService } from '../mapping/mapping.service';
 import { SchemaPathService } from '../schema-path.service';
 import { ChoiceFieldService } from './choice-field.service';
@@ -116,7 +117,7 @@ describe('ChoiceFieldService', () => {
       expect(result.label).toBe('fallbackName');
     });
 
-    it('should populate childrenPreview from first 3 children', () => {
+    it('should populate children with all direct children and their types', () => {
       const children = [
         mockField({ displayName: 'A', name: 'a' }),
         mockField({ displayName: 'B', name: 'b' }),
@@ -128,15 +129,16 @@ describe('ChoiceFieldService', () => {
 
       const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
 
-      expect(result.childrenPreview).toEqual(['A', 'B', 'C']);
+      expect(result.children?.map((c) => c.name)).toEqual(['A', 'B', 'C', 'D', 'E']);
+      expect(result.children?.[0].typeLabel).toBe(children[0].type);
     });
 
-    it('should return undefined childrenPreview for field with no children', () => {
+    it('should return undefined children for field with no children', () => {
       const field = mockField({ fields: [] });
 
       const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
 
-      expect(result.childrenPreview).toBeUndefined();
+      expect(result.children).toBeUndefined();
     });
 
     it('should use getChoiceMemberLabel for sequence wrapper fields', () => {
@@ -202,7 +204,7 @@ describe('ChoiceFieldService', () => {
           selection: { memberIndex: 0 },
         }),
       );
-      expect(result[0].childrenPreview).toEqual(['key', 'value']);
+      expect(result[0].children?.map((c) => c.name)).toEqual(['key', 'value']);
     });
 
     it('should pass through normal members via fieldToCandidate', () => {
@@ -255,11 +257,123 @@ describe('ChoiceFieldService', () => {
       });
       const result = ChoiceFieldService.dissolveChoiceMembers([member], namespaceMap);
 
-      expect(result[0].childrenPreview).toEqual(['Street', 'City']);
+      expect(result[0].children?.map((c) => c.name)).toEqual(['Street', 'City']);
     });
 
     it('should handle empty members list', () => {
       expect(ChoiceFieldService.dissolveChoiceMembers([], namespaceMap)).toEqual([]);
+    });
+  });
+
+  describe('dissolveChoiceMembers candidate details from schema', () => {
+    const NS_T = 'urn:candidate-details';
+    const NS_CHOICE_ABSTRACT = 'http://www.example.com/CHOICE_ABSTRACT';
+    const detailsXsd = `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${NS_T}"
+        xmlns:t="${NS_T}" elementFormDefault="qualified">
+      <xs:complexType name="Address_t">
+        <xs:sequence>
+          <xs:element name="street" type="xs:string"/>
+          <xs:element name="zip" type="xs:int"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:element name="Phone">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="number" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Root">
+        <xs:complexType>
+          <xs:choice>
+            <xs:element name="Address" type="t:Address_t"/>
+            <xs:element ref="t:Phone"/>
+            <xs:element name="Inline">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="value" type="xs:string"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:choice>
+        </xs:complexType>
+      </xs:element>
+    </xs:schema>`;
+
+    function loadChoiceMembers(fileName: string, xsd: string, namespaceUri: string, rootName: string): IField[] {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test-doc',
+        { [fileName]: xsd },
+        { namespaceUri, name: rootName },
+      );
+      const document = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document;
+      if (!document) throw new Error(`Failed to create ${fileName}`);
+      const findChoice = (field: IField): IField | undefined =>
+        field.wrapperKind === 'choice' ? field : field.fields.map(findChoice).find(Boolean);
+      const choice = document.fields.map(findChoice).find(Boolean);
+      if (!choice) throw new Error(`No choice found in ${fileName}`);
+      return choice.fields;
+    }
+
+    const detailsNamespaceMap = { t: NS_T, xs: 'http://www.w3.org/2001/XMLSchema' };
+
+    beforeEach(() => {
+      // These tests parse real schemas, so they need the real substitution lookup instead of the file-level stubs.
+      vi.restoreAllMocks();
+    });
+
+    it('should read the children of a member declared with a named complex type without resolving it', () => {
+      const members = loadChoiceMembers('details.xsd', detailsXsd, NS_T, 'Root');
+      const address = members.find((m) => m.name === 'Address')!;
+      expect(address.fields).toHaveLength(0);
+
+      const [candidate] = ChoiceFieldService.dissolveChoiceMembers(members, detailsNamespaceMap);
+
+      expect(candidate.typeLabel).toBe('t:Address_t');
+      expect(candidate.children).toEqual([
+        { name: 'street', typeLabel: 'xs:string' },
+        { name: 'zip', typeLabel: 'xs:int' },
+      ]);
+      expect(address.fields).toHaveLength(0);
+    });
+
+    it('should read the children of a member declared as a global element ref', () => {
+      const members = loadChoiceMembers('details.xsd', detailsXsd, NS_T, 'Root');
+
+      const candidates = ChoiceFieldService.dissolveChoiceMembers(members, detailsNamespaceMap);
+
+      const phone = candidates.find((c) => c.label === 'Phone');
+      expect(phone?.children).toEqual([{ name: 'number', typeLabel: 'xs:string' }]);
+    });
+
+    it('should fall back to the type category for an anonymous inline type', () => {
+      const members = loadChoiceMembers('details.xsd', detailsXsd, NS_T, 'Root');
+
+      const candidates = ChoiceFieldService.dissolveChoiceMembers(members, detailsNamespaceMap);
+
+      const inline = candidates.find((c) => c.label === 'Inline');
+      expect(inline?.typeLabel).toBe(Types.Container);
+      expect(inline?.children).toEqual([{ name: 'value', typeLabel: 'xs:string' }]);
+    });
+
+    it('should give abstract-in-choice candidates the type and children of their substitute element', () => {
+      const members = loadChoiceMembers(
+        'ChoiceWithAbstract.xsd',
+        getChoiceWithAbstractXsd(),
+        NS_CHOICE_ABSTRACT,
+        'Notification',
+      );
+
+      const candidates = ChoiceFieldService.dissolveChoiceMembers(members, { ca: NS_CHOICE_ABSTRACT });
+
+      const email = candidates.find((c) => c.label === 'Email');
+      const sms = candidates.find((c) => c.label === 'SMS');
+      expect(email?.typeLabel).toBe('ca:Email_t');
+      expect(email?.children?.map((c) => c.name)).toEqual(expect.arrayContaining(['content', 'subject']));
+      expect(sms?.typeLabel).toBe('ca:SMS_t');
+      expect(sms?.children?.map((c) => c.name)).toEqual(expect.arrayContaining(['content', 'phoneNumber']));
     });
   });
 

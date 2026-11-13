@@ -67,7 +67,7 @@ export class FieldCandidateService extends WrapperBaseService {
   private static resolveFieldEntries(child: IField, namespaceMap: Record<string, string>): CandidateEntry[] {
     if (child.wrapperKind === 'choice') return this.resolveChoiceMembers(child, namespaceMap);
     if (child.wrapperKind === 'abstract') return this.resolveAbstractSubstitutes(child, namespaceMap);
-    return [{ candidate: ChoiceFieldService.fieldToCandidate(child, '', 0), field: child }];
+    return [{ candidate: ChoiceFieldService.fieldToCandidate(child, '', 0, namespaceMap), field: child }];
   }
 
   private static resolveAbstractSubstitutes(
@@ -84,6 +84,7 @@ export class FieldCandidateService extends WrapperBaseService {
           key: '',
           label: info.displayName,
           typeBadge: info.type,
+          ...this.buildCandidateDetails(field, namespaceMap),
           selection: { memberIndex: 0, substituteQName: qname },
         },
         field,
@@ -104,7 +105,7 @@ export class FieldCandidateService extends WrapperBaseService {
         const nested = this.computeAddFieldCandidates(member.fields, namespaceMap);
         entries.push(...nested.candidates.map((candidate, i) => ({ candidate, field: nested.fields[i] })));
       } else {
-        entries.push({ candidate: ChoiceFieldService.fieldToCandidate(member, '', 0), field: member });
+        entries.push({ candidate: ChoiceFieldService.fieldToCandidate(member, '', 0, namespaceMap), field: member });
       }
     }
     return entries;
