@@ -179,6 +179,25 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       expect(map['ns0']).toBe('http://example.com/test');
     });
 
+    it('should keep the entrySchemaFile of the document when adding files', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd() },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'shipOrder.xsd',
+      );
+      const document = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document as XmlSchemaDocument;
+
+      XmlSchemaDocumentService.addSchemaFiles(document, { 'ImportedTypes.xsd': getImportedTypesXsd() });
+
+      expect(document.definition.entrySchemaFile).toBe('shipOrder.xsd');
+    });
+
     it('should support multiple sequential addSchemaFiles() calls', () => {
       const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -453,6 +472,43 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'shipOrder.xsd', {});
       expect(removeResult.validationStatus).toBe('error');
       expect(removeResult.errors).toBeDefined();
+    });
+
+    it('should keep entrySchemaFile when removing a file other than the entry', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd(), 'ImportedTypes.xsd': getImportedTypesXsd() },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'shipOrder.xsd',
+      );
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'ImportedTypes.xsd', {});
+      expect(removeResult.validationStatus).toBe('success');
+      expect(removeResult.documentDefinition!.entrySchemaFile).toBe('shipOrder.xsd');
+    });
+
+    it('should re-infer entrySchemaFile when the entry file itself is removed', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd(), 'element-ref.xsd': getElementRefXsd() },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'shipOrder.xsd',
+      );
+
+      const removeResult = XmlSchemaDocumentService.removeSchemaFile(definition, 'shipOrder.xsd', {});
+      expect(removeResult.document).toBeDefined();
+      expect(removeResult.documentDefinition!.entrySchemaFile).toBe('element-ref.xsd');
+      expect(definition.entrySchemaFile).toBe('shipOrder.xsd');
     });
 
     it('should not mutate the original definition', () => {

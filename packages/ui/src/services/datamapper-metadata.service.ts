@@ -4,6 +4,7 @@ import {
   DocumentDefinitionType,
   DocumentInitializationModel,
   DocumentType,
+  RootElementOption,
 } from '../models/datamapper';
 import {
   IChoiceSelection,
@@ -129,6 +130,11 @@ export class DataMapperMetadataService {
     });
   }
 
+  /**
+   * Loads a document definition from metadata. The persisted `entrySchemaFile` is passed through as is; for metadata
+   * saved without one it stays undefined and is inferred by `XmlSchemaDocumentService.createXmlSchemaDocument`,
+   * which is the single owner of entry inference. File contents are keyed in `filePath` order (attach order).
+   */
   private static doLoadDocument(
     api: IMetadataApi,
     documentType: DocumentType,
@@ -151,6 +157,7 @@ export class DataMapperMetadataService {
         filePaths.forEach((path, i) => {
           if (contents[i]) definitionFiles[path] = contents[i];
         });
+
         const answer = new DocumentDefinition(
           documentType,
           definitionType,
@@ -160,6 +167,7 @@ export class DataMapperMetadataService {
           documentMetadata.fieldTypeOverrides,
           documentMetadata.choiceSelections,
           documentMetadata.fieldSubstitutions,
+          documentMetadata.entrySchemaFile,
         );
         resolve(answer);
       });
@@ -210,6 +218,13 @@ export class DataMapperMetadataService {
     await api.setMetadata(metadataId, metadata);
   }
 
+  /** Strips the display-only `declaringFile` so it is never written to metadata. */
+  private static toPersistedRootElementChoice(choice?: RootElementOption): RootElementOption | undefined {
+    if (!choice) return undefined;
+    const { declaringFile: _declaringFile, ...persisted } = choice;
+    return persisted;
+  }
+
   private static async doCreateDocumentMetadata(
     api: IMetadataApi,
     definition: DocumentDefinition,
@@ -218,7 +233,8 @@ export class DataMapperMetadataService {
     const answer: IDocumentMetadata = {
       type: definition.definitionType,
       filePath: filePaths,
-      rootElementChoice: definition.rootElementChoice,
+      entrySchemaFile: definition.entrySchemaFile,
+      rootElementChoice: DataMapperMetadataService.toPersistedRootElementChoice(definition.rootElementChoice),
       fieldTypeOverrides: definition.fieldTypeOverrides,
       choiceSelections: definition.choiceSelections,
       fieldSubstitutions: definition.fieldSubstitutions,

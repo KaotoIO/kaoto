@@ -25,17 +25,27 @@ export class XmlSchemaRef<T extends XmlSchemaNamed> extends XmlSchemaRefBase {
       }
 
       if (this.targetType === XmlSchemaNamedType.XmlSchemaElement) {
-        this.targetObject = parentCollection.getElementByQName(this.targetQName);
-      } else if (this.targetType == XmlSchemaNamedType.XmlSchemaAttribute) {
-        this.targetObject = parentCollection.getAttributeByQName(this.targetQName);
-      } else if (this.targetType == XmlSchemaNamedType.XmlSchemaType) {
-        this.targetObject = parentCollection.getTypeByQName(this.targetQName);
-      } else if (this.targetType == XmlSchemaNamedType.XmlSchemaAttributeGroup) {
-        this.targetObject = parentCollection.getAttributeGroupByQName(this.targetQName);
-      } else if (this.targetType == XmlSchemaNamedType.XmlSchemaGroup) {
-        this.targetObject = parentCollection.getGroupByQName(this.targetQName);
-      } else if (this.targetType == XmlSchemaNamedType.XmlSchemaNotation) {
-        this.targetObject = parentCollection.getNotationByQName(this.targetQName);
+        this.targetObject =
+          this.parent?.getElementByQName(this.targetQName, true) ??
+          parentCollection.getElementByQName(this.targetQName);
+      } else if (this.targetType === XmlSchemaNamedType.XmlSchemaAttribute) {
+        this.targetObject =
+          this.parent?.getAttributeByQName(this.targetQName, true) ??
+          parentCollection.getAttributeByQName(this.targetQName);
+      } else if (this.targetType === XmlSchemaNamedType.XmlSchemaType) {
+        this.targetObject =
+          this.parent?.getTypeByQName(this.targetQName, true) ?? parentCollection.getTypeByQName(this.targetQName);
+      } else if (this.targetType === XmlSchemaNamedType.XmlSchemaAttributeGroup) {
+        this.targetObject =
+          this.parent?.getAttributeGroupByQName(this.targetQName, true) ??
+          parentCollection.getAttributeGroupByQName(this.targetQName);
+      } else if (this.targetType === XmlSchemaNamedType.XmlSchemaGroup) {
+        this.targetObject =
+          this.parent?.getGroupByQName(this.targetQName, true) ?? parentCollection.getGroupByQName(this.targetQName);
+      } else if (this.targetType === XmlSchemaNamedType.XmlSchemaNotation) {
+        this.targetObject =
+          this.parent?.getNotationByQName(this.targetQName, true) ??
+          parentCollection.getNotationByQName(this.targetQName);
       }
     }
     return this.targetObject as T;

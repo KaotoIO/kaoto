@@ -14,7 +14,7 @@ interface SchemaFileInfo {
   directives: SchemaDirective[];
 }
 
-interface DependencyEdge {
+export interface DependencyEdge {
   from: string;
   to: string;
   directive: SchemaDirective;
@@ -91,6 +91,38 @@ export class XmlSchemaAnalysisService {
     const loadOrder = XmlSchemaAnalysisService.topologicalSort(Object.keys(definitionFiles), edges);
 
     return { fileInfos, edges, errors, warnings, loadOrder };
+  }
+
+  /**
+   * Computes the set of schema file paths reachable from the entry schema file
+   * by following dependency edges (xs:include, xs:import, etc.).
+   *
+   * @param entryFilePath The entry schema file path
+   * @param edges Dependency edges parsed during schema analysis
+   * @returns Set containing the entry file and all reachable file paths
+   */
+  static getReachableFiles(entryFilePath: string, edges: DependencyEdge[]): Set<string> {
+    const reachable = new Set<string>([entryFilePath]);
+    const adjacencyMap = new Map<string, string[]>();
+
+    for (const edge of edges) {
+      const list = adjacencyMap.get(edge.from) ?? [];
+      list.push(edge.to);
+      adjacencyMap.set(edge.from, list);
+    }
+
+    const queue: string[] = [entryFilePath];
+    while (queue.length > 0) {
+      const current = queue.shift()!;
+      for (const neighbor of adjacencyMap.get(current) ?? []) {
+        if (!reachable.has(neighbor)) {
+          reachable.add(neighbor);
+          queue.push(neighbor);
+        }
+      }
+    }
+
+    return reachable;
   }
 
   private static parseSchemaFileInfo(
@@ -475,8 +507,26 @@ export class XmlSchemaAnalysisService {
    * @param report - Analysis report produced by {@link XmlSchemaAnalysisService.analyze}
    * @returns Unreferenced schema file paths, in `fileInfos` (input) order
    */
-  static findUnreferencedSchemas(report: Pick<XmlSchemaAnalysisReport, 'fileInfos' | 'edges'>): string[] {
-    return XmlSchemaAnalysisService.computeUnreferencedSchemas(Array.from(report.fileInfos.keys()), report.edges);
+  static findUnreferencedSchemas(report: Pick<XmlSchemaAnalysisReport, 'fileInfos' | 'edges'>): string[];
+  /**
+   * Finds unreferenced schemas given an explicit list of file paths and dependency edges.
+   *
+   * @param nodes - Schema file paths, in input order
+   * @param edges - Include/import dependency edges
+   * @returns Unreferenced schema file paths, in input order
+   */
+  static findUnreferencedSchemas(nodes: string[], edges: DependencyEdge[]): string[];
+  static findUnreferencedSchemas(
+    reportOrNodes: Pick<XmlSchemaAnalysisReport, 'fileInfos' | 'edges'> | string[],
+    edges?: DependencyEdge[],
+  ): string[] {
+    if (Array.isArray(reportOrNodes)) {
+      return XmlSchemaAnalysisService.computeUnreferencedSchemas(reportOrNodes, edges ?? []);
+    }
+    return XmlSchemaAnalysisService.computeUnreferencedSchemas(
+      Array.from(reportOrNodes.fileInfos.keys()),
+      reportOrNodes.edges,
+    );
   }
 
   private static computeUnreferencedSchemas(nodes: string[], edges: DependencyEdge[]): string[] {

@@ -33,6 +33,7 @@ import {
   getSimpleTypeInheritanceXsd,
   getTestDocumentXsd,
 } from '../../../stubs/datamapper/data-mapper';
+import { DocumentUtilService } from '../document-util.service';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
@@ -1050,8 +1051,16 @@ describe('XmlSchemaDocumentService', () => {
     const document = result.document as XmlSchemaDocument;
     expect(document.rootElement?.getName()).toBe('CSV');
 
-    expect(result.rootElementOptions).toContainEqual({ namespaceUri: '', name: 'CSV' });
-    expect(result.rootElementOptions).toContainEqual({ namespaceUri: '', name: 'ID' });
+    expect(result.rootElementOptions).toContainEqual({
+      namespaceUri: '',
+      name: 'CSV',
+      entrySchemaFile: 'element-ref.xsd',
+    });
+    expect(result.rootElementOptions).toContainEqual({
+      namespaceUri: '',
+      name: 'ID',
+      entrySchemaFile: 'element-ref.xsd',
+    });
   });
 
   describe('with xs:include', () => {
@@ -1420,6 +1429,460 @@ describe('XmlSchemaDocumentService', () => {
       const zipCodeField = addressTypeFragment.fields.find((f) => f.name === 'zipCode');
       expect(zipCodeField).toBeDefined();
       expect(zipCodeField!.description).toBe('Postal or ZIP code');
+    });
+  });
+
+  describe('Scoped Document Resolver & Recursion Protection', () => {
+    const mainXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/ns"
+           xmlns="http://example.com/ns">
+  <xs:include schemaLocation="MainTypes.xsd"/>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Order" type="OrderType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+    const mainTypesXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/ns"
+           xmlns="http://example.com/ns">
+  <xs:complexType name="OrderType">
+    <xs:sequence>
+      <xs:element name="ObjectId" type="xs:string"/>
+      <xs:element name="OrderItem" type="xs:string"/>
+      <xs:element name="Quantity" type="xs:int"/>
+      <xs:element name="Price" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>`;
+
+    const unrelatedXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/ns"
+           xmlns="http://example.com/ns">
+  <xs:complexType name="OrderType">
+    <xs:sequence>
+      <xs:element name="OtherId" type="xs:string"/>
+      <xs:element name="OtherField" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>`;
+
+    it('should resolve types consistently regardless of file order in definitionFiles (three-file reproducer)', () => {
+      // Order 1: Main.xsd first
+      const def1 = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'doc-1',
+        {
+          'Main.xsd': mainXsd,
+          'MainTypes.xsd': mainTypesXsd,
+          'Unrelated.xsd': unrelatedXsd,
+        },
+        { namespaceUri: 'http://example.com/ns', name: 'Root', entrySchemaFile: 'Main.xsd' },
+        undefined,
+        undefined,
+        undefined,
+        'Main.xsd',
+      );
+
+      const res1 = XmlSchemaDocumentService.createXmlSchemaDocument(def1);
+      expect(res1.validationStatus).toBe('success');
+      const doc1 = res1.document as XmlSchemaDocument;
+
+      const orderFragmentKey = '{http://example.com/ns}OrderType';
+      const fragment1 = doc1.namedTypeFragments[orderFragmentKey];
+      expect(fragment1).toBeDefined();
+      expect(fragment1.fields.map((f) => f.name)).toEqual(['ObjectId', 'OrderItem', 'Quantity', 'Price']);
+
+      // Verify element-bound resolution: Root > Order child fields (not just the fragment).
+      // namedTypeFragmentRefs fields are lazy — resolve before asserting children.
+      const rootField1 = doc1.fields[0];
+      expect(rootField1.name).toBe('Root');
+      const orderField1 = rootField1.fields.find((f) => f.name === 'Order');
+      expect(orderField1).toBeDefined();
+      DocumentUtilService.resolveTypeFragment(orderField1!);
+      expect(orderField1!.fields.map((f) => f.name)).toEqual(['ObjectId', 'OrderItem', 'Quantity', 'Price']);
+
+      // Order 2: Unrelated.xsd first
+      const def2 = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'doc-2',
+        {
+          'Unrelated.xsd': unrelatedXsd,
+          'Main.xsd': mainXsd,
+          'MainTypes.xsd': mainTypesXsd,
+        },
+        { namespaceUri: 'http://example.com/ns', name: 'Root', entrySchemaFile: 'Main.xsd' },
+        undefined,
+        undefined,
+        undefined,
+        'Main.xsd',
+      );
+
+      const res2 = XmlSchemaDocumentService.createXmlSchemaDocument(def2);
+      expect(res2.validationStatus).toBe('success');
+      const doc2 = res2.document as XmlSchemaDocument;
+
+      const fragment2 = doc2.namedTypeFragments[orderFragmentKey];
+      expect(fragment2).toBeDefined();
+      expect(fragment2.fields.map((f) => f.name)).toEqual(['ObjectId', 'OrderItem', 'Quantity', 'Price']);
+
+      // Verify element-bound resolution for order 2 as well
+      const rootField2 = doc2.fields[0];
+      expect(rootField2.name).toBe('Root');
+      const orderField2 = rootField2.fields.find((f) => f.name === 'Order');
+      expect(orderField2).toBeDefined();
+      DocumentUtilService.resolveTypeFragment(orderField2!);
+      expect(orderField2!.fields.map((f) => f.name)).toEqual(['ObjectId', 'OrderItem', 'Quantity', 'Price']);
+    });
+
+    it('should resolve unlinked import via collection fallback', () => {
+      const importingSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/consumer"
+           xmlns:ext="http://example.com/provider"
+           xmlns="http://example.com/consumer">
+  <xs:import namespace="http://example.com/provider"/>
+  <xs:element name="ConsumerRoot">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Item" type="ext:ProviderType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const providerSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/provider"
+           xmlns="http://example.com/provider">
+  <xs:complexType name="ProviderType">
+    <xs:sequence>
+      <xs:element name="ProviderField" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'unlinked-import-doc',
+        {
+          'Consumer.xsd': importingSchema,
+          'Provider.xsd': providerSchema,
+        },
+        { namespaceUri: 'http://example.com/consumer', name: 'ConsumerRoot', entrySchemaFile: 'Consumer.xsd' },
+        undefined,
+        undefined,
+        undefined,
+        'Consumer.xsd',
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      const doc = result.document as XmlSchemaDocument;
+
+      const providerFragmentKey = '{http://example.com/provider}ProviderType';
+      const fragment = doc.namedTypeFragments[providerFragmentKey];
+      expect(fragment).toBeDefined();
+      expect(fragment.fields.map((f) => f.name)).toEqual(['ProviderField']);
+    });
+
+    it('should guard against cyclic derivation hierarchies without throwing RangeError', () => {
+      const cyclicSchema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/cyclic"
+           xmlns:tns="http://example.com/cyclic">
+  <xs:element name="CyclicRoot" type="tns:SelfRefType"/>
+  <xs:complexType name="SelfRefType">
+    <xs:complexContent>
+      <xs:extension base="tns:SelfRefType">
+        <xs:sequence>
+          <xs:element name="extra" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'cyclic-doc',
+        {
+          'Cyclic.xsd': cyclicSchema,
+        },
+        { namespaceUri: 'http://example.com/cyclic', name: 'CyclicRoot', entrySchemaFile: 'Cyclic.xsd' },
+        undefined,
+        undefined,
+        undefined,
+        'Cyclic.xsd',
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.document).toBeDefined();
+      // The document must load without throwing a RangeError (stack overflow).
+      // CyclicRoot should resolve to SelfRefType, whose extension adds the 'extra' element.
+      // Because the self-referential extension is cycle-guarded, only 'extra' should appear once.
+      const doc = result.document as XmlSchemaDocument;
+      const cyclicRootField = doc.fields[0];
+      expect(cyclicRootField.name).toBe('CyclicRoot');
+      // namedTypeFragmentRefs fields are lazy — resolve the type fragment first.
+      DocumentUtilService.resolveTypeFragment(cyclicRootField);
+      const extraField = cyclicRootField.fields.find((f) => f.name === 'extra');
+      expect(extraField).toBeDefined();
+    });
+
+    const createCyclicDocument = (schema: string, rootName: string) => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'cyclic-doc',
+        { 'Cyclic.xsd': schema },
+        { namespaceUri: 'http://example.com/cyclic', name: rootName, entrySchemaFile: 'Cyclic.xsd' },
+        undefined,
+        undefined,
+        undefined,
+        'Cyclic.xsd',
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.document).toBeDefined();
+      const rootField = (result.document as XmlSchemaDocument).fields[0];
+      DocumentUtilService.resolveTypeFragment(rootField);
+      return rootField;
+    };
+
+    it('should keep own attributes of a type that enters an existing extension cycle (tail-into-cycle)', () => {
+      const schema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/cyclic"
+           xmlns:tns="http://example.com/cyclic">
+  <xs:element name="TailRoot" type="tns:TypeX"/>
+  <xs:complexType name="TypeX">
+    <xs:complexContent>
+      <xs:extension base="tns:TypeC">
+        <xs:attribute name="attrX" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TypeC">
+    <xs:complexContent>
+      <xs:extension base="tns:TypeB">
+        <xs:attribute name="attrC" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TypeB">
+    <xs:complexContent>
+      <xs:extension base="tns:TypeC">
+        <xs:attribute name="attrB" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>`;
+
+      const rootField = createCyclicDocument(schema, 'TailRoot');
+
+      const names = rootField.fields.map((f) => f.name);
+      expect(names).toContain('attrX');
+      expect(names).toContain('attrC');
+      expect(names).toContain('attrB');
+    });
+
+    it('should keep own attributes of mutually extending types', () => {
+      const schema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/cyclic"
+           xmlns:tns="http://example.com/cyclic">
+  <xs:element name="PairRoot" type="tns:TypeA"/>
+  <xs:complexType name="TypeA">
+    <xs:complexContent>
+      <xs:extension base="tns:TypeB">
+        <xs:attribute name="attrA" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TypeB">
+    <xs:complexContent>
+      <xs:extension base="tns:TypeA">
+        <xs:attribute name="attrB" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>`;
+
+      const rootField = createCyclicDocument(schema, 'PairRoot');
+
+      const names = rootField.fields.map((f) => f.name);
+      expect(names).toContain('attrA');
+      expect(names).toContain('attrB');
+    });
+
+    it('should keep own attributes of a restriction that enters an existing restriction cycle (tail-into-cycle)', () => {
+      const schema = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/cyclic"
+           xmlns:tns="http://example.com/cyclic">
+  <xs:element name="RestrictRoot" type="tns:TypeX"/>
+  <xs:complexType name="TypeX">
+    <xs:complexContent>
+      <xs:restriction base="tns:TypeP">
+        <xs:attribute name="attrX" type="xs:string"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TypeP">
+    <xs:complexContent>
+      <xs:restriction base="tns:TypeQ">
+        <xs:attribute name="attrP" type="xs:string"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="TypeQ">
+    <xs:complexContent>
+      <xs:restriction base="tns:TypeP">
+        <xs:attribute name="attrQ" type="xs:string"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>`;
+
+      const rootField = createCyclicDocument(schema, 'RestrictRoot');
+
+      const names = rootField.fields.map((f) => f.name);
+      expect(names).toContain('attrX');
+      expect(names).toContain('attrP');
+      expect(names).toContain('attrQ');
+    });
+
+    it('should handle xs:redefine reproducer without throwing RangeError or crashing', () => {
+      const baseXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="PtysSubGrp_Block_t">
+    <xs:attribute name="ID" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:group name="PartiesElements">
+    <xs:sequence>
+      <xs:element name="Sub" type="PtysSubGrp_Block_t" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+</xs:schema>`;
+
+      const implementationXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:redefine schemaLocation="base.xsd">
+    <xs:group name="PartiesElements">
+      <xs:sequence>
+        <xs:group ref="PartiesElements"/>
+        <xs:element name="ReltdPty" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="AltPty" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="PtyRtg" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:group>
+  </xs:redefine>
+  <xs:element name="Parties">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Party" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:group ref="PartiesElements"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'redefine-doc',
+        {
+          'base.xsd': baseXsd,
+          'implementation.xsd': implementationXsd,
+        },
+        { namespaceUri: '', name: 'Parties', entrySchemaFile: 'implementation.xsd' },
+        undefined,
+        undefined,
+        undefined,
+        'implementation.xsd',
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.document).toBeDefined();
+      expect(result.document?.rootElement?.getName()).toBe('Parties');
+      const partiesField = result.document?.fields[0];
+      expect(partiesField?.name).toBe('Parties');
+      const partyField = partiesField?.fields[0];
+      expect(partyField?.name).toBe('Party');
+      const partyChildNames = partyField?.fields.map((f) => f.name);
+      // In S1 (foundation phase with cycle guard), self-referencing group ref is guarded against recursion
+      // and the non-recursive sibling elements from the redefine block are populated.
+      // S3 (#4248) will introduce layer resolution to include base elements ('Sub') as well.
+      expect(partyChildNames).toEqual(['ReltdPty', 'AltPty', 'PtyRtg']);
+    });
+
+    it('should re-infer entrySchemaFile when the persisted file is missing from definitionFiles', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'doc',
+        {
+          'Main.xsd':
+            '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="Root" type="xs:string"/></xs:schema>',
+        },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'DeletedSchema.xsd', // Persisted entry file that no longer exists in definitionFiles
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      expect(result.documentDefinition?.entrySchemaFile).toBe('Main.xsd');
+      expect(result.document?.rootElement?.getName()).toBe('Root');
+    });
+
+    it('should populate namedTypeFragments for chameleon types using the entry schema effective namespace', () => {
+      const files = {
+        'HostB.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:ns-b"><xs:include schemaLocation="Cham.xsd"/><xs:element name="RootB" type="b:ChamType" xmlns:b="urn:ns-b"/></xs:schema>',
+        'HostA.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:ns-a"><xs:include schemaLocation="Cham.xsd"/><xs:element name="RootA" type="a:ChamType" xmlns:a="urn:ns-a"/></xs:schema>',
+        'Cham.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:complexType name="ChamType"><xs:sequence><xs:element name="Field" type="xs:string"/></xs:sequence></xs:complexType></xs:schema>',
+      };
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'doc',
+        files,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'HostA.xsd',
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      expect(result.document).toBeDefined();
+      expect(result.document?.namedTypeFragments['{urn:ns-a}ChamType']).toBeDefined();
+      expect(result.document?.namedTypeFragments['{urn:ns-a}ChamType'].fields[0]?.name).toBe('Field');
+      // RootA field should reference the urn:ns-a fragment
+      const rootField = result.document?.fields[0];
+      expect(rootField?.name).toBe('RootA');
+      expect(rootField?.namedTypeFragmentRefs).toContain('{urn:ns-a}ChamType');
     });
   });
 });

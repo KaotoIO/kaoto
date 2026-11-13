@@ -282,6 +282,12 @@ export function getMainWithIncludeXsd(): string {
 export function getCommonTypesXsd(): string {
   return readStubFile('./xml/CommonTypes.xsd');
 }
+export function getIncludeOnlyEntryXsd(): string {
+  return readStubFile('./xml/IncludeOnlyEntry.xsd');
+}
+export function getRootDeclaredXsd(): string {
+  return readStubFile('./xml/RootDeclared.xsd');
+}
 export function getMainWithImportXsd(): string {
   return readStubFile('./xml/MainWithImport.xsd');
 }
