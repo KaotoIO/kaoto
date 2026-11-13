@@ -1,10 +1,11 @@
-import { action, BaseEdge, NodeModel } from '@patternfly/react-topology';
+import { action, BaseEdge, DndManager, DndStore, NodeModel, Point } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
 import { createVisualizationNode, IVisualizationNode } from '../../../../models';
 import { TestProvidersWrapper } from '../../../../stubs';
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
+import { NODE_DRAG_TYPE } from '../customComponentUtils';
 import { CustomNodeObserver, CustomNodeWithSelection } from './CustomNode';
 
 /** Creates a real controller holding a single node built from the given data */
@@ -83,6 +84,43 @@ describe('CustomNode', () => {
       }),
     );
     expect(screen.getByTestId(`custom-node__${vizNode.id}`)).toBeInTheDocument();
+  });
+
+  it('keeps the interaction indicator at the original position while the node is dragged', async () => {
+    const { container, element, controller } = await renderCustomNode();
+    act(
+      action(() => {
+        element.setPosition(new Point(100, 50));
+      }),
+    );
+    const indicator = container.querySelector('.custom-node__indicator');
+    expect(indicator).not.toHaveAttribute('transform');
+
+    const manager: DndManager = controller.getStore<DndStore>().dndManager;
+    const [source] = manager.registerSource({
+      type: NODE_DRAG_TYPE,
+      canDrag: () => true,
+      beginDrag: () => element,
+      drag: () => {},
+      endDrag: () => {},
+      canCancel: () => true,
+    });
+    act(() => {
+      manager.beginDrag(source, undefined, 10, 10, 10, 10);
+    });
+    act(
+      action(() => {
+        element.setPosition(new Point(200, 80));
+      }),
+    );
+
+    expect(indicator).toHaveAttribute('transform', 'translate(-100, -30)');
+
+    await act(async () => {
+      manager.cancel();
+      await manager.endDrag();
+    });
+    expect(indicator).not.toHaveAttribute('transform');
   });
 
   it('should throw when element is not a Node', () => {
