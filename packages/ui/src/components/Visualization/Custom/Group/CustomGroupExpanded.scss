@@ -58,9 +58,6 @@
 
           span {
             margin: 0 var(--pf-t--global--spacer--sm);
-          }
-
-          span:not([data-warning='true']) {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;

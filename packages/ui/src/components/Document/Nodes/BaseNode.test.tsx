@@ -238,6 +238,23 @@ describe('BaseNode', () => {
 
       expect(onExpandChange).toHaveBeenCalledTimes(1);
     });
+
+    it('should not take the focus away from the treeitem on mouse down', () => {
+      render(
+        <BaseNode
+          nodeData={createMockNodeData()}
+          title="Title"
+          data-testid="test-node"
+          isExpandable
+          isExpanded
+          onExpandChange={vi.fn()}
+        />,
+      );
+
+      const expandButton = screen.getByRole('button', { name: 'Collapse' });
+
+      expect(fireEvent.mouseDown(expandButton)).toBe(false);
+    });
   });
 
   describe('Draggable Controls', () => {
