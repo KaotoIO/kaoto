@@ -104,10 +104,6 @@
   }
 }
 
-@mixin selected {
-  border: 2px solid var(--custom-node-BorderColor);
-}
-
 @mixin disabled {
   // The disabled badge communicates state. HTML filters inside foreignObject
   // can discard SVG positioning in Safari, so do not grayscale the container.
