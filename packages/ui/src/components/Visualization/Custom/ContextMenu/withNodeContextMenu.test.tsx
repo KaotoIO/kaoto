@@ -24,6 +24,7 @@ describe('withNodeContextMenu', () => {
   const Target: FunctionComponent<TargetProps> = ({ onContextMenu, contextMenuOpen, count }) => (
     <g
       data-testid="target"
+      tabIndex={-1}
       data-menu-open={String(contextMenuOpen)}
       data-count={count !== undefined ? String(count) : undefined}
       onContextMenu={onContextMenu}
@@ -204,6 +205,45 @@ describe('withNodeContextMenu', () => {
     await screen.findByTestId('item-a');
 
     expect(screen.getByRole('menu', { name: 'Route actions' })).toBeInTheDocument();
+  });
+
+  it('closes when the step gets a new model and returns the focus to where it was', async () => {
+    const actions = vi.fn().mockReturnValue([itemA]);
+    const { element, target } = renderWithMenu(actions);
+    act(() => {
+      element.setData({ vizNode: { id: 'previous' } });
+      target.focus();
+    });
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    await settle();
+    expect(within(screen.getByRole('menu')).getByRole('menuitem', { name: 'Item A' })).toHaveFocus();
+
+    act(() => {
+      element.setData({ vizNode: { id: 'next' } });
+    });
+
+    expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
+    expect(target).toHaveAttribute('data-menu-open', 'false');
+    expect(target).toHaveFocus();
+  });
+
+  it('stays open when the step keeps its model', async () => {
+    const actions = vi.fn().mockReturnValue([itemA]);
+    const { element, target } = renderWithMenu(actions);
+    const vizNode = { id: 'same' };
+    act(() => {
+      element.setData({ vizNode });
+    });
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    act(() => {
+      element.setData({ vizNode });
+    });
+
+    expect(screen.getByTestId('item-a')).toBeInTheDocument();
   });
 
   it('closes on Escape', async () => {

@@ -23,6 +23,8 @@ interface OpenMenu {
   reference: { x: number; y: number };
   /** The element that had the focus when the menu opened, focused again once the menu closes */
   origin: Element | null;
+  /** The model of the step the actions were built for */
+  vizNode: unknown;
 }
 
 interface NodeContextMenuPopupProps {
@@ -156,6 +158,16 @@ const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
     [onKeyDown],
   );
 
+  useEffect(
+    () => () => {
+      // A menu removed without closing, because its step got a new model, leaves the focus nowhere
+      if (document.activeElement === document.body) {
+        (origin as HTMLOrSVGElement | null | undefined)?.focus({ preventScroll: true });
+      }
+    },
+    [origin],
+  );
+
   const menuList = useMemo(
     () => (
       <ContextMenuControlsContext.Provider value={controls}>
@@ -177,6 +189,9 @@ const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
   );
 };
 
+const getVizNode = (element: GraphElement): unknown =>
+  (element.getData() as { vizNode?: unknown } | undefined)?.vizNode;
+
 /**
  * Adds a context menu to a canvas node or group, in place of PatternFly's `withContextMenu`.
  *
@@ -195,20 +210,29 @@ export const withNodeContextMenu =
   <P extends WithContextMenuProps>(WrappedComponent: ComponentType<P>) => {
     const Component: FunctionComponent<Omit<P, keyof WithContextMenuProps>> = (props) => {
       const element = useContext(ElementContext) as E;
+      const vizNode = getVizNode(element);
       const [menu, setMenu] = useState<OpenMenu | null>(null);
+      // The actions act on the model they were built for; once the step gets a new one, they could change another step
+      if (menu !== null && menu.vizNode !== vizNode) {
+        setMenu(null);
+      }
       /** Counts every open, independently of the close that a `mousedown` may queue in the same event batch */
       const openCount = useRef(0);
 
-      const onContextMenu = useCallback((event: MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
-        openCount.current += 1;
-        setMenu({
-          id: openCount.current,
-          reference: { x: event.clientX, y: event.clientY },
-          origin: document.activeElement,
-        });
-      }, []);
+      const onContextMenu = useCallback(
+        (event: MouseEvent) => {
+          event.preventDefault();
+          event.stopPropagation();
+          openCount.current += 1;
+          setMenu({
+            id: openCount.current,
+            reference: { x: event.clientX, y: event.clientY },
+            origin: document.activeElement,
+            vizNode: getVizNode(element),
+          });
+        },
+        [element],
+      );
 
       const onRequestClose = useCallback((id: OpenMenu['id']) => {
         setMenu((current) => (current?.id === id ? null : current));
