@@ -141,6 +141,25 @@ describe('CanvasToolbar integration', () => {
     expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
   });
 
+  it('hides the toolbar of a step that is deleted while its toolbar is open', async () => {
+    const { a, view, rerender } = await setup();
+    fireEvent.mouseEnter(screen.getByTestId(`custom-node__${a.getData().vizNode.id}`));
+    await act(() => vi.advanceTimersByTime(CanvasDefaults.TOOLBAR_HOVER_DELAY_MS));
+    expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
+
+    // Deleting a step removes it from the graph and unmounts its node in the same update; the toolbar renders
+    // before the node's cleanup clears the target
+    // eslint-disable-next-line testing-library/no-unnecessary-act -- removal and rerender must share one React update
+    act(() => {
+      action(() => {
+        a.remove();
+      })();
+      rerender(view(undefined, NodeToolbarTrigger.onHover, false));
+    });
+
+    expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
+  });
+
   it('tracks graph pan and zoom directly and calculates node and expanded-group anchors', async () => {
     const { a, b, controller, rerender, view } = await setup();
     rerender(view(a.getId(), NodeToolbarTrigger.onSelection));
