@@ -17,7 +17,7 @@
 <a href="https://kaoto.io">Kaoto</a> lowers the barrier to getting started with <a href="https://camel.apache.org">Apache Camel</a>, enabling users to quickly prototype and integrate systems without deep Camel knowledge or complex Java coding. With a modern, open-source visual designer, Kaoto empowers teams to build and test integrations efficiently in a low-code environment, accelerating the development process.
 </p><br/>
 
-<p align="center"><img src="./images/intro-kaoto.png" alt="Shows Kaoto - The Integration Designer for Apache Camel" width="90%"/></p>
+<p align="center"><img src="./assets/images/intro-kaoto.png" alt="Shows Kaoto - The Integration Designer for Apache Camel" width="90%"/></p>
 
 ## Feature Highlights
 
@@ -26,34 +26,34 @@
 <table>
 <tr>
 <td width="33%" align="center">
-<img src="./images/readme/features-list/camel-logo.png" width="40" alt=""/><br/>
+<img src="./assets/images/readme/features-list/camel-logo.png" width="40" alt=""/><br/>
 <b>Based on Apache Camel</b><br/>
 <sub>Kaoto utilizes the Apache Camel models and schemas to always offer you all available upstream Camel features.</sub>
 </td>
 <td width="33%" align="center">
-<img src="./images/readme/features-list/vscode.png" width="40" alt=""/><br/>
+<img src="./assets/images/readme/features-list/vscode.png" width="40" alt=""/><br/>
 <b>VS Code Extension</b><br/>
 <sub>Kaoto comes as an extension you can easily install from the <a href="https://marketplace.visualstudio.com/items?itemName=redhat.vscode-kaoto">VS Code Marketplace</a>. Install it directly from inside your VS Code instance.</sub>
 </td>
 <td width="33%" align="center">
-<img src="./images/readme/features-list/developers.png" width="40" alt=""/><br/>
+<img src="./assets/images/readme/features-list/developers.png" width="40" alt=""/><br/>
 <b>Care About Developers</b><br/>
 <sub>Kaoto is a low-code / no-code visual editor for Apache Camel integrations. Using Kaoto will lower the barrier for integration developers to get started with Apache Camel.</sub>
 </td>
 </tr>
 <tr>
 <td width="33%" align="center">
-<img src="./images/readme/features-list/open-source.png" width="40" alt=""/><br/>
+<img src="./assets/images/readme/features-list/open-source.png" width="40" alt=""/><br/>
 <b>Free Libre and Open Source</b><br/>
 <sub>Truly open with no vendor lock-in. Use, reuse, share, modify, and resell to your needs. Own Kaoto and make it yours, making sure your use cases are covered.</sub>
 </td>
 <td width="33%" align="center">
-<img src="./images/readme/features-list/catalog.png" width="40" alt=""/><br/>
+<img src="./assets/images/readme/features-list/catalog.png" width="40" alt=""/><br/>
 <b>Built-In Catalog</b><br/>
 <sub>Kaoto provides you access to a catalog of 300+ Camel Components, 200+ Kamelets and a variety of Enterprise Integration Patterns to choose from. Each comes with documentation to help you get started.</sub>
 </td>
 <td width="33%" align="center">
-<img src="./images/readme/features-list/prototyping.png" width="40" alt=""/><br/>
+<img src="./assets/images/readme/features-list/prototyping.png" width="40" alt=""/><br/>
 <b>Rapid Prototyping</b><br/>
 <sub>Building your integration while running it in parallel in Dev Mode gives you a quick turnaround on your changes and enables you to quickly prototype your Camel routes.</sub>
 </td>
@@ -68,7 +68,7 @@
 Design your Camel routes, Kamelets and Pipes in a visual low-code / no-code way. Drag and drop components, connect them together, and see your integration flow come to life.
 </td>
 <td width="60%">
-<img src="./images/readme/features-showcase/visual-editor.png" alt="Visual Integration Editor" width="100%"/>
+<img src="./assets/images/readme/features-showcase/visual-editor.png" alt="Visual Integration Editor" width="100%"/>
 </td>
 </tr></table>
 
@@ -76,7 +76,7 @@ Design your Camel routes, Kamelets and Pipes in a visual low-code / no-code way.
 
 <table><tr>
 <td width="60%">
-<img src="./images/readme/features-showcase/catalog.png" alt="Built-in Catalog" width="100%"/>
+<img src="./assets/images/readme/features-showcase/catalog.png" alt="Built-in Catalog" width="100%"/>
 </td>
 <td valign="middle" width="40%">
 <h3>Built-in Catalog</h3>
@@ -92,7 +92,7 @@ Browse the comprehensive built-in catalog containing a vast number of available 
 Selecting a figure on the graphical canvas will open up a configuration form to the right side which allows you to easily configure your components without writing code.
 </td>
 <td width="60%">
-<img src="./images/readme/features-showcase/configuration.png" alt="Easy Configuration" width="100%"/>
+<img src="./assets/images/readme/features-showcase/configuration.png" alt="Easy Configuration" width="100%"/>
 </td>
 </tr></table>
 
@@ -100,7 +100,7 @@ Selecting a figure on the graphical canvas will open up a configuration form to 
 
 <table><tr>
 <td width="60%">
-<img src="./images/readme/features-showcase/datamapper.png" alt="Data Mapping & Transformation" width="100%"/>
+<img src="./assets/images/readme/features-showcase/datamapper.png" alt="Data Mapping & Transformation" width="100%"/>
 </td>
 <td valign="middle" width="40%">
 <h3>Built-in Data Mapping</h3>
@@ -116,7 +116,7 @@ Use the Kaoto DataMapper to map data between input and output structures and to 
 Browse integration files, orchestrate running Camel integrations, initialize new routes, export as Maven projects for Quarkus or Spring Boot, run locally, and deploy to OpenShift/Kubernetes - all from dedicated sidebar views.
 </td>
 <td width="60%">
-<img src="./images/readme/features-showcase/sidebar.png" alt="Sidebar Views" width="100%"/>
+<img src="./assets/images/readme/features-showcase/sidebar.png" alt="Sidebar Views" width="100%"/>
 </td>
 </tr></table>
 

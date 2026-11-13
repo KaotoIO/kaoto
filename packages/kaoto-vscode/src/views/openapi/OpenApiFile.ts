@@ -27,8 +27,8 @@ export class OpenApiFile extends TreeItem {
 		this.description = this.version;
 		this.resourceUri = Uri.file(this.filepath);
 		this.iconPath = {
-			light: Uri.file(join(__filename, '..', '..', '..', 'icons', 'openapi', 'openapi-light.svg')),
-			dark: Uri.file(join(__filename, '..', '..', '..', 'icons', 'openapi', 'openapi-dark.svg')),
+			light: Uri.file(join(__filename, '..', '..', '..', 'assets', 'icons', 'openapi', 'openapi-light.svg')),
+			dark: Uri.file(join(__filename, '..', '..', '..', 'assets', 'icons', 'openapi', 'openapi-dark.svg')),
 		};
 		this.command = { command: 'vscode.open', title: 'Open', arguments: [this.resourceUri] };
 		this.contextValue = 'openapi';

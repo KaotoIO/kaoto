@@ -43,7 +43,7 @@ export class ChildItem extends TreeItem {
 		tooltip: string;
 		description: string;
 	} {
-		const base = join(__filename, '..', '..', '..', 'icons', 'deployments');
+		const base = join(__filename, '..', '..', '..', 'assets', 'icons', 'deployments');
 		const state = route.state ?? '';
 
 		const visuals: Record<string, { icon: string; context: string }> = {

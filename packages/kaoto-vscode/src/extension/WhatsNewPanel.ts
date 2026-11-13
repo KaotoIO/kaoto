@@ -22,7 +22,7 @@ export class WhatsNewPanel {
 
 	public static async show(context: vscode.ExtensionContext, version: string): Promise<void> {
 		const folderVersion = this.extractMajorMinor(version);
-		const whatsNewFolder = vscode.Uri.joinPath(context.extensionUri, 'resources', 'whats-new', folderVersion);
+		const whatsNewFolder = vscode.Uri.joinPath(context.extensionUri, 'assets', 'resources', 'whats-new', folderVersion);
 		const indexMdUri = vscode.Uri.joinPath(whatsNewFolder, 'index.md');
 
 		let bytes: Uint8Array;

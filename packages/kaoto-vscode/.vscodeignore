@@ -26,9 +26,9 @@ uitest-resources
 .citrus-jbang
 .github/**
 reports/**
-resources/demo.camel.yaml
-resources/test.kaoto.yaml
-resources/whats-new/2.8/**
-resources/whats-new/2.9/**
-resources/whats-new/2.10/**
-resources/whats-new/2.11/**
+assets/resources/demo.camel.yaml
+assets/resources/test.kaoto.yaml
+assets/resources/whats-new/2.8/**
+assets/resources/whats-new/2.9/**
+assets/resources/whats-new/2.10/**
+assets/resources/whats-new/2.11/**
