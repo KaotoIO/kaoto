@@ -183,45 +183,6 @@ describe('Canvas', () => {
     expect(canvasEl).toHaveFocus();
   });
 
-  it('should close the sidebar and restore focus when Escape is pressed from the focused search input', async () => {
-    // Without a schema the side panel renders the node source instead of the form (and its search input)
-    setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
-    onTestFinished(() => {
-      DynamicCatalogRegistry.get().clearRegistry();
-    });
-    const { container, controller } = await renderCanvas();
-
-    act(() => {
-      controller.fireEvent(SELECTION_EVENT, ['route-8888|route.from']);
-    });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('filter-fields')).toBeInTheDocument();
-    });
-
-    // Flush requestAnimationFrame so the auto-focus fires
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
-
-    const searchInput = screen.getByTestId('filter-fields');
-    expect(searchInput).toHaveFocus();
-
-    // The search is empty, so Escape dismisses the panel
-    fireEvent.keyDown(searchInput, { key: 'Escape' });
-
-    await waitFor(() => {
-      expect(container.querySelector('.pf-m-expanded')).not.toBeInTheDocument();
-    });
-
-    // Flush requestAnimationFrame so the focus() call in clearSelection fires
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
-
-    expect(container.querySelector('[id="canvas-main"]')).toHaveFocus();
-  });
-
   describe('focus return to the last step', () => {
     /** Two routes with the same step paths, so only the topology id tells their steps apart */
     async function buildTwoRoutes(secondRouteSteps = [{ log: { message: 'second' } }]) {
@@ -308,10 +269,11 @@ describe('Canvas', () => {
     });
 
     it('returns focus to the selected step when the properties are closed with Escape', async () => {
-      // Without a schema the side panel renders the node source instead of the form (and its search input)
-      setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
-      onTestFinished(() => {
-        DynamicCatalogRegistry.get().clearRegistry();
+      // Without a schema the side panel renders the node source instead of the form (and its search input).
+      // A stubbed schema avoids loading the full catalog.
+      vi.spyOn(CamelRouteVisualEntity.prototype, 'fetchNodeSchema').mockResolvedValue({
+        type: 'object',
+        properties: { message: { type: 'string', title: 'Message' } },
       });
       const { user, focusStep, flushFrames } = await renderTwoRoutes();
       const secondLog = focusStep('route-second', 'route.from.steps.0.log');
