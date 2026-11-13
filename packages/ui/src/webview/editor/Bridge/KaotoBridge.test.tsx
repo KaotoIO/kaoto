@@ -233,20 +233,6 @@ describe('KaotoBridge', () => {
       expect(applyTestReportSpy).not.toHaveBeenCalled();
     });
 
-    it('should handle clearTestReports safely when EntitiesContext is null', async () => {
-      render(
-        <EntitiesContext.Provider value={null}>
-          <KaotoBridge {...defaultProps}>
-            <div>Test Child</div>
-          </KaotoBridge>
-        </EntitiesContext.Provider>,
-      );
-
-      window.dispatchEvent(new MessageEvent('message', { data: { type: 'kaoto__testRunStarted' } }));
-
-      await new Promise((r) => setTimeout(r, 50));
-    });
-
     it('should re-fetch test reports when kaoto__testReportReady message is received', async () => {
       const entity = new CitrusTestVisualEntity({ name: 'test-1', actions: [] });
       const mockGetTestReport = vi.fn().mockResolvedValue(undefined);

@@ -88,7 +88,7 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
           </FloatingCircle>
         )}
         {doesHaveWarnings && (
-          <FloatingCircle className="step-icon step-icon__processor">
+          <FloatingCircle className="step-icon step-icon__warning">
             <Icon status="danger" size="lg" title={validationText} onClick={onShowError}>
               <WarningFilled />
             </Icon>
