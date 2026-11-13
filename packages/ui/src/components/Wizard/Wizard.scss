@@ -1,0 +1,115 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+.kaoto-wizard {
+  /* The query container is the root; a container query can only match its descendants, hence the inner layout */
+  container-type: inline-size;
+  block-size: 100%;
+  min-block-size: 0;
+
+  &__layout {
+    display: grid;
+    grid-template:
+      'steps body' minmax(0, 1fr)
+      'footer footer' auto
+      / 16rem minmax(0, 1fr);
+    column-gap: $spacing-09;
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  &__toggle {
+    display: none;
+  }
+
+  &__steps {
+    grid-area: steps;
+  }
+
+  &__body {
+    grid-area: body;
+    min-block-size: 0;
+    overflow: auto;
+    padding-block-end: $spacing-05;
+
+    &:focus:not(:focus-visible) {
+      outline: none;
+    }
+  }
+
+  &__footer {
+    grid-area: footer;
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-05;
+    padding-block: $spacing-05;
+    /* stylelint-disable-next-line declaration-property-value-no-unknown */
+    border-block-start: 1px solid $border-subtle;
+  }
+
+  @container (max-width: 40rem) {
+    &__layout {
+      grid-template:
+        'toggle' auto
+        'steps' auto
+        'body' minmax(0, 1fr)
+        'footer' auto
+        / 1fr;
+      row-gap: $spacing-05;
+    }
+
+    &__toggle {
+      grid-area: toggle;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      inline-size: 100%;
+      padding: $spacing-04 $spacing-05;
+      background-color: $layer-01;
+      /* stylelint-disable-next-line declaration-property-value-no-unknown */
+      border: 1px solid $border-subtle;
+      border-radius: 4px;
+      color: $text-primary;
+      cursor: pointer;
+      text-align: start;
+
+      @include type-style('body-compact-01');
+
+      font-weight: 600;
+
+      &:hover {
+        background-color: $layer-hover-01;
+      }
+
+      &:focus-visible {
+        /* stylelint-disable-next-line declaration-property-value-no-unknown */
+        outline: 2px solid $focus;
+        outline-offset: -2px;
+      }
+    }
+
+    &__toggle-icon {
+      transition: transform 0.2s ease-in-out;
+
+      &--expanded {
+        transform: rotate(180deg);
+      }
+    }
+
+    &__steps {
+      &:not(&--expanded) {
+        display: none;
+      }
+
+      &--expanded {
+        display: block;
+        padding: $spacing-05;
+        background-color: $layer-01;
+        /* stylelint-disable-next-line declaration-property-value-no-unknown */
+        border: 1px solid $border-subtle;
+        border-radius: 4px;
+      }
+    }
+  }
+}
