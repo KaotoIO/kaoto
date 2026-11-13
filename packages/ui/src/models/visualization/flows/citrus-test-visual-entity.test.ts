@@ -1577,6 +1577,21 @@ describe('CitrusTestVisualEntity', () => {
       expect(citrusTestEntity.isVerified('actions.0.print')).toBe(false);
     });
 
+    it('should return true for passing action within a failed test', () => {
+      citrusTestEntity.applyTestReport({
+        name: 'sample-test',
+        result: { name: 'sample-test', result: 'FAILURE', failed: true },
+        actions: [
+          { name: 'print', path: 'actions.0.print' },
+          { name: 'delay', path: 'actions.1.delay', error: 'Timed out' },
+        ],
+      });
+
+      expect(citrusTestEntity.isVerified('actions.0.print')).toBe(true);
+      expect(citrusTestEntity.isVerified('actions.1.delay')).toBe(false);
+      expect(citrusTestEntity.isVerified('test')).toBe(false);
+    });
+
     it('should return undefined for action path with no matching result', () => {
       citrusTestEntity.applyTestReport({
         name: 'sample-test',

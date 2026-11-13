@@ -84,6 +84,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
     );
     if (citrusEntities.length === 0) return;
 
+    reportGenerationRef.current += 1;
     const generation = reportGenerationRef.current;
     let cancelled = false;
     for (const entity of citrusEntities) {
@@ -103,12 +104,17 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
     };
   }, [getTestReport]);
 
-  const hasEntities = (entitiesContext?.visualEntities?.length ?? 0) > 0;
+  const entityKey = useMemo(() => {
+    const entities = entitiesContext?.visualEntities;
+    if (!entities || entities.length === 0) return '';
+    return entities.map((e) => e.id).join(',');
+  }, [entitiesContext?.visualEntities]);
+
   useEffect(() => {
-    if (hasEntities) {
+    if (entityKey) {
       return loadTestReports();
     }
-  }, [hasEntities, loadTestReports]);
+  }, [entityKey, loadTestReports]);
 
   const clearTestReports = useCallback(() => {
     reportGenerationRef.current += 1;
