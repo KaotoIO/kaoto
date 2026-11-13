@@ -253,11 +253,13 @@ suite('TestsProvider — setTestResult and setTestRunning', function () {
 		assert.isUndefined(provider.getTestReportByFilePath('/tmp/test-b.citrus.yaml'));
 	});
 
-	test('setTestRunning with uncached item triggers a refresh', function () {
+	test('setTestRunning with uncached item does not throw', function () {
 		provider.setTestRunning('/tmp/unknown.citrus.yaml', true);
+		assert.ok(true, 'setTestRunning did not throw for an uncached item');
 	});
 
-	test('removeFromCache removes an item', function () {
+	test('removeFromCache does not throw for uncached item', function () {
 		provider.removeFromCache('/tmp/test.citrus.yaml');
+		assert.ok(true, 'removeFromCache did not throw for an uncached item');
 	});
 });
