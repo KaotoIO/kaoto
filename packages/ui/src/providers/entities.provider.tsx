@@ -1,5 +1,7 @@
+import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { Loading } from '../components/Loading';
 import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
 import { BaseVisualEntity } from '../models';
 import { SourceSchemaType } from '../models/camel';
@@ -40,6 +42,11 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
   const { kaotoResource } = useKaotoResourceContext();
   const [entities, setEntities] = useState<BaseEntity[]>([]);
   const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>([]);
+  /**
+   * The resource is initialized asynchronously. Until the first one is ready, the empty entity lists above would
+   * render an empty canvas before the document shows up. Later resources keep the previous entities meanwhile.
+   */
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -49,11 +56,13 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
         if (cancelled) return;
         setEntities(kaotoResource.getEntities());
         setVisualEntities(kaotoResource.getVisualEntities());
+        setInitialized(true);
       } catch (error) {
         if (cancelled) return;
         console.error('Failed to initialize KaotoResource', error);
         setEntities([]);
         setVisualEntities([]);
+        setInitialized(true);
       }
     };
     void init();
@@ -92,6 +101,16 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
     }),
     [entities, visualEntities, kaotoResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
   );
+
+  if (!initialized) {
+    return (
+      <Loading>
+        <Content data-testid="loading-entities" component={ContentVariants.h3}>
+          Loading entities...
+        </Content>
+      </Loading>
+    );
+  }
 
   return <EntitiesContext.Provider value={value}>{children}</EntitiesContext.Provider>;
 };

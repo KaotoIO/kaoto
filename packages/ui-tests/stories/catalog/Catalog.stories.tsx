@@ -5,10 +5,11 @@ import {
   CatalogSchemaLoader,
   CatalogTilesProvider,
   getIconRequest,
+  inMemorySourceCodeAdapter,
   KaotoResourceProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
-  SourceCodeSync,
+  SourceCodeProvider,
 } from '@kaoto/kaoto/testing';
 import { Meta, StoryFn, StoryObj } from '@storybook/react';
 
@@ -49,7 +50,7 @@ async function tilesWithIcons(rawTiles: FixtureTile[]): Promise<ITile[]> {
 }
 
 const ContextDecorator = (Story: StoryFn) => (
-  <SourceCodeSync initialSourceCode="">
+  <SourceCodeProvider adapter={inMemorySourceCodeAdapter('')}>
     <KaotoResourceProvider>
       <RuntimeProvider
         catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
@@ -65,7 +66,7 @@ const ContextDecorator = (Story: StoryFn) => (
         </SchemasLoaderProvider>
       </RuntimeProvider>
     </KaotoResourceProvider>
-  </SourceCodeSync>
+  </SourceCodeProvider>
 );
 
 export default {
