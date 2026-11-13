@@ -47,3 +47,15 @@ export const getPlaceholderIndicatorBounds = (box: { width: number; height: numb
   width: PLACEHOLDER_TILE_SIZE + 2 * INDICATOR_CLEARANCE,
   height: PLACEHOLDER_TILE_SIZE + 2 * INDICATOR_CLEARANCE,
 });
+
+/**
+ * Indicator bounds for an expanded group: the body grown on every side by the clearance only, so the indicator
+ * stays below the header of a parent group. The warning badge on the top left corner is
+ * painted above the indicator and covers it there.
+ */
+export const getGroupIndicatorBounds = ({ x, y, width, height }: IndicatorBounds): IndicatorBounds => ({
+  x: x - INDICATOR_CLEARANCE,
+  y: y - INDICATOR_CLEARANCE,
+  width: width + 2 * INDICATOR_CLEARANCE,
+  height: height + 2 * INDICATOR_CLEARANCE,
+});

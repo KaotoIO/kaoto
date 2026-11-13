@@ -101,10 +101,18 @@ type Story = StoryObj<typeof Canvas>;
 const TIMEOUT = { timeout: 15000 };
 
 const COLLAPSED_ID = 'custom-node__route.from.steps.1.choice';
+const EXPANDED_ID = 'custom-group__route.from.steps.1.choice';
 
 const findStep = async (canvasElement: HTMLElement) => {
   const step = await within(canvasElement).findByTestId('custom-node__route.from.steps.0.log', undefined, TIMEOUT);
   return step as unknown as SVGGElement;
+};
+
+const toggleCollapse = async (canvasElement: HTMLElement, group: HTMLElement) => {
+  await userEvent.hover(group);
+  const body = within(canvasElement.ownerDocument.body);
+  await userEvent.click(await body.findByTestId('choice|step-toolbar-button-collapse', undefined, TIMEOUT));
+  await userEvent.unhover(group);
 };
 
 /**
@@ -115,13 +123,20 @@ const findCollapsedGroup = async (canvasElement: HTMLElement) => {
   const canvas = within(canvasElement);
   await findStep(canvasElement);
   if (!canvas.queryByTestId(COLLAPSED_ID)) {
-    const group = await canvas.findByTestId('custom-group__route.from.steps.1.choice', undefined, TIMEOUT);
-    await userEvent.hover(group);
-    const body = within(canvasElement.ownerDocument.body);
-    await userEvent.click(await body.findByTestId('choice|step-toolbar-button-collapse', undefined, TIMEOUT));
-    await userEvent.unhover(group);
+    await toggleCollapse(canvasElement, await canvas.findByTestId(EXPANDED_ID, undefined, TIMEOUT));
   }
   return (await canvas.findByTestId(COLLAPSED_ID, undefined, TIMEOUT)) as unknown as SVGGElement;
+};
+
+/** Returns the expanded choice, expanding it through its hover toolbar when a collapse state was restored. */
+const findExpandedGroup = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+  await findStep(canvasElement);
+  const collapsed = canvas.queryByTestId(COLLAPSED_ID);
+  if (collapsed) {
+    await toggleCollapse(canvasElement, collapsed);
+  }
+  return (await canvas.findByTestId(EXPANDED_ID, undefined, TIMEOUT)) as unknown as SVGGElement;
 };
 
 const hover = async (node: SVGGElement) => {
@@ -152,8 +167,8 @@ const focus = async (node: SVGGElement) => {
   await expect(node.ownerDocument.activeElement).toBe(node);
 };
 
-const expectIndicator = async (node: SVGGElement) => {
-  await expect(node.querySelector('rect.custom-node__indicator')).toBeInTheDocument();
+const expectIndicator = async (node: SVGGElement, block = 'custom-node') => {
+  await expect(node.querySelector(`rect.${block}__indicator`)).toBeInTheDocument();
 };
 
 export const StepDefault: Story = {
@@ -247,6 +262,54 @@ export const CollapsedGroupSelectedFocused: Story = {
   render: CanvasFromEntity,
   play: async ({ canvasElement }) => {
     const group = await findCollapsedGroup(canvasElement);
+    await select(group);
+    await userEvent.unhover(group);
+    await focus(group);
+    await expect(group).toHaveAttribute('data-selected', 'true');
+  },
+};
+
+export const ExpandedGroupDefault: Story = {
+  render: CanvasFromEntity,
+  play: async ({ canvasElement }) => {
+    const group = await findExpandedGroup(canvasElement);
+    await waitForToolbarClosed(group);
+    await expectIndicator(group, 'custom-group');
+    await expect(group).toHaveAttribute('data-selected', 'false');
+  },
+};
+
+export const ExpandedGroupHover: Story = {
+  render: CanvasFromEntity,
+  play: async ({ canvasElement }) => {
+    const group = await findExpandedGroup(canvasElement);
+    await hover(group);
+  },
+};
+
+export const ExpandedGroupSelected: Story = {
+  render: CanvasFromEntity,
+  play: async ({ canvasElement }) => {
+    const group = await findExpandedGroup(canvasElement);
+    await select(group);
+    await userEvent.unhover(group);
+    await expectSelectedWithoutFocus(group);
+  },
+};
+
+export const ExpandedGroupFocused: Story = {
+  render: CanvasFromEntity,
+  play: async ({ canvasElement }) => {
+    const group = await findExpandedGroup(canvasElement);
+    await focus(group);
+    await expect(group).toHaveAttribute('data-selected', 'false');
+  },
+};
+
+export const ExpandedGroupSelectedFocused: Story = {
+  render: CanvasFromEntity,
+  play: async ({ canvasElement }) => {
+    const group = await findExpandedGroup(canvasElement);
     await select(group);
     await userEvent.unhover(group);
     await focus(group);

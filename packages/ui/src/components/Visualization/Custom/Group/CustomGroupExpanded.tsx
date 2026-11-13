@@ -48,6 +48,7 @@ import {
 } from '../customComponentUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
+import { getGroupIndicatorBounds, INDICATOR_RADIUS } from '../interaction-indicator';
 import { CustomNodeContainer } from '../Node/CustomNodeContainer';
 import {
   checkNodeDropCompatibility,
@@ -58,9 +59,7 @@ import {
 import { TargetAnchor } from '../target-anchor';
 import { CustomGroupProps } from './Group.models';
 
-// The 3px stroke is centered 2px outside the group, matching the former HTML outline.
-const FOCUS_RING_OFFSET = 3.5;
-// Keep shadows inside a clipped foreignObject so WebKit repaints their old bounds.
+// Spare room around the body inside the clipped foreignObject so WebKit repaints its old bounds when it moves.
 const GROUP_PAINT_PADDING = 24;
 
 interface CustomGroupExpandedInnerProps extends CustomGroupProps {
@@ -206,6 +205,8 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
       boxRef.current = box;
     }
 
+    const indicatorBounds = getGroupIndicatorBounds(boxRef.current);
+
     const toolbar = useCanvasToolbarTarget(
       element,
       groupVizNode,
@@ -235,15 +236,9 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
+          {/* Hover, selection and focus are drawn in SVG behind the body, so the body keeps its look */}
+          <rect className="custom-group__indicator" aria-hidden="true" rx={INDICATOR_RADIUS} {...indicatorBounds} />
           <CanvasNodeOverlays overlays={overlays} bounds={boxRef.current} />
-          <rect
-            className="custom-group__focus-ring"
-            aria-hidden="true"
-            x={boxRef.current.x - FOCUS_RING_OFFSET}
-            y={boxRef.current.y - FOCUS_RING_OFFSET}
-            width={boxRef.current.width + 2 * FOCUS_RING_OFFSET}
-            height={boxRef.current.height + 2 * FOCUS_RING_OFFSET}
-          />
           <rect
             ref={dndDropRef}
             className="custom-group__drop-area"

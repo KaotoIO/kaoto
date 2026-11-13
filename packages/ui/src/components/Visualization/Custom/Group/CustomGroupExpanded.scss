@@ -3,13 +3,7 @@
 
 .custom-group {
   @include custom.highligth {
-    &[data-selected='true'] {
-      --custom-node-BorderColor: var(--pf-t--global--color--brand--default);
-    }
-
-    &[data-warning='true'] {
-      --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
-    }
+    @include custom.interaction-indicator('.custom-group__indicator');
 
     foreignObject#{&}__body {
       overflow: hidden;
@@ -66,10 +60,6 @@
             white-space: nowrap;
           }
 
-          [data-selected='true'] & {
-            background-color: var(--custom-node-BorderColor);
-          }
-
           [data-warnings='true'] & {
             background-color: var(--pf-topology__node--m-danger--Background--Fill);
           }
@@ -98,31 +88,8 @@
         border-left: var(--custom-component-border-possibleDropTarget);
       }
 
-      &:hover,
-      [data-toolbar-open='true'] & {
-        border-color: var(--custom-node-BorderColor-hover);
-        box-shadow: var(--custom-node-Shadow);
-      }
-
-      [data-selected='true'] & {
-        @include custom.selected;
-      }
-
       [data-disabled='true'] & {
         @include custom.disabled;
-      }
-
-      [data-warnings='true'] & {
-        &:hover,
-        &[data-toolbar-open='true'] {
-          border-color: var(--pf-topology__node--m-danger--Background--Fill);
-          box-shadow: var(--custom-node-Shadow);
-        }
-      }
-
-      [data-warnings='true'][data-selected='true'] & {
-        border-color: var(--pf-topology__node--m-danger--Background--Fill);
-        box-shadow: var(--custom-node-Shadow);
       }
 
       & &__text {
@@ -134,22 +101,6 @@
           }
         }
       }
-    }
-
-    // Paint the focus ring in SVG. An HTML outline overflowing foreignObject
-    // can leave trails when Safari repaints the moved group (WebKit bug 207421).
-    &__focus-ring {
-      fill: none;
-      stroke: var(--pf-t--global--color--brand--default);
-      stroke-width: 3px;
-      rx: calc(var(--custom-node-BorderRadius) + 3.5px);
-      pointer-events: none;
-      visibility: hidden;
-    }
-
-    // SVG groups focused through keyboard navigation need :focus in Chromium.
-    &:focus > &__focus-ring {
-      visibility: visible;
     }
 
     &__disabled-icon {
@@ -236,6 +187,9 @@
     .floating-circle {
       border-radius: 15px;
       border-color: var(--pf-topology__node--m-danger--Background--Fill);
+
+      // A single icon: without the side padding the circle stays 25px wide and fits its 25px foreignObject
+      padding: 0;
     }
   }
 }
