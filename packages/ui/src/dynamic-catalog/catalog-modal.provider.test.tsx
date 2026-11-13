@@ -334,6 +334,50 @@ describe('CatalogModalProvider', () => {
       expect(node).toHaveFocus();
     });
 
+    it('should return focus to the canvas node that opened the catalog even if the focus moved while the tiles loaded', async () => {
+      let resolveTiles: (tiles: ITile[]) => void = () => {};
+      const fetchTiles = () =>
+        new Promise<ITile[]>((resolve) => {
+          resolveTiles = resolve;
+        });
+      const TestComponent = () => {
+        const { getNewComponent } = useContext(CatalogModalContext)!;
+        return (
+          <svg>
+            <g
+              data-testid="opener-node"
+              tabIndex={0}
+              role="button"
+              aria-label="Add step"
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') void getNewComponent();
+              }}
+            />
+            <g data-testid="other-node" tabIndex={0} role="button" aria-label="Other step" />
+          </svg>
+        );
+      };
+      render(<TestComponent />, { wrapper: createWrapper(fetchTiles) });
+      const user = userEvent.setup();
+      const opener = screen.getByTestId('opener-node');
+      act(() => {
+        opener.focus();
+      });
+
+      await user.keyboard('{Enter}');
+      act(() => {
+        screen.getByTestId('other-node').focus();
+      });
+      await act(async () => {
+        resolveTiles(mockTiles);
+      });
+      await screen.findByText('Catalog');
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(screen.queryByText('Catalog')).not.toBeInTheDocument());
+      expect(opener).toHaveFocus();
+    });
+
     it('should handle fetchTiles error gracefully', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
       const fetchTilesError = () => Promise.reject(new Error('Failed to fetch tiles'));
