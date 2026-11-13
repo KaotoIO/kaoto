@@ -2,7 +2,7 @@ coverage/
 out/
 out-unit-tests/
 dist/
-resources/
+assets/resources/
 node_modules/
 test-resources/
 test-extensions/

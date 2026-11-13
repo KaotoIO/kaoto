@@ -22,7 +22,7 @@
     "compile": "webpack",
     "sbom:generate": "cdxgen -o manifest.json",
     "watch": "webpack --env dev",
-    "run:webmode": "yarn vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --open-devtools ./resources",
+    "run:webmode": "yarn vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --open-devtools ./assets/resources",
     "test": "yarn test:unit --coverage",
     "test:unit": "yarn build:test:unit && vscode-test",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
@@ -127,7 +127,7 @@
       "export-icon": {
         "description": "Export icon",
         "default": {
-          "fontPath": "./icons/integrations/export-icons.woff",
+          "fontPath": "./assets/icons/integrations/export-icons.woff",
           "fontCharacter": "\\E900"
         }
       }
@@ -137,14 +137,14 @@
         "id": "kaoto.walkthrough",
         "title": "Kaoto first steps",
         "description": "Let's start with Kaoto Integration Designer",
-        "icon": "icons/kaoto.png",
+        "icon": "assets/icons/kaoto.png",
         "steps": [
           {
             "id": "kaoto.walkthrough.step0",
             "title": "Open Kaoto view",
             "description": "Click the **Kaoto icon** in the Activity Bar to open the Kaoto view.\n\n[Open Kaoto View](command:workbench.view.extension.kaoto-view)",
             "media": {
-              "image": "images/walkthrough/activity-bar.png",
+              "image": "assets/images/walkthrough/activity-bar.png",
               "altText": "Kaoto Activity Bar icon"
             },
             "completionEvents": [
@@ -159,7 +159,7 @@
             "title": "Open workspace",
             "description": "Open an existing workspace or create a new one.\n\n[Open Workspace](command:vscode.openFolder)",
             "media": {
-              "image": "images/walkthrough/open-workspace.png",
+              "image": "assets/images/walkthrough/open-workspace.png",
               "altText": "Open Workspace"
             },
             "when": "workspaceFolderCount == 0",
@@ -174,7 +174,7 @@
             "title": "Create a new Camel Route",
             "description": "Click the ``New File...`` button inside Integrations view to create a new Camel Route.\n\n[New Camel Route...](command:kaoto.new.camel.file)",
             "media": {
-              "image": "images/walkthrough/new-camel-route.png",
+              "image": "assets/images/walkthrough/new-camel-route.png",
               "altText": "New Camel Route"
             },
             "completionEvents": [
@@ -189,7 +189,7 @@
             "title": "Run the Camel Route",
             "description": "Click the ``Run`` button inside Integrations view to run the Camel Route.",
             "media": {
-              "image": "images/walkthrough/run-camel-route.png",
+              "image": "assets/images/walkthrough/run-camel-route.png",
               "altText": "Run Camel Route"
             },
             "completionEvents": [
@@ -201,7 +201,7 @@
             "title": "Pause the Camel Route",
             "description": "Click the ``Pause`` button inside Deployments view to pause the Camel Route.",
             "media": {
-              "image": "images/walkthrough/pause-camel-route.png",
+              "image": "assets/images/walkthrough/pause-camel-route.png",
               "altText": "Pause Camel Route"
             },
             "completionEvents": [
@@ -213,7 +213,7 @@
             "title": "Resume the Camel Route",
             "description": "Click the ``Resume`` button inside Deployments view to resume the Camel Route.",
             "media": {
-              "image": "images/walkthrough/resume-camel-route.png",
+              "image": "assets/images/walkthrough/resume-camel-route.png",
               "altText": "Resume Camel Route"
             },
             "completionEvents": [
@@ -225,7 +225,7 @@
             "title": "Terminate the Camel Route",
             "description": "Click the ``Terminate`` button inside Deployments view to terminate the Camel Route.",
             "media": {
-              "image": "images/walkthrough/terminate-camel-route.png",
+              "image": "assets/images/walkthrough/terminate-camel-route.png",
               "altText": "Terminate Camel Route"
             },
             "completionEvents": [
@@ -237,7 +237,7 @@
             "title": "Show the Camel Route source code",
             "description": "Click the ``Show Source`` button inside Integrations view or click the Source Code icon in the editor title to show the Camel Route source code.",
             "media": {
-              "image": "images/walkthrough/show-source-code.png",
+              "image": "assets/images/walkthrough/show-source-code.png",
               "altText": "Show Camel Route Source Code"
             },
             "completionEvents": [
@@ -250,7 +250,7 @@
             "title": "Explore extension settings",
             "description": "Explore extension settings to customize Kaoto behavior.\n\n[Open Kaoto Settings](command:workbench.action.openSettings?%5B%22@ext:redhat.vscode-kaoto%22%5D)",
             "media": {
-              "image": "images/walkthrough/extension-settings.png",
+              "image": "assets/images/walkthrough/extension-settings.png",
               "altText": "Explore Extension Settings"
             },
             "completionEvents": [
@@ -262,7 +262,7 @@
             "title": "Create a new Citrus Test",
             "description": "Click the ``New Citrus Test...`` button inside Tests view to create a new Citrus Test.",
             "media": {
-              "image": "images/walkthrough/new-citrus-test.png",
+              "image": "assets/images/walkthrough/new-citrus-test.png",
               "altText": "New Citrus Test"
             },
             "completionEvents": [
@@ -274,7 +274,7 @@
             "title": "Run a Citrus Test(s)",
             "description": "Click the ``Run`` button inside Tests view to run a Citrus Test(s).",
             "media": {
-              "image": "images/walkthrough/run-citrus-test.png",
+              "image": "assets/images/walkthrough/run-citrus-test.png",
               "altText": "Run Citrus Test"
             },
             "completionEvents": [
@@ -287,7 +287,7 @@
             "title": "Check out the documentation",
             "description": "Check out the documentation to learn more about Kaoto.\n\n[Open Documentation](https://kaoto.io/docs/)",
             "media": {
-              "image": "images/logo-kaoto.png",
+              "image": "assets/images/logo-kaoto.png",
               "altText": "Check out the Documentation"
             },
             "completionEvents": [
@@ -319,8 +319,8 @@
         "enablement": "activeCustomEditorId == webviewEditorsKaoto",
         "category": "Kaoto",
         "icon": {
-          "dark": "./icons/commands/source_inactive_dark.png",
-          "light": "./icons/commands/source_inactive_light.png"
+          "dark": "./assets/icons/commands/source_inactive_dark.png",
+          "light": "./assets/icons/commands/source_inactive_light.png"
         }
       },
       {
@@ -329,7 +329,7 @@
         "shortTitle": "Close Source",
         "enablement": "(resourceFilename =~ /\\.(camel|kamelet|pipe).yaml$/ || resourceFilename =~ /\\-pipe.yaml$/ || resourceFilename =~ /\\.camel.xml$/ || resourceFilename =~ /\\.citrus(-test|-it|\\.test|\\.it)?\\.yaml$/)",
         "category": "Kaoto",
-        "icon": "./icons/commands/source_active.png"
+        "icon": "./assets/icons/commands/source_active.png"
       },
       {
         "command": "kaoto.new.camel.file",
@@ -379,8 +379,8 @@
         "title": "Deploy: File",
         "category": "Kaoto",
         "icon": {
-          "dark": "./icons/kubernetes/kube-dark.png",
-          "light": "./icons/kubernetes/kube-light.png"
+          "dark": "./assets/icons/kubernetes/kube-dark.png",
+          "light": "./assets/icons/kubernetes/kube-light.png"
         }
       },
       {
@@ -413,8 +413,8 @@
         "title": "Run: File",
         "category": "Kaoto",
         "icon": {
-          "dark": "./icons/kaoto-run/kaoto-run-dark.png",
-          "light": "./icons/kaoto-run/kaoto-run-light.png"
+          "dark": "./assets/icons/kaoto-run/kaoto-run-dark.png",
+          "light": "./assets/icons/kaoto-run/kaoto-run-light.png"
         }
       },
       {
@@ -1475,7 +1475,7 @@
         {
           "id": "kaoto-view",
           "title": "Kaoto",
-          "icon": "icons/kaoto.png"
+          "icon": "assets/icons/kaoto.png"
         }
       ]
     },
@@ -1485,14 +1485,14 @@
           "id": "kaoto.integrations",
           "name": "Integrations",
           "contextualTitle": "Kaoto",
-          "icon": "icons/kaoto.png",
+          "icon": "assets/icons/kaoto.png",
           "initialSize": 2
         },
         {
           "id": "kaoto.deployments",
           "name": "Deployments",
           "contextualTitle": "Kaoto",
-          "icon": "icons/kaoto.png",
+          "icon": "assets/icons/kaoto.png",
           "initialSize": 2,
           "when": "!virtualWorkspace"
         },
@@ -1500,21 +1500,21 @@
           "id": "kaoto.openapi",
           "name": "OpenAPI",
           "contextualTitle": "Kaoto",
-          "icon": "icons/kaoto.png",
+          "icon": "assets/icons/kaoto.png",
           "initialSize": 2
         },
         {
           "id": "kaoto.tests",
           "name": "Tests",
           "contextualTitle": "Kaoto",
-          "icon": "icons/kaoto.png",
+          "icon": "assets/icons/kaoto.png",
           "initialSize": 2
         },
         {
           "id": "kaoto.infrastructure",
           "name": "Infrastructure",
           "contextualTitle": "Kaoto",
-          "icon": "icons/kaoto.png",
+          "icon": "assets/icons/kaoto.png",
           "initialSize": 2,
           "when": "!virtualWorkspace"
         },
@@ -1522,7 +1522,7 @@
           "id": "kaoto.help",
           "name": "Help & Feedback",
           "contextualTitle": "Kaoto",
-          "icon": "icons/kaoto.png",
+          "icon": "assets/icons/kaoto.png",
           "initialSize": 1
         }
       ]

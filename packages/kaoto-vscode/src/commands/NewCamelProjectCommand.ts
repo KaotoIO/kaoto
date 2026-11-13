@@ -61,7 +61,10 @@ export class NewCamelProjectCommand {
 			await workspace.fs.createDirectory(Uri.file(path.join(outputFolder.fsPath, '.vscode')));
 			await Promise.all(
 				['tasks', 'launch'].map((filename) =>
-					this.copyFile(`../../resources/maven-export/${runtime}/${filename}.json`, path.join(outputFolder.fsPath, `.vscode/${filename}.json`)),
+					this.copyFile(
+						`../../assets/resources/maven-export/${runtime}/${filename}.json`,
+						path.join(outputFolder.fsPath, `.vscode/${filename}.json`),
+					),
 				),
 			);
 

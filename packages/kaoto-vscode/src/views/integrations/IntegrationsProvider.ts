@@ -274,7 +274,7 @@ export class IntegrationsProvider implements TreeDataProvider<TreeItem> {
 	 * @returns The icon
 	 */
 	private getIcon(type: IntegrationFileIconType): IntegrationFileIcon {
-		const basePath = join(this.extensionUriPath, 'icons', 'integrations');
+		const basePath = join(this.extensionUriPath, 'assets', 'icons', 'integrations');
 		switch (type) {
 			case 'kamelet':
 				return { light: Uri.file(join(basePath, 'kamelets-file-icon-light.png')), dark: Uri.file(join(basePath, 'kamelets-file-icon-dark.png')) };

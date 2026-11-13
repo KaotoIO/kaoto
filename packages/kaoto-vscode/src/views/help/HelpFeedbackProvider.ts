@@ -60,7 +60,7 @@ export class HelpFeedbackProvider implements TreeDataProvider<HelpFeedbackItem> 
 	}
 
 	private getIconPath(name: string): string {
-		return join(this.extensionUriPath, 'icons', 'help', name);
+		return join(this.extensionUriPath, 'assets', 'icons', 'help', name);
 	}
 }
 
