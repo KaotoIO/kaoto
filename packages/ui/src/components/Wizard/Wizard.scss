@@ -1,0 +1,34 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+
+.kaoto-wizard {
+  display: grid;
+  grid-template:
+    'steps body' minmax(0, 1fr)
+    'footer footer' auto
+    / 16rem minmax(0, 1fr);
+  column-gap: $spacing-09;
+  block-size: 100%;
+  min-block-size: 0;
+
+  &__steps {
+    grid-area: steps;
+  }
+
+  &__body {
+    grid-area: body;
+    min-block-size: 0;
+    overflow: auto;
+    padding-block-end: $spacing-05;
+  }
+
+  &__footer {
+    grid-area: footer;
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-05;
+    padding-block: $spacing-05;
+    /* stylelint-disable-next-line declaration-property-value-no-unknown */
+    border-block-start: 1px solid $border-subtle;
+  }
+}
