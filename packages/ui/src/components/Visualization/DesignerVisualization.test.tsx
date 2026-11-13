@@ -1,12 +1,15 @@
 import { isNode, Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
-import { render, screen, waitFor } from '@testing-library/react';
-import type { ReactElement } from 'react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { type ReactElement, useContext } from 'react';
 import type { MockInstance } from 'vitest';
 
+import { CamelRouteResource } from '../../models/camel';
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../models/visualization/flows';
 import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
-import { TestProvidersWrapper } from '../../stubs';
+import { EntitiesContext, EntitiesProvider, KaotoResourceContext, VisibleFlowsProvider } from '../../providers';
+import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../stubs';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { COLLAPSE_STATE } from './Canvas/collapse-handler-state';
 import { ControllerService } from './Canvas/controller.service';
@@ -122,7 +125,7 @@ describe('DesignerVisualization', () => {
     expect(getDrawnIds()).toEqual(expectedIds);
   });
 
-  it('does not show EmptyCanvas while viz nodes are resolving', async () => {
+  it('does not show the empty state overlay while viz nodes are resolving', async () => {
     await renderWithVisibleFlows(<DesignerVisualization entities={[entity]} />, map);
 
     /* The viz nodes are resolved asynchronously: nothing is drawn nor reported as empty yet */
@@ -134,12 +137,119 @@ describe('DesignerVisualization', () => {
     });
   });
 
-  it('shows EmptyCanvas when entities exist but no viz nodes after resolve', async () => {
+  it('shows the empty state overlay when entities exist but no viz nodes after resolve', async () => {
     await renderWithVisibleFlows(<DesignerVisualization entities={[entity]} />, { 'route-8888': false });
 
     const empty = await screen.findByTestId('visualization-empty-state');
-    /* The single existing entity is reported as hidden */
+    /* The single existing entity is reported as hidden, over an empty graph */
     expect(empty).toHaveTextContent('There are no visible routes');
-    expect(fromModelSpy).not.toHaveBeenCalled();
+    expect(empty.closest('.canvas-empty-state')).toBeInTheDocument();
+    expect(getDrawnIds()).toEqual({ nodeIds: [], edgeIds: [] });
+  });
+
+  describe('switching between the empty and the populated view', () => {
+    /** Renders the designer like the Design page does, with the real entities and visible flows providers */
+    async function renderDesigner(camelResource: CamelRouteResource) {
+      // jsdom has no viewport dimensions; keep the real node renderers mounted
+      controller.setRenderConstraint(false);
+      const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+      const kaotoResourceContext = { kaotoResource: camelResource };
+      const DesignView = () => <DesignerVisualization entities={useContext(EntitiesContext)!.visualEntities} />;
+
+      const result = render(
+        <RuntimeProvider>
+          <KaotoResourceContext.Provider value={kaotoResourceContext}>
+            <EntitiesProvider>
+              <VisibleFlowsProvider>
+                <VisualizationProvider controller={controller}>
+                  <DesignView />
+                </VisualizationProvider>
+              </VisibleFlowsProvider>
+            </EntitiesProvider>
+          </KaotoResourceContext.Provider>
+        </RuntimeProvider>,
+      );
+      // Let the entities provider finish initializing the resource, so the rendered view is settled
+      await act(() => new Promise((resolve) => setTimeout(resolve)));
+
+      const getCanvas = () => result.container.querySelector<HTMLElement>('#canvas-main');
+      // user.click() cannot be used on the graph: the d3 pan/drag handlers fail on mousedown in jsdom
+      const hideAllRoutes = async () => {
+        fireEvent.contextMenu(result.container.querySelector('[data-kind="graph"] > rect')!);
+        fireEvent.click(await screen.findByRole('menuitem', { name: 'Hide all' }));
+      };
+
+      return { ...result, getCanvas, hideAllRoutes };
+    }
+
+    it('keeps the same canvas and toolbar when all routes are hidden and shown again', async () => {
+      const user = userEvent.setup();
+      const { container, getCanvas, hideAllRoutes } = await renderDesigner(
+        new CamelRouteResource([{ route: { id: 'route-1', from: { uri: 'timer:one', steps: [] } } }]),
+      );
+      await waitFor(() => {
+        expect(container.querySelector('[data-kind="node"]')).toBeInTheDocument();
+      });
+      const canvas = getCanvas();
+
+      await hideAllRoutes();
+
+      expect(await screen.findByTestId('visualization-empty-state')).toBeInTheDocument();
+      expect(getCanvas()).toBe(canvas);
+
+      await user.click(screen.getByTestId('show-all-routes-button'));
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-kind="node"]')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
+      expect(getCanvas()).toBe(canvas);
+    });
+
+    it('keeps the canvas mounted while the first route resolves', async () => {
+      const { getCanvas } = await renderDesigner(new CamelRouteResource([]));
+      expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument();
+      const canvas = getCanvas();
+      expect(canvas).toBeInTheDocument();
+
+      /* The "New" button of the empty state adds a route of the current type */
+      fireEvent.click(screen.getByTestId('dsl-list-btn'));
+
+      /* The new route's viz nodes are still resolving */
+      expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
+      expect(getCanvas()).toBe(canvas);
+      expect(canvas).not.toHaveClass('canvas-uninitialized');
+    });
+
+    it('focuses the canvas after creating the first route from the empty state', async () => {
+      const user = userEvent.setup();
+      const { container, getCanvas } = await renderDesigner(new CamelRouteResource([]));
+
+      await user.click(screen.getByTestId('dsl-list-btn'));
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-kind="node"]')).toBeInTheDocument();
+      });
+      await waitFor(() => {
+        expect(getCanvas()).toHaveFocus();
+      });
+    });
+
+    it('focuses the canvas after showing all routes from the empty state', async () => {
+      const user = userEvent.setup();
+      const { container, getCanvas, hideAllRoutes } = await renderDesigner(
+        new CamelRouteResource([{ route: { id: 'route-1', from: { uri: 'timer:one', steps: [] } } }]),
+      );
+      await waitFor(() => {
+        expect(container.querySelector('[data-kind="node"]')).toBeInTheDocument();
+      });
+      await hideAllRoutes();
+
+      await user.click(await screen.findByTestId('show-all-routes-button'));
+
+      await waitFor(() => {
+        expect(getCanvas()).toHaveFocus();
+      });
+    });
   });
 });

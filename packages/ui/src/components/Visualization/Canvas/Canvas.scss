@@ -7,11 +7,19 @@
 
 .canvas-empty-state {
   position: absolute;
-  height: 100%;
-  width: 100%;
+  inset: 0;
+
+  /* Let clicks and right-clicks through to the graph background, except on the empty state card itself */
+  pointer-events: none;
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-card {
+    pointer-events: auto;
+  }
 }
 
-.hidden {
+/* The graph is drawn but not yet fitted to the view: keep it out of sight, not the toolbars around it */
+.canvas-uninitialized .pf-topology-visualization-surface {
   visibility: hidden;
 }
 

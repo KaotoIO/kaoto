@@ -36,6 +36,7 @@ import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
 import { SettingsContext } from '../../../providers/settings.provider';
 import { getInitialLayout } from '../../../utils/get-initial-layout';
 import useDeleteHotkey from '../Custom/hooks/delete-hotkey.hook';
+import { VisualizationEmptyState } from '../EmptyState';
 import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas-overlays';
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
@@ -50,6 +51,8 @@ interface CanvasProps {
   isModelResolving?: boolean;
   contextToolbar?: ReactNode;
   applyCollapseOnUpdate?: boolean;
+  /** Shows the empty state over the (empty) graph, keeping the canvas and its toolbars mounted */
+  emptyState?: { entitiesNumber: number };
 }
 
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
@@ -78,6 +81,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   isModelResolving = false,
   contextToolbar,
   applyCollapseOnUpdate = false,
+  emptyState,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
   const settingsLayout = useMemo(
@@ -288,14 +292,10 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
   }, [selectedVizNode]);
 
-  if (isModelResolving) {
-    return null;
-  }
-
   return (
     <TopologyView
       id={CanvasDefaults.CANVAS_MAIN_ID}
-      className={clsx({ hidden: !initialized })}
+      className={clsx({ 'canvas-uninitialized': !initialized })}
       defaultSideBarSize={sidebarWidth + 'px'}
       minSideBarSize="210px"
       onSideBarResize={setSidebarWidth}
@@ -314,6 +314,13 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
         value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}
       >
         <VisualizationSurface state={{ selectedIds }} />
+        {emptyState && !isModelResolving && (
+          <VisualizationEmptyState
+            className="canvas-empty-state"
+            data-testid="visualization-empty-state"
+            entitiesNumber={emptyState.entitiesNumber}
+          />
+        )}
       </CanvasOverlayContext.Provider>
     </TopologyView>
   );

@@ -3,7 +3,6 @@ import { FunctionComponent, ReactNode, useEffect, useMemo, useState } from 'reac
 import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
 import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
 import { Canvas, CanvasEdge, CanvasNode } from './Canvas';
-import { EmptyCanvas } from './Canvas/EmptyCanvas';
 import { FlowService } from './Canvas/flow.service';
 import { VisualizationShell } from './VisualizationShell';
 
@@ -60,14 +59,20 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
   }, [vizNodes, isResolving]);
 
   const { nodes, edges } = canvasModel;
-  const isEmpty = useMemo(() => nodes.length === 0 && edges.length === 0, [nodes, edges]);
+  const emptyState = useMemo(
+    () => (nodes.length === 0 && edges.length === 0 ? { entitiesNumber: 0 } : undefined),
+    [nodes, edges],
+  );
 
   return (
     <VisualizationShell className={className} fallback={fallback}>
-      {!isEmpty && (
-        <Canvas contextToolbar={contextToolbar} nodes={nodes} edges={edges} isModelResolving={isResolving} />
-      )}
-      {isEmpty && <EmptyCanvas entitiesNumber={0} isModelResolving={isResolving} contextToolbar={contextToolbar} />}
+      <Canvas
+        contextToolbar={contextToolbar}
+        nodes={nodes}
+        edges={edges}
+        isModelResolving={isResolving}
+        emptyState={emptyState}
+      />
     </VisualizationShell>
   );
 };

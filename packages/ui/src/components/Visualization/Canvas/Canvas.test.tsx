@@ -86,6 +86,23 @@ describe('Canvas', () => {
     expect(result.asFragment()).toMatchSnapshot();
   });
 
+  it('keeps the canvas and its toolbars in sight while the first model resolves', async () => {
+    const { Provider } = await TestProvidersWrapper();
+
+    const { container } = render(
+      <Provider>
+        <VisualizationProvider controller={ControllerService.createController()}>
+          <Canvas nodes={[]} edges={[]} isModelResolving contextToolbar={<button>Context toolbar</button>} />
+        </VisualizationProvider>
+      </Provider>,
+    );
+
+    expect(screen.getByRole('button', { name: 'Context toolbar' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Zoom In' })).toBeInTheDocument();
+    /* Only the graph waits for its first layout */
+    expect(container.querySelector('#canvas-main')).toHaveClass('canvas-uninitialized');
+  });
+
   it('should keep the selection listener registered while selection changes rerender the canvas', async () => {
     const { container, controller } = await renderCanvas();
     const addSpy = vi.spyOn(controller, 'addEventListener');

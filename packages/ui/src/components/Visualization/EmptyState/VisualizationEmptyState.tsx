@@ -16,6 +16,7 @@ import noDataIcon from '../../../assets/no-data.svg';
 import notFoundIcon from '../../../assets/not-found.svg';
 import { IDataTestID } from '../../../models';
 import { VisibleFlowsContext } from '../../../providers';
+import { focusCanvasAfterRender } from '../Canvas/canvas-focus';
 import { NewFlow } from './FlowType/NewFlow';
 
 interface IVisualizationEmptyState extends IDataTestID {
@@ -45,6 +46,7 @@ export const VisualizationEmptyState: FunctionComponent<IVisualizationEmptyState
               <Button
                 onClick={() => {
                   visibleFlowsContext.visualFlowsApi?.showFlows();
+                  focusCanvasAfterRender();
                 }}
                 data-testid="show-all-routes-button"
                 variant="control"

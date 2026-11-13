@@ -1,7 +1,7 @@
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 
 import { EntityType } from '../models/entities';
-import { BaseVisualEntityDefinition, BaseVisualEntityDefinitionItem } from '../models/kaoto-resource';
+import { BaseVisualEntityDefinitionItem } from '../models/kaoto-resource';
 import { VisibleFlowsContext } from '../providers/visible-flows.provider';
 import { useEntityContext } from './useEntityContext/useEntityContext';
 
@@ -12,9 +12,10 @@ export interface CanvasEntities {
 }
 
 export const useCanvasEntities = (): CanvasEntities => {
-  const { camelResource, updateEntitiesFromCamelResource } = useEntityContext();
+  const { camelResource, entities, updateEntitiesFromCamelResource } = useEntityContext();
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
-  const [groupedEntities] = useState<BaseVisualEntityDefinition>(() => camelResource.getCanvasEntityList());
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- entities signals that initialize() resolved the list
+  const groupedEntities = useMemo(() => camelResource.getCanvasEntityList(), [camelResource, entities]);
 
   const createEntity = useCallback(
     (entityType: EntityType) => {
