@@ -10,7 +10,7 @@
     }
 
     &[data-warning='true'] {
-      --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
+      --custom-node-BorderColor: var(--cds-support-error);
     }
 
     &__container {
