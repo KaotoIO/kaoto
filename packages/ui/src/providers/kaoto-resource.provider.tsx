@@ -63,7 +63,7 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
 
   if (!kaotoResource) {
     return (
-      <Loading>
+      <Loading fullPage>
         <Content data-testid="loading-kaoto-resource" component={ContentVariants.h3}>
           Loading Kaoto resource...
         </Content>

@@ -76,7 +76,7 @@ export const CatalogLoaderProvider: FunctionComponent<
   return (
     <>
       {loadingStatus === LoadingStatus.Loading && (
-        <Loading>
+        <Loading fullPage>
           <Content data-testid="loading-catalogs" component={ContentVariants.h3}>
             Loading Catalogs...
           </Content>

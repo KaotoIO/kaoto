@@ -107,7 +107,7 @@ export const RuntimeProvider: FunctionComponent<PropsWithChildren<IRuntimeProvid
   return (
     <RuntimeContext.Provider value={runtimeContext}>
       {loadingStatus === LoadingStatus.Loading && (
-        <Loading>
+        <Loading fullPage>
           <Content data-testid="loading-library" component={ContentVariants.h3}>
             Loading Library...
           </Content>
