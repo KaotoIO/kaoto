@@ -8,6 +8,7 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -51,6 +52,19 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
     reject: (error: unknown) => unknown;
   }>(undefined);
 
+  /**
+   * Canvas node that opened the catalog. PatternFly only returns focus to HTML elements when the modal closes,
+   * so focus is returned to SVG canvas nodes here.
+   */
+  const openerRef = useRef<SVGElement | null>(null);
+
+  useEffect(() => {
+    if (isModalOpen) return;
+    // Runs after the modal and its focus trap are unmounted
+    openerRef.current?.focus({ preventScroll: true });
+    openerRef.current = null;
+  }, [isModalOpen]);
+
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
     componentSelectionRef.current?.resolve(undefined);
@@ -58,6 +72,8 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
 
   const handleSelectComponent = useCallback(
     async (tile: ITile) => {
+      // A chosen component changes the canvas; focus then follows the new selection instead
+      openerRef.current = null;
       setIsModalOpen(false);
 
       const definition = await catalogRegistry.getEntity(tile.type as CatalogKind, tile.name, {
@@ -96,6 +112,7 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
         componentSelectionRef.current = { resolve, reject };
       });
 
+      openerRef.current = document.activeElement instanceof SVGElement ? document.activeElement : null;
       setIsModalOpen(true);
 
       return componentSelectorPromise;

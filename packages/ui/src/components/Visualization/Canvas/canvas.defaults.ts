@@ -30,5 +30,8 @@ export class CanvasDefaults {
 
   static readonly CANVAS_FIT_PADDING = 80;
 
+  /** Inset of the background menu opened from the keyboard, so it sits visibly inside the drawing surface */
+  static readonly KEYBOARD_MENU_INSET = 12;
+
   static readonly CANVAS_MAIN_ID = 'canvas-main';
 }

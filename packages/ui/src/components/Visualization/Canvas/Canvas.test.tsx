@@ -1,14 +1,16 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
-import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { act, fireEvent, render, RenderResult, screen, waitFor, within } from '@testing-library/react';
+import userEvent, { UserEvent } from '@testing-library/user-event';
+import { Fragment, FunctionComponent, PropsWithChildren, useState } from 'react';
 
-import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
+import { CatalogModalContext, CatalogModalProvider } from '../../../dynamic-catalog/catalog-modal.provider';
+import { CatalogTilesProvider } from '../../../dynamic-catalog/catalog-tiles.provider';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { CatalogKind } from '../../../models';
 import { CamelRouteResource, KameletResource } from '../../../models/camel';
+import { EntityType } from '../../../models/entities';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
 import { DefaultSettingsAdapter } from '../../../models/settings';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
@@ -212,8 +214,9 @@ describe('Canvas', () => {
       return { camelResource, canvasProps: getCanvasPropsFromVizNodes(vizNodes, 2) };
     }
 
-    async function renderTwoRoutes() {
+    async function renderTwoRoutes(Wrapper: FunctionComponent<PropsWithChildren> = Fragment) {
       const { camelResource, canvasProps } = await buildTwoRoutes();
+      const { canvasProps: withoutSecondLog } = await buildTwoRoutes([]);
       const { Provider } = await TestProvidersWrapper({ camelResource });
       const controller = ControllerService.createController();
       // jsdom has no viewport dimensions; keep the real node renderers mounted
@@ -221,9 +224,11 @@ describe('Canvas', () => {
 
       const renderWith = (props: typeof canvasProps) => (
         <Provider>
-          <VisualizationProvider controller={controller}>
-            <Canvas {...props} />
-          </VisualizationProvider>
+          <Wrapper>
+            <VisualizationProvider controller={controller}>
+              <Canvas {...props} />
+            </VisualizationProvider>
+          </Wrapper>
         </Provider>
       );
       const result = render(renderWith(canvasProps));
@@ -251,13 +256,14 @@ describe('Canvas', () => {
         fireEvent.click(result.container.querySelector('[data-kind="graph"] > rect')!);
         await flushFrames();
       };
+      // Deleting a step re-renders the canvas without it; the test model is not wired to the canvas props
       const deleteSecondLog = async () => {
-        result.rerender(renderWith((await buildTwoRoutes([])).canvasProps));
+        result.rerender(renderWith(withoutSecondLog));
         await flushFrames();
       };
 
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      return { ...result, user, focusStep, flushFrames, clickBackground, deleteSecondLog };
+      return { ...result, camelResource, user, focusStep, flushFrames, clickBackground, deleteSecondLog };
     }
 
     it('keeps focus on the selected step of its own route across repeated background clicks', async () => {
@@ -333,6 +339,352 @@ describe('Canvas', () => {
       await clickBackground();
 
       expect(container.querySelector('#canvas-main')).toHaveFocus();
+    });
+
+    describe('canvas context menus with the keyboard', () => {
+      const SHIFT_F10 = '{Shift>}{F10}{/Shift}';
+
+      beforeEach(() => {
+        // jsdom has no navigator.permissions, so the paste actions warn every time the step menu opens
+        vi.spyOn(console, 'warn').mockImplementation(() => {});
+      });
+
+      async function openSecondLogMenu(key = SHIFT_F10, Wrapper?: FunctionComponent<PropsWithChildren>) {
+        const rendered = await renderTwoRoutes(Wrapper);
+        const secondLog = rendered.focusStep('route-second', 'route.from.steps.0.log');
+        await rendered.user.keyboard(key);
+        await rendered.flushFrames();
+        const menu = screen.getByRole('menu', { name: 'Step actions' });
+        return { ...rendered, secondLog, menu, items: within(menu).getAllByRole('menuitem') };
+      }
+
+      it.each([SHIFT_F10, '{ContextMenu}'])(
+        'opens the step menu with %s and focuses its first enabled action',
+        async (key) => {
+          const { items } = await openSecondLogMenu(key);
+
+          expect(items[0]).toHaveFocus();
+        },
+      );
+
+      it('focuses the canvas when a menu opened by a right-click with nothing focused closes', async () => {
+        const { user, flushFrames, container } = await renderTwoRoutes();
+        expect(document.body).toHaveFocus();
+        fireEvent.contextMenu(container.querySelector('[data-kind="graph"] > rect')!);
+        await flushFrames();
+        const menu = screen.getByRole('menu', { name: 'Canvas actions' });
+
+        await user.keyboard('{Escape}');
+        await flushFrames();
+
+        expect(menu).not.toBeInTheDocument();
+        expect(container.querySelector('#canvas-main')).toHaveFocus();
+      });
+
+      it('opens the canvas menu with Shift+F10 on the canvas', async () => {
+        const { user, flushFrames, container } = await renderTwoRoutes();
+        await user.tab();
+        expect(container.querySelector('#canvas-main')).toHaveFocus();
+
+        await user.keyboard(SHIFT_F10);
+        await flushFrames();
+
+        const menu = screen.getByRole('menu', { name: 'Canvas actions' });
+        expect(within(menu).getByRole('menuitem', { name: 'Show all' })).toHaveFocus();
+      });
+
+      async function openCanvasMenuOnNew() {
+        const rendered = await renderTwoRoutes();
+        await rendered.user.tab();
+        await rendered.user.keyboard(SHIFT_F10);
+        await rendered.flushFrames();
+        await rendered.user.keyboard('{End}');
+        const menu = screen.getByRole('menu', { name: 'Canvas actions' });
+        const newItem = within(menu).getByRole('menuitem', { name: 'New' });
+        expect(newItem).toHaveFocus();
+        return { ...rendered, menu, newItem };
+      }
+
+      const menuItemOf = (testId: string) => within(screen.getByTestId(testId)).getByRole('menuitem');
+
+      it('announces New as a submenu and enters it with ArrowRight, Enter and Space', async () => {
+        const { user, newItem } = await openCanvasMenuOnNew();
+        expect(newItem).toHaveAttribute('aria-haspopup', 'menu');
+
+        for (const key of ['{ArrowRight}', '{Enter}', ' ']) {
+          expect(newItem).toHaveAttribute('aria-expanded', 'false');
+          await user.keyboard(key);
+
+          expect(newItem).toHaveAttribute('aria-expanded', 'true');
+          const subMenu = screen.getByRole('menu', { name: 'New' });
+          expect(within(subMenu).getAllByRole('menuitem')[0]).toHaveFocus();
+          await user.keyboard('{ArrowLeft}');
+        }
+      });
+
+      it('opens New with Space once the key is released, without choosing the first action', async () => {
+        const { user, flushFrames, camelResource, newItem } = await openCanvasMenuOnNew();
+        const routes = camelResource.getVisualEntities().length;
+
+        await user.keyboard('[Space>]');
+        expect(newItem).toHaveAttribute('aria-expanded', 'false');
+        await user.keyboard('[/Space]');
+        await flushFrames();
+
+        expect(newItem).toHaveAttribute('aria-expanded', 'true');
+        expect(menuItemOf('new-entity-route')).toHaveFocus();
+        expect(camelResource.getVisualEntities()).toHaveLength(routes);
+      });
+
+      it('leaves the submenu with ArrowLeft and Escape back to New', async () => {
+        const { user, flushFrames, menu, newItem } = await openCanvasMenuOnNew();
+
+        for (const key of ['{ArrowLeft}', '{Escape}']) {
+          await user.keyboard('{ArrowRight}');
+          expect(menuItemOf('new-entity-route')).toHaveFocus();
+
+          await user.keyboard(key);
+          await flushFrames();
+
+          expect(screen.queryByRole('menu', { name: 'New' })).not.toBeInTheDocument();
+          expect(newItem).toHaveAttribute('aria-expanded', 'false');
+          expect(newItem).toHaveFocus();
+          expect(menu).toBeInTheDocument();
+        }
+      });
+
+      it.each([
+        ['ArrowRight', (user: UserEvent) => user.keyboard('{ArrowRight}')],
+        ['a click on New', (user: UserEvent, newItem: HTMLElement) => user.click(newItem)],
+      ])('closes all menus on a click outside after entering New with %s', async (_, enterNew) => {
+        const { user, flushFrames, menu, newItem } = await openCanvasMenuOnNew();
+        await enterNew(user, newItem);
+        expect(menuItemOf('new-entity-route')).toHaveFocus();
+
+        await user.click(document.body);
+        await flushFrames();
+
+        expect(screen.queryByRole('menu', { name: 'New' })).not.toBeInTheDocument();
+        expect(menu).not.toBeInTheDocument();
+      });
+
+      it('closes all menus on a click outside while the pointer leaves the submenu', async () => {
+        const { user, flushFrames, container, menu, newItem } = await openCanvasMenuOnNew();
+        await user.click(newItem);
+        expect(menuItemOf('new-entity-route')).toHaveFocus();
+        const background = container.querySelector('[data-kind="graph"] > rect')!;
+
+        // In the browser, the submenu closed by the pointer leaving it may be removed only after the outside mousedown
+        // d3 cannot handle a mousedown on the graph in jsdom; the click lands on the page instead
+        fireEvent.mouseDown(document.body);
+        fireEvent.mouseLeave(newItem, { relatedTarget: background });
+        fireEvent.click(document.body);
+        await flushFrames();
+
+        expect(screen.queryByRole('menu', { name: 'New' })).not.toBeInTheDocument();
+        expect(menu).not.toBeInTheDocument();
+      });
+
+      it.each([
+        ['ArrowRight', (user: UserEvent) => user.keyboard('{ArrowRight}')],
+        ['a click on New', (user: UserEvent, newItem: HTMLElement) => user.click(newItem)],
+      ])('opens a new canvas menu on a right-click after entering New with %s', async (_, enterNew) => {
+        const { user, flushFrames, container, menu, newItem } = await openCanvasMenuOnNew();
+        await enterNew(user, newItem);
+        expect(menuItemOf('new-entity-route')).toHaveFocus();
+
+        // A right-click is a mousedown outside the menu, followed by the contextmenu event
+        fireEvent.mouseDown(document.body);
+        fireEvent.contextMenu(container.querySelector('[data-kind="graph"] > rect')!);
+        await flushFrames();
+
+        expect(menu).not.toBeInTheDocument();
+        const newMenu = screen.getByRole('menu', { name: 'Canvas actions' });
+        expect(within(newMenu).getByRole('menuitem', { name: 'Show all' })).toHaveFocus();
+      });
+
+      it('closes all menus on a click on an action that does not take the focus out of the submenu', async () => {
+        const { user, flushFrames, menu } = await openCanvasMenuOnNew();
+        await user.keyboard('{ArrowRight}');
+        expect(menuItemOf('new-entity-route')).toHaveFocus();
+
+        // Firefox and Safari do not focus a clicked button
+        fireEvent.click(within(menu).getByRole('menuitem', { name: 'Show all' }));
+        await flushFrames();
+
+        expect(screen.queryByRole('menu', { name: 'New' })).not.toBeInTheDocument();
+        expect(menu).not.toBeInTheDocument();
+      });
+
+      it('creates a route from the keyboard via New ▸ Route', async () => {
+        const { user, flushFrames, container, camelResource, menu } = await openCanvasMenuOnNew();
+        const routes = camelResource.getVisualEntities().length;
+
+        await user.keyboard('{ArrowRight}{End}{Home}');
+        expect(menuItemOf('new-entity-route')).toHaveFocus();
+        await user.keyboard('{Enter}');
+        await flushFrames();
+
+        expect(camelResource.getVisualEntities()).toHaveLength(routes + 1);
+        expect(menu).not.toBeInTheDocument();
+        expect(container.querySelector('#canvas-main')).toHaveFocus();
+      });
+
+      it('creates a grouped entity with the keyboard and the mouse', async () => {
+        const { user, flushFrames, container, camelResource, menu } = await openCanvasMenuOnNew();
+        const countRouteConfigurations = () =>
+          camelResource.getEntities().filter(({ type }) => type === EntityType.RouteConfiguration).length;
+
+        await user.keyboard('{ArrowRight}');
+        const configuration = within(screen.getByRole('menu', { name: 'New' })).getByRole('menuitem', {
+          name: 'Configuration',
+        });
+        await user.keyboard('{ArrowDown}');
+        expect(configuration).toHaveFocus();
+        await user.keyboard('{Enter}');
+        expect(menuItemOf('new-entity-routeConfiguration')).toHaveFocus();
+        await user.keyboard('{Enter}');
+        await flushFrames();
+
+        expect(countRouteConfigurations()).toBe(1);
+        expect(menu).not.toBeInTheDocument();
+        expect(container.querySelector('#canvas-main')).toHaveFocus();
+
+        await user.keyboard(SHIFT_F10);
+        await flushFrames();
+        await user.hover(
+          within(screen.getByRole('menu', { name: 'Canvas actions' })).getByRole('menuitem', { name: 'New' }),
+        );
+        await user.hover(screen.getByRole('menuitem', { name: 'Configuration' }));
+        await user.click(menuItemOf('new-entity-routeConfiguration'));
+        await flushFrames();
+
+        expect(countRouteConfigurations()).toBe(2);
+        expect(screen.queryByRole('menu', { name: 'Canvas actions' })).not.toBeInTheDocument();
+      });
+
+      it('separates the step actions with list items', async () => {
+        const { menu } = await openSecondLogMenu();
+
+        expect(within(menu).getAllByRole('separator').length).toBeGreaterThan(0);
+        expect(menu.querySelectorAll(':scope > :not(li)')).toHaveLength(0);
+      });
+
+      it('moves between actions with the arrow keys, Home and End', async () => {
+        const { user, items } = await openSecondLogMenu();
+
+        await user.keyboard('{ArrowDown}');
+        expect(items[1]).toHaveFocus();
+        await user.keyboard('{ArrowUp}');
+        expect(items[0]).toHaveFocus();
+        await user.keyboard('{End}');
+        expect(items.at(-1)).toHaveFocus();
+        await user.keyboard('{Home}');
+        expect(items[0]).toHaveFocus();
+      });
+
+      it.each(['{Escape}', '{Tab}'])('returns focus to the step on %s', async (key) => {
+        const { user, flushFrames, secondLog, menu, items } = await openSecondLogMenu();
+        expect(items[0]).toHaveFocus();
+
+        await user.keyboard(key);
+        await flushFrames();
+
+        expect(menu).not.toBeInTheDocument();
+        expect(secondLog).toHaveFocus();
+      });
+
+      it('returns focus to the step as soon as an action is chosen, so a dialog the action opens can return to it', async () => {
+        const { user, secondLog, menu } = await openSecondLogMenu();
+        const copy = within(menu).getByRole('menuitem', { name: 'Copy' });
+        act(() => {
+          copy.focus();
+        });
+        // Hold back the next frame: a dialog like the catalog opens before it and takes the focus
+        vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0);
+
+        await user.keyboard('{Enter}');
+
+        expect(menu).not.toBeInTheDocument();
+        expect(secondLog).toHaveFocus();
+      });
+
+      it('returns focus to the step when a click outside lands on nothing focusable', async () => {
+        const { user, flushFrames, secondLog, menu, items } = await openSecondLogMenu();
+        expect(items[0]).toHaveFocus();
+
+        await user.click(document.body);
+        await flushFrames();
+
+        expect(menu).not.toBeInTheDocument();
+        expect(secondLog).toHaveFocus();
+      });
+
+      it('leaves focus on a focusable element that a click outside landed on', async () => {
+        const { user, flushFrames, menu } = await openSecondLogMenu();
+        const zoomIn = screen.getByRole('button', { name: 'Zoom In' });
+
+        await user.click(zoomIn);
+        await flushFrames();
+
+        expect(menu).not.toBeInTheDocument();
+        expect(zoomIn).toHaveFocus();
+      });
+
+      it('closes only the menu on Escape while the properties are open', async () => {
+        const { user, flushFrames, focusStep } = await renderTwoRoutes();
+        focusStep('route-second', 'route.from.steps.0.log');
+        await user.keyboard('{Enter}');
+        expect(await screen.findByTestId('close-side-bar')).toBeInTheDocument();
+        focusStep('route-second', 'route.from.steps.0.log');
+        await user.keyboard(SHIFT_F10);
+        await flushFrames();
+        const menu = screen.getByRole('menu', { name: 'Step actions' });
+        expect(within(menu).getAllByRole('menuitem')[0]).toHaveFocus();
+
+        await user.keyboard('{Escape}');
+        await flushFrames();
+
+        expect(menu).not.toBeInTheDocument();
+        expect(screen.getByTestId('close-side-bar')).toBeInTheDocument();
+      });
+
+      it('focuses the canvas when the action removed the step', async () => {
+        const { user, container, deleteSecondLog, menu } = await openSecondLogMenu();
+        const deleteItem = within(menu).getByRole('menuitem', { name: 'Delete' });
+
+        await user.keyboard('{End}');
+        expect(deleteItem).toHaveFocus();
+        // The app re-renders the canvas without the step before the next frame; user.keyboard() would let it pass
+        fireEvent.keyDown(deleteItem, { key: 'Enter' });
+        await deleteSecondLog();
+
+        expect(menu).not.toBeInTheDocument();
+        expect(container.querySelector('#canvas-main')).toHaveFocus();
+      });
+
+      it('keeps focus in a dialog opened by the action', async () => {
+        setupDynamicCatalogRegistry(await getFirstCatalogMap(catalogLibrary as CatalogLibrary));
+        onTestFinished(() => {
+          DynamicCatalogRegistry.get().clearRegistry();
+        });
+        const CatalogModal: FunctionComponent<PropsWithChildren> = ({ children }) => (
+          <CatalogTilesProvider>
+            <CatalogModalProvider>{children}</CatalogModalProvider>
+          </CatalogTilesProvider>
+        );
+        const { user, flushFrames, menu } = await openSecondLogMenu(SHIFT_F10, CatalogModal);
+        const replaceItem = within(menu).getByRole('menuitem', { name: 'Replace' });
+
+        await user.keyboard('{End}{ArrowUp}');
+        expect(replaceItem).toHaveFocus();
+        await user.keyboard('{Enter}');
+        const dialog = await screen.findByRole('dialog');
+        await flushFrames();
+
+        expect(menu).not.toBeInTheDocument();
+        expect(dialog).toContainElement(document.activeElement as HTMLElement);
+      });
     });
   });
 

@@ -5,6 +5,11 @@
   }
 }
 
+/* Keep the focus ring of the canvas clear of the toolbar buttons and the drawing surface */
+#canvas-main:focus-visible {
+  outline-offset: 5px;
+}
+
 .canvas-empty-state {
   position: absolute;
   inset: 0;

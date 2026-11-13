@@ -273,6 +273,19 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     (event: React.KeyboardEvent) => {
       if (event.key === 'Escape') {
         clearSelection();
+      } else if (
+        ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') &&
+        event.target === event.currentTarget
+      ) {
+        event.preventDefault();
+        // Open the background menu like a right-click would, near the top-left corner of the visible graph
+        const { left, top } = event.currentTarget.querySelector('.pf-topology-content')!.getBoundingClientRect();
+        const inset = CanvasDefaults.KEYBOARD_MENU_INSET;
+        event.currentTarget
+          .querySelector('[data-kind="graph"] > rect')
+          ?.dispatchEvent(
+            new MouseEvent('contextmenu', { bubbles: true, clientX: left + inset, clientY: top + inset }),
+          );
       }
     },
     [clearSelection],

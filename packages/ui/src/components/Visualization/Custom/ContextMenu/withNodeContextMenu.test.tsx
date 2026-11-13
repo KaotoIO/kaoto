@@ -1,5 +1,6 @@
 import { ContextMenuItem, WithContextMenuProps } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import type { Mock } from 'vitest';
 
@@ -133,6 +134,59 @@ describe('withNodeContextMenu', () => {
     expect(item).not.toBeInTheDocument();
     expect(await screen.findByTestId('item-b')).toBeInTheDocument();
     expect(actions).toHaveBeenCalledTimes(2);
+  });
+
+  it('focuses the first enabled action and skips disabled ones with the arrow keys, Home and End', async () => {
+    const createDisabledItem = (id: string, label: string) => (
+      <ContextMenuItem key={id} data-testid={id} isDisabled>
+        {label}
+      </ContextMenuItem>
+    );
+    const actions = vi
+      .fn()
+      .mockReturnValue([
+        createDisabledItem('disabled-first', 'Disabled first'),
+        itemA,
+        createDisabledItem('disabled-middle', 'Disabled middle'),
+        itemB,
+        createDisabledItem('disabled-last', 'Disabled last'),
+      ]);
+    const { target } = renderWithMenu(actions);
+    const user = userEvent.setup();
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    await settle();
+    const menu = screen.getByRole('menu', { name: 'Step actions' });
+    const itemAButton = within(menu).getByRole('menuitem', { name: 'Item A' });
+    const itemBButton = within(menu).getByRole('menuitem', { name: 'Item B' });
+    expect(itemAButton).toHaveFocus();
+
+    await user.keyboard('{ArrowDown}');
+    expect(itemBButton).toHaveFocus();
+    await user.keyboard('{ArrowUp}');
+    expect(itemAButton).toHaveFocus();
+    await user.keyboard('{End}');
+    expect(itemBButton).toHaveFocus();
+    await user.keyboard('{Home}');
+    expect(itemAButton).toHaveFocus();
+  });
+
+  it('names the menu with the given label', async () => {
+    const actions = vi.fn().mockReturnValue([itemA]);
+    const controller = ControllerService.createController();
+    controller.fromModel({ graph: { id: 'g1', type: 'graph' }, nodes: [{ id: 'node-1', type: 'node' }] }, false);
+    const WithMenu = withNodeContextMenu(actions, { label: 'Route actions' })(Target);
+    render(
+      <TopologyElementWrapper controller={controller} element={controller.getNodeById('node-1')!}>
+        <WithMenu />
+      </TopologyElementWrapper>,
+    );
+
+    fireEvent.contextMenu(screen.getByTestId('target'), { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+
+    expect(screen.getByRole('menu', { name: 'Route actions' })).toBeInTheDocument();
   });
 
   it('closes on Escape', async () => {
