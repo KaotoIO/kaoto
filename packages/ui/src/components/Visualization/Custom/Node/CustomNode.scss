@@ -6,7 +6,7 @@
     @include custom.interaction-indicator('.custom-node__indicator');
 
     &[data-warning='true'] {
-      --custom-node-BorderColor: var(--pf-t--global--border--color--status--danger--default);
+      --custom-node-BorderColor: var(--cds-support-error);
     }
 
     &__container {
@@ -92,7 +92,7 @@
           border-radius: calc(var(--custom-node-BorderRadius) * 0.4);
 
           &__error {
-            color: var(--custom-node-BorderColor);
+            color: var(--cds-support-error);
           }
         }
 
