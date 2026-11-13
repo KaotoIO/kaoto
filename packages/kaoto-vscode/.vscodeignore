@@ -3,6 +3,7 @@
 .vscode-test*
 out/**
 out-unit-tests/**
+coverage/**
 src/**
 test/**
 .gitignore
@@ -31,3 +32,4 @@ assets/resources/whats-new/2.8/**
 assets/resources/whats-new/2.9/**
 assets/resources/whats-new/2.10/**
 assets/resources/whats-new/2.11/**
+assets/resources/whats-new/2.12/**
