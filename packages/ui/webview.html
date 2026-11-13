@@ -1,4 +1,10 @@
 <!doctype html>
+<!--
+  The page of the Kaoto editor webview, for both modes of the VS Code extension. It is a regular page for the Vite dev
+  server, which serves it during development. Webpack copies it next to the bundle (dist/webview) for production.
+  KaotoEditorProvider fills its values in both modes (utils/WebviewHtml.ts): in production, the bundle replaces the
+  dev stylesheet and script below.
+-->
 <html lang="en">
 
 <head>
@@ -6,7 +12,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Content-Security-Policy" content="__KAOTO_CSP__" />
   <title>Kaoto</title>
-  <!-- The editor styles only arrive once its modules load: this stylesheet draws the loader below meanwhile -->
+  <!--
+    Linked before the editor module, so the loader below is styled from the first frame: `webview-shell.scss` with
+    the Vite dev server, where the editor styles only arrive with its modules, and the editor stylesheet in production.
+  -->
   <link rel="stylesheet" href="/src/webview/webview-shell.scss" />
   <style>
     /* The editor stylesheet reserves space for a standalone header. The webview fills its panel. */
@@ -26,7 +35,7 @@
 
     /*
      * Mirrors the full page Loading component of the UI with Carbon classes and tokens only, so the loader does not
-     * change when the editor takes over. The Carbon styles come from `webview-shell.scss`.
+     * change when the editor takes over. The Carbon styles come from the stylesheet linked above.
      */
     .kaoto-loading {
       box-sizing: border-box;
