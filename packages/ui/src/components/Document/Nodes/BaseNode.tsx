@@ -128,6 +128,11 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
       )}
 
       {isExpandable ? (
+        /*
+         * A native button on purpose: Carbon `IconButton` is at least 24px and always adds a tooltip, which does not
+         * fit the 16px chevron slot the rank guide lines align to, and PatternFly `Button` is being phased out.
+         * Carbon's own TreeView renders this toggle as a clickable span; a button keeps it semantic.
+         */
         <button
           type="button"
           className="node__expand"
