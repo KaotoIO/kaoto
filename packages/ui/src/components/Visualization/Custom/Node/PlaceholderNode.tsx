@@ -276,21 +276,25 @@ const PlaceholderContent: FunctionComponent<PlaceholderContentProps> = observer(
         )}
 
         {/** The dummy placeholder node that appears when dragging the group/node */}
+        {/** WebKit can omit foreignObject backgrounds with direct opacity; composite its SVG wrapper instead. */}
         {dndDropProps.droppable && isDraggingGroupType && isDraggingWithinGroup && (
-          <foreignObject
-            data-nodelabel={label}
-            width={boxRef.current.width}
-            height={boxRef.current.height}
-            transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y}) ${getDragPreviewTransform(boxRef.current.width, boxRef.current.height)}`}
-            opacity={0.5}
-          >
-            <PlaceholderNodeContainer {...containerProps} />
-          </foreignObject>
+          <g opacity={0.5}>
+            <foreignObject
+              data-nodelabel={label}
+              width={boxRef.current.width}
+              height={boxRef.current.height}
+              transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y}) ${getDragPreviewTransform(boxRef.current.width, boxRef.current.height)}`}
+            >
+              <PlaceholderNodeContainer {...containerProps} />
+            </foreignObject>
+          </g>
         )}
 
-        {/** Label for the dummy node when dragging within group */}
+        {/** Label for the dummy node when dragging within group; dimmed like the dummy node */}
         {updatedLabel && dndDropProps.droppable && isDraggingWithinGroup && (
-          <PlaceholderNodeLabel label={updatedLabel} x={labelX} y={labelY} transform={labelTransform} />
+          <g opacity={0.5}>
+            <PlaceholderNodeLabel label={updatedLabel} x={labelX} y={labelY} transform={labelTransform} />
+          </g>
         )}
 
         {/** Label for all other cases (not dragging, or dragging outside group) */}

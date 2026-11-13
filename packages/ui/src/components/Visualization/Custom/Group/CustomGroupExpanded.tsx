@@ -48,6 +48,7 @@ import {
 } from '../customComponentUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
+import { getGroupIndicatorBounds, INDICATOR_RADIUS } from '../interaction-indicator';
 import { CustomNodeContainer } from '../Node/CustomNodeContainer';
 import {
   checkNodeDropCompatibility,
@@ -58,9 +59,7 @@ import {
 import { TargetAnchor } from '../target-anchor';
 import { CustomGroupProps } from './Group.models';
 
-// The 3px stroke is centered 2px outside the group, matching the former HTML outline.
-const FOCUS_RING_OFFSET = 3.5;
-// Keep shadows inside a clipped foreignObject so WebKit repaints their old bounds.
+// Spare room around the body inside the clipped foreignObject so WebKit repaints its old bounds when it moves.
 const GROUP_PAINT_PADDING = 24;
 
 interface CustomGroupExpandedInnerProps extends CustomGroupProps {
@@ -190,6 +189,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
       draggedVizNode?.getId() === groupVizNode.getId() &&
       isDefined(draggedVizNodePath) &&
       (groupVizNode.data.path?.startsWith(draggedVizNodePath + '.') ?? false);
+    const isDragged = isDraggingGroup || refreshGroup;
 
     const dropDirection: 'forward' | 'backward' | null =
       dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode
@@ -197,7 +197,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
         : null;
 
     const mainContainerClassNames = {
-      [`custom-group__container__draggedGroup`]: isDraggingGroup || refreshGroup,
+      [`custom-group__container__draggedGroup`]: isDragged,
       ...getDropTargetContainerClassNames('custom-group__container', dropDirection, dndDropProps.hover),
     };
 
@@ -205,6 +205,8 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
     if (!dndDropProps.droppable || !boxRef.current) {
       boxRef.current = box;
     }
+
+    const indicatorBounds = getGroupIndicatorBounds(boxRef.current);
 
     const toolbar = useCanvasToolbarTarget(
       element,
@@ -227,6 +229,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           data-disabled={isDisabled}
           data-toolbar-open={toolbar.isOpen}
           data-warnings={doesHaveWarnings}
+          data-dragging={isDragged}
           tabIndex={selected ? 0 : -1}
           role="button"
           aria-label={label ?? groupVizNode.id}
@@ -235,15 +238,9 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
+          {/* Hover, selection and focus are drawn in SVG behind the body, so the body keeps its look */}
+          <rect className="custom-group__indicator" aria-hidden="true" rx={INDICATOR_RADIUS} {...indicatorBounds} />
           <CanvasNodeOverlays overlays={overlays} bounds={boxRef.current} />
-          <rect
-            className="custom-group__focus-ring"
-            aria-hidden="true"
-            x={boxRef.current.x - FOCUS_RING_OFFSET}
-            y={boxRef.current.y - FOCUS_RING_OFFSET}
-            width={boxRef.current.width + 2 * FOCUS_RING_OFFSET}
-            height={boxRef.current.height + 2 * FOCUS_RING_OFFSET}
-          />
           <rect
             ref={dndDropRef}
             className="custom-group__drop-area"
@@ -257,7 +254,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           />
           {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}
           {/** WebKit can omit foreignObject backgrounds with direct opacity; composite its SVG wrapper instead. */}
-          <g opacity={isDraggingGroup || refreshGroup ? 0.5 : undefined}>
+          <g opacity={isDragged ? 0.5 : undefined}>
             <foreignObject
               className="custom-group__body"
               data-nodelabel={label}
@@ -305,6 +302,22 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                 </div>
               </div>
             </foreignObject>
+            {/* Inside the dimmed wrapper, so the badge fades with the body while the group is dragged */}
+            {doesHaveWarnings && !isDisabled && (
+              <foreignObject
+                className="custom-group__warning-icon--floating"
+                x={boxRef.current.x - 7}
+                y={boxRef.current.y - 7}
+                width={25}
+                height={25}
+              >
+                <FloatingCircle>
+                  <Icon status="danger" className="custom-group__warning-icon" title={validationText}>
+                    <WarningFilled />
+                  </Icon>
+                </FloatingCircle>
+              </foreignObject>
+            )}
           </g>
 
           {/** This is the dragged node which is being moved */}
@@ -330,22 +343,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                 isDragging
               />
             </Layer>
-          )}
-
-          {doesHaveWarnings && !isDisabled && (
-            <foreignObject
-              className="custom-group__warning-icon--floating"
-              x={boxRef.current.x - 7}
-              y={boxRef.current.y - 7}
-              width={25}
-              height={25}
-            >
-              <FloatingCircle>
-                <Icon status="danger" className="custom-group__warning-icon" title={validationText}>
-                  <WarningFilled />
-                </Icon>
-              </FloatingCircle>
-            </foreignObject>
           )}
         </g>
       </Layer>
