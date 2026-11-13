@@ -202,6 +202,35 @@ jobs:
       (github.event_name != 'pull_request' || github.base_ref == 'main')
     uses: ./.github/workflows/chromatic.yml
 
+  # Main's runs save new entries whenever a key changes, and no run reads the entries they replace again. Those stay
+  # until 7 days pass or the repository's caches go over 10 GB, when GitHub evicts the least recently read entries,
+  # which can also be a current one that few runs read, such as a UI test group's downloads. After the jobs that
+  # save, this keeps the newest entry of each cache on the pushed branch, a cache being its key without the last
+  # part, and deletes the others.
+  prune-caches:
+    name: Prune caches
+    needs: [packages, vscode, e2e, chromatic]
+    if: github.event_name == 'push' && !cancelled()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Delete the replaced entries
+        # bash adds pipefail, so the job fails when the entries can't be listed.
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REF: ${{ github.ref }}
+        run: |
+          gh cache list --ref "$REF" --limit 1000 --json id,key,createdAt \
+            --jq 'group_by(.key | sub("-[^-]+$"; "")) | map(sort_by(.createdAt) | .[:-1]) | flatten | .[] | "\(.id) \(.key)"' |
+            while read -r id key; do
+              echo "Deleting $key"
+              gh cache delete "$id" || echo "::warning::Could not delete $key, which GitHub may have evicted already"
+            done
+
   # Keep the existing required check name, including on documentation-only PRs.
   build:
     needs: [commitlint, changes, packages, vscode, e2e, chromatic]
