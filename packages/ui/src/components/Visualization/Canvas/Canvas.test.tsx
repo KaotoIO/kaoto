@@ -264,8 +264,12 @@ describe('Canvas', () => {
         });
         return step(routeId, path);
       };
-      // user.click() cannot be used on the graph: the d3 pan/drag handlers fail on mousedown in jsdom
+      // user.click() cannot be used on the graph: the d3 pan/drag handlers fail on mousedown in jsdom.
+      // A real mousedown on the background moves the focus to the canvas first, so the click has to restore it.
       const clickBackground = async () => {
+        act(() => {
+          result.container.querySelector<HTMLElement>('#canvas-main')!.focus();
+        });
         fireEvent.click(result.container.querySelector('[data-kind="graph"] > rect')!);
         await flushFrames();
       };
