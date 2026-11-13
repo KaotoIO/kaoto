@@ -69,7 +69,7 @@ export const SchemasLoaderProvider: FunctionComponent<PropsWithChildren> = (prop
   return (
     <SchemasContext.Provider value={schemas}>
       {loadingStatus === LoadingStatus.Loading && (
-        <Loading>
+        <Loading fullPage>
           <Content data-testid="loading-schemas" component={ContentVariants.h3}>
             Loading Schemas...
           </Content>

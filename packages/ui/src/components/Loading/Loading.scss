@@ -7,6 +7,11 @@
   gap: $spacing-05;
   padding: $spacing-07;
   min-block-size: 200px;
+
+  &--full-page {
+    box-sizing: border-box;
+    min-block-size: 100vh;
+  }
 }
 
 .loading-small {
