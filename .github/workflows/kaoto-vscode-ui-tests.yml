@@ -51,10 +51,10 @@ jobs:
       # group caches both for its OS under a key made of the Camel catalog package, whose catalogs decide the Camel
       # versions the extension asks for, and the pom.xml files of the test projects. A new key starts from an empty
       # repository rather than an older entry, since Maven never removes what a group no longer uses. A group without
-      # JBang downloads nothing there.
+      # JBang downloads nothing there, and the nightly's scheduled run downloads everything again.
       - name: Restore Maven and JBang downloads
         id: downloads
-        if: matrix.jbang
+        if: matrix.jbang && github.event_name != 'schedule'
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |

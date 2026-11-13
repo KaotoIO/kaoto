@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+# The workflows called here see the schedule event, and their jobs restore no cache for it: they install node_modules
+# and the Cypress binary and download the UI test groups' Maven and JBang artifacts from the registries. Every other
+# run restores them, and a hit never asks the registries, so a package or artifact that disappears upstream fails the
+# nightly instead of the next release. A nightly started by hand uses the caches.
 jobs:
   ui-e2e:
     name: UI E2E (all browsers)
