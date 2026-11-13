@@ -283,6 +283,29 @@ describe('EntitiesProvider', () => {
     );
   });
 
+  it('should refresh visual entities without updating source code', async () => {
+    const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
+
+    await waitFor(() => {
+      expect(result.current?.entities).toBeDefined();
+    });
+
+    act(() => {
+      result.current?.camelResource.addNewEntity();
+      result.current?.updateEntitiesFromCamelResource();
+    });
+
+    const entitiesBefore = result.current?.visualEntities;
+    expect(entitiesBefore).toHaveLength(1);
+
+    act(() => {
+      result.current?.refreshVisualEntities();
+    });
+
+    expect(result.current?.visualEntities).toHaveLength(1);
+    expect(result.current?.visualEntities).not.toBe(entitiesBefore);
+  });
+
   it(`should store code's comments`, async () => {
     const code = `# This is a comment
 #     An indented comment

@@ -36,6 +36,7 @@ import { CamelTask } from '../../tasks/CamelTask';
 import { confirmFileDeleteDialog } from '../../utils/Modals';
 import { KaotoOutputChannel } from '../KaotoOutputChannel';
 import { sendCommandTrackingEvent } from './TrackingEvent';
+import { TestReportEvents } from '../../services/TestReportEvents';
 import { IRegistrar } from './IRegistrar';
 
 export class TestsRegistrar implements IRegistrar {
@@ -124,6 +125,8 @@ export class TestsRegistrar implements IRegistrar {
 	}
 
 	private async executeTestRun(testFilePaths: string[], createTask: () => Promise<CamelTask>, progressMessage: string): Promise<void> {
+		TestReportEvents.instance.fireTestRunStarted(testFilePaths);
+
 		for (const testPath of testFilePaths) {
 			this.testsProvider.setTestRunning(testPath, true);
 		}
@@ -132,13 +135,12 @@ export class TestsRegistrar implements IRegistrar {
 			const runTask = await createTask();
 			await runTask.executeAndWaitWithProgress(progressMessage);
 
-			const results = await Promise.all(testFilePaths.map((testPath) => this.testsProvider.readTestResult(testPath)));
-			testFilePaths.forEach((testPath, index) => this.testsProvider.setTestResult(testPath, results[index]));
+			const results = await Promise.all(testFilePaths.map((p) => this.testsProvider.readTestResult(p)));
+			results.forEach((testResult, i) => this.testsProvider.setTestResult(testFilePaths[i], testResult));
 		} catch {
-			for (const testPath of testFilePaths) {
-				this.testsProvider.setTestResult(testPath, 'failure');
-			}
+			testFilePaths.forEach((p) => this.testsProvider.setTestResult(p, 'failure'));
 		} finally {
+			TestReportEvents.instance.fireTestReportReady(testFilePaths);
 			for (const testPath of testFilePaths) {
 				this.testsProvider.setTestRunning(testPath, false);
 			}

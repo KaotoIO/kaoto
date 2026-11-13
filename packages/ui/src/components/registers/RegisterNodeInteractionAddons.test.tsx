@@ -38,6 +38,7 @@ describe('RegisterNodeInteractionAddons', () => {
     getSuggestions: vi.fn(),
     shouldSaveSchema: false,
     onStepUpdated: vi.fn(),
+    getTestReport: vi.fn().mockResolvedValue(undefined),
   };
 
   beforeEach(() => {

@@ -30,6 +30,13 @@ export interface EntitiesContextResult {
    * just the entities
    */
   updateEntitiesFromCamelResource: () => void;
+
+  /**
+   * Force React to re-render the visualization tree without
+   * regenerating source code. Use after mutating entity state
+   * (e.g. applying test reports) that doesn't change the YAML.
+   */
+  refreshVisualEntities: () => void;
 }
 
 export const EntitiesContext = createContext<EntitiesContextResult | null>(null);
@@ -81,6 +88,10 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
     updateSourceCodeFromEntities();
   }, [kaotoResource, updateSourceCodeFromEntities]);
 
+  const refreshVisualEntities = useCallback(() => {
+    setVisualEntities([...kaotoResource.getVisualEntities()]);
+  }, [kaotoResource]);
+
   const value = useMemo(
     () => ({
       entities,
@@ -89,8 +100,16 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
       camelResource: kaotoResource,
       updateEntitiesFromCamelResource,
       updateSourceCodeFromEntities,
+      refreshVisualEntities,
     }),
-    [entities, visualEntities, kaotoResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
+    [
+      entities,
+      visualEntities,
+      kaotoResource,
+      updateEntitiesFromCamelResource,
+      updateSourceCodeFromEntities,
+      refreshVisualEntities,
+    ],
   );
 
   return <EntitiesContext.Provider value={value}>{children}</EntitiesContext.Provider>;

@@ -166,6 +166,12 @@ describe('AbstractCamelVisualEntity', () => {
     });
   });
 
+  describe('isVerified', () => {
+    it('should return undefined', () => {
+      expect(abstractVisualEntity.isVerified('route.from')).toBeUndefined();
+    });
+  });
+
   describe('fetchNodeDefinition', () => {
     it('should return undefined when path is not provided', async () => {
       const result = await abstractVisualEntity.fetchNodeDefinition(undefined, {});

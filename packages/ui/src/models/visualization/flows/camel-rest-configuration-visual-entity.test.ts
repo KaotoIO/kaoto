@@ -62,9 +62,21 @@ describe('CamelRestConfigurationVisualEntity', () => {
     expect(entity.getId()).toEqual(newId);
   });
 
+  it('removeStep should be a no-op', () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+    entity.removeStep();
+    expect(entity.toJSON()).toEqual(restConfigurationDef);
+  });
+
   it('should return entity current definition via fetchNodeDefinition', async () => {
     const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
     expect(await entity.fetchNodeDefinition()).toEqual(restConfigurationDef.restConfiguration);
+  });
+
+  it('fetchNodeSchema should return undefined when no primaryNodeId is provided', async () => {
+    const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+    const result = await entity.fetchNodeSchema();
+    expect(result).toBeUndefined();
   });
 
   it('should return schema from catalog', async () => {
@@ -101,6 +113,14 @@ describe('CamelRestConfigurationVisualEntity', () => {
       const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
 
       entity.updateModel('restConfiguration', {});
+
+      expect(restConfigurationDef.restConfiguration).toEqual({});
+    });
+
+    it('should restore restConfiguration to empty object when setValue clears it', () => {
+      const entity = new CamelRestConfigurationVisualEntity(restConfigurationDef);
+
+      entity.updateModel('restConfiguration', undefined);
 
       expect(restConfigurationDef.restConfiguration).toEqual({});
     });
