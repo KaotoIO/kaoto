@@ -169,9 +169,13 @@ export const FlowsList: FunctionComponent<IFlowsList> = ({ onClose }) => {
                     aria-label={visibleFlows[flow.id] ? `Hide ${flow.id}` : `Show ${flow.id}`}
                     icon={
                       visibleFlows[flow.id] ? (
-                        <View title={`Hide ${flow.id}`} data-testid={`toggle-btn-${flow.id}-visible`} />
+                        <View data-testid={`toggle-btn-${flow.id}-visible`}>
+                          <title>{`Hide ${flow.id}`}</title>
+                        </View>
                       ) : (
-                        <ViewOff title={`Show ${flow.id}`} data-testid={`toggle-btn-${flow.id}-hidden`} />
+                        <ViewOff data-testid={`toggle-btn-${flow.id}-hidden`}>
+                          <title>{`Show ${flow.id}`}</title>
+                        </ViewOff>
                       )
                     }
                     variant="plain"

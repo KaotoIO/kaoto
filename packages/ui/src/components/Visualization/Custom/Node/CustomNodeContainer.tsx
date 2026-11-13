@@ -71,7 +71,9 @@ export const CustomNodeContainer: FunctionComponent<CustomNodeContainerProps> = 
         )}
         {ProcessorIcon && (
           <FloatingCircle className="step-icon step-icon__processor">
-            <ProcessorIcon className="step-icon__info-icon" title={processorDescription} />
+            <ProcessorIcon className="step-icon__info-icon">
+              {processorDescription && <title>{processorDescription}</title>}
+            </ProcessorIcon>
           </FloatingCircle>
         )}
         {isDisabled && (

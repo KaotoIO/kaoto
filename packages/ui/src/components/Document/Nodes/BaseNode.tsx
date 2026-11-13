@@ -132,10 +132,15 @@ export const BaseNode: FunctionComponent<PropsWithChildren<BaseNodeProps>> = ({
          * A native button on purpose: Carbon `IconButton` is at least 24px and always adds a tooltip, which does not
          * fit the 16px chevron slot the rank guide lines align to, and PatternFly `Button` is being phased out.
          * Carbon's own TreeView renders this toggle as a clickable span; a button keeps it semantic.
+         * Preventing the mousedown default keeps the focus on the treeitem, so Enter still selects the row after a
+         * click on the chevron instead of toggling it again.
          */
         <button
           type="button"
           className="node__expand"
+          onMouseDown={(event) => {
+            event.preventDefault();
+          }}
           onClick={onExpandChange}
           aria-label={isExpanded ? 'Collapse' : 'Expand'}
           aria-expanded={isExpanded}

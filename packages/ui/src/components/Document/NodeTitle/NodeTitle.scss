@@ -42,7 +42,9 @@ div.node-title-container {
 
     rect {
       fill: currentcolor;
-      stroke: var(--cds-support-info);
+
+      // A darker shade of the fill, so the marker keeps a visible outline
+      stroke: color-mix(in srgb, currentcolor 70%, black);
       stroke-width: 2;
     }
 

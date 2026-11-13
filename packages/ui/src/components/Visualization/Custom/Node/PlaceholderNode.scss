@@ -58,7 +58,7 @@
           max-width: 100%;
           cursor: pointer;
 
-          span:not([data-warning='true']) {
+          span {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
