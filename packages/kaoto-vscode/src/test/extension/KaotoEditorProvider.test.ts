@@ -546,6 +546,29 @@ suite('Native Kaoto text document provider', () => {
 		equal(document.getText(), 'native change while stalled');
 	});
 
+	test('a save waits for a canvas snapshot write that outlives the save deadline', async () => {
+		useShortDeadlines();
+		await open();
+		await editSource('native edit');
+		await eventually(() => fixture.content.content === 'native edit');
+		fixture.getSnapshot = () => ({ content: 'canvas snapshot', revision: 2 });
+		// The source write starts before the deadline and finishes after it
+		const applyEdit = vscode.workspace.applyEdit;
+		const slowApplyEdit: typeof applyEdit = async (...args) => {
+			await new Promise((resolve) => setTimeout(resolve, 400));
+			return applyEdit(...args);
+		};
+		vscode.workspace.applyEdit = slowApplyEdit;
+		try {
+			ok(await document.save());
+		} finally {
+			vscode.workspace.applyEdit = applyEdit;
+		}
+		equal(await read(document.uri), 'canvas snapshot');
+		equal(document.getText(), 'canvas snapshot');
+		ok(!document.isDirty);
+	});
+
 	test('a save snapshot does not overwrite native text when host update was not applied', async () => {
 		// The save waits for the host update to time out, so only the applied-version check can protect the native text.
 		useShortDeadlines({ saveSnapshotMs: 10_000 });
