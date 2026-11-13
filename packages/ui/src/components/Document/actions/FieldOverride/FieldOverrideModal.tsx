@@ -1,3 +1,5 @@
+import './FieldOverrideModal.scss';
+
 import { DocumentImport, Tools } from '@carbon/icons-react';
 import {
   Button,
@@ -6,7 +8,6 @@ import {
   FormHelperText,
   HelperText,
   HelperTextItem,
-  Icon,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -195,10 +196,7 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
   const fieldPath = SchemaPathService.formatDisplayPath(field, mappingTree.namespaceMap);
   const modalTitle = (
     <>
-      <Icon size="md" status="warning" isInline>
-        <Tools />
-      </Icon>{' '}
-      Field Override: {fieldName}
+      <Tools className="field-override-modal__title-icon" /> Field Override: {fieldName}
     </>
   );
 

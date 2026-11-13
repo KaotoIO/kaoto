@@ -27,6 +27,10 @@
         padding: var(--pf-t--global--spacer--sm);
         color: var(--pf-topology__edge--Stroke);
 
+        svg {
+          fill: var(--cds-icon-primary);
+        }
+
         .placeholder-node:focus & {
           border-color: var(--pf-t--global--color--brand--default);
 

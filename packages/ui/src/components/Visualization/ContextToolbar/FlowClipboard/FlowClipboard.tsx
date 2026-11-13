@@ -1,7 +1,7 @@
 import './FlowClipboard.scss';
 
 import { Copy } from '@carbon/icons-react';
-import { Button, Icon } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
 import { useState } from 'react';
 
 import { useSourceCodeStore } from '../../../../store';
@@ -12,7 +12,6 @@ export const defaultTooltipText = 'Copy to clipboard';
 
 export const FlowClipboard = () => {
   const [isCopied, setIsCopied] = useState(false);
-  const status = isCopied ? 'success' : undefined;
   const tooltipText = isCopied ? successTooltipText : defaultTooltipText;
 
   const onClick = async () => {
@@ -27,11 +26,7 @@ export const FlowClipboard = () => {
   return (
     <Button
       className="flow-clipboard-control"
-      icon={
-        <Icon status={status}>
-          <Copy />
-        </Icon>
-      }
+      icon={<Copy />}
       title={tooltipText}
       onClick={onClick}
       variant="control"

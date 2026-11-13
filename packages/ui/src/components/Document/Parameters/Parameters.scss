@@ -51,15 +51,10 @@
 
   &__chevron {
     flex-shrink: 0;
-    margin-left: var(--pf-t--global--spacer--sm);
-    margin-right: var(--pf-t--global--spacer--sm);
-    color: var(--pf-t--global--icon--color--regular);
-
-    /* stylelint-disable-next-line no-descending-specificity */
-    svg {
-      width: var(--datamapper-header-icon-size);
-      height: var(--datamapper-header-icon-size);
-    }
+    margin: 0 var(--cds-spacing-03);
+    width: var(--datamapper-header-icon-size);
+    height: var(--datamapper-header-icon-size);
+    fill: var(--cds-icon-primary);
   }
 
   /* stylelint-disable-next-line selector-class-pattern */

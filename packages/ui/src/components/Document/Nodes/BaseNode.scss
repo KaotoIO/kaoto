@@ -76,6 +76,11 @@
     align-items: center;
     width: calc(1rem * var(--datamapper-scale-factor, 1));
     flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
 
     svg {
       width: calc(1rem * var(--datamapper-scale-factor, 1));
@@ -93,8 +98,20 @@
     }
   }
 
-  &__icon--no-popover {
-    pointer-events: none;
+  // Carbon icons rendered directly in the row, sized with the DataMapper zoom
+  &__icon {
+    flex-shrink: 0;
+    margin: 0 var(--cds-spacing-03);
+    width: calc(1rem * var(--datamapper-scale-factor, 1));
+    height: calc(1rem * var(--datamapper-scale-factor, 1));
+
+    &--no-popover {
+      pointer-events: none;
+    }
+
+    &--success {
+      fill: var(--cds-support-success);
+    }
   }
 
   &__comment-tooltip {
@@ -102,13 +119,15 @@
   }
 
   &__override-indicator {
-    padding: var(--pf-t--global--spacer--sm);
     cursor: help;
-    min-width: 24px;
-    min-height: 24px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+
+    &--substitution {
+      fill: var(--cds-support-info);
+    }
+
+    &--type {
+      fill: var(--cds-support-warning);
+    }
   }
 
   &__connection-port {

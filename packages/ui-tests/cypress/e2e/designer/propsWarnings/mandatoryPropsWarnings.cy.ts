@@ -13,15 +13,15 @@ describe('Test for missing config props canvas warnings', () => {
     cy.checkNodeExist('github2', 1);
 
     cy.get('[data-id^="camel-route|route.from.steps.1.to"] g')
-      .find('span[data-warning="true"].pf-v6-c-icon')
-      .should('have.attr', 'title', '3 required parameters are not yet configured: [ type,repoName,repoOwner ]');
+      .find('svg[data-warning="true"] > title')
+      .should('have.text', '3 required parameters are not yet configured: [ type,repoName,repoOwner ]');
 
     cy.interactWithConfigInputObject('parameters.repoName', 'test');
     cy.closeStepConfigurationTab();
 
     cy.get('[data-id^="camel-route|route.from.steps.1.to"] g')
-      .find('span[data-warning="true"].pf-v6-c-icon')
-      .should('have.attr', 'title', '2 required parameters are not yet configured: [ type,repoOwner ]');
+      .find('svg[data-warning="true"] > title')
+      .should('have.text', '2 required parameters are not yet configured: [ type,repoOwner ]');
   });
 
   it('Check the canvas node warnings in Pipe', () => {
@@ -29,8 +29,8 @@ describe('Test for missing config props canvas warnings', () => {
     cy.openDesignPage();
 
     cy.get('[data-id^="webhook-binding"] g[data-nodelabel="delay-action"]')
-      .find('span[data-warning="true"].pf-v6-c-icon')
-      .should('have.attr', 'title', '1 required parameter is not yet configured: [ milliseconds ]');
+      .find('svg[data-warning="true"] > title')
+      .should('have.text', '1 required parameter is not yet configured: [ milliseconds ]');
 
     cy.openStepConfigurationTab('delay-action');
 
@@ -38,7 +38,7 @@ describe('Test for missing config props canvas warnings', () => {
     cy.closeStepConfigurationTab();
 
     cy.get('[data-id^="webhook-binding"] g[data-nodelabel="delay-action"]')
-      .find('span[data-warning="true"].pf-v6-c-icon')
+      .find('svg[data-warning="true"]')
       .should('not.exist');
   });
 });

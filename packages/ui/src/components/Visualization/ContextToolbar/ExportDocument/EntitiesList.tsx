@@ -1,7 +1,7 @@
 import './EntitiesList.scss';
 
 import { View, ViewOff } from '@carbon/icons-react';
-import { Divider, Icon, MenuItemAction, SelectGroup, SelectList, SelectOption } from '@patternfly/react-core';
+import { Divider, MenuItemAction, SelectGroup, SelectList, SelectOption } from '@patternfly/react-core';
 import { FunctionComponent } from 'react';
 
 import { DocumentationEntity } from '../../../../models/documentation';
@@ -38,13 +38,9 @@ const EntityOption: FunctionComponent<IEntityOption> = ({
         <MenuItemAction
           icon={
             isVisible ? (
-              <Icon isInline>
-                <View title={`Hide ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-hide`} />
-              </Icon>
+              <View title={`Hide ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-hide`} />
             ) : (
-              <Icon isInline>
-                <ViewOff title={`Show ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-show`} />
-              </Icon>
+              <ViewOff title={`Show ${entityLabel}`} data-testid={`toggle-btn-${entityLabel}-show`} />
             )
           }
           actionId="toggle"
