@@ -46,6 +46,21 @@ jobs:
         with:
           install-jbang: ${{ matrix.jbang }}
           allow-unprivileged-userns: 'true'
+      # Through Camel JBang the extension downloads Camel, its plugins and the dependencies of the test projects into
+      # the local Maven repository, Citrus does the same, and JBang compiles the scripts it runs into its cache. Each
+      # group caches both for its OS under a key made of the Camel catalog package, whose catalogs decide the Camel
+      # versions the extension asks for, and the pom.xml files of the test projects. A new key starts from an empty
+      # repository rather than an older entry, since Maven never removes what a group no longer uses. A group without
+      # JBang downloads nothing there.
+      - name: Restore Maven and JBang downloads
+        id: downloads
+        if: matrix.jbang
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.jbang/cache
+          key: ui-tests-maven-${{ runner.os }}-${{ runner.arch }}-${{ matrix.group }}-${{ hashFiles('node_modules/@kaoto/camel-catalog/package.json', 'packages/ui-tests-vscode/test Fixture with speci@l chars/**/pom.xml') }}
       - if: matrix.group == 'deploy'
         uses: ./.github/actions/kaoto-vscode-setup-minikube
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
@@ -74,6 +89,17 @@ jobs:
           else
             yarn workspace @kaoto/ui-tests-vscode "test:ui:vsix:$TEST_GROUP"
           fi
+      # Only a push to main saves, after the group passed, so an entry holds everything the group downloads. A push
+      # runs the groups and operating systems of a pull request, so the nightly's Linux and macOS groups, which only
+      # the nightly would read, take up no cache storage.
+      - name: Save Maven and JBang downloads
+        if: matrix.jbang && steps.downloads.outputs.cache-hit != 'true' && github.event_name == 'push'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.m2/repository
+            ~/.jbang/cache
+          key: ${{ steps.downloads.outputs.cache-primary-key }}
       # Also when the job is cancelled, as it is at its timeout, so that a hung job leaves its logs.
       - name: Upload test artifacts
         if: failure() || cancelled()

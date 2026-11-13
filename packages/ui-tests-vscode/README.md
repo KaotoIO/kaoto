@@ -77,7 +77,8 @@ runs.
   UI library or forms. Such a change reaches the extension only through the Kaoto webview, so these groups hold only
   tests that drive the webview.
 - `linuxOnly` lists the groups that run on Linux only; deploy is one, because it needs minikube.
-- `withoutJBang` lists the groups whose tests need neither Java nor JBang, so their jobs install neither.
+- `withoutJBang` lists the groups whose tests need neither Java nor JBang. Their jobs install neither, and skip the
+  cache of the Maven and JBang downloads.
 
 | Group     | Tests                                                                                              | Listed in                      |
 | --------- | -------------------------------------------------------------------------------------------------- | ------------------------------ |
