@@ -135,36 +135,24 @@ jobs:
         run: yarn workspaces foreach --all --include "$PACKAGE" run build:lib
       - name: Test
         run: yarn workspaces foreach --all --include "$PACKAGE" run test
-      # Codecov gets the package's report under its own flag (.github/codecov.yaml). A new package needs an
-      # upload and a flag of its own to report coverage.
-      - name: Upload UI coverage
-        if: hashFiles('packages/ui/coverage/lcov.info') != ''
+      # Codecov gets the package's report under a flag named after its directory (packages/kaoto-web -> kaoto-web),
+      # so a new package that writes coverage/lcov.info reports coverage with no change here or in
+      # .github/codecov.yaml.
+      - name: Find coverage
+        id: coverage
+        run: |
+          dir=$(yarn workspaces list --json | jq -r --arg name "$PACKAGE" 'select(.name == $name) | .location')
+          if [ -f "$dir/coverage/lcov.info" ]; then
+            echo "file=$dir/coverage/lcov.info" >> "$GITHUB_OUTPUT"
+            echo "flag=$(basename "$dir")" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Upload coverage
+        if: steps.coverage.outputs.file != ''
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/ui/coverage/lcov.info
-          flags: ui
-      - name: Upload forms coverage
-        if: hashFiles('packages/forms/coverage/lcov.info') != ''
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/forms/coverage/lcov.info
-          flags: forms
-      - name: Upload web coverage
-        if: hashFiles('packages/kaoto-web/coverage/lcov.info') != ''
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/kaoto-web/coverage/lcov.info
-          flags: web
-      - name: Upload VS Code coverage
-        if: hashFiles('packages/kaoto-vscode/coverage/lcov.info') != ''
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/kaoto-vscode/coverage/lcov.info
-          flags: vscode
+          files: ${{ steps.coverage.outputs.file }}
+          flags: ${{ steps.coverage.outputs.flag }}
       # The logs of the VS Code instance that ran the extension's tests.
       - name: Upload VS Code test logs
         if: failure() && matrix.package == 'vscode-kaoto'

@@ -73,7 +73,7 @@ export default defineConfig({
   // Used by `vscode-test --coverage`. The tests are bundled from the sources with source maps, so the report
   // maps back to src/. Paths are relative to the repository root, as Codecov expects.
   // c8 filters by the bundled file, not by the mapped sources: src/test/ and the Kaoto UI sources are
-  // reported too and are left out by the `ignore` and `vscode` flag paths in .github/codecov.yaml.
+  // reported too and are left out by the `ignore` and `kaoto-vscode` flag paths in .github/codecov.yaml.
   coverage: {
     exclude: ['**/node_modules/**', '**/dist/**'],
     reporter: {

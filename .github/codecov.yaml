@@ -3,21 +3,14 @@ ignore:
   - packages/kaoto-vscode/src/test
   - packages/kaoto-vscode/out-unit-tests
 
-flags:
-  # CI tests only the affected packages, so a flag that a commit doesn't upload keeps its last coverage.
-  ui:
-    paths:
-      - packages/ui/src
+flag_management:
+  # Each package uploads its coverage under a flag named after its directory (.github/workflows/build-lint-test.yml),
+  # and these rules apply to every flag, so a new package needs no entry here.
+  default_rules:
+    # CI tests only the affected packages, so a flag that a commit doesn't upload keeps its last coverage.
     carryforward: true
-  forms:
-    paths:
-      - packages/forms/src
-    carryforward: true
-  web:
-    paths:
-      - packages/kaoto-web/src
-    carryforward: true
-  vscode:
-    paths:
-      - packages/kaoto-vscode/src
-    carryforward: true
+  individual_flags:
+    # The VS Code extension bundles the Kaoto UI, so its report covers the UI sources too.
+    - name: kaoto-vscode
+      paths:
+        - packages/kaoto-vscode/src
