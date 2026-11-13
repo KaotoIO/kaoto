@@ -14,8 +14,22 @@
  * limitations under the License.
  */
 
+import { ColorScheme } from '@kaoto/kaoto/models';
+import * as vscode from 'vscode';
 import { ExtensionContext } from 'vscode';
+import { KAOTO_COLOR_THEME_SETTING_ID } from '../constants';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
+
+/**
+ * Resolves the `kaoto.colorTheme` setting to the scheme the editor must use: `light` and `dark` are fixed, while
+ * `auto` follows the active VS Code theme.
+ */
+export function resolveColorScheme(): ColorScheme.Dark | ColorScheme.Light {
+	const theme = vscode.workspace.getConfiguration().get<ColorScheme | null>(KAOTO_COLOR_THEME_SETTING_ID);
+	const { kind } = vscode.window.activeColorTheme;
+	const dark = kind === vscode.ColorThemeKind.Dark || kind === vscode.ColorThemeKind.HighContrast;
+	return theme === ColorScheme.Dark || (theme === ColorScheme.Auto && dark) ? ColorScheme.Dark : ColorScheme.Light;
+}
 
 export function safeGlobalStateGet<T>(context: ExtensionContext, key: string, defaultValue: T): T {
 	try {

@@ -762,6 +762,23 @@ suite('Native Kaoto text document provider', () => {
 		}
 	});
 
+	test('draws the loader with a fixed Kaoto color theme regardless of the VS Code theme', async function () {
+		this.timeout(20_000);
+		const kaoto = vscode.workspace.getConfiguration('kaoto');
+		const workbench = vscode.workspace.getConfiguration('workbench');
+		const previousScheme = kaoto.inspect<string>('colorTheme')?.globalValue;
+		const previousTheme = workbench.inspect<string>('colorTheme')?.globalValue;
+		await workbench.update('colorTheme', 'Default Light Modern', vscode.ConfigurationTarget.Global);
+		try {
+			await kaoto.update('colorTheme', 'dark', vscode.ConfigurationTarget.Global);
+			await open();
+			ok(fixture.panel.webview.html.includes('data-theme-setting="dark"'));
+		} finally {
+			await workbench.update('colorTheme', previousTheme, vscode.ConfigurationTarget.Global);
+			await kaoto.update('colorTheme', previousScheme, vscode.ConfigurationTarget.Global);
+		}
+	});
+
 	test('rejects a second graphical panel for the same document', async () => {
 		await open();
 		const other = editorFixture();

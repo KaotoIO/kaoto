@@ -17,13 +17,12 @@
 
 import { BridgeError } from '@kaoto/kaoto/host-bridge';
 import type { CatalogKind, FileTypesResponse, ISettingsModel, RuntimeMavenInformation, StepUpdateAction } from '@kaoto/kaoto/models';
-import { CanvasLayoutDirection, ColorScheme, FileTypes, NodeLabelType, NodeToolbarTrigger, SettingsModel } from '@kaoto/kaoto/models';
+import { CanvasLayoutDirection, FileTypes, NodeLabelType, NodeToolbarTrigger, SettingsModel } from '@kaoto/kaoto/models';
 import path from 'path'; // NOSONAR: webpack supplies path-browserify in the worker
 import * as vscode from 'vscode';
 import {
 	KAOTO_CANVAS_LAYOUT_DIRECTION_SETTING_ID,
 	KAOTO_CATALOG_URL_SETTING_ID,
-	KAOTO_COLOR_THEME_SETTING_ID,
 	KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID,
 	KAOTO_NODE_LABEL_SETTING_ID,
 	KAOTO_NODE_TOOLBAR_TRIGGER_SETTING_ID,
@@ -32,6 +31,7 @@ import {
 } from '../constants';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { findExistingKaotoMetadataFile } from '../utils/KaotoMetadataFileUtils';
+import { resolveColorScheme } from '../utils/Vscode';
 import { readKameletsFromDirectory } from './KameletFileReader';
 import { getSuggestions, type Suggestion, type SuggestionRequestContext } from './SuggestionRegistry';
 
@@ -75,10 +75,6 @@ export class KaotoHostServices implements vscode.Disposable {
 	async getVSCodeKaotoSettings(): Promise<ISettingsModel> {
 		const catalog = await this.selectedCatalog();
 		const config = vscode.workspace.getConfiguration();
-		const theme = config.get<ColorScheme | null>(KAOTO_COLOR_THEME_SETTING_ID);
-		const dark =
-			vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark || vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.HighContrast;
-		const colorScheme = theme === ColorScheme.Dark || (theme === ColorScheme.Auto && dark) ? ColorScheme.Dark : ColorScheme.Light;
 		return {
 			...new SettingsModel({
 				catalogUrl: config.get<string | null>(KAOTO_CATALOG_URL_SETTING_ID) ?? '',
@@ -86,7 +82,7 @@ export class KaotoHostServices implements vscode.Disposable {
 				testingCatalogName: catalog?.runtime.toLowerCase() === 'citrus' ? catalog.name : '',
 				nodeLabel: config.get<NodeLabelType | null>(KAOTO_NODE_LABEL_SETTING_ID) ?? NodeLabelType.Description,
 				nodeToolbarTrigger: config.get<NodeToolbarTrigger | null>(KAOTO_NODE_TOOLBAR_TRIGGER_SETTING_ID) ?? NodeToolbarTrigger.onHover,
-				colorScheme,
+				colorScheme: resolveColorScheme(),
 				canvasLayoutDirection:
 					config.get<CanvasLayoutDirection | null>(KAOTO_CANVAS_LAYOUT_DIRECTION_SETTING_ID) ?? CanvasLayoutDirection.SelectInCanvas,
 				rest: {
