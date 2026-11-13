@@ -111,10 +111,10 @@ describe('KaotoResourceProvider', () => {
     });
 
     // Sanity: the valid Pipe is in place.
-    expect(result.current?.currentSchemaType).toBe(SourceSchemaType.Pipe);
     await waitFor(() => {
       expect(result.current?.visualEntities).toHaveLength(1);
     });
+    expect(result.current?.currentSchemaType).toBe(SourceSchemaType.Pipe);
 
     // Capture the reference before the keystroke
     const visualEntitiesBeforeKeystroke = result.current?.visualEntities;

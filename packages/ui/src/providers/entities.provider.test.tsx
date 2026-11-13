@@ -179,6 +179,11 @@ describe('EntitiesProvider', () => {
     const notifierSpy = vi.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
+    // The context is provided once the first resource is initialized
+    await waitFor(() => {
+      expect(result.current).not.toBeNull();
+    });
+
     act(() => {
       eventNotifier.next('code:updated', { code: camelRouteYaml_1_1_original });
     });
@@ -272,6 +277,11 @@ describe('EntitiesProvider', () => {
     const notifierSpy = vi.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
+    // The context is provided once the first resource is initialized
+    await waitFor(() => {
+      expect(result.current).not.toBeNull();
+    });
+
     await act(async () => {
       result.current?.updateEntitiesFromCamelResource();
     });
@@ -347,6 +357,29 @@ describe('EntitiesProvider', () => {
       expect(resource.getEntities).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
+    });
+
+    // Rendering the children with the empty initial lists would flash an empty canvas before the document shows up.
+    it('should render the children only once the first resource is initialized', async () => {
+      const deferred = createDeferred<void>();
+      const visualEntities = [{ id: 'route-1' }];
+      const resource = createMockResource({
+        initialize: vi.fn().mockReturnValue(deferred.promise),
+        getVisualEntities: vi.fn().mockReturnValue(visualEntities),
+      });
+
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: buildMockResourceWrapper(resource),
+      });
+
+      expect(result.current).toBeNull();
+
+      await act(async () => {
+        deferred.resolve();
+        await deferred.promise;
+      });
+
+      expect(result.current?.visualEntities).toBe(visualEntities);
     });
 
     // Success-path cancellation guard — entities.provider.tsx line 49
