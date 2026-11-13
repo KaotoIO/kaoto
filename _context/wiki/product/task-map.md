@@ -19,6 +19,8 @@ Changes to how routes, nodes, groups, edges, or placeholders are rendered or beh
 
 **Rendering guidance**: Before changing HTML embedded in SVG `foreignObject`, its positioning or stacking, or surrounding decorations, read [SVG `foreignObject` rendering in Safari](architecture.md#svg-foreignobject-rendering-in-safari) for implementation guidance, observed failures, and browser validation checks.
 
+**Testing guidance**: Don't assert rendering in jsdom unit tests — DOM or paint order of SVG elements, `rect` and geometry attributes, transforms or opacity of rendered nodes. jsdom implements the DOM, not a real browser, so such tests add little value and are removed in review ([#4447](https://github.com/KaotoIO/kaoto/pull/4447#discussion_r4561627882)). Cover rendering with Storybook stories (Chromatic) or a real-browser test (Vitest browser mode is the intended direction); keep jsdom tests for behaviour (keyboard, focus, actions, state) and for pure helpers such as geometry functions.
+
 | What                                | Where                                                                                                                                        |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Entry point — node rendering**    | `packages/ui/src/components/Visualization/Custom/`                                                                                           |
