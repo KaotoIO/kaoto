@@ -219,6 +219,10 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
       boxYRef.current = box.y;
     }
     const labelX = (box.width - CanvasDefaults.DEFAULT_LABEL_WIDTH) / 2;
+    /** Moves the ghost and the interaction indicator back to the original position while the node is dragged */
+    const ghostTransform = loadGhostNode
+      ? `translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y})`
+      : undefined;
     const indicatorBounds = getNodeIndicatorBounds(box);
     const dropDirection: 'forward' | 'backward' | null =
       dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode
@@ -256,6 +260,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           data-disabled={isDisabled}
           data-toolbar-open={toolbar.isOpen}
           data-warning={doesHaveWarnings}
+          data-dragging={loadGhostNode}
           tabIndex={selected ? 0 : -1}
           role="button"
           aria-label={label}
@@ -264,8 +269,15 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
-          {/* Hover, selection and focus are drawn behind the node content; the tile and badges keep their look */}
-          <rect className="custom-node__indicator" aria-hidden="true" rx={INDICATOR_RADIUS} {...indicatorBounds} />
+          {/* Hover, selection and focus are drawn behind the node content; the tile and badges keep their look.
+           * While dragging they stay with the ghost at the source, so the preview under the pointer has none. */}
+          <rect
+            className="custom-node__indicator"
+            aria-hidden="true"
+            rx={INDICATOR_RADIUS}
+            transform={ghostTransform}
+            {...indicatorBounds}
+          />
           <CanvasNodeOverlays
             overlays={overlays}
             bounds={{ x: (box.width - 60) / 2, y: (box.height - 60) / 2, width: 60, height: 60 }}
@@ -299,7 +311,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
               width={box.width}
               height={box.height}
               dataNodelabel={label}
-              transform={`translate(${boxXRef.current - box.x}, ${boxYRef.current - box.y})`}
+              transform={ghostTransform}
               dataTestId={`${vizNode.id}-dummy`}
               containerClassNames={{ 'custom-node__container__draggedNode': isDraggedNode }}
               vizNode={vizNode}
@@ -335,14 +347,16 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
             />
           )}
 
-          {/** Label which appears when dragging the group/node, but for the dummy node */}
+          {/** Label which appears when dragging the group/node, but for the dummy node; dimmed like the dummy node */}
           {label && loadGhostNode && (
-            <CustomNodeLabel
-              label={label}
-              doesHaveWarnings={doesHaveWarnings}
-              validationText={validationText}
-              transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
-            />
+            <g opacity={0.5}>
+              <CustomNodeLabel
+                label={label}
+                doesHaveWarnings={doesHaveWarnings}
+                validationText={validationText}
+                transform={`translate(${boxXRef.current - box.x + labelX}, ${boxYRef.current - box.y + box.height - 1})`}
+              />
+            </g>
           )}
         </g>
       </Layer>
