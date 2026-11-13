@@ -1,0 +1,27 @@
+/*
+ * Carbon styles of the loader that `webview.html` draws before the editor starts. Only the Vite dev server needs
+ * them: the stylesheet of the editor, which `kaoto-editor.html` links in production, already includes them, but
+ * in development the editor styles only arrive once its modules are loaded.
+ *
+ * The theme follows the system preference, as the editor stylesheet does before the editor applies the settings.
+ */
+// Same fonts as the editor stylesheet (`carbon-overrides.scss`), so the message does not change typeface.
+@use '@carbon/react/scss/config' with (
+  $font-path: '@ibm/plex',
+  $font-display: 'block'
+);
+@use '@carbon/react/scss/fonts';
+@use '@carbon/react/scss/reset';
+@use '@carbon/react/scss/themes';
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/components/loading';
+
+:root {
+  @include theme(themes.$g10);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    @include theme(themes.$g100);
+  }
+}

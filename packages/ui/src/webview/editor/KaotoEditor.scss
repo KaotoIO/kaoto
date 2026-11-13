@@ -1,3 +1,5 @@
+@use '@carbon/react/scss/utilities/visually-hidden' as *;
+
 html body {
   /*
    * The webview host (VS Code) renders the editor inside an iframe.
@@ -92,4 +94,12 @@ html body {
   .pf-v6-c-divider {
     display: none;
   }
+}
+
+/*
+ * Announces the document loading to assistive technologies without taking space: the full page loaders show the
+ * progress, and a visible line above them would push them below the loader of the webview shell.
+ */
+.kaoto-editor-document-status {
+  @include visually-hidden;
 }

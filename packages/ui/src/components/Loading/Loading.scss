@@ -1,4 +1,6 @@
 @use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
 
 .loading {
   display: flex;
@@ -8,9 +10,19 @@
   padding: $spacing-07;
   min-block-size: 200px;
 
+  &__message {
+    margin: 0;
+  }
+
   &--full-page {
     box-sizing: border-box;
     min-block-size: 100vh;
+  }
+
+  &--full-page &__message {
+    @include type-style('heading-03');
+
+    color: $text-primary;
   }
 }
 
