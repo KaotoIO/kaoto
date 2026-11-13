@@ -19,13 +19,16 @@ runs:
     # An install takes about a minute on Linux and about two on Windows, most of it linking node_modules, so the
     # installed result is cached under a key made of yarn.lock, Yarn's settings and release, and every package.json.
     # A hit skips the install; a change to one of these files misses and installs as before, so a dependency changed
-    # in a package.json without yarn.lock still fails the install.
+    # in a package.json without yarn.lock still fails the install. The nightly's scheduled run restores none of the
+    # caches and installs everything from the registry, so a package that disappears there fails the nightly instead
+    # of hiding behind a cache hit.
     # On Windows Yarn links the workspace packages into node_modules with junctions, which hold absolute paths, and a
     # restore brings them back as symbolic links to the same folders. The key names the workspace folder there, so a
     # runner that checks out elsewhere misses and installs instead of restoring links to a folder it lacks. Linux
     # links are relative, and the Cypress container reads the entry the host jobs saved from another folder.
     - name: Restore node_modules
       id: node-modules
+      if: github.event_name != 'schedule'
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: |
@@ -41,7 +44,7 @@ runs:
     # lacks: it checks every package against the checksums in yarn.lock and removes the ones it no longer uses.
     - name: Restore Yarn's package cache
       id: yarn-cache
-      if: steps.node-modules.outputs.cache-hit != 'true'
+      if: steps.node-modules.outputs.cache-hit != 'true' && github.event_name != 'schedule'
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: .yarn/cache
