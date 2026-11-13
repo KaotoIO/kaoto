@@ -371,6 +371,11 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                 <button
                   type="button"
                   onClick={showError}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.stopPropagation();
+                    }
+                  }}
                   aria-label="Show error details"
                   style={{ all: 'unset', cursor: 'pointer' }}
                 >

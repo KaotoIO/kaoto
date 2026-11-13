@@ -149,6 +149,23 @@ suite('TestsProvider — readTestResult', function () {
 		assert.isUndefined(provider.getTestReportByFilePath('/tmp/tests/my-test.citrus.yaml'));
 	});
 
+	test('returns none when report JSON has non-object result field', async function () {
+		const report = { name: 'my-test', result: 'SUCCESS', actions: [] };
+		stub(
+			vscode.workspace,
+			'fs',
+			{
+				...vscode.workspace.fs,
+				readFile: async () => new TextEncoder().encode(JSON.stringify(report)),
+			},
+			restoreFns,
+		);
+
+		const result = await provider.readTestResult('/tmp/tests/my-test.citrus.yaml');
+		assert.strictEqual(result, 'none');
+		assert.isUndefined(provider.getTestReportByFilePath('/tmp/tests/my-test.citrus.yaml'));
+	});
+
 	test('returns none when readFile throws (file not found)', async function () {
 		stub(
 			vscode.workspace,

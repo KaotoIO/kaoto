@@ -300,7 +300,7 @@ export class TestsProvider extends AbstractFolderTreeProvider<TestFolder> {
 		const resultUri = Uri.file(resultFilePath);
 		const resultContent = await workspace.fs.readFile(resultUri);
 		const parsed = JSON.parse(new TextDecoder('utf-8').decode(resultContent));
-		if (!parsed || typeof parsed.name !== 'string' || !parsed.result || !Array.isArray(parsed.actions)) {
+		if (!parsed || typeof parsed.name !== 'string' || typeof parsed.result !== 'object' || !parsed.result || !Array.isArray(parsed.actions)) {
 			return undefined;
 		}
 		return parsed as TestReportEntry;
