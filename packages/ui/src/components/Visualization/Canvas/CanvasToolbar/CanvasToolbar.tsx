@@ -29,7 +29,7 @@ export const CanvasToolbar = observer(() => {
   const target = store?.target;
   const { activeRef, outgoingRef } = useToolbarCrossfade(target?.element.getId());
   // A deleted step stays the target until its node unmounts, but it already left the graph
-  if (!target || !target.element.hasParent() || !controller.hasGraph()) return null;
+  if (!store || !target?.element.hasParent() || !controller.hasGraph()) return null;
   const anchor = getToolbarAnchor(target.element);
   const graph = controller.getGraph();
   const { x, y } = graph.getBounds();

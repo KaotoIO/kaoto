@@ -172,6 +172,23 @@ describe('withNodeContextMenu', () => {
     expect(itemAButton).toHaveFocus();
   });
 
+  it('moves to the first and last action on Home and End pressed outside of the menu list', async () => {
+    const actions = vi.fn().mockReturnValue([itemA, itemB]);
+    const { target } = renderWithMenu(actions);
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    await settle();
+    const menu = screen.getByRole('menu', { name: 'Step actions' });
+    const wrapper = menu.parentElement!;
+    expect(wrapper.closest('[role="menu"]')).toBeNull();
+
+    fireEvent.keyDown(wrapper, { key: 'End' });
+    expect(within(menu).getByRole('menuitem', { name: 'Item B' })).toHaveFocus();
+    fireEvent.keyDown(wrapper, { key: 'Home' });
+    expect(within(menu).getByRole('menuitem', { name: 'Item A' })).toHaveFocus();
+  });
+
   it('names the menu with the given label', async () => {
     const actions = vi.fn().mockReturnValue([itemA]);
     const controller = ControllerService.createController();
