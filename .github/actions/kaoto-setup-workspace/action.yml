@@ -1,0 +1,76 @@
+name: Setup Workspace (kaoto)
+description: Sets up Node.js and the workspace dependencies, restoring the installed node_modules from the cache on Linux and Windows
+
+inputs:
+  node-version:
+    description: Node.js version
+    required: false
+    default: '24.x'
+
+runs:
+  using: composite
+  steps:
+    # setup-node would save Yarn's package cache from pull request runs too, so the steps below handle it instead.
+    - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      with:
+        node-version: ${{ inputs.node-version }}
+        package-manager-cache: false
+
+    # An install takes about a minute on Linux and about two on Windows, most of it linking node_modules, so the
+    # installed result is cached under a key made of yarn.lock, Yarn's settings and release, and every package.json.
+    # A hit skips the install; a change to one of these files misses and installs as before, so a dependency changed
+    # in a package.json without yarn.lock still fails the install.
+    # On Windows Yarn links the workspace packages into node_modules with junctions, which hold absolute paths, and a
+    # restore brings them back as symbolic links to the same folders. The key names the workspace folder there, so a
+    # runner that checks out elsewhere misses and installs instead of restoring links to a folder it lacks. Linux
+    # links are relative, and the Cypress container reads the entry the host jobs saved from another folder.
+    - name: Restore node_modules
+      id: node-modules
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: |
+          node_modules
+          packages/*/node_modules
+          .yarn/install-state.gz
+        key: >-
+          node-modules-${{ runner.os }}-${{ runner.arch }}${{ runner.os == 'Windows' && format('-{0}', github.workspace) || '' }}-${{
+          hashFiles('yarn.lock', '.yarnrc.yml', '.yarn/releases/*', 'package.json', 'packages/*/package.json') }}
+
+    # An install fetches the packages from Yarn's package cache (.yarn/cache), cached under a key made of yarn.lock.
+    # When yarn.lock changed, the latest cache saved from main is restored instead and Yarn downloads only what it
+    # lacks: it checks every package against the checksums in yarn.lock and removes the ones it no longer uses.
+    - name: Restore Yarn's package cache
+      id: yarn-cache
+      if: steps.node-modules.outputs.cache-hit != 'true'
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: .yarn/cache
+        key: yarn-cache-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+        restore-keys: yarn-cache-${{ runner.os }}-${{ runner.arch }}-
+
+    - name: Install dependencies
+      if: steps.node-modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: yarn install --immutable --mode=skip-build
+
+    # Only pushes to main save the caches, right after the install and before any build writes into node_modules.
+    # Every other run only reads them, so nothing a PR installs reaches another run or takes up cache storage. Pushes
+    # run no macOS jobs, so the nightly's and releases' macOS jobs always install.
+    - name: Save node_modules
+      if: steps.node-modules.outputs.cache-hit != 'true' && github.event_name == 'push'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: |
+          node_modules
+          packages/*/node_modules
+          .yarn/install-state.gz
+        key: ${{ steps.node-modules.outputs.cache-primary-key }}
+
+    - name: Save Yarn's package cache
+      if: >-
+        steps.node-modules.outputs.cache-hit != 'true' && steps.yarn-cache.outputs.cache-hit != 'true' &&
+        github.event_name == 'push'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: .yarn/cache
+        key: ${{ steps.yarn-cache.outputs.cache-primary-key }}

@@ -20,16 +20,8 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '24.x'
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@kaoto'
-          cache: 'yarn'
-
-      # Install dependencies
-      - name: 🔧 Install dependencies
-        run: yarn install --immutable --mode=skip-build
+      - name: 🔧 Setup workspace
+        uses: ./.github/actions/kaoto-setup-workspace
 
       # 👇 Builds the kaoto/ui in library mode
       - name: Build ui library

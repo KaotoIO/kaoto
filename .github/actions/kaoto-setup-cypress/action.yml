@@ -1,0 +1,41 @@
+name: Setup Cypress (kaoto)
+description: Puts the binary of the installed Cypress version in place, from the cache when it holds that version. Run kaoto-setup-workspace first.
+
+runs:
+  using: composite
+  steps:
+    # Cypress keeps its binary in a folder of its own, which the cypress/browsers images move out of the home folder
+    # (CYPRESS_CACHE_FOLDER=/root/.cache/Cypress), so Cypress itself names it.
+    - name: Find the Cypress version and binary folder
+      id: cypress
+      shell: bash
+      working-directory: packages/ui-tests
+      run: |
+        version=$(node -p "require('cypress/package.json').version")
+        folder=$(yarn cypress cache path)
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+        echo "folder=$folder" >> "$GITHUB_OUTPUT"
+
+    - name: Restore the Cypress binary
+      id: binary
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.cypress.outputs.folder }}
+        key: cypress-binary-${{ runner.os }}-${{ runner.arch }}-${{ steps.cypress.outputs.version }}
+
+    # The install skips the build scripts, so the Cypress package doesn't download its binary by itself.
+    - name: Install the Cypress binary
+      if: steps.binary.outputs.cache-hit != 'true'
+      shell: bash
+      working-directory: packages/ui-tests
+      run: |
+        yarn cypress install
+        yarn cypress verify
+
+    # As for node_modules, only pushes to main save the cache.
+    - name: Save the Cypress binary
+      if: steps.binary.outputs.cache-hit != 'true' && github.event_name == 'push'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        path: ${{ steps.cypress.outputs.folder }}
+        key: ${{ steps.binary.outputs.cache-primary-key }}

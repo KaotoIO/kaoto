@@ -24,12 +24,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '24.x'
-          cache: yarn
-      - name: Install dependencies
-        run: yarn install --immutable --mode=skip-build
+      - uses: ./.github/actions/kaoto-setup-workspace
       - name: Validate PR commits
         run: yarn commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
@@ -104,10 +99,6 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '24.x'
-          cache: yarn
       - name: Set up Java for Kompanion
         if: matrix.package == '@kaoto/kompanion'
         uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
@@ -123,8 +114,9 @@ jobs:
           sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
           Xvfb :99 -screen 0 1280x1024x24 > /dev/null 2>&1 &
           echo "DISPLAY=:99" >> "$GITHUB_ENV"
-      - name: Install dependencies
-        run: yarn install --immutable --mode=skip-build
+      # After Java: setup-java keys its Maven cache on every pom.xml in the checkout, which takes about 2 s before
+      # node_modules is in place and about 28 s after.
+      - uses: ./.github/actions/kaoto-setup-workspace
       - name: Lint
         run: yarn workspaces foreach --all --include "$PACKAGE" run lint
       - name: Lint styles
