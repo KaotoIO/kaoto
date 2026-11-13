@@ -9,6 +9,8 @@ test/**
 tsconfig*.json
 eslint*
 .prettier*
+vite.config*
+AGENTS.md
 **/*.map
 **/*.ts
 **/*.log
