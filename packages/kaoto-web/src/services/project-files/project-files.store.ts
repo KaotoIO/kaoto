@@ -22,6 +22,16 @@ const byPath = (a: ProjectFile, b: ProjectFile) => {
 };
 
 /**
+ * Marks the completion of a transaction as handled.
+ *
+ * When a request fails, the caller gets its error and never awaits `tx.done`, which rejects as well;
+ * without this, that second rejection would go unhandled. Awaiting `tx.done` still rejects as before.
+ */
+const observeCompletion = (tx: { done: Promise<void> }): void => {
+  tx.done.catch(() => undefined);
+};
+
+/**
  * Keeps the files of the projects in IndexedDB.
  *
  * This is the only place that knows about the storage; the UI goes through this class.
@@ -47,6 +57,7 @@ export class ProjectFilesStore {
   async updateFile(projectId: string, id: string, content: string): Promise<ProjectFile> {
     const db = await this.getDB();
     const tx = db.transaction(FILES, 'readwrite');
+    observeCompletion(tx);
     const existing = await tx.store.get([projectId, id]);
     if (!existing) {
       // Nothing was written, so the transaction completes on its own
@@ -72,6 +83,7 @@ export class ProjectFilesStore {
   async seedIfEmpty(projectId: string, seed: NewProjectFile[]): Promise<ProjectFile[]> {
     const db = await this.getDB();
     const tx = db.transaction(FILES, 'readwrite');
+    observeCompletion(tx);
     const count = await tx.store.index('byProject').count(projectId);
     if (count === 0) {
       await Promise.all(seed.map((file) => tx.store.add(this.toProjectFile(projectId, file))));

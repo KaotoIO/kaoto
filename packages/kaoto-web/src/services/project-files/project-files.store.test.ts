@@ -111,6 +111,25 @@ describe('ProjectFilesStore', () => {
     otherTab.close();
   });
 
+  it('rejects without leaving an unhandled rejection when a seed file cannot be added', async () => {
+    const unhandled = vi.fn();
+    process.on('unhandledRejection', unhandled);
+    try {
+      const seed: NewProjectFile[] = [
+        { id: 'a', path: 'same.yaml', type: 'integration', content: '' },
+        { id: 'b', path: 'same.yaml', type: 'integration', content: '' },
+      ];
+
+      await expect(store.seedIfEmpty('p1', seed)).rejects.toThrow();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+
+      expect(unhandled).not.toHaveBeenCalled();
+      expect(await store.getFiles('p1')).toEqual([]);
+    } finally {
+      process.off('unhandledRejection', unhandled);
+    }
+  });
+
   it('lets a newer version of the database open while this store is connected', async () => {
     await store.getFiles('p1');
 
