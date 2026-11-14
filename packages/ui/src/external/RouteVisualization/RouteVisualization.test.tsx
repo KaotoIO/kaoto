@@ -2,10 +2,13 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { useSuggestionRegistry } from '@kaoto/forms';
 import { act, render, screen } from '@testing-library/react';
+import { FunctionComponent, useEffect, useState } from 'react';
+import type { Mock } from 'vitest';
 
 import * as VisualizationModule from '../../components/Visualization';
 import { camelRouteYaml } from '../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
+import { EventNotifier } from '../../utils';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
 import { RouteVisualization } from './RouteVisualization';
 
@@ -99,5 +102,75 @@ describe('RouteVisualization', () => {
 
     expect(screen.getByTestId('designer-visualization')).toBeInTheDocument();
     expect(hasSuggestionRegistry).toBe(true);
+  });
+
+  describe('code round trip', () => {
+    /** A host that stores every change of the canvas and feeds it back as `code`, like a controlled input */
+    const ControlledHost: FunctionComponent<{
+      initialCode: string;
+      onReady: (setCode: (code: string) => void) => void;
+    }> = ({ initialCode, onReady }) => {
+      const [code, setCode] = useState(initialCode);
+      useEffect(() => {
+        onReady(setCode);
+      }, [onReady]);
+      return (
+        <RouteVisualization
+          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+          runtimeCatalogName=""
+          testingCatalogName=""
+          code={code}
+          codeChange={setCode}
+        />
+      );
+    };
+
+    let setHostCode: (code: string) => void;
+    let codeUpdatedSpy: Mock<(payload: { code: string; path?: string }) => void>;
+    let unsubscribe: () => void;
+
+    beforeEach(() => {
+      codeUpdatedSpy = vi.fn<(payload: { code: string; path?: string }) => void>();
+      unsubscribe = EventNotifier.getInstance().subscribe('code:updated', codeUpdatedSpy);
+      render(<ControlledHost initialCode={camelRouteYaml} onReady={(setCode) => (setHostCode = setCode)} />);
+      codeUpdatedSpy.mockClear();
+    });
+
+    afterEach(() => {
+      unsubscribe();
+    });
+
+    it('does not feed the code produced by the canvas back into it, so the model and the selection survive an edit', () => {
+      act(() => {
+        EventNotifier.getInstance().next('entities:updated', `${camelRouteYaml}# edited on the canvas\n`);
+      });
+
+      expect(codeUpdatedSpy).not.toHaveBeenCalled();
+    });
+
+    it('still forwards code that the host changes on its own', () => {
+      act(() => {
+        setHostCode(`${camelRouteYaml}# changed by the host\n`);
+      });
+
+      expect(codeUpdatedSpy).toHaveBeenCalledWith({ code: `${camelRouteYaml}# changed by the host\n` });
+    });
+
+    it('forwards the code again when the host restores a version the canvas produced earlier', () => {
+      const canvasCode = `${camelRouteYaml}# edited on the canvas\n`;
+      act(() => {
+        EventNotifier.getInstance().next('entities:updated', canvasCode);
+      });
+      act(() => {
+        setHostCode(camelRouteYaml);
+      });
+      codeUpdatedSpy.mockClear();
+
+      act(() => {
+        setHostCode(canvasCode);
+      });
+
+      expect(codeUpdatedSpy).toHaveBeenCalledWith({ code: canvasCode });
+    });
   });
 });
