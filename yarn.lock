@@ -3861,7 +3861,9 @@ __metadata:
     eslint-plugin-react-refresh: "npm:^0.5.7"
     eslint-plugin-simple-import-sort: "npm:^14.0.0"
     eslint-plugin-testing-library: "npm:^7.16.2"
+    fake-indexeddb: "npm:^6.2.7"
     globals: "npm:^15.9.0"
+    idb: "npm:^8.0.4"
     msw: "npm:^2.7.3"
     postcss: "npm:^8.4.45"
     prettier: "npm:^3.0.0"
@@ -14243,6 +14245,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fake-indexeddb@npm:^6.2.7":
+  version: 6.2.7
+  resolution: "fake-indexeddb@npm:6.2.7"
+  checksum: 10/785c7b44d7e8781df280380a4e3402331d67620bde6474449093923f99eb0a77f7994177817f22dda044d2b210806e4acb267b90697a9fac1c253d770b00a08a
+  languageName: node
+  linkType: hard
+
 "fast-content-type-parse@npm:^3.0.0":
   version: 3.0.0
   resolution: "fast-content-type-parse@npm:3.0.0"
@@ -16027,6 +16036,13 @@ __metadata:
   dependencies:
     safer-buffer: "npm:>= 2.1.2 < 3.0.0"
   checksum: 10/24c937b532f868e938386b62410b303b7c767ce3d08dc2829cbe59464d5a26ef86ae5ad1af6b34eec43ddfea39e7d101638644b0178d67262fa87015d59f983a
+  languageName: node
+  linkType: hard
+
+"idb@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "idb@npm:8.0.4"
+  checksum: 10/c7bc0fbfe2cb20a884f5415ff7e51b25c1b6acdf744d24a291bb43282477a04496a2fd471918083e5247271ead58653a8797a830b09b0ddda1b6aea9485870d5
   languageName: node
   linkType: hard
 
