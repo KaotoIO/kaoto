@@ -5,6 +5,8 @@ import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo, use
 import { DesignerVisualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
 import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
+import { CatalogModalProvider } from '../../dynamic-catalog/catalog-modal.provider';
+import { CatalogTilesProvider } from '../../dynamic-catalog/catalog-tiles.provider';
 import {
   EntitiesContext,
   EntitiesProvider,
@@ -51,14 +53,19 @@ const Viz: FunctionComponent<{
           <SchemasLoaderProvider>
             <CatalogLoaderProvider>
               <EntitiesProvider>
-                <VisualizationProvider controller={controller}>
-                  <VisibleFlowsProvider>
-                    {/* Required by the forms of the side panel to register their suggestion providers */}
-                    <SuggestionRegistryProvider>
-                      <VisibleFlowsVisualization className={className} />
-                    </SuggestionRegistryProvider>
-                  </VisibleFlowsProvider>
-                </VisualizationProvider>
+                <CatalogTilesProvider>
+                  <VisualizationProvider controller={controller}>
+                    <VisibleFlowsProvider>
+                      {/* Required by the forms of the side panel to register their suggestion providers */}
+                      <SuggestionRegistryProvider>
+                        {/* Opens the catalog to add, append, prepend or replace a step and checks where a step fits */}
+                        <CatalogModalProvider>
+                          <VisibleFlowsVisualization className={className} />
+                        </CatalogModalProvider>
+                      </SuggestionRegistryProvider>
+                    </VisibleFlowsProvider>
+                  </VisualizationProvider>
+                </CatalogTilesProvider>
               </EntitiesProvider>
             </CatalogLoaderProvider>
           </SchemasLoaderProvider>
