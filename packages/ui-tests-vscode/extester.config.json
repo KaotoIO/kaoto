@@ -5,11 +5,11 @@
   },
   "run": {
     "testFiles": [
-      "out/settings/*.test.js",
       "out/editor/*.test.js",
+      "out/source/*.test.js",
       "out/views/*.test.js",
       "out/deploy/*.test.js",
-      "out/export/*.test.js"
+      "out/project/*.test.js"
     ],
     "resources": ["./test Fixture with speci@l chars"],
     "extensionsDir": "./test-resources",

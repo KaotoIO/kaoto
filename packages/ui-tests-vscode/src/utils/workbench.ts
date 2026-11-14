@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { By, InputBox, ModalDialog, WebDriver } from 'vscode-extension-tester';
+import { By, InputBox, ModalDialog, StatusBar, WebDriver } from 'vscode-extension-tester';
 
 /**
  * Dismiss a modal dialog if one is currently blocking the workbench.
@@ -67,4 +67,31 @@ export async function handleInputPathSelection(input: InputBox): Promise<void> {
 	if (nextButton && (await nextButton.getText()) === 'Select') {
 		await input.confirm(); // confirm the path selection
 	}
+}
+
+/**
+ * Click the status bar item that shows the selected Camel catalog, which opens the catalog picker.
+ *
+ * @param driver The WebDriver instance.
+ */
+export async function clickCatalogStatusBarItem(driver: WebDriver): Promise<void> {
+	const statusBar = new StatusBar();
+	const catalogItem = await driver.wait(
+		async () => {
+			const items = await statusBar.getItems();
+			for (const item of items) {
+				const text = await item.getText();
+				if (text.includes('Camel')) {
+					return item;
+				}
+			}
+			return undefined;
+		},
+		10_000,
+		'Catalog status bar item containing "Camel" was not found',
+	);
+	if (!catalogItem) {
+		throw new Error('Catalog status bar item containing "Camel" was not found');
+	}
+	await catalogItem.click();
 }
