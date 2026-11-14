@@ -1,4 +1,4 @@
-import { ExplorerFile } from '../../stubs/explorer/index';
+import { ExplorerFile } from './explorer-file';
 
 /**
  * Find the path (ancestor chain) from root to the node with the given id.
