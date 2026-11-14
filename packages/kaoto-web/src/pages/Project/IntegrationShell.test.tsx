@@ -1,10 +1,29 @@
+import * as KaotoComponentsModule from '@kaoto/kaoto/components';
 import { act, render, screen } from '@testing-library/react';
-import { ReactNode } from 'react';
-import { MemoryRouter, Route, Routes, useNavigate } from 'react-router';
-import { describe, expect, it, vi } from 'vitest';
+import { FunctionComponent, ReactNode, useEffect } from 'react';
+import { MemoryRouter, NavigateFunction, Route, Routes, useNavigate } from 'react-router';
+import { beforeEach, describe, expect, it, MockInstance, vi } from 'vitest';
 
 import { IntegrationHeaderContext, ViewMode } from '../../context/IntegrationHeaderContext';
+import { getStubIntegrationContent } from '../../stubs/integrations';
 import IntegrationShell from './IntegrationShell';
+
+let routeVisualizationSpy: MockInstance<typeof KaotoComponentsModule.RouteVisualization>;
+let routeVisualizationMounts = 0;
+
+const RouteVisualizationStub: typeof KaotoComponentsModule.RouteVisualization = ({ code }) => {
+  useEffect(() => {
+    routeVisualizationMounts++;
+  }, []);
+  return <div data-testid="route-visualization" data-code={code} />;
+};
+
+beforeEach(() => {
+  routeVisualizationMounts = 0;
+  routeVisualizationSpy = vi
+    .spyOn(KaotoComponentsModule, 'RouteVisualization')
+    .mockImplementation(RouteVisualizationStub);
+});
 
 const mockSetBreadcrumbItems = vi.fn();
 const mockSetCurrent = vi.fn();
@@ -36,6 +55,15 @@ const renderWithContext = (
       </MemoryRouter>
     </IntegrationHeaderContext.Provider>,
   );
+
+/** Rendered inside the router to hand its navigate function to the test */
+const NavCapture: FunctionComponent<{ onNavigate: (navigate: NavigateFunction) => void }> = ({ onNavigate }) => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    onNavigate(navigate);
+  }, [navigate, onNavigate]);
+  return null;
+};
 
 describe('IntegrationShell', () => {
   it('renders the shell and body', () => {
@@ -79,11 +107,12 @@ describe('IntegrationShell', () => {
   it('resets viewMode to design when navigating to a different integration', () => {
     // NavCapture is rendered inside the same MemoryRouter so navigate() works in context.
     let navigateTo: (path: string) => void = () => {};
-    const NavCapture = () => {
-      navigateTo = useNavigate();
-      return null;
-    };
-    renderWithContext('my-project', 'error-handler', 'code', <NavCapture />);
+    renderWithContext(
+      'my-project',
+      'error-handler',
+      'code',
+      <NavCapture onNavigate={(navigate) => (navigateTo = navigate)} />,
+    );
     mockSetViewMode.mockClear();
     act(() => {
       navigateTo('/projects/my-project/integration/main-flow');
@@ -96,6 +125,60 @@ describe('IntegrationShell', () => {
     unmount();
     expect(mockSetBreadcrumbItems).toHaveBeenLastCalledWith([]);
     expect(mockSetCurrent).toHaveBeenLastCalledWith('');
+  });
+
+  it('renders the route visualization with the stub content in design mode', () => {
+    renderWithContext('my-project', 'main-flow');
+    const canvas = screen.getByTestId('route-visualization');
+    expect(canvas).toHaveAttribute('data-code', getStubIntegrationContent('main-flow'));
+    const { catalogUrl } = routeVisualizationSpy.mock.lastCall![0];
+    expect(catalogUrl).toMatch(/^\/.*camel-catalog\/index\.json$/);
+  });
+
+  it('shows an empty state when the integration has no content', () => {
+    renderWithContext('my-project', 'order-test');
+    expect(screen.getByText('No preview available')).toBeInTheDocument();
+    expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
+  });
+
+  it('does not render the canvas outside design mode', () => {
+    renderWithContext('my-project', 'main-flow', 'code');
+    expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
+  });
+
+  it('shows the content of the newly selected integration when switching', () => {
+    let navigateTo: (path: string) => void = () => {};
+    renderWithContext(
+      'my-project',
+      'error-handler',
+      'design',
+      <NavCapture onNavigate={(navigate) => (navigateTo = navigate)} />,
+    );
+    expect(screen.getByTestId('route-visualization')).toHaveAttribute(
+      'data-code',
+      getStubIntegrationContent('error-handler'),
+    );
+    act(() => {
+      navigateTo('/projects/my-project/integration/main-flow');
+    });
+    expect(screen.getByTestId('route-visualization')).toHaveAttribute(
+      'data-code',
+      getStubIntegrationContent('main-flow'),
+    );
+  });
+
+  it('keeps the canvas mounted when switching integration so the catalog is not reloaded', () => {
+    let navigateTo: (path: string) => void = () => {};
+    renderWithContext(
+      'my-project',
+      'error-handler',
+      'design',
+      <NavCapture onNavigate={(navigate) => (navigateTo = navigate)} />,
+    );
+    act(() => {
+      navigateTo('/projects/my-project/integration/main-flow');
+    });
+    expect(routeVisualizationMounts).toBe(1);
   });
 
   it('redirects to root for invalid params', () => {
