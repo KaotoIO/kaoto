@@ -36,8 +36,6 @@ yarn install
 
 ```bash
 # Start development server (from repository root)
-yarn workspace @kaoto/kaoto-web dev
-# or
 yarn workspace @kaoto/kaoto-web start
 
 # The app will be available at http://localhost:5173
@@ -55,12 +53,13 @@ yarn workspace @kaoto/kaoto-web preview
 
 ## Available Scripts
 
-- `yarn dev` / `yarn start` - Start development server
-- `yarn build` - Build for production (includes type checking)
-- `yarn type-check` - Run TypeScript type checking
+- `yarn start` - Start development server
+- `yarn build` - Build for production (includes type checking via `tsc -b`)
 - `yarn preview` - Preview production build locally
-- `yarn lint` - Run all linters (ESLint, Stylelint, Prettier)
-- `yarn lint-fix` - Fix linting issues automatically
+- `yarn lint` - Run ESLint
+- `yarn lint:fix` - Fix ESLint issues automatically
+- `yarn lint:style` - Run Stylelint
+- `yarn lint:style:fix` - Fix Stylelint issues automatically
 - `yarn test` - Run tests with coverage
 - `yarn test:watch` - Run tests in watch mode
 
