@@ -2,6 +2,12 @@ import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
+import {
+  componentModeRegistration,
+  groupAutoStartupRegistration,
+  RegisterComponents,
+} from '../../components/registers/RegisterComponents';
+import { RenderingProvider } from '../../components/RenderingAnchor/rendering.provider';
 import { DesignerVisualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
 import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
@@ -19,6 +25,12 @@ import {
 } from '../../providers';
 import { ActionConfirmationModalContextProvider } from '../../providers/action-confirmation-modal.provider';
 import { EventNotifier } from '../../utils';
+
+/**
+ * The DataMapper launcher is left out: it navigates to the DataMapper page of the Kaoto web app, which the hosts of
+ * this component do not have.
+ */
+const componentsToRegister = [componentModeRegistration, groupAutoStartupRegistration];
 
 const VisibleFlowsVisualization: FunctionComponent<{ className?: string }> = ({ className = '' }) => {
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
@@ -57,16 +69,21 @@ const Viz: FunctionComponent<{
                 <CatalogTilesProvider>
                   <VisualizationProvider controller={controller}>
                     <VisibleFlowsProvider>
-                      {/* Required by the forms of the side panel to register their suggestion providers */}
-                      <SuggestionRegistryProvider>
-                        {/* Opens the catalog to add, append, prepend or replace a step and checks where a step fits */}
-                        <CatalogModalProvider>
-                          {/* Asks before deleting a step with children, a route or a group */}
-                          <ActionConfirmationModalContextProvider>
-                            <VisibleFlowsVisualization className={className} />
-                          </ActionConfirmationModalContextProvider>
-                        </CatalogModalProvider>
-                      </SuggestionRegistryProvider>
+                      {/* Renders the auto startup switch of routes and the component mode selector of the forms */}
+                      <RenderingProvider>
+                        <RegisterComponents components={componentsToRegister}>
+                          {/* Required by the forms of the side panel to register their suggestion providers */}
+                          <SuggestionRegistryProvider>
+                            {/* Opens the catalog to add, append, prepend or replace a step and checks where a step fits */}
+                            <CatalogModalProvider>
+                              {/* Asks before deleting a step with children, a route or a group */}
+                              <ActionConfirmationModalContextProvider>
+                                <VisibleFlowsVisualization className={className} />
+                              </ActionConfirmationModalContextProvider>
+                            </CatalogModalProvider>
+                          </SuggestionRegistryProvider>
+                        </RegisterComponents>
+                      </RenderingProvider>
                     </VisibleFlowsProvider>
                   </VisualizationProvider>
                 </CatalogTilesProvider>
