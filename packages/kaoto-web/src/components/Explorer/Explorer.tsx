@@ -4,7 +4,7 @@
 import './Explorer.scss';
 
 import { Add, Document, DocumentConfiguration, Folder, FolderOpen, TestTool } from '@carbon/icons-react';
-import { FeatureFlags, IconButton, Search, TreeNode, TreeView } from '@carbon/react';
+import { FeatureFlags, IconButton, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
 import {
   ChangeEvent,
   ComponentProps,
@@ -17,8 +17,11 @@ import {
 } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
+import { useProjectFiles } from '../../hooks/useProjectFiles';
 import { useSafeParams } from '../../hooks/useSafeParams';
-import { ExplorerFile, STUB_FILES } from '../../stubs/explorer/index';
+import { ErrorState } from '../ErrorState/ErrorState';
+import { buildTree } from './build-tree';
+import { ExplorerFile } from './explorer-file';
 import { filterFiles } from './filterFiles';
 
 const MIN_WIDTH = 160;
@@ -126,7 +129,9 @@ export const Explorer: FunctionComponent = () => {
     setQuery(e.target.value.toLowerCase());
   }, []);
 
-  const filtered = useMemo(() => filterFiles(STUB_FILES, query), [query]);
+  const { files, loading, error } = useProjectFiles();
+  const tree = useMemo(() => buildTree(files), [files]);
+  const filtered = useMemo(() => filterFiles(tree, query), [tree, query]);
 
   const handleToggle = useCallback(
     (folderId: string) =>
@@ -183,14 +188,22 @@ export const Explorer: FunctionComponent = () => {
 
       {/* Section 4 — File tree */}
       <div className="cs--explorer__tree">
-        {/* enableTreeviewControllable makes `selected` and `active` fully controlled —
-            without it, Carbon TreeView only uses `selected` as an initial value and
-            won't react to URL changes (e.g. browser back/forward). */}
-        <FeatureFlags enableTreeviewControllable>
-          <TreeView label="Project files" hideLabel selected={selectedId ? [selectedId] : []} active={selectedId}>
-            {renderNodes(filtered, { query, selectedId, expandedFolders, handleToggle, openIntegration })}
-          </TreeView>
-        </FeatureFlags>
+        {loading && (
+          <div data-testid="explorer-loading">
+            <SkeletonText paragraph lineCount={4} />
+          </div>
+        )}
+        {error && <ErrorState title="Could not load the project files" message={error.message} />}
+        {!loading && !error && (
+          /* enableTreeviewControllable makes `selected` and `active` fully controlled —
+             without it, Carbon TreeView only uses `selected` as an initial value and
+             won't react to URL changes (e.g. browser back/forward). */
+          <FeatureFlags enableTreeviewControllable>
+            <TreeView label="Project files" hideLabel selected={selectedId ? [selectedId] : []} active={selectedId}>
+              {renderNodes(filtered, { query, selectedId, expandedFolders, handleToggle, openIntegration })}
+            </TreeView>
+          </FeatureFlags>
+        )}
       </div>
     </aside>
   );
