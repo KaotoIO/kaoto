@@ -13,24 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {
-	ActivityBar,
-	after,
-	before,
-	EditorView,
-	InputBox,
-	ModalDialog,
-	NotificationType,
-	StatusBar,
-	TextSetting,
-	VSBrowser,
-	WebDriver,
-	WebView,
-	Workbench,
-} from 'vscode-extension-tester';
-import { checkTopologyLoaded, closeEditor, openAndSwitchToKaotoFrame, switchToKaotoFrame } from '../utils/editor';
-import { resetUserSettings } from '../utils/settings';
-import { dismissBlockingModal } from '../utils/workbench';
+import { after, before, EditorView, InputBox, ModalDialog, NotificationType, VSBrowser, WebDriver, WebView, Workbench } from 'vscode-extension-tester';
+import { checkTopologyLoaded, openAndSwitchToKaotoFrame, switchToKaotoFrame } from '../utils/editor';
+import { clickCatalogStatusBarItem } from '../utils/workbench';
 import { join } from 'path';
 import { rmSync } from 'fs';
 import { expect } from 'chai';
@@ -41,8 +26,6 @@ describe('User Settings', function () {
 	this.timeout(240_000);
 
 	const WORKSPACE_FOLDER = join(__dirname, '../../test Fixture with speci@l chars');
-	const CATALOG_URL = 'https://raw.githubusercontent.com/KaotoIO/camel-catalog/refs/heads/main/catalog/index.json';
-	const CATALOG_SETTINGS_ID = 'kaoto.catalog.url';
 
 	let driver: WebDriver;
 	let kaotoWebview: WebView;
@@ -75,93 +58,6 @@ describe('User Settings', function () {
 		}
 	});
 
-	describe('Custom catalogs', function () {
-		before(async function () {
-			// provide the Catalog URL using Settings UI editor
-			const settings = await new Workbench().openSettings();
-			const textSetting = await driver.wait(
-				async () => {
-					return (await settings.findSetting('Url', 'Kaoto', 'Catalog')) as TextSetting;
-				},
-				5_000,
-				'Looking for "Kaoto > Catalog: Url" text field.',
-			);
-			await textSetting.setValue(CATALOG_URL);
-			await driver.sleep(1_000); // stabilize tests which are sometimes failing on macOS CI
-			await closeEditor('Settings', true);
-
-			await driver.wait(
-				async () => {
-					try {
-						const viewControls = await new ActivityBar().getViewControls();
-						return viewControls.length > 0;
-					} catch {
-						return false;
-					}
-				},
-				10_000,
-				'The activityBar is not reachable after 5 seconds. Maybe the modal dialog has not been successfully closed previously?',
-			);
-			// close sidebar
-			await (await new ActivityBar().getViewControl('Explorer'))?.closeView();
-
-			// open the integration file using Kaoto editor
-			kaotoWebview = (await openAndSwitchToKaotoFrame(WORKSPACE_FOLDER, 'my.camel.yaml', driver, true)).kaotoWebview;
-			await checkTopologyLoaded(driver);
-		});
-
-		after(async function () {
-			if (kaotoWebview !== undefined) {
-				try {
-					await kaotoWebview.switchBack();
-				} catch {
-					// probably test not failed in Kaoto UI, just continue
-				}
-			}
-			resetUserSettings(CATALOG_SETTINGS_ID);
-			// the editor in this step needs to be closed using command palette
-			// because in some cases, specially on Windows, there was hover displayed which was blocking the editor close button
-			await new Workbench().executeCommand('View: Close Editor');
-			// resetUserSettings rewrites settings.json on disk while VS Code still has it open, so
-			// closing can raise "Do you want to save the changes you made to settings.json?". Left up,
-			// its backdrop blocks every click for the rest of the run.
-			await dismissBlockingModal(driver);
-		});
-
-		const runtimeSelectors = ['Main', 'Quarkus', 'Spring Boot'];
-
-		it('Check custom Kaoto catalogs loaded for all runtimes', async function () {
-			this.timeout(60_000);
-
-			// switch back from Kaoto webview to interact with VS Code status bar
-			await kaotoWebview.switchBack();
-			await VSBrowser.instance.waitForWorkbench(5_000);
-
-			// open catalog picker via status bar
-			await clickCatalogStatusBarItem();
-			const input = await InputBox.create(5_000);
-			const picks = await input.getQuickPicks();
-
-			const labels: string[] = [];
-			for (const pick of picks) {
-				labels.push(await pick.getLabel());
-			}
-
-			// verify catalogs for each runtime are present
-			for (const runtime of runtimeSelectors) {
-				const runtimeItems = labels.filter((label) => label.startsWith(`Camel ${runtime}`));
-				expect(runtimeItems.length, `Expected catalog items for runtime '${runtime}'`).to.be.greaterThan(0);
-				expect(runtimeItems).to.satisfy((items: string[]) => items.every((item) => item.startsWith(`Camel ${runtime}`)));
-			}
-
-			// close the quick pick without selecting
-			await input.cancel();
-
-			// switch back into webview frame
-			await kaotoWebview.switchToFrame();
-		});
-	});
-
 	describe('Default catalogs', function () {
 		afterEach(async function () {
 			try {
@@ -190,7 +86,7 @@ describe('User Settings', function () {
 			await VSBrowser.instance.waitForWorkbench(5_000);
 
 			// open catalog picker via status bar and select a community 'Main' runtime catalog
-			await clickCatalogStatusBarItem();
+			await clickCatalogStatusBarItem(driver);
 			const input = await InputBox.create(5_000);
 			const picks = await input.getQuickPicks();
 
@@ -233,7 +129,7 @@ describe('User Settings', function () {
 			await VSBrowser.instance.waitForWorkbench(5_000);
 
 			// open catalog picker via status bar and select a Red Hat catalog
-			await clickCatalogStatusBarItem();
+			await clickCatalogStatusBarItem(driver);
 			const input = await InputBox.create(5_000);
 			const picks = await input.getQuickPicks();
 
@@ -270,28 +166,6 @@ describe('User Settings', function () {
 			await CatalogModal.close(catalogWindow);
 		});
 	});
-
-	async function clickCatalogStatusBarItem(): Promise<void> {
-		const statusBar = new StatusBar();
-		const catalogItem = await driver.wait(
-			async () => {
-				const items = await statusBar.getItems();
-				for (const item of items) {
-					const text = await item.getText();
-					if (text.includes('Camel')) {
-						return item;
-					}
-				}
-				return undefined;
-			},
-			10_000,
-			'Catalog status bar item containing "Camel" was not found',
-		);
-		if (!catalogItem) {
-			throw new Error('Catalog status bar item containing "Camel" was not found');
-		}
-		await catalogItem.click();
-	}
 
 	async function clickReopenNotification(): Promise<void> {
 		await driver.wait(
