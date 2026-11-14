@@ -1,17 +1,22 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-import { STUB_FILES } from '../../stubs/explorer/index';
+import { SEED_PROJECT_FILES } from '../../stubs/project-files/seed';
+import { resetTestIndexedDB } from '../../test/indexed-db';
+import { withProjectFiles } from '../../test/project-files';
+import { buildTree } from './build-tree';
 import { Explorer } from './Explorer';
 import { filterFiles } from './filterFiles';
+
+const TREE = buildTree(SEED_PROJECT_FILES.map((file) => ({ ...file, id: file.id ?? '' })));
 
 const renderComponent = (projectId = 'my-project') =>
   render(
     <MemoryRouter initialEntries={[`/projects/${projectId}`]}>
       <Routes>
-        <Route path="/projects/:projectId" element={<Explorer />} />
+        <Route path="/projects/:projectId" element={withProjectFiles(<Explorer />, projectId)} />
       </Routes>
     </MemoryRouter>,
   );
@@ -28,13 +33,13 @@ const renderWithNavigation = (children?: React.ReactNode) =>
       <Routes>
         <Route
           path="/projects/:projectId"
-          element={
+          element={withProjectFiles(
             <>
               <Explorer />
               {children}
               <Outlet />
-            </>
-          }
+            </>,
+          )}
         >
           <Route index element={null} />
           <Route path="integration/:integrationId" element={null} />
@@ -45,24 +50,24 @@ const renderWithNavigation = (children?: React.ReactNode) =>
 
 describe('filterFiles', () => {
   it('returns the original array when query is empty', () => {
-    expect(filterFiles(STUB_FILES, '')).toBe(STUB_FILES);
+    expect(filterFiles(TREE, '')).toBe(TREE);
   });
 
   it('returns only nodes whose name contains the query', () => {
-    const result = filterFiles(STUB_FILES, 'main');
+    const result = filterFiles(TREE, 'main');
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe('integrations');
     expect(result[0].children?.map((c) => c.id)).toEqual(['main-flow']);
   });
 
   it('excludes non-matching siblings when a child matches', () => {
-    const result = filterFiles(STUB_FILES, 'rest-api');
-    const routes = result[0].children?.find((c) => c.id === 'routes');
+    const result = filterFiles(TREE, 'rest-api');
+    const routes = result[0].children?.find((c) => c.id === 'integrations/routes');
     expect(routes?.children?.map((c) => c.id)).toEqual(['rest-api']);
   });
 
   it('returns a folder with all its children when the folder name matches', () => {
-    const result = filterFiles(STUB_FILES, 'resources');
+    const result = filterFiles(TREE, 'resources');
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe('resources');
     // All original children are kept so the user can browse folder contents
@@ -70,23 +75,59 @@ describe('filterFiles', () => {
   });
 
   it('recurses into 3-level deep folders', () => {
-    const result = filterFiles(STUB_FILES, 'kafka');
-    const async_ = result[0].children?.find((c) => c.id === 'routes')?.children?.find((c) => c.id === 'async');
+    const result = filterFiles(TREE, 'kafka');
+    const async_ = result[0].children
+      ?.find((c) => c.id === 'integrations/routes')
+      ?.children?.find((c) => c.id === 'integrations/routes/async');
     expect(async_?.children?.map((c) => c.id)).toEqual(['kafka-consumer', 'kafka-producer']);
   });
 
   it('returns empty array when nothing matches', () => {
-    expect(filterFiles(STUB_FILES, 'nonexistent-xyz')).toHaveLength(0);
+    expect(filterFiles(TREE, 'nonexistent-xyz')).toHaveLength(0);
   });
 
   it('does not mutate the original nodes', () => {
-    const original = STUB_FILES[1]; // resources
-    filterFiles(STUB_FILES, 'resources');
+    const original = TREE[1]; // resources
+    filterFiles(TREE, 'resources');
     expect(original.children).toHaveLength(3); // schema, mapping, templates
   });
 });
 
 describe('Explorer', () => {
+  beforeEach(() => {
+    resetTestIndexedDB();
+  });
+
+  it('shows a loading placeholder until the files are loaded', async () => {
+    renderComponent();
+
+    expect(screen.getByTestId('explorer-loading')).toBeInTheDocument();
+    expect(await screen.findByTestId('explorer-folder-integrations')).toBeInTheDocument();
+    expect(screen.queryByTestId('explorer-loading')).not.toBeInTheDocument();
+  });
+
+  it('shows an error when the files cannot be loaded', async () => {
+    // @ts-expect-error simulating a browser without IndexedDB
+    globalThis.indexedDB = undefined;
+
+    renderComponent();
+
+    expect(await screen.findByText('Could not load the project files')).toBeInTheDocument();
+    expect(screen.queryByTestId('explorer-loading')).not.toBeInTheDocument();
+  });
+
+  it('shows the nested folders of the stored paths', async () => {
+    const user = userEvent.setup();
+    renderComponent();
+
+    for (const folderId of ['integrations', 'integrations/routes', 'integrations/routes/async']) {
+      const folderNode = await screen.findByTestId(`explorer-folder-${folderId}`);
+      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+    }
+
+    expect(screen.getByTestId('explorer-file-kafka-consumer')).toHaveTextContent('kafka-consumer.camel.yaml');
+  });
+
   it.each(['order-test', 'timer-source', 'orders-pipe', 'legacy-route'])(
     'opens %s (non-camel.yaml canvas resource) on click',
     async (id) => {
@@ -94,7 +135,7 @@ describe('Explorer', () => {
       const user = userEvent.setup();
       renderWithNavigation(<LocationDisplay />);
 
-      const folderNode = screen.getByTestId('explorer-folder-integrations');
+      const folderNode = await screen.findByTestId('explorer-folder-integrations');
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
       await user.click(screen.getByTestId(`explorer-file-${id}`));
 
@@ -102,11 +143,11 @@ describe('Explorer', () => {
     },
   );
 
-  it('renders the sidebar structure', () => {
+  it('renders the sidebar structure', async () => {
     renderComponent();
     expect(screen.getByTestId('explorer')).toBeInTheDocument();
     expect(screen.getByTestId('route-selector-area')).toBeInTheDocument();
-    expect(screen.getByTestId('explorer-folder-integrations')).toBeInTheDocument();
+    expect(await screen.findByTestId('explorer-folder-integrations')).toBeInTheDocument();
     expect(screen.getByTestId('explorer-folder-resources')).toBeInTheDocument();
   });
 
@@ -120,6 +161,7 @@ describe('Explorer', () => {
   it('filters the tree and auto-expands matching folders on search', async () => {
     const user = userEvent.setup();
     renderComponent();
+    await screen.findByTestId('explorer-folder-integrations');
 
     await user.type(screen.getByRole('searchbox'), 'main');
 
@@ -133,7 +175,7 @@ describe('Explorer', () => {
     const user = userEvent.setup();
     renderWithNavigation(<LocationDisplay />);
 
-    const folderNode = screen.getByTestId('explorer-folder-integrations');
+    const folderNode = await screen.findByTestId('explorer-folder-integrations');
     await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
     expect(folderNode).toHaveAttribute('aria-expanded', 'true');
 
@@ -146,7 +188,7 @@ describe('Explorer', () => {
     const user = userEvent.setup();
     renderWithNavigation();
 
-    const folderNode = screen.getByTestId('explorer-folder-integrations');
+    const folderNode = await screen.findByTestId('explorer-folder-integrations');
     await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
 
     await user.click(screen.getByText('main-flow.camel.yaml'));
@@ -168,7 +210,7 @@ describe('Explorer', () => {
     renderWithNavigation(<NavCapture />);
 
     // Expand the Integrations folder and click main-flow
-    const folderNode = screen.getByTestId('explorer-folder-integrations');
+    const folderNode = await screen.findByTestId('explorer-folder-integrations');
     await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
     await user.click(screen.getByText('main-flow.camel.yaml'));
     expect(screen.getByTestId('explorer-file-main-flow')).toHaveAttribute('aria-selected', 'true');
@@ -193,7 +235,7 @@ describe('Explorer', () => {
       const user = userEvent.setup();
       renderWithNavigation(<LocationDisplay />);
 
-      const folderNode = screen.getByTestId('explorer-folder-resources');
+      const folderNode = await screen.findByTestId('explorer-folder-resources');
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
       await user.click(screen.getByTestId('explorer-file-schema'));
 
@@ -208,18 +250,18 @@ describe('Explorer', () => {
           <Routes>
             <Route
               path="/projects/:projectId"
-              element={
+              element={withProjectFiles(
                 <>
                   <Explorer />
                   <LocationDisplay />
-                </>
-              }
+                </>,
+              )}
             />
           </Routes>
         </MemoryRouter>,
       );
 
-      const folderNode = screen.getByTestId('explorer-folder-integrations');
+      const folderNode = await screen.findByTestId('explorer-folder-integrations');
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
       await user.click(screen.getByTestId('explorer-file-main-flow'));
 
