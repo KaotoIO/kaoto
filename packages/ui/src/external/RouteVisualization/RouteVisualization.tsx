@@ -2,11 +2,13 @@ import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
+import { NodeInteractionAddonProvider } from '../../components/registers/interactions/node-interaction-addon.provider';
 import {
   componentModeRegistration,
   groupAutoStartupRegistration,
   RegisterComponents,
 } from '../../components/registers/RegisterComponents';
+import { RegisterNodeInteractionAddons } from '../../components/registers/RegisterNodeInteractionAddons';
 import { RenderingProvider } from '../../components/RenderingAnchor/rendering.provider';
 import { DesignerVisualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
@@ -72,16 +74,21 @@ const Viz: FunctionComponent<{
                       {/* Renders the auto startup switch of routes and the component mode selector of the forms */}
                       <RenderingProvider>
                         <RegisterComponents components={componentsToRegister}>
-                          {/* Required by the forms of the side panel to register their suggestion providers */}
-                          <SuggestionRegistryProvider>
-                            {/* Opens the catalog to add, append, prepend or replace a step and checks where a step fits */}
-                            <CatalogModalProvider>
-                              {/* Asks before deleting a step with children, a route or a group */}
-                              <ActionConfirmationModalContextProvider>
-                                <VisibleFlowsVisualization className={className} />
-                              </ActionConfirmationModalContextProvider>
-                            </CatalogModalProvider>
-                          </SuggestionRegistryProvider>
+                          {/* Step specific handling of copy, duplicate, paste, delete and update, e.g. DataMapper or Citrus waitFor */}
+                          <NodeInteractionAddonProvider>
+                            <RegisterNodeInteractionAddons>
+                              {/* Required by the forms of the side panel to register their suggestion providers */}
+                              <SuggestionRegistryProvider>
+                                {/* Opens the catalog to add, append, prepend or replace a step and checks where a step fits */}
+                                <CatalogModalProvider>
+                                  {/* Asks before deleting a step with children, a route or a group */}
+                                  <ActionConfirmationModalContextProvider>
+                                    <VisibleFlowsVisualization className={className} />
+                                  </ActionConfirmationModalContextProvider>
+                                </CatalogModalProvider>
+                              </SuggestionRegistryProvider>
+                            </RegisterNodeInteractionAddons>
+                          </NodeInteractionAddonProvider>
                         </RegisterComponents>
                       </RenderingProvider>
                     </VisibleFlowsProvider>
