@@ -6,6 +6,8 @@ import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import type { Mock } from 'vitest';
 
 import { Anchors } from '../../components/registers/anchors';
+import { IInteractionType } from '../../components/registers/interactions/node-interaction-addon.model';
+import { NodeInteractionAddonContext } from '../../components/registers/interactions/node-interaction-addon.provider';
 import { componentModeRegistration, groupAutoStartupRegistration } from '../../components/registers/RegisterComponents';
 import { RenderingAnchorContext } from '../../components/RenderingAnchor/rendering.provider';
 import { IRegisteredValidatedComponent } from '../../components/RenderingAnchor/rendering.provider.model';
@@ -163,6 +165,19 @@ describe('RouteVisualization', () => {
     // The DataMapper launcher navigates to a DataMapper page that hosts of this component do not have
     expect(formHeaderComponents.map(({ Component }) => Component)).toEqual([componentModeRegistration.component]);
     expect(groupTitlebarComponents.map(({ Component }) => Component)).toEqual([groupAutoStartupRegistration.component]);
+  });
+
+  it('registers the node interaction addons of the DataMapper and Citrus steps', async () => {
+    let getRegisteredInteractionAddons: ((interaction: IInteractionType) => unknown[]) | undefined;
+
+    await renderWithProbe(() => {
+      ({ getRegisteredInteractionAddons } = useContext(NodeInteractionAddonContext));
+    });
+
+    // The addons are registered in an effect, so they are read once the render has settled
+    expect(getRegisteredInteractionAddons?.(IInteractionType.ON_DELETE)).toHaveLength(1);
+    expect(getRegisteredInteractionAddons?.(IInteractionType.ON_DUPLICATE)).toHaveLength(1);
+    expect(getRegisteredInteractionAddons?.(IInteractionType.ON_UPDATE)).toHaveLength(1);
   });
 
   describe('code round trip', () => {
