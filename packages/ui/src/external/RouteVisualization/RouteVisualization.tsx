@@ -1,3 +1,4 @@
+import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo } from 'react';
 
@@ -52,7 +53,10 @@ const Viz: FunctionComponent<{
               <EntitiesProvider>
                 <VisualizationProvider controller={controller}>
                   <VisibleFlowsProvider>
-                    <VisibleFlowsVisualization className={className} />
+                    {/* Required by the forms of the side panel to register their suggestion providers */}
+                    <SuggestionRegistryProvider>
+                      <VisibleFlowsVisualization className={className} />
+                    </SuggestionRegistryProvider>
                   </VisibleFlowsProvider>
                 </VisualizationProvider>
               </EntitiesProvider>
