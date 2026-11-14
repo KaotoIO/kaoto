@@ -2,10 +2,11 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { useSuggestionRegistry } from '@kaoto/forms';
 import { act, render, screen } from '@testing-library/react';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import type { Mock } from 'vitest';
 
 import * as VisualizationModule from '../../components/Visualization';
+import { CatalogModalContext } from '../../dynamic-catalog/catalog-modal.provider';
 import { camelRouteYaml } from '../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { EventNotifier } from '../../utils';
@@ -83,12 +84,10 @@ describe('RouteVisualization', () => {
     expect(document.querySelector('.canvas-surface')).toBeInTheDocument();
   });
 
-  it('provides the suggestion registry that the forms of the side panel require', async () => {
-    // The side panel forms register their suggestion providers through useSuggestionRegistry(),
-    // which throws without a SuggestionRegistryProvider above the canvas.
-    let hasSuggestionRegistry = false;
+  /** Renders the component with DesignerVisualization replaced by `probe` and waits until the probe is mounted */
+  const renderWithProbe = async (probe: () => void) => {
     vi.spyOn(VisualizationModule, 'DesignerVisualization').mockImplementation(() => {
-      hasSuggestionRegistry = useSuggestionRegistry() !== undefined;
+      probe();
       return <div data-testid="designer-visualization" />;
     });
 
@@ -101,7 +100,28 @@ describe('RouteVisualization', () => {
     }
 
     expect(screen.getByTestId('designer-visualization')).toBeInTheDocument();
+  };
+
+  it('provides the suggestion registry that the forms of the side panel require', async () => {
+    // The side panel forms register their suggestion providers through useSuggestionRegistry(),
+    // which throws without a SuggestionRegistryProvider above the canvas.
+    let hasSuggestionRegistry = false;
+
+    await renderWithProbe(() => {
+      hasSuggestionRegistry = useSuggestionRegistry() !== undefined;
+    });
+
     expect(hasSuggestionRegistry).toBe(true);
+  });
+
+  it('provides the catalog modal that adding, replacing and duplicating steps require', async () => {
+    let hasCatalogModal = false;
+
+    await renderWithProbe(() => {
+      hasCatalogModal = useContext(CatalogModalContext) !== undefined;
+    });
+
+    expect(hasCatalogModal).toBe(true);
   });
 
   describe('code round trip', () => {
