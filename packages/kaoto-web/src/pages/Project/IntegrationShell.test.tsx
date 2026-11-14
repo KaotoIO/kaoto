@@ -1,11 +1,13 @@
 import * as KaotoComponentsModule from '@kaoto/kaoto/components';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, ReactNode, useEffect } from 'react';
 import { MemoryRouter, NavigateFunction, Route, Routes, useNavigate } from 'react-router';
 import { beforeEach, describe, expect, it, MockInstance, vi } from 'vitest';
 
 import { IntegrationHeaderContext, ViewMode } from '../../context/IntegrationHeaderContext';
 import { getStubIntegrationContent } from '../../stubs/integrations';
+import { resetTestIndexedDB } from '../../test/indexed-db';
+import { withProjectFiles } from '../../test/project-files';
 import IntegrationShell from './IntegrationShell';
 
 let routeVisualizationSpy: MockInstance<typeof KaotoComponentsModule.RouteVisualization>;
@@ -48,10 +50,13 @@ const renderWithContext = (
     >
       <MemoryRouter initialEntries={[`/projects/${projectId}/integration/${integrationId}`]}>
         {extra}
-        <Routes>
-          <Route path="/" element={<div data-testid="root-page" />} />
-          <Route path="/projects/:projectId/integration/:integrationId" element={<IntegrationShell />} />
-        </Routes>
+        {withProjectFiles(
+          <Routes>
+            <Route path="/" element={<div data-testid="root-page" />} />
+            <Route path="/projects/:projectId/integration/:integrationId" element={<IntegrationShell />} />
+          </Routes>,
+          projectId,
+        )}
       </MemoryRouter>
     </IntegrationHeaderContext.Provider>,
   );
@@ -66,6 +71,13 @@ const NavCapture: FunctionComponent<{ onNavigate: (navigate: NavigateFunction) =
 };
 
 describe('IntegrationShell', () => {
+  beforeEach(() => {
+    resetTestIndexedDB();
+    mockSetBreadcrumbItems.mockClear();
+    mockSetCurrent.mockClear();
+    mockSetViewMode.mockClear();
+  });
+
   it('renders the shell and body', () => {
     renderWithContext();
     expect(screen.getByTestId('integration-shell')).toBeInTheDocument();
@@ -77,26 +89,48 @@ describe('IntegrationShell', () => {
     expect(screen.queryByTestId('integration-shell-toolbar')).not.toBeInTheDocument();
   });
 
-  it('publishes full folder path as breadcrumb to context on mount', () => {
+  it('publishes full folder path as breadcrumb to context on mount', async () => {
     renderWithContext('my-project', 'main-flow');
-    expect(mockSetBreadcrumbItems).toHaveBeenCalledWith([{ label: 'Integrations', href: '/projects/my-project' }]);
-    expect(mockSetCurrent).toHaveBeenCalledWith('main-flow.camel.yaml');
+    await waitFor(() => {
+      expect(mockSetCurrent).toHaveBeenLastCalledWith('main-flow.camel.yaml');
+    });
+    expect(mockSetBreadcrumbItems).toHaveBeenLastCalledWith([{ label: 'integrations', href: '/projects/my-project' }]);
   });
 
-  it('publishes deep nested path for deeply nested integrations', () => {
+  it('publishes deep nested path for deeply nested integrations', async () => {
     renderWithContext('my-project', 'kafka-consumer');
-    expect(mockSetBreadcrumbItems).toHaveBeenCalledWith([
-      { label: 'Integrations', href: '/projects/my-project' },
+    await waitFor(() => {
+      expect(mockSetCurrent).toHaveBeenLastCalledWith('kafka-consumer.camel.yaml');
+    });
+    expect(mockSetBreadcrumbItems).toHaveBeenLastCalledWith([
+      { label: 'integrations', href: '/projects/my-project' },
       { label: 'routes', href: '/projects/my-project' },
       { label: 'async', href: '/projects/my-project' },
     ]);
-    expect(mockSetCurrent).toHaveBeenCalledWith('kafka-consumer.camel.yaml');
   });
 
-  it('falls back to projectId when integration id is not in the file tree', () => {
-    renderWithContext('my-project', 'unknown-id');
+  it('falls back to the project id while the files are loading', () => {
+    renderWithContext('my-project', 'main-flow');
     expect(mockSetBreadcrumbItems).toHaveBeenCalledWith([{ label: 'my-project', href: '/projects/my-project' }]);
-    expect(mockSetCurrent).toHaveBeenCalledWith('unknown-id');
+    expect(mockSetCurrent).toHaveBeenCalledWith('main-flow');
+  });
+
+  it('falls back to projectId when integration id is not in the file tree', async () => {
+    renderWithContext('my-project', 'unknown-id');
+    // Loading the files rebuilds the tree, which clears the breadcrumb once — the fallback must remain afterwards
+    await waitFor(() => {
+      expect(mockSetBreadcrumbItems).toHaveBeenCalledWith([]);
+    });
+    expect(mockSetBreadcrumbItems).toHaveBeenLastCalledWith([{ label: 'my-project', href: '/projects/my-project' }]);
+    expect(mockSetCurrent).toHaveBeenLastCalledWith('unknown-id');
+  });
+
+  it('resets the view mode only once per opened integration', async () => {
+    renderWithContext('my-project', 'main-flow');
+    await waitFor(() => {
+      expect(mockSetCurrent).toHaveBeenLastCalledWith('main-flow.camel.yaml');
+    });
+    expect(mockSetViewMode).toHaveBeenCalledTimes(1);
   });
 
   it('resets viewMode to design on mount', () => {
@@ -130,9 +164,11 @@ describe('IntegrationShell', () => {
   it('renders the route visualization in design mode without an integration header', () => {
     render(
       <MemoryRouter initialEntries={['/projects/my-project/integration/main-flow']}>
-        <Routes>
-          <Route path="/projects/:projectId/integration/:integrationId" element={<IntegrationShell />} />
-        </Routes>
+        {withProjectFiles(
+          <Routes>
+            <Route path="/projects/:projectId/integration/:integrationId" element={<IntegrationShell />} />
+          </Routes>,
+        )}
       </MemoryRouter>,
     );
 

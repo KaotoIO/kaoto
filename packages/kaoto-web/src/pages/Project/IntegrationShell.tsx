@@ -3,13 +3,14 @@ import '@patternfly/react-core/dist/styles/base-no-reset.css';
 import './IntegrationShell.scss';
 
 import { RouteVisualization } from '@kaoto/kaoto/components';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router';
 
+import { buildTree } from '../../components/Explorer/build-tree';
 import { findPath } from '../../components/Explorer/filterFiles';
 import { useIntegrationHeader } from '../../context/IntegrationHeaderContext';
+import { useProjectFiles } from '../../hooks/useProjectFiles';
 import { useSafeParams } from '../../hooks/useSafeParams';
-import { STUB_FILES } from '../../stubs/explorer/index';
 import { getStubIntegrationContent } from '../../stubs/integrations';
 
 /** Absolute so that the catalog also resolves on nested routes such as `/projects/:id/integration/:id` */
@@ -55,25 +56,34 @@ const IntegrationShell: FunctionComponent = () => {
   const params = useSafeParams(['projectId', 'integrationId']);
   const header = useIntegrationHeader();
 
+  const { files } = useProjectFiles();
+  const tree = useMemo(() => buildTree(files), [files]);
+
+  // Reset view mode to Design when opening a different integration — not when the files change.
   useEffect(() => {
     if (!params || !header) return;
-    const path = findPath(STUB_FILES, params.integrationId);
+    header.setViewMode('design');
+    // `header` is a stable context reference (never changes identity).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.projectId, params?.integrationId]);
+
+  // Falls back to the project id while the files are loading or when the integration is unknown.
+  useEffect(() => {
+    if (!params || !header) return;
+    const path = findPath(tree, params.integrationId);
     const breadcrumbItems = path
       ? path.slice(0, -1).map((node) => ({ label: node.name, href: `/projects/${params.projectId}` }))
       : [{ label: params.projectId, href: `/projects/${params.projectId}` }];
     const current = path ? path[path.length - 1].name : params.integrationId;
     header.setBreadcrumbItems(breadcrumbItems);
     header.setCurrent(current);
-    // Reset view mode to Design when opening a different integration.
-    header.setViewMode('design');
     return () => {
       header.setBreadcrumbItems([]);
       header.setCurrent('');
     };
-    // `header` is a stable context reference (never changes identity); `STUB_FILES`
-    // is a module-level constant. Neither needs to be in the dependency array.
+    // `header` is a stable context reference (never changes identity).
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params?.projectId, params?.integrationId]);
+  }, [params?.projectId, params?.integrationId, tree]);
 
   if (!params) return <Navigate to="/" replace />;
 
