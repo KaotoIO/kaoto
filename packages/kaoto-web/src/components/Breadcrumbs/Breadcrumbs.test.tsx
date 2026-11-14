@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { Breadcrumbs } from './Breadcrumbs';
 
@@ -33,5 +33,23 @@ describe('Breadcrumbs', () => {
 
     expect(screen.getByText('Details')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Details' })).not.toBeInTheDocument();
+  });
+
+  describe('with items that link to the same destination', () => {
+    // The folders of a nested integration all link to the project page
+    const folders = (...labels: string[]) => labels.map((label) => ({ label, href: '/projects/my-project' }));
+
+    it('renders without a duplicate key warning', () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      render(
+        <MemoryRouter>
+          <Breadcrumbs items={folders('integrations', 'routes', 'async')} current="kafka-consumer.camel.yaml" />
+        </MemoryRouter>,
+      );
+
+      const messages = consoleError.mock.calls.map(([message]) => String(message));
+      expect(messages.filter((message) => message.includes('two children with the same key'))).toEqual([]);
+    });
   });
 });
