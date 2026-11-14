@@ -1201,34 +1201,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon/icon-helpers@npm:^10.70.0":
-  version: 10.70.0
-  resolution: "@carbon/icon-helpers@npm:10.70.0"
-  dependencies:
-    "@ibm/telemetry-js": "npm:^1.5.0"
-  checksum: 10/da424bb426ecf82c63bcec7a4ba5e9debc8e37574349250179240bcfcf9f4c8a177517e19eee11fc1a03cd47df9dc3fe2bb67832ed0a862c7383069f74b35c9c
-  languageName: node
-  linkType: hard
-
 "@carbon/icon-helpers@npm:^10.83.0":
   version: 10.83.0
   resolution: "@carbon/icon-helpers@npm:10.83.0"
   dependencies:
     "@ibm/telemetry-js": "npm:^1.5.0"
   checksum: 10/fdc7d5916c31cba5678d945548cc1a08bf25bc91bf23dcf97cd9d6102623f1e45fb3549a9c95612de3183021ece3e05b6d98f082fdfe4b22e67d1a84163f6db3
-  languageName: node
-  linkType: hard
-
-"@carbon/icons-react@npm:^11.67.0":
-  version: 11.72.0
-  resolution: "@carbon/icons-react@npm:11.72.0"
-  dependencies:
-    "@carbon/icon-helpers": "npm:^10.70.0"
-    "@ibm/telemetry-js": "npm:^1.5.0"
-    prop-types: "npm:^15.8.1"
-  peerDependencies:
-    react: ">=16"
-  checksum: 10/17bc7cc5589bece6f5c52c7783114d9b9f899794814b7230fc65dfc9b72e7125421fd4691ba212a9af32082909e4ea1497372019777a51e872842f620281dbc6
   languageName: node
   linkType: hard
 
@@ -3847,7 +3825,7 @@ __metadata:
     "@carbon-labs/vscode-snippets": "npm:^0.2.0"
     "@carbon/grid": "npm:^11.0.0"
     "@carbon/ibm-products": "npm:^2.74.0"
-    "@carbon/icons-react": "npm:^11.67.0"
+    "@carbon/icons-react": "npm:^11.89.0"
     "@carbon/layout": "npm:^11.0.0"
     "@carbon/motion": "npm:^11.0.0"
     "@carbon/react": "npm:^1.117.0"
@@ -3858,6 +3836,7 @@ __metadata:
     "@ibm/plex": "npm:^6.4.1"
     "@kaoto/camel-catalog": "npm:^0.10.8"
     "@kaoto/kaoto": "workspace:*"
+    "@patternfly/react-core": "npm:6.6.1"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.9.1"
     "@testing-library/react": "npm:^16.3.2"
