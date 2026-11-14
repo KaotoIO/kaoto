@@ -20,7 +20,7 @@ import { useNavigate, useParams } from 'react-router';
 import { useProjectFiles } from '../../hooks/useProjectFiles';
 import { useSafeParams } from '../../hooks/useSafeParams';
 import { ErrorState } from '../ErrorState/ErrorState';
-import { buildTree } from './build-tree';
+import { buildTree, toFolderPath } from './build-tree';
 import { ExplorerFile } from './explorer-file';
 import { filterFiles } from './filterFiles';
 
@@ -70,7 +70,7 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
           renderIcon={isExpanded ? FolderOpen : Folder}
           isExpanded={isExpanded}
           onToggle={opts.handleToggle(node.id)}
-          data-testid={`explorer-folder-${node.id}`}
+          data-testid={`explorer-folder-${toFolderPath(node.id)}`}
         >
           {renderNodes(node.children, opts)}
         </TreeNode>
