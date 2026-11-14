@@ -4,6 +4,7 @@ import { Navigate, Outlet } from 'react-router';
 import { Explorer } from '../components/Explorer/Explorer';
 import { ProjectToolbar } from '../components/ProjectToolbar/ProjectToolbar';
 import { ProjectContext } from '../context/ProjectContext';
+import { ProjectFilesProvider } from '../context/ProjectFilesContext';
 import { RuntimeProvider } from '../context/RuntimeProvider';
 import { useSafeParams } from '../hooks/useSafeParams';
 
@@ -28,7 +29,10 @@ export const ProjectLayout = () => {
   return (
     <ProjectContext.Provider value={ctx}>
       <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
-        <ProjectLayoutInner />
+        {/* Keyed by project, so that switching projects starts with fresh state */}
+        <ProjectFilesProvider key={ctx.projectId} projectId={ctx.projectId}>
+          <ProjectLayoutInner />
+        </ProjectFilesProvider>
       </RuntimeProvider>
     </ProjectContext.Provider>
   );

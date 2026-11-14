@@ -3,7 +3,9 @@ import { MemoryRouter, Route, Routes } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
 import { useProjectContext } from '../hooks/useProjectContext';
+import { useProjectFiles } from '../hooks/useProjectFiles';
 import { useRuntimeContext } from '../hooks/useRuntimeContext';
+import { resetTestIndexedDB } from '../test/indexed-db';
 import { ProjectLayout } from './ProjectLayout';
 
 const renderLayout = (outlet = <div data-testid="outlet-content">Outlet</div>) =>
@@ -19,6 +21,21 @@ const renderLayout = (outlet = <div data-testid="outlet-content">Outlet</div>) =
   );
 
 describe('ProjectLayout', () => {
+  beforeEach(() => {
+    resetTestIndexedDB();
+  });
+
+  it('provides the files of the project to outlet children', async () => {
+    const FilesConsumer = () => {
+      const { files } = useProjectFiles(); // throws if ProjectFilesProvider is not in the tree
+      return <div data-testid="files-consumer">{files.some((file) => file.id === 'main-flow') ? 'seeded' : ''}</div>;
+    };
+
+    renderLayout(<FilesConsumer />);
+
+    expect(await screen.findByText('seeded')).toBeInTheDocument();
+  });
+
   it.each([
     ['project toolbar', 'project-toolbar'],
     ['explorer sidebar', 'explorer'],
