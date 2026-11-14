@@ -129,6 +129,8 @@ describe('Integrations View', function () {
 				await input.confirm();
 			}
 
+			// A ModalDialog looks its element up only when it is built, so wait for the dialog to render first.
+			await driver.wait(until.elementLocated(By.className('monaco-dialog-box')), 10_000, 'Modal Dialog was not rendered');
 			const dialog = new ModalDialog();
 			await driver.wait(
 				async function () {
