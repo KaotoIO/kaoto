@@ -16,8 +16,14 @@ interface BreadcrumbsProps {
 export const Breadcrumbs = ({ items, current }: BreadcrumbsProps) => {
   return (
     <Breadcrumb className="cs--breadcrumbs" noTrailingSlash>
-      {items.map((item) => (
-        <BreadcrumbItem key={item.href}>
+      {/* Keyed by the trail up to the item: several items can link to the same page, e.g. the folders of a file */}
+      {items.map((item, index) => (
+        <BreadcrumbItem
+          key={items
+            .slice(0, index + 1)
+            .map((trailItem) => trailItem.label)
+            .join('/')}
+        >
           <Link to={item.href}>{item.label}</Link>
         </BreadcrumbItem>
       ))}
