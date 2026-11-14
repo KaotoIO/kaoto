@@ -43,5 +43,8 @@ export const STUB_INTEGRATION_CONTENT: Record<string, string> = {
 `,
 };
 
+/** A Map holds only own entries: an id such as `constructor` must not resolve to an inherited `Object` member */
+const STUB_CONTENT_BY_ID = new Map(Object.entries(STUB_INTEGRATION_CONTENT));
+
 export const getStubIntegrationContent = (integrationId: string): string | undefined =>
-  STUB_INTEGRATION_CONTENT[integrationId];
+  STUB_CONTENT_BY_ID.get(integrationId);
