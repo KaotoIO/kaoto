@@ -28,6 +28,10 @@ export function camelCatalogPlugin(basePath, catalogFiles) {
     name: 'kaoto-camel-catalog',
 
     configureServer(server) {
+      // This middleware runs before Vite strips the configured base, so a request below e.g. `/kaoto/` arrives
+      // as `/kaoto/camel-catalog/...`. Strip the base here; `base: './'` resolves to `/` on the dev server.
+      const base = server.config.base;
+
       server.middlewares.use(
         /**
          * @param {import('node:http').IncomingMessage} req
@@ -35,8 +39,14 @@ export function camelCatalogPlugin(basePath, catalogFiles) {
          * @param {() => void} next
          */
         (req, res, next) => {
-          const url = req.url?.split('?')[0];
-          if (!url?.startsWith(CATALOG_PREFIX)) {
+          const requestPath = req.url?.split('?')[0];
+          if (!requestPath?.startsWith(base)) {
+            next();
+            return;
+          }
+
+          const url = `/${requestPath.slice(base.length)}`;
+          if (!url.startsWith(CATALOG_PREFIX)) {
             next();
             return;
           }
