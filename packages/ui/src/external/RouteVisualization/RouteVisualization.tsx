@@ -1,6 +1,6 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
-import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo } from 'react';
+import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
 import { DesignerVisualization } from '../../components/Visualization';
 import { ControllerService } from '../../components/Visualization/Canvas/controller.service';
@@ -77,14 +77,22 @@ export const RouteVisualization: FunctionComponent<{
   className?: string;
 }> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, code, codeChange, className }) => {
   const eventNotifier = EventNotifier.getInstance();
+  /** The code the entities currently represent, either parsed from `code` or serialized from a canvas edit */
+  const entitiesCodeRef = useRef<string | undefined>(undefined);
 
   useLayoutEffect(() => {
     return eventNotifier.subscribe('entities:updated', (code: string) => {
+      entitiesCodeRef.current = code;
       codeChange(code);
     });
   }, [eventNotifier, codeChange]);
 
   useEffect(() => {
+    // A host that feeds `codeChange` back into `code` would otherwise re-parse the canvas' own output,
+    // rebuilding every node and dropping the selection, which closes the side panel after each edit.
+    if (code === entitiesCodeRef.current) return;
+
+    entitiesCodeRef.current = code;
     eventNotifier.next('code:updated', { code });
   }, [code, eventNotifier]);
 
