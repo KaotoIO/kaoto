@@ -1,3 +1,6 @@
+// Hosts of this component do not load carbon-overrides.scss, which carries these PatternFly adjustments
+import '../../styles/patternfly-carbon-compat.scss';
+
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
 import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
