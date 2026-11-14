@@ -127,6 +127,21 @@ describe('IntegrationShell', () => {
     expect(mockSetCurrent).toHaveBeenLastCalledWith('');
   });
 
+  it('renders the route visualization in design mode without an integration header', () => {
+    render(
+      <MemoryRouter initialEntries={['/projects/my-project/integration/main-flow']}>
+        <Routes>
+          <Route path="/projects/:projectId/integration/:integrationId" element={<IntegrationShell />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByTestId('route-visualization')).toHaveAttribute(
+      'data-code',
+      getStubIntegrationContent('main-flow'),
+    );
+  });
+
   it('renders the route visualization with the stub content in design mode', () => {
     renderWithContext('my-project', 'main-flow');
     const canvas = screen.getByTestId('route-visualization');
