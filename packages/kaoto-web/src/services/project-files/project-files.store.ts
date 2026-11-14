@@ -78,9 +78,13 @@ export class ProjectFilesStore {
   /**
    * Adds the seed files when the project has no files yet.
    *
-   * Count and add share one transaction, so two tabs opening the same new project cannot both seed it.
+   * A project with files is only read. Otherwise count and add share one transaction, so two tabs opening
+   * the same new project cannot both seed it.
    */
   async seedIfEmpty(projectId: string, seed: NewProjectFile[]): Promise<ProjectFile[]> {
+    const files = await this.getFiles(projectId);
+    if (files.length > 0) return files;
+
     const db = await this.getDB();
     const tx = db.transaction(FILES, 'readwrite');
     observeCompletion(tx);

@@ -101,6 +101,15 @@ describe('ProjectFilesStore', () => {
     expect(files.map((file) => file.id)).toEqual(['own']);
   });
 
+  it('only reads a project that already has files', async () => {
+    await store.createFile('p1', { id: 'own', path: 'own.yaml', type: 'integration', content: '' });
+    const transaction = vi.spyOn(IDBDatabase.prototype, 'transaction');
+
+    await store.seedIfEmpty('p1', [{ id: 'a', path: 'a.yaml', type: 'integration', content: '' }]);
+
+    expect(transaction.mock.calls.map(([, mode]) => mode ?? 'readonly')).not.toContain('readwrite');
+  });
+
   it('seeds only once when two tabs open the same new project at the same time', async () => {
     const otherTab = new ProjectFilesStore();
     const seed: NewProjectFile[] = [{ id: 'a', path: 'a.yaml', type: 'integration', content: '' }];
