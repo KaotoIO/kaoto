@@ -17,6 +17,7 @@ import {
   VisibleFlowsContext,
   VisibleFlowsProvider,
 } from '../../providers';
+import { ActionConfirmationModalContextProvider } from '../../providers/action-confirmation-modal.provider';
 import { EventNotifier } from '../../utils';
 
 const VisibleFlowsVisualization: FunctionComponent<{ className?: string }> = ({ className = '' }) => {
@@ -60,7 +61,10 @@ const Viz: FunctionComponent<{
                       <SuggestionRegistryProvider>
                         {/* Opens the catalog to add, append, prepend or replace a step and checks where a step fits */}
                         <CatalogModalProvider>
-                          <VisibleFlowsVisualization className={className} />
+                          {/* Asks before deleting a step with children, a route or a group */}
+                          <ActionConfirmationModalContextProvider>
+                            <VisibleFlowsVisualization className={className} />
+                          </ActionConfirmationModalContextProvider>
                         </CatalogModalProvider>
                       </SuggestionRegistryProvider>
                     </VisibleFlowsProvider>

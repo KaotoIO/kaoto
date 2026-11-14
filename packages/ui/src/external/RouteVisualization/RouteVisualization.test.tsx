@@ -7,6 +7,7 @@ import type { Mock } from 'vitest';
 
 import * as VisualizationModule from '../../components/Visualization';
 import { CatalogModalContext } from '../../dynamic-catalog/catalog-modal.provider';
+import { ActionConfirmationModalContext } from '../../providers/action-confirmation-modal.provider';
 import { camelRouteYaml } from '../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { EventNotifier } from '../../utils';
@@ -122,6 +123,16 @@ describe('RouteVisualization', () => {
     });
 
     expect(hasCatalogModal).toBe(true);
+  });
+
+  it('provides the confirmation modal that deleting a step with children requires', async () => {
+    let hasConfirmationModal = false;
+
+    await renderWithProbe(() => {
+      hasConfirmationModal = useContext(ActionConfirmationModalContext) !== undefined;
+    });
+
+    expect(hasConfirmationModal).toBe(true);
   });
 
   describe('code round trip', () => {
