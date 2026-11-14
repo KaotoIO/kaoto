@@ -5,8 +5,13 @@ import { act, render, screen } from '@testing-library/react';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import type { Mock } from 'vitest';
 
+import { Anchors } from '../../components/registers/anchors';
+import { componentModeRegistration, groupAutoStartupRegistration } from '../../components/registers/RegisterComponents';
+import { RenderingAnchorContext } from '../../components/RenderingAnchor/rendering.provider';
+import { IRegisteredValidatedComponent } from '../../components/RenderingAnchor/rendering.provider.model';
 import * as VisualizationModule from '../../components/Visualization';
 import { CatalogModalContext } from '../../dynamic-catalog/catalog-modal.provider';
+import { IVisualizationNode } from '../../models';
 import { ActionConfirmationModalContext } from '../../providers/action-confirmation-modal.provider';
 import { camelRouteYaml } from '../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
@@ -133,6 +138,31 @@ describe('RouteVisualization', () => {
     });
 
     expect(hasConfirmationModal).toBe(true);
+  });
+
+  it('registers the component mode selector and the auto startup switch, but not the DataMapper launcher', async () => {
+    // A `to` step that is also a Kaoto DataMapper step activates both form header registrations
+    const dataMapperToNode = {
+      data: {
+        primaryNodeId: { name: 'to' },
+        definition: { id: 'kaoto-datamapper-1234', steps: [{ to: 'xslt-saxon:mapping.xsl' }] },
+      },
+    } as unknown as IVisualizationNode;
+    const routeGroupNode = {
+      data: { isGroup: true, entity: { getRootPath: () => 'route' } },
+    } as unknown as IVisualizationNode;
+    let formHeaderComponents: IRegisteredValidatedComponent[] = [];
+    let groupTitlebarComponents: IRegisteredValidatedComponent[] = [];
+
+    await renderWithProbe(() => {
+      const { getRegisteredComponents } = useContext(RenderingAnchorContext);
+      formHeaderComponents = getRegisteredComponents(Anchors.CanvasFormHeader, dataMapperToNode);
+      groupTitlebarComponents = getRegisteredComponents(Anchors.CanvasGroupTitlebar, routeGroupNode);
+    });
+
+    // The DataMapper launcher navigates to a DataMapper page that hosts of this component do not have
+    expect(formHeaderComponents.map(({ Component }) => Component)).toEqual([componentModeRegistration.component]);
+    expect(groupTitlebarComponents.map(({ Component }) => Component)).toEqual([groupAutoStartupRegistration.component]);
   });
 
   describe('code round trip', () => {

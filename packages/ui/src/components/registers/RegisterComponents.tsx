@@ -8,28 +8,42 @@ import { datamapperActivationFn } from './datamapper.activationfn';
 import { groupAutoStartupActivationFn } from './group-auto-startup.activationfn';
 
 // Keep lazy component identities stable across remounts and Suspense retries.
-const componentsToRegister: IRegisteredComponent[] = [
-  {
-    anchor: Anchors.CanvasFormHeader,
-    activationFn: datamapperActivationFn,
-    component: lazy(() => import('../DataMapper/DataMapperLauncher')),
-  },
-  {
-    anchor: Anchors.CanvasFormHeader,
-    activationFn: componentModeActivationFn,
-    component: lazy(() => import('../ComponentMode/ComponentMode')),
-  },
-  {
-    anchor: Anchors.CanvasGroupTitlebar,
-    activationFn: groupAutoStartupActivationFn,
-    component: lazy(() => import('../GroupAutoStartupSwitch/GroupAutoStartupSwitch')),
-  },
+export const dataMapperLauncherRegistration: IRegisteredComponent = {
+  anchor: Anchors.CanvasFormHeader,
+  activationFn: datamapperActivationFn,
+  component: lazy(() => import('../DataMapper/DataMapperLauncher')),
+};
+
+export const componentModeRegistration: IRegisteredComponent = {
+  anchor: Anchors.CanvasFormHeader,
+  activationFn: componentModeActivationFn,
+  component: lazy(() => import('../ComponentMode/ComponentMode')),
+};
+
+export const groupAutoStartupRegistration: IRegisteredComponent = {
+  anchor: Anchors.CanvasGroupTitlebar,
+  activationFn: groupAutoStartupActivationFn,
+  component: lazy(() => import('../GroupAutoStartupSwitch/GroupAutoStartupSwitch')),
+};
+
+const defaultComponentsToRegister: IRegisteredComponent[] = [
+  dataMapperLauncherRegistration,
+  componentModeRegistration,
+  groupAutoStartupRegistration,
 ];
 
-export const RegisterComponents: FunctionComponent<PropsWithChildren> = ({ children }) => {
+interface RegisterComponentsProps extends PropsWithChildren {
+  /** The components to register, all of them when omitted */
+  components?: IRegisteredComponent[];
+}
+
+export const RegisterComponents: FunctionComponent<RegisterComponentsProps> = ({
+  components = defaultComponentsToRegister,
+  children,
+}) => {
   const { registerComponent } = useContext(RenderingAnchorContext);
 
-  componentsToRegister.forEach((regComponent) => {
+  components.forEach((regComponent) => {
     registerComponent(regComponent);
   });
 
