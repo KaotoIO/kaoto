@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
+import { openDB } from 'idb';
+
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { NewProjectFile } from './project-file';
 import { ProjectFilesStore } from './project-files.store';
@@ -107,6 +109,28 @@ describe('ProjectFilesStore', () => {
 
     expect(await store.getFiles('p1')).toHaveLength(1);
     otherTab.close();
+  });
+
+  it('lets a newer version of the database open while this store is connected', async () => {
+    await store.getFiles('p1');
+
+    const upgraded = openDB('kaoto-projects', 2);
+    const timeout = new Promise<string>((resolve) => {
+      setTimeout(() => {
+        resolve('blocked');
+      }, 1000);
+    });
+
+    const result = await Promise.race([upgraded.then(() => 'opened'), timeout]);
+    expect(result).toBe('opened');
+    (await upgraded).close();
+  });
+
+  it('fails instead of hanging after a newer version took over the database', async () => {
+    await store.getFiles('p1');
+    (await openDB('kaoto-projects', 2)).close();
+
+    await expect(store.getFiles('p1')).rejects.toThrow();
   });
 
   it('rejects when IndexedDB is unavailable', async () => {
