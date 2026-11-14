@@ -18,7 +18,6 @@ import { expect } from 'chai';
 import * as path from 'path';
 import * as os from 'os';
 import { copyFile, mkdtemp, readFile, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
 import { clickWhenClickable, dismissHoverOverlay, openAndSwitchToKaotoFrame, switchToKaotoFrame } from '../utils/editor';
 import { KaotoCanvas } from '../pageObjects/KaotoCanvas';
 import { KaotoEditor } from '../pageObjects/KaotoEditor';
@@ -80,7 +79,7 @@ describe('Toggle Source Code', function () {
 		const groupsNum = await waitForEditorGroupsLength(2, 10_000);
 		expect(groupsNum).to.equal(2);
 
-		const editor = new TextEditor(await editorView.getEditorGroup(1));
+		const editor = await getSourceEditor();
 		// Read the rendered source directly; getTextAtLine also drives the command
 		// palette and clipboard and waits for status-bar cursor coordinates.
 		let text = '';
@@ -126,7 +125,7 @@ describe('Toggle Source Code', function () {
 		} finally {
 			await canvas.kaotoWebview.switchBack();
 		}
-		const source = new TextEditor(await editorView.getEditorGroup(1));
+		const source = await getSourceEditor();
 		await source.click();
 		await driver.wait(
 			async () => (await source.getText()).includes('id: log-from-properties'),
@@ -192,7 +191,7 @@ describe('Toggle Source Code', function () {
 		} finally {
 			await reopened.kaotoWebview.switchBack();
 		}
-		const source = new TextEditor(await new EditorView().getEditorGroup(1));
+		const source = await getSourceEditor();
 		expect(await source.isDirty()).to.equal(true);
 		expect(await reopened.kaotoEditor.isDirty()).to.equal(true);
 		await source.click();
@@ -256,7 +255,7 @@ describe('Toggle Source Code', function () {
 		} finally {
 			await canvas.kaotoWebview.switchBack();
 		}
-		const source = new TextEditor(await editorView.getEditorGroup(1));
+		const source = await getSourceEditor();
 		await source.click();
 		await driver.wait(async () => (await source.getText()).includes('id: x'), 5_000, 'Property edit did not reach the source');
 		await clickCanvasHistory('Undo');
@@ -288,8 +287,10 @@ describe('Toggle Source Code', function () {
 		const input = await kaotoEditor.saveAs();
 		await input.setText(destination);
 		await input.confirm();
-		await driver.wait(() => existsSync(destination), 5_000, 'Save As target was not created');
-		expect(await readFile(destination, 'utf8')).to.equal(updated);
+		// Save As creates the target before it writes the route, so wait for the content, not the file. A wait
+		// that times out falls through to the assertion, which shows the difference or the read error.
+		await driver.wait(async () => (await readFile(destination, 'utf8').catch(() => '')) === updated, 5_000).catch(() => undefined);
+		expect(await readFile(destination, 'utf8'), 'Save As did not write the edited route to the target').to.equal(updated);
 		expect(await readFile(path.join(temporaryFolder, CAMEL_FILE), 'utf8')).to.equal(original);
 		await driver.wait(async () => (await new EditorView().getOpenEditorTitles()).includes('copy.camel.yaml'), 5_000, 'Save As target tab was not opened');
 		const reopened = await switchToKaotoFrame(driver, true, 'copy.camel.yaml');
@@ -311,7 +312,7 @@ describe('Toggle Source Code', function () {
 			await reverted.kaotoWebview.switchBack();
 		}
 		expect(await reverted.kaotoEditor.isDirty()).to.equal(false);
-		expect(await new TextEditor(await editorView.getEditorGroup(1)).isDirty()).to.equal(false);
+		expect(await (await getSourceEditor()).isDirty()).to.equal(false);
 		expect(await readFile(path.join(temporaryFolder, CAMEL_FILE), 'utf8')).to.equal(original);
 	});
 
@@ -336,7 +337,7 @@ describe('Toggle Source Code', function () {
 		const routePath = path.join(temporaryFolder, CAMEL_FILE);
 		const original = await readFile(routePath, 'utf8');
 		const updated = original.replace('camelroute51', routeId);
-		const editor = new TextEditor(await editorView.getEditorGroup(1));
+		const editor = await getSourceEditor();
 		await editor.setText(updated);
 		await driver.wait(() => editor.isDirty(), 5_000, 'Source edit was not reflected in the dirty marker');
 		expect(await editor.isDirty()).to.equal(true);
@@ -349,6 +350,40 @@ describe('Toggle Source Code', function () {
 			await canvas.kaotoWebview.switchBack();
 		}
 		return { editor, ...canvas, original, updated };
+	}
+
+	/**
+	 * Returns the source editor of the second editor group once VS Code has rendered it. A TextEditor looks its
+	 * element up only when it is built, and Open Source Code or a window reload returns before the editor renders.
+	 */
+	async function getSourceEditor(timeout: number = 15_000): Promise<TextEditor> {
+		let editor: TextEditor | undefined;
+		await VSBrowser.instance.driver.wait(
+			async () => {
+				try {
+					const groups = await new EditorView().getEditorGroups();
+					if (groups.length < 2) {
+						return false;
+					}
+					const candidate = new TextEditor(groups[1]);
+					if ((await candidate.findElements(By.css('.monaco-editor .view-lines .view-line'))).length === 0) {
+						return false;
+					}
+					editor = candidate;
+					return true;
+				} catch (error) {
+					// The editor can still be missing from the group or be replaced while VS Code renders it. Any
+					// other error, such as a lost WebDriver session, ends the wait with its own message.
+					if (error instanceof Error && (error.name === 'NoSuchElementError' || error.name === 'StaleElementReferenceError')) {
+						return false;
+					}
+					throw error;
+				}
+			},
+			timeout,
+			`The source editor did not render in the second editor group within ${timeout}ms`,
+		);
+		return editor!;
 	}
 
 	async function waitForEditorGroupsLength(length: number, timeout: number = 5_000): Promise<number> {
