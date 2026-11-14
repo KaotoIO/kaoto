@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
+import { resolve } from 'node:path';
 import { ActivityBar, By, ExtensionsViewItem, ExtensionsViewSection, StatusBar, VSBrowser } from 'vscode-extension-tester';
+
+/** The folder or workspace that the last call of openResourcesAndWaitForActivation opened. */
+let openedResource: string | undefined;
 
 export async function openResourcesAndWaitForActivation(
 	path: string,
@@ -22,12 +26,22 @@ export async function openResourcesAndWaitForActivation(
 	timeout: number = 150_000,
 	interval: number = 2_500,
 ): Promise<void> {
+	// Opening the folder that is already open does not reload the window: the extension stays active
+	// and shows no status bar message to wait for. The open and the pause still run, because they keep
+	// the next click on the Kaoto view apart from the after hook's click that closed it: VS Code ignores
+	// a click on a view container within 300 ms of the previous one.
+	const resource = resolve(path);
+	const alreadyOpen = openedResource === resource;
+	// Forget the last folder first: when the open or the activation wait fails, the window may already
+	// show the new one.
+	openedResource = undefined;
 	await VSBrowser.instance.openResources(path, async () => {
 		await VSBrowser.instance.driver.sleep(interval);
-		if (waitForActivation) {
+		if (waitForActivation && !alreadyOpen) {
 			await waitForExtensionActivation('Kaoto', timeout, interval);
 		}
 	});
+	openedResource = resource;
 }
 
 /**
