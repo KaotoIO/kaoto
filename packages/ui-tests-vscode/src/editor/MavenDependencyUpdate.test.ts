@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 import * as path from 'path';
-import { checkTopologyLoaded, closeEditor, openAndSwitchToKaotoFrame, workaroundToRedrawContextualMenu } from '../utils/editor';
+import { checkTopologyLoaded, openAndSwitchToKaotoFrame, workaroundToRedrawContextualMenu } from '../utils/editor';
 import { openResourcesAndWaitForActivation } from '../utils/extension';
-import { resetUserSettings } from '../utils/settings';
+import { resetUserSettings, setUserSettingsDirectly } from '../utils/settings';
 import { expandFolderItemsInTreeStructuredView, expandViews, getKaotoViewControl, getTreeItem } from '../utils/tree-view';
-import { EditorView, VSBrowser, WebDriver, Workbench, NotificationType, WebView, TextEditor, CheckboxSetting, before } from 'vscode-extension-tester';
+import { EditorView, VSBrowser, WebDriver, Workbench, NotificationType, WebView, TextEditor, before } from 'vscode-extension-tester';
 import { KaotoCanvas, KaotoEditor } from '../pageObjects';
 import { assert, expect } from 'chai';
 import * as fs from 'fs';
@@ -132,19 +132,10 @@ describe('Maven dependency update pom.xml', function () {
 	});
 
 	describe('update manually test', function () {
-		before(async function () {
-			// disable auto update on save
-			const settings = await new Workbench().openSettings();
-			const checkboxSetting = await driver.wait(
-				async () => {
-					return (await settings.findSetting('On Save', 'Kaoto', 'Maven', 'Dependencies Update')) as CheckboxSetting;
-				},
-				5_000,
-				'Looking for "Kaoto > Maven > Dependencies Update: On Save" checkbox.',
-			);
-			await checkboxSetting.setValue(false);
-			await driver.sleep(1_000); // stabilize tests which are sometimes failing on macOS CI
-			await closeEditor('Settings', true);
+		before(function () {
+			// Disable the update on save in settings.json, where the after hook resets it. The Settings editor
+			// search can fail to settle and leave the window unusable for the suites that follow.
+			setUserSettingsDirectly('kaoto.maven.dependenciesUpdate.onSave', false);
 		});
 
 		after(async function () {
@@ -156,6 +147,13 @@ describe('Maven dependency update pom.xml', function () {
 
 		it('should update the Maven dependencies when the context menu is invoked', async function () {
 			await addComponentAndSave();
+
+			// VS Code applies the settings.json change through its file watcher. Check that the save started no
+			// update, or this test could pass on that update even if the context menu action were broken.
+			expect(
+				await notificationShownWithin('Updating Camel dependencies in pom.xml', 5_000),
+				'Saving the route started a dependency update although the update on save is off',
+			).to.equal(false);
 
 			// invoke the context menu dependencies update
 			const { kaotoViewContainer: kaotoController, kaotoView } = await getKaotoViewControl();
@@ -230,6 +228,16 @@ describe('Maven dependency update pom.xml', function () {
 			timeout,
 			errorMessage,
 			interval,
+		);
+	}
+
+	/**
+	 * Tells whether a notification with the given message shows up within the given time.
+	 */
+	async function notificationShownWithin(message: string, timeout: number): Promise<boolean> {
+		return waitForNotification(true, message, undefined, timeout).then(
+			() => true,
+			() => false,
 		);
 	}
 

@@ -42,7 +42,7 @@ export function resetUserSettings(id: string): void {
  * @param id ID of setting.
  * @param value Value of setting.
  */
-export function setUserSettingsDirectly(id: string, value: string): void {
+export function setUserSettingsDirectly(id: string, value: string | boolean): void {
 	const settingsPath = path.resolve(storageFolder, 'settings', 'User', 'settings.json');
 	const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
 	settings[id] = value;
