@@ -129,7 +129,7 @@ export const Explorer: FunctionComponent = () => {
     setQuery(e.target.value.toLowerCase());
   }, []);
 
-  const { files, loading, error } = useProjectFiles();
+  const { files, loading, error, reload } = useProjectFiles();
   const tree = useMemo(() => buildTree(files), [files]);
   const filtered = useMemo(() => filterFiles(tree, query), [tree, query]);
 
@@ -193,7 +193,13 @@ export const Explorer: FunctionComponent = () => {
             <SkeletonText paragraph lineCount={4} />
           </div>
         )}
-        {error && <ErrorState title="Could not load the project files" message={error.message} />}
+        {error && (
+          <ErrorState
+            title="Could not load the project files"
+            message={`Kaoto keeps the project files in the browser storage, and the browser storage may be blocked, for example in a private window. (${error.message})`}
+            onRetry={reload}
+          />
+        )}
         {!loading && !error && (
           /* enableTreeviewControllable makes `selected` and `active` fully controlled —
              without it, Carbon TreeView only uses `selected` as an initial value and

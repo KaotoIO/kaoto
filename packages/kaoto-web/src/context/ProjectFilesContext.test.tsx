@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent } from 'react';
 
 import { useProjectFiles } from '../hooks/useProjectFiles';
@@ -16,12 +16,17 @@ const SEED: NewProjectFile[] = [
 let renders: string[] = [];
 
 const Consumer: FunctionComponent<{ projectId: string }> = ({ projectId }) => {
-  const { files, loading, error } = useProjectFiles();
+  const { files, loading, error, reload } = useProjectFiles();
   let state = files.map((file) => file.id).join(',');
   if (loading) state = 'loading';
   if (error) state = `error ${error.message}`;
   renders.push(`${projectId}:${state}`);
-  return <div data-testid="state">{state}</div>;
+  return (
+    <>
+      <div data-testid="state">{state}</div>
+      <button onClick={reload}>reload</button>
+    </>
+  );
 };
 
 const renderProvider = (projectId: string, store: ProjectFilesStore) =>
@@ -65,6 +70,25 @@ describe('ProjectFilesProvider', () => {
     renderProvider('p1', store);
 
     expect(await screen.findByText('error blocked')).toBeInTheDocument();
+  });
+
+  it('turns a failure that is not an Error into an error', async () => {
+    vi.spyOn(store, 'seedIfEmpty').mockRejectedValue('blocked by the browser');
+
+    renderProvider('p1', store);
+
+    expect(await screen.findByText('error blocked by the browser')).toBeInTheDocument();
+  });
+
+  it('loads the files again on reload', async () => {
+    vi.spyOn(store, 'seedIfEmpty').mockRejectedValueOnce(new Error('blocked'));
+    renderProvider('p1', store);
+    await screen.findByText('error blocked');
+
+    fireEvent.click(screen.getByRole('button', { name: 'reload' }));
+
+    expect(screen.getByTestId('state')).toHaveTextContent('loading');
+    expect(await screen.findByText('seeded-a,seeded-b')).toBeInTheDocument();
   });
 
   it('shows the files of the new project after switching projects', async () => {

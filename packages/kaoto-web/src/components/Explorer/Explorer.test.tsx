@@ -113,7 +113,21 @@ describe('Explorer', () => {
     renderComponent();
 
     expect(await screen.findByText('Could not load the project files')).toBeInTheDocument();
+    expect(screen.getByText(/browser storage may be blocked/)).toBeInTheDocument();
     expect(screen.queryByTestId('explorer-loading')).not.toBeInTheDocument();
+  });
+
+  it('loads the files again on retry', async () => {
+    // @ts-expect-error simulating a browser without IndexedDB
+    globalThis.indexedDB = undefined;
+    const user = userEvent.setup();
+    renderComponent();
+    await screen.findByText('Could not load the project files');
+
+    resetTestIndexedDB();
+    await user.click(screen.getByRole('button', { name: 'Retry' }));
+
+    expect(await screen.findByTestId('explorer-folder-integrations')).toBeInTheDocument();
   });
 
   it('shows the nested folders of the stored paths', async () => {
