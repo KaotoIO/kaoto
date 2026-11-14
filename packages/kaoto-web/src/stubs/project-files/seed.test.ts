@@ -1,4 +1,4 @@
-import { buildTree } from '../../components/Explorer/build-tree';
+import { buildTree, toFolderId } from '../../components/Explorer/build-tree';
 import { isValidIntegrationId } from '../../utils/validators';
 import { SEED_PROJECT_FILES } from './seed';
 
@@ -26,6 +26,6 @@ describe('SEED_PROJECT_FILES', () => {
   it('keeps the folder layout of the former stub tree', () => {
     const tree = buildTree(SEED_PROJECT_FILES.map((file) => ({ ...file, id: file.id ?? '' })));
 
-    expect(tree.map((node) => node.id)).toEqual(['integrations', 'resources']);
+    expect(tree.map((node) => node.id)).toEqual([toFolderId('integrations'), toFolderId('resources')]);
   });
 });
