@@ -104,13 +104,26 @@ export class ProjectFilesStore {
   }
 
   private async openDB(): Promise<IDBPDatabase<ProjectFilesDB>> {
-    return openDB<ProjectFilesDB>(this.dbName, DB_VERSION, {
-      upgrade(db) {
-        const files = db.createObjectStore(FILES, { keyPath: ['projectId', 'id'] });
+    const forget = () => {
+      this.dbPromise = undefined;
+    };
+
+    const db = await openDB<ProjectFilesDB>(this.dbName, DB_VERSION, {
+      upgrade(upgradeDb) {
+        const files = upgradeDb.createObjectStore(FILES, { keyPath: ['projectId', 'id'] });
         files.createIndex('byProject', 'projectId');
         files.createIndex('byProjectPath', ['projectId', 'path'], { unique: true });
       },
+      // A tab running a newer Kaoto wants to upgrade the database: step aside instead of blocking it.
+      // This tab then fails on its next access (the database is newer than this code) and shows an error.
+      blocking() {
+        db.close();
+        forget();
+      },
+      // The browser closed the connection (e.g. the site data was cleared): reopen on the next access
+      terminated: forget,
     });
+    return db;
   }
 
   private toProjectFile(projectId: string, file: NewProjectFile): ProjectFile {
