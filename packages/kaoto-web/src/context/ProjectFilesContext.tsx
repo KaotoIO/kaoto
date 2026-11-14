@@ -1,4 +1,4 @@
-import { FunctionComponent, PropsWithChildren, useEffect, useMemo, useState } from 'react';
+import { FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { NewProjectFile, ProjectFile } from '../services/project-files/project-file';
 import { ProjectFilesStore, projectFilesStore } from '../services/project-files/project-files.store';
@@ -12,9 +12,13 @@ interface ProjectFilesProviderProps {
   seed?: NewProjectFile[];
 }
 
-/** The loaded files, tagged with their project so that a switch never shows the files of the previous one */
+/**
+ * The loaded files, tagged with their project and load attempt:
+ * a project switch never shows the files of the previous project, and a reload shows the loading state.
+ */
 interface LoadedFiles {
   projectId: string;
+  attempt: number;
   files: ProjectFile[];
   error?: Error;
 }
@@ -31,26 +35,31 @@ export const ProjectFilesProvider: FunctionComponent<PropsWithChildren<ProjectFi
   children,
 }) => {
   const [loaded, setLoaded] = useState<LoadedFiles>();
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let isCurrent = true;
     store.seedIfEmpty(projectId, seed).then(
       (files) => {
-        if (isCurrent) setLoaded({ projectId, files });
+        if (isCurrent) setLoaded({ projectId, attempt, files });
       },
       (error: unknown) => {
-        if (isCurrent) setLoaded({ projectId, files: NO_FILES, error: toError(error) });
+        if (isCurrent) setLoaded({ projectId, attempt, files: NO_FILES, error: toError(error) });
       },
     );
     return () => {
       isCurrent = false;
     };
-  }, [projectId, store, seed]);
+  }, [projectId, store, seed, attempt]);
 
-  const current = loaded?.projectId === projectId ? loaded : undefined;
+  const reload = useCallback(() => {
+    setAttempt((previous) => previous + 1);
+  }, []);
+
+  const current = loaded?.projectId === projectId && loaded.attempt === attempt ? loaded : undefined;
   const value = useMemo<IProjectFilesContext>(
-    () => ({ files: current?.files ?? NO_FILES, loading: !current, error: current?.error }),
-    [current],
+    () => ({ files: current?.files ?? NO_FILES, loading: !current, error: current?.error, reload }),
+    [current, reload],
   );
 
   return <ProjectFilesContext.Provider value={value}>{children}</ProjectFilesContext.Provider>;
