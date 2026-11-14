@@ -60,6 +60,17 @@ describe('buildTree', () => {
     expect(tree[0].children?.map((node) => node.id)).toEqual(['x', 'y']);
   });
 
+  it('sorts names naturally, ignoring case and comparing numbers by value', () => {
+    const tree = buildTree([
+      { id: 'zeta', path: 'Zeta.yaml', type: 'integration' },
+      { id: 'file10', path: 'file10.yaml', type: 'integration' },
+      { id: 'alpha', path: 'alpha.yaml', type: 'integration' },
+      { id: 'file2', path: 'file2.yaml', type: 'integration' },
+    ]);
+
+    expect(tree.map((node) => node.name)).toEqual(['alpha.yaml', 'file2.yaml', 'file10.yaml', 'Zeta.yaml']);
+  });
+
   it('returns an empty tree for no files', () => {
     expect(buildTree([])).toEqual([]);
   });
