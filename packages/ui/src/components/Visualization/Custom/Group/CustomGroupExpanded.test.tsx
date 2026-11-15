@@ -130,6 +130,40 @@ describe('CustomGroupExpanded', () => {
     },
   );
 
+  it('leaves the warning badge out of the interaction indicator while the group is dragged', async () => {
+    const vizNode = createChoiceVizNode();
+    vi.spyOn(vizNode, 'getNodeValidationText').mockResolvedValue('Some validation warning');
+    createController({ vizNode });
+    const element = controller.getNodeById(GROUP_ID)!;
+    const { container } = await renderInContext(<CustomGroupExpanded element={element} />);
+    const indicator = container.querySelector('.custom-group__indicator');
+    expect(indicator).not.toHaveAttribute('mask');
+
+    const manager: DndManager = controller.getStore<DndStore>().dndManager;
+    const [source] = manager.registerSource({
+      type: GROUP_DRAG_TYPE,
+      canDrag: () => true,
+      beginDrag: () => element,
+      drag: () => {},
+      endDrag: () => {},
+      canCancel: () => true,
+    });
+    act(() => {
+      manager.beginDrag(source, undefined, 10, 10, 10, 10);
+    });
+
+    const mask = container.querySelector('mask');
+    expect(mask).toBeInTheDocument();
+    expect(indicator).toHaveAttribute('mask', `url(#${mask!.id})`);
+
+    await act(async () => {
+      manager.cancel();
+      await manager.endDrag();
+    });
+    expect(indicator).not.toHaveAttribute('mask');
+    expect(container.querySelector('mask')).not.toBeInTheDocument();
+  });
+
   it('should throw when element is not a Node', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const edgeElement = new BaseEdge();

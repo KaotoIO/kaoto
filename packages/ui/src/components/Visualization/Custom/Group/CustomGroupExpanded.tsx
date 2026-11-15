@@ -25,7 +25,7 @@ import {
   useDragNode,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useId, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -60,6 +60,12 @@ import { CustomGroupProps } from './Group.models';
 
 // Spare room around the body inside the clipped foreignObject so WebKit repaints its old bounds when it moves.
 const GROUP_PAINT_PADDING = 24;
+/** How far the warning badge sticks out of the top left corner of the body */
+const WARNING_BADGE_OFFSET = 7;
+/** Size of the round warning badge */
+const WARNING_BADGE_SIZE = 25;
+/** Margin of the mask around the indicator, wider than the indicator stroke */
+const INDICATOR_MASK_MARGIN = 4;
 
 interface CustomGroupExpandedInnerProps extends CustomGroupProps {
   vizNode: IVisualizationNode;
@@ -206,6 +212,19 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
     }
 
     const indicatorBounds = getGroupIndicatorBounds(boxRef.current);
+    const badgeX = boxRef.current.x - WARNING_BADGE_OFFSET;
+    const badgeY = boxRef.current.y - WARNING_BADGE_OFFSET;
+    // The dimmed badge lets the indicator below show through, so the indicator leaves out the badge while dragging
+    const maskBadge = isDragged && doesHaveWarnings;
+    const reactId = useId();
+    const badgeMaskId = `custom-group-badge-mask-${reactId.replace(/[^\w-]/g, '')}`;
+    // Room for the indicator stroke, which is centred on the edge of the indicator
+    const maskBounds = {
+      x: indicatorBounds.x - INDICATOR_MASK_MARGIN,
+      y: indicatorBounds.y - INDICATOR_MASK_MARGIN,
+      width: indicatorBounds.width + 2 * INDICATOR_MASK_MARGIN,
+      height: indicatorBounds.height + 2 * INDICATOR_MASK_MARGIN,
+    };
 
     const toolbar = useCanvasToolbarTarget(
       element,
@@ -238,7 +257,24 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           onContextMenu={onContextMenu}
         >
           {/* Hover, selection and focus are drawn in SVG behind the body, so the body keeps its look */}
-          <rect className="custom-group__indicator" aria-hidden="true" rx={INDICATOR_RADIUS} {...indicatorBounds} />
+          {maskBadge && (
+            <mask id={badgeMaskId} maskUnits="userSpaceOnUse" {...maskBounds}>
+              <rect fill="white" {...maskBounds} />
+              <circle
+                fill="black"
+                cx={badgeX + WARNING_BADGE_SIZE / 2}
+                cy={badgeY + WARNING_BADGE_SIZE / 2}
+                r={WARNING_BADGE_SIZE / 2}
+              />
+            </mask>
+          )}
+          <rect
+            className="custom-group__indicator"
+            aria-hidden="true"
+            rx={INDICATOR_RADIUS}
+            mask={maskBadge ? `url(#${badgeMaskId})` : undefined}
+            {...indicatorBounds}
+          />
           <CanvasNodeOverlays overlays={overlays} bounds={boxRef.current} />
           <rect
             ref={dndDropRef}
@@ -302,13 +338,13 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
               </div>
             </foreignObject>
             {/* Inside the dimmed wrapper, so the badge fades with the body while the group is dragged */}
-            {doesHaveWarnings && !isDisabled && (
+            {doesHaveWarnings && (
               <foreignObject
                 className="custom-group__warning-icon--floating"
-                x={boxRef.current.x - 7}
-                y={boxRef.current.y - 7}
-                width={25}
-                height={25}
+                x={badgeX}
+                y={badgeY}
+                width={WARNING_BADGE_SIZE}
+                height={WARNING_BADGE_SIZE}
               >
                 <FloatingCircle>
                   <WarningFilled className="custom-group__warning-icon">
