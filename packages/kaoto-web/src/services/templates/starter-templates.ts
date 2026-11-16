@@ -3,7 +3,7 @@ export type StarterTemplateName = 'camel-route-yaml' | 'kamelet-source-yaml' | '
 
 const ID_PLACEHOLDER = /__KAOTO_ID__/g;
 /** The `metadata.name` of a Kamelet or a Pipe, which Camel expects to match the file name */
-const METADATA_NAME = /^(\s{2}name:\s*).*__KAOTO_ID__.*$/m;
+const METADATA_NAME_PREFIX = '  name: ';
 
 interface CatalogIndex {
   starterTemplates?: string;
@@ -50,7 +50,9 @@ const randomId = (): string => String(crypto.getRandomValues(new Uint32Array(1))
  */
 export const resolveStarterTemplate = (template: string, fileName: string): string => {
   const baseName = fileName.split('.')[0];
-  return template
-    .replace(METADATA_NAME, (_match, prefix: string) => `${prefix}${baseName}`)
-    .replace(ID_PLACEHOLDER, () => randomId());
+  const lines = template.split('\n');
+  const nameIndex = lines.findIndex((line) => line.startsWith(METADATA_NAME_PREFIX) && line.includes('__KAOTO_ID__'));
+  if (nameIndex !== -1) lines[nameIndex] = `${METADATA_NAME_PREFIX}${baseName}`;
+
+  return lines.join('\n').replace(ID_PLACEHOLDER, () => randomId());
 };
