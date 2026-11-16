@@ -149,7 +149,11 @@ export const SchemaFileDataList: FunctionComponent<SchemaFileDataListProps> = ({
                       {item.filePath && item.messages.length > 0 && (
                         <HelperText>
                           {item.messages.map((msg, msgIdx) => (
-                            <HelperTextItem key={`${item.filePath}-msg-${msgIdx}`} variant={msg.severity}>
+                            <HelperTextItem
+                              key={`${item.filePath}-msg-${msgIdx}`}
+                              variant={msg.severity}
+                              className="attach-schema-helper-text-item"
+                            >
                               {msg.text}
                             </HelperTextItem>
                           ))}
@@ -182,7 +186,11 @@ export const SchemaFileDataList: FunctionComponent<SchemaFileDataListProps> = ({
       </DataList>
       <FormHelperText>
         <HelperText>
-          <HelperTextItem variant={summary.variant} data-testid="attach-schema-file-issues-summary">
+          <HelperTextItem
+            variant={summary.variant}
+            className="attach-schema-helper-text-item"
+            data-testid="attach-schema-file-issues-summary"
+          >
             {summary.text}
           </HelperTextItem>
         </HelperText>
