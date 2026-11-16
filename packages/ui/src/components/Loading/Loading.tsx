@@ -12,8 +12,9 @@ interface LoadingProps {
 }
 
 /**
- * Carbon spinner with an optional message. The VS Code webview shell (`webview.html` and `kaoto-editor.html`)
- * draws the same markup with Carbon tokens before the editor starts, so keep both in sync.
+ * Carbon spinner with an optional message. The VS Code webview shell (`webview.html`, which the extension also
+ * ships as `kaoto-editor.html`) draws the same markup with Carbon tokens before the editor starts, so keep both in
+ * sync.
  */
 export const Loading: FunctionComponent<PropsWithChildren<LoadingProps>> = ({
   description = 'Loading',

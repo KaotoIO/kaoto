@@ -45,6 +45,12 @@ suite('WebviewHtml', () => {
 			assert.notInclude(html, '__KAOTO_');
 		});
 
+		test('inserts the values as they are, without replacement patterns', () => {
+			const html = fillWebviewHtml(page, { ...bundle, hostShim: 'https://file+.vscode-resource/$&/$$/shim.js' });
+
+			assert.include(html, 'src="https://file+.vscode-resource/$&amp;/$$/shim.js"></script>');
+		});
+
 		test('refuses a page without the dev script or one of the placeholders', () => {
 			assert.throws(() => fillWebviewHtml(page.replace('/src/webview/start.tsx', '/main.js'), bundle), /missing "\/src\/webview\/start.tsx"/);
 			assert.throws(() => fillWebviewHtml(page.replace('__KAOTO_CSP__', ''), bundle), /missing __KAOTO_CSP__/);

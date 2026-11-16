@@ -75,5 +75,6 @@ function replaceToken(html: string, token: string, replacement: string): string 
 	if (!html.includes(token)) {
 		throw new Error(`The Kaoto editor page is missing ${token}`);
 	}
-	return html.replaceAll(token, replacement);
+	// A replacer function inserts the value as it is: a string would interpret `$&`, `$$` and similar patterns in it
+	return html.replaceAll(token, () => replacement);
 }

@@ -779,6 +779,53 @@ suite('Native Kaoto text document provider', () => {
 		}
 	});
 
+	suite('with the Vite dev server', () => {
+		const origin = 'http://127.0.0.1:5273';
+		const previousDevUrl = process.env['KAOTO_DEV_URL'];
+		const originalFetch = globalThis.fetch;
+
+		setup(() => {
+			process.env['KAOTO_DEV_URL'] = `${origin}/`;
+		});
+		teardown(() => {
+			globalThis.fetch = originalFetch;
+			if (previousDevUrl === undefined) {
+				delete process.env['KAOTO_DEV_URL'];
+			} else {
+				process.env['KAOTO_DEV_URL'] = previousDevUrl;
+			}
+		});
+
+		test('loads the real editor page, with the scripts Vite injects, from the dev server', async () => {
+			const page = new TextDecoder().decode(await vscode.workspace.fs.readFile(vscode.Uri.joinPath(getExtensionUri(), '../ui/webview.html')));
+			// What the Vite dev server adds to the page it serves
+			const vitePage = page.replace(
+				'<head>',
+				'<head><script type="module" src="/@vite/client"></script><script type="module">import "/@react-refresh";</script>',
+			);
+			globalThis.fetch = async (url) => {
+				equal(String(url), `${origin}/webview.html`);
+				return new Response(vitePage);
+			};
+
+			await open();
+
+			const html = fixture.panel.webview.html;
+			ok(html.includes(`href="${origin}/src/webview/webview-shell.scss"`));
+			ok(html.includes(`src="${origin}/src/webview/start.tsx"`));
+			ok(html.includes(`src="${origin}/@vite/client"`));
+			ok(html.includes(`data-resources-path-prefix="${origin}"`));
+			ok(/<html lang="en" data-theme-setting="(light|dark)">/.test(html));
+			ok(!html.replaceAll('__KAOTO_NONCE__', '').includes('__KAOTO_'), 'every value of the page is filled');
+		});
+
+		test('fails to open the editor when the dev server does not serve the page', async () => {
+			globalThis.fetch = async () => new Response('', { status: 404, statusText: 'Not Found' });
+
+			await rejects(open(), /Could not load Vite webview HTML: 404 Not Found/);
+		});
+	});
+
 	test('rejects a second graphical panel for the same document', async () => {
 		await open();
 		const other = editorFixture();

@@ -21,6 +21,12 @@ process.on('exit', () => {
 const workspaceFolder = path.join(runRoot, fixtureName);
 fs.cpSync(path.join(projectRoot, 'src', 'test', 'fixtures', fixtureName), workspaceFolder, { recursive: true });
 
+// The extension reads the editor page from dist/webview, where only webpack puts it. Copy it the same way, so the
+// tests run on a checkout that was never built.
+const editorPage = path.join(projectRoot, 'dist', 'webview', 'kaoto-editor.html');
+fs.mkdirSync(path.dirname(editorPage), { recursive: true });
+fs.copyFileSync(path.resolve(projectRoot, '..', 'ui', 'webview.html'), editorPage);
+
 // A workspace file keeps workspace-scoped settings written by the tests out of the fixture.
 // The folders[0].path must be absolute because the file is not next to the folder.
 // The Camel Language Server is disabled: opening the fixture's Camel files would download and start it.
