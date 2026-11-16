@@ -29,10 +29,11 @@
 
   &__candidate-item {
     padding: 0.25rem 0.75rem;
+    border: 1px solid transparent;
     border-radius: 4px;
 
     &:hover {
-      background-color: var(--pf-t--global--background--color--action--plain--hover);
+      border-color: var(--pf-t--global--border--color--hover);
     }
 
     &[data-selected] {

@@ -32,7 +32,10 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
 
   const [isChoiceModalOpen, setIsChoiceModalOpen] = useState(false);
 
-  const dissolved = useChoiceCandidates(effectiveChoiceWrapper?.fields);
+  const { candidates: dissolved, modalCandidates } = useChoiceCandidates(
+    effectiveChoiceWrapper?.fields,
+    isChoiceModalOpen,
+  );
 
   const applyChoiceSelection = (wrapper: IField, selection: IMemberSelection) => {
     ChoiceFieldService.dispatchChoiceSelection(nodeData, wrapper, selection, mappingTree.namespaceMap, isTargetSide);
@@ -165,7 +168,7 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
           title={`Select member for ${fieldName}`}
           description={`Choose a member for ${fieldName}`}
           testId="choice-selection-modal"
-          candidates={dissolved}
+          candidates={modalCandidates}
           selectedKey={selectedModalKey}
           onSelect={handleSelectChoiceMember}
           onClose={closeChoiceModal}
@@ -174,11 +177,19 @@ export function useChoiceContextMenu(nodeData: NodeData): MenuContributor {
   };
 }
 
-function useChoiceCandidates(members: IField[] | undefined) {
+function useChoiceCandidates(members: IField[] | undefined, isModalOpen: boolean) {
   const { structuralMappingTree } = useDataMapper();
   // Type overrides mutate members in place, so their presentation follows the structural snapshot.
-  return useMemo(
+  const candidates = useMemo(
     () => ChoiceFieldService.dissolveChoiceMembers(members ?? [], structuralMappingTree.namespaceMap),
     [members, structuralMappingTree],
   );
+  const modalCandidates = useMemo(
+    () =>
+      isModalOpen && members
+        ? ChoiceFieldService.buildChoiceCandidates(members, structuralMappingTree.namespaceMap)
+        : [],
+    [isModalOpen, members, structuralMappingTree],
+  );
+  return { candidates, modalCandidates };
 }

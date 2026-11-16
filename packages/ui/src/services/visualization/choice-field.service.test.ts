@@ -8,7 +8,7 @@ import {
   TargetDocumentNodeData,
   TargetFieldNodeData,
 } from '../../models/datamapper/visualization';
-import { getChoiceWithAbstractXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
+import { getChoiceWithAbstractXsd, getChoiceWithNamedTypesXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { QName } from '../../xml-schema-ts/QName';
 import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
@@ -127,7 +127,7 @@ describe('ChoiceFieldService', () => {
       ];
       const field = mockField({ fields: children });
 
-      const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
+      const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0, {}, true);
 
       expect(result.children?.map((c) => c.name)).toEqual(['A', 'B', 'C', 'D', 'E']);
       expect(result.children?.[0].typeLabel).toBe(children[0].type);
@@ -136,7 +136,7 @@ describe('ChoiceFieldService', () => {
     it('should return undefined children for field with no children', () => {
       const field = mockField({ fields: [] });
 
-      const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0);
+      const result = ChoiceFieldService.fieldToCandidate(field, 'key1', 0, {}, true);
 
       expect(result.children).toBeUndefined();
     });
@@ -193,7 +193,7 @@ describe('ChoiceFieldService', () => {
       });
       vi.spyOn(VisualizationService, 'getChoiceMemberLabel').mockReturnValue('(key | value)');
 
-      const result = ChoiceFieldService.dissolveChoiceMembers([sequenceMember], namespaceMap);
+      const result = ChoiceFieldService.buildChoiceCandidates([sequenceMember], namespaceMap);
 
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual(
@@ -248,14 +248,14 @@ describe('ChoiceFieldService', () => {
   });
 
   describe('dissolveChoiceMembers (additional)', () => {
-    it('should include children preview for complex members', () => {
+    it('should include children preview for complex members when details are requested', () => {
       const member = mockField({
         name: 'address',
         displayName: 'Address',
         type: Types.Container,
         fields: [mockField({ displayName: 'Street' }), mockField({ displayName: 'City' })],
       });
-      const result = ChoiceFieldService.dissolveChoiceMembers([member], namespaceMap);
+      const result = ChoiceFieldService.buildChoiceCandidates([member], namespaceMap);
 
       expect(result[0].children?.map((c) => c.name)).toEqual(['Street', 'City']);
     });
@@ -268,37 +268,6 @@ describe('ChoiceFieldService', () => {
   describe('dissolveChoiceMembers candidate details from schema', () => {
     const NS_T = 'urn:candidate-details';
     const NS_CHOICE_ABSTRACT = 'http://www.example.com/CHOICE_ABSTRACT';
-    const detailsXsd = `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${NS_T}"
-        xmlns:t="${NS_T}" elementFormDefault="qualified">
-      <xs:complexType name="Address_t">
-        <xs:sequence>
-          <xs:element name="street" type="xs:string"/>
-          <xs:element name="zip" type="xs:int"/>
-        </xs:sequence>
-      </xs:complexType>
-      <xs:element name="Phone">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="number" type="xs:string"/>
-          </xs:sequence>
-        </xs:complexType>
-      </xs:element>
-      <xs:element name="Root">
-        <xs:complexType>
-          <xs:choice>
-            <xs:element name="Address" type="t:Address_t"/>
-            <xs:element ref="t:Phone"/>
-            <xs:element name="Inline">
-              <xs:complexType>
-                <xs:sequence>
-                  <xs:element name="value" type="xs:string"/>
-                </xs:sequence>
-              </xs:complexType>
-            </xs:element>
-          </xs:choice>
-        </xs:complexType>
-      </xs:element>
-    </xs:schema>`;
 
     function loadChoiceMembers(fileName: string, xsd: string, namespaceUri: string, rootName: string): IField[] {
       const definition = new DocumentDefinition(
@@ -324,12 +293,19 @@ describe('ChoiceFieldService', () => {
       vi.restoreAllMocks();
     });
 
+    it('should skip details in the default cheap path for inline context menus', () => {
+      const members = loadChoiceMembers('ChoiceWithNamedTypes.xsd', getChoiceWithNamedTypesXsd(), NS_T, 'Root');
+      const candidates = ChoiceFieldService.dissolveChoiceMembers(members, detailsNamespaceMap);
+      expect(candidates[0].typeLabel).toBeUndefined();
+      expect(candidates[0].children).toBeUndefined();
+    });
+
     it('should read the children of a member declared with a named complex type without resolving it', () => {
-      const members = loadChoiceMembers('details.xsd', detailsXsd, NS_T, 'Root');
+      const members = loadChoiceMembers('ChoiceWithNamedTypes.xsd', getChoiceWithNamedTypesXsd(), NS_T, 'Root');
       const address = members.find((m) => m.name === 'Address')!;
       expect(address.fields).toHaveLength(0);
 
-      const [candidate] = ChoiceFieldService.dissolveChoiceMembers(members, detailsNamespaceMap);
+      const [candidate] = ChoiceFieldService.buildChoiceCandidates(members, detailsNamespaceMap);
 
       expect(candidate.typeLabel).toBe('t:Address_t');
       expect(candidate.children).toEqual([
@@ -340,18 +316,18 @@ describe('ChoiceFieldService', () => {
     });
 
     it('should read the children of a member declared as a global element ref', () => {
-      const members = loadChoiceMembers('details.xsd', detailsXsd, NS_T, 'Root');
+      const members = loadChoiceMembers('ChoiceWithNamedTypes.xsd', getChoiceWithNamedTypesXsd(), NS_T, 'Root');
 
-      const candidates = ChoiceFieldService.dissolveChoiceMembers(members, detailsNamespaceMap);
+      const candidates = ChoiceFieldService.buildChoiceCandidates(members, detailsNamespaceMap);
 
       const phone = candidates.find((c) => c.label === 'Phone');
       expect(phone?.children).toEqual([{ name: 'number', typeLabel: 'xs:string' }]);
     });
 
     it('should fall back to the type category for an anonymous inline type', () => {
-      const members = loadChoiceMembers('details.xsd', detailsXsd, NS_T, 'Root');
+      const members = loadChoiceMembers('ChoiceWithNamedTypes.xsd', getChoiceWithNamedTypesXsd(), NS_T, 'Root');
 
-      const candidates = ChoiceFieldService.dissolveChoiceMembers(members, detailsNamespaceMap);
+      const candidates = ChoiceFieldService.buildChoiceCandidates(members, detailsNamespaceMap);
 
       const inline = candidates.find((c) => c.label === 'Inline');
       expect(inline?.typeLabel).toBe(Types.Container);
@@ -366,7 +342,7 @@ describe('ChoiceFieldService', () => {
         'Notification',
       );
 
-      const candidates = ChoiceFieldService.dissolveChoiceMembers(members, { ca: NS_CHOICE_ABSTRACT });
+      const candidates = ChoiceFieldService.buildChoiceCandidates(members, { ca: NS_CHOICE_ABSTRACT });
 
       const email = candidates.find((c) => c.label === 'Email');
       const sms = candidates.find((c) => c.label === 'SMS');

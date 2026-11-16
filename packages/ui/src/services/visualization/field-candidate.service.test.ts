@@ -1,10 +1,12 @@
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../models/datamapper/document';
 import { FieldItem, MappingTree } from '../../models/datamapper/mapping';
 import { IFieldSubstituteInfo, Types } from '../../models/datamapper/types';
+import { getChoiceWithNamedTypesXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
 import { QName } from '../../xml-schema-ts/QName';
 import { FieldOverrideService } from '../document/field-override.service';
 import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
+import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { FieldCandidateService } from './field-candidate.service';
 
 function mockSubstituteInfo(
@@ -340,6 +342,40 @@ describe('FieldCandidateService', () => {
 
       expect(result.candidates).toHaveLength(1);
       expect(result.fields[0]).toBe(collectionMember);
+    });
+
+    it('should extract candidate details when withDetails is true and skip them in cheap path', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test-doc',
+        { 'ChoiceWithNamedTypes.xsd': getChoiceWithNamedTypesXsd() },
+        { namespaceUri: 'urn:candidate-details', name: 'Root' },
+      );
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
+      const choice = doc.fields[0];
+      const namespaceMap = { t: 'urn:candidate-details', xs: 'http://www.w3.org/2001/XMLSchema' };
+
+      // Cheap path (default withDetails = false, used by isDisabled)
+      const cheap = FieldCandidateService.computeAddFieldCandidates(choice.fields, namespaceMap);
+      expect(cheap.candidates).toHaveLength(3);
+      expect(cheap.candidates[0].typeLabel).toBeUndefined();
+      expect(cheap.candidates[0].children).toBeUndefined();
+
+      // Modal path (withDetails = true)
+      const detailed = FieldCandidateService.computeAddFieldCandidates(choice.fields, namespaceMap, [], false, true);
+      expect(detailed.candidates).toHaveLength(3);
+      const address = detailed.candidates.find((c) => c.label === 'Address');
+      expect(address?.typeLabel).toBe('t:Address_t');
+      expect(address?.children).toEqual([
+        { name: 'street', typeLabel: 'xs:string' },
+        { name: 'zip', typeLabel: 'xs:int' },
+      ]);
+      const phone = detailed.candidates.find((c) => c.label === 'Phone');
+      expect(phone?.children).toEqual([{ name: 'number', typeLabel: 'xs:string' }]);
+      const inline = detailed.candidates.find((c) => c.label === 'Inline');
+      expect(inline?.typeLabel).toBe(Types.Container);
+      expect(inline?.children).toEqual([{ name: 'value', typeLabel: 'xs:string' }]);
     });
   });
 });
