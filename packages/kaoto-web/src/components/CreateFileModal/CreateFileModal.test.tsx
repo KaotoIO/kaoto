@@ -163,6 +163,18 @@ describe('CreateFileModal', () => {
     expect((await storedFiles()).map((file) => file.path)).toEqual(['orders.pipe.yaml']);
   });
 
+  it('does not create a file on Enter while the name is not valid', async () => {
+    const fetchSpy = vi.mocked(fetch);
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.type(screen.getByLabelText('Folder path (optional)'), 'routes{Enter}');
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
+    expect(await storedFiles()).toEqual([]);
+  });
+
   it('shows an error and stays open when the template cannot be loaded', async () => {
     vi.stubGlobal(
       'fetch',
