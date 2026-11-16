@@ -7,6 +7,7 @@ import { RedHatMavenNotificationService } from './RedHatMavenNotificationService
 import { RuntimeType, ExecutorType } from '../executors/types/ExecutorTypes';
 import { isRedHatBuild } from '../utils/Version';
 import {
+	BUNDLED_CATALOG_PATH,
 	COMMAND_SELECT_CAMEL_CATALOG,
 	KAOTO_CATALOG_URL_SETTING_ID,
 	KAOTO_EXECUTOR_TYPE_SETTING_ID,
@@ -46,7 +47,7 @@ export class KaotoCatalogService {
 
 	constructor(private readonly context: vscode.ExtensionContext) {
 		// Path to the catalog directory copied by webpack during build
-		this.catalogBasePath = path.join(context.extensionPath, 'dist', 'webview', 'editors', 'kaoto', 'camel-catalog');
+		this.catalogBasePath = path.join(context.extensionPath, BUNDLED_CATALOG_PATH);
 		this.catalogIndexPath = path.join(this.catalogBasePath, 'index.json');
 		this.redHatNotificationService = new RedHatMavenNotificationService(context);
 		KaotoCatalogService.instance = this;

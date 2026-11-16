@@ -13,33 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QuickPickItem, window } from 'vscode';
+import { QuickPickItem, Uri, window } from 'vscode';
+import { StarterTemplateId } from '@kaoto/camel-catalog/types';
 import { AbstractNewCamelRouteCommand } from './AbstractNewCamelRouteCommand';
-import { CamelCommandAPI } from '../executors/api/CamelCommandAPI';
 import { CamelRouteDSL } from './AbstractCamelCommand';
-import path from 'path'; // NOSONAR
+import { StarterTemplateService } from '../services/StarterTemplateService';
+
+/**
+ * The Kamelet types the user can pick. The type also ends the name of the Kamelet and of its file.
+ */
+type KameletType = 'source' | 'sink' | 'action';
+
+interface KameletTypeItem extends QuickPickItem {
+	type: KameletType;
+}
+
+/**
+ * The starter template of each Kamelet type.
+ */
+const KAMELET_TEMPLATES: Record<KameletType, StarterTemplateId> = {
+	source: 'kamelet-source-yaml',
+	sink: 'kamelet-sink-yaml',
+	action: 'kamelet-action-yaml',
+};
 
 export class NewCamelKameletCommand extends AbstractNewCamelRouteCommand {
 	public static readonly ID_COMMAND_CAMEL_KAMELET_YAML = 'kaoto.camel.jbang.init.kamelet.yaml';
-	protected static readonly PROGRESS_NOTIFICATION_MESSAGE = 'Creating a new Kamelet file...';
 
 	private kameletType: string = '';
+
+	constructor(
+		private readonly starterTemplates: StarterTemplateService,
+		dsl: string,
+	) {
+		super(dsl);
+	}
 
 	public async create(): Promise<void> {
 		const wsFolder = await this.showWorkspaceFolderPick();
 		if (wsFolder || this.singleWorkspaceFolder) {
 			const targetFolder = await this.showDialogToPickFolder(wsFolder?.uri);
 			if (targetFolder) {
-				const type = await this.showQuickPickForKameletType();
-				if (type) {
-					this.kameletType = type.label;
+				const picked = await this.showQuickPickForKameletType();
+				if (picked) {
+					this.kameletType = picked.type;
 					const name = await this.showInputBoxForFileName(targetFolder.fsPath);
-					if (name && this.camelDSL && this.singleWorkspaceFolder) {
+					if (name && this.camelDSL) {
 						const fileName = this.getKameletFullName(name, this.kameletType, this.camelDSL.extension);
-						const filePath = this.computeFullPath(targetFolder.fsPath, fileName);
-						const wsFolderTarget = wsFolder || this.singleWorkspaceFolder;
-						const result = await CamelCommandAPI.init(path.relative(wsFolderTarget.uri.fsPath, filePath));
-						await this.executeInitAndOpen(result, fileName, filePath, wsFolderTarget, NewCamelKameletCommand.PROGRESS_NOTIFICATION_MESSAGE);
+						const fileUri = Uri.file(this.computeFullPath(targetFolder.fsPath, fileName));
+						// Camel resolves a local Kamelet by its file name, so the Kamelet is named after the file.
+						const kameletName = `${name}-${this.kameletType}`;
+						await this.createFromStarterTemplateAndOpen(this.starterTemplates, KAMELET_TEMPLATES[picked.type], fileUri, kameletName);
 					}
 				}
 			}
@@ -68,11 +92,17 @@ export class NewCamelKameletCommand extends AbstractNewCamelRouteCommand {
 		);
 	}
 
-	protected async showQuickPickForKameletType(): Promise<QuickPickItem | undefined> {
-		const items: QuickPickItem[] = [
-			{ label: 'source', description: 'A route that produces data.', detail: 'You use a source Kamelet to retrieve data from a component.' },
-			{ label: 'sink', description: 'A route that consumes data.', detail: 'You use a sink Kamelet to send data to a component.' },
+	protected async showQuickPickForKameletType(): Promise<KameletTypeItem | undefined> {
+		const items: KameletTypeItem[] = [
 			{
+				type: 'source',
+				label: 'source',
+				description: 'A route that produces data.',
+				detail: 'You use a source Kamelet to retrieve data from a component.',
+			},
+			{ type: 'sink', label: 'sink', description: 'A route that consumes data.', detail: 'You use a sink Kamelet to send data to a component.' },
+			{
+				type: 'action',
 				label: 'action',
 				description: 'A route that performs an action on data.',
 				detail: 'You can use an action Kamelet to manipulate data when it passes from a source Kamelet to a sink Kamelet.',

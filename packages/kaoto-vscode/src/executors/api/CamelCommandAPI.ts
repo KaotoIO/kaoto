@@ -192,25 +192,10 @@ export class CamelCommandAPI {
 	}
 
 	/**
-	 * Initialize a new Camel file
-	 */
-	static async init(filePath: string, cwd?: string): Promise<CommandResult> {
-		return this.executeSimple('init', [sq(filePath)], cwd);
-	}
-
-	/**
 	 * Stop a running integration
 	 */
 	static async stop(name: string, cwd?: string): Promise<CommandResult> {
 		return this.executeSimple('stop', [name], cwd);
-	}
-
-	/**
-	 * Bind a Kamelet to a source/sink
-	 */
-	static async bind(file: string, source: string, sink: string, cwd?: string, additionalArgs: CommandArguments = []): Promise<CommandResult> {
-		const args: CommandArguments = CamelCommandBuilder.filterEmptyArgs(['--source', source, '--sink', sink, sq(file), ...additionalArgs]);
-		return this.executeSimple('bind', args, cwd);
 	}
 
 	/**

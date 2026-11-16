@@ -844,7 +844,7 @@
         {
           "submenu": "kaoto.new.file",
           "group": "navigation@2",
-          "when": "view == kaoto.integrations && !virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount > 0"
+          "when": "view == kaoto.integrations && !virtualWorkspace && kaoto.newFileCommandsAvailable && workspaceFolderCount > 0"
         },
         {
           "command": "kaoto.camel.jbang.export.workspace",
@@ -1046,7 +1046,7 @@
       {
         "view": "kaoto.integrations",
         "contents": "In order to start with Apache Camel, you can create a standalone Camel File.\n[Camel File...](command:kaoto.new.camel.file)\nTo learn more about Apache Camel [read docs](https://camel.apache.org/docs/).",
-        "when": "!virtualWorkspace && kaoto.executorAvailable && workspaceFolderCount > 0"
+        "when": "!virtualWorkspace && kaoto.newFileCommandsAvailable && workspaceFolderCount > 0"
       },
       {
         "view": "kaoto.integrations",

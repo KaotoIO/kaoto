@@ -13,14 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { QuickPickItem, window } from 'vscode';
-import { CamelCommandAPI } from '../executors/api/CamelCommandAPI';
+import { QuickPickItem, Uri, window } from 'vscode';
+import { StarterTemplateId } from '@kaoto/camel-catalog/types';
 import { AbstractNewCamelRouteCommand } from './AbstractNewCamelRouteCommand';
-import path from 'path'; // NOSONAR
+import { StarterTemplateService } from '../services/StarterTemplateService';
+
+/**
+ * The starter template of each Camel DSL the user can pick.
+ */
+const ROUTE_TEMPLATES: Record<string, StarterTemplateId> = {
+	YAML: 'camel-route-yaml',
+	XML: 'camel-route-xml',
+};
 
 export class NewCamelRouteCommand extends AbstractNewCamelRouteCommand {
 	public static readonly ID_COMMAND_CAMEL_ROUTE = 'kaoto.camel.jbang.init.route';
-	protected static readonly PROGRESS_NOTIFICATION_MESSAGE = 'Creating a new Route file...';
+
+	constructor(private readonly starterTemplates: StarterTemplateService) {
+		super();
+	}
 
 	public async create(): Promise<void> {
 		const dslPick = await this.showQuickPickForCamelRouteDSL();
@@ -34,12 +45,10 @@ export class NewCamelRouteCommand extends AbstractNewCamelRouteCommand {
 			const targetFolder = await this.showDialogToPickFolder(wsFolder?.uri);
 			if (targetFolder) {
 				const name = await this.showInputBoxForFileName(targetFolder.fsPath);
-				if (name && this.camelDSL && this.singleWorkspaceFolder) {
+				if (name && this.camelDSL) {
 					const fileName = this.getFullName(name, this.camelDSL.extension);
-					const filePath = this.computeFullPath(targetFolder.fsPath, fileName);
-					const wsFolderTarget = wsFolder || this.singleWorkspaceFolder;
-					const result = await CamelCommandAPI.init(path.relative(wsFolderTarget.uri.fsPath, filePath));
-					await this.executeInitAndOpen(result, fileName, filePath, wsFolderTarget, NewCamelRouteCommand.PROGRESS_NOTIFICATION_MESSAGE);
+					const fileUri = Uri.file(this.computeFullPath(targetFolder.fsPath, fileName));
+					await this.createFromStarterTemplateAndOpen(this.starterTemplates, ROUTE_TEMPLATES[this.camelDSL.language], fileUri);
 				}
 			}
 		} else {
