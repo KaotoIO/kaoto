@@ -32,6 +32,10 @@
     ],
     "linuxOnly": [
       "deploy"
+    ],
+    "withoutJBang": [
+      "editor",
+      "source"
     ]
   },
   "dependencies": {

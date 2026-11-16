@@ -62,18 +62,20 @@ runs.
   UI library or forms. Such a change reaches the extension only through the Kaoto webview, so these groups hold only
   tests that drive the webview.
 - `linuxOnly` lists the groups that run on Linux only; deploy is one, because it needs minikube.
+- `withoutJBang` lists the groups whose tests need neither Java nor JBang, so their jobs install neither.
 
-| Group     | Tests                                                                                              | Listed in          |
-| --------- | -------------------------------------------------------------------------------------------------- | ------------------ |
-| `editor`  | Canvas, properties panel, editor tabs, node labels, the catalog picked in the status bar           | `all`, `smoke`     |
-| `source`  | Toggle Source Code: the source editor beside the canvas, kept in sync with it                      | `all`, `smoke`     |
-| `views`   | Kaoto views, New File, Run of a route, folder and workspace, Tests view                            | `all`              |
-| `project` | Maven dependency update, Explorer "Open with Kaoto", a custom catalog URL, export to a new project | `all`              |
-| `deploy`  | Deploy to minikube, Deployments view                                                               | `all`, `linuxOnly` |
+| Group     | Tests                                                                                              | Listed in                      |
+| --------- | -------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `editor`  | Canvas, properties panel, editor tabs, node labels, the catalog picked in the status bar           | `all`, `smoke`, `withoutJBang` |
+| `source`  | Toggle Source Code: the source editor beside the canvas, kept in sync with it                      | `all`, `smoke`, `withoutJBang` |
+| `views`   | Kaoto views, New File, Run of a route, folder and workspace, Tests view                            | `all`                          |
+| `project` | Maven dependency update, Explorer "Open with Kaoto", a custom catalog URL, export to a new project | `all`                          |
+| `deploy`  | Deploy to minikube, Deployments view                                                               | `all`, `linuxOnly`             |
 
 To add a group, add its folder under `src/`, a `test:ui:vsix:<group>` script, its glob in `extester.config.json` so that
 `test:ui:vsix` runs it too, and its name in `ciTestGroups.all`. **CI does not run a group that is missing from
-`ciTestGroups.all`.** Add it to `ciTestGroups.smoke` only if its tests drive the Kaoto webview.
+`ciTestGroups.all`.** Add it to `ciTestGroups.smoke` only if its tests drive the Kaoto webview, and to
+`ciTestGroups.withoutJBang` only if none of them runs Camel JBang.
 
 ## Linux/Wayland troubleshooting
 

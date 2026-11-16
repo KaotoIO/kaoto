@@ -11,7 +11,7 @@ inputs:
 
 outputs:
   matrix:
-    description: The matrix for kaoto-vscode-ui-tests.yml, as JSON with one include entry per group and OS
+    description: The matrix for kaoto-vscode-ui-tests.yml, as JSON with one include entry per group and OS, which also says whether the group needs JBang
     value: ${{ steps.matrix.outputs.matrix }}
 
 runs:
@@ -25,7 +25,8 @@ runs:
         ALL_OS: ${{ inputs.all-os }}
       run: |
         # A full run gets every group in ciTestGroups.all and any other run the groups in ciTestGroups.smoke. The groups
-        # in ciTestGroups.linuxOnly run on Ubuntu only.
+        # in ciTestGroups.linuxOnly run on Ubuntu only, and the groups in ciTestGroups.withoutJBang run without Java and
+        # JBang.
         if [ "$ALL_OS" = true ]; then
           oses='["ubuntu-latest","macos-latest","windows-latest"]'
         else
@@ -35,18 +36,19 @@ runs:
           (.ciTestGroups.all // []) as $all
           | (.ciTestGroups.smoke // []) as $smoke
           | (.ciTestGroups.linuxOnly // []) as $linuxOnly
-          | (($smoke + $linuxOnly) - $all) as $unlisted
+          | (.ciTestGroups.withoutJBang // []) as $withoutJBang
+          | (($smoke + $linuxOnly + $withoutJBang) - $all) as $unlisted
           | if ($smoke | length) == 0 then
               error("ciTestGroups.smoke lists no group")
             elif ($unlisted | length) > 0 then
-              error("ciTestGroups.all is missing groups named in smoke or linuxOnly: \($unlisted | join(", "))")
+              error("ciTestGroups.all is missing groups named in smoke, linuxOnly or withoutJBang: \($unlisted | join(", "))")
             else
               {include: [
                 (if $full == "true" then $all else $smoke end)[] as $group
                 | (if any($linuxOnly[]; . == $group) then ["ubuntu-latest"] else $oses end)[]
-                | {group: $group, os: .}
+                | {group: $group, os: ., jbang: (any($withoutJBang[]; . == $group) | not)}
               ]}
             end
         ' packages/ui-tests-vscode/package.json)
-        jq -r '.include[] | "\(.group) (\(.os))"' <<< "$matrix"
+        jq -r '.include[] | "\(.group) (\(.os))\(if .jbang then "" else ", without JBang" end)"' <<< "$matrix"
         echo "matrix=$matrix" >> "$GITHUB_OUTPUT"

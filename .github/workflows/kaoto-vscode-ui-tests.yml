@@ -13,7 +13,7 @@ on:
         type: string
         default: kaoto-ci.vsix
       matrix:
-        description: The test groups and OSes to run, as the JSON matrix from the kaoto-vscode-ui-test-matrix action
+        description: The test groups and OSes to run, and whether each group needs JBang, as the JSON matrix from the kaoto-vscode-ui-test-matrix action
         required: true
         type: string
       retention-days:
@@ -28,7 +28,7 @@ permissions:
 jobs:
   # One job per test group and OS, so a run lists only the groups that run. The kaoto-vscode-ui-test-matrix action
   # builds the matrix from the `ciTestGroups` field in the package.json of @kaoto/ui-tests-vscode, which lists every
-  # group, the smoke groups and the Linux-only ones (see that package's README).
+  # group, the smoke groups, the Linux-only ones and the ones that need no JBang (see that package's README).
   ui-tests:
     name: ${{ matrix.group }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
@@ -42,7 +42,7 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/kaoto-vscode-setup-tools
         with:
-          install-jbang: 'true'
+          install-jbang: ${{ matrix.jbang }}
           allow-unprivileged-userns: 'true'
       - if: matrix.group == 'deploy'
         uses: ./.github/actions/kaoto-vscode-setup-minikube
