@@ -107,3 +107,38 @@
   background-color: $highlight;
   color: inherit;
 }
+
+// The delete button sits at the end of the row and shows while the row is hovered or focused
+.cs--explorer__node-delete {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: $spacing-07;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  visibility: hidden;
+
+  svg {
+    fill: $icon-secondary;
+  }
+
+  &:hover svg,
+  &:focus svg {
+    fill: $icon-primary;
+  }
+}
+
+.cs--explorer__tree .cds--tree-node__label:hover,
+.cs--explorer__tree .cds--tree-node:focus > .cds--tree-node__label {
+  // Truncate the name before the delete button instead of running under it
+  padding-inline-end: $spacing-07;
+
+  .cs--explorer__node-delete {
+    visibility: visible;
+  }
+}

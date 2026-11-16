@@ -3,13 +3,16 @@
 // issue) — the file-tree navigation and filtering logic may be consolidated.
 import './Explorer.scss';
 
-import { Add, Document, DocumentConfiguration, Folder, FolderOpen, TestTool } from '@carbon/icons-react';
+import { Add, Document, DocumentConfiguration, Folder, FolderOpen, TestTool, TrashCan } from '@carbon/icons-react';
 import { Button, FeatureFlags, IconButton, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
 import {
   ChangeEvent,
   ComponentProps,
   FunctionComponent,
+  KeyboardEvent as ReactKeyboardEvent,
+  MouseEvent as ReactMouseEvent,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -19,6 +22,7 @@ import { useNavigate, useParams } from 'react-router';
 
 import { useFiles } from '../../hooks/useFiles';
 import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
+import { DeleteConfirmModal } from '../DeleteConfirmModal/DeleteConfirmModal';
 import { ErrorState } from '../ErrorState/ErrorState';
 import { buildTree, toFolderPath } from './build-tree';
 import { ExplorerFile } from './explorer-file';
@@ -34,6 +38,56 @@ interface RenderOptions {
   expandedFolders: Record<string, boolean>;
   handleToggle: (folderId: string) => ComponentProps<typeof TreeNode>['onToggle'];
   openIntegration: (fileId: string) => void;
+  requestDelete: (node: ExplorerFile) => void;
+}
+
+interface NodeLabelProps {
+  node: ExplorerFile;
+  query: string;
+  requestDelete: (node: ExplorerFile) => void;
+}
+
+/**
+ * The label of a node with its delete button.
+ *
+ * It is a component of its own so that Carbon finds no text in the label and does not wrap a truncated name in its
+ * tooltip button, which the delete button cannot be nested in; the name has a `title` for its full text instead.
+ *
+ * The button shows on hover and is left out of the accessibility tree and the tab order: inside a tree item it would
+ * add its name to the item's name and a tab stop per item. Keyboard and screen reader users press Delete on the item.
+ */
+const NodeLabel: FunctionComponent<NodeLabelProps> = ({ node, query, requestDelete }) => {
+  const label = node.children ? 'Delete folder' : 'Delete file';
+  return (
+    <>
+      {highlightMatch(node.name, query)}
+      <button
+        type="button"
+        className="cs--explorer__node-delete"
+        title={label}
+        aria-hidden="true"
+        tabIndex={-1}
+        data-testid={`explorer-delete-${node.id}`}
+        onClick={(event: ReactMouseEvent) => {
+          // Neither select the file nor toggle the folder
+          event.stopPropagation();
+          requestDelete(node);
+        }}
+      >
+        <TrashCan />
+      </button>
+    </>
+  );
+};
+
+/** Delete on a tree item asks to delete it */
+function handleDeleteKey(node: ExplorerFile, opts: RenderOptions) {
+  return (event: ReactKeyboardEvent) => {
+    if (event.key !== 'Delete') return;
+    // The key event bubbles through the folders around the item
+    event.stopPropagation();
+    opts.requestDelete(node);
+  };
 }
 
 /** Wrap the matching substring in a <mark> for visual highlighting. */
@@ -66,10 +120,12 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
         <TreeNode
           key={node.id}
           id={node.id}
-          label={highlightMatch(node.name, opts.query)}
+          label={<NodeLabel node={node} query={opts.query} requestDelete={opts.requestDelete} />}
           renderIcon={isExpanded ? FolderOpen : Folder}
           isExpanded={isExpanded}
           onToggle={opts.handleToggle(node.id)}
+          onKeyDown={handleDeleteKey(node, opts)}
+          aria-keyshortcuts="Delete"
           data-testid={`explorer-folder-${toFolderPath(node.id)}`}
         >
           {renderNodes(node.children, opts)}
@@ -80,9 +136,11 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
       <TreeNode
         key={node.id}
         id={node.id}
-        label={highlightMatch(node.name, opts.query)}
+        label={<NodeLabel node={node} query={opts.query} requestDelete={opts.requestDelete} />}
         renderIcon={getFileIcon(node.type)}
         data-testid={`explorer-file-${node.id}`}
+        onKeyDown={handleDeleteKey(node, opts)}
+        aria-keyshortcuts="Delete"
         onSelect={() => {
           if (OPENABLE_TYPES.has(node.type)) opts.openIntegration(node.id);
         }}
@@ -96,6 +154,9 @@ export const Explorer: FunctionComponent = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [nodeToDelete, setNodeToDelete] = useState<ExplorerFile>();
+  const treeRef = useRef<HTMLDivElement>(null);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const startX = useRef<number>(0);
@@ -129,7 +190,7 @@ export const Explorer: FunctionComponent = () => {
     setQuery(e.target.value.toLowerCase());
   }, []);
 
-  const { files, loading, error, reload } = useFiles();
+  const { files, loading, error, reload, deleteFile, deleteFolder } = useFiles();
   const tree = useMemo(() => buildTree(files), [files]);
   const filtered = useMemo(() => filterFiles(tree, query), [tree, query]);
 
@@ -149,6 +210,32 @@ export const Explorer: FunctionComponent = () => {
     [navigate],
   );
 
+  /**
+   * The node to focus once the delete modal is closed. The modal unmounts on close, so focus goes back by hand: to the
+   * node, or to the tree when the node is deleted. An object, so that every close focuses again.
+   */
+  const [focusAfterDelete, setFocusAfterDelete] = useState<{ nodeId: string }>();
+  useEffect(() => {
+    if (!focusAfterDelete) return;
+    const items = [...(treeRef.current?.querySelectorAll<HTMLElement>('[role="treeitem"]') ?? [])];
+    const target = items.find((item) => item.id === focusAfterDelete.nodeId) ?? items[0] ?? addButtonRef.current;
+    target?.focus();
+  }, [focusAfterDelete]);
+
+  const deleteNode = async (node: ExplorerFile) => {
+    const openPath = files.find((file) => file.id === selectedId)?.path;
+    let deletesOpenFile;
+    if (node.children) {
+      const folderPath = toFolderPath(node.id);
+      await deleteFolder(folderPath);
+      deletesOpenFile = !!openPath?.startsWith(`${folderPath}/`);
+    } else {
+      await deleteFile(node.id);
+      deletesOpenFile = node.id === selectedId;
+    }
+    if (deletesOpenFile) void navigate('/workspace');
+  };
+
   return (
     <aside
       className="cs--explorer"
@@ -167,6 +254,7 @@ export const Explorer: FunctionComponent = () => {
           size="sm"
           align="bottom-start"
           data-testid="explorer-add"
+          ref={addButtonRef}
           onClick={() => {
             setIsCreateOpen(true);
           }}
@@ -194,7 +282,7 @@ export const Explorer: FunctionComponent = () => {
       />
 
       {/* Section 4 — File tree */}
-      <div className="cs--explorer__tree">
+      <div className="cs--explorer__tree" ref={treeRef}>
         {loading && (
           <div data-testid="explorer-loading">
             <SkeletonText paragraph lineCount={4} />
@@ -227,7 +315,14 @@ export const Explorer: FunctionComponent = () => {
              won't react to URL changes (e.g. browser back/forward). */
           <FeatureFlags enableTreeviewControllable>
             <TreeView label="Project files" hideLabel selected={selectedId ? [selectedId] : []} active={selectedId}>
-              {renderNodes(filtered, { query, selectedId, expandedFolders, handleToggle, openIntegration })}
+              {renderNodes(filtered, {
+                query,
+                selectedId,
+                expandedFolders,
+                handleToggle,
+                openIntegration,
+                requestDelete: setNodeToDelete,
+              })}
             </TreeView>
           </FeatureFlags>
         )}
@@ -238,6 +333,26 @@ export const Explorer: FunctionComponent = () => {
             setIsCreateOpen(false);
           }}
         />
+      )}
+      {nodeToDelete && (
+        <DeleteConfirmModal
+          heading={nodeToDelete.children ? 'Delete folder?' : 'Delete file?'}
+          onDelete={() => deleteNode(nodeToDelete)}
+          onClose={() => {
+            setNodeToDelete(undefined);
+            setFocusAfterDelete({ nodeId: nodeToDelete.id });
+          }}
+        >
+          {nodeToDelete.children ? (
+            <>
+              Are you sure you want to delete the folder <strong>{nodeToDelete.name}</strong> and all its contents?
+            </>
+          ) : (
+            <>
+              Are you sure you want to delete <strong>{nodeToDelete.name}</strong>?
+            </>
+          )}
+        </DeleteConfirmModal>
       )}
     </aside>
   );

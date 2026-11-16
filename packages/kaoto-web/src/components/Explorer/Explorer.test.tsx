@@ -1,8 +1,9 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { filesStore } from '../../services/files/files.store';
 import { storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { buildTree, toFolderId } from './build-tree';
@@ -25,9 +26,9 @@ const renderComponent = () =>
  * the inner Route provides :fileId when navigated to the file path,
  * so that useParams() inside Explorer returns fileId for selection sync.
  */
-const renderWithNavigation = (children?: React.ReactNode) =>
+const renderWithNavigation = (children?: React.ReactNode, initialPath = '/workspace') =>
   render(
-    <MemoryRouter initialEntries={['/workspace']}>
+    <MemoryRouter initialEntries={[initialPath]}>
       <Routes>
         <Route
           path="/workspace"
@@ -321,6 +322,219 @@ describe('Explorer', () => {
       fireEvent.mouseMove(document, { clientX: 300 });
 
       expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '300px' });
+    });
+  });
+
+  describe('deleting', () => {
+    const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
+    const storedPaths = async () => (await filesStore.getFiles()).map((file) => file.path);
+
+    const expandFolder = async (user: ReturnType<typeof userEvent.setup>, folderPath: string) => {
+      const folderNode = await screen.findByTestId(`explorer-folder-${folderPath}`);
+      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+    };
+
+    it('keeps the delete buttons out of the names of the tree items and the tab order', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandFolder(user, 'integrations');
+
+      expect(screen.getByRole('treeitem', { name: 'main-flow.camel.yaml' })).toBeInTheDocument();
+      expect(screen.getByRole('treeitem', { name: /^integrations/ })).toHaveAttribute('aria-keyshortcuts', 'Delete');
+      const deleteButton = screen.getByTestId('explorer-delete-main-flow');
+      expect(deleteButton).toHaveAttribute('aria-hidden', 'true');
+      expect(deleteButton).toHaveAttribute('tabindex', '-1');
+      expect(deleteButton).toHaveAttribute('title', 'Delete file');
+      expect(screen.getByTestId(`explorer-delete-${toFolderId('integrations')}`)).toHaveAttribute(
+        'title',
+        'Delete folder',
+      );
+    });
+
+    it('deletes a file after confirmation without opening it', async () => {
+      const user = userEvent.setup();
+      renderWithNavigation(<LocationDisplay />);
+      await expandFolder(user, 'integrations');
+
+      await user.click(screen.getByTestId('explorer-delete-main-flow'));
+
+      expect(screen.getByTestId('location')).toHaveTextContent(/^\/workspace$/);
+      expect(screen.getByRole('heading', { name: 'Delete file?' })).toBeInTheDocument();
+      expect(screen.getByTestId('delete-confirm-modal')).toHaveTextContent(
+        'Are you sure you want to delete main-flow.camel.yaml? This action cannot be undone.',
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('explorer-file-main-flow')).not.toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
+      expect(await storedPaths()).not.toContain('integrations/main-flow.camel.yaml');
+      expect(await storedPaths()).toHaveLength(TEST_FILES.length - 1);
+    });
+
+    it('deletes a folder with its subfolders after confirmation without collapsing it', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandFolder(user, 'integrations');
+      const routes = await screen.findByTestId('explorer-folder-integrations/routes');
+      await user.click(routes.querySelector('.cds--tree-parent-node__toggle')!);
+
+      await user.click(screen.getByTestId(`explorer-delete-${toFolderId('integrations/routes')}`));
+
+      expect(routes).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByRole('heading', { name: 'Delete folder?' })).toBeInTheDocument();
+      expect(screen.getByTestId('delete-confirm-modal')).toHaveTextContent(
+        'Are you sure you want to delete the folder routes and all its contents? This action cannot be undone.',
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('explorer-folder-integrations/routes')).not.toBeInTheDocument();
+      });
+      const paths = await storedPaths();
+      expect(paths.filter((path) => path.startsWith('integrations/routes/'))).toEqual([]);
+      expect(paths).toHaveLength(TEST_FILES.length - 3);
+      expect(screen.getByTestId('explorer-file-main-flow')).toBeInTheDocument();
+    });
+
+    it('deletes every subfolder and file of a folder and nothing outside it', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandFolder(user, 'integrations');
+      await expandFolder(user, 'integrations/routes');
+      await expandFolder(user, 'integrations/routes/async');
+      const inIntegrations = TEST_FILES.filter((file) => file.path.startsWith('integrations/'));
+      const outside = TEST_FILES.filter((file) => !file.path.startsWith('integrations/'));
+      // The folder holds files on three levels
+      expect(inIntegrations.map((file) => file.path.split('/').length)).toEqual(expect.arrayContaining([2, 3, 4]));
+
+      await user.click(screen.getByTestId(`explorer-delete-${toFolderId('integrations')}`));
+      await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('explorer-folder-integrations')).not.toBeInTheDocument();
+      });
+      for (const folder of ['integrations/routes', 'integrations/routes/async']) {
+        expect(screen.queryByTestId(`explorer-folder-${folder}`)).not.toBeInTheDocument();
+      }
+      for (const file of inIntegrations) {
+        expect(screen.queryByTestId(`explorer-file-${file.id}`)).not.toBeInTheDocument();
+      }
+      expect(await storedPaths()).toEqual(outside.map((file) => file.path).sort());
+      expect(screen.getByTestId('explorer-folder-resources')).toBeInTheDocument();
+    });
+
+    it('keeps the file on Cancel and focuses its tree item again', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandFolder(user, 'integrations');
+
+      await user.click(screen.getByTestId('explorer-delete-main-flow'));
+      await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+      expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
+      expect(screen.getByTestId('explorer-file-main-flow')).toHaveFocus();
+      expect(await storedPaths()).toHaveLength(TEST_FILES.length);
+    });
+
+    it('asks to delete the focused file on Delete, not the folders around it', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandFolder(user, 'integrations');
+      screen.getByTestId('explorer-file-main-flow').focus();
+
+      await user.keyboard('{Delete}');
+
+      expect(screen.getByRole('heading', { name: 'Delete file?' })).toBeInTheDocument();
+      expect(screen.getByTestId('delete-confirm-modal')).toHaveTextContent('main-flow.camel.yaml');
+    });
+
+    it('asks to delete the focused folder on Delete', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      (await screen.findByTestId('explorer-folder-resources')).focus();
+
+      await user.keyboard('{Delete}');
+
+      expect(screen.getByRole('heading', { name: 'Delete folder?' })).toBeInTheDocument();
+    });
+
+    it('ignores other keys', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      (await screen.findByTestId('explorer-folder-resources')).focus();
+
+      await user.keyboard('{Backspace}');
+
+      expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
+    });
+
+    it('focuses the first tree item once the focused item is deleted', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      (await screen.findByTestId('explorer-folder-resources')).focus();
+
+      await user.keyboard('{Delete}');
+      await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('explorer-folder-integrations')).toHaveFocus();
+      });
+    });
+
+    it('focuses the add button once the last file is deleted', async () => {
+      resetTestIndexedDB();
+      await storeTestFiles([TEST_FILES[0]]);
+      const user = userEvent.setup();
+      renderComponent();
+      await expandFolder(user, 'integrations');
+
+      await user.click(screen.getByTestId('explorer-delete-main-flow'));
+      await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('explorer-add')).toHaveFocus();
+      });
+      expect(screen.getByTestId('explorer-empty')).toBeInTheDocument();
+    });
+
+    it.each([
+      ['the open file', 'explorer-delete-main-flow', '/workspace'],
+      ['the folder of the open file', `explorer-delete-${toFolderId('integrations')}`, '/workspace'],
+      ['another file', 'explorer-delete-error-handler', '/workspace/file/main-flow'],
+      ['another folder', `explorer-delete-${toFolderId('resources')}`, '/workspace/file/main-flow'],
+    ])('leads to %s and stays at %s', async (_, deleteButton, location) => {
+      const user = userEvent.setup();
+      renderWithNavigation(<LocationDisplay />, '/workspace/file/main-flow');
+      await expandFolder(user, 'integrations');
+
+      await user.click(screen.getByTestId(deleteButton));
+      await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
+      });
+      // The navigation can finish after the modal closes
+      await waitFor(() => {
+        expect(screen.getByTestId('location').textContent).toBe(location);
+      });
+    });
+
+    it('shows the error in the modal and keeps the file when deleting fails', async () => {
+      vi.spyOn(filesStore, 'deleteFile').mockRejectedValueOnce(new Error('The storage is blocked'));
+      const user = userEvent.setup();
+      renderComponent();
+      await expandFolder(user, 'integrations');
+
+      await user.click(screen.getByTestId('explorer-delete-main-flow'));
+      await user.click(screen.getByRole('button', { name: 'Delete' }));
+
+      expect(await screen.findByText('The storage is blocked')).toBeInTheDocument();
+      expect(screen.getByTestId('explorer-file-main-flow')).toBeInTheDocument();
+      expect(await storedPaths()).toHaveLength(TEST_FILES.length);
     });
   });
 });
