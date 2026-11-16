@@ -52,6 +52,7 @@ export const TopologyNode: FunctionComponent<TopologyRouteNodeProps> = observer(
       data-testid={`topology__${vizNode.id}`}
       data-nodelabel={label}
       data-disabled={isDisabled}
+      data-warning={doesHaveWarnings}
     >
       <CustomNodeContainer
         width={bounds.width}
