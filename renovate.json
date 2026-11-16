@@ -1,6 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "github>KaotoIO/renovate-config"
+  "extends": ["github>KaotoIO/renovate-config"],
+  "packageRules": [
+    {
+      "description": "The Maven modules of Kompanion are built and used locally and never published, so there is nothing to look up",
+      "matchDatasources": ["maven"],
+      "matchPackageNames": ["io.kaoto:**"],
+      "enabled": false
+    }
   ]
 }
