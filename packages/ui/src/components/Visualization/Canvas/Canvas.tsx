@@ -23,6 +23,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -40,6 +41,8 @@ import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
+import { CANVAS_NODE_SELECTOR, findCanvasNode } from './canvas-nodes';
+import { CanvasResolvingContext } from './canvas-resolving.context';
 import { CanvasSideBar } from './CanvasSideBar';
 import { consumeNodeSelection } from './node-selection-state';
 
@@ -50,6 +53,8 @@ interface CanvasProps {
   isModelResolving?: boolean;
   contextToolbar?: ReactNode;
   applyCollapseOnUpdate?: boolean;
+  /** The id of the element that describes the canvas, e.g. the title of the empty state shown over it */
+  describedBy?: string;
 }
 
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
@@ -58,19 +63,6 @@ interface CanvasState {
   [SETTLED_EMPTY_STATE]?: boolean;
 }
 
-const CANVAS_NODE_SELECTOR = 'g.custom-node, g.placeholder-node, g.custom-group';
-
-/**
- * Finds the focusable canvas node by its topology id. The id includes the route scope,
- * so equal step paths in different routes resolve to their own node.
- */
-const findCanvasNode = (nodeId: string): SVGGElement | null => {
-  const wrapper = `[data-id="${CSS.escape(nodeId)}"]`;
-  return document.querySelector<SVGGElement>(
-    `${wrapper} > g.custom-node, ${wrapper} > g.placeholder-node, ${wrapper} > g.custom-group`,
-  );
-};
-
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   nodes,
   edges,
@@ -78,6 +70,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   isModelResolving = false,
   contextToolbar,
   applyCollapseOnUpdate = false,
+  describedBy,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
   const settingsLayout = useMemo(
@@ -136,7 +129,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, []);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
-  useDeleteHotkey(selectedVizNode, clearSelection);
+  // While the model resolves, the selected node belongs to the previous model and its path may name another step
+  useDeleteHotkey(isModelResolving ? undefined : selectedVizNode, clearSelection);
 
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {
@@ -288,9 +282,28 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
   }, [selectedVizNode]);
 
-  if (isModelResolving) {
-    return null;
-  }
+  /**
+   * While the model resolves, the drawn graph and the sidebar belong to the previous model, so they are `inert`. The
+   * focus would drop to the body inside an inert subtree; it waits on the canvas and goes back to the step afterwards.
+   */
+  const movedFocusToCanvas = useRef(false);
+  useLayoutEffect(() => {
+    const canvas = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID);
+    if (isModelResolving) {
+      if (document.activeElement?.closest('.canvas-gate') && canvas?.contains(document.activeElement)) {
+        canvas.focus({ preventScroll: true });
+        movedFocusToCanvas.current = true;
+      }
+      return;
+    }
+    if (!movedFocusToCanvas.current) return;
+    movedFocusToCanvas.current = false;
+    requestAnimationFrame(() => {
+      const nodeId = lastNodeIdRef.current;
+      if (document.activeElement !== canvas || !nodeId) return;
+      findCanvasNode(nodeId)?.focus({ preventScroll: true });
+    });
+  }, [isModelResolving]);
 
   return (
     <TopologyView
@@ -301,7 +314,13 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       onSideBarResize={setSidebarWidth}
       sideBarResizable
       sideBarOpen={isSidebarOpen}
-      sideBar={isSidebarOpen ? <CanvasSideBar vizNode={selectedVizNode} onClose={clearSelection} /> : null}
+      sideBar={
+        isSidebarOpen ? (
+          <div className="canvas-gate" inert={isModelResolving} data-testid="canvas-sidebar-gate">
+            <CanvasSideBar vizNode={selectedVizNode} onClose={clearSelection} />
+          </div>
+        ) : null
+      }
       contextToolbar={contextToolbar}
       controlBar={<TopologyControlBar controlButtons={controlButtons} />}
       onFocus={handleFocus}
@@ -309,11 +328,17 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label="Route canvas"
+      aria-busy={isModelResolving}
+      aria-describedby={describedBy}
     >
       <CanvasOverlayContext.Provider
         value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}
       >
-        <VisualizationSurface state={{ selectedIds }} />
+        <CanvasResolvingContext.Provider value={isModelResolving}>
+          <div className="canvas-gate" inert={isModelResolving} data-testid="canvas-gate">
+            <VisualizationSurface state={{ selectedIds }} />
+          </div>
+        </CanvasResolvingContext.Provider>
       </CanvasOverlayContext.Provider>
     </TopologyView>
   );

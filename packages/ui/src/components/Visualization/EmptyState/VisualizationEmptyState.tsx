@@ -21,6 +21,8 @@ import { NewFlow } from './FlowType/NewFlow';
 interface IVisualizationEmptyState extends IDataTestID {
   entitiesNumber: number;
   className?: string;
+  /** The id of the title, so that the canvas can be described by it */
+  titleId?: string;
 }
 
 export const VisualizationEmptyState: FunctionComponent<IVisualizationEmptyState> = (props) => {
@@ -32,12 +34,15 @@ export const VisualizationEmptyState: FunctionComponent<IVisualizationEmptyState
       <Card>
         <img
           src={hasRoutes ? noDataIcon : notFoundIcon}
-          alt={hasRoutes ? 'no data' : 'not found'}
+          // Decorative: the title says the same
+          alt=""
           className="empty-state-icon"
         />
         <EmptyState
           headingLevel="h4"
-          titleText={hasRoutes ? <p>There are no visible routes</p> : <p>There are no routes defined</p>}
+          titleText={
+            <p id={props.titleId}>{hasRoutes ? 'There are no visible routes' : 'There are no routes defined'}</p>
+          }
           data-testid={props['data-testid']}
         >
           <EmptyStateBody>

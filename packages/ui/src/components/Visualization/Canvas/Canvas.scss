@@ -1,3 +1,6 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+
 #topology-resize-panel {
   /* stylelint-disable-next-line selector-class-pattern */
   .pf-v6-c-drawer__splitter::after {
@@ -5,10 +8,18 @@
   }
 }
 
+// Shown over the mounted canvas; only its card takes pointer events, so the canvas behind it stays usable
 .canvas-empty-state {
   position: absolute;
-  height: 100%;
-  width: 100%;
+  inset: 0;
+
+  // Just above the drawer content of the canvas, below menus and popovers
+  z-index: calc(var(--pf-t--global--z-index--xs) + 1);
+  pointer-events: none;
+
+  .pf-v6-c-card {
+    pointer-events: auto;
+  }
 }
 
 .hidden {
@@ -17,4 +28,21 @@
 
 .canvas-layout-icon-vertical {
   transform: rotate(90deg);
+}
+
+.canvas-gate {
+  display: contents;
+}
+
+// The canvas focus ring keeps some distance from the canvas edges on all sides
+// The ring is drawn around this radius plus its offset, so this radius is reduced by the offset: the ring then has
+// the same rounded corners as the canvas content
+#canvas-main {
+  border-radius: calc(var(--pf-t--global--border--radius--medium) - #{$spacing-03});
+}
+
+#canvas-main:focus-visible {
+  /* stylelint-disable-next-line declaration-property-value-no-unknown */
+  outline: 2px solid $focus;
+  outline-offset: $spacing-03;
 }

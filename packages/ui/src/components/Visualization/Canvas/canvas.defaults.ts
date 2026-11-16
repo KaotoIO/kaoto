@@ -5,6 +5,8 @@ import { LayoutType } from './canvas.models';
 export class CanvasDefaults {
   static readonly DEFAULT_LAYOUT = LayoutType.DagreVertical;
   static readonly DEFAULT_SIDEBAR_WIDTH = 500;
+  /** The id of the empty state title, which describes the canvas while it is empty */
+  static readonly EMPTY_STATE_TITLE_ID = 'canvas-empty-state-title';
   static readonly DEFAULT_LABEL_WIDTH = 150;
   static readonly DEFAULT_LABEL_HEIGHT = 24;
 

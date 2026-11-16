@@ -4,6 +4,7 @@ import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
 import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
 import { VisibleFlowsContext } from '../../providers/visible-flows.provider';
 import { Canvas } from './Canvas';
+import { CanvasDefaults } from './Canvas/canvas.defaults';
 import { EmptyCanvas } from './Canvas/EmptyCanvas';
 import { buildDesignerCanvasModel } from './designer-canvas-model';
 import { VisualizationShell } from './VisualizationShell';
@@ -24,12 +25,8 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const { vizNodes, isResolving } = useVisibleVizNodes(entities, visibleFlows);
 
-  const { nodes, edges } = useMemo(() => {
-    if (isResolving) {
-      return { nodes: [], edges: [] };
-    }
-    return buildDesignerCanvasModel(vizNodes);
-  }, [vizNodes, isResolving]);
+  // While resolving, vizNodes are the last resolved ones and Canvas does not draw, so the last settled model stays
+  const { nodes, edges } = useMemo(() => buildDesignerCanvasModel(vizNodes), [vizNodes]);
 
   const emptyState = useMemo(() => {
     if (entities.length === 0) {
@@ -43,22 +40,15 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
 
   return (
     <VisualizationShell className={className} fallback={fallback}>
-      {!emptyState && (
-        <Canvas
-          contextToolbar={contextToolbar}
-          nodes={nodes}
-          edges={edges}
-          isModelResolving={isResolving}
-          applyCollapseOnUpdate
-        />
-      )}
-      {emptyState && (
-        <EmptyCanvas
-          entitiesNumber={emptyState.entitiesNumber}
-          isModelResolving={isResolving}
-          contextToolbar={contextToolbar}
-        />
-      )}
+      <Canvas
+        contextToolbar={contextToolbar}
+        nodes={nodes}
+        edges={edges}
+        isModelResolving={isResolving}
+        applyCollapseOnUpdate
+        describedBy={emptyState ? CanvasDefaults.EMPTY_STATE_TITLE_ID : undefined}
+      />
+      {emptyState && <EmptyCanvas entitiesNumber={emptyState.entitiesNumber} isModelResolving={isResolving} />}
     </VisualizationShell>
   );
 };

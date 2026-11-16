@@ -1,8 +1,9 @@
 import { FunctionComponent, ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
-import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
+import { BaseVisualEntity, IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { Canvas, CanvasEdge, CanvasNode } from './Canvas';
+import { CanvasDefaults } from './Canvas/canvas.defaults';
 import { EmptyCanvas } from './Canvas/EmptyCanvas';
 import { FlowService } from './Canvas/flow.service';
 import { VisualizationShell } from './VisualizationShell';
@@ -26,16 +27,16 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
   );
   const { vizNodes, isResolving } = useVisibleVizNodes(entities, allFlowsVisible);
 
-  const [canvasModel, setCanvasModel] = useState<{ nodes: CanvasNode[]; edges: CanvasEdge[] }>({
-    nodes: [],
-    edges: [],
-  });
-
-  const [wasResolving, setWasResolving] = useState(isResolving);
-  if (wasResolving !== isResolving) {
-    setWasResolving(isResolving);
-    if (isResolving) setCanvasModel({ nodes: [], edges: [] });
-  }
+  /**
+   * The diagram drawn last, tagged with the viz nodes it was built from. Until the diagram for the current viz nodes
+   * is built, the canvas keeps the previous one and stays gated as resolving: drawing an empty model in between would
+   * flash the empty state and rebuild the graph, losing the zoom, the pan and the focused node.
+   */
+  const [diagram, setDiagram] = useState<{
+    source: IVisualizationNode[] | undefined;
+    nodes: CanvasNode[];
+    edges: CanvasEdge[];
+  }>({ source: undefined, nodes: [], edges: [] });
 
   useEffect(() => {
     if (isResolving) {
@@ -47,11 +48,15 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
     FlowService.getTopologyFlowDiagram(vizNodes)
       .then((model) => {
         if (!cancelled) {
-          setCanvasModel(model);
+          setDiagram({ source: vizNodes, ...model });
         }
       })
       .catch((err: unknown) => {
         console.error('Failed to build topology diagram', err);
+        // Keep the previous diagram, but stop waiting for this one
+        if (!cancelled) {
+          setDiagram((previous) => ({ ...previous, source: vizNodes }));
+        }
       });
 
     return () => {
@@ -59,15 +64,20 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
     };
   }, [vizNodes, isResolving]);
 
-  const { nodes, edges } = canvasModel;
-  const isEmpty = useMemo(() => nodes.length === 0 && edges.length === 0, [nodes, edges]);
+  const isDiagramPending = isResolving || diagram.source !== vizNodes;
+  const { nodes, edges } = diagram;
+  const isEmpty = !isDiagramPending && nodes.length === 0 && edges.length === 0;
 
   return (
     <VisualizationShell className={className} fallback={fallback}>
-      {!isEmpty && (
-        <Canvas contextToolbar={contextToolbar} nodes={nodes} edges={edges} isModelResolving={isResolving} />
-      )}
-      {isEmpty && <EmptyCanvas entitiesNumber={0} isModelResolving={isResolving} contextToolbar={contextToolbar} />}
+      <Canvas
+        contextToolbar={contextToolbar}
+        nodes={nodes}
+        edges={edges}
+        isModelResolving={isDiagramPending}
+        describedBy={isEmpty ? CanvasDefaults.EMPTY_STATE_TITLE_ID : undefined}
+      />
+      {isEmpty && <EmptyCanvas entitiesNumber={0} />}
     </VisualizationShell>
   );
 };

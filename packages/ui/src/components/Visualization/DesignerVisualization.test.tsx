@@ -1,12 +1,12 @@
 import { isNode, Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import type { MockInstance } from 'vitest';
 
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../models/visualization/flows';
 import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
-import { TestProvidersWrapper } from '../../stubs';
+import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../stubs';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { COLLAPSE_STATE } from './Canvas/collapse-handler-state';
 import { ControllerService } from './Canvas/controller.service';
@@ -35,19 +35,24 @@ describe('DesignerVisualization', () => {
       visibleFlowsContext: { visibleFlows, allFlowsVisible: true, visualFlowsApi: new VisualFlowsApi(vi.fn()) },
     });
 
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
     const result = render(
-      <Provider>
-        <VisualizationProvider controller={controller}>{ui}</VisualizationProvider>
-      </Provider>,
+      <RuntimeProvider>
+        <Provider>
+          <VisualizationProvider controller={controller}>{ui}</VisualizationProvider>
+        </Provider>
+      </RuntimeProvider>,
     );
 
     return {
       ...result,
       rerender: (newUi: ReactElement) => {
         result.rerender(
-          <Provider>
-            <VisualizationProvider controller={controller}>{newUi}</VisualizationProvider>
-          </Provider>,
+          <RuntimeProvider>
+            <Provider>
+              <VisualizationProvider controller={controller}>{newUi}</VisualizationProvider>
+            </Provider>
+          </RuntimeProvider>,
         );
       },
     };
@@ -140,6 +145,149 @@ describe('DesignerVisualization', () => {
     const empty = await screen.findByTestId('visualization-empty-state');
     /* The single existing entity is reported as hidden */
     expect(empty).toHaveTextContent('There are no visible routes');
-    expect(fromModelSpy).not.toHaveBeenCalled();
+    /* The canvas stays mounted below the empty state, with an empty model */
+    await waitFor(() => {
+      expect(fromModelSpy).toHaveBeenCalled();
+    });
+    expect(getDrawnIds()).toEqual({ nodeIds: [], edgeIds: [] });
+  });
+
+  describe('switching between the empty and the populated canvas', () => {
+    it('keeps the same canvas element', async () => {
+      const { container, rerender } = await renderWithVisibleFlows(<DesignerVisualization entities={[entity]} />, map);
+      await waitFor(() => {
+        expect(fromModelSpy).toHaveBeenCalled();
+      });
+      const canvas = container.querySelector('#canvas-main');
+      expect(canvas).toBeInTheDocument();
+
+      for (let cycle = 0; cycle < 3; cycle++) {
+        rerender(<DesignerVisualization entities={[]} />);
+        expect(await screen.findByTestId('visualization-empty-state')).toBeInTheDocument();
+        expect(container.querySelector('#canvas-main')).toBe(canvas);
+
+        rerender(<DesignerVisualization entities={[entity]} />);
+        await waitFor(() => {
+          expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
+        });
+        expect(container.querySelector('#canvas-main')).toBe(canvas);
+      }
+    });
+
+    it('describes the empty canvas with the empty state title', async () => {
+      const { container, rerender } = await renderWithVisibleFlows(<DesignerVisualization entities={[]} />, map);
+
+      const title = await screen.findByText('There are no routes defined');
+      expect(title).toHaveAttribute('id', 'canvas-empty-state-title');
+      expect(container.querySelector('#canvas-main')).toHaveAttribute('aria-describedby', 'canvas-empty-state-title');
+
+      rerender(<DesignerVisualization entities={[entity]} />);
+      await waitFor(() => {
+        expect(container.querySelector('#canvas-main')).not.toHaveAttribute('aria-describedby');
+      });
+    });
+
+    it('keeps the focus on an empty state control on Escape', async () => {
+      await renderWithVisibleFlows(<DesignerVisualization entities={[]} />, map);
+      const newButton = within(await screen.findByTestId('visualization-empty-state')).getAllByRole('button')[0];
+      act(() => {
+        newButton.focus();
+      });
+
+      fireEvent.keyDown(newButton, { key: 'Escape' });
+      await act(async () => {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+      });
+
+      expect(newButton).toHaveFocus();
+    });
+  });
+
+  describe('focus rescue', () => {
+    /** The shared test setup replaces MutationObserver with a no-op; the test reports DOM changes itself */
+    let observers: (() => void)[] = [];
+    const notify = () => {
+      for (const callback of observers) callback();
+    };
+    beforeEach(() => {
+      observers = [];
+      vi.spyOn(globalThis, 'MutationObserver').mockImplementation(function (callback) {
+        const observer = { observe: vi.fn(), disconnect: vi.fn(), takeRecords: vi.fn() };
+        observers.push(() => {
+          callback([], observer as unknown as MutationObserver);
+        });
+        return observer;
+      });
+    });
+
+    it('moves the focus to the canvas when the focused empty state control disappears', async () => {
+      const { container, rerender } = await renderWithVisibleFlows(<DesignerVisualization entities={[]} />, map);
+      const newButton = within(await screen.findByTestId('visualization-empty-state')).getAllByRole('button')[0];
+      act(() => {
+        newButton.focus();
+      });
+
+      rerender(<DesignerVisualization entities={[entity]} />);
+      await waitFor(() => {
+        expect(newButton).not.toBeInTheDocument();
+      });
+      act(() => {
+        notify();
+      });
+
+      expect(document.activeElement).toBe(container.querySelector('#canvas-main'));
+    });
+
+    it('keeps the focus on the canvas across repeated empty and populated cycles', async () => {
+      const { container, rerender } = await renderWithVisibleFlows(<DesignerVisualization entities={[]} />, map);
+      const canvas = () => container.querySelector('#canvas-main');
+
+      for (let cycle = 0; cycle < 3; cycle++) {
+        const emptyStateButton = within(await screen.findByTestId('visualization-empty-state')).getAllByRole(
+          'button',
+        )[0];
+        act(() => {
+          emptyStateButton.focus();
+        });
+
+        // The routes come back: the empty state control disappears and hands the focus to the canvas
+        rerender(<DesignerVisualization entities={[entity]} />);
+        await waitFor(() => {
+          expect(emptyStateButton).not.toBeInTheDocument();
+        });
+        act(() => {
+          notify();
+        });
+        expect(document.activeElement).toBe(canvas());
+
+        // The routes go away again: the canvas stays mounted and keeps the focus
+        rerender(<DesignerVisualization entities={[]} />);
+        expect(await screen.findByTestId('visualization-empty-state')).toBeInTheDocument();
+        act(() => {
+          notify();
+        });
+        expect(document.activeElement).toBe(canvas());
+      }
+    });
+
+    it('keeps the focus on a toolbar control when the routes disappear', async () => {
+      const toolbar = <button data-testid="toolbar-button">Hide all</button>;
+      const { rerender } = await renderWithVisibleFlows(
+        <DesignerVisualization entities={[entity]} contextToolbar={toolbar} />,
+        map,
+      );
+      const toolbarButton = await screen.findByTestId('toolbar-button');
+      act(() => {
+        toolbarButton.focus();
+      });
+
+      rerender(<DesignerVisualization entities={[]} contextToolbar={toolbar} />);
+      expect(await screen.findByTestId('visualization-empty-state')).toBeInTheDocument();
+      act(() => {
+        notify();
+      });
+
+      expect(toolbarButton).toHaveFocus();
+    });
   });
 });

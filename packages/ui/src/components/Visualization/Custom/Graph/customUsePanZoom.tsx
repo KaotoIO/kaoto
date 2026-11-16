@@ -46,6 +46,16 @@ const isWithinNodeOrEdge = (target: EventTarget | null, svg: SVGSVGElement | nul
   return false;
 };
 
+const INTERACTIVE_SELECTOR =
+  'button, input, select, textarea, a[href], [contenteditable=""], [contenteditable="true"], [role="button"], [role="menuitem"]';
+
+/**
+ * Whether the event target is, or sits inside, an HTML control that Space activates, so Space must not pan the canvas.
+ * The canvas steps are SVG elements with `role="button"`; Space still pans while one of them has the focus.
+ */
+export const isInteractiveTarget = (target: EventTarget | null): boolean =>
+  target instanceof HTMLElement && target.closest(INTERACTIVE_SELECTOR) !== null;
+
 export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
   const { enableSpacebarPanning = false } = options;
   const element = useContext(ElementContext);
@@ -71,7 +81,7 @@ export const usePanZoom = (options: PanZoomOptions = {}): PanZoomRef => {
     }
     const handleKeyDown = (event: KeyboardEvent) => {
       // Only activate spacebar panning when the mouse is over the canvas
-      if (event.code === 'Space' && isMouseOverCanvasRef.current) {
+      if (event.code === 'Space' && isMouseOverCanvasRef.current && !isInteractiveTarget(event.target)) {
         event.preventDefault();
         isSpacebarPressedRef.current = true;
         document.body.style.cursor = 'grab';

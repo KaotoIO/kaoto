@@ -1,6 +1,6 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
 
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { CamelRouteResource } from '../../../../models/camel';
@@ -51,6 +51,28 @@ describe('NewEntity', () => {
     await waitFor(async () => {
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
     });
+  });
+
+  it('gives the focus back to the toggle once an entity is created', async () => {
+    const { Provider } = await TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <NewEntity />
+      </Provider>,
+    );
+    const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
+    fireEvent.click(toggle);
+    const [firstItem] = await wrapper.findAllByRole('menuitem');
+    act(() => {
+      firstItem.focus();
+    });
+
+    fireEvent.click(firstItem);
+
+    await waitFor(() => {
+      expect(wrapper.queryByRole('menuitem')).not.toBeInTheDocument();
+    });
+    expect(toggle).toHaveFocus();
   });
 
   it('should toggle list of DSLs', async () => {

@@ -136,6 +136,40 @@ describe('useVisibleVizNodes', () => {
     });
   });
 
+  it('keeps the last resolved viz nodes while new ones resolve', async () => {
+    const e1 = mockEntity('e1', nodeA);
+    const visibleFlows = { e1: true, e2: true };
+    const { result, rerender } = renderHook(
+      ({ entities }: { entities: BaseVisualEntity[] }) => useVisibleVizNodes(entities, visibleFlows),
+      { initialProps: { entities: [e1] } },
+    );
+    await waitFor(() => {
+      expect(result.current.isResolving).toBe(false);
+    });
+    const settled = result.current.vizNodes;
+
+    let finish: (node: IVisualizationNode) => void = () => undefined;
+    const e2 = {
+      id: 'e2',
+      toVizNode: vi.fn(
+        () =>
+          new Promise<IVisualizationNode>((resolve) => {
+            finish = resolve;
+          }),
+      ),
+    } as unknown as BaseVisualEntity;
+    rerender({ entities: [e1, e2] });
+
+    expect(result.current.isResolving).toBe(true);
+    expect(result.current.vizNodes).toBe(settled);
+
+    await act(async () => {
+      finish(nodeB);
+    });
+    expect(result.current.isResolving).toBe(false);
+    expect(result.current.vizNodes).toEqual([nodeA, nodeB]);
+  });
+
   it('sets isResolving true on the first render with new entities/visibleFlows', async () => {
     const e1 = mockEntity('e1', nodeA);
     const e2 = mockEntity('e2', nodeB);

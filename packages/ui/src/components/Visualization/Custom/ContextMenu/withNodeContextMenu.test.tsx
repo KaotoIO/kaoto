@@ -4,6 +4,7 @@ import { FunctionComponent } from 'react';
 import type { Mock } from 'vitest';
 
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
+import { CanvasResolvingContext } from '../../Canvas/canvas-resolving.context';
 import { ControllerService } from '../../Canvas/controller.service';
 import { withNodeContextMenu } from './withNodeContextMenu';
 
@@ -147,5 +148,40 @@ describe('withNodeContextMenu', () => {
 
     expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
     expect(target).toHaveAttribute('data-menu-open', 'false');
+  });
+
+  it('closes an open menu when the canvas model starts resolving', async () => {
+    const actions = vi.fn().mockReturnValue([itemA]);
+    const controller = ControllerService.createController();
+    controller.fromModel(
+      {
+        graph: { id: 'g1', type: 'graph' },
+        nodes: [{ id: 'node-1', type: 'node', x: 0, y: 0, width: 90, height: 75 }],
+      },
+      false,
+    );
+    const element = controller.getNodeById('node-1')!;
+    const WithMenu = withNodeContextMenu(actions)(Target);
+    const renderResolving = (resolving: boolean) => (
+      <CanvasResolvingContext.Provider value={resolving}>
+        <TopologyElementWrapper controller={controller} element={element}>
+          <WithMenu />
+        </TopologyElementWrapper>
+      </CanvasResolvingContext.Provider>
+    );
+    const { rerender } = render(renderResolving(false));
+    fireEvent.contextMenu(screen.getByTestId('target'), { clientX: 10, clientY: 20 });
+    expect(await screen.findByTestId('item-a')).toBeInTheDocument();
+
+    rerender(renderResolving(true));
+    await settle();
+
+    expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
+    expect(screen.getByTestId('target')).toHaveAttribute('data-menu-open', 'false');
+
+    // The menu stays closed once the model settled; it does not come back with the stale actions
+    rerender(renderResolving(false));
+    await settle();
+    expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
   });
 });

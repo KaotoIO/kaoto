@@ -12,6 +12,8 @@ import {
   useState,
 } from 'react';
 
+import { CanvasResolvingContext } from '../../Canvas/canvas-resolving.context';
+
 interface OpenMenu {
   /** Increases on every right-click, so each open mounts its own `ContextMenu` */
   id: number;
@@ -68,16 +70,26 @@ export const withNodeContextMenu =
   <P extends WithContextMenuProps>(WrappedComponent: ComponentType<P>) => {
     const Component: FunctionComponent<Omit<P, keyof WithContextMenuProps>> = (props) => {
       const element = useContext(ElementContext) as E;
+      const isModelResolving = useContext(CanvasResolvingContext);
       const [menu, setMenu] = useState<OpenMenu | null>(null);
+      // A resolve replaces the model the actions were built for, so an open menu closes and stays closed. Setting the
+      // state while rendering is intended: React renders again right away, so the stale actions are never shown.
+      if (isModelResolving && menu !== null) {
+        setMenu(null);
+      }
       /** Counts every open, independently of the close that a `mousedown` may queue in the same event batch */
       const openCount = useRef(0);
 
-      const onContextMenu = useCallback((event: MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
-        openCount.current += 1;
-        setMenu({ id: openCount.current, reference: { x: event.clientX, y: event.clientY } });
-      }, []);
+      const onContextMenu = useCallback(
+        (event: MouseEvent) => {
+          event.preventDefault();
+          event.stopPropagation();
+          if (isModelResolving) return;
+          openCount.current += 1;
+          setMenu({ id: openCount.current, reference: { x: event.clientX, y: event.clientY } });
+        },
+        [isModelResolving],
+      );
 
       const onRequestClose = useCallback(() => {
         setMenu(null);

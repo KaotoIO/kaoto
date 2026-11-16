@@ -3,6 +3,7 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import hotkeys from 'hotkeys-js';
 import { useState } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
@@ -12,8 +13,13 @@ import { CamelRouteResource, KameletResource } from '../../../models/camel';
 import { LocalStorageKeys } from '../../../models/local-storage-keys';
 import { DefaultSettingsAdapter } from '../../../models/settings';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
-import { AddStepMode, IVisualizationNode } from '../../../models/visualization/base-visual-entity';
+import {
+  AddStepMode,
+  IVisualizationNode,
+  IVisualizationNodeData,
+} from '../../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../../models/visualization/flows';
+import { createVisualizationNode } from '../../../models/visualization/visualization-node';
 import { ActionConfirmationModalContextProvider } from '../../../providers/action-confirmation-modal.provider';
 import { SettingsProvider } from '../../../providers/settings.provider';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../stubs';
@@ -239,9 +245,95 @@ describe('Canvas', () => {
         await flushFrames();
       };
 
+      /** Rerenders with the same model, marked as resolving or settled, like the visualizations do */
+      const setResolving = async (isModelResolving: boolean) => {
+        result.rerender(renderWith({ ...canvasProps, isModelResolving } as typeof canvasProps));
+        await flushFrames();
+      };
+
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-      return { ...result, user, focusStep, flushFrames, clickBackground, deleteSecondLog };
+      return { ...result, user, focusStep, flushFrames, clickBackground, deleteSecondLog, setResolving };
     }
+
+    describe('while the model resolves', () => {
+      it('keeps the canvas mounted', async () => {
+        const { container, setResolving } = await renderTwoRoutes();
+        const canvas = container.querySelector('#canvas-main');
+
+        await setResolving(true);
+        expect(container.querySelector('#canvas-main')).toBe(canvas);
+
+        await setResolving(false);
+        expect(container.querySelector('#canvas-main')).toBe(canvas);
+      });
+
+      it('marks the surface and the sidebar inert and the canvas busy', async () => {
+        const { container, user, focusStep, setResolving } = await renderTwoRoutes();
+        focusStep('route-second', 'route.from.steps.0.log');
+        await user.keyboard('{Enter}');
+        expect(await screen.findByTestId('close-side-bar')).toBeInTheDocument();
+
+        await setResolving(true);
+        expect(screen.getByTestId('canvas-gate')).toHaveAttribute('inert');
+        expect(screen.getByTestId('canvas-sidebar-gate')).toHaveAttribute('inert');
+        expect(container.querySelector('#canvas-main')).toHaveAttribute('aria-busy', 'true');
+
+        // Drawing the settled model resets the selection, which closes the sidebar, as before
+        await setResolving(false);
+        expect(screen.getByTestId('canvas-gate')).not.toHaveAttribute('inert');
+        expect(container.querySelector('#canvas-main')).toHaveAttribute('aria-busy', 'false');
+      });
+
+      it('moves the focus from a step to the canvas and back to the step', async () => {
+        const { focusStep, setResolving } = await renderTwoRoutes();
+        focusStep('route-second', 'route.from.steps.0.log');
+
+        await setResolving(true);
+        expect(document.activeElement?.id).toBe('canvas-main');
+
+        await setResolving(false);
+        expect(document.activeElement?.closest('[data-id]')?.getAttribute('data-id')).toBe(
+          'route-second|route.from.steps.0.log',
+        );
+      });
+
+      it('does not delete the selected step with the Delete hotkey', async () => {
+        const removeChild = vi.spyOn(
+          Object.getPrototypeOf(createVisualizationNode('probe', {} as IVisualizationNodeData)) as IVisualizationNode,
+          'removeChild',
+        );
+        const { user, focusStep, setResolving } = await renderTwoRoutes();
+        focusStep('route-second', 'route.from.steps.0.log');
+        await user.keyboard('{Enter}');
+        expect(await screen.findByTestId('close-side-bar')).toBeInTheDocument();
+
+        await setResolving(true);
+        const deleteHotkey = vi
+          .mocked(hotkeys)
+          .mock.calls.filter(([keys]) => keys === 'Delete, backspace')
+          .at(-1)?.[1] as unknown as (event: Pick<KeyboardEvent, 'preventDefault'>) => void;
+        await act(async () => {
+          deleteHotkey({ preventDefault: () => undefined });
+        });
+
+        expect(removeChild).not.toHaveBeenCalled();
+      });
+
+      it('moves the focus from a sidebar field to the canvas', async () => {
+        const { user, focusStep, flushFrames, setResolving } = await renderTwoRoutes();
+        focusStep('route-second', 'route.from.steps.0.log');
+        await user.keyboard('{Enter}');
+        await flushFrames();
+        const closeButton = screen.getByTestId('close-side-bar');
+        act(() => {
+          closeButton.focus();
+        });
+        expect(closeButton).toHaveFocus();
+
+        await setResolving(true);
+        expect(document.activeElement?.id).toBe('canvas-main');
+      });
+    });
 
     it('keeps focus on the selected step of its own route across repeated background clicks', async () => {
       const { user, focusStep, clickBackground } = await renderTwoRoutes();

@@ -26,6 +26,8 @@ export const NewEntity: FunctionComponent = () => {
 
       createEntity(entityType as EntityType);
       setIsOpen(false);
+      // The chosen item disappears with the menu; the focus goes back to the toggle, as for Escape
+      toggleRef.current?.focus();
     },
     [createEntity],
   );

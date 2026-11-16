@@ -1,9 +1,10 @@
 import './Visualization.scss';
 
-import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
+import { FunctionComponent, PropsWithChildren, ReactNode, useRef } from 'react';
 
 import { ErrorBoundary } from '../ErrorBoundary';
 import { CanvasFallback } from './CanvasFallback';
+import { useCanvasFocusRescue } from './use-canvas-focus-rescue';
 
 interface VisualizationShellProps {
   className?: string;
@@ -15,8 +16,11 @@ export const VisualizationShell: FunctionComponent<PropsWithChildren<Visualizati
   fallback,
   children,
 }) => {
+  const surfaceRef = useRef<HTMLDivElement>(null);
+  useCanvasFocusRescue(surfaceRef);
+
   return (
-    <div className={`canvas-surface ${className ?? ''}`}>
+    <div ref={surfaceRef} className={`canvas-surface ${className ?? ''}`}>
       <ErrorBoundary fallback={fallback ?? <CanvasFallback />}>{children}</ErrorBoundary>
     </div>
   );

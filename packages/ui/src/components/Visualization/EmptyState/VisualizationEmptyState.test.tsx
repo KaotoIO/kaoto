@@ -1,5 +1,7 @@
 import { render } from '@testing-library/react';
 
+import noDataIcon from '../../../assets/no-data.svg';
+import notFoundIcon from '../../../assets/not-found.svg';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../../stubs';
 import { VisualizationEmptyState } from './VisualizationEmptyState';
 
@@ -16,9 +18,11 @@ describe('VisualizationEmptyState.tsx', () => {
         </RuntimeProvider>,
       );
 
-      const icon = wrapper.getByAltText('not found');
+      const icon = wrapper.container.querySelector('img.empty-state-icon');
 
-      expect(icon).toBeInTheDocument();
+      expect(icon).toHaveAttribute('src', notFoundIcon);
+      // Decorative: the title already says the same
+      expect(icon).toHaveAttribute('alt', '');
     });
 
     it('should state that there are no routes', async () => {
@@ -51,9 +55,10 @@ describe('VisualizationEmptyState.tsx', () => {
           </Provider>
         </RuntimeProvider>,
       );
-      const icon = wrapper.getByAltText('no data');
+      const icon = wrapper.container.querySelector('img.empty-state-icon');
 
-      expect(icon).toBeInTheDocument();
+      expect(icon).toHaveAttribute('src', noDataIcon);
+      expect(icon).toHaveAttribute('alt', '');
     });
 
     it('should state that there are no visible routes', async () => {
