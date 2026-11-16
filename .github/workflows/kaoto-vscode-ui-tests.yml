@@ -32,7 +32,8 @@ jobs:
   ui-tests:
     name: ${{ matrix.group }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    # A deploy job takes about 13 minutes, so a hung one ends after 40, with its logs uploaded below.
+    timeout-minutes: ${{ matrix.group == 'deploy' && 40 || 60 }}
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(inputs.matrix) }}
@@ -74,8 +75,9 @@ jobs:
           else
             yarn workspace @kaoto/ui-tests-vscode "test:ui:vsix:$TEST_GROUP"
           fi
+      # Also when the job is cancelled, as it is at its timeout, so that a hung job leaves its logs.
       - name: Upload test artifacts
-        if: failure()
+        if: failure() || cancelled()
         uses: ./.github/actions/kaoto-vscode-upload-test-artifacts
         with:
           test-group: ${{ matrix.group }}

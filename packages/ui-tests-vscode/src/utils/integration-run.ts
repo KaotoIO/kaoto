@@ -30,7 +30,7 @@ import {
 /** Register the same integration assertions for local execution and Linux deployment. */
 export function integrationRunTests(label: 'Run' | 'Deploy'): void {
 	describe(`Integrations View: ${label}`, function () {
-		this.timeout(1_200_000);
+		this.timeout(900_000); // 15 minutes
 		const workspaceFolder = join(__dirname, '../../test Fixture with speci@l chars', 'kaoto-view');
 		let driver: WebDriver;
 		let kaotoViewContainer: ViewControl | undefined;
@@ -72,11 +72,12 @@ export function integrationRunTests(label: 'Run' | 'Deploy'): void {
 				expect(item).to.not.be.undefined;
 				const button = await getTreeItemActionButton(kaotoViewContainer, item as TreeItem, label);
 				await button?.click();
+				// Deploy waits 13 of the test's 15 minutes, so a stuck deployment fails with this wait's message, not the test timeout.
 				await waitUntilTerminalHasText(
 					driver,
 					['Routes startup', 'Hello World'],
 					label === 'Deploy' ? 10_000 : 4_000,
-					label === 'Deploy' ? 900_000 : 180_000,
+					label === 'Deploy' ? 780_000 : 180_000,
 				);
 			});
 		});

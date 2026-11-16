@@ -21,7 +21,7 @@ import { killTerminal, waitUntilTerminalHasText } from '../utils/terminal';
 import { expandViews, getKaotoViewControl, getTreeItem, getTreeItemActionButton } from '../utils/tree-view';
 
 describe('Deployments View', function () {
-	this.timeout(1_200_000); // 20 minutes
+	this.timeout(900_000); // 15 minutes
 
 	const WORKSPACE_FOLDER = join(__dirname, '../../test Fixture with speci@l chars', 'kaoto-view');
 
