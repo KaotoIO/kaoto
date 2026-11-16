@@ -4,7 +4,7 @@
 import './Explorer.scss';
 
 import { Add, Document, DocumentConfiguration, Folder, FolderOpen, TestTool } from '@carbon/icons-react';
-import { FeatureFlags, IconButton, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
+import { Button, FeatureFlags, IconButton, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
 import {
   ChangeEvent,
   ComponentProps,
@@ -18,6 +18,7 @@ import {
 import { useNavigate, useParams } from 'react-router';
 
 import { useFiles } from '../../hooks/useFiles';
+import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
 import { ErrorState } from '../ErrorState/ErrorState';
 import { buildTree, toFolderPath } from './build-tree';
 import { ExplorerFile } from './explorer-file';
@@ -94,6 +95,7 @@ export const Explorer: FunctionComponent = () => {
   const { fileId: selectedId } = useParams();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const startX = useRef<number>(0);
@@ -159,7 +161,16 @@ export const Explorer: FunctionComponent = () => {
 
       {/* Section 2 — Toolbar */}
       <div className="cs--explorer__toolbar">
-        <IconButton label="Add integration" kind="ghost" size="sm" align="bottom-start" data-testid="explorer-add">
+        <IconButton
+          label="Create a file"
+          kind="ghost"
+          size="sm"
+          align="bottom-start"
+          data-testid="explorer-add"
+          onClick={() => {
+            setIsCreateOpen(true);
+          }}
+        >
           <Add />
         </IconButton>
       </div>
@@ -197,9 +208,18 @@ export const Explorer: FunctionComponent = () => {
           />
         )}
         {!loading && !error && files.length === 0 && (
-          <p className="cs--explorer__empty" data-testid="explorer-empty">
-            No files yet
-          </p>
+          <div className="cs--explorer__empty" data-testid="explorer-empty">
+            <p>No files yet</p>
+            <Button
+              kind="ghost"
+              size="sm"
+              onClick={() => {
+                setIsCreateOpen(true);
+              }}
+            >
+              Create a file
+            </Button>
+          </div>
         )}
         {!loading && !error && files.length > 0 && (
           /* enableTreeviewControllable makes `selected` and `active` fully controlled —
@@ -212,6 +232,13 @@ export const Explorer: FunctionComponent = () => {
           </FeatureFlags>
         )}
       </div>
+      {isCreateOpen && (
+        <CreateFileModal
+          onClose={() => {
+            setIsCreateOpen(false);
+          }}
+        />
+      )}
     </aside>
   );
 };

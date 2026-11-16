@@ -1,7 +1,7 @@
 import { FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { FilesStore, filesStore } from '../services/files/files.store';
-import { StoredFile } from '../services/files/stored-file';
+import { NewFile, StoredFile } from '../services/files/stored-file';
 import { FilesContext, IFilesContext } from './FilesContextDefinition';
 
 interface FilesProviderProps {
@@ -16,6 +16,11 @@ interface LoadedFiles {
 }
 
 const NO_FILES: StoredFile[] = [];
+
+const byPath = (a: StoredFile, b: StoredFile) => {
+  if (a.path === b.path) return 0;
+  return a.path < b.path ? -1 : 1;
+};
 
 const toError = (error: unknown): Error => (error instanceof Error ? error : new Error(String(error)));
 
@@ -46,6 +51,15 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
     setAttempt((previous) => previous + 1);
   }, []);
 
+  const createFile = useCallback(
+    async (file: NewFile) => {
+      const created = await store.createFile(file);
+      setLoaded((previous) => previous && { ...previous, files: [...previous.files, created].sort(byPath) });
+      return created;
+    },
+    [store],
+  );
+
   const updateFile = useCallback(
     async (id: string, content: string) => {
       const updated = await store.updateFile(id, content);
@@ -62,8 +76,15 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
 
   const current = loaded?.attempt === attempt ? loaded : undefined;
   const value = useMemo<IFilesContext>(
-    () => ({ files: current?.files ?? NO_FILES, loading: !current, error: current?.error, reload, updateFile }),
-    [current, reload, updateFile],
+    () => ({
+      files: current?.files ?? NO_FILES,
+      loading: !current,
+      error: current?.error,
+      reload,
+      createFile,
+      updateFile,
+    }),
+    [current, reload, createFile, updateFile],
   );
 
   return <FilesContext.Provider value={value}>{children}</FilesContext.Provider>;

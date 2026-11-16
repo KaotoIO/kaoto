@@ -1,0 +1,56 @@
+/** The starter templates of `@kaoto/camel-catalog` that kaoto-web creates files from */
+export type StarterTemplateName = 'camel-route-yaml' | 'kamelet-source-yaml' | 'pipe-yaml';
+
+const ID_PLACEHOLDER = /__KAOTO_ID__/g;
+/** The `metadata.name` of a Kamelet or a Pipe, which Camel expects to match the file name */
+const METADATA_NAME = /^(\s{2}name:\s*).*__KAOTO_ID__.*$/m;
+
+interface CatalogIndex {
+  starterTemplates?: string;
+}
+
+interface StarterTemplatesManifest {
+  catalogs: Record<string, { file: string } | undefined>;
+}
+
+const fetchOk = async (url: URL): Promise<Response> => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Could not load ${url.pathname} (${response.status})`);
+  // A server that does not have the file may answer with the page of the app instead of a 404
+  if (response.headers.get('content-type')?.includes('text/html')) {
+    throw new Error(`Could not load ${url.pathname} (not found)`);
+  }
+  return response;
+};
+
+/**
+ * Loads a starter template from the catalog: the catalog index points to the templates manifest, which names the
+ * template file. The file names carry a content hash, so they are never hardcoded.
+ */
+export const fetchStarterTemplate = async (catalogUrl: string, name: StarterTemplateName): Promise<string> => {
+  const indexUrl = new URL(catalogUrl, globalThis.location.href);
+  const index = (await (await fetchOk(indexUrl)).json()) as CatalogIndex;
+  if (!index.starterTemplates) throw new Error('The catalog has no starter templates');
+
+  const manifestUrl = new URL(index.starterTemplates, indexUrl);
+  const manifest = (await (await fetchOk(manifestUrl)).json()) as StarterTemplatesManifest;
+  const template = manifest.catalogs[name];
+  if (!template) throw new Error(`The catalog has no starter template ${name}`);
+
+  return (await fetchOk(new URL(template.file, manifestUrl))).text();
+};
+
+const randomId = (): string => String(crypto.getRandomValues(new Uint32Array(1))[0] % 10_000).padStart(4, '0');
+
+/**
+ * Fills a starter template in for a new file.
+ *
+ * The `metadata.name` of a Kamelet or a Pipe gets the file name without its extensions, as Camel looks a Kamelet up by
+ * its file name; every other `__KAOTO_ID__` gets an id of its own.
+ */
+export const resolveStarterTemplate = (template: string, fileName: string): string => {
+  const baseName = fileName.split('.')[0];
+  return template
+    .replace(METADATA_NAME, (_match, prefix: string) => `${prefix}${baseName}`)
+    .replace(ID_PLACEHOLDER, () => randomId());
+};

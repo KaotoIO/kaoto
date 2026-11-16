@@ -39,15 +39,27 @@ export const getCatalogFiles = () => {
 
   console.info(`Found '@kaoto/camel-catalog' using ${camelCatalogPath}`, '\n');
 
-  /** Recursively list all the JSON and XSD files in the Camel Catalog folder and subfolders */
+  /**
+   * Recursively list the JSON and XSD files in the Camel Catalog folder and subfolders, plus the starter templates
+   * (YAML and XML), which new files are created from
+   */
   const catalogFiles = [];
   getFilesRecursively(camelCatalogPath, catalogFiles);
 
   return {
     basePath: camelCatalogPath,
-    files: catalogFiles.filter((file) => file.endsWith('.json') || file.endsWith('.xsd')),
+    files: catalogFiles.filter(
+      (file) => file.endsWith('.json') || file.endsWith('.xsd') || isStarterTemplate(camelCatalogPath, file),
+    ),
   };
 };
+
+function isStarterTemplate(camelCatalogPath, file) {
+  return (
+    normalizePath(file).startsWith(`${camelCatalogPath}/starter-templates/`) &&
+    (file.endsWith('.yaml') || file.endsWith('.xml'))
+  );
+}
 
 function getFilesRecursively(source, files) {
   const exists = existsSync(source);

@@ -7,6 +7,7 @@ import { RouteVisualization } from '@kaoto/kaoto/components';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router';
 
+import { CATALOG_URL } from '../../catalog-url';
 import { buildTree } from '../../components/Explorer/build-tree';
 import { findPath } from '../../components/Explorer/filterFiles';
 import { LoadingState } from '../../components/LoadingState/LoadingState';
@@ -14,9 +15,6 @@ import { useIntegrationHeader } from '../../context/IntegrationHeaderContext';
 import { useFiles } from '../../hooks/useFiles';
 import { useSafeParams } from '../../hooks/useSafeParams';
 import { getFileType } from '../../services/files/stored-file';
-
-/** Absolute so that the catalog also resolves on nested routes such as `/workspace/file/:fileId` */
-const CATALOG_URL = `${import.meta.env.BASE_URL}camel-catalog/index.json`;
 
 const WORKSPACE_PATH = '/workspace';
 

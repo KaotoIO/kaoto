@@ -7,7 +7,7 @@ import { resetTestIndexedDB } from '../test/indexed-db';
 import { FilesProvider } from './FilesContext';
 
 const Consumer: FunctionComponent = () => {
-  const { files, loading, error, reload, updateFile } = useFiles();
+  const { files, loading, error, reload, createFile, updateFile } = useFiles();
   let state = files.map((file) => `${file.id}=${file.content}`).join(',');
   if (loading) state = 'loading';
   if (error) state = `error ${error.message}`;
@@ -16,6 +16,9 @@ const Consumer: FunctionComponent = () => {
       <div data-testid="state">{state}</div>
       <button onClick={reload}>reload</button>
       <button onClick={() => void updateFile('a', 'changed').catch(() => undefined)}>update</button>
+      <button onClick={() => void createFile({ id: 'c', path: 'a/c.camel.yaml', content: 'C' }).catch(() => undefined)}>
+        create
+      </button>
     </>
   );
 };
@@ -94,6 +97,31 @@ describe('FilesProvider', () => {
 
     expect(await screen.findByText('a=changed,b=B')).toBeInTheDocument();
     expect((await store.getFiles()).map((file) => file.content)).toEqual(['changed', 'B']);
+  });
+
+  it('stores a created file and exposes it in path order', async () => {
+    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
+    await store.createFile({ id: 'b', path: 'b.camel.yaml', content: 'B' });
+    renderProvider(store);
+    await screen.findByText('a=A,b=B');
+
+    fireEvent.click(screen.getByRole('button', { name: 'create' }));
+
+    expect(await screen.findByText('a=A,c=C,b=B')).toBeInTheDocument();
+    expect((await store.getFiles()).map((file) => file.id)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('keeps the files when a file with the same path exists', async () => {
+    await store.createFile({ id: 'other', path: 'a/c.camel.yaml', content: 'X' });
+    renderProvider(store);
+    await screen.findByText('other=X');
+
+    fireEvent.click(screen.getByRole('button', { name: 'create' }));
+
+    await waitFor(async () => {
+      expect(await store.getFiles()).toHaveLength(1);
+    });
+    expect(screen.getByTestId('state')).toHaveTextContent('other=X');
   });
 
   it('rejects an update of a missing file and keeps the files', async () => {
