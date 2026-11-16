@@ -46,6 +46,23 @@ describe('camelCatalogPlugin', () => {
     expect(res.end).toHaveBeenCalledWith('{"catalogs":[]}');
   });
 
+  it('serves a starter template as YAML', () => {
+    const templateFile = join(catalogDir, 'pipe-1.yaml');
+    writeFileSync(templateFile, 'kind: Pipe\n');
+    let middleware: Middleware | undefined;
+    const plugin = camelCatalogPlugin(catalogDir, [templateFile]);
+    (plugin.configureServer as unknown as (server: unknown) => void)({
+      config: { base: '/' },
+      middlewares: { use: (fn: Middleware) => (middleware = fn) },
+    });
+    const res = { setHeader: vi.fn(), end: vi.fn() };
+
+    middleware!({ url: '/camel-catalog/pipe-1.yaml' }, res, vi.fn());
+
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/yaml');
+    expect(res.end).toHaveBeenCalledWith('kind: Pipe\n');
+  });
+
   it('serves a catalog file below a configured base', () => {
     const { res, next } = request('/kaoto/', '/kaoto/camel-catalog/index.json');
 

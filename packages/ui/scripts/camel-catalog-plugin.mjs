@@ -4,6 +4,9 @@ import { extname, relative } from 'node:path';
 
 import { normalizePath } from 'vite';
 
+/** @type {Record<string, string>} */
+const CONTENT_TYPES = { '.json': 'application/json', '.yaml': 'application/yaml' };
+
 /**
  * Custom Vite plugin to serve and bundle @kaoto/camel-catalog files.
  *
@@ -58,7 +61,7 @@ export function camelCatalogPlugin(basePath, catalogFiles) {
           }
 
           const content = readFileSync(filePath, 'utf-8');
-          const contentType = extname(filePath) === '.json' ? 'application/json' : 'application/xml';
+          const contentType = CONTENT_TYPES[extname(filePath)] ?? 'application/xml';
 
           res.setHeader('Content-Type', contentType);
           res.end(content);
