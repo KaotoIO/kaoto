@@ -16,3 +16,19 @@
     fill: var(--cds-support-error);
   }
 }
+
+/* Keep the PatternFly helper text status icons in sync with the Carbon status icons above */
+/* stylelint-disable-next-line selector-class-pattern */
+.pf-v6-c-helper-text__item.attach-schema-helper-text-item {
+  &.pf-m-success {
+    --pf-v6-c-helper-text__item-icon--Color: var(--cds-support-success);
+  }
+
+  &.pf-m-warning {
+    --pf-v6-c-helper-text__item-icon--Color: var(--cds-support-caution-major);
+  }
+
+  &.pf-m-error {
+    --pf-v6-c-helper-text__item-icon--Color: var(--cds-support-error);
+  }
+}
