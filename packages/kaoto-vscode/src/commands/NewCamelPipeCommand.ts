@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { Uri } from 'vscode';
 import { AbstractNewCamelRouteCommand } from './AbstractNewCamelRouteCommand';
-import { CamelCommandAPI } from '../executors/api/CamelCommandAPI';
 import { CamelRouteDSL } from './AbstractCamelCommand';
-import path from 'path'; // NOSONAR
+import { StarterTemplateService } from '../services/StarterTemplateService';
 
 export class NewCamelPipeCommand extends AbstractNewCamelRouteCommand {
 	public static readonly ID_COMMAND_CAMEL_PIPE_YAML = 'kaoto.camel.jbang.init.pipe.yaml';
-	protected static readonly PROGRESS_NOTIFICATION_MESSAGE = 'Creating a new Pipe file...';
+
+	constructor(
+		private readonly starterTemplates: StarterTemplateService,
+		dsl: string,
+	) {
+		super(dsl);
+	}
 
 	public async create(): Promise<void> {
 		const wsFolder = await this.showWorkspaceFolderPick();
@@ -28,12 +34,10 @@ export class NewCamelPipeCommand extends AbstractNewCamelRouteCommand {
 			const targetFolder = await this.showDialogToPickFolder(wsFolder?.uri);
 			if (targetFolder) {
 				const name = await this.showInputBoxForFileName(targetFolder.fsPath);
-				if (name && this.camelDSL && this.singleWorkspaceFolder) {
+				if (name && this.camelDSL) {
 					const fileName = this.getFullName(name, this.camelDSL.extension);
-					const filePath = this.computeFullPath(targetFolder.fsPath, fileName);
-					const wsFolderTarget = wsFolder || this.singleWorkspaceFolder;
-					const result = await CamelCommandAPI.bind(path.relative(wsFolderTarget.uri.fsPath, filePath), 'timer-source', 'log-sink');
-					await this.executeInitAndOpen(result, fileName, filePath, wsFolderTarget, NewCamelPipeCommand.PROGRESS_NOTIFICATION_MESSAGE);
+					const fileUri = Uri.file(this.computeFullPath(targetFolder.fsPath, fileName));
+					await this.createFromStarterTemplateAndOpen(this.starterTemplates, 'pipe-yaml', fileUri, name);
 				}
 			}
 		} else {

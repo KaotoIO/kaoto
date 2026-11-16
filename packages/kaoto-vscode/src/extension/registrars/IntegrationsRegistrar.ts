@@ -27,6 +27,7 @@ import {
 	COMMAND_INTEGRATIONS_RUN_WORKSPACE,
 	COMMAND_INTEGRATIONS_SHOW_SOURCE,
 	COMMAND_INTEGRATIONS_UPDATE_DEPENDENCIES,
+	CONTEXT_NEW_FILE_COMMANDS_AVAILABLE,
 	CONTEXT_WORKSPACE_HAS_POM_XML,
 	STATE_SHOW_RUN_ALL_FOLDERS_MESSAGE,
 	VIEW_INTEGRATIONS,
@@ -43,6 +44,7 @@ import { CamelCommandAPI } from '../../executors/api/CamelCommandAPI';
 import { CamelTaskFactory } from '../../tasks/CamelTaskFactory';
 import { CamelTask, CamelTaskDefinition } from '../../tasks/CamelTask';
 import { PortManager } from '../../services/PortManager';
+import { StarterTemplateService } from '../../services/StarterTemplateService';
 import { StepsOnSaveManager } from '../../services/StepsOnSaveManager';
 import { findFolderOfPomXml } from '../../utils/Path';
 import { confirmFileDeleteDialog } from '../../utils/Modals';
@@ -84,6 +86,7 @@ export class IntegrationsRegistrar implements IRegistrar {
 	}
 
 	public registerNewCamelFilesCommands() {
+		const starterTemplates = StarterTemplateService.forExtension(this.context.extensionUri);
 		// register custom command for a Camel YAML or XML file creation (eg. used in Integrations view Welcome Content)
 		const newFileCommand = vscode.commands.registerCommand(COMMAND_CAMEL_NEW_FILE, async () => {
 			await new NewCamelFileCommand().create();
@@ -91,18 +94,20 @@ export class IntegrationsRegistrar implements IRegistrar {
 		});
 		// register commands for new Camel files creation using YAML or XML DSL - Camel Routes, Kamelets, Pipes
 		const newRouteCommand = vscode.commands.registerCommand(NewCamelRouteCommand.ID_COMMAND_CAMEL_ROUTE, async () => {
-			await new NewCamelRouteCommand().create();
+			await new NewCamelRouteCommand(starterTemplates).create();
 			await sendCommandTrackingEvent(this.telemetryService, NewCamelRouteCommand.ID_COMMAND_CAMEL_ROUTE);
 		});
 		const newKameletCommand = vscode.commands.registerCommand(NewCamelKameletCommand.ID_COMMAND_CAMEL_KAMELET_YAML, async () => {
-			await new NewCamelKameletCommand('YAML').create();
+			await new NewCamelKameletCommand(starterTemplates, 'YAML').create();
 			await sendCommandTrackingEvent(this.telemetryService, NewCamelKameletCommand.ID_COMMAND_CAMEL_KAMELET_YAML);
 		});
 		const newPipeCommand = vscode.commands.registerCommand(NewCamelPipeCommand.ID_COMMAND_CAMEL_PIPE_YAML, async () => {
-			await new NewCamelPipeCommand('YAML').create();
+			await new NewCamelPipeCommand(starterTemplates, 'YAML').create();
 			await sendCommandTrackingEvent(this.telemetryService, NewCamelPipeCommand.ID_COMMAND_CAMEL_PIPE_YAML);
 		});
 		this.context.subscriptions.push(newFileCommand, newRouteCommand, newKameletCommand, newPipeCommand);
+		// the New File entry points need these commands, so they show only where this key is set (never in the web worker)
+		void vscode.commands.executeCommand('setContext', CONTEXT_NEW_FILE_COMMANDS_AVAILABLE, true);
 	}
 
 	public registerNewCamelProjectCommands() {

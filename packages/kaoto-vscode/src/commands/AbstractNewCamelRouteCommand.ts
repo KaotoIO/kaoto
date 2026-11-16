@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 import { commands, Uri, window, workspace, WorkspaceFolder } from 'vscode';
+import { StarterTemplateId } from '@kaoto/camel-catalog/types';
 import { AbstractCamelCommand } from './AbstractCamelCommand';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
-import { CamelTaskFactory } from '../tasks/CamelTaskFactory';
-import { CommandResult } from '../executors/types/ExecutorTypes';
+import { StarterTemplateService } from '../services/StarterTemplateService';
 import { COMMAND_OPEN_WITH_KAOTO } from '../constants';
 
 export abstract class AbstractNewCamelRouteCommand extends AbstractCamelCommand {
@@ -65,18 +65,31 @@ export abstract class AbstractNewCamelRouteCommand extends AbstractCamelCommand 
 		}
 	}
 
-	protected async executeInitAndOpen(
-		result: CommandResult,
-		fileName: string,
-		filePath: string,
-		wsFolderTarget: WorkspaceFolder,
-		progressMessage: string,
+	/**
+	 * Writes the starter template as a new file and opens that file in the Kaoto editor.
+	 * When the file cannot be created, the error is shown and logged and nothing is opened. This method never deletes or
+	 * rewrites `fileUri` itself: it may already exist, and then it is the user's own file. Only the service removes a
+	 * partly written file, and only one that it created in the same call.
+	 *
+	 * @param starterTemplates the service that renders and writes the template
+	 * @param templateId the starter template to write
+	 * @param fileUri the file to create
+	 * @param name the name to set in the new file, for the templates that have a name field
+	 */
+	protected async createFromStarterTemplateAndOpen(
+		starterTemplates: StarterTemplateService,
+		templateId: StarterTemplateId,
+		fileUri: Uri,
+		name?: string,
 	): Promise<void> {
-		const task = CamelTaskFactory.createSilent(`Init: ${fileName}`, result, wsFolderTarget);
-		await task.executeAndWaitWithProgress(progressMessage);
-		const targetFileURI = Uri.file(filePath);
-		await this.waitForFileExists(targetFileURI);
-		await commands.executeCommand(COMMAND_OPEN_WITH_KAOTO, targetFileURI);
+		try {
+			await starterTemplates.writeStarterFile(templateId, fileUri, name);
+		} catch (error) {
+			KaotoOutputChannel.logError(`Failed to create ${fileUri.fsPath} from the starter template "${templateId}"`, error);
+			window.showErrorMessage(`Failed to create the new file: ${error instanceof Error ? error.message : String(error)}`);
+			return;
+		}
+		await commands.executeCommand(COMMAND_OPEN_WITH_KAOTO, fileUri);
 	}
 
 	protected async waitForFileExists(fileUri: Uri, maxWaitMs: number = 5_000, delayMs: number = 100): Promise<void> {

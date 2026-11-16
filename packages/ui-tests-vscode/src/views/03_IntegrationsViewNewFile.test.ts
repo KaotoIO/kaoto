@@ -130,6 +130,32 @@ describe('Integrations View', function () {
 				const newCamelRoute = await getTreeItem(driver, integrationsSection, dsl.fileName, 120_000);
 				expect(newCamelRoute).to.not.be.undefined;
 
+				// The new file is written with a generated route id, so the view lists the route by that id instead of '(missing id)'.
+				await driver.wait(
+					async function () {
+						try {
+							// look the file up again on every poll, as the view may re-render it while it is being refreshed
+							const routeFile = await getTreeItem(driver, integrationsSection, dsl.fileName, 5_000);
+							await routeFile?.expand();
+							const routes = (await routeFile?.getChildren()) ?? [];
+							if (routes.length !== 1) {
+								return false;
+							}
+
+							const label = await routes[0].getLabel();
+							// a route without a description may render no description element, and ExTester then throws instead of returning undefined
+							const description = await routes[0].getDescription().catch(() => undefined);
+							return /^route-[1-9]\d{3}$/.test(label) && description !== '(missing id)';
+						} catch (error) {
+							console.log(`failed to read the routes of '${dsl.fileName}' ` + error);
+							return false;
+						}
+					},
+					30_000,
+					`'${dsl.fileName}' was expected to list one route with a generated 'route-NNNN' id, not '(missing id)'!`,
+					500,
+				);
+
 				await switchToKaotoAndCheckIntegrationType(dsl.fileName, 'Camel Route', 'setBody');
 			});
 		});
