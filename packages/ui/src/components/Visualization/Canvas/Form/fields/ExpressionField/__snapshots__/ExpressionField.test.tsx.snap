@@ -466,7 +466,7 @@ exports[`ExpressionField > renders expression field with selection 1`] = `
                     >
                       <svg
                         aria-label="Options"
-                        class="cds--overflow-menu__icon"
+                        class="cds--overflow-menu__icon cds--btn__icon"
                         fill="currentColor"
                         focusable="false"
                         height="16"
