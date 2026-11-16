@@ -45,7 +45,7 @@ export const TEST_FILES: Required<NewFile>[] = [
 
 /** Adds the files to the shared store; call `resetTestIndexedDB()` before, so that every test starts empty */
 export const storeTestFiles = async (files: NewFile[] = TEST_FILES): Promise<void> => {
-  for (const file of files) await filesStore.createFile(file);
+  await Promise.all(files.map((file) => filesStore.createFile(file)));
 };
 
 /** Wraps the element in a FilesProvider backed by the shared store; use it inside the router */
