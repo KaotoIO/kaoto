@@ -77,6 +77,24 @@ export class FilesStore {
     await db.delete(FILES, id);
   }
 
+  /**
+   * Deletes every file under the folder, in one transaction: either all of them are deleted or none.
+   *
+   * @param folderPath `/`-separated, without a leading or trailing `/`
+   * @returns the ids of the deleted files
+   */
+  async deleteFolder(folderPath: string): Promise<string[]> {
+    const db = await this.getDB();
+    const tx = db.transaction(FILES, 'readwrite');
+    observeCompletion(tx);
+    // `0` follows `/` in code unit order, so this range holds exactly the paths that start with `${folderPath}/`
+    const range = IDBKeyRange.bound(`${folderPath}/`, `${folderPath}0`, false, true);
+    const ids = await tx.store.index('byPath').getAllKeys(range);
+    await Promise.all(ids.map((id) => tx.store.delete(id)));
+    await tx.done;
+    return ids;
+  }
+
   close(): void {
     const dbPromise = this.dbPromise;
     this.dbPromise = undefined;

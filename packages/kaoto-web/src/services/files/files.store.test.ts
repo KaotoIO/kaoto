@@ -89,6 +89,39 @@ describe('FilesStore', () => {
     expect(await store.getFiles()).toEqual([]);
   });
 
+  it('deletes the files of a folder and its subfolders and returns their ids', async () => {
+    const paths = ['a.yaml', 'a/b.yaml', 'a/c/d.yaml', 'a-b/e.yaml', 'a.b/f.yaml', 'ab/g.yaml', 'x/a/h.yaml'];
+    const files = await Promise.all(paths.map((path) => store.createFile({ path, content: '' })));
+    const idOf = (path: string) => files.find((file) => file.path === path)!.id;
+
+    const deleted = await store.deleteFolder('a');
+
+    expect(deleted.sort()).toEqual([idOf('a/b.yaml'), idOf('a/c/d.yaml')].sort());
+    expect((await store.getFiles()).map((file) => file.path)).toEqual([
+      'a-b/e.yaml',
+      'a.b/f.yaml',
+      'a.yaml',
+      'ab/g.yaml',
+      'x/a/h.yaml',
+    ]);
+  });
+
+  it('deletes the files of a nested folder only', async () => {
+    await store.createFile({ path: 'a/b.yaml', content: '' });
+    await store.createFile({ path: 'a/c/d.yaml', content: '' });
+
+    await store.deleteFolder('a/c');
+
+    expect((await store.getFiles()).map((file) => file.path)).toEqual(['a/b.yaml']);
+  });
+
+  it('deletes nothing for a folder without files', async () => {
+    await store.createFile({ path: 'a.yaml', content: '' });
+
+    expect(await store.deleteFolder('a')).toEqual([]);
+    expect(await store.getFiles()).toHaveLength(1);
+  });
+
   it('lets a newer version of the database open while this store is connected', async () => {
     await store.getFiles();
 

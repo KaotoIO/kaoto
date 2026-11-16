@@ -7,7 +7,7 @@ import { resetTestIndexedDB } from '../test/indexed-db';
 import { FilesProvider } from './FilesContext';
 
 const Consumer: FunctionComponent = () => {
-  const { files, loading, error, reload, createFile, updateFile } = useFiles();
+  const { files, loading, error, reload, createFile, updateFile, deleteFile, deleteFolder } = useFiles();
   let state = files.map((file) => `${file.id}=${file.content}`).join(',');
   if (loading) state = 'loading';
   if (error) state = `error ${error.message}`;
@@ -19,6 +19,8 @@ const Consumer: FunctionComponent = () => {
       <button onClick={() => void createFile({ id: 'c', path: 'a/c.camel.yaml', content: 'C' }).catch(() => undefined)}>
         create
       </button>
+      <button onClick={() => void deleteFile('a').catch(() => undefined)}>delete file</button>
+      <button onClick={() => void deleteFolder('a').catch(() => undefined)}>delete folder</button>
     </>
   );
 };
@@ -122,6 +124,45 @@ describe('FilesProvider', () => {
       expect(await store.getFiles()).toHaveLength(1);
     });
     expect(screen.getByTestId('state')).toHaveTextContent('other=X');
+  });
+
+  it('deletes a file and drops it from the files', async () => {
+    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
+    await store.createFile({ id: 'b', path: 'b.camel.yaml', content: 'B' });
+    renderProvider(store);
+    await screen.findByText('a=A,b=B');
+
+    fireEvent.click(screen.getByRole('button', { name: 'delete file' }));
+
+    expect(await screen.findByText('b=B')).toBeInTheDocument();
+    expect((await store.getFiles()).map((file) => file.id)).toEqual(['b']);
+  });
+
+  it('deletes the files of a folder and drops them from the files', async () => {
+    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
+    await store.createFile({ id: 'b', path: 'a/b.camel.yaml', content: 'B' });
+    await store.createFile({ id: 'c', path: 'a/c/d.camel.yaml', content: 'C' });
+    renderProvider(store);
+    await screen.findByText('a=A,b=B,c=C');
+
+    fireEvent.click(screen.getByRole('button', { name: 'delete folder' }));
+
+    expect(await screen.findByText('a=A')).toBeInTheDocument();
+    expect((await store.getFiles()).map((file) => file.id)).toEqual(['a']);
+  });
+
+  it('keeps the files when deleting a folder fails', async () => {
+    await store.createFile({ id: 'b', path: 'a/b.camel.yaml', content: 'B' });
+    vi.spyOn(store, 'deleteFolder').mockRejectedValue(new Error('blocked'));
+    renderProvider(store);
+    await screen.findByText('b=B');
+
+    fireEvent.click(screen.getByRole('button', { name: 'delete folder' }));
+
+    await waitFor(() => {
+      expect(store.deleteFolder).toHaveBeenCalledWith('a');
+    });
+    expect(screen.getByTestId('state')).toHaveTextContent('b=B');
   });
 
   it('rejects an update of a missing file and keeps the files', async () => {

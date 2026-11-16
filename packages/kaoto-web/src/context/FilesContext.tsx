@@ -74,6 +74,24 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
     [store],
   );
 
+  const deleteFile = useCallback(
+    async (id: string) => {
+      await store.deleteFile(id);
+      setLoaded((previous) => previous && { ...previous, files: previous.files.filter((file) => file.id !== id) });
+    },
+    [store],
+  );
+
+  const deleteFolder = useCallback(
+    async (folderPath: string) => {
+      const deleted = new Set(await store.deleteFolder(folderPath));
+      setLoaded(
+        (previous) => previous && { ...previous, files: previous.files.filter((file) => !deleted.has(file.id)) },
+      );
+    },
+    [store],
+  );
+
   const current = loaded?.attempt === attempt ? loaded : undefined;
   const value = useMemo<IFilesContext>(
     () => ({
@@ -83,8 +101,10 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
       reload,
       createFile,
       updateFile,
+      deleteFile,
+      deleteFolder,
     }),
-    [current, reload, createFile, updateFile],
+    [current, reload, createFile, updateFile, deleteFile, deleteFolder],
   );
 
   return <FilesContext.Provider value={value}>{children}</FilesContext.Provider>;
