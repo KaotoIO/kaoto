@@ -6,15 +6,11 @@ import { useNavigate } from 'react-router';
 
 import { KaotoAboutModal } from '../../About/KaotoAboutModal';
 
-interface AppMenuDropdownProps {
-  projectId: string;
-}
-
 const openExternal = (url: string) => {
   window.open(url, '_blank', 'noopener,noreferrer');
 };
 
-export const AppMenuDropdown: FunctionComponent<AppMenuDropdownProps> = ({ projectId }) => {
+export const AppMenuDropdown: FunctionComponent = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -32,7 +28,7 @@ export const AppMenuDropdown: FunctionComponent<AppMenuDropdownProps> = ({ proje
           <MenuItem
             label="Settings"
             onClick={() => {
-              void navigate(`/projects/${projectId}/config`);
+              void navigate('/config');
             }}
           />
           <MenuItem

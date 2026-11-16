@@ -10,18 +10,17 @@ describe('ProjectPage', () => {
     resetTestIndexedDB();
   });
 
-  it('renders ProjectLayout (banner and explorer are present)', async () => {
+  it('renders ProjectLayout (toolbar and explorer are present)', async () => {
     render(
-      <MemoryRouter initialEntries={['/projects/my-project']}>
+      <MemoryRouter initialEntries={['/workspace']}>
         <Routes>
-          <Route path="projects/:projectId" element={<ProjectPage />} />
-          <Route path="/" element={<div data-testid="home">Home</div>} />
+          <Route path="workspace" element={<ProjectPage />} />
         </Routes>
       </MemoryRouter>,
     );
     expect(screen.getByTestId('project-toolbar')).toBeInTheDocument();
     expect(screen.getByTestId('explorer')).toBeInTheDocument();
-    // Let the project files finish loading, so that nothing runs on after the test
-    expect(await screen.findByTestId('explorer-folder-integrations')).toBeInTheDocument();
+    // Let the files finish loading, so that nothing runs on after the test
+    expect(await screen.findByTestId('explorer-empty')).toBeInTheDocument();
   });
 });

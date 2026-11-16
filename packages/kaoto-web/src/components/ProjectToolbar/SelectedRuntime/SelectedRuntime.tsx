@@ -5,12 +5,10 @@ import { Toggletip, ToggletipActions, ToggletipButton, ToggletipContent, Togglet
 import { FunctionComponent } from 'react';
 import { Link as RouterLink } from 'react-router';
 
-import { useProjectContext } from '../../../hooks/useProjectContext';
 import { useRuntimeContext } from '../../../hooks/useRuntimeContext';
 
 export const SelectedRuntime: FunctionComponent = () => {
   const { selectedCatalog } = useRuntimeContext();
-  const { projectId } = useProjectContext();
 
   return (
     <div aria-label="Runtime Selector" className="cs--selected-runtime" data-testid="runtime-selector-display">
@@ -26,7 +24,7 @@ export const SelectedRuntime: FunctionComponent = () => {
         <ToggletipContent>
           <p>Catalog and version are read-only here. Change them in Settings.</p>
           <ToggletipActions>
-            <RouterLink to={`/projects/${projectId}/config`} className="cds--link">
+            <RouterLink to="/config" className="cds--link">
               Go to Settings
             </RouterLink>
           </ToggletipActions>

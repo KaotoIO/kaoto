@@ -18,8 +18,7 @@ import { Breadcrumbs } from '../Breadcrumbs/Breadcrumbs';
 import { NavHeaderItems } from './NavHeaderItems';
 import { NavSideItems } from './NavSideItems';
 
-/** Temporary path for the "Open Project" nav link. Will be replaced with dynamic project selection. */
-const OPEN_PROJECT_PATH = '/projects/project50';
+const WORKSPACE_PATH = '/workspace';
 
 export const Nav = () => {
   const location = useLocation();
@@ -64,11 +63,11 @@ export const Nav = () => {
           <HeaderSideNavItems>
             <HeaderMenuItem
               as={RouterLink}
-              to={OPEN_PROJECT_PATH}
-              isActive={location.pathname.startsWith('/projects/')}
+              to={WORKSPACE_PATH}
+              isActive={location.pathname === WORKSPACE_PATH || location.pathname.startsWith(`${WORKSPACE_PATH}/`)}
               onClick={closeNav}
             >
-              Open Project
+              Workspace
             </HeaderMenuItem>
             <NavHeaderItems routesInHeader={routesInHeader} currentPath={location.pathname} onNavigate={closeNav} />
           </HeaderSideNavItems>

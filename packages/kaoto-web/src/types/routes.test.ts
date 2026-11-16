@@ -5,8 +5,8 @@ import type { PathRouteConfig, RouteConfigArray } from './routes';
 describe('PathRouteConfig', () => {
   it('accepts children as an optional RouteConfigArray', () => {
     const route: PathRouteConfig = {
-      path: 'projects/:projectId',
-      children: [{ path: 'integration/:id' }],
+      path: 'workspace',
+      children: [{ path: 'file/:fileId' }],
     };
     expectTypeOf(route.children).toEqualTypeOf<RouteConfigArray | undefined>();
   });

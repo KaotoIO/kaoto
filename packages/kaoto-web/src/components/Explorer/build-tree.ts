@@ -1,4 +1,4 @@
-import { ProjectFile } from '../../services/project-files/project-file';
+import { getFileType, StoredFile } from '../../services/files/stored-file';
 import { ExplorerFile } from './explorer-file';
 
 const FOLDER_ID_PREFIX = 'folder:';
@@ -32,12 +32,12 @@ const sortNodes = (nodes: ExplorerFile[]): ExplorerFile[] => {
 };
 
 /**
- * Builds the Explorer tree from the flat list of project files.
+ * Builds the Explorer tree from the flat list of stored files.
  *
  * Folders are not stored; they are derived from the file paths, and their id is built with `toFolderId`.
- * Folders come before files, each in natural order by name.
+ * The type of a file is derived from its path. Folders come before files, each in natural order by name.
  */
-export function buildTree(files: Pick<ProjectFile, 'id' | 'path' | 'type'>[]): ExplorerFile[] {
+export function buildTree(files: Pick<StoredFile, 'id' | 'path'>[]): ExplorerFile[] {
   const root: ExplorerFile[] = [];
   const folderChildren = new Map<string, ExplorerFile[]>();
 
@@ -58,7 +58,7 @@ export function buildTree(files: Pick<ProjectFile, 'id' | 'path' | 'type'>[]): E
       siblings = children;
     }
 
-    siblings.push({ id: file.id, name: fileName, type: file.type });
+    siblings.push({ id: file.id, name: fileName, type: getFileType(file.path) });
   }
 
   return sortNodes(root);

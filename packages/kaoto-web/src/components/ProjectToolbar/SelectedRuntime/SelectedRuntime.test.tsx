@@ -4,7 +4,6 @@ import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ProjectContext } from '../../../context/ProjectContext';
 import { IRuntimeContext, RuntimeContext } from '../../../context/RuntimeContext';
 import { SelectedRuntime } from './SelectedRuntime';
 
@@ -25,11 +24,9 @@ const mockContext: IRuntimeContext = {
 const renderComponent = (runtimeContext: IRuntimeContext = mockContext) =>
   render(
     <MemoryRouter>
-      <ProjectContext.Provider value={{ projectId: 'my-project' }}>
-        <RuntimeContext.Provider value={runtimeContext}>
-          <SelectedRuntime />
-        </RuntimeContext.Provider>
-      </ProjectContext.Provider>
+      <RuntimeContext.Provider value={runtimeContext}>
+        <SelectedRuntime />
+      </RuntimeContext.Provider>
     </MemoryRouter>,
   );
 
@@ -55,11 +52,8 @@ describe('SelectedRuntime', () => {
       expect(screen.getByText('Catalog and version are read-only here. Change them in Settings.')).toBeInTheDocument();
     });
 
-    it('toggletip contains a link to the project settings page', () => {
-      expect(screen.getByRole('link', { name: 'Go to Settings' })).toHaveAttribute(
-        'href',
-        '/projects/my-project/config',
-      );
+    it('toggletip contains a link to the settings page', () => {
+      expect(screen.getByRole('link', { name: 'Go to Settings' })).toHaveAttribute('href', '/config');
     });
   });
 });
