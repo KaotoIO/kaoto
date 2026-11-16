@@ -12,6 +12,8 @@ export interface IFilesContext {
   createFile: (file: NewFile) => Promise<StoredFile>;
   /** Writes the content to the store; the files show it once it is stored */
   updateFile: (id: string, content: string) => Promise<void>;
+  /** Moves the file to the path; the files show it once it is stored. Rejects when the path is taken */
+  renameFile: (id: string, path: string) => Promise<void>;
   /** Removes the file from the store; the files drop it once it is deleted */
   deleteFile: (id: string) => Promise<void>;
   /** Removes every file under the folder from the store; the files drop them once they are deleted */

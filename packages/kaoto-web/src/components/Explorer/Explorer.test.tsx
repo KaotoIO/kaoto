@@ -385,28 +385,31 @@ describe('Explorer', () => {
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
     };
 
-    it('keeps the delete buttons out of the names of the tree items and the tab order', async () => {
+    it('keeps the row buttons out of the names of the tree items and the tab order', async () => {
       const user = userEvent.setup();
       renderComponent();
       await expandFolder(user, 'integrations');
 
-      expect(screen.getByRole('treeitem', { name: 'main-flow.camel.yaml' })).toBeInTheDocument();
+      const file = screen.getByRole('treeitem', { name: 'main-flow.camel.yaml' });
+      expect(file).toHaveAttribute('aria-keyshortcuts', 'F2 Delete Backspace');
       expect(screen.getByRole('treeitem', { name: /^integrations/ })).toHaveAttribute(
         'aria-keyshortcuts',
         'Delete Backspace',
       );
-      expect(screen.getByRole('treeitem', { name: 'main-flow.camel.yaml' })).toHaveAttribute(
-        'aria-keyshortcuts',
-        'Delete Backspace',
-      );
       const deleteButton = screen.getByTestId('explorer-delete-main-flow');
-      expect(deleteButton).toHaveAttribute('aria-hidden', 'true');
+      const renameButton = screen.getByTestId('explorer-rename-main-flow');
+      expect(deleteButton.parentElement).toHaveAttribute('aria-hidden', 'true');
+      expect(renameButton.parentElement).toBe(deleteButton.parentElement);
       expect(deleteButton).toHaveAttribute('tabindex', '-1');
+      expect(renameButton).toHaveAttribute('tabindex', '-1');
       expect(deleteButton).toHaveAttribute('title', 'Delete file');
+      expect(renameButton).toHaveAttribute('title', 'Rename file');
       expect(screen.getByTestId(`explorer-delete-${toFolderId('integrations')}`)).toHaveAttribute(
         'title',
         'Delete folder',
       );
+      // Folders cannot be renamed yet
+      expect(screen.queryByTestId(`explorer-rename-${toFolderId('integrations')}`)).not.toBeInTheDocument();
     });
 
     it('deletes a file after confirmation without opening it', async () => {
@@ -606,6 +609,194 @@ describe('Explorer', () => {
       expect(await screen.findByText('The storage is blocked')).toBeInTheDocument();
       expect(screen.getByTestId('explorer-file-main-flow')).toBeInTheDocument();
       expect(await storedPaths()).toHaveLength(TEST_FILES.length);
+    });
+  });
+
+  describe('renaming', () => {
+    const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
+    const storedFile = async (id: string) => (await filesStore.getFiles()).find((file) => file.id === id);
+
+    const expandIntegrations = async (user: ReturnType<typeof userEvent.setup>) => {
+      const folderNode = await screen.findByTestId('explorer-folder-integrations');
+      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+    };
+
+    const startRenaming = async (user: ReturnType<typeof userEvent.setup>, id = 'main-flow') => {
+      await user.click(screen.getByTestId(`explorer-rename-${id}`));
+      return screen.getByRole('textbox', { name: 'Rename file' });
+    };
+
+    it('replaces the name with a focused field that selects the name before the extension', async () => {
+      const user = userEvent.setup();
+      renderWithNavigation(<LocationDisplay />);
+      await expandIntegrations(user);
+
+      const input = await startRenaming(user);
+
+      expect(input).toHaveValue('main-flow.camel.yaml');
+      expect(input).toHaveFocus();
+      expect((input as HTMLInputElement).selectionStart).toBe(0);
+      expect((input as HTMLInputElement).selectionEnd).toBe('main-flow'.length);
+      expect(screen.getByTestId('location').textContent).toBe('/workspace');
+      expect(screen.queryByTestId('explorer-delete-main-flow')).not.toBeInTheDocument();
+    });
+
+    it('starts renaming the focused file on F2, but not a folder', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      screen.getByTestId('explorer-folder-integrations').focus();
+      await user.keyboard('{F2}');
+      expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
+
+      screen.getByTestId('explorer-file-main-flow').focus();
+      await user.keyboard('{F2}');
+      expect(screen.getByRole('textbox', { name: 'Rename file' })).toHaveValue('main-flow.camel.yaml');
+    });
+
+    it('renames the file in its folder on Enter and focuses its tree item again', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      const input = await startRenaming(user);
+      await user.keyboard('orders flow{Enter}');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
+      });
+      expect(screen.getByTestId('explorer-file-main-flow')).toHaveTextContent('orders flow.camel.yaml');
+      expect(screen.getByTestId('explorer-file-main-flow')).toHaveFocus();
+      expect(await storedFile('main-flow')).toMatchObject({
+        path: 'integrations/orders flow.camel.yaml',
+        content: TEST_FILES[0].content,
+      });
+      expect(input).not.toBeInTheDocument();
+    });
+
+    it('keeps the renamed file open', async () => {
+      const user = userEvent.setup();
+      renderWithNavigation(<LocationDisplay />, '/workspace/file/main-flow');
+      await expandIntegrations(user);
+
+      await startRenaming(user);
+      await user.keyboard('orders{Enter}');
+
+      await waitFor(async () => {
+        expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
+      });
+      expect(screen.getByTestId('location').textContent).toBe('/workspace/file/main-flow');
+      expect(screen.getByTestId('explorer-file-main-flow')).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('cancels on Escape and focuses the tree item again', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      await startRenaming(user);
+      await user.keyboard('orders{Escape}');
+
+      expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
+      expect(screen.getByTestId('explorer-file-main-flow')).toHaveTextContent('main-flow.camel.yaml');
+      expect(screen.getByTestId('explorer-file-main-flow')).toHaveFocus();
+      expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
+    });
+
+    it('renames when the field loses the focus and leaves the focus where it went', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      await startRenaming(user);
+      await user.keyboard('orders');
+      await user.click(screen.getByRole('searchbox'));
+
+      await waitFor(async () => {
+        expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
+      });
+      expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
+      expect(screen.getByRole('searchbox')).toHaveFocus();
+    });
+
+    it.each([
+      ['a taken name', 'error-handler', 'A file with that name already exists'],
+      ['an empty name', '{Backspace}', 'Enter a file name'],
+      ['a name with a slash', 'routes/orders', 'A file name cannot contain / or \\'],
+    ])('shows an error for %s and keeps the field open on Enter', async (_, typed, error) => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      const input = await startRenaming(user);
+      if (typed === '{Backspace}') await user.clear(input);
+      else await user.keyboard(typed);
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByText(error)).toBeInTheDocument();
+      expect(input).toHaveAttribute('data-invalid', 'true');
+      expect(input).toHaveFocus();
+      expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
+    });
+
+    it('cancels when the field loses the focus with a name that cannot be used', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      await startRenaming(user);
+      await user.keyboard('error-handler');
+      await user.click(screen.getByRole('searchbox'));
+
+      expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
+      expect(screen.getByTestId('explorer-file-main-flow')).toHaveTextContent('main-flow.camel.yaml');
+      expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
+    });
+
+    it('closes without writing when the name is unchanged', async () => {
+      const rename = vi.spyOn(filesStore, 'renameFile');
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      await startRenaming(user);
+      await user.keyboard('{Enter}');
+
+      expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
+      expect(rename).not.toHaveBeenCalled();
+    });
+
+    it('shows the error and keeps the field open when the store fails', async () => {
+      vi.spyOn(filesStore, 'renameFile').mockRejectedValueOnce(new Error('The storage is blocked'));
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      const input = await startRenaming(user);
+      await user.keyboard('orders{Enter}');
+
+      expect(await screen.findByText('The storage is blocked')).toBeInTheDocument();
+      expect(input).toBeInTheDocument();
+
+      await user.keyboard('-flow');
+      expect(screen.queryByText('The storage is blocked')).not.toBeInTheDocument();
+    });
+
+    it('keeps the keys and clicks in the field away from the tree', async () => {
+      const user = userEvent.setup();
+      renderWithNavigation(<LocationDisplay />);
+      await expandIntegrations(user);
+
+      const input = await startRenaming(user);
+      await user.click(input);
+      await user.keyboard('{Home}{ArrowRight}{ArrowLeft} x {Delete}');
+
+      expect(input).toHaveValue(' x ain-flow.camel.yaml');
+      expect(input).toHaveFocus();
+      expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
+      expect(screen.getByTestId('location').textContent).toBe('/workspace');
+      expect(screen.getByTestId('explorer-folder-integrations')).toHaveAttribute('aria-expanded', 'true');
     });
   });
 });

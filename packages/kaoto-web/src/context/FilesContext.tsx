@@ -74,6 +74,20 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
     [store],
   );
 
+  const renameFile = useCallback(
+    async (id: string, path: string) => {
+      const renamed = await store.renameFile(id, path);
+      setLoaded(
+        (previous) =>
+          previous && {
+            ...previous,
+            files: previous.files.map((file) => (file.id === renamed.id ? renamed : file)).sort(byPath),
+          },
+      );
+    },
+    [store],
+  );
+
   const deleteFile = useCallback(
     async (id: string) => {
       await store.deleteFile(id);
@@ -101,10 +115,11 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
       reload,
       createFile,
       updateFile,
+      renameFile,
       deleteFile,
       deleteFolder,
     }),
-    [current, reload, createFile, updateFile, deleteFile, deleteFolder],
+    [current, reload, createFile, updateFile, renameFile, deleteFile, deleteFolder],
   );
 
   return <FilesContext.Provider value={value}>{children}</FilesContext.Provider>;

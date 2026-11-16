@@ -57,19 +57,16 @@ export class FilesStore {
   }
 
   async updateFile(id: string, content: string): Promise<StoredFile> {
-    const db = await this.getDB();
-    const tx = db.transaction(FILES, 'readwrite');
-    observeCompletion(tx);
-    const existing = await tx.store.get(id);
-    if (!existing) {
-      // Nothing was written, so the transaction completes on its own
-      throw new Error(`The file ${id} does not exist`);
-    }
+    return this.modifyFile(id, (existing) => ({ ...existing, content, updatedAt: Date.now() }));
+  }
 
-    const updated: StoredFile = { ...existing, content, updatedAt: Date.now() };
-    await tx.store.put(updated);
-    await tx.done;
-    return updated;
+  /**
+   * Moves the file to another path; its id stays, so that an open file stays open.
+   *
+   * Rejects when another file has the path. The timestamp stays, as it tracks the content.
+   */
+  async renameFile(id: string, path: string): Promise<StoredFile> {
+    return this.modifyFile(id, (existing) => ({ ...existing, path }));
   }
 
   async deleteFile(id: string): Promise<void> {
@@ -103,6 +100,23 @@ export class FilesStore {
         db.close();
       })
       .catch(() => undefined);
+  }
+
+  /** Reads the file and writes its modified copy in one transaction; rejects when the file does not exist */
+  private async modifyFile(id: string, modify: (existing: StoredFile) => StoredFile): Promise<StoredFile> {
+    const db = await this.getDB();
+    const tx = db.transaction(FILES, 'readwrite');
+    observeCompletion(tx);
+    const existing = await tx.store.get(id);
+    if (!existing) {
+      // Nothing was written, so the transaction completes on its own
+      throw new Error(`The file ${id} does not exist`);
+    }
+
+    const modified = modify(existing);
+    await tx.store.put(modified);
+    await tx.done;
+    return modified;
   }
 
   private getDB(): Promise<IDBPDatabase<FilesDB>> {
