@@ -108,11 +108,16 @@
   color: inherit;
 }
 
-// The delete button sits at the end of the row and shows while the row is hovered or focused
-.cs--explorer__node-delete {
+// The buttons sit at the end of the row and show while the row is hovered or focused
+.cs--explorer__node-actions {
   position: absolute;
   inset-block: 0;
   inset-inline-end: 0;
+  display: flex;
+  visibility: hidden;
+}
+
+.cs--explorer__node-action {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,7 +126,6 @@
   border: none;
   background-color: transparent;
   cursor: pointer;
-  visibility: hidden;
 
   svg {
     fill: $icon-secondary;
@@ -135,10 +139,27 @@
 
 .cs--explorer__tree .cds--tree-node__label:hover,
 .cs--explorer__tree .cds--tree-node:focus > .cds--tree-node__label {
-  // Truncate the name before the delete button instead of running under it
+  // Truncate the name before the buttons instead of running under them
   padding-inline-end: $spacing-07;
 
-  .cs--explorer__node-delete {
+  &:has(.cs--explorer__node-action + .cs--explorer__node-action) {
+    padding-inline-end: $spacing-10;
+  }
+
+  .cs--explorer__node-actions {
     visibility: visible;
   }
+}
+
+// The rename field takes the row, and its error shows below it; the label text around it clips otherwise
+/* stylelint-disable-next-line selector-class-pattern -- Carbon component class name */
+.cs--explorer__tree .cds--tree-node__label__details > :has(.cs--explorer__rename) {
+  overflow: visible;
+  flex: 1;
+  white-space: normal;
+}
+
+.cs--explorer__rename {
+  display: block;
+  inline-size: 100%;
 }

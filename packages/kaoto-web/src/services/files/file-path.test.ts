@@ -1,4 +1,4 @@
-import { buildFilePath } from './file-path';
+import { buildFilePath, buildRenamedPath } from './file-path';
 
 describe('buildFilePath', () => {
   it.each([
@@ -31,6 +31,26 @@ describe('buildFilePath', () => {
     expect(buildFilePath(folder, 'orders', '.camel.yaml')).toEqual({
       field: 'folder',
       error: 'Use a folder path such as routes/orders',
+    });
+  });
+});
+
+describe('buildRenamedPath', () => {
+  it.each([
+    ['orders.camel.yaml', 'payments.camel.yaml', 'payments.camel.yaml'],
+    ['routes/async/orders.camel.yaml', ' payments.camel.yaml ', 'routes/async/payments.camel.yaml'],
+    ['routes/orders.camel.yaml', 'orders.yaml', 'routes/orders.yaml'],
+  ])('renames %j to %j in its folder', (path, name, renamed) => {
+    expect(buildRenamedPath(path, name)).toEqual({ path: renamed });
+  });
+
+  it.each(['', '   ', '.', '..'])('rejects the name %j', (name) => {
+    expect(buildRenamedPath('routes/orders.camel.yaml', name)).toEqual({ error: 'Enter a file name' });
+  });
+
+  it.each(['async/orders.camel.yaml', 'async\\orders.camel.yaml'])('rejects the name %j with a separator', (name) => {
+    expect(buildRenamedPath('routes/orders.camel.yaml', name)).toEqual({
+      error: 'A file name cannot contain / or \\',
     });
   });
 });

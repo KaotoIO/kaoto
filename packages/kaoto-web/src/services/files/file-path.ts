@@ -25,3 +25,17 @@ export const buildFilePath = (folder: string, name: string, extension: string): 
   const fullName = fileName.endsWith(extension) ? fileName : `${fileName}${extension}`;
   return { path: [...segments, fullName].join('/') };
 };
+
+/**
+ * The path of a file renamed to a new name in the same folder.
+ *
+ * The name is taken as typed, extension included, since renaming may change the type of the file.
+ */
+export const buildRenamedPath = (path: string, name: string): { path: string } | { error: string } => {
+  const fileName = name.trim();
+  if (!fileName || INVALID_SEGMENTS.has(fileName)) return { error: 'Enter a file name' };
+  if (/[/\\]/.test(fileName)) return { error: 'A file name cannot contain / or \\' };
+
+  const folder = path.slice(0, path.lastIndexOf('/') + 1);
+  return { path: `${folder}${fileName}` };
+};

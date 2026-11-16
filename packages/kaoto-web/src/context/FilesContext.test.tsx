@@ -7,7 +7,7 @@ import { resetTestIndexedDB } from '../test/indexed-db';
 import { FilesProvider } from './FilesContext';
 
 const Consumer: FunctionComponent = () => {
-  const { files, loading, error, reload, createFile, updateFile, deleteFile, deleteFolder } = useFiles();
+  const { files, loading, error, reload, createFile, updateFile, renameFile, deleteFile, deleteFolder } = useFiles();
   let state = files.map((file) => `${file.id}=${file.content}`).join(',');
   if (loading) state = 'loading';
   if (error) state = `error ${error.message}`;
@@ -19,6 +19,7 @@ const Consumer: FunctionComponent = () => {
       <button onClick={() => void createFile({ id: 'c', path: 'a/c.camel.yaml', content: 'C' }).catch(() => undefined)}>
         create
       </button>
+      <button onClick={() => void renameFile('a', 'z.camel.yaml').catch(() => undefined)}>rename</button>
       <button onClick={() => void deleteFile('a').catch(() => undefined)}>delete file</button>
       <button onClick={() => void deleteFolder('a').catch(() => undefined)}>delete folder</button>
     </>
@@ -124,6 +125,35 @@ describe('FilesProvider', () => {
       expect(await store.getFiles()).toHaveLength(1);
     });
     expect(screen.getByTestId('state')).toHaveTextContent('other=X');
+  });
+
+  it('renames a file and exposes it in path order', async () => {
+    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
+    await store.createFile({ id: 'b', path: 'b.camel.yaml', content: 'B' });
+    renderProvider(store);
+    await screen.findByText('a=A,b=B');
+
+    fireEvent.click(screen.getByRole('button', { name: 'rename' }));
+
+    expect(await screen.findByText('b=B,a=A')).toBeInTheDocument();
+    expect((await store.getFiles()).map((file) => file.path)).toEqual(['b.camel.yaml', 'z.camel.yaml']);
+  });
+
+  it('keeps the files when renaming fails', async () => {
+    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
+    await store.createFile({ id: 'z', path: 'z.camel.yaml', content: 'Z' });
+    const rename = vi.spyOn(store, 'renameFile');
+    renderProvider(store);
+    await screen.findByText('a=A,z=Z');
+
+    fireEvent.click(screen.getByRole('button', { name: 'rename' }));
+
+    await waitFor(() => {
+      expect(rename).toHaveBeenCalledWith('a', 'z.camel.yaml');
+    });
+    await expect(rename.mock.results[0].value).rejects.toThrow();
+    expect((await store.getFiles()).map((file) => file.path)).toEqual(['a.camel.yaml', 'z.camel.yaml']);
+    expect(screen.getByTestId('state')).toHaveTextContent('a=A,z=Z');
   });
 
   it('deletes a file and drops it from the files', async () => {

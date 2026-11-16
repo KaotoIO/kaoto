@@ -81,6 +81,27 @@ describe('FilesStore', () => {
     }
   });
 
+  it('renames a file and keeps its id, content and timestamp', async () => {
+    const file = await store.createFile({ path: 'a.yaml', content: 'x' });
+
+    const renamed = await store.renameFile(file.id, 'routes/b.yaml');
+
+    expect(renamed).toEqual({ ...file, path: 'routes/b.yaml' });
+    expect(await store.getFiles()).toEqual([renamed]);
+  });
+
+  it('rejects renaming to the path of another file and keeps both files', async () => {
+    const a = await store.createFile({ path: 'a.yaml', content: '' });
+    const b = await store.createFile({ path: 'b.yaml', content: '' });
+
+    await expect(store.renameFile(a.id, 'b.yaml')).rejects.toThrow();
+    expect(await store.getFiles()).toEqual([a, b]);
+  });
+
+  it('rejects renaming a missing file', async () => {
+    await expect(store.renameFile('missing', 'a.yaml')).rejects.toThrow('The file missing does not exist');
+  });
+
   it('deletes a file', async () => {
     const file = await store.createFile({ path: 'a.yaml', content: '' });
 
