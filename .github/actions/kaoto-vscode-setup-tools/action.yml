@@ -7,7 +7,7 @@ inputs:
     required: false
     default: '24'
   install-jbang:
-    description: Whether to install Java and JBang (needed for editor/view integration tests)
+    description: Whether to install Java and JBang (needed by the UI test groups that run Camel JBang)
     required: false
     default: 'false'
   allow-unprivileged-userns:
