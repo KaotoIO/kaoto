@@ -212,8 +212,12 @@ describe('Integrations View', function () {
 			);
 
 			const { kaotoWebview } = await switchToKaotoFrame(driver, true);
-			await KaotoCanvas.waitForNodeByLabel(driver, nodeLabel);
-			await kaotoWebview.switchBack();
+			try {
+				await KaotoCanvas.waitForNodeByLabel(driver, nodeLabel);
+			} finally {
+				// a failed check must not leave the driver inside the webview, or every later test fails to find the workbench
+				await kaotoWebview.switchBack();
+			}
 		}
 	});
 });
