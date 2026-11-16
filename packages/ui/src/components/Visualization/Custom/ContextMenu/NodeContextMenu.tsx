@@ -1,4 +1,4 @@
-import { Add, Branch, Replicate } from '@carbon/icons-react';
+import { AddLarge, Branch, Replicate } from '@carbon/icons-react';
 import { ContextMenuSeparator, ElementModel, GraphElement } from '@patternfly/react-topology';
 import { forwardRef, ReactElement } from 'react';
 
@@ -93,7 +93,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
         mode={AddStepMode.InsertChildStep}
         vizNode={vizNode}
       >
-        <Add /> Add step
+        <AddLarge /> Add step
       </ItemInsertStep>,
     );
   }
