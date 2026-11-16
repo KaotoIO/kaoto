@@ -373,19 +373,20 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
       </div>
     </form>
     <div
-      class="no-field-found kaoto-form kaoto-form__empty cds--actionable-notification cds--actionable-notification--low-contrast cds--actionable-notification--info cds--actionable-notification--hide-close-button"
+      class="no-field-found kaoto-form kaoto-form__empty cds--actionable-notification cds--actionable-notification--callout cds--actionable-notification--low-contrast cds--actionable-notification--info cds--actionable-notification--hide-close-button"
       data-testid="no-field-found"
     >
       <div
         class="cds--actionable-notification__details"
       >
         <svg
-          aria-hidden="true"
+          aria-label="info icon"
           class="cds--inline-notification__icon"
           fill="currentColor"
           focusable="false"
           height="20"
           preserveAspectRatio="xMidYMid meet"
+          role="img"
           viewBox="0 0 32 32"
           width="20"
           xmlns="http://www.w3.org/2000/svg"
