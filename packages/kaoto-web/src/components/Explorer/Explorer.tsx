@@ -17,8 +17,7 @@ import {
 } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
-import { useProjectFiles } from '../../hooks/useProjectFiles';
-import { useSafeParams } from '../../hooks/useSafeParams';
+import { useFiles } from '../../hooks/useFiles';
 import { ErrorState } from '../ErrorState/ErrorState';
 import { buildTree, toFolderPath } from './build-tree';
 import { ExplorerFile } from './explorer-file';
@@ -92,8 +91,7 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
 }
 
 export const Explorer: FunctionComponent = () => {
-  const params = useSafeParams(['projectId']);
-  const { integrationId: selectedId } = useParams();
+  const { fileId: selectedId } = useParams();
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
@@ -129,7 +127,7 @@ export const Explorer: FunctionComponent = () => {
     setQuery(e.target.value.toLowerCase());
   }, []);
 
-  const { files, loading, error, reload } = useProjectFiles();
+  const { files, loading, error, reload } = useFiles();
   const tree = useMemo(() => buildTree(files), [files]);
   const filtered = useMemo(() => filterFiles(tree, query), [tree, query]);
 
@@ -144,11 +142,9 @@ export const Explorer: FunctionComponent = () => {
 
   const openIntegration = useCallback(
     (fileId: string) => {
-      if (params) {
-        void navigate(`/projects/${params.projectId}/integration/${fileId}`);
-      }
+      void navigate(`/workspace/file/${fileId}`);
     },
-    [navigate, params],
+    [navigate],
   );
 
   return (
@@ -195,12 +191,17 @@ export const Explorer: FunctionComponent = () => {
         )}
         {error && (
           <ErrorState
-            title="Could not load the project files"
-            message={`Kaoto keeps the project files in the browser storage, and the browser storage may be blocked, for example in a private window. (${error.message})`}
+            title="Could not load the files"
+            message={`Kaoto keeps the files in the browser storage, and the browser storage may be blocked, for example in a private window. (${error.message})`}
             onRetry={reload}
           />
         )}
-        {!loading && !error && (
+        {!loading && !error && files.length === 0 && (
+          <p className="cs--explorer__empty" data-testid="explorer-empty">
+            No files yet
+          </p>
+        )}
+        {!loading && !error && files.length > 0 && (
           /* enableTreeviewControllable makes `selected` and `active` fully controlled —
              without it, Carbon TreeView only uses `selected` as an initial value and
              won't react to URL changes (e.g. browser back/forward). */

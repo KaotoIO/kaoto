@@ -41,17 +41,33 @@ describe('Nav', () => {
     expect(screen.getByRole('button', { name: /close menu/i })).toBeInTheDocument();
   });
 
-  it('renders the Open Project link in the side nav', () => {
+  it('renders the Workspace link in the side nav', () => {
     renderNav();
-    const link = screen.getByRole('link', { name: /open project/i });
-    expect(link).toHaveAttribute('href', '/projects/project50');
+    const link = screen.getByRole('link', { name: 'Workspace' });
+    expect(link).toHaveAttribute('href', '/workspace');
   });
 
-  it('closes the side nav when the Open Project link in the side nav is clicked', async () => {
+  it.each([
+    ['/workspace', true],
+    ['/workspace/file/main-flow', true],
+    ['/workspaces', false],
+    ['/config', false],
+  ])('marks the Workspace link as active on %s: %s', (path, isActive) => {
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <Nav />
+      </MemoryRouter>,
+    );
+
+    const link = screen.getByRole('link', { name: 'Workspace' });
+    expect(link.getAttribute('aria-current') === 'true').toBe(isActive);
+  });
+
+  it('closes the side nav when the Workspace link in the side nav is clicked', async () => {
     renderNav();
     await userEvent.click(screen.getByRole('button', { name: /open menu/i }));
     expect(screen.getByRole('button', { name: /close menu/i })).toBeInTheDocument();
-    const sideNavLink = screen.getByRole('link', { name: /open project/i });
+    const sideNavLink = screen.getByRole('link', { name: 'Workspace' });
     await userEvent.click(sideNavLink);
     expect(screen.getByRole('button', { name: /open menu/i })).toBeInTheDocument();
   });
@@ -66,7 +82,7 @@ describe('Nav', () => {
       <MemoryRouter>
         <IntegrationHeaderContext.Provider
           value={{
-            breadcrumbItems: [{ label: 'my-project', href: '/projects/my-project' }],
+            breadcrumbItems: [{ label: 'routes', href: '/workspace' }],
             current: 'my-flow',
             viewMode: 'design',
             setViewMode: () => {},
@@ -79,7 +95,7 @@ describe('Nav', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByTestId('nav-breadcrumb')).toHaveTextContent('my-project');
+    expect(screen.getByTestId('nav-breadcrumb')).toHaveTextContent('routes');
     expect(screen.getByTestId('nav-breadcrumb')).toHaveTextContent('my-flow');
   });
 });

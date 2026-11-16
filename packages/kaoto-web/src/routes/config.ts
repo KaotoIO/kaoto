@@ -7,7 +7,6 @@ const NotFound = lazy(() => import('../pages/NotFound/NotFound'));
 const ProjectPage = lazy(() => import('../pages/Project/ProjectPage'));
 const IntegrationShell = lazy(() => import('../pages/Project/IntegrationShell'));
 const ConfigPage = lazy(() => import('../pages/Config/ConfigPage'));
-const ProjectConfigPage = lazy(() => import('../pages/ProjectConfig/ProjectConfigPage'));
 
 export const routes: RouteConfigArray = [
   {
@@ -23,24 +22,15 @@ export const routes: RouteConfigArray = [
     element: ConfigPage,
   },
   {
-    path: 'projects',
+    path: 'workspace',
+    element: ProjectPage,
     children: [
       {
-        path: ':projectId',
-        element: ProjectPage,
-        children: [
-          {
-            index: true,
-          },
-          {
-            path: 'integration/:integrationId',
-            element: IntegrationShell,
-          },
-          {
-            path: 'config',
-            element: ProjectConfigPage,
-          },
-        ],
+        index: true,
+      },
+      {
+        path: 'file/:fileId',
+        element: IntegrationShell,
       },
     ],
   },

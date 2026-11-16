@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto';
 
 import { IDBFactory } from 'fake-indexeddb';
 
-import { projectFilesStore } from '../services/project-files/project-files.store';
+import { filesStore } from '../services/files/files.store';
 
 /**
  * Gives the test a fresh, empty in-memory IndexedDB.
@@ -11,6 +11,6 @@ import { projectFilesStore } from '../services/project-files/project-files.store
  * and the shared store would keep its connection to them.
  */
 export const resetTestIndexedDB = (): void => {
-  projectFilesStore.close();
+  filesStore.close();
   globalThis.indexedDB = new IDBFactory();
 };

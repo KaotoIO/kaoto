@@ -3,7 +3,7 @@ import { findPath } from './filterFiles';
 
 describe('buildTree', () => {
   it('nests files into folders derived from their paths', () => {
-    const tree = buildTree([{ id: 'k', path: 'integrations/routes/async/k.camel.yaml', type: 'integration' }]);
+    const tree = buildTree([{ id: 'k', path: 'integrations/routes/async/k.camel.yaml' }]);
 
     expect(tree).toEqual([
       {
@@ -29,18 +29,25 @@ describe('buildTree', () => {
     ]);
   });
 
-  it('keeps files at the project root', () => {
-    expect(buildTree([{ id: 'a', path: 'a.xsd', type: 'document' }])).toEqual([
-      { id: 'a', name: 'a.xsd', type: 'document' },
-    ]);
+  it('keeps files at the root', () => {
+    expect(buildTree([{ id: 'a', path: 'a.xsd' }])).toEqual([{ id: 'a', name: 'a.xsd', type: 'document' }]);
+  });
+
+  it('derives the type of a file from its path', () => {
+    expect(
+      buildTree([
+        { id: 'r', path: 'r.camel.yaml' },
+        { id: 't', path: 't.citrus.yaml' },
+      ]).map((node) => node.type),
+    ).toEqual(['integration', 'integration-test']);
   });
 
   it('lists folders before files, each sorted by name', () => {
     const tree = buildTree([
-      { id: 'z', path: 'z.yaml', type: 'integration' },
-      { id: 'b', path: 'b/x.yaml', type: 'integration' },
-      { id: 'a', path: 'a.yaml', type: 'integration' },
-      { id: 'c', path: 'a/y.yaml', type: 'integration' },
+      { id: 'z', path: 'z.yaml' },
+      { id: 'b', path: 'b/x.yaml' },
+      { id: 'a', path: 'a.yaml' },
+      { id: 'c', path: 'a/y.yaml' },
     ]);
 
     expect(tree.map((node) => [node.type, node.name])).toEqual([
@@ -53,8 +60,8 @@ describe('buildTree', () => {
 
   it('puts the files of one folder under a single folder node', () => {
     const tree = buildTree([
-      { id: 'x', path: 'routes/x.yaml', type: 'integration' },
-      { id: 'y', path: 'routes/y.yaml', type: 'integration' },
+      { id: 'x', path: 'routes/x.yaml' },
+      { id: 'y', path: 'routes/y.yaml' },
     ]);
 
     expect(tree).toHaveLength(1);
@@ -63,10 +70,10 @@ describe('buildTree', () => {
 
   it('sorts names naturally, ignoring case and comparing numbers by value', () => {
     const tree = buildTree([
-      { id: 'zeta', path: 'Zeta.yaml', type: 'integration' },
-      { id: 'file10', path: 'file10.yaml', type: 'integration' },
-      { id: 'alpha', path: 'alpha.yaml', type: 'integration' },
-      { id: 'file2', path: 'file2.yaml', type: 'integration' },
+      { id: 'zeta', path: 'Zeta.yaml' },
+      { id: 'file10', path: 'file10.yaml' },
+      { id: 'alpha', path: 'alpha.yaml' },
+      { id: 'file2', path: 'file2.yaml' },
     ]);
 
     expect(tree.map((node) => node.name)).toEqual(['alpha.yaml', 'file2.yaml', 'file10.yaml', 'Zeta.yaml']);
@@ -74,7 +81,7 @@ describe('buildTree', () => {
 
   it('never gives a folder the id of a file', () => {
     // `integrations` is a valid file id, and the file lives in a folder of the same name
-    const tree = buildTree([{ id: 'integrations', path: 'integrations/a.camel.yaml', type: 'integration' }]);
+    const tree = buildTree([{ id: 'integrations', path: 'integrations/a.camel.yaml' }]);
 
     expect(tree[0].id).not.toBe('integrations');
     expect(findPath(tree, 'integrations')?.map((node) => node.name)).toEqual(['integrations', 'a.camel.yaml']);

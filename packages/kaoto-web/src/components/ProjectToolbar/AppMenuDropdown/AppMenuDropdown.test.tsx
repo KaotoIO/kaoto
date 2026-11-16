@@ -7,10 +7,10 @@ import { AppMenuDropdown } from './AppMenuDropdown';
 
 const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
 
-const renderComponent = (projectId = 'my-project') =>
+const renderComponent = () =>
   render(
     <MemoryRouter>
-      <AppMenuDropdown projectId={projectId} />
+      <AppMenuDropdown />
       <LocationDisplay />
     </MemoryRouter>,
   );
@@ -57,15 +57,15 @@ describe('AppMenuDropdown', () => {
     expect(screen.queryByTestId('kaoto-about-modal')).not.toBeInTheDocument();
   });
 
-  it('clicking Settings navigates to /projects/<projectId>/config', async () => {
+  it('clicking Settings navigates to /config', async () => {
     const user = userEvent.setup();
-    renderComponent('proj_123-ABC');
+    renderComponent();
     await user.click(screen.getByRole('button', { name: 'Menu' }));
     const settingsItem = screen.getByRole('menuitem', { name: 'Settings' });
     expect(settingsItem).not.toHaveAttribute('aria-disabled', 'true');
 
     await user.click(settingsItem);
-    expect(screen.getByTestId('location')).toHaveTextContent('/projects/proj_123-ABC/config');
+    expect(screen.getByTestId('location')).toHaveTextContent('/config');
   });
 
   it.each([

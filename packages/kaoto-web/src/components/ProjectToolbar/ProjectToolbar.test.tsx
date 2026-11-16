@@ -5,18 +5,15 @@ import { MemoryRouter } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
 import { IntegrationHeaderContext, ViewMode } from '../../context/IntegrationHeaderContext';
-import { ProjectContext } from '../../context/ProjectContext';
 import { RuntimeProvider } from '../../context/RuntimeProvider';
 import { ProjectToolbar } from './ProjectToolbar';
 
 const renderComponent = () =>
   render(
     <MemoryRouter>
-      <ProjectContext.Provider value={{ projectId: 'my-project' }}>
-        <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
-          <ProjectToolbar />
-        </RuntimeProvider>
-      </ProjectContext.Provider>
+      <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
+        <ProjectToolbar />
+      </RuntimeProvider>
     </MemoryRouter>,
   );
 
@@ -63,13 +60,11 @@ describe('ProjectToolbar', () => {
     const renderWithIntegration = () =>
       render(
         <MemoryRouter>
-          <ProjectContext.Provider value={{ projectId: 'my-project' }}>
-            <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
-              <ViewModeProvider>
-                <ProjectToolbar />
-              </ViewModeProvider>
-            </RuntimeProvider>
-          </ProjectContext.Provider>
+          <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
+            <ViewModeProvider>
+              <ProjectToolbar />
+            </ViewModeProvider>
+          </RuntimeProvider>
         </MemoryRouter>,
       );
 

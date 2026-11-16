@@ -3,37 +3,35 @@ import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { SEED_PROJECT_FILES } from '../../stubs/project-files/seed';
+import { storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
-import { withProjectFiles } from '../../test/project-files';
 import { buildTree, toFolderId } from './build-tree';
 import { Explorer } from './Explorer';
 import { filterFiles } from './filterFiles';
 
-const TREE = buildTree(SEED_PROJECT_FILES.map((file) => ({ ...file, id: file.id ?? '' })));
+const TREE = buildTree(TEST_FILES);
 
-const renderComponent = (projectId = 'my-project') =>
+const renderComponent = () =>
   render(
-    <MemoryRouter initialEntries={[`/projects/${projectId}`]}>
+    <MemoryRouter initialEntries={['/workspace']}>
       <Routes>
-        <Route path="/projects/:projectId" element={withProjectFiles(<Explorer />, projectId)} />
+        <Route path="/workspace" element={withFiles(<Explorer />)} />
       </Routes>
     </MemoryRouter>,
   );
 
 /**
  * Renders Explorer inside a nested route that mirrors the real app structure:
- * - outer Route provides :projectId
- * - inner Route provides :integrationId when navigated to the integration path
- * This ensures useParams() inside Explorer returns integrationId for selection sync.
+ * the inner Route provides :fileId when navigated to the file path,
+ * so that useParams() inside Explorer returns fileId for selection sync.
  */
 const renderWithNavigation = (children?: React.ReactNode) =>
   render(
-    <MemoryRouter initialEntries={['/projects/my-project']}>
+    <MemoryRouter initialEntries={['/workspace']}>
       <Routes>
         <Route
-          path="/projects/:projectId"
-          element={withProjectFiles(
+          path="/workspace"
+          element={withFiles(
             <>
               <Explorer />
               {children}
@@ -42,7 +40,7 @@ const renderWithNavigation = (children?: React.ReactNode) =>
           )}
         >
           <Route index element={null} />
-          <Route path="integration/:integrationId" element={null} />
+          <Route path="file/:fileId" element={null} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -94,8 +92,9 @@ describe('filterFiles', () => {
 });
 
 describe('Explorer', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     resetTestIndexedDB();
+    await storeTestFiles();
   });
 
   it('shows a loading placeholder until the files are loaded', async () => {
@@ -106,25 +105,39 @@ describe('Explorer', () => {
     expect(screen.queryByTestId('explorer-loading')).not.toBeInTheDocument();
   });
 
+  it('shows an empty state when there are no files', async () => {
+    resetTestIndexedDB();
+
+    renderComponent();
+
+    expect(await screen.findByTestId('explorer-empty')).toHaveTextContent('No files yet');
+    expect(screen.queryByRole('tree')).not.toBeInTheDocument();
+  });
+
   it('shows an error when the files cannot be loaded', async () => {
+    // Drops the connection that storing the test files opened
+    resetTestIndexedDB();
     // @ts-expect-error simulating a browser without IndexedDB
     globalThis.indexedDB = undefined;
 
     renderComponent();
 
-    expect(await screen.findByText('Could not load the project files')).toBeInTheDocument();
+    expect(await screen.findByText('Could not load the files')).toBeInTheDocument();
     expect(screen.getByText(/browser storage may be blocked/)).toBeInTheDocument();
     expect(screen.queryByTestId('explorer-loading')).not.toBeInTheDocument();
   });
 
   it('loads the files again on retry', async () => {
+    // Drops the connection that storing the test files opened
+    resetTestIndexedDB();
     // @ts-expect-error simulating a browser without IndexedDB
     globalThis.indexedDB = undefined;
     const user = userEvent.setup();
     renderComponent();
-    await screen.findByText('Could not load the project files');
+    await screen.findByText('Could not load the files');
 
     resetTestIndexedDB();
+    await storeTestFiles();
     await user.click(screen.getByRole('button', { name: 'Retry' }));
 
     expect(await screen.findByTestId('explorer-folder-integrations')).toBeInTheDocument();
@@ -153,7 +166,7 @@ describe('Explorer', () => {
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
       await user.click(screen.getByTestId(`explorer-file-${id}`));
 
-      expect(screen.getByTestId('location')).toHaveTextContent(`/projects/my-project/integration/${id}`);
+      expect(screen.getByTestId('location')).toHaveTextContent(`/workspace/file/${id}`);
     },
   );
 
@@ -194,7 +207,7 @@ describe('Explorer', () => {
     expect(folderNode).toHaveAttribute('aria-expanded', 'true');
 
     await user.click(screen.getByText('main-flow.camel.yaml'));
-    expect(screen.getByTestId('location')).toHaveTextContent('/projects/my-project/integration/main-flow');
+    expect(screen.getByTestId('location')).toHaveTextContent('/workspace/file/main-flow');
     expect(screen.getByTestId('explorer-folder-integrations')).toHaveAttribute('aria-expanded', 'true');
   });
 
@@ -253,33 +266,8 @@ describe('Explorer', () => {
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
       await user.click(screen.getByTestId('explorer-file-schema'));
 
-      expect(screen.getByTestId('location')).toHaveTextContent('/projects/my-project');
-      expect(screen.getByTestId('location')).not.toHaveTextContent('/integration/');
-    });
-
-    it('does not navigate when the project id is not valid', async () => {
-      const user = userEvent.setup();
-      render(
-        <MemoryRouter initialEntries={['/projects/invalid.id']}>
-          <Routes>
-            <Route
-              path="/projects/:projectId"
-              element={withProjectFiles(
-                <>
-                  <Explorer />
-                  <LocationDisplay />
-                </>,
-              )}
-            />
-          </Routes>
-        </MemoryRouter>,
-      );
-
-      const folderNode = await screen.findByTestId('explorer-folder-integrations');
-      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
-      await user.click(screen.getByTestId('explorer-file-main-flow'));
-
-      expect(screen.getByTestId('location')).toHaveTextContent('/projects/invalid.id');
+      expect(screen.getByTestId('location')).toHaveTextContent('/workspace');
+      expect(screen.getByTestId('location')).not.toHaveTextContent('/file/');
     });
   });
 
