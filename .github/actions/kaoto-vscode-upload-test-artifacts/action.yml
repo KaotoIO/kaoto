@@ -1,5 +1,5 @@
 name: Upload Test Artifacts (kaoto-vscode)
-description: Uploads VS Code logs and screenshots from the kaoto-vscode test run on failure
+description: Uploads VS Code logs and screenshots from the kaoto-vscode test run when it failed or was cancelled
 
 inputs:
   test-group:
@@ -19,7 +19,10 @@ inputs:
 runs:
   using: composite
   steps:
+    # The caller runs this action only when the job failed or was cancelled. always() keeps both
+    # uploads going when the job is cancelled during an upload, for example by a newer push.
     - name: Upload VS Code logs
+      if: always()
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: vscode-logs-${{ inputs.test-group }}-${{ inputs.os-name }}
@@ -27,6 +30,7 @@ runs:
         retention-days: ${{ inputs.retention-days }}
 
     - name: Upload test screenshots
+      if: always()
       uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
       with:
         name: ui-test-screenshots-${{ inputs.test-group }}-${{ inputs.os-name }}
