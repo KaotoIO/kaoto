@@ -157,6 +157,8 @@ export const Explorer: FunctionComponent = () => {
   const [nodeToDelete, setNodeToDelete] = useState<ExplorerFile>();
   const treeRef = useRef<HTMLDivElement>(null);
   const addButtonRef = useRef<HTMLButtonElement>(null);
+  /** The button that opened the Create New File modal */
+  const createOpenerRef = useRef<HTMLElement | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
   const [width, setWidth] = useState(DEFAULT_WIDTH);
   const startX = useRef<number>(0);
@@ -222,6 +224,23 @@ export const Explorer: FunctionComponent = () => {
     target?.focus();
   }, [focusAfterDelete]);
 
+  const openCreateModal = (event: React.MouseEvent<HTMLElement>) => {
+    createOpenerRef.current = event.currentTarget;
+    setIsCreateOpen(true);
+  };
+
+  /**
+   * The element to focus once the Create New File modal is closed. The modal unmounts on close, so focus goes back by
+   * hand: to the button that opened it, or to the toolbar button when that one is gone, as the empty-state button is
+   * once a file exists. An object, so that every close focuses again.
+   */
+  const [focusAfterCreate, setFocusAfterCreate] = useState<{ opener: HTMLElement | null }>();
+  useEffect(() => {
+    if (!focusAfterCreate) return;
+    const { opener } = focusAfterCreate;
+    (opener?.isConnected ? opener : addButtonRef.current)?.focus();
+  }, [focusAfterCreate]);
+
   const deleteNode = async (node: ExplorerFile) => {
     const openPath = files.find((file) => file.id === selectedId)?.path;
     let deletesOpenFile;
@@ -255,9 +274,7 @@ export const Explorer: FunctionComponent = () => {
           align="bottom-start"
           data-testid="explorer-add"
           ref={addButtonRef}
-          onClick={() => {
-            setIsCreateOpen(true);
-          }}
+          onClick={openCreateModal}
         >
           <Add />
         </IconButton>
@@ -298,13 +315,7 @@ export const Explorer: FunctionComponent = () => {
         {!loading && !error && files.length === 0 && (
           <div className="cs--explorer__empty" data-testid="explorer-empty">
             <p>No files yet</p>
-            <Button
-              kind="tertiary"
-              size="sm"
-              onClick={() => {
-                setIsCreateOpen(true);
-              }}
-            >
+            <Button kind="tertiary" size="sm" onClick={openCreateModal}>
               Create…
             </Button>
           </div>
@@ -331,6 +342,7 @@ export const Explorer: FunctionComponent = () => {
         <CreateFileModal
           onClose={() => {
             setIsCreateOpen(false);
+            setFocusAfterCreate({ opener: createOpenerRef.current });
           }}
         />
       )}
