@@ -76,13 +76,20 @@ describe('Property panel loading test', function () {
 					expect(previousWidth, 'Property panel minimum width').to.be.closeTo(210, 1);
 				}
 			}
+			// Checks the scrollbars that are drawn, not scrollWidth against clientWidth: the UI tests zoom VS Code out, so
+			// those rounded values can differ by a pixel without any overflow. A drawn horizontal scrollbar takes space
+			// below the content, so the box is taller than its content area and borders.
 			await driver.wait(
 				() =>
 					driver.executeScript<boolean>((element: HTMLElement) => {
 						const containers = [element, ...Array.from(element.querySelectorAll<HTMLElement>('*'))];
 						return containers.every((container) => {
-							const overflow = getComputedStyle(container).overflowX;
-							return !['auto', 'scroll'].includes(overflow) || container.scrollWidth <= container.clientWidth;
+							const style = getComputedStyle(container);
+							if (!['auto', 'scroll'].includes(style.overflowX)) {
+								return true;
+							}
+							const borders = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+							return container.offsetHeight - container.clientHeight - borders < 1;
 						});
 					}, panel),
 				5_000,
@@ -97,18 +104,34 @@ describe('Property panel loading test', function () {
 			await toggle.sendKeys(Key.ENTER);
 		}
 		const body = await panel.findElement(By.css('.canvas-form__body'));
+		// Checks what the user sees: the form body scrolls inside the panel, and scrolled to its end it shows the last
+		// field. It does not add up scrollTop, clientHeight and scrollHeight, whose rounding differs once the UI tests zoom
+		// VS Code out. When the whole form fits, as on a large screen, the last field is visible without scrolling.
 		await driver.wait(
 			() =>
-				driver.executeScript<boolean>((element: HTMLElement) => {
-					element.scrollTop = element.scrollHeight;
-					// The UI tests zoom VS Code out, so the layout has fractional heights: scrollTop is fractional, while
-					// clientHeight and scrollHeight are rounded. At the end of the form they can differ by more than 1px.
-					return (
-						['auto', 'scroll'].includes(getComputedStyle(element).overflowY) &&
-						element.scrollTop > 0 &&
-						element.scrollTop + element.clientHeight >= element.scrollHeight - 2
-					);
-				}, body),
+				driver.executeScript<boolean>(
+					(element: HTMLElement, container: HTMLElement) => {
+						element.scrollTop = element.scrollHeight;
+						const controls = Array.from(element.querySelectorAll<HTMLElement>('input, textarea, select, button')).filter(
+							(control) => control.getBoundingClientRect().height > 0,
+						);
+						const lastControl = controls.at(-1);
+						if (!lastControl) {
+							return false;
+						}
+						const bodyRect = element.getBoundingClientRect();
+						const panelRect = container.getBoundingClientRect();
+						const lastRect = lastControl.getBoundingClientRect();
+						return (
+							['auto', 'scroll'].includes(getComputedStyle(element).overflowY) &&
+							bodyRect.bottom <= panelRect.bottom + 1 &&
+							lastRect.top >= bodyRect.top - 1 &&
+							lastRect.bottom <= bodyRect.bottom + 1
+						);
+					},
+					body,
+					panel,
+				),
 			5_000,
 			'Property panel cannot scroll vertically to the last fields',
 		);
