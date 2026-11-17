@@ -19581,13 +19581,13 @@ __metadata:
   linkType: hard
 
 "msw-storybook-addon@npm:^2.0.3":
-  version: 2.0.6
-  resolution: "msw-storybook-addon@npm:2.0.6"
+  version: 2.0.7
+  resolution: "msw-storybook-addon@npm:2.0.7"
   dependencies:
     is-node-process: "npm:^1.0.1"
   peerDependencies:
     msw: ^2.0.0
-  checksum: 10/4cdf4eec9e19a09dc53bc0b51fda09e3061eaf8a1d49f787fb3c6063ad7573484d304bd6555bb094a9379afcfc6c55482bc8b4470ae41f2382c135221bef9c54
+  checksum: 10/1f36bebfdad6945333aaf330337b850bbd640b9d939280cd91916791585fbe1c88925d8806aabb5fce4894a1ed6e70716b7c0aa4ddaebc98a249033c665adf33
   languageName: node
   linkType: hard
 
