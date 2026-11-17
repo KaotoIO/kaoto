@@ -16,7 +16,14 @@
 import * as vscode from 'vscode';
 import path from 'path'; // NOSONAR
 import { TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
-import { COMMAND_TESTS_CLEAR_RESULTS, COMMAND_TESTS_REFRESH, COMMAND_TESTS_RUN, COMMAND_TESTS_RUN_FOLDER, VIEW_TESTS } from '../../constants';
+import {
+	COMMAND_TESTS_CLEAR_RESULTS,
+	COMMAND_TESTS_GET_REPORT,
+	COMMAND_TESTS_REFRESH,
+	COMMAND_TESTS_RUN,
+	COMMAND_TESTS_RUN_FOLDER,
+	VIEW_TESTS,
+} from '../../constants';
 import { TestsProvider } from '../../views/tests/TestsProvider';
 import { TestFolder } from '../../views/tests/TestFolder';
 import { Test } from '../../views/tests/Test';
@@ -25,6 +32,7 @@ import { CamelCommandAPI } from '../../executors/api/CamelCommandAPI';
 import { CamelTaskFactory } from '../../tasks/CamelTaskFactory';
 import { CamelTask } from '../../tasks/CamelTask';
 import { sendCommandTrackingEvent } from './TrackingEvent';
+import { TestReportEvents } from '../../services/TestReportEvents';
 import { registerViewItemContextMenu } from './ViewItemContextMenu';
 import { IRegistrar } from './IRegistrar';
 
@@ -60,6 +68,9 @@ export class TestsRegistrar implements IRegistrar {
 		const refreshCommand = vscode.commands.registerCommand(COMMAND_TESTS_REFRESH, () => this.testsProvider.refresh());
 		const clearResultsCommand = vscode.commands.registerCommand(COMMAND_TESTS_CLEAR_RESULTS, () => this.testsProvider.clearAllResults());
 		this.context.subscriptions.push(testsTreeView, dispose, refreshCommand, clearResultsCommand, refreshOnVisibilityChange);
+
+		const getReportCommand = vscode.commands.registerCommand(COMMAND_TESTS_GET_REPORT, (name: string) => this.testsProvider.getTestReport(name));
+		this.context.subscriptions.push(getReportCommand);
 
 		registerViewItemContextMenu(this.context, this.telemetryService, this.testsProvider);
 	}
@@ -114,21 +125,24 @@ export class TestsRegistrar implements IRegistrar {
 	}
 
 	private async executeTestRun(testFilePaths: string[], createTask: () => Promise<CamelTask>, progressMessage: string): Promise<void> {
+		TestReportEvents.instance.fireTestRunStarted(testFilePaths);
+
 		for (const testPath of testFilePaths) {
+			this.testsProvider.clearTestReport(testPath);
 			this.testsProvider.setTestRunning(testPath, true);
 		}
 
 		try {
 			const runTask = await createTask();
 			await runTask.executeAndWaitWithProgress(progressMessage);
-
-			const results = await Promise.all(testFilePaths.map((testPath) => this.testsProvider.readTestResult(testPath)));
-			testFilePaths.forEach((testPath, index) => this.testsProvider.setTestResult(testPath, results[index]));
 		} catch {
-			for (const testPath of testFilePaths) {
-				this.testsProvider.setTestResult(testPath, 'failure');
-			}
+			// Test runner exited non-zero — report files may still have been written
 		} finally {
+			const results = await Promise.all(testFilePaths.map((p) => this.testsProvider.readTestResult(p)));
+			results.forEach((testResult, i) => {
+				this.testsProvider.setTestResult(testFilePaths[i], testResult === 'none' ? 'failure' : testResult);
+			});
+			TestReportEvents.instance.fireTestReportReady(testFilePaths);
 			for (const testPath of testFilePaths) {
 				this.testsProvider.setTestRunning(testPath, false);
 			}

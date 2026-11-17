@@ -22,6 +22,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<IMetadataApi>> = (
   getSuggestions,
   shouldSaveSchema,
   onStepUpdated,
+  getTestReport,
 }) => {
   const controller = useMemo(() => ControllerService.createController(), []);
   const metadataApi: IMetadataApi = useMemo(
@@ -36,6 +37,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<IMetadataApi>> = (
       getSuggestions,
       shouldSaveSchema,
       onStepUpdated,
+      getTestReport,
     }),
     [
       getMetadata,
@@ -48,6 +50,7 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<IMetadataApi>> = (
       getSuggestions,
       shouldSaveSchema,
       onStepUpdated,
+      getTestReport,
     ],
   );
 
