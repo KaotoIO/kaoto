@@ -159,7 +159,7 @@ export const Explorer: FunctionComponent = () => {
 
       {/* Section 2 — Toolbar */}
       <div className="cs--explorer__toolbar">
-        <IconButton label="Add integration" kind="ghost" size="sm" data-testid="explorer-add">
+        <IconButton label="Add integration" kind="ghost" size="sm" align="bottom-start" data-testid="explorer-add">
           <Add />
         </IconButton>
       </div>
