@@ -1,3 +1,6 @@
+import './CreateFileModal.scss';
+
+import { Chemistry, Cube, DocumentConfiguration, Xml } from '@carbon/icons-react';
 import {
   Button,
   ComposedModal,
@@ -6,12 +9,12 @@ import {
   ModalBody,
   ModalFooter,
   ModalHeader,
-  RadioButton,
-  RadioButtonGroup,
+  RadioTile,
   Stack,
   TextInput,
+  TileGroup,
 } from '@carbon/react';
-import { FunctionComponent, SyntheticEvent, useState } from 'react';
+import { ComponentType, FunctionComponent, SyntheticEvent, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { CATALOG_URL } from '../../catalog-url';
@@ -26,14 +29,45 @@ import {
 interface FileKind {
   id: string;
   label: string;
+  description: string;
+  icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
   extension: string;
   template: StarterTemplateName;
 }
 
 const FILE_KINDS: FileKind[] = [
-  { id: 'camel-route', label: 'Camel Route', extension: '.camel.yaml', template: 'camel-route-yaml' },
-  { id: 'kamelet', label: 'Kamelet', extension: '.kamelet.yaml', template: 'kamelet-source-yaml' },
-  { id: 'pipe', label: 'Pipe', extension: '.pipe.yaml', template: 'pipe-yaml' },
+  {
+    id: 'camel-route-yaml',
+    label: 'Camel Route YAML',
+    description: 'Define an Apache Camel integration route using YAML DSL',
+    icon: DocumentConfiguration,
+    extension: '.camel.yaml',
+    template: 'camel-route-yaml',
+  },
+  {
+    id: 'camel-route-xml',
+    label: 'Camel Route XML',
+    description: 'Define an Apache Camel integration route using XML DSL',
+    icon: Xml,
+    extension: '.camel.xml',
+    template: 'camel-route-xml',
+  },
+  {
+    id: 'kamelet',
+    label: 'Kamelet',
+    description: 'Reusable Camel route template with a well-defined interface',
+    icon: Cube,
+    extension: '.kamelet.yaml',
+    template: 'kamelet-source-yaml',
+  },
+  {
+    id: 'citrus-test',
+    label: 'Citrus Test',
+    description: 'Integration test using the Citrus testing framework',
+    icon: Chemistry,
+    extension: '.citrus.yaml',
+    template: 'citrus-yaml',
+  },
 ];
 
 const FORM_ID = 'cs--create-file-form';
@@ -50,26 +84,27 @@ interface CreateFileModalProps {
 export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClose }) => {
   const { files, createFile } = useFiles();
   const navigate = useNavigate();
-  const [kind, setKind] = useState(FILE_KINDS[0]);
+  const [kind, setKind] = useState<FileKind>();
   const [name, setName] = useState('');
   const [folder, setFolder] = useState('');
   const [creating, setCreating] = useState(false);
   const [failure, setFailure] = useState<string>();
 
-  const result = buildFilePath(folder, name, kind.extension);
-  const pathTaken = 'path' in result && files.some((file) => file.path === result.path);
-  const nameError = name.trim() && 'field' in result && result.field === 'name' ? result.error : undefined;
-  const folderError = 'field' in result && result.field === 'folder' ? result.error : undefined;
-  const canCreate = 'path' in result && !pathTaken && !creating;
+  const result = kind ? buildFilePath(folder, name, kind.extension) : undefined;
+  const path = result && 'path' in result ? result.path : undefined;
+  const pathTaken = !!path && files.some((file) => file.path === path);
+  const nameError = name.trim() && result && 'field' in result && result.field === 'name' ? result.error : undefined;
+  const folderError = result && 'field' in result && result.field === 'folder' ? result.error : undefined;
+  const canCreate = !!path && !pathTaken && !creating;
 
   const create = async () => {
-    if (!('path' in result) || !canCreate) return;
+    if (!kind || !path || !canCreate) return;
     setCreating(true);
     setFailure(undefined);
     try {
       const template = await fetchStarterTemplate(CATALOG_URL, kind.template);
-      const fileName = result.path.split('/').pop()!;
-      const created = await createFile({ path: result.path, content: resolveStarterTemplate(template, fileName) });
+      const fileName = path.split('/').pop()!;
+      const created = await createFile({ path, content: resolveStarterTemplate(template, fileName) });
       onClose();
       void navigate(`/workspace/file/${created.id}`);
     } catch (error) {
@@ -92,6 +127,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
         return true;
       }}
       preventCloseOnClickOutside
+      selectorPrimaryFocus={`#cs--create-file-kind-${FILE_KINDS[0].id}`}
       className="cs--create-file-modal"
       data-testid="create-file-modal"
     >
@@ -109,41 +145,57 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
           aria-label="Create New File"
         >
           <Stack gap={6}>
-            <RadioButtonGroup
-              legendText="File type"
+            <TileGroup
+              legend="File type"
               name="file-type"
-              orientation="vertical"
-              valueSelected={kind.id}
+              className="cds--tile-group cs--create-file-modal__types"
+              valueSelected={kind?.id}
               onChange={(value) => {
-                setKind(FILE_KINDS.find((candidate) => candidate.id === value) ?? FILE_KINDS[0]);
+                setKind(FILE_KINDS.find((candidate) => candidate.id === value));
               }}
             >
-              {FILE_KINDS.map((candidate) => (
-                <RadioButton
-                  key={candidate.id}
-                  id={`cs--create-file-kind-${candidate.id}`}
-                  labelText={candidate.label}
-                  value={candidate.id}
-                />
-              ))}
-            </RadioButtonGroup>
+              {FILE_KINDS.map((candidate) => {
+                const Icon = candidate.icon;
+                return (
+                  <RadioTile
+                    key={candidate.id}
+                    id={`cs--create-file-kind-${candidate.id}`}
+                    value={candidate.id}
+                    className="cs--create-file-modal__type"
+                  >
+                    <span className="cs--create-file-modal__type-content">
+                      <Icon
+                        className={`cs--create-file-modal__type-icon cs--create-file-modal__type-icon--${candidate.id}`}
+                        aria-hidden
+                      />
+                      <span className="cs--create-file-modal__type-text">
+                        <span className="cs--create-file-modal__type-label">{candidate.label}</span>
+                        <span className="cs--create-file-modal__type-description">{candidate.description}</span>
+                      </span>
+                    </span>
+                  </RadioTile>
+                );
+              })}
+            </TileGroup>
             <TextInput
               id="cs--create-file-name"
               labelText="File name"
-              placeholder={`e.g. orders${kind.extension}`}
+              placeholder={kind ? `e.g. orders${kind.extension}` : 'Select a file type first'}
+              disabled={!kind}
               value={name}
               onChange={(event) => {
                 setName(event.target.value);
               }}
               invalid={!!nameError || pathTaken}
               invalidText={pathTaken ? 'A file with this path already exists' : nameError}
-              helperText={'path' in result && !pathTaken ? `Creates ${result.path}` : undefined}
+              helperText={path && !pathTaken ? `Creates ${path}` : undefined}
               autoComplete="off"
             />
             <TextInput
               id="cs--create-file-folder"
               labelText="Folder path (optional)"
               placeholder="e.g. routes/subdir/"
+              disabled={!kind}
               value={folder}
               onChange={(event) => {
                 setFolder(event.target.value);
@@ -169,7 +221,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
           Cancel
         </Button>
         <Button kind="primary" type="submit" form={FORM_ID} disabled={!canCreate}>
-          {creating ? 'Creating…' : 'Create'}
+          {creating ? 'Creating…' : 'Create File'}
         </Button>
       </ModalFooter>
     </ComposedModal>
