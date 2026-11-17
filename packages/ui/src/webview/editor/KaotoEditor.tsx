@@ -282,6 +282,18 @@ export const KaotoEditor = ({ bus, initialSettings, init, children }: PropsWithC
     [request],
   );
 
+  const getTestReport = useCallback(
+    async (name: string): Promise<import('../../models').TestReportEntry | undefined> => {
+      try {
+        const { report } = await request('editor:testReport:get', { name });
+        return report != null ? (report as unknown as import('../../models').TestReportEntry) : undefined;
+      } catch {
+        return undefined;
+      }
+    },
+    [request],
+  );
+
   const onStepUpdated = useCallback(
     (action: StepUpdateAction, stepType: CatalogKind, stepName: string): Promise<void> => {
       bus.emit('editor:step:updated', { action, stepType, stepName });
@@ -341,6 +353,7 @@ export const KaotoEditor = ({ bus, initialSettings, init, children }: PropsWithC
                           getSuggestions={getSuggestions}
                           shouldSaveSchema={false}
                           onStepUpdated={onStepUpdated}
+                          getTestReport={getTestReport}
                         >
                           {children}
                         </KaotoBridge>

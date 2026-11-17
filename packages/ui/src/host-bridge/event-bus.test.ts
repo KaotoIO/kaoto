@@ -309,6 +309,14 @@ const requestExamples = {
     invalidRequest: {},
     invalidResponse: { runtimeInfo: { runtime: 'quarkus' } },
   },
+  'editor:testReport:get': {
+    sender: 'editor',
+    timeoutMs: 5000,
+    payload: { name: 'my-test' },
+    response: { report: { name: 'my-test', result: { name: 'my-test', result: 'SUCCESS' }, actions: [] } },
+    invalidRequest: { name: 42 },
+    invalidResponse: { report: 'not-an-object' },
+  },
 } satisfies {
   [R in keyof KaotoRequests]: {
     sender: 'host' | 'editor';
@@ -343,6 +351,8 @@ const eventExamples = {
     payload: { message: 'Saved', type: 'info' },
     invalid: { message: 'Saved', type: 'success' },
   },
+  'host:testRun:started': { sender: 'host', payload: null, invalid: {} },
+  'host:testReport:ready': { sender: 'host', payload: null, invalid: {} },
 } satisfies { [E in keyof KaotoEvents]: { sender: 'host' | 'editor'; payload: KaotoEvents[E]; invalid: unknown } };
 
 describe('bridge catalog validation', () => {

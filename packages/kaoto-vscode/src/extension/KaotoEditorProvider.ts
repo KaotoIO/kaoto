@@ -30,8 +30,9 @@ import {
 } from '@kaoto/kaoto/host-bridge';
 import type { FileTypes } from '@kaoto/kaoto/models';
 import * as vscode from 'vscode';
-import { KAOTO_EDITOR_VIEW_TYPE } from '../constants';
+import { COMMAND_TESTS_GET_REPORT, KAOTO_EDITOR_VIEW_TYPE } from '../constants';
 import { KaotoHostServices } from '../services/KaotoHostServices';
+import { TestReportEvents } from '../services/TestReportEvents';
 import { resolveColorScheme } from '../utils/Vscode';
 import { fillDevWebviewHtml, fillWebviewHtml } from '../utils/WebviewHtml';
 import type { SuggestionRequestContext } from '../services/SuggestionRegistry';
@@ -308,6 +309,16 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				}
 				void show(message);
 			}),
+			TestReportEvents.instance.onTestRunStarted(() => {
+				if (!session.stopped) {
+					session.bus.emit('host:testRun:started', null);
+				}
+			}),
+			TestReportEvents.instance.onTestReportReady(() => {
+				if (!session.stopped) {
+					session.bus.emit('host:testReport:ready', null);
+				}
+			}),
 			session.bus.on('editor:validation:updated', ({ path, notifications }) => {
 				let uri = document.uri;
 				if (path) {
@@ -582,6 +593,10 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 			suggestions: await services.getSuggestions(topic, word, context as SuggestionRequestContext),
 		}));
 		on('editor:maven:getRuntimeInfo', async () => ({ runtimeInfo: (await services.getRuntimeInfoFromMavenContext()) ?? null }));
+		on('editor:testReport:get', async ({ name }) => {
+			const report = await vscode.commands.executeCommand(COMMAND_TESTS_GET_REPORT, name);
+			return { report: report ?? null } as { report: JsonValue | null };
+		});
 	}
 	private async settings(state: DocumentState, session: EditorSession): Promise<SettingsSnapshot> {
 		const result = session.settingsQueue.then(async () => {

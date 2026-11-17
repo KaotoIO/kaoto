@@ -60,6 +60,8 @@ export const COMMAND_TESTS_SHOW_SOURCE = 'kaoto.tests.showSource';
 
 export const COMMAND_TESTS_DELETE = 'kaoto.tests.delete';
 
+export const COMMAND_TESTS_GET_REPORT = 'kaoto.tests.getTestReport';
+
 export const COMMAND_OPENAPI_REFRESH = 'kaoto.openapi.refresh';
 
 export const COMMAND_OPENAPI_SHOW_SOURCE = 'kaoto.openapi.showSource';
