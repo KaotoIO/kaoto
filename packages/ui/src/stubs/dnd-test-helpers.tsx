@@ -14,6 +14,14 @@ export const firePrimaryPointerDown = (element: Element) => {
 };
 
 /**
+ * Moves the pointer of a drag started with {@link firePrimaryPointerDown} to the given client coordinates, for
+ * sensors with a distance activation constraint. Like `pointerdown`, JSDOM needs a `MouseEvent` stand-in.
+ */
+export const firePointerMove = (clientX: number, clientY: number) => {
+  fireEvent(document, new MouseEvent('pointermove', { bubbles: true, cancelable: true, clientX, clientY }));
+};
+
+/**
  * Ends any pointer / mouse drag still in progress, then waits until @dnd-kit releases its document listeners.
  *
  * While a pointer or mouse drag is active, @dnd-kit swallows every `click` on the document (capture phase), and it

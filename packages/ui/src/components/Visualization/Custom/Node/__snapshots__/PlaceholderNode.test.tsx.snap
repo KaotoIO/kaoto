@@ -5,12 +5,15 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render CodeBranchI
   <svg>
     <g
       data-layer-id="bottom"
+      tabindex="-1"
     />
     <g
       data-layer-id="groups"
+      tabindex="-1"
     />
     <g
       data-layer-id="default"
+      tabindex="-1"
     >
       <g
         data-id="node-placeholder"
@@ -88,6 +91,7 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render CodeBranchI
     </g>
     <g
       data-layer-id="top"
+      tabindex="-1"
     />
   </svg>
 </DocumentFragment>
@@ -98,12 +102,15 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleI
   <svg>
     <g
       data-layer-id="bottom"
+      tabindex="-1"
     />
     <g
       data-layer-id="groups"
+      tabindex="-1"
     />
     <g
       data-layer-id="default"
+      tabindex="-1"
     >
       <g
         data-id="node-placeholder"
@@ -183,6 +190,7 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleI
     </g>
     <g
       data-layer-id="top"
+      tabindex="-1"
     />
   </svg>
 </DocumentFragment>
@@ -193,12 +201,15 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleI
   <svg>
     <g
       data-layer-id="bottom"
+      tabindex="-1"
     />
     <g
       data-layer-id="groups"
+      tabindex="-1"
     />
     <g
       data-layer-id="default"
+      tabindex="-1"
     >
       <g
         data-id="node-placeholder"
@@ -276,6 +287,7 @@ exports[`PlaceholderNode > isSpecialChildPlaceholder > should render PlusCircleI
     </g>
     <g
       data-layer-id="top"
+      tabindex="-1"
     />
   </svg>
 </DocumentFragment>
@@ -286,15 +298,19 @@ exports[`PlaceholderNode > should return null when element has no vizNode in dat
   <svg>
     <g
       data-layer-id="bottom"
+      tabindex="-1"
     />
     <g
       data-layer-id="groups"
+      tabindex="-1"
     />
     <g
       data-layer-id="default"
+      tabindex="-1"
     />
     <g
       data-layer-id="top"
+      tabindex="-1"
     />
   </svg>
 </DocumentFragment>

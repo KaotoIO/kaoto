@@ -57,6 +57,8 @@ describe('XPathEditorAction', () => {
     await waitFor(() => {
       expect(onCommit).toHaveBeenCalledTimes(1);
     });
-    expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('xpath-editor-modal')).not.toBeInTheDocument();
+    });
   }, 30000);
 });

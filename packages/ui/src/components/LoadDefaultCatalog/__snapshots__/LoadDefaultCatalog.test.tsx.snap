@@ -73,6 +73,8 @@ exports[`LoadDefaultCatalog > should render correctly 1`] = `
           </div>
           <div
             class="pf-v6-c-expandable-section"
+            data-ouia-component-type="PF6/ExpandableSection"
+            data-ouia-safe="true"
           >
             <div
               class="pf-v6-c-expandable-section__toggle"

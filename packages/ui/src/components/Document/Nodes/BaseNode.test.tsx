@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { Mock } from 'vitest';
 
@@ -592,7 +592,7 @@ describe('BaseNode', () => {
         expect(screen.getByTestId('comment-modal')).toBeInTheDocument();
       });
 
-      it('should close modal when handleCloseCommentModal is called', () => {
+      it('should close modal when handleCloseCommentModal is called', async () => {
         mockMapping.comment = 'Some comment';
         render(
           <BaseNode
@@ -614,7 +614,9 @@ describe('BaseNode', () => {
         fireEvent.click(cancelButton);
 
         // Modal should be closed
-        expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
+        await waitFor(() => {
+          expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
+        });
       });
     });
   });
@@ -656,7 +658,7 @@ describe('BaseNode', () => {
       expect(tooltip.querySelector('.node__comment-tooltip')).toHaveTextContent('Optional guard comment: Guard note');
     });
 
-    it('should edit the guard comment, not the field comment, from the guard indicator', () => {
+    it('should edit the guard comment, not the field comment, from the guard indicator', async () => {
       guard.comment = 'Guard note';
       guardedRow.mapping.comment = 'Field note';
       renderGuardedRow();
@@ -669,7 +671,9 @@ describe('BaseNode', () => {
       expect(guard.comment).toBe('Updated guard note');
       expect(guardedRow.mapping.comment).toBe('Field note');
       expect(mockOnUpdate).toHaveBeenCalledTimes(1);
-      expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('comment-modal')).not.toBeInTheDocument();
+      });
     });
 
     it('should not show a guard comment indicator when the guard has no comment', () => {

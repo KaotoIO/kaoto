@@ -4,7 +4,7 @@ exports[`ActionConfirmationModalProvider > should allow consumers to update the 
 <div
   aria-labelledby="pf-modal-part-ID"
   aria-modal="true"
-  class="pf-v6-c-modal-box pf-m-sm"
+  class="pf-v6-c-modal-box pf-m-animate pf-m-open pf-m-sm"
   data-ouia-component-id="ActionConfirmationModal"
   data-ouia-component-type="PF6/ModalContent"
   data-ouia-safe="true"

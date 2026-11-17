@@ -136,7 +136,8 @@ describe('AttachSchemaButton', () => {
       expect(attachSchemaModal).toBeInTheDocument();
     });
 
-    const warningModal = screen.queryByTestId('update-schema-warning-modal');
-    expect(warningModal).toBeNull();
+    await waitFor(() => {
+      expect(screen.queryByTestId('update-schema-warning-modal')).not.toBeInTheDocument();
+    });
   });
 });

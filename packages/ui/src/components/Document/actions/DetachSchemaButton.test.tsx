@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren, useEffect } from 'react';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
@@ -74,7 +74,9 @@ describe('DetachSchemaButton', () => {
     const cancelBtn = screen.getByTestId('detach-schema-modal-cancel-btn');
     fireEvent.click(cancelBtn);
 
-    expect(screen.queryByTestId('detach-schema-modal')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('detach-schema-modal')).not.toBeInTheDocument();
+    });
   });
 
   it('should handle detach with parameter document type', async () => {

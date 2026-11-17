@@ -337,6 +337,10 @@ describe('ExportMappingFileModal', () => {
           <ExportMappingFileModal isOpen={false} onClose={mockOnClose} />
         </TestProviders>,
       );
+      // The modal stays mounted while its close animation runs
+      await waitFor(() => {
+        expect(screen.queryByTestId('dm-debug-export-mappings-modal')).not.toBeInTheDocument();
+      });
       rerender(
         <TestProviders>
           <ExportMappingFileModal isOpen onClose={mockOnClose} />
