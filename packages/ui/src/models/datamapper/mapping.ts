@@ -36,6 +36,44 @@ export class MappingTree {
 }
 
 /**
+ * Sort buckets for {@link MappingSerializerService.sortForSerialization}, in output order. Most
+ * {@link MappingItem} subclasses leave {@link MappingItem.orderBucket} unset: their bucket
+ * depends on resolved fields at serialize time (attribute vs. element vs. no field), computed by
+ * {@link MappingSerializerService}. Only a subclass whose position is constant regardless of content
+ * — {@link VariableItem}, {@link WhenItem}, {@link OtherwiseItem} — declares one directly, so a
+ * future instruction type with the same "always keep this position" requirement has an obvious,
+ * co-located place to declare it instead of a sort-side `instanceof` check being the only guard.
+ * A follower (an {@link UnknownMappingItem}, or an instruction with no resolvable field and no fixed
+ * bucket) is not itself a bucket — it inherits the nearest preceding non-follower, non-{@link VariableItem}
+ * sibling's bucket and path instead, so it keeps its authored position without a model change. The
+ * exception is {@link MappingItemOrderBucket.CONTENT_FOLLOWER}, which keeps an instruction's content
+ * from being written ahead of an attribute.
+ */
+export enum MappingItemOrderBucket {
+  /** {@link VariableItem}s, hoisted before all content. */
+  VARIABLE = 'variable',
+  /** An empty copy-of, or an instruction containing only empty copy-ofs — leads even attributes. */
+  LEADING_COPY_OF = 'leadingCopyOf',
+  /** An {@link UnknownMappingItem} follower with no preceding anchor sibling. */
+  FOLLOWER_FLOOR = 'followerFloor',
+  /** A field or instruction resolving an attribute (XTDE0410: attributes must precede content). */
+  ATTRIBUTE = 'attribute',
+  /**
+   * An instruction follower whose anchor sorts at or before the attributes, or that has no anchor. It
+   * resolves no field, so it goes after every attribute field and before any element content (XTDE0410).
+   */
+  CONTENT_FOLLOWER = 'contentFollower',
+  /** A field or instruction resolving an element, ordered by schema position. */
+  ELEMENT = 'element',
+  /** A bare `xsl:value-of`, or a bare copy-of with no resolvable anchor. */
+  NO_FIELD = 'noField',
+  /** An `xsl:when` branch, kept in authored order. */
+  WHEN = 'when',
+  /** `xsl:otherwise`, always last. */
+  OTHERWISE = 'otherwise',
+}
+
+/**
  * Abstract base for every node in the mapping tree.
  * Subclasses represent either data mappings ({@link FieldItem}, {@link ValueOfSelector},
  * {@link CopyOfSelector}) or XSLT instruction elements ({@link InstructionItem} subtypes).
@@ -52,6 +90,8 @@ export abstract class MappingItem {
   mappingTree: MappingTree;
   children: MappingItem[] = [];
   comment?: string;
+  /** See {@link MappingItemOrderBucket}. Unset unless this subclass's output position is constant. */
+  readonly orderBucket?: MappingItemOrderBucket;
   /**
    * {@link NodePath} representing this item's position in the **mapping tree** (XSLT output
    * structure). `xs:choice` is a schema compositor — not an XML element — so choice wrapper
@@ -200,6 +240,7 @@ export class WhenItem extends InstructionItem implements IExpressionHolder {
   constructor(public parent: MappingParentType) {
     super(parent, 'when');
   }
+  readonly orderBucket = MappingItemOrderBucket.WHEN;
   expression = '';
   doClone() {
     return new WhenItem(this.parent);
@@ -216,6 +257,7 @@ export class OtherwiseItem extends InstructionItem {
   constructor(public parent: MappingParentType) {
     super(parent, 'otherwise');
   }
+  readonly orderBucket = MappingItemOrderBucket.OTHERWISE;
   doClone() {
     return new OtherwiseItem(this.parent);
   }
@@ -461,6 +503,7 @@ export class VariableItem extends MappingItem implements IExpressionHolder {
   ) {
     super(parent, name, getCamelRandomId(name, 4));
   }
+  readonly orderBucket = MappingItemOrderBucket.VARIABLE;
   expression = '';
   scope: VariableScope = 'node';
   rawElement?: Element;

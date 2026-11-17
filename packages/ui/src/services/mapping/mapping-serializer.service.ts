@@ -15,14 +15,13 @@ import {
   FieldItem,
   InstructionItem,
   MappingItem,
+  MappingItemOrderBucket,
   MappingParentType,
   MappingTree,
-  OtherwiseItem,
   UnknownMappingItem,
   ValueOfSelector,
   ValueOfType,
   VariableItem,
-  WhenItem,
 } from '../../models/datamapper/mapping';
 import { DeserializeItemResult, DeserializeResult, MappingItemClass } from '../../models/datamapper/serialization';
 import { DEFAULT_DATAMAPPER_SETTINGS, IDataMapperSettings } from '../../models/datamapper/settings';
@@ -32,6 +31,7 @@ import { SendAlertProps } from '../../models/datamapper/visualization';
 import { QName } from '../../xml-schema-ts/QName';
 import { DataMapperSettingsService } from '../datamapper-settings.service';
 import { DocumentUtilService } from '../document/document-util.service';
+import { FieldOrderService } from '../document/field-order.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { FROM_JSON_SOURCE_SUFFIX, JsonSchemaDocument } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
@@ -70,13 +70,35 @@ ${DO_NOT_EDIT_COMMENT}
 
 export const EMPTY_XSL = getEmptyXsl(DocumentDefinitionType.Primitive);
 
+/** Output rank of each {@link MappingItemOrderBucket}, first to last. */
+const ORDER_BUCKET_RANK: MappingItemOrderBucket[] = [
+  MappingItemOrderBucket.VARIABLE,
+  MappingItemOrderBucket.LEADING_COPY_OF,
+  MappingItemOrderBucket.FOLLOWER_FLOOR,
+  MappingItemOrderBucket.ATTRIBUTE,
+  MappingItemOrderBucket.CONTENT_FOLLOWER,
+  MappingItemOrderBucket.ELEMENT,
+  MappingItemOrderBucket.NO_FIELD,
+  MappingItemOrderBucket.WHEN,
+  MappingItemOrderBucket.OTHERWISE,
+];
+
+/** A mapping item's position in {@link MappingSerializerService.sortForSerialization}'s total order. */
+interface SerializationKey {
+  bucket: MappingItemOrderBucket;
+  /** Schema order path (see {@link FieldOrderService.getFieldOrderPath}), populated for `ELEMENT` only. */
+  path: number[];
+}
+
+/** Precomputed {@link SerializationKey} and resolved fields for one mapping item. */
+interface SerializationData {
+  key: SerializationKey;
+  fields: IField[];
+}
+
 export class MappingSerializerService {
   static createNew(targetDefinitionType: DocumentDefinitionType, dataMapperSettings?: IDataMapperSettings) {
     return new DOMParser().parseFromString(getEmptyXsl(targetDefinitionType, dataMapperSettings), 'application/xml');
-  }
-
-  private static sortFields(left: IField, right: IField) {
-    return left.parent.fields.indexOf(left) - right.parent.fields.indexOf(right);
   }
 
   private static getMappingItemFields(item: MappingItem): IField[] {
@@ -91,98 +113,234 @@ export class MappingSerializerService {
   }
 
   /**
-   * Places items matching the predicate before (or, with `position: 'last'`, after) the ones that don't.
-   * @returns 0 when both match, -1 / 1 when only one does, or null when neither does so the caller
-   * can fall through to the next rule.
+   * Sorts `children` for serialization so the result is a total preorder by construction: every item
+   * gets a {@link SerializationKey} from {@link computeSerializationData}, the array is stable-sorted
+   * by that key alone, and {@link moveAnchoredCopyOfsBeforeTheirField} repositions a copy-of relative
+   * to its own anchor `FieldItem` afterward — see that method's doc comment for why that pairing must
+   * not be folded into the comparator itself. Returns a new array; `children` is not mutated.
+   *
+   * This is the XSLT output order only. The canvas orders rows by its own visibility policy in
+   * {@link MappingService.sortMappingItem}, so the two can differ, for example inside an `xsl:for-each`.
    */
-  private static comparePlacement(
-    matches: (item: MappingItem) => boolean,
-    left: MappingItem,
-    right: MappingItem,
-    position: 'first' | 'last' = 'first',
-  ): number | null {
-    const leftMatches = matches(left);
-    const rightMatches = matches(right);
-    if (!leftMatches && !rightMatches) return null;
-    if (leftMatches === rightMatches) return 0;
-    const leftFirst = position === 'first' ? -1 : 1;
-    return leftMatches ? leftFirst : -leftFirst;
+  private static sortForSerialization(children: MappingItem[]): MappingItem[] {
+    const data = MappingSerializerService.computeSerializationData(children);
+    const sorted = [...children].sort((left, right) => {
+      const leftData = data.get(left);
+      const rightData = data.get(right);
+      if (!leftData || !rightData) return 0;
+      return MappingSerializerService.compareSerializationKeys(leftData.key, rightData.key);
+    });
+    return MappingSerializerService.moveAnchoredCopyOfsBeforeTheirField(sorted, data);
   }
 
-  private static compareInstructionItems(left: MappingItem, right: MappingItem): number | null {
-    if (!(left instanceof InstructionItem && right instanceof InstructionItem)) return null;
-
-    // xsl:when/xsl:otherwise branches are mutually exclusive at runtime, so XTDE0410's
-    // attribute-before-content constraint never applies across them, and sorting them by the field
-    // each wraps would silently change which branch xsl:choose's first-match-wins semantics selects.
-    if (
-      left instanceof WhenItem ||
-      left instanceof OtherwiseItem ||
-      right instanceof WhenItem ||
-      right instanceof OtherwiseItem
-    ) {
-      return 0;
+  /**
+   * One forward pass over the authored array, assigning each item a {@link SerializationKey}. A
+   * follower (see {@link isFollower}) takes the key of the nearest preceding sibling that is neither
+   * a follower nor a {@link VariableItem} — variables are hoisted to the front, so anchoring to one
+   * would drag the follower ahead of its authored predecessors. The follower shares that key object by
+   * reference, not a copy: {@link moveAnchoredCopyOfsBeforeTheirField} relies on this identity to move
+   * a copy-of together with its followers. See {@link getFollowerKey} for the exceptions. A follower
+   * given {@link MappingItemOrderBucket.CONTENT_FOLLOWER} becomes the anchor for the followers after it,
+   * which would otherwise take the earlier, lower-ranked anchor and sort ahead of it.
+   */
+  private static computeSerializationData(children: MappingItem[]): Map<MappingItem, SerializationData> {
+    const data = new Map<MappingItem, SerializationData>();
+    let lastAnchorKey: SerializationKey | undefined;
+    for (const item of children) {
+      // A model-declared orderBucket (VariableItem/WhenItem/OtherwiseItem) fixes the key regardless of
+      // resolved fields — skip resolving them at all, since for WhenItem/OtherwiseItem that would
+      // otherwise trigger a real, unused recursive MappingService.getInstructionAnchorFields walk.
+      const fields = item.orderBucket ? [] : MappingSerializerService.getMappingItemFields(item);
+      const follower = MappingSerializerService.isFollower(item, fields);
+      const key: SerializationKey = follower
+        ? MappingSerializerService.getFollowerKey(item, lastAnchorKey)
+        : MappingSerializerService.computeSerializationKey(item, fields);
+      data.set(item, { key, fields });
+      const anchorsLaterFollowers = !follower || key.bucket === MappingItemOrderBucket.CONTENT_FOLLOWER;
+      if (anchorsLaterFollowers && !(item instanceof VariableItem)) {
+        lastAnchorKey = key;
+      }
     }
-
-    // Two instructions normally keep their authored order, but fall through to field comparison
-    // whenever either side resolves a field — including an xsl:attribute, which must still be
-    // emitted before any element content or the transform fails at runtime (XTDE0410);
-    // compareMappingItemFields already prioritizes attribute fields once reached. Neither side
-    // resolving any field is the only case left tied here.
-    const leftFields = MappingSerializerService.getMappingItemFields(left);
-    const rightFields = MappingSerializerService.getMappingItemFields(right);
-    return leftFields.length === 0 && rightFields.length === 0 ? 0 : null;
+    return data;
   }
 
-  private static compareSpecialMappingItems(left: MappingItem, right: MappingItem): number | null {
-    const { comparePlacement } = MappingSerializerService;
-    const isVariable = (item: MappingItem) => item instanceof VariableItem;
-    const isOtherwise = (item: MappingItem) => item instanceof OtherwiseItem;
-    // An empty copy-of has no field to anchor to, so it leads its field's content. Every other
-    // copy-of reaches this comparator only when it can't be tied to a child (1-to-1 ones sit inline
-    // in that child's FieldItem) and keeps falling through to the "no fields" rule, i.e. last.
-    const isLeadingCopyOf = (item: MappingItem) => CopyOfPlacementService.isLeadingCopyOf(item);
-    const involvesUnknown = left instanceof UnknownMappingItem || right instanceof UnknownMappingItem;
-
-    return (
-      comparePlacement(isVariable, left, right) ??
-      comparePlacement(isLeadingCopyOf, left, right) ??
-      (involvesUnknown ? 0 : null) ??
-      comparePlacement(isOtherwise, left, right, 'last') ??
-      MappingSerializerService.compareInstructionItems(left, right)
-    );
+  /**
+   * Whether `item` is a follower: an {@link UnknownMappingItem}, or an instruction that resolves no
+   * field (a `for-each` whose body is only `copy-of`/`value-of`, an empty placeholder loop, an
+   * `xsl:if` holding only a `value-of`). `WhenItem`/`OtherwiseItem` and a leading copy-of instruction
+   * are never followers — they have their own buckets regardless of resolved fields.
+   */
+  private static isFollower(item: MappingItem, fields: IField[]): boolean {
+    if (item.orderBucket) return false;
+    if (item instanceof UnknownMappingItem) return true;
+    if (!(item instanceof InstructionItem)) return false;
+    if (CopyOfPlacementService.isLeadingCopyOf(item)) return false;
+    return fields.length === 0;
   }
 
-  private static compareMappingItemFields(leftFields: IField[], rightFields: IField[]) {
-    if (leftFields.length === 0) return rightFields.length === 0 ? 0 : 1;
-    if (rightFields.length === 0) return -1;
-
-    const leftHasAttribute = MappingSerializerService.hasAttributeField(leftFields);
-    const rightHasAttribute = MappingSerializerService.hasAttributeField(rightFields);
-
-    if (leftHasAttribute !== rightHasAttribute) return leftHasAttribute ? -1 : 1;
-    if (leftHasAttribute && rightHasAttribute) return 0;
-
-    const leftFirst = [...leftFields].sort(MappingSerializerService.sortFields)[0];
-    const rightFirst = [...rightFields].sort(MappingSerializerService.sortFields)[0];
-    return leftFirst.parent.fields.indexOf(leftFirst) - rightFirst.parent.fields.indexOf(rightFirst);
+  /**
+   * An {@link UnknownMappingItem} can output anything, attributes included, so it keeps its authored
+   * position: it shares `anchorKey`, or takes {@link MappingItemOrderBucket.FOLLOWER_FLOOR} (after
+   * variables, before attributes) when there is no anchor yet. An instruction follower resolves no field,
+   * so none of the attributes it may write is known here. Placing it at or before the attributes would
+   * let an attribute field be written after its content and fail the transform with XTDE0410, so it takes
+   * {@link MappingItemOrderBucket.CONTENT_FOLLOWER} instead whenever its anchor sorts there: after every
+   * attribute and before every element and other content. An instruction that does write attributes,
+   * for example through an attribute-returning copy-of, is not classified here (#4285).
+   */
+  private static getFollowerKey(item: MappingItem, anchorKey: SerializationKey | undefined): SerializationKey {
+    if (item instanceof InstructionItem && MappingSerializerService.sortsAtOrBeforeAttributes(anchorKey)) {
+      return { bucket: MappingItemOrderBucket.CONTENT_FOLLOWER, path: [] };
+    }
+    return anchorKey ?? { bucket: MappingItemOrderBucket.FOLLOWER_FLOOR, path: [] };
   }
 
-  private static sortMappingItem(left: MappingItem, right: MappingItem) {
-    const specialComparison = MappingSerializerService.compareSpecialMappingItems(left, right);
-    if (specialComparison !== null) return specialComparison;
+  private static sortsAtOrBeforeAttributes(key: SerializationKey | undefined): boolean {
+    return !key || ORDER_BUCKET_RANK.indexOf(key.bucket) <= ORDER_BUCKET_RANK.indexOf(MappingItemOrderBucket.ATTRIBUTE);
+  }
 
-    const leftFields = MappingSerializerService.getMappingItemFields(left);
-    const rightFields = MappingSerializerService.getMappingItemFields(right);
+  private static computeSerializationKey(item: MappingItem, fields: IField[]): SerializationKey {
+    const bucket = MappingSerializerService.getMappingItemOrderBucket(item, fields);
+    const path = bucket === MappingItemOrderBucket.ELEMENT ? MappingSerializerService.getElementOrderPath(fields) : [];
+    return { bucket, path };
+  }
 
-    const byFields = MappingSerializerService.compareMappingItemFields(leftFields, rightFields);
-    if (byFields !== 0) return byFields;
-    // A copy-of anchored on the same first field as a field item comes first: it brings the container
-    // the field item would otherwise be written into. The canvas renders them in the same order. Only
-    // apply this when both sides actually share that anchor — compareMappingItemFields also ties when
-    // neither side resolves any field, which isn't a shared anchor and must keep authored order.
-    if (leftFields.length === 0 || rightFields.length === 0) return 0;
-    return Number(right instanceof CopyOfSelector) - Number(left instanceof CopyOfSelector);
+  /**
+   * Classifies a non-follower item, first match wins. A model-declared {@link MappingItem.orderBucket}
+   * (set by {@link VariableItem}, {@link WhenItem}, {@link OtherwiseItem}) always wins — `xsl:choose`
+   * branch order, for instance, must stay authored regardless of what a branch wraps, even though
+   * `WhenItem`/`OtherwiseItem` are {@link InstructionItem}s and resolve fields like any other
+   * instruction. `isLeadingCopyOf` is tested right after because it outranks even the attribute rule:
+   * an empty copy-of (or an instruction wrapping only empty copy-ofs) leads its field's content,
+   * calling {@link CopyOfPlacementService} directly rather than re-deriving the rule.
+   */
+  private static getMappingItemOrderBucket(item: MappingItem, fields: IField[]): MappingItemOrderBucket {
+    if (item.orderBucket) return item.orderBucket;
+    if (CopyOfPlacementService.isLeadingCopyOf(item)) return MappingItemOrderBucket.LEADING_COPY_OF;
+    if (MappingSerializerService.hasAttributeField(fields)) return MappingItemOrderBucket.ATTRIBUTE;
+    if (fields.length > 0) return MappingItemOrderBucket.ELEMENT;
+    return MappingItemOrderBucket.NO_FIELD;
+  }
+
+  /**
+   * The minimum schema order path over `fields` (an instruction can resolve more than one, e.g. a
+   * multi-field `xsl:choose`), each truncated at its outermost repeating wrapper below the element it
+   * is written into — see {@link truncateAtRepeatingWrapper}.
+   */
+  private static getElementOrderPath(fields: IField[]): number[] {
+    let min: number[] | null = null;
+    for (const field of fields) {
+      const truncated = MappingSerializerService.truncateAtRepeatingWrapper(
+        FieldOrderService.getFieldOrderPath(field),
+        field,
+      );
+      if (min === null || FieldOrderService.compareOrderPaths(truncated, min) < 0) min = truncated;
+    }
+    return min ?? [];
+  }
+
+  /**
+   * Drops every path segment deeper than the outermost repeating wrapper (`choice`, `abstract`, a
+   * `sequence` inside a choice, with `maxOccurs` other than one) between `field` and the element it is
+   * written into, so members of that wrapper tie on path and keep authored order — preserving a valid
+   * interleaving such as `(A,B)(C,D)(A,B)` instead of regrouping it by schema index. Wrappers above
+   * that element are ignored: they repeat the element as a whole, not the order of its children, so
+   * the children of one repeated `Email` still sort by schema position. This purposely does not reuse
+   * {@link DocumentService.isRepeating} / {@link DocumentService.getEnclosingCollectionCompositor}:
+   * those answer "is this a UI collection" for the canvas and exclude `abstract` wrappers, while this
+   * answers a narrower structural question — can two members legitimately interleave — true for a
+   * repeating `abstract` wrapper too, since any of its substitution-group members can recur in any
+   * order. A plain `xs:sequence maxOccurs>1` is flattened into its parent without a wrapper
+   * (`populateGroupParticle`) and so cannot be detected here; that case is out of scope (#3913, #3914, #3915).
+   */
+  private static truncateAtRepeatingWrapper(path: number[], field: IField): number[] {
+    const ancestors = MappingSerializerService.getAncestorChain(field);
+    let cut = path.length;
+    for (let i = ancestors.length - 2; i >= 0 && ancestors[i].wrapperKind !== undefined; i--) {
+      if (MappingSerializerService.isRepeatingOrderWrapper(ancestors[i])) cut = i + 1;
+    }
+    return path.slice(0, cut);
+  }
+
+  /** `field`'s ancestor chain, root-to-leaf, aligned index-for-index with {@link FieldOrderService.getFieldOrderPath}'s result. */
+  private static getAncestorChain(field: IField): IField[] {
+    const chain: IField[] = [];
+    let current: IField = field;
+    while (current.parent && 'fields' in current.parent) {
+      chain.unshift(current);
+      if (!('parent' in current.parent) || current.parent === current) break;
+      current = current.parent as IField;
+    }
+    return chain;
+  }
+
+  /** `maxOccurs === 0` is a degenerate case with no real-world schema instance expected; treating it as repeating is harmless. */
+  private static isRepeatingOrderWrapper(field: IField): boolean {
+    return field.wrapperKind !== undefined && field.maxOccurs !== 1;
+  }
+
+  /**
+   * A pure function of the two keys alone — bucket rank, then schema path within `ELEMENT` — so this
+   * is a transitive total preorder by construction. The copy-of/anchor-`FieldItem` pairing is
+   * deliberately not a tie-break here: checked by field identity on the two compared items, it would be
+   * relational (its answer depends on *which pair* is being compared, not on each item's own key), which
+   * makes a comparator inconsistent whenever three or more items tie on path — e.g. a copy-of and
+   * a `FieldItem` sharing one repeating-wrapper member's anchor, alongside a third item anchored on a
+   * *different* member of the same wrapper (same truncated path, no shared anchor): that pairing is
+   * strict while both the copy-of and the `FieldItem` individually tie with the third item, violating
+   * transitivity of indifference. See {@link moveAnchoredCopyOfsBeforeTheirField} for where that
+   * pairing is applied instead, as a non-relational post-sort pass.
+   */
+  private static compareSerializationKeys(leftKey: SerializationKey, rightKey: SerializationKey): number {
+    if (leftKey.bucket !== rightKey.bucket) {
+      return ORDER_BUCKET_RANK.indexOf(leftKey.bucket) - ORDER_BUCKET_RANK.indexOf(rightKey.bucket);
+    }
+    if (leftKey.bucket !== MappingItemOrderBucket.ELEMENT) return 0;
+    return FieldOrderService.compareOrderPaths(leftKey.path, rightKey.path);
+  }
+
+  /**
+   * Moves a copy-of immediately before the sibling `FieldItem` mapped to its earliest anchor field — it
+   * brings the container that `FieldItem` would otherwise be written into, and the canvas renders them
+   * in the same order. Only the earliest anchor counts: a copy-of naming several fields is written where
+   * the earliest of them sits (#4389), so pairing it with a later field's `FieldItem` would pull it past
+   * the siblings in between. A post-sort pass rather than a comparator tie-break (see
+   * {@link compareSerializationKeys}): it only ever repositions a copy-of relative to its own specific
+   * anchor `FieldItem`, never reordering two `FieldItem`s relative to each other, so it cannot
+   * introduce the inconsistency a pairwise comparator tie-break could. Followers anchored on the
+   * copy-of (they share its key object, see {@link computeSerializationData}) move with it as one
+   * block, so none of them ends up ahead of the copy-of it was authored after.
+   */
+  private static moveAnchoredCopyOfsBeforeTheirField(
+    sorted: MappingItem[],
+    data: Map<MappingItem, SerializationData>,
+  ): MappingItem[] {
+    const result = [...sorted];
+    for (const item of sorted) {
+      if (!(item instanceof CopyOfSelector)) continue;
+      const earliestAnchor = MappingSerializerService.getEarliestField(data.get(item)?.fields ?? []);
+      const target = result.find(
+        (candidate): candidate is FieldItem => candidate instanceof FieldItem && candidate.field === earliestAnchor,
+      );
+      const itemKey = data.get(item)?.key;
+      if (!target || !itemKey) continue;
+      const itemIndex = result.indexOf(item);
+      let blockEnd = itemIndex + 1;
+      while (blockEnd < result.length && data.get(result[blockEnd])?.key === itemKey) blockEnd++;
+      if (blockEnd === result.indexOf(target)) continue;
+      const block = result.splice(itemIndex, blockEnd - itemIndex);
+      result.splice(result.indexOf(target), 0, ...block);
+    }
+    return result;
+  }
+
+  private static getEarliestField(fields: IField[]): IField | undefined {
+    let earliest: { field: IField; path: number[] } | undefined;
+    for (const field of fields) {
+      const path = FieldOrderService.getFieldOrderPath(field);
+      if (!earliest || FieldOrderService.compareOrderPaths(path, earliest.path) < 0) earliest = { field, path };
+    }
+    return earliest?.field;
   }
 
   /**
@@ -210,9 +368,9 @@ export class MappingSerializerService {
     MappingSerializerService.populateStylesheetVariables(xslt, mappings);
     const root = MappingSerializerService.populateMappingRoot(xslt, mappings);
     MappingSerializerService.populateTemplateVariables(root, mappings);
-    [...mappings.children].sort(MappingSerializerService.sortMappingItem).forEach((mapping) => {
+    for (const mapping of MappingSerializerService.sortForSerialization(mappings.children)) {
       MappingSerializerService.populateMapping(root, mapping);
-    });
+    }
     return xmlFormat(new XMLSerializer().serializeToString(xslt));
   }
 
@@ -349,7 +507,7 @@ export class MappingSerializerService {
       return;
     }
 
-    for (const childItem of [...mapping.children].sort(MappingSerializerService.sortMappingItem)) {
+    for (const childItem of MappingSerializerService.sortForSerialization(mapping.children)) {
       MappingSerializerService.populateMapping(child, childItem);
     }
   }

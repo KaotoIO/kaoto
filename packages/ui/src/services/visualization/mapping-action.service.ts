@@ -36,6 +36,7 @@ import {
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { DocumentService } from '../document/document.service';
+import { FieldOrderService } from '../document/field-order.service';
 import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { FieldMatchingService } from '../mapping/field-matching.service';
 import { MappingService } from '../mapping/mapping.service';
@@ -781,12 +782,12 @@ export class MappingActionService {
    * later sibling is found the loop is appended.
    */
   private static insertInTargetOrder(parent: MappingParentType, newItem: ForEachItem, targetField: IField) {
-    const newPath = MappingActionService.getFieldOrderPath(targetField);
+    const newPath = FieldOrderService.getFieldOrderPath(targetField);
     const index = parent.children.findIndex((sibling) => {
       const siblingField = MappingActionService.getFirstTargetField(sibling);
       return (
         !!siblingField &&
-        MappingActionService.compareOrderPaths(MappingActionService.getFieldOrderPath(siblingField), newPath) > 0
+        FieldOrderService.compareOrderPaths(FieldOrderService.getFieldOrderPath(siblingField), newPath) > 0
       );
     });
     if (index === -1) parent.children.push(newItem);
@@ -801,25 +802,6 @@ export class MappingActionService {
       if (field) return field;
     }
     return undefined;
-  }
-
-  /** Index of the field within each ancestor's `fields`, from the document root down. */
-  private static getFieldOrderPath(field: IField): number[] {
-    const path: number[] = [];
-    let current: IField = field;
-    while (current.parent?.fields) {
-      path.unshift(current.parent.fields.indexOf(current));
-      if (!('parent' in current.parent) || current.parent === current) break;
-      current = current.parent as IField;
-    }
-    return path;
-  }
-
-  private static compareOrderPaths(a: number[], b: number[]): number {
-    for (let i = 0; i < Math.min(a.length, b.length); i++) {
-      if (a[i] !== b[i]) return a[i] - b[i];
-    }
-    return a.length - b.length;
   }
 
   /** @returns whether a new `ChooseItem` was created (`false` if one already existed — a no-op). */
