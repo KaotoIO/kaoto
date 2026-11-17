@@ -12,7 +12,7 @@ describe('Tests for sidebar loadBalancer step configuration', () => {
     cy.selectFormTab('All');
 
     cy.get('[data-testid="#__oneof-list"]').click();
-    cy.get('.cds--list-box__menu').contains('Round Robin Load Balancer').first().click();
+    cy.get('.cds--list-box__menu').contains('.cds--list-box__menu-item', 'Round Robin Load Balancer').click();
 
     cy.interactWithConfigInputObject('roundRobinLoadBalancer.id', 'roundRobinId');
     cy.interactWithConfigInputObject('id', 'testId');
