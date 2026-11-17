@@ -174,7 +174,9 @@ describe('DebugLayout', () => {
       expect(modal).toBeTruthy();
       const closeModalButton = screen.getByTestId('dm-debug-export-mappings-modal-close-btn');
       fireEvent.click(closeModalButton);
-      expect(screen.queryByTestId('dm-debug-export-mappings-modal')).toBeFalsy();
+      await waitFor(() => {
+        expect(screen.queryByTestId('dm-debug-export-mappings-modal')).not.toBeInTheDocument();
+      });
       const connectionPortsLog = mockDebug.mock.calls.filter((call) => call[0].startsWith('Connection Ports: ['));
       expect(connectionPortsLog.length).toBeGreaterThan(0);
     }, 15000);

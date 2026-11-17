@@ -31,8 +31,8 @@
   "devDependencies": {
     "@cypress/grep": "^7.0.0",
     "@eslint/js": "^9.10.0",
-    "@patternfly/patternfly": "^6.6.1",
-    "@patternfly/react-core": "6.6.1",
+    "@patternfly/patternfly": "^6.7.0",
+    "@patternfly/react-core": "6.7.0",
     "@storybook/addon-docs": "^10.6.1",
     "@storybook/addon-links": "^10.6.1",
     "@storybook/react": "^10.6.1",

@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { DocumentDefinitionType, DocumentInitializationModel, DocumentType } from '../../../../models/datamapper';
@@ -114,7 +114,9 @@ describe('DataMapperSettingsButton', () => {
         cancelButton.click();
       });
 
-      expect(screen.queryByTestId('datamapper-settings-modal')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('datamapper-settings-modal')).not.toBeInTheDocument();
+      });
     });
 
     it('should close modal when save button is clicked', async () => {
@@ -136,7 +138,9 @@ describe('DataMapperSettingsButton', () => {
         saveButton.click();
       });
 
-      expect(screen.queryByTestId('datamapper-settings-modal')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('datamapper-settings-modal')).not.toBeInTheDocument();
+      });
     });
 
     it('should close modal when close button is clicked', async () => {
@@ -158,7 +162,9 @@ describe('DataMapperSettingsButton', () => {
         closeButton.click();
       });
 
-      expect(screen.queryByTestId('datamapper-settings-modal')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('datamapper-settings-modal')).not.toBeInTheDocument();
+      });
     });
 
     it('should be able to reopen modal after closing', async () => {
@@ -178,7 +184,9 @@ describe('DataMapperSettingsButton', () => {
       act(() => {
         cancelButton.click();
       });
-      expect(screen.queryByTestId('datamapper-settings-modal')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.queryByTestId('datamapper-settings-modal')).not.toBeInTheDocument();
+      });
 
       // Reopen modal
       act(() => {

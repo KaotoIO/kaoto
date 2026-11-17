@@ -4,7 +4,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { MappingTree } from '../../models/datamapper/mapping';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
-import { firePrimaryPointerDown } from '../dnd-test-helpers';
+import { firePointerMove, firePrimaryPointerDown } from '../dnd-test-helpers';
 import { createDataMapperContext, createDataMapperContextWrapper } from './data-mapper-context';
 
 /**
@@ -21,9 +21,13 @@ export const createSortModalWrapper = (mappingTree: MappingTree): FunctionCompon
   return SortModalWrapper;
 };
 
-/** Starts a real pointer drag on the `DragDropSort` drag handle at the given index. */
+/**
+ * Starts a real pointer drag on the `DragDropSort` drag handle at the given index. The `PointerSensor` of
+ * `DragDropSort` only activates once the pointer moved 8px, so the pointer is moved past that distance.
+ */
 export const startSortKeyDrag = (index: number) => {
   firePrimaryPointerDown(screen.getAllByRole('button', { name: 'Drag button' })[index]);
+  firePointerMove(10, 0);
 };
 
 /**

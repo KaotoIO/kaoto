@@ -13,6 +13,9 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
     >
       <div
         class="pf-v6-c-drawer pf-m-inline"
+        data-ouia-component-id="OUIA-Generated-Drawer-_r_ID_"
+        data-ouia-component-type="PF6/Drawer"
+        data-ouia-safe="true"
       >
         <div
           class="pf-v6-c-drawer__main"
@@ -52,9 +55,11 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                       >
                         <g
                           data-layer-id="bottom"
+                          tabindex="-1"
                         />
                         <g
                           data-layer-id="groups"
+                          tabindex="-1"
                         >
                           <g
                             data-id="route-8888|route"
@@ -287,6 +292,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                         </g>
                         <g
                           data-layer-id="default"
+                          tabindex="-1"
                         >
                           <g
                             data-id="route-8888|route.from >>> route.from.steps.0.set-header"
@@ -799,6 +805,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                         </g>
                         <g
                           data-layer-id="top"
+                          tabindex="-1"
                         />
                       </g>
                     </g>
@@ -1060,6 +1067,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
             class="pf-v6-c-drawer__panel pf-m-resizable"
             hidden=""
             id="topology-resize-panel"
+            inert=""
             style="--pf-v6-c-drawer__panel--md--FlexBasis: 500px; --pf-v6-c-drawer__panel--md--FlexBasis--min: 210px; --pf-v6-c-drawer__panel--md--FlexBasis--max: 100%;"
           />
         </div>
@@ -1082,6 +1090,9 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
     >
       <div
         class="pf-v6-c-drawer pf-m-inline"
+        data-ouia-component-id="OUIA-Generated-Drawer-_r_ID_"
+        data-ouia-component-type="PF6/Drawer"
+        data-ouia-safe="true"
       >
         <div
           class="pf-v6-c-drawer__main"
@@ -1121,9 +1132,11 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                       >
                         <g
                           data-layer-id="bottom"
+                          tabindex="-1"
                         />
                         <g
                           data-layer-id="groups"
+                          tabindex="-1"
                         >
                           <g
                             data-id="route-8888|route"
@@ -1356,6 +1369,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                         </g>
                         <g
                           data-layer-id="default"
+                          tabindex="-1"
                         >
                           <g
                             data-id="route-8888|route.from >>> route.from.steps.0.set-header"
@@ -1868,6 +1882,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                         </g>
                         <g
                           data-layer-id="top"
+                          tabindex="-1"
                         />
                       </g>
                     </g>
@@ -2178,6 +2193,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
             class="pf-v6-c-drawer__panel pf-m-resizable"
             hidden=""
             id="topology-resize-panel"
+            inert=""
             style="--pf-v6-c-drawer__panel--md--FlexBasis: 500px; --pf-v6-c-drawer__panel--md--FlexBasis--min: 210px; --pf-v6-c-drawer__panel--md--FlexBasis--max: 100%;"
           />
         </div>
@@ -2200,6 +2216,9 @@ exports[`Canvas > should render correctly 1`] = `
     >
       <div
         class="pf-v6-c-drawer pf-m-inline"
+        data-ouia-component-id="OUIA-Generated-Drawer-_r_ID_"
+        data-ouia-component-type="PF6/Drawer"
+        data-ouia-safe="true"
       >
         <div
           class="pf-v6-c-drawer__main"
@@ -2239,9 +2258,11 @@ exports[`Canvas > should render correctly 1`] = `
                       >
                         <g
                           data-layer-id="bottom"
+                          tabindex="-1"
                         />
                         <g
                           data-layer-id="groups"
+                          tabindex="-1"
                         >
                           <g
                             data-id="route-8888|route"
@@ -2474,6 +2495,7 @@ exports[`Canvas > should render correctly 1`] = `
                         </g>
                         <g
                           data-layer-id="default"
+                          tabindex="-1"
                         >
                           <g
                             data-id="route-8888|route.from >>> route.from.steps.0.set-header"
@@ -2986,6 +3008,7 @@ exports[`Canvas > should render correctly 1`] = `
                         </g>
                         <g
                           data-layer-id="top"
+                          tabindex="-1"
                         />
                       </g>
                     </g>
@@ -3247,6 +3270,7 @@ exports[`Canvas > should render correctly 1`] = `
             class="pf-v6-c-drawer__panel pf-m-resizable"
             hidden=""
             id="topology-resize-panel"
+            inert=""
             style="--pf-v6-c-drawer__panel--md--FlexBasis: 500px; --pf-v6-c-drawer__panel--md--FlexBasis--min: 210px; --pf-v6-c-drawer__panel--md--FlexBasis--max: 100%;"
           />
         </div>

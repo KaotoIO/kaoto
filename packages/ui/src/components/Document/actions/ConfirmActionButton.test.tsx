@@ -1,5 +1,5 @@
 import { TrashCan } from '@carbon/icons-react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { ConfirmActionButton } from './ConfirmActionButton';
 
@@ -44,7 +44,7 @@ describe('ConfirmActionButton', () => {
     expect(screen.getByText('Are you sure you want to delete this item?')).toBeInTheDocument();
   });
 
-  it('should call onConfirm and close modal when confirm button is clicked', () => {
+  it('should call onConfirm and close modal when confirm button is clicked', async () => {
     const onConfirm = vi.fn();
     render(<ConfirmActionButton {...defaultProps} onConfirm={onConfirm} />);
 
@@ -52,10 +52,12 @@ describe('ConfirmActionButton', () => {
     fireEvent.click(screen.getByTestId('delete-item-modal-confirm-btn'));
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
-    expect(screen.queryByTestId('delete-item-modal')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('delete-item-modal')).not.toBeInTheDocument();
+    });
   });
 
-  it('should close modal without calling onConfirm when cancel button is clicked', () => {
+  it('should close modal without calling onConfirm when cancel button is clicked', async () => {
     const onConfirm = vi.fn();
     render(<ConfirmActionButton {...defaultProps} onConfirm={onConfirm} />);
 
@@ -63,7 +65,9 @@ describe('ConfirmActionButton', () => {
     fireEvent.click(screen.getByTestId('delete-item-modal-cancel-btn'));
 
     expect(onConfirm).not.toHaveBeenCalled();
-    expect(screen.queryByTestId('delete-item-modal')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByTestId('delete-item-modal')).not.toBeInTheDocument();
+    });
   });
 
   it('should render JSX description in modal body', () => {

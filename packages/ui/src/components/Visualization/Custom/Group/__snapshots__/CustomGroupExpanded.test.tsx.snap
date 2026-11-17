@@ -5,15 +5,19 @@ exports[`CustomGroupExpanded > should return null when element has no vizNode in
   <svg>
     <g
       data-layer-id="bottom"
+      tabindex="-1"
     />
     <g
       data-layer-id="groups"
+      tabindex="-1"
     />
     <g
       data-layer-id="default"
+      tabindex="-1"
     />
     <g
       data-layer-id="top"
+      tabindex="-1"
     />
   </svg>
 </div>
