@@ -1,5 +1,5 @@
 /** The starter templates of `@kaoto/camel-catalog` that kaoto-web creates files from */
-export type StarterTemplateName = 'camel-route-yaml' | 'kamelet-source-yaml' | 'pipe-yaml';
+export type StarterTemplateName = 'camel-route-yaml' | 'camel-route-xml' | 'kamelet-source-yaml' | 'citrus-yaml';
 
 const ID_PLACEHOLDER = /__KAOTO_ID__/g;
 /** The `metadata.name` of a Kamelet or a Pipe, which Camel expects to match the file name */

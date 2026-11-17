@@ -85,17 +85,17 @@ describe('fetchStarterTemplate', () => {
   it('follows the catalog index and the templates manifest to the template file', async () => {
     serve('/camel-catalog/index.json', { starterTemplates: 'starter-templates/index-1.json' });
     serve('/camel-catalog/starter-templates/index-1.json', {
-      catalogs: { 'pipe-yaml': { file: 'pipe-pipe-2.yaml' } },
+      catalogs: { 'citrus-yaml': { file: 'citrus-test-citrus-2.yaml' } },
     });
-    serve('/camel-catalog/starter-templates/pipe-pipe-2.yaml', 'kind: Pipe\n');
+    serve('/camel-catalog/starter-templates/citrus-test-citrus-2.yaml', 'name: test\n');
 
-    expect(await fetchStarterTemplate('/camel-catalog/index.json', 'pipe-yaml')).toBe('kind: Pipe\n');
+    expect(await fetchStarterTemplate('/camel-catalog/index.json', 'citrus-yaml')).toBe('name: test\n');
   });
 
   it('rejects when the catalog has no starter templates', async () => {
     serve('/camel-catalog/index.json', {});
 
-    await expect(fetchStarterTemplate('/camel-catalog/index.json', 'pipe-yaml')).rejects.toThrow(
+    await expect(fetchStarterTemplate('/camel-catalog/index.json', 'citrus-yaml')).rejects.toThrow(
       'The catalog has no starter templates',
     );
   });
@@ -104,28 +104,28 @@ describe('fetchStarterTemplate', () => {
     serve('/camel-catalog/index.json', { starterTemplates: 'starter-templates/index-1.json' });
     serve('/camel-catalog/starter-templates/index-1.json', { catalogs: {} });
 
-    await expect(fetchStarterTemplate('/camel-catalog/index.json', 'pipe-yaml')).rejects.toThrow(
-      'The catalog has no starter template pipe-yaml',
+    await expect(fetchStarterTemplate('/camel-catalog/index.json', 'citrus-yaml')).rejects.toThrow(
+      'The catalog has no starter template citrus-yaml',
     );
   });
 
   it('rejects when the server answers with the page of the app', async () => {
     serve('/camel-catalog/index.json', { starterTemplates: 'starter-templates/index-1.json' });
     serve('/camel-catalog/starter-templates/index-1.json', {
-      catalogs: { 'pipe-yaml': { file: 'pipe-pipe-2.yaml' } },
+      catalogs: { 'citrus-yaml': { file: 'citrus-test-citrus-2.yaml' } },
     });
     responses.set(
-      new URL('/camel-catalog/starter-templates/pipe-pipe-2.yaml', globalThis.location.href).href,
+      new URL('/camel-catalog/starter-templates/citrus-test-citrus-2.yaml', globalThis.location.href).href,
       new Response('<!doctype html>', { headers: { 'content-type': 'text/html' } }),
     );
 
-    await expect(fetchStarterTemplate('/camel-catalog/index.json', 'pipe-yaml')).rejects.toThrow(
-      'Could not load /camel-catalog/starter-templates/pipe-pipe-2.yaml (not found)',
+    await expect(fetchStarterTemplate('/camel-catalog/index.json', 'citrus-yaml')).rejects.toThrow(
+      'Could not load /camel-catalog/starter-templates/citrus-test-citrus-2.yaml (not found)',
     );
   });
 
   it('rejects when a file cannot be loaded', async () => {
-    await expect(fetchStarterTemplate('/camel-catalog/index.json', 'pipe-yaml')).rejects.toThrow(
+    await expect(fetchStarterTemplate('/camel-catalog/index.json', 'citrus-yaml')).rejects.toThrow(
       'Could not load /camel-catalog/index.json (404)',
     );
   });

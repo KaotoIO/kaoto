@@ -1,0 +1,80 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+
+.cs--create-file-modal {
+  // Wide enough for two type tiles side by side with their descriptions on two lines
+  .cds--modal-container {
+    inline-size: min(40rem, 100%);
+  }
+
+  &__types {
+    legend {
+      @include type-style('heading-compact-01');
+
+      text-transform: uppercase;
+      color: $text-secondary;
+      margin-block-end: $spacing-04;
+    }
+
+    // TileGroup wraps the tiles in a div
+    > div {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: $spacing-03;
+    }
+  }
+
+  &__type {
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  &__type-content {
+    display: flex;
+    gap: $spacing-04;
+
+    // Leave room for the selection indicator in the top right corner of the tile
+    padding-inline-end: $spacing-06;
+  }
+
+  &__type-icon {
+    flex: none;
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+
+    &--camel-route-yaml {
+      fill: $support-info;
+    }
+
+    &--camel-route-xml {
+      fill: $link-visited;
+    }
+
+    &--kamelet {
+      fill: $support-error;
+    }
+
+    &--citrus-test {
+      fill: $support-warning;
+    }
+  }
+
+  &__type-text {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-02;
+  }
+
+  &__type-label {
+    @include type-style('heading-compact-01');
+
+    color: $text-primary;
+  }
+
+  &__type-description {
+    @include type-style('body-compact-01');
+
+    color: $text-secondary;
+  }
+}
