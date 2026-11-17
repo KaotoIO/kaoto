@@ -111,7 +111,7 @@ describe('Explorer', () => {
     renderComponent();
 
     expect(await screen.findByTestId('explorer-empty')).toHaveTextContent('No files yet');
-    expect(screen.getAllByRole('button', { name: 'Create a file' })).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Create…' })).toBeInTheDocument();
     expect(screen.queryByRole('tree')).not.toBeInTheDocument();
   });
 
@@ -179,13 +179,16 @@ describe('Explorer', () => {
     expect(screen.getByTestId('explorer-folder-resources')).toBeInTheDocument();
   });
 
-  it('opens the Create New File modal from the toolbar and closes it on Cancel', async () => {
+  it.each([
+    ['the toolbar', 'Create a file'],
+    ['the empty state', 'Create…'],
+  ])('opens the Create New File modal from %s and closes it on Cancel', async (_label, buttonName) => {
     resetTestIndexedDB();
     const user = userEvent.setup();
     renderComponent();
     await screen.findByTestId('explorer-empty');
 
-    await user.click(screen.getByRole('button', { name: 'Create a file' }));
+    await user.click(screen.getByRole('button', { name: buttonName }));
     expect(screen.getByRole('heading', { name: 'Create New File' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));

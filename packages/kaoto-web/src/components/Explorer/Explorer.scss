@@ -71,6 +71,11 @@
 }
 
 .cs--explorer__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-03;
   padding: $spacing-05;
   color: $text-secondary;
 }
