@@ -63,7 +63,7 @@ describe('resolveStarterTemplate', () => {
   });
 
   it('does not rename a nested name', () => {
-    const resolved = resolveStarterTemplate('spec:\n  ref:\n    name: ref-__KAOTO_ID__\n', 'a.pipe.yaml');
+    const resolved = resolveStarterTemplate('spec:\n  ref:\n    name: ref-__KAOTO_ID__\n', 'a.kamelet.yaml');
 
     expect(resolved).not.toContain('name: a\n');
     expect(resolved).toMatch(/name: ref-\d{4}/);

@@ -1,6 +1,5 @@
 import './CreateFileModal.scss';
 
-import { Chemistry, Cube, DocumentConfiguration, Xml } from '@carbon/icons-react';
 import {
   Button,
   ComposedModal,
@@ -14,61 +13,14 @@ import {
   TextInput,
   TileGroup,
 } from '@carbon/react';
-import { ComponentType, FunctionComponent, SyntheticEvent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { CATALOG_URL } from '../../catalog-url';
 import { useFiles } from '../../hooks/useFiles';
 import { buildFilePath } from '../../services/files/file-path';
-import {
-  fetchStarterTemplate,
-  resolveStarterTemplate,
-  StarterTemplateName,
-} from '../../services/templates/starter-templates';
-
-interface FileKind {
-  id: string;
-  label: string;
-  description: string;
-  icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
-  extension: string;
-  template: StarterTemplateName;
-}
-
-const FILE_KINDS: FileKind[] = [
-  {
-    id: 'camel-route-yaml',
-    label: 'Camel Route YAML',
-    description: 'Define an Apache Camel integration route using YAML DSL',
-    icon: DocumentConfiguration,
-    extension: '.camel.yaml',
-    template: 'camel-route-yaml',
-  },
-  {
-    id: 'camel-route-xml',
-    label: 'Camel Route XML',
-    description: 'Define an Apache Camel integration route using XML DSL',
-    icon: Xml,
-    extension: '.camel.xml',
-    template: 'camel-route-xml',
-  },
-  {
-    id: 'kamelet',
-    label: 'Kamelet',
-    description: 'Reusable Camel route template with a well-defined interface',
-    icon: Cube,
-    extension: '.kamelet.yaml',
-    template: 'kamelet-source-yaml',
-  },
-  {
-    id: 'citrus-test',
-    label: 'Citrus Test',
-    description: 'Integration test using the Citrus testing framework',
-    icon: Chemistry,
-    extension: '.citrus.yaml',
-    template: 'citrus-yaml',
-  },
-];
+import { fetchStarterTemplate, resolveStarterTemplate } from '../../services/templates/starter-templates';
+import { FILE_KINDS, FileKind } from './file-kinds';
 
 const FORM_ID = 'cs--create-file-form';
 
@@ -92,12 +44,13 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
   /** Set once the modal is closed or unmounted, so that a creation still in progress stops */
   const closedRef = useRef(false);
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    // StrictMode runs the effect, its cleanup and the effect again, so the flag is reset on every run
+    closedRef.current = false;
+    return () => {
       closedRef.current = true;
-    },
-    [],
-  );
+    };
+  }, []);
 
   const close = () => {
     closedRef.current = true;
@@ -121,6 +74,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
       if (closedRef.current) return;
       const fileName = path.split('/').pop()!;
       const created = await createFile({ path, content: resolveStarterTemplate(template, fileName) });
+      // Cancelled while storing: the file is kept, it is already in the store and shows in the Explorer
       if (closedRef.current) return;
       close();
       void navigate(`/workspace/file/${created.id}`);
@@ -173,6 +127,8 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
               legend="File type"
               name="file-type"
               className="cds--tile-group cs--create-file-modal__types"
+              // The file is created with the values from the moment Create File was pressed
+              disabled={creating}
               valueSelected={kind?.id}
               onChange={(value) => {
                 setKind(FILE_KINDS.find((candidate) => candidate.id === value));
@@ -205,7 +161,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
               id="cs--create-file-name"
               labelText="File name"
               placeholder={kind ? `e.g. orders${kind.extension}` : 'Select a file type first'}
-              disabled={!kind}
+              disabled={!kind || creating}
               value={name}
               onChange={(event) => {
                 setName(event.target.value);
@@ -219,7 +175,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
               id="cs--create-file-folder"
               labelText="Folder path (optional)"
               placeholder="e.g. routes/subdir/"
-              disabled={!kind}
+              disabled={!kind || creating}
               value={folder}
               onChange={(event) => {
                 setFolder(event.target.value);

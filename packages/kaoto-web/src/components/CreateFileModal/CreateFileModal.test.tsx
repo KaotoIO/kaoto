@@ -1,5 +1,6 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { StrictMode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 
 import { filesStore } from '../../services/files/files.store';
@@ -40,18 +41,21 @@ const onClose = vi.fn();
 
 const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
 
+/** Renders the modal in StrictMode, as the app does, so that effects run, clean up and run again */
 const renderModal = () =>
   render(
-    <MemoryRouter initialEntries={['/workspace']}>
-      {withFiles(
-        <>
-          <Routes>
-            <Route path="*" element={<LocationDisplay />} />
-          </Routes>
-          <CreateFileModal onClose={onClose} />
-        </>,
-      )}
-    </MemoryRouter>,
+    <StrictMode>
+      <MemoryRouter initialEntries={['/workspace']}>
+        {withFiles(
+          <>
+            <Routes>
+              <Route path="*" element={<LocationDisplay />} />
+            </Routes>
+            <CreateFileModal onClose={onClose} />
+          </>,
+        )}
+      </MemoryRouter>
+    </StrictMode>,
   );
 
 const storedFiles = () => filesStore.getFiles();
@@ -286,13 +290,11 @@ describe('CreateFileModal', () => {
 
   it('creates no file when it is cancelled while the template is loading', async () => {
     const realFetch = vi.mocked(fetch).getMockImplementation()!;
-    let releaseTemplate = () => {};
+    let finishTemplate: () => Promise<unknown> = () => Promise.resolve();
     vi.mocked(fetch).mockImplementation((url) => {
       if (!/\/starter-templates\/.+-hash\.yaml$/.test((url as URL).pathname)) return realFetch(url);
       return new Promise((resolve) => {
-        releaseTemplate = () => {
-          void realFetch(url).then(resolve);
-        };
+        finishTemplate = () => realFetch(url).then(resolve);
       });
     });
     const user = userEvent.setup();
@@ -303,15 +305,46 @@ describe('CreateFileModal', () => {
     await user.click(screen.getByRole('button', { name: 'Create File' }));
     await screen.findByRole('button', { name: 'Creating…' });
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
-    releaseTemplate();
-
-    await waitFor(() => {
-      expect(vi.mocked(fetch).mock.calls).toHaveLength(3);
+    await act(async () => {
+      await finishTemplate();
     });
-    await new Promise((resolve) => setTimeout(resolve, 50));
+
     expect(await storedFiles()).toEqual([]);
     expect(onClose).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('location')).toHaveTextContent('/workspace');
+  });
+
+  it('locks the form while the file is created, but not Cancel', async () => {
+    const realFetch = vi.mocked(fetch).getMockImplementation()!;
+    let finishTemplate: () => Promise<unknown> = () => Promise.resolve();
+    vi.mocked(fetch).mockImplementation((url) => {
+      if (!/\/starter-templates\/.+-hash\.yaml$/.test((url as URL).pathname)) return realFetch(url);
+      return new Promise((resolve) => {
+        finishTemplate = () => realFetch(url).then(resolve);
+      });
+    });
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.click(fileType('Camel Route YAML'));
+    await user.type(screen.getByLabelText('File name'), 'orders');
+    await user.click(screen.getByRole('button', { name: 'Create File' }));
+    await screen.findByRole('button', { name: 'Creating…' });
+
+    for (const type of ['Camel Route YAML', 'Camel Route XML', 'Kamelet', 'Citrus Test']) {
+      expect(fileType(type)).toBeDisabled();
+    }
+    expect(screen.getByLabelText('File name')).toBeDisabled();
+    expect(screen.getByLabelText('Folder path (optional)')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Creating…' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
+
+    await act(async () => {
+      await finishTemplate();
+    });
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalled();
+    });
   });
 
   it('does not create a file on Enter that confirms an IME composition', async () => {
