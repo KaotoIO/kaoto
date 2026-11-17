@@ -99,7 +99,7 @@
     "ts-markdown": "^1.2.0",
     "use-sync-external-store": "^1.6.0",
     "usehooks-ts": "^3.0.0",
-    "uuid": "^10.0.0",
+    "uuid": "^14.0.0",
     "xml-formatter": "^3.6.5",
     "xml-name-validator": "^5.0.0",
     "yaml": "^2.9.0",
