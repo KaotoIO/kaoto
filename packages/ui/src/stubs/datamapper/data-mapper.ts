@@ -11,6 +11,7 @@ import {
   DocumentType,
   IDocument,
   PrimitiveDocument,
+  RootElementOption,
 } from '../../models/datamapper/document';
 import { IFieldTypeOverride } from '../../models/datamapper/metadata';
 import { JsonSchemaDocumentService } from '../../services/document/json-schema/json-schema-document.service';
@@ -95,6 +96,12 @@ export function getCartToShipOrderOptionalGuardsXslt(): string {
 }
 export function getShipOrderToShipOrderXslt(): string {
   return readStubFile('./xml/ShipOrderToShipOrder.xsl');
+}
+export function getShipOrderInstructionOrderXslt(): string {
+  return readStubFile('./xml/ShipOrderInstructionOrder.xsl');
+}
+export function getShipOrderLeapfrogOrderXslt(): string {
+  return readStubFile('./xml/ShipOrderLeapfrogOrder.xsl');
 }
 export function getShipOrderValueOfInContainerXslt(): string {
   return readStubFile('./xml/ShipOrderValueOfInContainer.xsl');
@@ -460,6 +467,32 @@ export class TestUtil {
       {
         'shipOrder.xsd': getShipOrderXsd(),
       },
+    );
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+    if (result.validationStatus !== 'success' || !result.document) {
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
+    }
+    return result.document;
+  }
+
+  /**
+   * Target document for `ChoiceWithAbstract.xsd`, rooted at `Notification` (the schema also declares
+   * `AbstractMessage`, `Email` and `SMS` as top-level elements, so the root must be picked explicitly).
+   * Used by choice-wrapper schema order tests.
+   */
+  static createChoiceWithAbstractTargetDoc() {
+    const rootElementChoice: RootElementOption = {
+      namespaceUri: 'http://www.example.com/CHOICE_ABSTRACT',
+      name: 'Notification',
+    };
+    const definition = new DocumentDefinition(
+      DocumentType.TARGET_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'ChoiceWithAbstract.xsd': getChoiceWithAbstractXsd(),
+      },
+      rootElementChoice,
     );
     const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
     if (result.validationStatus !== 'success' || !result.document) {

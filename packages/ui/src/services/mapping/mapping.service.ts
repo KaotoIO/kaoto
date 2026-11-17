@@ -1370,8 +1370,11 @@ export class MappingService {
   }
 
   /**
-   * {@link Array.sort} comparator establishing XSLT output order:
-   * {@link ValueSelector} first, {@link WhenItem} before {@link OtherwiseItem}.
+   * {@link Array.sort} comparator ordering canvas rows for visibility, such as the children of an
+   * instruction: {@link ValueSelector} first, {@link WhenItem} before {@link OtherwiseItem}, otherwise
+   * authored order. The exported XSLT follows a different policy, target schema position, in
+   * {@link MappingSerializerService.serialize}, so the two can differ, for example inside an
+   * `xsl:for-each`.
    * @param left - first item to compare
    * @param right - second item to compare
    * @returns negative if left should come first, positive if right should, zero if equal
