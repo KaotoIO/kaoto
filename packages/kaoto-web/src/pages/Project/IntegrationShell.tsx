@@ -118,7 +118,7 @@ const IntegrationShell: FunctionComponent = () => {
     body = <LoadingState />;
   } else if (!file) {
     body = <p className="cs--integration-shell__empty">The file does not exist</p>;
-  } else if (getFileType(file.path) !== 'integration') {
+  } else if (getFileType(file.path) === 'document') {
     body = <p className="cs--integration-shell__empty">No preview available</p>;
   } else {
     const fileId = file.id;

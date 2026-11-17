@@ -196,8 +196,14 @@ describe('IntegrationShell', () => {
     expect(catalogUrl).toMatch(/^\/.*camel-catalog\/index\.json$/);
   });
 
-  it('shows an empty state for a file that is not an integration', async () => {
+  it('renders a Citrus test on the canvas', async () => {
     renderWithContext('order-test');
+    expect(await screen.findByTestId('route-visualization')).toHaveAttribute('data-code', contentOf('order-test'));
+    expect(screen.queryByText('No preview available')).not.toBeInTheDocument();
+  });
+
+  it('shows an empty state for a document', async () => {
+    renderWithContext('schema');
     expect(await screen.findByText('No preview available')).toBeInTheDocument();
     expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
   });
