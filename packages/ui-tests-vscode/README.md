@@ -109,6 +109,45 @@ needed. The Xvfb variant was not tested. Broader clipboard-dependent test harden
 [#4322](https://github.com/KaotoIO/kaoto/issues/4322); this comparison did not investigate the separate unit-test
 failures in [#4363](https://github.com/KaotoIO/kaoto/issues/4363).
 
+## Debugging a failing test locally
+
+These notes come from tracking down a layout check that failed on CI only
+([#4525](https://github.com/KaotoIO/kaoto/pull/4525)).
+
+- **Start with the CI screenshot.** A failed group uploads the artifact `ui-test-screenshots-<group>-<os>` with a
+  screenshot of the window at the moment of the failure.
+- **Run one file or a few.** `extest run-tests` takes a single glob. To run several files, use one brace glob, for
+  example `yarn exec extest run-tests 'out/editor/{PropertyPanelLoading,SwitchBetweenTabs}.test.js'`. Further
+  arguments are ignored, and with `failZero` a run that finds no tests fails with `0 passing`.
+- **Iterate without repackaging.** After one `setup:test:ui:vsix`, a change to the tests only needs
+  `yarn build` and `yarn exec extest run-tests …`. Rebuild and reinstall the VSIX only when the extension or the UI
+  changes.
+- **The tests run zoomed out.** `src/vscode-settings.json` sets `window.zoomLevel: -3`, so `devicePixelRatio` is about
+  0.58 and the webview's CSS viewport depends on the screen: a large local monitor gives a much taller layout than the
+  Windows CI runner. A layout check can therefore pass locally and fail on CI. ExTester cannot resize the Electron
+  window (`setRect` fails with `Browser.getWindowForTarget wasn't found`); to approximate the CI size, limit the editor
+  from the test with `driver.executeScript`, e.g. `document.querySelector('.shell').style.height = '1550px'`. Setting
+  the height of `html`, `body` or `#kaoto-editor` has no effect, because `.shell` uses `100vh`.
+- **Measure inside the webview.** `console.log` output of the test, for example values returned by
+  `driver.executeScript` from the Kaoto frame, appears in the mocha output.
+- **Hung or still running?** Each WebDriver command is logged with a timestamp in `chromedriver.log` in the ExTester
+  storage (`$TEST_RESOURCES`, by default `test-resources` in the system temp folder). If its last command is minutes
+  old, the test waits on something outside the browser.
+
+### Writing layout assertions
+
+The zoom makes layout values fractional: `scrollTop` and element rectangles have fractions, while `clientHeight`,
+`scrollHeight` and `scrollWidth` are rounded. Checks that add these up, such as
+`scrollTop + clientHeight >= scrollHeight - 1`, can break when a dependency update shifts the layout by a fraction of
+a pixel, even though nothing changed for the user.
+
+- Assert what the user sees instead: for example, that the last field is inside the visible area of the scrolled
+  container (`getBoundingClientRect`), or that a container draws no horizontal scrollbar
+  (`offsetHeight - clientHeight - borders`), rather than comparing `scrollWidth` with `clientWidth`.
+- Make the check hold on any screen size. If the whole content fits, there is nothing to scroll, and that should pass.
+- Check once that the assertion still catches the bug it is for, by breaking the layout on purpose (for example a
+  container that grows instead of scrolling) and confirming that the test fails.
+
 ## Layout
 
 | Path                                                                  | Contents                                                                  |

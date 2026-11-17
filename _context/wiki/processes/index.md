@@ -24,6 +24,12 @@ Summary:
 4. PR opened targeting upstream `main` with `Closes #NNN`
 5. Human reviews and approves; maintainer merges after CI passes
 
+### Rebases and generated files
+
+- On a conflict in `*.snap` snapshot files, never merge or edit them by hand. Take one side, regenerate the snapshots with `yarn workspace <pkg> test -u <test file>`, and check with `git status` that only the expected snapshots changed (`vitest -u` with a file path may still run the whole suite).
+- Re-running a PR's CI tests the merge state of the original run. After a fix lands on `main`, rebase the PR branch instead of re-running.
+- For failing VS Code UI tests, see the debugging section in [`packages/ui-tests-vscode/README.md`](../../../packages/ui-tests-vscode/README.md#debugging-a-failing-test-locally).
+
 ### Bug handling
 
 1. Bug is reported as a GitHub Issue with the `bug` label
