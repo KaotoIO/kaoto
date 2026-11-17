@@ -57,7 +57,10 @@ export const WrapperSelectionModal: FunctionComponent<WrapperSelectionModalProps
     return candidates.filter((c) => c.label.toLowerCase().includes(lower));
   }, [candidates, searchFilter]);
 
-  const selectedCandidate = useMemo(() => candidates.find((c) => c.key === selected), [candidates, selected]);
+  const selectedCandidate = useMemo(
+    () => filteredCandidates.find((c) => c.key === selected),
+    [filteredCandidates, selected],
+  );
 
   const handleConfirm = useCallback(() => {
     if (selectedCandidate) {
@@ -74,8 +77,24 @@ export const WrapperSelectionModal: FunctionComponent<WrapperSelectionModalProps
     onClose();
   }, [onClose]);
 
+  const handleEscapePress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.defaultPrevented) {
+        return;
+      }
+      handleClose();
+    },
+    [handleClose],
+  );
+
   return (
-    <DataMapperModal variant={ModalVariant.large} isOpen={isOpen} onClose={handleClose} appendTo={() => document.body}>
+    <DataMapperModal
+      variant={ModalVariant.large}
+      isOpen={isOpen}
+      onClose={handleClose}
+      onEscapePress={handleEscapePress}
+      appendTo={() => document.body}
+    >
       <ModalHeader title={title} description={description} />
       <ModalBody>
         <div className="wrapper-selection-modal__body">
@@ -136,7 +155,7 @@ export const WrapperSelectionModal: FunctionComponent<WrapperSelectionModalProps
               </div>
             }
             rightPanel={
-              <div className="wrapper-selection-modal__pane" aria-live="polite" data-testid={`${testId}-details`}>
+              <div className="wrapper-selection-modal__pane" data-testid={`${testId}-details`}>
                 <CandidateDetails candidate={selectedCandidate} />
               </div>
             }
@@ -147,7 +166,7 @@ export const WrapperSelectionModal: FunctionComponent<WrapperSelectionModalProps
         <Button key="cancel" variant="link" onClick={handleClose}>
           Cancel
         </Button>
-        <Button key="confirm" variant="primary" onClick={handleConfirm} isDisabled={!selected}>
+        <Button key="confirm" variant="primary" onClick={handleConfirm} isDisabled={!selectedCandidate}>
           Confirm
         </Button>
       </ModalFooter>

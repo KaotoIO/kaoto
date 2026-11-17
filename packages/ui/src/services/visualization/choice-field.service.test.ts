@@ -351,6 +351,63 @@ describe('ChoiceFieldService', () => {
       expect(sms?.typeLabel).toBe('ca:SMS_t');
       expect(sms?.children?.map((c) => c.name)).toEqual(expect.arrayContaining(['content', 'phoneNumber']));
     });
+
+    it('should dissolve nested compositor wrappers (sequence, choice) into member fields', () => {
+      const street = mockField({ name: 'street', displayName: 'street', type: Types.String });
+      const city = mockField({ name: 'city', displayName: 'city', type: Types.String });
+      const choiceWrapper = mockField({
+        name: '__choice__',
+        displayName: 'choice',
+        wrapperKind: 'choice',
+        fields: [city],
+      });
+      const seqWrapper = mockField({
+        name: '__sequence__',
+        displayName: 'sequence',
+        wrapperKind: 'sequence',
+        fields: [street, choiceWrapper],
+      });
+      const member = mockField({
+        name: 'Address',
+        displayName: 'Address',
+        type: Types.Container,
+        fields: [seqWrapper],
+      });
+
+      const [candidate] = ChoiceFieldService.buildChoiceCandidates([member], {});
+
+      expect(candidate.children).toEqual([
+        { name: 'street', typeLabel: Types.String },
+        { name: 'city', typeLabel: Types.String },
+      ]);
+    });
+
+    it('should prefix attribute child names with @', () => {
+      const idAttr = mockField({
+        name: 'id',
+        displayName: 'id',
+        isAttribute: true,
+        type: Types.String,
+      });
+      const nameElem = mockField({
+        name: 'name',
+        displayName: 'name',
+        type: Types.String,
+      });
+      const member = mockField({
+        name: 'Person',
+        displayName: 'Person',
+        type: Types.Container,
+        fields: [nameElem, idAttr],
+      });
+
+      const [candidate] = ChoiceFieldService.buildChoiceCandidates([member], {});
+
+      expect(candidate.children).toEqual([
+        { name: 'name', typeLabel: Types.String },
+        { name: '@id', typeLabel: Types.String },
+      ]);
+    });
   });
 
   describe('getChoiceFieldDisplayName', () => {

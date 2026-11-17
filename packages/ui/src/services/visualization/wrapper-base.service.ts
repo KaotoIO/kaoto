@@ -56,6 +56,31 @@ export class WrapperBaseService {
     return formatQNameWithPrefix(field.typeQName, namespaceMap, field.type);
   }
 
+  private static formatChildName(field: IField): string {
+    const rawName = field.displayName || field.name;
+    if (field.isAttribute && !rawName.startsWith('@')) {
+      return `@${rawName}`;
+    }
+    return rawName;
+  }
+
+  private static dissolveCompositorWrappers(fields: IField[]): IField[] {
+    const result: IField[] = [];
+    for (const field of fields) {
+      if (field.wrapperKind === 'sequence' || field.wrapperKind === 'choice') {
+        const nestedUnresolved =
+          field.namedTypeFragmentRefs.length > 0
+            ? DocumentUtilService.collectTypeFragments(field).fragments.flatMap((fragment) => fragment.fields)
+            : [];
+        const nestedChildren = [...field.fields, ...nestedUnresolved];
+        result.push(...this.dissolveCompositorWrappers(nestedChildren));
+      } else {
+        result.push(field);
+      }
+    }
+    return result;
+  }
+
   private static formatChildren(
     field: IField,
     namespaceMap: Record<string, string>,
@@ -64,9 +89,13 @@ export class WrapperBaseService {
       field.namedTypeFragmentRefs.length > 0
         ? DocumentUtilService.collectTypeFragments(field).fragments.flatMap((fragment) => fragment.fields)
         : [];
-    const children = [...field.fields, ...unresolvedChildren];
-    if (children.length === 0) return undefined;
-    return children.map((c) => ({ name: c.displayName || c.name, typeLabel: this.formatTypeLabel(c, namespaceMap) }));
+    const rawChildren = [...field.fields, ...unresolvedChildren];
+    const dissolvedChildren = this.dissolveCompositorWrappers(rawChildren);
+    if (dissolvedChildren.length === 0) return undefined;
+    return dissolvedChildren.map((c) => ({
+      name: this.formatChildName(c),
+      typeLabel: this.formatTypeLabel(c, namespaceMap),
+    }));
   }
 
   /** Matches by localPart + namespaceURI, not by field identity — substitution candidates are separate field instances. */

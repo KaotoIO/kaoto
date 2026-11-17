@@ -99,9 +99,44 @@ describe('WrapperSelectionModal', () => {
     expect(within(screen.getByTestId('test-modal')).getByText(Types.Container)).toBeInTheDocument();
   });
 
-  it('should announce details changes to screen readers', () => {
+  it('should not place aria-live on the details pane to prevent screen reader flooding', () => {
     renderModal();
-    expect(screen.getByTestId('test-modal-details')).toHaveAttribute('aria-live', 'polite');
+    expect(screen.getByTestId('test-modal-details')).not.toHaveAttribute('aria-live');
+  });
+
+  it('should clear details and disable Confirm when the selected candidate is filtered out', () => {
+    renderModal({ candidates: makeCandidates(15) });
+    const searchInput = screen.getByPlaceholderText('Filter candidates...');
+
+    fireEvent.click(screen.getByTestId('wrapper-radio-key-0'));
+    const confirmBtn = screen.getByText('Confirm').closest('button')!;
+    expect(confirmBtn).toBeEnabled();
+    const details = screen.getByTestId('test-modal-details');
+    expect(within(details).getByText('Candidate 0')).toBeInTheDocument();
+
+    // Filter out Candidate 0
+    fireEvent.change(searchInput, { target: { value: 'Candidate 1' } });
+    expect(screen.queryByText('Candidate 0')).not.toBeInTheDocument();
+    expect(confirmBtn).toBeDisabled();
+    expect(within(details).getByText('Select a candidate to see its details.')).toBeInTheDocument();
+
+    // Clearing the filter restores the visible selection and details
+    fireEvent.change(searchInput, { target: { value: '' } });
+    expect(within(screen.getByTestId('test-modal')).getByText('Candidate 0')).toBeInTheDocument();
+    expect(confirmBtn).toBeEnabled();
+    expect(within(details).getByText('Candidate 0')).toBeInTheDocument();
+  });
+
+  it('should ignore Escape when event is defaultPrevented during keyboard resizing', () => {
+    const props = renderModal();
+    const preventedEscape = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    preventedEscape.preventDefault();
+    document.body.dispatchEvent(preventedEscape);
+    expect(props.onClose).not.toHaveBeenCalled();
+
+    const normalEscape = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    document.body.dispatchEvent(normalEscape);
+    expect(props.onClose).toHaveBeenCalled();
   });
 
   it('should update the details pane when the selection changes', () => {
