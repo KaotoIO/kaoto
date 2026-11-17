@@ -1,20 +1,31 @@
-import { CheckmarkFilled } from '@carbon/icons-react';
-import { Button, List, ListItem, Radio, SearchInput } from '@patternfly/react-core';
+import { Button, Callout, InlineNotification, RadioButton, RadioButtonGroup, Search } from '@carbon/react';
 import { FunctionComponent, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { useLatestRequest } from '../../../hooks/useLatestRequest';
 import { ApicurioArtifact, ApicurioArtifactSearchResult, SchemaLoadedResult } from '../RestDslImportTypes';
+
+const REGISTRY_NOT_CONFIGURED_TITLE_ID = 'rest-openapi-apicurio-not-configured-title';
 
 type ApicurioImportSourceProps = {
   registryUrl?: string;
   onSchemaLoaded: (result: SchemaLoadedResult) => { error?: string };
+  /** Called when another artifact is selected, so the previous artifact is no longer importable while it loads */
+  onCleared?: () => void;
+  onOpenSettings?: () => void;
 };
 
-export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> = ({ registryUrl, onSchemaLoaded }) => {
+export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> = ({
+  registryUrl,
+  onSchemaLoaded,
+  onCleared,
+  onOpenSettings,
+}) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedId, setSelectedId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState('');
+  const startRequest = useLatestRequest();
 
   const [requestVersion, setRequestVersion] = useState(0);
   const request = useMemo(() => ({ registryUrl, requestVersion }), [registryUrl, requestVersion]);
@@ -65,6 +76,7 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
     async (artifactId: string) => {
       if (!registryUrl) return;
 
+      const isLatest = startRequest();
       setIsLoading(true);
       setError('');
       setIsLoaded(false);
@@ -76,6 +88,7 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
           throw new Error(`Failed to fetch artifact (${response.status})`);
         }
         const specText = await response.text();
+        if (!isLatest()) return;
 
         const loadResult = onSchemaLoaded({
           schema: specText,
@@ -91,81 +104,94 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
           setError('');
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to download the selected artifact.';
-        setError(message);
-        setIsLoaded(false);
+        if (isLatest()) {
+          const message = err instanceof Error ? err.message : 'Unable to download the selected artifact.';
+          setError(message);
+          setIsLoaded(false);
+        }
       } finally {
-        setIsLoading(false);
+        if (isLatest()) {
+          setIsLoading(false);
+        }
       }
     },
-    [registryUrl, onSchemaLoaded],
+    [registryUrl, onSchemaLoaded, startRequest],
   );
 
   const handleSelectArtifact = useCallback(
     (artifactId: string) => {
       setSelectedId(artifactId);
-      handleLoadArtifact(artifactId).catch((error) => {
-        console.error('Failed to load artifact:', error);
-      });
+      onCleared?.();
+      void handleLoadArtifact(artifactId);
     },
-    [handleLoadArtifact],
+    [handleLoadArtifact, onCleared],
   );
 
   if (!registryUrl) {
     return (
-      <div className="rest-dsl-import-source rest-dsl-import-apicurio">
-        <span className="rest-dsl-import-note">
-          Configure the Apicurio Registry URL in Settings to enable this option.
-        </span>
-      </div>
+      <Callout
+        kind="warning-alt"
+        lowContrast
+        title="Apicurio Registry URL not configured."
+        titleId={REGISTRY_NOT_CONFIGURED_TITLE_ID}
+        subtitle="Configure the Apicurio Registry URL in Settings to enable this option."
+        actionButtonLabel={onOpenSettings ? 'Open Settings' : undefined}
+        onActionButtonClick={onOpenSettings}
+      />
     );
   }
 
   return (
-    <div className="rest-dsl-import-source rest-dsl-import-apicurio">
+    <div className="rest-dsl-import-apicurio">
       <div className="rest-dsl-import-apicurio-toolbar">
-        <SearchInput
-          aria-label="Search Apicurio artifacts"
+        <Search
+          labelText="Search Apicurio artifacts"
           placeholder="Search OpenAPI artifacts"
           value={searchTerm}
-          onChange={(_event, value) => {
-            setSearchTerm(value);
+          onChange={(event) => {
+            setSearchTerm(event.target.value);
+          }}
+          onClear={() => {
+            setSearchTerm('');
           }}
         />
-        <Button variant="secondary" onClick={fetchArtifacts} isDisabled={isLoading || isFetchingArtifacts}>
+        <Button
+          kind="secondary"
+          size="md"
+          className="rest-dsl-import-inline-button"
+          onClick={fetchArtifacts}
+          disabled={isLoading || isFetchingArtifacts}
+        >
           Refresh
         </Button>
       </div>
-      {error && <span className="rest-dsl-import-error">{error}</span>}
+      {error && <InlineNotification kind="error" lowContrast hideCloseButton role="alert" title={error} />}
       <div className="rest-dsl-import-list-scroll rest-dsl-import-apicurio-list">
-        <List isPlain>
+        <RadioButtonGroup
+          legendText="Apicurio artifacts"
+          name="rest-openapi-apicurio-artifact"
+          orientation="vertical"
+          valueSelected={selectedId}
+          onChange={(value) => {
+            handleSelectArtifact(String(value));
+          }}
+        >
           {filteredArtifacts.map((artifact) => (
-            <ListItem key={artifact.id}>
-              <Radio
-                id={`rest-openapi-apicurio-${artifact.id}`}
-                name="rest-openapi-apicurio-artifact"
-                label={
-                  <span>
-                    {artifact.name || artifact.id} <span className="rest-dsl-import-note">(id: {artifact.id})</span>
-                  </span>
-                }
-                isChecked={selectedId === artifact.id}
-                onChange={() => {
-                  handleSelectArtifact(artifact.id);
-                }}
-              />
-            </ListItem>
+            <RadioButton
+              key={artifact.id}
+              id={`rest-openapi-apicurio-${artifact.id}`}
+              value={artifact.id}
+              labelText={
+                <span>
+                  {artifact.name || artifact.id} <span className="rest-dsl-import-note">(id: {artifact.id})</span>
+                </span>
+              }
+            />
           ))}
-          {filteredArtifacts.length === 0 && !isLoading && !isFetchingArtifacts && (
-            <ListItem>No OpenAPI artifacts found.</ListItem>
-          )}
-        </List>
+        </RadioButtonGroup>
+        {filteredArtifacts.length === 0 && !isLoading && !isFetchingArtifacts && <p>No OpenAPI artifacts found.</p>}
       </div>
-      {isLoaded && (
-        <span className="rest-dsl-import-success">
-          <CheckmarkFilled /> Loaded
-        </span>
-      )}
+      {isLoaded && <InlineNotification kind="success" lowContrast hideCloseButton title="Loaded" />}
     </div>
   );
 };

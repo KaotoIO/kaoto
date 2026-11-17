@@ -1,4 +1,3 @@
-import { Title } from '@patternfly/react-core';
 import { FunctionComponent, useCallback } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -16,10 +15,18 @@ export const RestDslImportPage: FunctionComponent = () => {
     await navigate(Links.Home);
   }, [navigate]);
 
+  const handleOpenSettings = useCallback(async () => {
+    await navigate(Links.Settings);
+  }, [navigate]);
+
   return (
     <>
-      <Title headingLevel="h1">Import OpenAPI</Title>
-      <RestDslImportWizard onClose={handleClose} onGoToDesigner={handleGoToDesigner} />
+      <h1 className="rest-dsl-import-title">Import OpenAPI</h1>
+      <RestDslImportWizard
+        onClose={handleClose}
+        onGoToDesigner={handleGoToDesigner}
+        onOpenSettings={handleOpenSettings}
+      />
     </>
   );
 };

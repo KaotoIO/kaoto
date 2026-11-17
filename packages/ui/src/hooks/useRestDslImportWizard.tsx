@@ -2,12 +2,20 @@ import { OpenApi } from 'openapi-v3';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import { parse as parseYaml } from 'yaml';
 
-import { EntityType } from '../../models/entities';
-import { CamelRestVisualEntity } from '../../models/visualization/flows/camel-rest-visual-entity';
-import { CamelRouteVisualEntity } from '../../models/visualization/flows/camel-route-visual-entity';
-import { EntitiesContext, SettingsContext } from '../../providers';
-import { OpenApiProcessingService } from '../../services/openapi-processing.service';
-import { ImportLoadSource, ImportOperation, ImportSourceOption, SchemaLoadedResult } from './RestDslImportTypes';
+import { EntityType } from '../models/entities';
+import { CamelRestVisualEntity } from '../models/visualization/flows/camel-rest-visual-entity';
+import { CamelRouteVisualEntity } from '../models/visualization/flows/camel-route-visual-entity';
+import {
+  ImportedOutputs,
+  ImportLoadSource,
+  ImportOperation,
+  ImportSourceOption,
+  SchemaLoadedResult,
+} from '../pages/RestDslImport/RestDslImportTypes';
+import { EntitiesContext, SettingsContext } from '../providers';
+import { OpenApiProcessingService } from '../services/openapi-processing.service';
+
+type ParseResult = { success: true } | { success: false; error: string };
 
 export const useRestDslImportWizard = () => {
   const entitiesContext = useContext(EntitiesContext);
@@ -23,7 +31,18 @@ export const useRestDslImportWizard = () => {
   const [isOpenApiParsed, setIsOpenApiParsed] = useState(false);
   const [openApiSpecText, setOpenApiSpecText] = useState('');
   const [sourceIdentifier, setSourceIdentifier] = useState('');
+  const [importUri, setImportUri] = useState('');
+  const [parseError, setParseError] = useState<string | null>(null);
   const [importStatus, setImportStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [importedOutputs, setImportedOutputs] = useState<ImportedOutputs | null>(null);
+  const [importFailed, setImportFailed] = useState(false);
+
+  /** The result describes one specification: once that specification is edited, cleared or replaced, it is obsolete */
+  const clearImportResult = useCallback(() => {
+    setImportStatus(null);
+    setImportedOutputs(null);
+    setImportFailed(false);
+  }, []);
 
   const resetImportWizard = useCallback(() => {
     setImportOperations([]);
@@ -35,10 +54,12 @@ export const useRestDslImportWizard = () => {
     setImportCreateRest(false);
     setImportCreateRoutes(true);
     setImportSelectAll(true);
-    setImportStatus(null);
-  }, []);
+    setImportUri('');
+    setParseError(null);
+    clearImportResult();
+  }, [clearImportResult]);
 
-  const parseOpenApiSpec = useCallback((specText: string): { success: boolean; error?: string } => {
+  const parseOpenApiSpec = useCallback((specText: string): ParseResult => {
     if (!specText.trim()) {
       setImportOperations([]);
       setIsOpenApiParsed(false);
@@ -55,6 +76,8 @@ export const useRestDslImportWizard = () => {
     }
 
     if (!spec || typeof spec !== 'object' || !('paths' in spec)) {
+      setImportOperations([]);
+      setIsOpenApiParsed(false);
       return { success: false, error: 'Invalid OpenAPI specification.' };
     }
 
@@ -85,18 +108,44 @@ export const useRestDslImportWizard = () => {
       if (parsed.success) {
         setOpenApiLoadSource(result.source);
         setSourceIdentifier(result.sourceIdentifier);
-        setImportStatus(null);
+        setParseError(null);
+        clearImportResult();
         return {};
-      } else if (parsed.error) {
-        setOpenApiLoadSource(undefined);
-        setSourceIdentifier('');
-        setImportStatus({ type: 'error', message: parsed.error });
-        return { error: parsed.error };
       }
-      return {};
+      setOpenApiLoadSource(undefined);
+      setSourceIdentifier('');
+      setParseError(parsed.error);
+      clearImportResult();
+      return { error: parsed.error };
     },
-    [parseOpenApiSpec],
+    [parseOpenApiSpec, clearImportResult],
   );
+
+  /** A user edit makes the previous parse obsolete: the operations and the loaded source no longer match the text */
+  const handleOpenApiSpecTextChange = useCallback(
+    (specText: string) => {
+      setOpenApiSpecText(specText);
+      setImportOperations([]);
+      setIsOpenApiParsed(false);
+      setOpenApiLoadSource('manual');
+      setSourceIdentifier('');
+      setParseError(null);
+      clearImportResult();
+    },
+    [clearImportResult],
+  );
+
+  /** Removing the loaded file invalidates what was derived from it */
+  const handleSourceCleared = useCallback(() => {
+    setOpenApiSpecText('');
+    setImportOperations([]);
+    setIsOpenApiParsed(false);
+    setOpenApiLoadSource(undefined);
+    setSourceIdentifier('');
+    setImportSelectAll(true);
+    setParseError(null);
+    clearImportResult();
+  }, [clearImportResult]);
 
   const importOperationsWithRouteExists = useMemo(() => {
     const routeNames = new Set<string>();
@@ -177,75 +226,98 @@ export const useRestDslImportWizard = () => {
     const camelResource = entitiesContext.camelResource as {
       addNewEntity: (type?: EntityType) => string;
       getVisualEntities: () => Array<{ id: string; type: EntityType }>;
+      getEntities: () => Array<{ id: string; type: EntityType }>;
     };
 
-    if (importCreateRoutes) {
-      selectedOperations.forEach((operation) => {
-        if (operation.routeExists) return;
-        const newId = camelResource.addNewEntity(EntityType.Route);
-        const routeEntity = camelResource
-          .getVisualEntities()
-          .find((entity) => entity.type === EntityType.Route && entity.id === newId) as
-          | CamelRouteVisualEntity
+    clearImportResult();
+
+    try {
+      if (importCreateRoutes) {
+        selectedOperations.forEach((operation) => {
+          const newId = camelResource.addNewEntity(EntityType.Route);
+          const routeEntity = camelResource
+            .getVisualEntities()
+            .find((entity) => entity.type === EntityType.Route && entity.id === newId) as
+            | CamelRouteVisualEntity
+            | undefined;
+
+          routeEntity?.updateModel('route.id', `route-${operation.operationId}`);
+          routeEntity?.updateModel('route.from.id', `direct-from-${operation.operationId}`);
+          routeEntity?.updateModel('route.from.uri', 'direct');
+          routeEntity?.updateModel('route.from.parameters', { name: operation.operationId });
+          routeEntity?.updateModel('route.from.steps', [
+            {
+              setBody: {
+                constant: `Operation ${operation.operationId} not yet implemented`,
+              },
+            },
+          ]);
+        });
+      }
+
+      if (importCreateRest) {
+        const newRestId = camelResource.addNewEntity(EntityType.Rest);
+        // Rest entities are not visual entities, so they are only returned by getEntities()
+        const restEntity = camelResource
+          .getEntities()
+          .find((entity) => entity.type === EntityType.Rest && entity.id === newRestId) as
+          | CamelRestVisualEntity
           | undefined;
 
-        routeEntity?.updateModel('route.id', `route-${operation.operationId}`);
-        routeEntity?.updateModel('route.from.id', `direct-from-${operation.operationId}`);
-        routeEntity?.updateModel('route.from.uri', 'direct');
-        routeEntity?.updateModel('route.from.parameters', { name: operation.operationId });
-        routeEntity?.updateModel('route.from.steps', [
-          {
-            setBody: {
-              constant: `Operation ${operation.operationId} not yet implemented`,
-            },
-          },
-        ]);
-      });
-    }
-
-    if (importCreateRest) {
-      const newRestId = camelResource.addNewEntity(EntityType.Rest);
-      const restEntity = camelResource
-        .getVisualEntities()
-        .find((entity) => entity.type === EntityType.Rest && entity.id === newRestId) as
-        | CamelRestVisualEntity
-        | undefined;
-
-      if (restEntity) {
-        const restDefinition = OpenApiProcessingService.buildRestDefinitionFromOperations(
-          selectedOperations,
-          newRestId,
-          sourceIdentifier,
-        );
-        restEntity.updateModel(restEntity.getRootPath(), restDefinition);
+        if (restEntity) {
+          const restDefinition = OpenApiProcessingService.buildRestDefinitionFromOperations(
+            selectedOperations,
+            newRestId,
+            sourceIdentifier,
+          );
+          restEntity.updateModel(restEntity.getRootPath(), restDefinition);
+        }
       }
+    } finally {
+      // A failure can leave part of the import in the resource, so refresh the routes the operations are matched against
+      entitiesContext.updateEntitiesFromCamelResource();
     }
 
-    entitiesContext.updateEntitiesFromCamelResource();
+    setImportedOutputs({ rest: importCreateRest, routes: importCreateRoutes });
     setImportStatus({
       type: 'success',
       message: `Import succeeded. ${selectedOperations.length} operation${selectedOperations.length === 1 ? '' : 's'} added.`,
     });
     return true;
-  }, [entitiesContext, importCreateRest, importCreateRoutes, importOperationsWithRouteExists, sourceIdentifier]);
+  }, [
+    entitiesContext,
+    importCreateRest,
+    importCreateRoutes,
+    importOperationsWithRouteExists,
+    sourceIdentifier,
+    clearImportResult,
+  ]);
 
-  const handleImportSourceChange = useCallback((nextSource: ImportSourceOption) => {
-    setImportSource(nextSource);
-    setImportOperations([]);
-    setIsOpenApiParsed(false);
-    setOpenApiLoadSource(undefined);
-    setImportSelectAll(true);
-    setSourceIdentifier('');
-  }, []);
+  const handleImportSourceChange = useCallback(
+    (nextSource: ImportSourceOption) => {
+      setImportSource(nextSource);
+      setOpenApiSpecText('');
+      setImportOperations([]);
+      setIsOpenApiParsed(false);
+      setOpenApiLoadSource(undefined);
+      setImportSelectAll(true);
+      setSourceIdentifier('');
+      setImportUri('');
+      setParseError(null);
+      clearImportResult();
+    },
+    [clearImportResult],
+  );
 
   const handleParseOpenApiSpec = useCallback(() => {
     const result = parseOpenApiSpec(openApiSpecText);
-    if (!result.success && result.error) {
-      setImportStatus({ type: 'error', message: result.error });
+    if (!result.success) {
+      setParseError(result.error);
     } else {
-      setImportStatus(null);
+      setParseError(null);
+      clearImportResult();
     }
-  }, [openApiSpecText, parseOpenApiSpec]);
+  }, [openApiSpecText, parseOpenApiSpec, clearImportResult]);
 
   return {
     importSource,
@@ -253,15 +325,22 @@ export const useRestDslImportWizard = () => {
     openApiSpecText,
     openApiLoadSource,
     sourceIdentifier,
+    importUri,
     importCreateRest,
     importCreateRoutes,
     importSelectAll,
     importOperations: importOperationsWithRouteExists,
+    parseError,
     importStatus,
+    importedOutputs,
+    importFailed,
+    setImportFailed,
     apicurioRegistryUrl,
     handleSchemaLoaded,
+    handleSourceCleared,
     handleImportSourceChange,
-    setOpenApiSpecText,
+    setImportUri,
+    setOpenApiSpecText: handleOpenApiSpecTextChange,
     handleParseOpenApiSpec,
     setImportCreateRest,
     setImportCreateRoutes,
@@ -271,3 +350,5 @@ export const useRestDslImportWizard = () => {
     resetImportWizard,
   };
 };
+
+export type RestDslImportWizardState = ReturnType<typeof useRestDslImportWizard>;

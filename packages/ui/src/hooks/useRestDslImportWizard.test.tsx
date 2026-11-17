@@ -1,12 +1,15 @@
 import { act, renderHook } from '@testing-library/react';
+import { set } from 'lodash';
 import { OpenApi } from 'openapi-v3';
-import { FunctionComponent, PropsWithChildren } from 'react';
+import { FunctionComponent, PropsWithChildren, useMemo, useState } from 'react';
 
-import { CamelRouteResource } from '../../models/camel/camel-route-resource';
-import { KaotoResource } from '../../models/kaoto-resource';
-import { AbstractSettingsAdapter } from '../../models/settings/settings.model';
-import { EntitiesContextResult, SettingsContext } from '../../providers';
-import { TestProvidersWrapper } from '../../stubs/TestProvidersWrapper';
+import { CamelRouteResource } from '../models/camel/camel-route-resource';
+import { EntityType } from '../models/entities';
+import { KaotoResource } from '../models/kaoto-resource';
+import { AbstractSettingsAdapter } from '../models/settings/settings.model';
+import { EntitiesContext, EntitiesContextResult, SettingsContext } from '../providers';
+import { OpenApiProcessingService } from '../services/openapi-processing.service';
+import { TestProvidersWrapper } from '../stubs/TestProvidersWrapper';
 import { useRestDslImportWizard } from './useRestDslImportWizard';
 
 describe('useRestDslImportWizard', () => {
@@ -142,10 +145,8 @@ describe('useRestDslImportWizard', () => {
 
       expect(returnValue).toEqual({ error: expect.stringMatching(/Invalid OpenAPI specification/) });
       expect(result.current.isOpenApiParsed).toBe(false);
-      expect(result.current.importStatus).toEqual({
-        type: 'error',
-        message: expect.stringMatching(/Invalid OpenAPI specification/),
-      });
+      expect(result.current.parseError).toMatch(/Invalid OpenAPI specification/);
+      expect(result.current.importStatus).toBeNull();
     });
 
     it('handles spec with no paths', () => {
@@ -168,10 +169,45 @@ describe('useRestDslImportWizard', () => {
 
       expect(returnValue).toEqual({ error: 'No operations were found in the specification.' });
       expect(result.current.isOpenApiParsed).toBe(false);
-      expect(result.current.importStatus).toEqual({
-        type: 'error',
-        message: 'No operations were found in the specification.',
+      expect(result.current.parseError).toBe('No operations were found in the specification.');
+    });
+
+    it('reports the message when processing the specification throws an Error', () => {
+      vi.spyOn(OpenApiProcessingService, 'buildOperationsFromSpec').mockImplementationOnce(() => {
+        throw new Error('cannot process');
       });
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
+
+      let returnValue: { error?: string } | undefined;
+      act(() => {
+        returnValue = result.current.handleSchemaLoaded({
+          schema: JSON.stringify({ openapi: '3.0.0', paths: {} }),
+          source: 'file',
+          sourceIdentifier: 'spec.json',
+        });
+      });
+
+      expect(returnValue).toEqual({ error: 'cannot process' });
+      expect(result.current.parseError).toBe('cannot process');
+    });
+
+    it('reports a generic error when processing the specification throws a non-Error value', () => {
+      vi.spyOn(OpenApiProcessingService, 'buildOperationsFromSpec').mockImplementationOnce(() => {
+        throw 'not an error';
+      });
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
+
+      let returnValue: { error?: string } | undefined;
+      act(() => {
+        returnValue = result.current.handleSchemaLoaded({
+          schema: JSON.stringify({ openapi: '3.0.0', paths: {} }),
+          source: 'file',
+          sourceIdentifier: 'spec.json',
+        });
+      });
+
+      expect(returnValue).toEqual({ error: 'Invalid OpenAPI specification.' });
+      expect(result.current.isOpenApiParsed).toBe(false);
     });
   });
 
@@ -375,6 +411,124 @@ describe('useRestDslImportWizard', () => {
     });
   });
 
+  describe('source state', () => {
+    const validSpec = JSON.stringify({
+      openapi: '3.0.0',
+      info: { title: 'Test API', version: '1.0.0' },
+      paths: { '/pet': { get: { operationId: 'getPet', responses: { '200': { description: 'ok' } } } } },
+    });
+
+    it('invalidates the parsed specification when the text is edited', () => {
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
+      act(() => {
+        result.current.handleSchemaLoaded({ schema: validSpec, source: 'file', sourceIdentifier: 'spec.json' });
+      });
+      expect(result.current.isOpenApiParsed).toBe(true);
+
+      act(() => {
+        result.current.setOpenApiSpecText(validSpec.replace('/pet', '/orders'));
+      });
+
+      expect(result.current.isOpenApiParsed).toBe(false);
+      expect(result.current.importOperations).toHaveLength(0);
+      expect(result.current.openApiLoadSource).toBe('manual');
+      expect(result.current.sourceIdentifier).toBe('');
+
+      act(() => {
+        result.current.handleParseOpenApiSpec();
+      });
+
+      expect(result.current.isOpenApiParsed).toBe(true);
+      expect(result.current.importOperations[0].path).toBe('/orders');
+    });
+
+    it('clears the parse error when the text is edited', () => {
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
+      act(() => {
+        result.current.handleParseOpenApiSpec();
+      });
+      expect(result.current.parseError).not.toBeNull();
+
+      act(() => {
+        result.current.setOpenApiSpecText('openapi: 3.0.0');
+      });
+
+      expect(result.current.parseError).toBeNull();
+    });
+
+    it('does not report an import error as a parse error', () => {
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
+      act(() => {
+        result.current.handleSchemaLoaded({ schema: validSpec, source: 'file', sourceIdentifier: 'spec.json' });
+      });
+      act(() => {
+        result.current.handleToggleSelectAllOperations(false);
+      });
+      act(() => {
+        result.current.handleImportOpenApi();
+      });
+      expect(result.current.importStatus?.type).toBe('error');
+
+      act(() => {
+        result.current.handleImportSourceChange('uri');
+      });
+
+      expect(result.current.parseError).toBeNull();
+    });
+
+    it('clears the parse error when the source changes', () => {
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
+      act(() => {
+        result.current.handleSchemaLoaded({ schema: 'invalid json {{{', source: 'file', sourceIdentifier: 'bad.json' });
+      });
+      expect(result.current.parseError).not.toBeNull();
+
+      act(() => {
+        result.current.handleImportSourceChange('uri');
+      });
+
+      expect(result.current.parseError).toBeNull();
+    });
+
+    it('discards what was derived from the file when the source is cleared', () => {
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
+      act(() => {
+        result.current.handleSchemaLoaded({ schema: validSpec, source: 'file', sourceIdentifier: 'spec.json' });
+      });
+
+      act(() => {
+        result.current.handleSourceCleared();
+      });
+
+      expect(result.current.isOpenApiParsed).toBe(false);
+      expect(result.current.importOperations).toHaveLength(0);
+      expect(result.current.openApiSpecText).toBe('');
+      expect(result.current.openApiLoadSource).toBeUndefined();
+      expect(result.current.sourceIdentifier).toBe('');
+    });
+
+    it('keeps the URI until the source changes or the wizard is reset', () => {
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
+      act(() => {
+        result.current.setImportUri('http://example.com/spec.yaml');
+      });
+      expect(result.current.importUri).toBe('http://example.com/spec.yaml');
+
+      act(() => {
+        result.current.handleImportSourceChange('file');
+      });
+      expect(result.current.importUri).toBe('');
+
+      act(() => {
+        result.current.setImportUri('http://example.com/spec.yaml');
+      });
+      act(() => {
+        result.current.resetImportWizard();
+      });
+      expect(result.current.importUri).toBe('');
+    });
+  });
+
   describe('handleParseOpenApiSpec', () => {
     it('sets error status when spec text is empty', () => {
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
@@ -383,10 +537,7 @@ describe('useRestDslImportWizard', () => {
         result.current.handleParseOpenApiSpec();
       });
 
-      expect(result.current.importStatus).toEqual({
-        type: 'error',
-        message: 'Provide an OpenAPI specification to import.',
-      });
+      expect(result.current.parseError).toBe('Provide an OpenAPI specification to import.');
       expect(result.current.isOpenApiParsed).toBe(false);
     });
 
@@ -428,10 +579,37 @@ describe('useRestDslImportWizard', () => {
       });
 
       expect(result.current.isOpenApiParsed).toBe(false);
-      expect(result.current.importStatus).toEqual({
-        type: 'error',
-        message: expect.any(String),
+      expect(result.current.parseError).toEqual(expect.any(String));
+    });
+
+    it('resets the parsed state when the text is not an OpenAPI document', () => {
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper });
+
+      const validSpec = JSON.stringify({
+        openapi: '3.0.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/pet': {
+            get: { operationId: 'getPet', responses: { '200': { description: 'ok' } } },
+          },
+        },
       });
+
+      act(() => {
+        result.current.handleSchemaLoaded({ schema: validSpec, source: 'file', sourceIdentifier: 'spec.json' });
+      });
+      expect(result.current.isOpenApiParsed).toBe(true);
+
+      act(() => {
+        result.current.setOpenApiSpecText('just some text');
+      });
+      act(() => {
+        result.current.handleParseOpenApiSpec();
+      });
+
+      expect(result.current.isOpenApiParsed).toBe(false);
+      expect(result.current.importOperations).toHaveLength(0);
+      expect(result.current.parseError).toBe('Invalid OpenAPI specification.');
     });
   });
 
@@ -640,7 +818,7 @@ describe('useRestDslImportWizard', () => {
         getRootPath: vi.fn().mockReturnValue('rest'),
       };
       camelResource.addNewEntity = vi.fn().mockReturnValue('new-rest-1');
-      camelResource.getVisualEntities = vi.fn().mockReturnValue([mockRestEntity]);
+      camelResource.getEntities = vi.fn().mockReturnValue([mockRestEntity]);
 
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper: routeWrapper });
 
@@ -679,7 +857,8 @@ describe('useRestDslImportWizard', () => {
       camelResource.addNewEntity = vi.fn().mockImplementation((type) => {
         return type === 'rest' ? 'new-rest-1' : 'new-route-1';
       });
-      camelResource.getVisualEntities = vi.fn().mockReturnValue([mockRouteEntity, mockRestEntity]);
+      camelResource.getVisualEntities = vi.fn().mockReturnValue([mockRouteEntity]);
+      camelResource.getEntities = vi.fn().mockReturnValue([mockRestEntity]);
 
       const { result } = renderHook(() => useRestDslImportWizard(), { wrapper: routeWrapper });
 
@@ -704,6 +883,7 @@ describe('useRestDslImportWizard', () => {
       expect(imported).toBe(true);
       expect(camelResource.addNewEntity).toHaveBeenCalledWith('route');
       expect(camelResource.addNewEntity).toHaveBeenCalledWith('rest');
+      expect(mockRestEntity.updateModel).toHaveBeenCalled();
       expect(updateEntitiesFromCamelResourceSpy).toHaveBeenCalled();
     });
 
@@ -745,6 +925,125 @@ describe('useRestDslImportWizard', () => {
 
       expect(imported).toBe(true);
       expect(result.current.importStatus?.message).toBe('Import succeeded. 2 operations added.');
+    });
+
+    it('records the outputs of the completed import', () => {
+      camelResource.addNewEntity = vi.fn().mockReturnValue('new-1');
+      camelResource.getVisualEntities = vi.fn().mockReturnValue([]);
+
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper: routeWrapper });
+      act(() => {
+        result.current.handleSchemaLoaded({ schema: validSpec, source: 'file', sourceIdentifier: 'spec.json' });
+      });
+      expect(result.current.importedOutputs).toBeNull();
+
+      act(() => {
+        result.current.handleImportOpenApi();
+      });
+      expect(result.current.importedOutputs).toEqual({ rest: false, routes: true });
+
+      act(() => {
+        result.current.setImportCreateRest(true);
+        result.current.setImportCreateRoutes(false);
+      });
+      act(() => {
+        result.current.handleImportOpenApi();
+      });
+      expect(result.current.importedOutputs).toEqual({ rest: true, routes: false });
+    });
+
+    it('refreshes the routes when the import fails halfway, so a retry does not duplicate them', () => {
+      const twoOperationsSpec = JSON.stringify({
+        openapi: '3.0.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/pet': {
+            get: { operationId: 'getPet', responses: { '200': { description: 'ok' } } },
+            post: { operationId: 'addPet', responses: { '200': { description: 'ok' } } },
+          },
+        },
+      });
+
+      // A resource that keeps the routes it is given, and fails on the second one the first time
+      type FakeRoute = {
+        id: string;
+        type: EntityType;
+        entityDef: { route?: { from?: { parameters?: { name?: string } } } };
+        updateModel: (path: string, value: unknown) => void;
+      };
+      const routes: FakeRoute[] = [];
+      let shouldFail = true;
+      const fakeResource = {
+        addNewEntity: vi.fn(() => {
+          if (shouldFail && routes.length === 1) {
+            shouldFail = false;
+            throw new Error('boom');
+          }
+          const entityDef = {};
+          const id = `route-${routes.length + 1}`;
+          routes.push({
+            id,
+            type: EntityType.Route,
+            entityDef,
+            updateModel: (path, value) => {
+              set(entityDef, path, value);
+            },
+          });
+          return id;
+        }),
+        getVisualEntities: () => routes,
+      };
+
+      const StatefulProvider: FunctionComponent<PropsWithChildren> = ({ children }) => {
+        const [visualEntities, setVisualEntities] = useState<FakeRoute[]>([]);
+        const value = useMemo(
+          () =>
+            ({
+              camelResource: fakeResource,
+              visualEntities,
+              updateEntitiesFromCamelResource: () => {
+                setVisualEntities([...routes]);
+              },
+            }) as unknown as EntitiesContextResult,
+          [visualEntities],
+        );
+        return (
+          <SettingsContext.Provider value={mockSettingsContext}>
+            <EntitiesContext.Provider value={value}>{children}</EntitiesContext.Provider>
+          </SettingsContext.Provider>
+        );
+      };
+
+      const { result } = renderHook(() => useRestDslImportWizard(), { wrapper: StatefulProvider });
+      act(() => {
+        result.current.handleSchemaLoaded({ schema: twoOperationsSpec, source: 'file', sourceIdentifier: 'spec.json' });
+      });
+
+      let failure: unknown;
+      act(() => {
+        try {
+          result.current.handleImportOpenApi();
+        } catch (error) {
+          failure = error;
+        }
+      });
+      expect(failure).toEqual(new Error('boom'));
+      expect(result.current.importStatus).toBeNull();
+      expect(result.current.importedOutputs).toBeNull();
+      expect(
+        result.current.importOperations.map((operation) => [operation.operationId, operation.routeExists]),
+      ).toEqual([
+        ['getPet', true],
+        ['addPet', false],
+      ]);
+
+      act(() => {
+        result.current.handleImportOpenApi();
+      });
+
+      expect(result.current.importStatus?.type).toBe('success');
+      const routeNames = routes.map((route) => route.entityDef.route?.from?.parameters?.name);
+      expect(routeNames).toEqual(['getPet', 'addPet']);
     });
   });
 });

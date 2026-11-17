@@ -8,6 +8,12 @@ export type SchemaLoadedResult = {
   sourceIdentifier: string;
 };
 
+/** What a completed import generated */
+export type ImportedOutputs = {
+  rest: boolean;
+  routes: boolean;
+};
+
 export type ImportOperation = {
   operationId: string;
   method: string;

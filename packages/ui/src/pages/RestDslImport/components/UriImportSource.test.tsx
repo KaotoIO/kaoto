@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { UriImportSource } from './UriImportSource';
 
@@ -169,5 +169,140 @@ describe('UriImportSource', () => {
     await waitFor(() => {
       expect(screen.getByText('Failed to fetch the specification.')).toBeInTheDocument();
     });
+  });
+
+  it('starts with the URI kept by the wizard and reports changes', () => {
+    const onUriChange = vi.fn();
+    render(
+      <UriImportSource
+        onSchemaLoaded={mockOnSchemaLoaded}
+        initialUri="http://example.com/spec.yaml"
+        onUriChange={onUriChange}
+      />,
+    );
+
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveValue('http://example.com/spec.yaml');
+
+    fireEvent.change(input, { target: { value: 'http://example.com/other.yaml' } });
+
+    expect(onUriChange).toHaveBeenCalledWith('http://example.com/other.yaml');
+  });
+
+  it('shows the specification already loaded by the wizard', () => {
+    render(<UriImportSource onSchemaLoaded={mockOnSchemaLoaded} initialUri="http://example.com/spec.yaml" loaded />);
+
+    expect(screen.getByText('Loaded')).toBeInTheDocument();
+  });
+
+  it('ignores a fetch that finishes after the source was unmounted', async () => {
+    let resolveResponse: (response: Response) => void = () => undefined;
+    fetchSpy.mockReturnValue(
+      new Promise<Response>((resolve) => {
+        resolveResponse = resolve;
+      }),
+    );
+
+    const { unmount } = render(<UriImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'http://example.com/spec.yaml' } });
+    fireEvent.click(screen.getByRole('button', { name: /fetch/i }));
+    unmount();
+
+    await act(async () => {
+      resolveResponse({ ok: true, text: () => Promise.resolve('openapi: 3.0.0') } as Response);
+      await Promise.resolve();
+    });
+
+    expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+  });
+
+  it('accepts a fetch that finishes while the source is still shown', async () => {
+    let resolveResponse: (response: Response) => void = () => undefined;
+    fetchSpy.mockReturnValue(
+      new Promise<Response>((resolve) => {
+        resolveResponse = resolve;
+      }),
+    );
+    mockOnSchemaLoaded.mockReturnValue({});
+
+    render(<UriImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'http://example.com/spec.yaml' } });
+    fireEvent.click(screen.getByRole('button', { name: /fetch/i }));
+
+    await act(async () => {
+      resolveResponse({ ok: true, text: () => Promise.resolve('openapi: 3.0.0') } as Response);
+    });
+
+    expect(mockOnSchemaLoaded).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('Loaded')).toBeInTheDocument();
+  });
+
+  it('ignores a failed fetch that finishes after the source was unmounted', async () => {
+    let rejectResponse: (reason: Error) => void = () => undefined;
+    fetchSpy.mockReturnValue(
+      new Promise<Response>((_resolve, reject) => {
+        rejectResponse = reject;
+      }),
+    );
+
+    const { unmount } = render(<UriImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'http://example.com/spec.yaml' } });
+    fireEvent.click(screen.getByRole('button', { name: /fetch/i }));
+    unmount();
+
+    await act(async () => {
+      rejectResponse(new Error('network down'));
+      await Promise.resolve();
+    });
+
+    expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+  });
+
+  it('discards the loaded specification when the URI is edited', () => {
+    const onCleared = vi.fn();
+    render(
+      <UriImportSource
+        onSchemaLoaded={mockOnSchemaLoaded}
+        onCleared={onCleared}
+        initialUri="http://example.com/a.yaml"
+        loaded
+      />,
+    );
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'http://example.com/b.yaml' } });
+
+    expect(onCleared).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('Loaded')).not.toBeInTheDocument();
+  });
+
+  it('does not discard anything when the URI is edited before a specification was loaded', () => {
+    const onCleared = vi.fn();
+    render(<UriImportSource onSchemaLoaded={mockOnSchemaLoaded} onCleared={onCleared} />);
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'http://example.com/b.yaml' } });
+
+    expect(onCleared).not.toHaveBeenCalled();
+  });
+
+  it('ignores a fetch that finishes after the URI was edited', async () => {
+    let resolveResponse: (response: Response) => void = () => undefined;
+    fetchSpy.mockReturnValue(
+      new Promise<Response>((resolve) => {
+        resolveResponse = resolve;
+      }),
+    );
+
+    render(<UriImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'http://example.com/a.yaml' } });
+    fireEvent.click(screen.getByRole('button', { name: /fetch/i }));
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'http://example.com/b.yaml' } });
+
+    await act(async () => {
+      resolveResponse({ ok: true, text: () => Promise.resolve('openapi: 3.0.0') } as Response);
+    });
+
+    expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+    expect(screen.queryByText('Loaded')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /fetch/i })).toBeEnabled();
   });
 });
