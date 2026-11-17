@@ -1,12 +1,24 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>KaotoIO/renovate-config"],
+  "internalChecksFilter": "strict",
   "packageRules": [
     {
       "description": "The Maven modules of Kompanion are built and used locally and never published, so there is nothing to look up",
       "matchDatasources": ["maven"],
       "matchPackageNames": ["io.kaoto:**"],
       "enabled": false
+    },
+    {
+      "description": "Match npmMinimalAgeGate in .yarnrc.yml: Yarn refuses npm versions younger than a week, so proposing them only yields branches without changes",
+      "matchDatasources": ["npm"],
+      "minimumReleaseAge": "7 days"
+    },
+    {
+      "description": "Match npmPreapprovedPackages in .yarnrc.yml, which Yarn exempts from the age gate",
+      "matchDatasources": ["npm"],
+      "matchPackageNames": ["@kaoto/camel-catalog", "@kaoto/forms"],
+      "minimumReleaseAge": null
     }
   ]
 }
