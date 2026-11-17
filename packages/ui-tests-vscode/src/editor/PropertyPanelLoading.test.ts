@@ -90,7 +90,9 @@ describe('Property panel loading test', function () {
 			);
 		}
 		await panel.findElement(By.css('[data-testid="tab-All"]')).click();
-		const groupToggles = await panel.findElements(By.css('.kaoto-form__expandable-group button[aria-expanded="false"]'));
+		// Only the group headings: the collapsed groups also hold info, combo box and menu buttons with aria-expanded,
+		// and pressing Enter on those opens their popovers and menus over the fields
+		const groupToggles = await panel.findElements(By.css('.kaoto-form__expandable-group .cds--accordion__heading[aria-expanded="false"]'));
 		for (const toggle of groupToggles) {
 			await toggle.sendKeys(Key.ENTER);
 		}
