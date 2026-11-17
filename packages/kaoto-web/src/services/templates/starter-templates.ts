@@ -40,6 +40,16 @@ export const fetchStarterTemplate = async (catalogUrl: string, name: StarterTemp
   return (await fetchOk(new URL(template.file, manifestUrl))).text();
 };
 
+/** The extensions of the files whose template names them after the file */
+const NAMED_FILE_EXTENSION = /\.(kamelet|pipe)\.ya?ml$/;
+/** A plain YAML scalar that YAML reads as a string, not as a boolean, null or number */
+const PLAIN_STRING = /^[A-Za-z_][\w.-]*$/;
+const NON_STRING_WORDS = new Set(['true', 'false', 'yes', 'no', 'on', 'off', 'y', 'n', 'null']);
+
+/** Writes the name as a YAML string: plain when YAML reads it as a string, double-quoted otherwise */
+const toYamlString = (name: string): string =>
+  PLAIN_STRING.test(name) && !NON_STRING_WORDS.has(name.toLowerCase()) ? name : JSON.stringify(name);
+
 const randomId = (): string => String(crypto.getRandomValues(new Uint32Array(1))[0] % 10_000).padStart(4, '0');
 
 /**
@@ -49,10 +59,10 @@ const randomId = (): string => String(crypto.getRandomValues(new Uint32Array(1))
  * its file name; every other `__KAOTO_ID__` gets an id of its own.
  */
 export const resolveStarterTemplate = (template: string, fileName: string): string => {
-  const baseName = fileName.split('.')[0];
+  const baseName = fileName.replace(NAMED_FILE_EXTENSION, '');
   const lines = template.split('\n');
   const nameIndex = lines.findIndex((line) => line.startsWith(METADATA_NAME_PREFIX) && line.includes('__KAOTO_ID__'));
-  if (nameIndex !== -1) lines[nameIndex] = `${METADATA_NAME_PREFIX}${baseName}`;
+  if (nameIndex !== -1) lines[nameIndex] = `${METADATA_NAME_PREFIX}${toYamlString(baseName)}`;
 
   return lines.join('\n').replace(ID_PLACEHOLDER, () => randomId());
 };

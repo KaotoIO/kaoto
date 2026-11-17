@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 
@@ -282,5 +282,47 @@ describe('CreateFileModal', () => {
     await user.keyboard('{Escape}');
 
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('creates no file when it is cancelled while the template is loading', async () => {
+    const realFetch = vi.mocked(fetch).getMockImplementation()!;
+    let releaseTemplate = () => {};
+    vi.mocked(fetch).mockImplementation((url) => {
+      if (!/\/starter-templates\/.+-hash\.yaml$/.test((url as URL).pathname)) return realFetch(url);
+      return new Promise((resolve) => {
+        releaseTemplate = () => {
+          void realFetch(url).then(resolve);
+        };
+      });
+    });
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.click(fileType('Camel Route YAML'));
+    await user.type(screen.getByLabelText('File name'), 'orders');
+    await user.click(screen.getByRole('button', { name: 'Create File' }));
+    await screen.findByRole('button', { name: 'Creating…' });
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    releaseTemplate();
+
+    await waitFor(() => {
+      expect(vi.mocked(fetch).mock.calls).toHaveLength(3);
+    });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(await storedFiles()).toEqual([]);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('location')).toHaveTextContent('/workspace');
+  });
+
+  it('does not create a file on Enter that confirms an IME composition', async () => {
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.click(fileType('Camel Route YAML'));
+    await user.type(screen.getByLabelText('File name'), 'orders');
+    fireEvent.keyDown(screen.getByLabelText('File name'), { key: 'Enter', isComposing: true });
+
+    expect(fetch).not.toHaveBeenCalled();
+    expect(onClose).not.toHaveBeenCalled();
   });
 });

@@ -54,6 +54,14 @@ describe('resolveStarterTemplate', () => {
     expect(resolved).not.toContain('__KAOTO_ID__');
   });
 
+  it('keeps the dots of the file name in the name', () => {
+    expect(resolveStarterTemplate(KAMELET, 'orders.v2.kamelet.yaml')).toContain('metadata:\n  name: orders.v2\n');
+  });
+
+  it.each(['true', 'No', 'null', '123', '1e3'])('quotes the name %s, which YAML would not read as a string', (name) => {
+    expect(resolveStarterTemplate(KAMELET, `${name}.kamelet.yaml`)).toContain(`metadata:\n  name: "${name}"\n`);
+  });
+
   it('does not rename a nested name', () => {
     const resolved = resolveStarterTemplate('spec:\n  ref:\n    name: ref-__KAOTO_ID__\n', 'a.pipe.yaml');
 
