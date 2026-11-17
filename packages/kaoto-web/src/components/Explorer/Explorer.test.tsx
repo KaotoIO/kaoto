@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { filesStore } from '../../services/files/files.store';
 import { storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
@@ -194,6 +194,57 @@ describe('Explorer', () => {
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByTestId('create-file-modal')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: buttonName })).toHaveFocus();
+  });
+
+  it('returns the focus to the toolbar button when the Create New File modal is closed with Escape', async () => {
+    resetTestIndexedDB();
+    const user = userEvent.setup();
+    renderComponent();
+    await screen.findByTestId('explorer-empty');
+
+    screen.getByRole('button', { name: 'Create a file' }).focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('heading', { name: 'Create New File' })).toBeInTheDocument();
+
+    await user.keyboard('{Escape}');
+    expect(screen.queryByTestId('create-file-modal')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Create a file' })).toHaveFocus();
+  });
+
+  it('focuses the toolbar button after a file is created from the empty state', async () => {
+    resetTestIndexedDB();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: URL) => {
+        const { pathname } = url;
+        if (pathname === '/camel-catalog/index.json') {
+          return Promise.resolve(new Response(JSON.stringify({ starterTemplates: 'starter-templates/index-1.json' })));
+        }
+        if (pathname === '/camel-catalog/starter-templates/index-1.json') {
+          return Promise.resolve(
+            new Response(JSON.stringify({ catalogs: { 'camel-route-yaml': { file: 'camel-route-yaml-hash.yaml' } } })),
+          );
+        }
+        return Promise.resolve(new Response('- route:\n    id: route-1\n'));
+      }),
+    );
+    try {
+      const user = userEvent.setup();
+      renderWithNavigation();
+      await screen.findByTestId('explorer-empty');
+
+      await user.click(screen.getByRole('button', { name: 'Create…' }));
+      await user.click(screen.getByRole('radio', { name: /^Camel Route YAML/ }));
+      await user.type(screen.getByLabelText('File name'), 'orders');
+      await user.click(screen.getByRole('button', { name: 'Create File' }));
+
+      expect(await screen.findByText('orders.camel.yaml')).toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Create…' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Create a file' })).toHaveFocus();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('renders toolbar with Add button and Search, without Delete', () => {
