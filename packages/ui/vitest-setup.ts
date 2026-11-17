@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 // Setup vitest-canvas-mock
 import 'vitest-canvas-mock';
 
-import { getRandomValues, subtle } from 'node:crypto';
+import { getRandomValues, randomUUID, subtle } from 'node:crypto';
 import { TextDecoder, TextEncoder } from 'node:util';
 
 import { cleanup } from '@testing-library/react';
@@ -120,7 +120,7 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-vi.spyOn(globalThis, 'crypto', 'get').mockImplementation(() => ({ getRandomValues, subtle }) as unknown as Crypto);
+vi.spyOn(globalThis, 'crypto', 'get').mockImplementation(() => ({ getRandomValues, randomUUID, subtle }) as unknown as Crypto);
 
 // Suppress specific known warnings to reduce noise in test output
 const suppressedWarnings = ['[mobx-react-lite] importing batchingForReactDom is no longer needed'];

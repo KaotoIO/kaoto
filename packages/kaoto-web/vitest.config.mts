@@ -51,7 +51,6 @@ export default defineConfig({
           'monaco-editor',
           'react-monaco-editor',
           'hotkeys-js',
-          'uuid',
         ],
       },
     },
@@ -59,8 +58,6 @@ export default defineConfig({
       // Force all packages to use the same React instance
       react: fileURLToPath(new URL('../../node_modules/react', import.meta.url)),
       'react-dom': fileURLToPath(new URL('../../node_modules/react-dom', import.meta.url)),
-      // Use native ESM build to avoid CJS interop issues in wrapper.mjs
-      uuid: fileURLToPath(new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url)),
       '@': path.resolve(import.meta.dirname, './src'),
     },
   },
