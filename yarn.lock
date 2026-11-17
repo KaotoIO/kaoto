@@ -14248,9 +14248,9 @@ __metadata:
   linkType: hard
 
 "fake-indexeddb@npm:^6.2.7":
-  version: 6.2.7
-  resolution: "fake-indexeddb@npm:6.2.7"
-  checksum: 10/785c7b44d7e8781df280380a4e3402331d67620bde6474449093923f99eb0a77f7994177817f22dda044d2b210806e4acb267b90697a9fac1c253d770b00a08a
+  version: 6.2.8
+  resolution: "fake-indexeddb@npm:6.2.8"
+  checksum: 10/3f146a87ff7749dcc050ed0d09667a4bdacb2ba4a129f7c85d4c0b0439ec8b80d4dbc5f9ee5f7539bd317d90fd1e48803ab22e3b3483902922079fde13f4094d
   languageName: node
   linkType: hard
 
