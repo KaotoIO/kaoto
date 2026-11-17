@@ -25434,9 +25434,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"unplugin-dts@npm:1.1.1":
-  version: 1.1.1
-  resolution: "unplugin-dts@npm:1.1.1"
+"unplugin-dts@npm:1.1.2":
+  version: 1.1.2
+  resolution: "unplugin-dts@npm:1.1.2"
   dependencies:
     "@rollup/pluginutils": "npm:^5.1.4"
     "@volar/typescript": "npm:^2.4.26"
@@ -25474,7 +25474,7 @@ __metadata:
       optional: true
     webpack:
       optional: true
-  checksum: 10/5c04e44dc3dd2062e4f12c741c16553474a6cf06851a38a9a0df5ea192307bb8eec2cd768ef1d5ad1e204c8e4ab25c786d7b66047971e4346250e918eff9cfc2
+  checksum: 10/3837caaaa5515755a129da90bc9a5368931dec4b0bbc39f3396d5d8258a38b8fa415e310af5b9c32dd459ae234a1849a823110b4996d09f75af85d703b0221c5
   languageName: node
   linkType: hard
 
@@ -25710,10 +25710,10 @@ __metadata:
   linkType: hard
 
 "vite-plugin-dts@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "vite-plugin-dts@npm:5.1.1"
+  version: 5.1.2
+  resolution: "vite-plugin-dts@npm:5.1.2"
   dependencies:
-    unplugin-dts: "npm:1.1.1"
+    unplugin-dts: "npm:1.1.2"
   peerDependencies:
     "@microsoft/api-extractor": ">=7"
     rollup: ">=3"
@@ -25725,7 +25725,7 @@ __metadata:
       optional: true
     vite:
       optional: true
-  checksum: 10/ac38593e079af4c385687a928d29b070a5135dbfa4d251084ae701ce1fc8918b25f82dab80b498401d6f33cccf97a7e74f1dc53dc738dd5b14b925f70a52bef1
+  checksum: 10/0ec6a8f931aa0582569cabf1b0fd712c3de22b7a9871814f046bc387d9c3ad92ac4cc748b14eb8223a1b122e270b86853af0f48fb76a44fee84849fb97d0f843
   languageName: node
   linkType: hard
 
