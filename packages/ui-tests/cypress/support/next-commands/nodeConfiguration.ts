@@ -98,24 +98,24 @@ Cypress.Commands.add('selectExpression', (expression: string, index = 0) => {
 Cypress.Commands.add('selectInTypeaheadField', (inputGroup: string, value: string) => {
   cy.get(`[data-testid="#.${inputGroup}"]`).scrollIntoView();
   cy.get(`[data-testid="#.${inputGroup}"]`).click();
-  cy.get('.cds--list-box__menu').contains(value).first().click();
+  cy.get('.cds--list-box__menu').contains('.cds--list-box__menu-item', value).click();
 });
 
 Cypress.Commands.add('configureBeanReference', (inputName: string, value: string) => {
   cy.get(`[data-testid="#.${inputName}"]`).scrollIntoView();
   cy.get(`[data-testid="#.${inputName}"]`).click();
-  cy.get('.cds--list-box__menu').contains(value).first().click();
+  cy.get('.cds--list-box__menu').contains('.cds--list-box__menu-item', value).click();
 });
 
 Cypress.Commands.add('configureNewBeanReference', (inputName: string) => {
   cy.get(`[data-testid="#.${inputName}"]`).scrollIntoView();
   cy.get(`[data-testid="#.${inputName}"]`).click();
-  cy.get('.cds--list-box__menu').contains('Create new bean').first().click();
+  cy.get('.cds--list-box__menu').contains('.cds--list-box__menu-item', 'Create new bean').click();
 });
 
 Cypress.Commands.add('selectDataformat', (dataformat: string) => {
   cy.get(`[data-testid="#__oneof-list"]`).click();
-  cy.get('.cds--list-box__menu').contains(dataformat).first().click();
+  cy.get('.cds--list-box__menu').contains('.cds--list-box__menu-item', dataformat).click();
 });
 
 Cypress.Commands.add('configureDropdownValue', (inputName: string, value?: string) => {

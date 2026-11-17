@@ -31,7 +31,7 @@ describe('Test for errorHandler configuration container', () => {
     cy.selectFormTab('All');
 
     cy.get(`input[data-testid="#__oneof-list"]`).clear();
-    cy.get('.cds--list-box__menu').contains('Default Error Handler').first().click();
+    cy.get('.cds--list-box__menu').contains('.cds--list-box__menu-item', 'Default Error Handler').click();
     cy.expandWrappedSection('#.defaultErrorHandler-Advanced');
 
     cy.interactWithConfigInputObject('defaultErrorHandler.id', 'testId');
