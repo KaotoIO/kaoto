@@ -14,7 +14,7 @@ import {
   TextInput,
   TileGroup,
 } from '@carbon/react';
-import { ComponentType, FunctionComponent, SyntheticEvent, useState } from 'react';
+import { ComponentType, FunctionComponent, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
 import { CATALOG_URL } from '../../catalog-url';
@@ -89,6 +89,20 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
   const [folder, setFolder] = useState('');
   const [creating, setCreating] = useState(false);
   const [failure, setFailure] = useState<string>();
+  /** Set once the modal is closed or unmounted, so that a creation still in progress stops */
+  const closedRef = useRef(false);
+
+  useEffect(
+    () => () => {
+      closedRef.current = true;
+    },
+    [],
+  );
+
+  const close = () => {
+    closedRef.current = true;
+    onClose();
+  };
 
   const result = kind ? buildFilePath(folder, name, kind.extension) : undefined;
   const path = result && 'path' in result ? result.path : undefined;
@@ -103,11 +117,15 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
     setFailure(undefined);
     try {
       const template = await fetchStarterTemplate(CATALOG_URL, kind.template);
+      // Cancelled while the template was loading: create nothing
+      if (closedRef.current) return;
       const fileName = path.split('/').pop()!;
       const created = await createFile({ path, content: resolveStarterTemplate(template, fileName) });
-      onClose();
+      if (closedRef.current) return;
+      close();
       void navigate(`/workspace/file/${created.id}`);
     } catch (error) {
+      if (closedRef.current) return;
       setFailure(error instanceof Error ? error.message : String(error));
       setCreating(false);
     }
@@ -123,7 +141,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
       open
       size="sm"
       onClose={() => {
-        onClose();
+        close();
         return true;
       }}
       preventCloseOnClickOutside
@@ -138,7 +156,13 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
           onSubmit={handleSubmit}
           onKeyDown={(event) => {
             // The submit button sits in the footer, outside the form, so Enter in a field does not always submit
-            if (event.key === 'Enter' && event.target instanceof HTMLInputElement && event.target.type === 'text') {
+            // Enter that confirms an IME composition only finishes the text, it does not submit
+            if (
+              event.key === 'Enter' &&
+              !event.nativeEvent.isComposing &&
+              event.target instanceof HTMLInputElement &&
+              event.target.type === 'text'
+            ) {
               handleSubmit(event);
             }
           }}
@@ -217,7 +241,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
         </Form>
       </ModalBody>
       <ModalFooter>
-        <Button kind="secondary" onClick={onClose}>
+        <Button kind="secondary" onClick={close}>
           Cancel
         </Button>
         <Button kind="primary" type="submit" form={FORM_ID} disabled={!canCreate}>
