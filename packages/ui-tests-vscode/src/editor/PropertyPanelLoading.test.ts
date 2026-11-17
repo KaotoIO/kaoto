@@ -101,10 +101,12 @@ describe('Property panel loading test', function () {
 			() =>
 				driver.executeScript<boolean>((element: HTMLElement) => {
 					element.scrollTop = element.scrollHeight;
+					// The UI tests zoom VS Code out, so the layout has fractional heights: scrollTop is fractional, while
+					// clientHeight and scrollHeight are rounded. At the end of the form they can differ by more than 1px.
 					return (
 						['auto', 'scroll'].includes(getComputedStyle(element).overflowY) &&
 						element.scrollTop > 0 &&
-						element.scrollTop + element.clientHeight >= element.scrollHeight - 1
+						element.scrollTop + element.clientHeight >= element.scrollHeight - 2
 					);
 				}, body),
 			5_000,
