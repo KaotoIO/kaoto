@@ -22,6 +22,7 @@ import * as path from 'node:path';
 import * as vscode from 'vscode';
 import { createEventBus, createPostMessageBridge, type ContentSnapshot, type SetContentRequest } from '@kaoto/kaoto/host-bridge';
 import { KaotoEditorProvider, type KaotoEditorProviderTimeouts } from '../../extension/KaotoEditorProvider';
+import { TestReportEvents } from '../../services/TestReportEvents';
 import { getExtensionUri } from '../utils/TestSetup';
 
 suite('Native Kaoto text document provider', () => {
@@ -834,6 +835,29 @@ suite('Native Kaoto text document provider', () => {
 		} finally {
 			other.dispose();
 		}
+	});
+
+	test('forwards TestReportEvents to the webview session', async () => {
+		await open();
+		const started: unknown[] = [];
+		const ready: unknown[] = [];
+		fixture.bus.on('host:testRun:started', (payload) => started.push(payload));
+		fixture.bus.on('host:testReport:ready', (payload) => ready.push(payload));
+
+		TestReportEvents.instance.fireTestRunStarted([]);
+		await fixture.flush();
+		equal(started.length, 1);
+		equal(ready.length, 0);
+
+		TestReportEvents.instance.fireTestReportReady([]);
+		await fixture.flush();
+		equal(ready.length, 1);
+	});
+
+	test('resolves editor:testReport:get via the already-registered command', async () => {
+		await open();
+		const response = await fixture.bus.request('editor:testReport:get', { name: 'nonexistent' });
+		equal(response.report, null);
 	});
 });
 

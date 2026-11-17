@@ -8,6 +8,7 @@ import { Canvas } from './Canvas';
 import { EmptyCanvas } from './Canvas/EmptyCanvas';
 import { buildDesignerCanvasModel } from './designer-canvas-model';
 import { BrokenFileEmptyState } from './EmptyState';
+import { useTestResultOverlays } from './Overlay/use-test-result-overlays';
 import { VisualizationShell } from './VisualizationShell';
 
 interface DesignerVisualizationProps {
@@ -33,6 +34,9 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
   const isFileBroken = kaotoResourceContext?.parseState === ResourceParseState.Error;
 
   const { nodes, edges } = useMemo(() => buildDesignerCanvasModel(vizNodes), [vizNodes]);
+
+  const model = useMemo(() => ({ nodes, edges }), [nodes, edges]);
+  const overlaySource = useTestResultOverlays(model, entities);
 
   /*
    * The number of entities of the model that is drawn. While the next model resolves, the canvas still shows the
@@ -63,6 +67,7 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
         nodes={nodes}
         edges={edges}
         isModelResolving={isResolving}
+        overlaySource={overlaySource}
         applyCollapseOnUpdate
         blocked={isFileBroken}
       >

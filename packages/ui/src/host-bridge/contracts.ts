@@ -125,6 +125,7 @@ export type KaotoRequests = {
   'editor:file:pick': { include: string; exclude?: string; options?: FilePickerOptions };
   'editor:suggestions:get': { topic: string; word: string; context: JsonObject };
   'editor:maven:getRuntimeInfo': null;
+  'editor:testReport:get': { name: string };
 };
 
 export type KaotoResponses = {
@@ -142,6 +143,7 @@ export type KaotoResponses = {
   'editor:file:pick': { selection: string[] | string | null };
   'editor:suggestions:get': { suggestions: SuggestionDto[] };
   'editor:maven:getRuntimeInfo': { runtimeInfo: RuntimeMavenInformation | null };
+  'editor:testReport:get': { report: JsonValue | null };
 };
 
 export type KaotoEvents = {
@@ -151,6 +153,8 @@ export type KaotoEvents = {
   'editor:validation:updated': { path: string; notifications: ValidationNotification[] };
   'editor:step:updated': { action: StepUpdateAction; stepType: CatalogKind; stepName: string };
   'editor:notification:raised': { message: string; type: 'info' | 'warning' | 'error' };
+  'host:testRun:started': null;
+  'host:testReport:ready': null;
 };
 
 /** Validate before serialization so JSON conversion cannot silently discard data. */
@@ -348,6 +352,7 @@ export const requestCatalog: {
     2000,
   ),
   'editor:maven:getRuntimeInfo': request('editor', nil, object({ runtimeInfo: nullable(runtimeInfo) }), 60000),
+  'editor:testReport:get': request('editor', object({ name: string }), object({ report: nullable(jsonObject) })),
 };
 
 interface EventDefinition<Payload> {
@@ -386,6 +391,8 @@ export const eventCatalog: { readonly [E in keyof KaotoEvents]: EventDefinition<
     }),
   ),
   'editor:notification:raised': event('editor', object({ message: string, type: severity })),
+  'host:testRun:started': event('host', nil),
+  'host:testReport:ready': event('host', nil),
 };
 
 export function isEventName(name: unknown): name is keyof KaotoEvents {
