@@ -85,7 +85,7 @@ jobs:
             --baseImagesUrl "${REPO_URL}/raw/refs/tags/${RELEASE_TAG}/packages/kaoto-vscode"
 
       - name: '📤 Upload VSIX artifact'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: vscode-kaoto-vsix-release
           path: packages/kaoto-vscode/${{ steps.compute.outputs.vsix_name }}
@@ -98,7 +98,7 @@ jobs:
 
       - name: '📤 Upload SBOM artifact'
         if: ${{ !inputs.snapshot }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: vscode-kaoto-sbom
           path: packages/kaoto-vscode/manifest.json
@@ -107,7 +107,7 @@ jobs:
 
       - name: '📤 Upload unit test logs on failure'
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: unit-test-logs
           path: packages/kaoto-vscode/.vscode-test/user-data/logs/*
