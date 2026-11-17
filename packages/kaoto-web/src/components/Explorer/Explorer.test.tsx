@@ -783,6 +783,58 @@ describe('Explorer', () => {
       expect(screen.queryByText('The storage is blocked')).not.toBeInTheDocument();
     });
 
+    it('keeps the field of another file open when the previous rename finishes after it opened', async () => {
+      let finishStoring!: () => void;
+      const storing = new Promise<void>((resolve) => {
+        finishStoring = resolve;
+      });
+      const renameFile = filesStore.renameFile.bind(filesStore);
+      vi.spyOn(filesStore, 'renameFile').mockImplementationOnce(async (...args) => {
+        await storing;
+        return renameFile(...args);
+      });
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      await startRenaming(user);
+      await user.keyboard('orders');
+      // Clicking the rename button of another file moves the focus away first, which renames the first file
+      const other = await startRenaming(user, 'error-handler');
+      expect(other).toHaveValue('error-handler.camel.yaml');
+
+      await act(async () => {
+        finishStoring();
+        await storing;
+      });
+
+      await waitFor(async () => {
+        expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
+      });
+      expect(screen.getByRole('textbox', { name: 'Rename file' })).toBe(other);
+      expect(other).toHaveFocus();
+    });
+
+    it('does not rename on Enter or cancel on Escape while an IME composition is active', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      const input = await startRenaming(user);
+      await user.keyboard('ちゅうもん');
+      fireEvent.keyDown(input, { key: 'Enter', isComposing: true });
+      fireEvent.keyDown(input, { key: 'Escape', isComposing: true });
+
+      expect(input).toBeInTheDocument();
+      expect(input).toHaveFocus();
+      expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
+
+      await user.keyboard('{Enter}');
+      await waitFor(async () => {
+        expect((await storedFile('main-flow'))?.path).toBe('integrations/ちゅうもん.camel.yaml');
+      });
+    });
+
     it('keeps the keys and clicks in the field away from the tree', async () => {
       const user = userEvent.setup();
       renderWithNavigation(<LocationDisplay />);

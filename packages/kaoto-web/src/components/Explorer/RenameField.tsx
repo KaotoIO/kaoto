@@ -34,6 +34,18 @@ export const RenameField: FunctionComponent<RenameFieldProps> = ({ file, onDone 
   const inputRef = useRef<HTMLInputElement>(null);
   /** Set once renaming is over, so that the blur of a field about to unmount does not rename again */
   const done = useRef(false);
+  /**
+   * Set when the field unmounts. Clicking the rename button of another file moves the focus away first, which renames
+   * this file, and that file's field replaces this one before the rename finishes: then it must not close that field.
+   */
+  const unmounted = useRef(false);
+  useEffect(() => {
+    // StrictMode runs the effect, its cleanup and the effect again, so the flag is reset on every run
+    unmounted.current = false;
+    return () => {
+      unmounted.current = true;
+    };
+  }, []);
 
   useEffect(() => {
     const input = inputRef.current;
@@ -54,7 +66,7 @@ export const RenameField: FunctionComponent<RenameFieldProps> = ({ file, onDone 
 
   const finish = (byKeyboard: boolean) => {
     done.current = true;
-    onDone(byKeyboard);
+    if (!unmounted.current) onDone(byKeyboard);
   };
 
   const rename = async (byKeyboard: boolean) => {
@@ -108,6 +120,8 @@ export const RenameField: FunctionComponent<RenameFieldProps> = ({ file, onDone 
           setFailure(undefined);
         }}
         onKeyDown={(event) => {
+          // Enter and Escape confirm or cancel an IME composition, not the rename
+          if (event.nativeEvent.isComposing) return;
           if (event.key === 'Enter') {
             event.preventDefault();
             void rename(true);
