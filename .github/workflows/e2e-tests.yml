@@ -48,7 +48,7 @@ jobs:
         run: yarn workspace @kaoto/kaoto run build:lib
 
       - name: 💾 Save build folder
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ui-dist
           if-no-files-found: error
@@ -98,14 +98,14 @@ jobs:
 
       - name: 💾 Save videos
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: videos-firefox-${{ matrix.containers }}
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: screenshots-firefox-${{ matrix.containers }}
           path: packages/ui-tests/cypress/screenshots
@@ -154,14 +154,14 @@ jobs:
 
       - name: 💾 Save videos
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: videos-chrome-${{ matrix.containers }}
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: screenshots-chrome-${{ matrix.containers }}
           path: packages/ui-tests/cypress/screenshots
@@ -209,14 +209,14 @@ jobs:
           SPLIT_INDEX: ${{ strategy.job-index }}
       - name: 💾 Save videos
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: videos-edge-${{ matrix.containers }}
           path: packages/ui-tests/cypress/videos
 
       - name: 💾 Save screenshots
         if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: screenshots-edge-${{ matrix.containers }}
           path: packages/ui-tests/cypress/screenshots
