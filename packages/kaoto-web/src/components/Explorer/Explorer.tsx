@@ -4,7 +4,7 @@
 import './Explorer.scss';
 
 import { Add, Document, DocumentConfiguration, Folder, FolderOpen, TestTool } from '@carbon/icons-react';
-import { FeatureFlags, IconButton, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
+import { Button, FeatureFlags, IconButton, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
 import {
   ChangeEvent,
   ComponentProps,
@@ -208,9 +208,18 @@ export const Explorer: FunctionComponent = () => {
           />
         )}
         {!loading && !error && files.length === 0 && (
-          <p className="cs--explorer__empty" data-testid="explorer-empty">
-            No files yet
-          </p>
+          <div className="cs--explorer__empty" data-testid="explorer-empty">
+            <p>No files yet</p>
+            <Button
+              kind="tertiary"
+              size="sm"
+              onClick={() => {
+                setIsCreateOpen(true);
+              }}
+            >
+              Create…
+            </Button>
+          </div>
         )}
         {!loading && !error && files.length > 0 && (
           /* enableTreeviewControllable makes `selected` and `active` fully controlled —
