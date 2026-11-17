@@ -127,6 +127,7 @@ jobs:
   publish:
     permissions:
       contents: read
+      id-token: write
     runs-on: ubuntu-latest
     needs:
       - release
@@ -158,12 +159,10 @@ jobs:
 
       - name: '📤 Publish to VS Code Marketplace'
         env:
-          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
           VSIX_NAME: ${{ needs.release.outputs.vsix_name }}
-        run: yarn workspace vscode-kaoto vsce publish -p "${VSCE_TOKEN}" --packagePath "${VSIX_NAME}" --skip-duplicate
+        run: yarn workspace vscode-kaoto vsce publish --oidc --packagePath "${VSIX_NAME}" --skip-duplicate
 
       - name: '📤 Publish to Open-VSX'
         env:
-          OVSX_TOKEN: ${{ secrets.OVSX_TOKEN }}
           VSIX_NAME: ${{ needs.release.outputs.vsix_name }}
-        run: yarn workspace vscode-kaoto ovsx publish -p "${OVSX_TOKEN}" "${VSIX_NAME}" --skip-duplicate
+        run: yarn workspace vscode-kaoto ovsx publish --trusted-publishing "${VSIX_NAME}" --skip-duplicate
