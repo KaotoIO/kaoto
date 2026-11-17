@@ -125,6 +125,21 @@ describe('ApicurioImportSource', () => {
     expect(screen.getByText(/Configure the Apicurio Registry URL in Settings/)).toBeInTheDocument();
   });
 
+  it('offers to open the settings when the registry URL is not configured', () => {
+    const onOpenSettings = vi.fn();
+    render(<ApicurioImportSource onSchemaLoaded={mockOnSchemaLoaded} onOpenSettings={onOpenSettings} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Open Settings' }));
+
+    expect(onOpenSettings).toHaveBeenCalled();
+  });
+
+  it('does not offer the settings action without a handler', () => {
+    render(<ApicurioImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+
+    expect(screen.queryByRole('button', { name: 'Open Settings' })).not.toBeInTheDocument();
+  });
+
   it('fetches artifacts on mount when registry URL is provided', async () => {
     const mockArtifacts = {
       artifacts: [
@@ -178,6 +193,28 @@ describe('ApicurioImportSource', () => {
 
     expect(screen.getByText('User API')).toBeInTheDocument();
     expect(screen.queryByText('Product API')).not.toBeInTheDocument();
+  });
+
+  it('clears the search term when the search is cleared', async () => {
+    fetchSpy.mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        artifacts: [
+          { id: 'artifact-1', name: 'User API', type: 'OPENAPI' },
+          { id: 'artifact-2', name: 'Product API', type: 'OPENAPI' },
+        ],
+      }),
+    } as unknown as Response);
+
+    render(<ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />);
+    await screen.findByText('User API');
+
+    fireEvent.change(screen.getByPlaceholderText('Search OpenAPI artifacts'), { target: { value: 'user' } });
+    expect(screen.queryByText('Product API')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /clear search input/i }));
+
+    expect(screen.getByText('Product API')).toBeInTheDocument();
   });
 
   it('loads artifact when selected', async () => {
@@ -396,5 +433,79 @@ describe('ApicurioImportSource', () => {
     await waitFor(() => {
       expect(screen.getByText('artifact-no-name')).toBeInTheDocument();
     });
+  });
+
+  describe('artifact download that is no longer wanted', () => {
+    const artifactsResponse = {
+      ok: true,
+      json: async () => ({ artifacts: [{ id: 'artifact-1', name: 'API Spec', type: 'OPENAPI' }] }),
+    } as Response;
+
+    it('ignores a download that finishes after the source was unmounted', async () => {
+      let resolveDownload: (response: Response) => void = () => undefined;
+      fetchSpy.mockResolvedValueOnce(artifactsResponse).mockReturnValueOnce(
+        new Promise<Response>((resolve) => {
+          resolveDownload = resolve;
+        }),
+      );
+
+      const { unmount } = render(
+        <ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />,
+      );
+      fireEvent.click(await screen.findByLabelText(/API Spec/));
+      unmount();
+
+      await act(async () => {
+        resolveDownload({ ok: true, text: () => Promise.resolve('openapi: 3.0.0') } as Response);
+        await Promise.resolve();
+      });
+
+      expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+    });
+
+    it('ignores a failed download that finishes after the source was unmounted', async () => {
+      let rejectDownload: (reason: Error) => void = () => undefined;
+      fetchSpy.mockResolvedValueOnce(artifactsResponse).mockReturnValueOnce(
+        new Promise<Response>((_resolve, reject) => {
+          rejectDownload = reject;
+        }),
+      );
+
+      const { unmount } = render(
+        <ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} />,
+      );
+      fireEvent.click(await screen.findByLabelText(/API Spec/));
+      unmount();
+
+      await act(async () => {
+        rejectDownload(new Error('download failed'));
+        await Promise.resolve();
+      });
+
+      expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+    });
+  });
+
+  it('discards the previous specification as soon as another artifact is selected', async () => {
+    const onCleared = vi.fn();
+    fetchSpy
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          artifacts: [
+            { id: 'artifact-1', name: 'First API', type: 'OPENAPI' },
+            { id: 'artifact-2', name: 'Second API', type: 'OPENAPI' },
+          ],
+        }),
+      } as Response)
+      .mockResolvedValue({ ok: false, status: 500 } as Response);
+
+    render(
+      <ApicurioImportSource registryUrl={registryUrl} onSchemaLoaded={mockOnSchemaLoaded} onCleared={onCleared} />,
+    );
+    fireEvent.click(await screen.findByLabelText(/Second API/));
+
+    expect(onCleared).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('Failed to fetch artifact (500)')).toBeInTheDocument();
   });
 });

@@ -1,115 +1,44 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 import { FileImportSource } from './FileImportSource';
 
 describe('FileImportSource', () => {
   const mockOnSchemaLoaded = vi.fn();
+  const DROP_LABEL = 'Drag and drop files here or click to upload';
+  const HELPER_TEXT = 'Supported file types are .json, .yaml and .yml.';
+
+  const uploadFile = (container: HTMLElement, file: File) => {
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [file] } });
+  };
 
   beforeEach(() => {
     vi.resetAllMocks();
   });
 
-  it('renders file upload component', () => {
-    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const fileUpload = container.querySelector('#openapi-file-upload');
-    expect(fileUpload).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Drag and drop a file or upload one')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /upload/i })).toBeInTheDocument();
-  });
-
-  it('renders without errors', () => {
-    expect(() => render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />)).not.toThrow();
-  });
-
-  it('accepts required props', () => {
-    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    expect(container).toBeInTheDocument();
-  });
-
-  it('renders clear button in disabled state initially', () => {
+  it('renders the drop container and no status messages initially', () => {
     render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const clearButton = screen.getByRole('button', { name: /clear/i });
-    expect(clearButton).toBeDisabled();
-  });
 
-  it('renders textarea for file content', () => {
-    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const textarea = container.querySelector('#openapi-file-upload') as HTMLTextAreaElement;
-    expect(textarea).toBeInTheDocument();
-    expect(textarea.tagName).toBe('TEXTAREA');
-  });
-
-  it('does not show success message initially', () => {
-    render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    expect(screen.getByRole('button', { name: DROP_LABEL })).toBeInTheDocument();
+    expect(screen.getByText(HELPER_TEXT)).toBeInTheDocument();
     expect(screen.queryByText('Schema loaded successfully')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('does not show error message initially', () => {
-    render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    expect(screen.queryByText(/error/i)).not.toBeInTheDocument();
-  });
-
-  it('configures file upload to accept JSON and YAML files', () => {
+  it('accepts JSON and YAML files', () => {
     const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const hiddenFileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
 
-    expect(hiddenFileInput).toBeInTheDocument();
-    expect(hiddenFileInput).toHaveAttribute('accept');
-
-    const acceptAttr = hiddenFileInput.getAttribute('accept');
-    expect(acceptAttr).toContain('.json');
-    expect(acceptAttr).toContain('.yaml');
-    expect(acceptAttr).toContain('.yml');
-  });
-
-  it('renders with correct component structure', () => {
-    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-
-    // Check for main file upload container
-    const fileUploadContainer = container.querySelector('.pf-v6-c-file-upload');
-    expect(fileUploadContainer).toBeInTheDocument();
-
-    // Check for file select section
-    const fileSelect = container.querySelector('.pf-v6-c-file-upload__file-select');
-    expect(fileSelect).toBeInTheDocument();
-
-    // Check for file details section (textarea)
-    const fileDetails = container.querySelector('.pf-v6-c-file-upload__file-details');
-    expect(fileDetails).toBeInTheDocument();
-  });
-
-  it('has proper accessibility attributes', () => {
-    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-
-    const textarea = container.querySelector('#openapi-file-upload');
-    expect(textarea).toHaveAttribute('aria-label', 'File upload');
-    expect(textarea).toHaveAttribute('aria-invalid', 'false');
-
-    const filenameInput = container.querySelector('#openapi-file-upload-filename');
-    expect(filenameInput).toHaveAttribute('aria-label', 'Drag and drop a file or upload one');
-  });
-
-  it('renders upload button with correct text', () => {
-    render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const uploadButton = screen.getByRole('button', { name: /upload/i });
-    expect(uploadButton).toHaveTextContent('Upload');
-  });
-
-  it('renders clear button with correct text', () => {
-    render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const clearButton = screen.getByRole('button', { name: /clear/i });
-    expect(clearButton).toHaveTextContent('Clear');
+    expect(input).toHaveAttribute('accept', '.json,.yaml,.yml');
+    expect(input).not.toHaveAttribute('multiple');
   });
 
   it('calls onSchemaLoaded and shows success when a file is uploaded', async () => {
     const fileContent = '{"openapi": "3.0.0"}';
-    const file = new File([fileContent], 'spec.json', { type: 'application/json' });
     mockOnSchemaLoaded.mockReturnValue({});
 
     const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
-
-    fireEvent.change(input, { target: { files: [file] } });
+    uploadFile(container, new File([fileContent], 'spec.json', { type: 'application/json' }));
 
     await waitFor(() => {
       expect(mockOnSchemaLoaded).toHaveBeenCalledWith({
@@ -119,118 +48,184 @@ describe('FileImportSource', () => {
       });
     });
 
-    expect(screen.getByText('Schema loaded successfully')).toBeInTheDocument();
+    expect(await screen.findByText('Schema loaded successfully')).toBeInTheDocument();
+    expect(screen.getByText('spec.json')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: DROP_LABEL })).not.toBeInTheDocument();
+    expect(screen.queryByText(HELPER_TEXT)).not.toBeInTheDocument();
   });
 
-  it('shows error and hides success when onSchemaLoaded returns an error', async () => {
-    const fileContent = '<html>Not an OpenAPI spec</html>';
-    const file = new File([fileContent], 'bad.json', { type: 'application/json' });
+  it('shows success when onSchemaLoaded returns no value', async () => {
+    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    uploadFile(container, new File(['{"openapi": "3.0.0"}'], 'spec.json', { type: 'application/json' }));
+
+    expect(await screen.findByText('Schema loaded successfully')).toBeInTheDocument();
+  });
+
+  it('shows the error and hides success when onSchemaLoaded returns an error', async () => {
     mockOnSchemaLoaded.mockReturnValue({ error: 'Invalid OpenAPI specification.' });
 
     const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    uploadFile(container, new File(['<html></html>'], 'bad.json', { type: 'application/json' }));
 
-    fireEvent.change(input, { target: { files: [file] } });
-
-    await waitFor(() => {
-      expect(screen.getByText('Invalid OpenAPI specification.')).toBeInTheDocument();
-    });
-
+    expect(await screen.findByText('Invalid OpenAPI specification.')).toBeInTheDocument();
     expect(screen.queryByText('Schema loaded successfully')).not.toBeInTheDocument();
   });
 
-  it('shows error when onSchemaLoaded throws', async () => {
+  it('shows the error when onSchemaLoaded throws', async () => {
     mockOnSchemaLoaded.mockImplementation(() => {
       throw new Error('Parse failed');
     });
 
-    const file = new File(['invalid content'], 'bad.json', { type: 'application/json' });
-
     const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    uploadFile(container, new File(['invalid content'], 'bad.json', { type: 'application/json' }));
 
-    fireEvent.change(input, { target: { files: [file] } });
-
-    await waitFor(() => {
-      expect(screen.getByText('Parse failed')).toBeInTheDocument();
-    });
-
+    expect(await screen.findByText('Parse failed')).toBeInTheDocument();
     expect(screen.queryByText('Schema loaded successfully')).not.toBeInTheDocument();
   });
 
-  it('clears file state when clear button is clicked', async () => {
-    const fileContent = '{"openapi": "3.0.0"}';
-    const file = new File([fileContent], 'spec.json', { type: 'application/json' });
+  it('shows a generic error when onSchemaLoaded throws a non-Error', async () => {
+    mockOnSchemaLoaded.mockImplementation(() => {
+      throw 'string error';
+    });
+
+    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    uploadFile(container, new File(['some content'], 'spec.json', { type: 'application/json' }));
+
+    expect(await screen.findByText('Unable to read the uploaded specification.')).toBeInTheDocument();
+  });
+
+  it('shows an error when the file content is empty', async () => {
+    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    uploadFile(container, new File([''], 'empty.json', { type: 'application/json' }));
+
+    expect(await screen.findByText('No file content to load')).toBeInTheDocument();
+    expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+  });
+
+  it('rejects unsupported file types without reading them', async () => {
+    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    uploadFile(container, new File(['x'], 'spec.txt', { type: 'text/plain' }));
+
+    expect(await screen.findByText('Unsupported file type. Accepted types: .json, .yaml, .yml.')).toBeInTheDocument();
+    expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+  });
+
+  it('ignores a change event without files', () => {
+    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    fireEvent.change(input, { target: { files: [] } });
+
+    expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: DROP_LABEL })).toBeInTheDocument();
+  });
+
+  it('removes the file and shows the drop container again when the file is deleted', async () => {
     mockOnSchemaLoaded.mockReturnValue({});
 
     const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
-    const textarea = container.querySelector('#openapi-file-upload') as HTMLTextAreaElement;
+    uploadFile(container, new File(['{"openapi": "3.0.0"}'], 'spec.json', { type: 'application/json' }));
+    await screen.findByText('Schema loaded successfully');
 
-    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByRole('button', { name: /remove file/i }));
 
-    await waitFor(() => {
-      expect(mockOnSchemaLoaded).toHaveBeenCalled();
-    });
-
-    const clearButton = screen.getByRole('button', { name: /clear/i });
-    fireEvent.click(clearButton);
-
-    expect(textarea).toHaveValue('');
+    expect(screen.getByRole('button', { name: DROP_LABEL })).toBeInTheDocument();
     expect(screen.queryByText('Schema loaded successfully')).not.toBeInTheDocument();
+    expect(screen.queryByText('spec.json')).not.toBeInTheDocument();
   });
 
-  it('shows success when onSchemaLoaded returns no value', async () => {
-    const file = new File(['{"openapi": "3.0.0"}'], 'spec.json', { type: 'application/json' });
+  it('shows an error when a file without an extension is dropped', () => {
+    render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
 
-    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
-
-    fireEvent.change(input, { target: { files: [file] } });
-
-    await waitFor(() => {
-      expect(screen.getByText('Schema loaded successfully')).toBeInTheDocument();
+    fireEvent.drop(screen.getByRole('button', { name: DROP_LABEL }), {
+      dataTransfer: { items: [], files: [new File(['x'], 'openapi_')] },
     });
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Unsupported file type. Accepted types: .json, .yaml, .yml.');
+    expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: DROP_LABEL })).toBeInTheDocument();
   });
 
-  it('allows manual text input in the textarea', () => {
+  it('shows an error when a file without an extension is picked', () => {
     const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const textarea = container.querySelector('#openapi-file-upload') as HTMLTextAreaElement;
 
-    fireEvent.change(textarea, { target: { value: 'openapi: 3.0.0' } });
+    uploadFile(container, new File(['x'], 'openapi_'));
 
-    expect(textarea.value).toBe('openapi: 3.0.0');
+    expect(screen.getByRole('alert')).toHaveTextContent('Unsupported file type.');
+    expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
   });
 
-  it('shows error when file content is empty', async () => {
-    const file = new File([''], 'empty.json', { type: 'application/json' });
+  it('notifies when the file is removed', async () => {
+    mockOnSchemaLoaded.mockReturnValue({});
+    const onCleared = vi.fn();
+
+    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} onCleared={onCleared} />);
+    uploadFile(container, new File(['{"openapi": "3.0.0"}'], 'spec.json', { type: 'application/json' }));
+    await screen.findByText('Schema loaded successfully');
+
+    fireEvent.click(screen.getByRole('button', { name: /remove file/i }));
+
+    expect(onCleared).toHaveBeenCalledTimes(1);
+  });
+
+  it('moves focus to the uploader when the file is removed', async () => {
+    mockOnSchemaLoaded.mockReturnValue({});
 
     const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    uploadFile(container, new File(['{"openapi": "3.0.0"}'], 'spec.json', { type: 'application/json' }));
+    await screen.findByText('Schema loaded successfully');
 
-    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByRole('button', { name: /remove file/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText('No file content to load')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: DROP_LABEL })).toHaveFocus();
+  });
+
+  it('shows the file already loaded by the wizard', () => {
+    render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} loadedFilename="spec.json" />);
+
+    expect(screen.getByText('spec.json')).toBeInTheDocument();
+    expect(screen.getByText('Schema loaded successfully')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: DROP_LABEL })).not.toBeInTheDocument();
+  });
+
+  it('ignores a read that finishes after the source was unmounted', async () => {
+    let resolveText: (content: string) => void = () => undefined;
+    const file = new File(['{"openapi": "3.0.0"}'], 'spec.json', { type: 'application/json' });
+    vi.spyOn(file, 'text').mockReturnValue(
+      new Promise<string>((resolve) => {
+        resolveText = resolve;
+      }),
+    );
+
+    const { container, unmount } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    uploadFile(container, file);
+    unmount();
+
+    await act(async () => {
+      resolveText('{"openapi": "3.0.0"}');
+      await Promise.resolve();
     });
 
     expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
   });
 
-  it('shows generic error message when onSchemaLoaded throws non-Error', async () => {
-    mockOnSchemaLoaded.mockImplementation(() => {
-      throw 'string error';
+  it('ignores a failed read that finishes after the source was unmounted', async () => {
+    let rejectText: (reason: Error) => void = () => undefined;
+    const file = new File(['{"openapi": "3.0.0"}'], 'spec.json', { type: 'application/json' });
+    vi.spyOn(file, 'text').mockReturnValue(
+      new Promise<string>((_resolve, reject) => {
+        rejectText = reject;
+      }),
+    );
+
+    const { container, unmount } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
+    uploadFile(container, file);
+    unmount();
+
+    await act(async () => {
+      rejectText(new Error('read failed'));
+      await Promise.resolve();
     });
 
-    const file = new File(['some content'], 'spec.json', { type: 'application/json' });
-
-    const { container } = render(<FileImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
-    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
-
-    fireEvent.change(input, { target: { files: [file] } });
-
-    await waitFor(() => {
-      expect(screen.getByText('Unable to read the uploaded specification.')).toBeInTheDocument();
-    });
+    expect(mockOnSchemaLoaded).not.toHaveBeenCalled();
   });
 });

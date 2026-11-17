@@ -120,7 +120,9 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-vi.spyOn(globalThis, 'crypto', 'get').mockImplementation(() => ({ getRandomValues, randomUUID, subtle }) as unknown as Crypto);
+vi.spyOn(globalThis, 'crypto', 'get').mockImplementation(
+  () => ({ getRandomValues, randomUUID, subtle }) as unknown as Crypto,
+);
 
 // Suppress specific known warnings to reduce noise in test output
 const suppressedWarnings = ['[mobx-react-lite] importing batchingForReactDom is no longer needed'];
@@ -239,6 +241,28 @@ if (typeof ClipboardItem === 'undefined') {
     writable: true,
     configurable: true,
     value: ClipboardItemMock,
+  });
+}
+
+// Polyfill Blob#text() / File#text()
+// jsdom doesn't implement Blob.prototype.text, which browsers (and the code under
+// test) rely on. FileReader is the only way to read a jsdom Blob, so it's used here to implement the missing API.
+if (typeof Blob.prototype.text !== 'function') {
+  Object.defineProperty(Blob.prototype, 'text', {
+    writable: true,
+    configurable: true,
+    value: function (this: Blob): Promise<string> {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(new TextDecoder().decode(reader.result as ArrayBuffer));
+        };
+        reader.onerror = () => {
+          reject(new Error(reader.error?.message ?? 'Failed to read Blob'));
+        };
+        reader.readAsArrayBuffer(this); // NOSONAR - this is the polyfill for the missing Blob#text()
+      });
+    },
   });
 }
 

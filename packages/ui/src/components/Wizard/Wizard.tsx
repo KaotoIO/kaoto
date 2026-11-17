@@ -85,17 +85,20 @@ export const Wizard: FunctionComponent<WizardProps> = ({
           className={clsx('kaoto-wizard__steps', { 'kaoto-wizard__steps--expanded': isNavExpanded })}
           aria-label={stepsLabel}
         >
+          {/* The indicator marks every step before `currentIndex` as complete, whether or not it was done.
+              Passing -1 keeps it from doing that, so a step is complete only when the page says so. */}
           <ProgressIndicator
             vertical
-            currentIndex={currentIndex}
+            currentIndex={-1}
             onChange={(index) => {
               setIsNavExpanded(false);
               onStepChange(index);
             }}
           >
-            {steps.map((step) => (
+            {steps.map((step, index) => (
               <ProgressStep
                 key={step.id}
+                current={index === currentIndex}
                 label={step.label}
                 disabled={step.disabled}
                 complete={step.complete}

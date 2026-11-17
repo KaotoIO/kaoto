@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { StrictMode } from 'react';
 
 import { Wizard, WizardStep } from './Wizard';
@@ -133,6 +133,29 @@ describe('Wizard', () => {
 
     expect(screen.queryByText('First content')).not.toBeInTheDocument();
     expect(screen.queryByText('Second content')).not.toBeInTheDocument();
+  });
+
+  it('marks the current step and does not mark the earlier ones as complete on their own', () => {
+    render(<Wizard steps={STEPS} currentIndex={2} onStepChange={vi.fn()} footer={null} stepsLabel="Wizard steps" />);
+
+    const stepButton = (name: RegExp) =>
+      within(screen.getByRole('navigation', { name: 'Wizard steps' })).getByRole('button', { name });
+    expect(stepButton(/first step/i)).toHaveTextContent('Incomplete');
+    expect(stepButton(/second step/i)).toHaveTextContent('Incomplete');
+    expect(stepButton(/third step/i)).toHaveTextContent('Current');
+  });
+
+  it('marks as complete or invalid only the steps that say so', () => {
+    const steps: WizardStep[] = [
+      { id: 'one', label: 'First step', content: <p>First</p>, complete: true },
+      { id: 'two', label: 'Second step', content: <p>Second</p>, invalid: true },
+      { id: 'three', label: 'Third step', content: <p>Third</p> },
+    ];
+    render(<Wizard steps={steps} currentIndex={2} onStepChange={vi.fn()} footer={null} stepsLabel="Wizard steps" />);
+
+    const nav = within(screen.getByRole('navigation', { name: 'Wizard steps' }));
+    expect(nav.getByRole('button', { name: /first step/i })).toHaveTextContent('Complete');
+    expect(nav.getByRole('button', { name: /second step/i })).toHaveTextContent('Invalid');
   });
 
   it('uses a navigation id that is unique to each wizard', () => {

@@ -1,120 +1,138 @@
-import { CheckmarkFilled } from '@carbon/icons-react';
-import { DropEvent, FileUpload, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
-import { FunctionComponent, useCallback, useRef, useState } from 'react';
+import { FileUploaderDropContainer, FileUploaderItem, InlineNotification } from '@carbon/react';
+import { FunctionComponent, SyntheticEvent, useCallback, useEffect, useRef, useState } from 'react';
 
+import { useLatestRequest } from '../../../hooks/useLatestRequest';
 import { SchemaLoadedResult } from '../RestDslImportTypes';
 
 type FileImportSourceProps = {
   onSchemaLoaded: (result: SchemaLoadedResult) => { error?: string };
+  /** Called when the user removes the file, so what was derived from it is discarded */
+  onCleared?: () => void;
+  /** Name of a file already loaded by the wizard, shown again when the step is revisited */
+  loadedFilename?: string;
 };
 
-export const FileImportSource: FunctionComponent<FileImportSourceProps> = ({ onSchemaLoaded }) => {
-  const [value, setValue] = useState('');
-  const [filename, setFilename] = useState('');
+type AddedFile = File & { invalidFileType?: boolean };
+
+const ACCEPTED_EXTENSIONS = ['.json', '.yaml', '.yml'];
+const READ_ERROR_MESSAGE = 'Unable to read the uploaded specification.';
+const UNSUPPORTED_FILE_MESSAGE = `Unsupported file type. Accepted types: ${ACCEPTED_EXTENSIONS.join(', ')}.`;
+
+export const FileImportSource: FunctionComponent<FileImportSourceProps> = ({
+  onSchemaLoaded,
+  onCleared,
+  loadedFilename = '',
+}) => {
+  const [filename, setFilename] = useState(loadedFilename);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(!!loadedFilename);
   const [error, setError] = useState('');
-  const filenameRef = useRef('');
+  const uploaderRef = useRef<HTMLButtonElement>(null);
+  const focusUploaderRef = useRef(false);
+  const startRequest = useLatestRequest();
 
-  const handleFileInputChange = useCallback((_: DropEvent, file: File) => {
-    setFilename(file.name);
-    filenameRef.current = file.name;
-    setError('');
-  }, []);
+  /** The remove button is gone once the file is removed, so focus moves to the uploader that replaces it */
+  useEffect(() => {
+    if (!filename && focusUploaderRef.current) {
+      focusUploaderRef.current = false;
+      uploaderRef.current?.focus();
+    }
+  }, [filename]);
 
-  const handleDataChange = useCallback(
-    (_event: DropEvent, fileContent: string) => {
-      setValue(fileContent);
+  const loadFile = useCallback(
+    async (file: AddedFile) => {
+      const name = file.name;
+      const isLatest = startRequest();
+      setFilename(name);
+      setError('');
+      setIsLoaded(false);
 
-      if (!fileContent) {
-        setError('No file content to load');
-        setIsLoaded(false);
+      if (file.invalidFileType) {
+        setError(UNSUPPORTED_FILE_MESSAGE);
         return;
       }
 
+      setIsLoading(true);
       try {
-        const loadResult = onSchemaLoaded({
-          schema: fileContent,
-          source: 'file',
-          sourceIdentifier: filenameRef.current || 'uploaded-file',
-        });
+        const content = await file.text();
+        if (!isLatest()) return;
+        if (!content) {
+          setError('No file content to load');
+          return;
+        }
+
+        const loadResult = onSchemaLoaded({ schema: content, source: 'file', sourceIdentifier: name });
         if (loadResult?.error) {
           setError(loadResult.error);
-          setIsLoaded(false);
         } else {
           setIsLoaded(true);
-          setError('');
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unable to read the uploaded specification.';
-        setError(message);
-        setIsLoaded(false);
+        if (isLatest()) {
+          setError(err instanceof Error ? err.message : READ_ERROR_MESSAGE);
+        }
+      } finally {
+        if (isLatest()) {
+          setIsLoading(false);
+        }
       }
     },
-    [onSchemaLoaded],
+    [startRequest, onSchemaLoaded],
   );
 
-  const handleTextChange = useCallback((_event: React.ChangeEvent<HTMLTextAreaElement>, textValue: string) => {
-    setValue(textValue);
-  }, []);
+  const handleAddFiles = useCallback(
+    (event: SyntheticEvent, { addedFiles }: { addedFiles: AddedFile[] }) => {
+      const file = addedFiles[0];
+      if (file) {
+        void loadFile(file);
+        return;
+      }
 
-  const handleClear = useCallback(() => {
+      // The uploader drops a file without an extension before it reports it as unsupported.
+      // Cancelling the file picker adds no files and selects none, so it stays silent.
+      const isDrop = event.type === 'drop';
+      const pickedFiles = (event.target as HTMLInputElement).files?.length ?? 0;
+      if (isDrop || pickedFiles > 0) {
+        setError(UNSUPPORTED_FILE_MESSAGE);
+      }
+    },
+    [loadFile],
+  );
+
+  const handleDelete = useCallback(() => {
+    focusUploaderRef.current = true;
     setFilename('');
-    filenameRef.current = '';
-    setValue('');
     setIsLoaded(false);
     setError('');
-  }, []);
-
-  const handleFileReadStarted = useCallback(() => {
-    setIsLoading(true);
-    setError('');
-  }, []);
-
-  const handleFileReadFinished = useCallback(() => {
-    setIsLoading(false);
-  }, []);
+    onCleared?.();
+  }, [onCleared]);
 
   return (
     <>
-      <FileUpload
-        id="openapi-file-upload"
-        type="text"
-        value={value}
-        filename={filename}
-        filenamePlaceholder="Drag and drop a file or upload one"
-        onFileInputChange={handleFileInputChange}
-        onDataChange={handleDataChange}
-        onTextChange={handleTextChange}
-        onReadStarted={handleFileReadStarted}
-        onReadFinished={handleFileReadFinished}
-        onClearClick={handleClear}
-        isLoading={isLoading}
-        browseButtonText="Upload"
-        dropzoneProps={{
-          accept: {
-            'application/json': ['.json'],
-            'application/x-yaml': ['.yaml', '.yml'],
-            'text/yaml': ['.yaml', '.yml'],
-          },
-        }}
-      />
-      {isLoaded && (
-        <FormHelperText>
-          <HelperText>
-            <HelperTextItem variant="success" icon={<CheckmarkFilled />}>
-              Schema loaded successfully
-            </HelperTextItem>
-          </HelperText>
-        </FormHelperText>
+      {filename ? (
+        <FileUploaderItem
+          name={filename}
+          status={isLoading ? 'uploading' : 'edit'}
+          iconDescription="Remove file"
+          invalid={!!error}
+          errorSubject={error}
+          onDelete={handleDelete}
+        />
+      ) : (
+        <>
+          <p className="rest-dsl-import-helper">Supported file types are .json, .yaml and .yml.</p>
+          <FileUploaderDropContainer
+            name="openapi-file-upload"
+            labelText="Drag and drop files here or click to upload"
+            accept={ACCEPTED_EXTENSIONS}
+            multiple={false}
+            innerRef={uploaderRef}
+            onAddFiles={handleAddFiles}
+          />
+          {error && <InlineNotification kind="error" lowContrast hideCloseButton role="alert" title={error} />}
+        </>
       )}
-      {error && (
-        <FormHelperText>
-          <HelperText>
-            <HelperTextItem variant="error">{error}</HelperTextItem>
-          </HelperText>
-        </FormHelperText>
-      )}
+      {isLoaded && <InlineNotification kind="success" lowContrast hideCloseButton title="Schema loaded successfully" />}
     </>
   );
 };
