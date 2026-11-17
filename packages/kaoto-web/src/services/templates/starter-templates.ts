@@ -2,7 +2,7 @@
 export type StarterTemplateName = 'camel-route-yaml' | 'camel-route-xml' | 'kamelet-source-yaml' | 'citrus-yaml';
 
 const ID_PLACEHOLDER = /__KAOTO_ID__/g;
-/** The `metadata.name` of a Kamelet or a Pipe, which Camel expects to match the file name */
+/** The `metadata.name` of a Kamelet, which Camel expects to match the file name */
 const METADATA_NAME_PREFIX = '  name: ';
 
 interface CatalogIndex {
@@ -40,8 +40,8 @@ export const fetchStarterTemplate = async (catalogUrl: string, name: StarterTemp
   return (await fetchOk(new URL(template.file, manifestUrl))).text();
 };
 
-/** The extensions of the files whose template names them after the file */
-const NAMED_FILE_EXTENSION = /\.(kamelet|pipe)\.ya?ml$/;
+/** The extension of the files whose template names them after the file */
+const NAMED_FILE_EXTENSION = /\.kamelet\.ya?ml$/;
 /** A plain YAML scalar that YAML reads as a string, not as a boolean, null or number */
 const PLAIN_STRING = /^[A-Za-z_][\w.-]*$/;
 const NON_STRING_WORDS = new Set(['true', 'false', 'yes', 'no', 'on', 'off', 'y', 'n', 'null']);
@@ -55,7 +55,7 @@ const randomId = (): string => String(crypto.getRandomValues(new Uint32Array(1))
 /**
  * Fills a starter template in for a new file.
  *
- * The `metadata.name` of a Kamelet or a Pipe gets the file name without its extensions, as Camel looks a Kamelet up by
+ * The `metadata.name` of a Kamelet gets the file name without its extensions, as Camel looks a Kamelet up by
  * its file name; every other `__KAOTO_ID__` gets an id of its own.
  */
 export const resolveStarterTemplate = (template: string, fileName: string): string => {
