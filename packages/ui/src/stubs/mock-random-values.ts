@@ -1,7 +1,7 @@
-import { subtle } from 'node:crypto';
+import { randomUUID, subtle } from 'node:crypto';
 
 export const mockRandomValues = (ids = [12345678]) => {
   vi.spyOn(globalThis, 'crypto', 'get').mockImplementation(
-    () => ({ getRandomValues: () => ids, subtle }) as unknown as Crypto,
+    () => ({ getRandomValues: () => ids, randomUUID, subtle }) as unknown as Crypto,
   );
 };

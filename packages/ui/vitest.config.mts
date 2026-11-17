@@ -51,7 +51,6 @@ export default defineConfig({
           'monaco-editor',
           'react-monaco-editor',
           'hotkeys-js',
-          'uuid',
         ],
       },
     },
@@ -61,11 +60,6 @@ export default defineConfig({
       {
         find: /^react-dom$/,
         replacement: fileURLToPath(new URL('../../node_modules/react-dom', import.meta.url)),
-      },
-      // Use native ESM build to avoid CJS interop issues in wrapper.mjs
-      {
-        find: /^uuid$/,
-        replacement: fileURLToPath(new URL('../../node_modules/uuid/dist/esm-node/index.js', import.meta.url)),
       },
     ],
   },
