@@ -116,12 +116,13 @@ These notes come from tracking down a layout check that failed on CI only
 
 - **Start with the CI screenshot.** A failed group uploads the artifact `ui-test-screenshots-<group>-<os>` with a
   screenshot of the window at the moment of the failure.
-- **Run one file or a few.** `extest run-tests` takes a single glob. To run several files, use one brace glob, for
-  example `yarn exec extest run-tests 'out/editor/{PropertyPanelLoading,SwitchBetweenTabs}.test.js'`. Further
-  arguments are ignored, and with `failZero` a run that finds no tests fails with `0 passing`.
+- **Run one file or a few.** `extest run-tests` takes one or more globs. From the repository root, for example:
+  `yarn workspace @kaoto/ui-tests-vscode exec extest run-tests 'out/editor/PropertyPanelLoading.test.js' 'out/editor/SwitchBetweenTabs.test.js'`.
+  Quote each glob as an argument of its own; a list of files in one shell variable can reach ExTester as a single
+  argument that matches nothing, and with `failZero` such a run fails with `0 passing`.
 - **Iterate without repackaging.** After one `setup:test:ui:vsix`, a change to the tests only needs
-  `yarn build` and `yarn exec extest run-tests …`. Rebuild and reinstall the VSIX only when the extension or the UI
-  changes.
+  `yarn workspace @kaoto/ui-tests-vscode build` and `yarn workspace @kaoto/ui-tests-vscode exec extest run-tests …`.
+  Rebuild and reinstall the VSIX only when the extension or the UI changes.
 - **The tests run zoomed out.** `src/vscode-settings.json` sets `window.zoomLevel: -3`, so `devicePixelRatio` is about
   0.58 and the webview's CSS viewport depends on the screen: a large local monitor gives a much taller layout than the
   Windows CI runner. A layout check can therefore pass locally and fail on CI. ExTester cannot resize the Electron
