@@ -28,8 +28,23 @@
   }
 }
 
+/* Carbon's BEM class names are not kebab-case */
+/* stylelint-disable selector-class-pattern */
 .loading-inline {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  // Fits the loader in a tight space, e.g. the icon slot of a button, without growing its host.
+  // Carbon's inline loading otherwise spans the full width and is at least 2rem tall.
+  &--compact {
+    .cds--inline-loading {
+      inline-size: auto;
+      min-block-size: 0;
+    }
+
+    .cds--inline-loading__animation {
+      margin-inline-end: 0;
+    }
+  }
 }

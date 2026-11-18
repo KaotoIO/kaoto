@@ -7,7 +7,7 @@ interface LoadingProps {
   description?: string;
   /** Center the spinner in the viewport, for loaders that replace the whole editor */
   fullPage?: boolean;
-  /** smaller size loader */
+  /** Render the small Carbon spinner */
   small?: boolean;
   /**
    * Cover the screen with Carbon's fixed, dimmed overlay and center the spinner in it. Use it for loaders rendered

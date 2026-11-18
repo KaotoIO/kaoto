@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
 import { BODY_DOCUMENT_ID, DocumentType, RootElementOption } from '../../../../models/datamapper/document';
@@ -1135,22 +1135,24 @@ describe('AttachSchemaModal', () => {
 
         fireEvent.change(fileInput, { target: { files: { item: () => fileContent, length: 1, 0: fileContent } } });
 
-        // After file selection, button should show loading state
+        // After file selection, the same button stays mounted, disabled, with the loader in its icon slot
         await waitFor(() => {
           expect(importButton).toBeDisabled();
           expect(importButton.textContent).toContain('Uploading schema file(s)...');
-          expect(screen.getByLabelText('Uploading schema file(s)')).toBeInTheDocument();
+          expect(within(importButton).getByTitle('Uploading schema file(s)')).toBeInTheDocument();
         });
+        expect(screen.getByTestId('attach-schema-modal-btn-file')).toBe(importButton);
 
         // Resolve the document creation
         resolveCreate!({ validationStatus: 'success', document: {}, documentDefinition: {} });
 
         // Wait for processing to complete
         await waitFor(() => {
-          expect(screen.queryByLabelText('Uploading schema file(s)')).not.toBeInTheDocument();
+          expect(screen.queryByTitle('Uploading schema file(s)')).not.toBeInTheDocument();
           expect(importButton).not.toBeDisabled();
           expect(importButton.textContent).toBe('Upload schema file(s)');
         });
+        expect(screen.getByTestId('attach-schema-modal-btn-file')).toBe(importButton);
       });
 
       it('should not show loading state while file picker is open', async () => {
@@ -1175,7 +1177,7 @@ describe('AttachSchemaModal', () => {
         fireEvent.click(importButton);
 
         // Loading state should not appear immediately when file picker opens
-        expect(screen.queryByLabelText('Uploading schema file(s)')).not.toBeInTheDocument();
+        expect(screen.queryByTitle('Uploading schema file(s)')).not.toBeInTheDocument();
         expect(importButton).not.toBeDisabled();
         expect(importButton.textContent).toBe('Upload schema file(s)');
       });
@@ -1212,7 +1214,7 @@ describe('AttachSchemaModal', () => {
 
         // Wait for error handling and loading state to clear
         await waitFor(() => {
-          expect(screen.queryByLabelText('Uploading schema file(s)')).not.toBeInTheDocument();
+          expect(screen.queryByTitle('Uploading schema file(s)')).not.toBeInTheDocument();
           expect(importButton).not.toBeDisabled();
           expect(importButton.textContent).toBe('Upload schema file(s)');
         });

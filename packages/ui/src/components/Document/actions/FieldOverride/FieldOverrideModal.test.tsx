@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType, IField } from '../../../../models/datamapper/document';
 import { MappingTree } from '../../../../models/datamapper/mapping';
@@ -805,18 +805,21 @@ describe('FieldOverrideModal', () => {
 
       fireEvent.click(uploadButton);
 
-      // After file selection, spinner should appear and button should be disabled
+      // After file selection, the same button stays mounted, disabled, with the loader in its icon slot
       await waitFor(() => {
-        const spinner = screen.getByLabelText('Uploading schema files');
-        expect(spinner).toBeInTheDocument();
+        expect(within(uploadButton).getByTitle('Uploading schema files')).toBeInTheDocument();
         expect(uploadButton).toBeDisabled();
+        expect(uploadButton).toHaveTextContent('Uploading Schema...');
       });
+      expect(screen.getByTestId('upload-schema-button')).toBe(uploadButton);
 
       // Wait for upload to complete
       await waitFor(() => {
-        expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+        expect(screen.queryByTitle('Uploading schema files')).not.toBeInTheDocument();
         expect(uploadButton).not.toBeDisabled();
+        expect(uploadButton).toHaveTextContent('Upload Schema');
       });
+      expect(screen.getByTestId('upload-schema-button')).toBe(uploadButton);
     });
 
     it('should not show spinner while file picker dialog is open', async () => {
@@ -836,7 +839,7 @@ describe('FieldOverrideModal', () => {
       fireEvent.click(uploadButton);
 
       // Spinner should not appear while file picker is open
-      expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Uploading schema files')).not.toBeInTheDocument();
       expect(uploadButton).not.toBeDisabled();
     });
 
@@ -852,7 +855,7 @@ describe('FieldOverrideModal', () => {
 
       // Loading state should be cleared even after error
       await waitFor(() => {
-        expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+        expect(screen.queryByTitle('Uploading schema files')).not.toBeInTheDocument();
         expect(uploadButton).not.toBeDisabled();
       });
 
@@ -872,7 +875,7 @@ describe('FieldOverrideModal', () => {
       fireEvent.click(uploadButton);
 
       // Loading state should not appear for validation errors (fails before loading starts)
-      expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Uploading schema files')).not.toBeInTheDocument();
       expect(uploadButton).not.toBeDisabled();
 
       // Validation error should be displayed
@@ -897,7 +900,7 @@ describe('FieldOverrideModal', () => {
 
       // Loading state should be cleared after attachment error
       await waitFor(() => {
-        expect(screen.queryByLabelText('Uploading schema files')).not.toBeInTheDocument();
+        expect(screen.queryByTitle('Uploading schema files')).not.toBeInTheDocument();
         expect(uploadButton).not.toBeDisabled();
       });
 
