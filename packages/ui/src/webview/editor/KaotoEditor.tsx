@@ -19,7 +19,9 @@ import { HostBridgeProvider } from '../../host-bridge/react/context';
 import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../../models';
 import { DefaultSettingsAdapter } from '../../models/settings';
 import { KaotoResourceProvider } from '../../providers';
+import { ResourceParseState } from '../../providers/kaoto-resource.provider';
 import { EntitiesProvider } from '../../providers/entities.provider';
+import { useKaotoResourceContext } from '../../hooks/useKaotoResourceContext/useKaotoResourceContext';
 import { ReloadProvider } from '../../providers/reload.provider';
 import { RuntimeProvider } from '../../providers/runtime.provider';
 import { SettingsContext, SettingsProvider } from '../../providers/settings.provider';
@@ -41,6 +43,16 @@ export interface KaotoEditorInit {
    */
   onDisconnect?: (listener: (error: Error) => void) => () => void;
 }
+
+/**
+ * Sits inside KaotoResourceProvider. When the last document did not parse, the canvas is made
+ * inert so that no user interaction (or React re-render callback) can serialize the empty fallback
+ * resource and overwrite the host's copy of the broken file.
+ */
+const CanvasInertBoundary = ({ children }: PropsWithChildren) => {
+  const { parseState } = useKaotoResourceContext();
+  return <div inert={parseState === ResourceParseState.Error || undefined}>{children}</div>;
+};
 
 /**
  * Reads the catalog settings on every render, so the "Reload with default Catalog" action, which clears the

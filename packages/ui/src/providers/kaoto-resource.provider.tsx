@@ -5,8 +5,24 @@ import { CamelResourceFactory } from '../models/camel/camel-resource-factory';
 import { KaotoResource } from '../models/kaoto-resource';
 import { EventNotifier } from '../utils';
 
+export enum ResourceParseState {
+  Valid = 'Valid',
+  Empty = 'Empty',
+  Error = 'Error',
+}
+
 export interface KaotoResourceContextResult {
   kaotoResource?: KaotoResource;
+  /**
+   * The parse outcome of the last `code:updated` event.
+   * Undefined before the first document arrives.
+   * Valid  — parsed successfully.
+   * Empty  — reserved for future use (parsed OK, no entities).
+   * Error  — parser threw; the store still holds the original content.
+   */
+  parseState?: ResourceParseState;
+  /** Set only when parseState === Error. */
+  parsedError?: string;
 }
 
 export const KaotoResourceContext = createContext<KaotoResourceContextResult | null>(null);
@@ -18,12 +34,9 @@ interface KaotoResourceProviderProps extends PropsWithChildren {
 export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps> = ({ fileExtension, children }) => {
   const eventNotifier = EventNotifier.getInstance();
 
-  /**
-   * Start with undefined. The real source code arrives through the single
-   * `code:updated` ingress, emitted by the SourceCodeProvider. Using a lazy
-   * initializer avoids re-parsing the YAML on every render.
-   */
   const [kaotoResource, setKaotoResource] = useState<KaotoResource | undefined>();
+  const [parseState, setParseState] = useState<ResourceParseState | undefined>();
+  const [parsedError, setParsedError] = useState<string | undefined>();
 
   /**
    * Subscribe to the `code:updated` event to (re)create the CamelResource.
@@ -49,11 +62,15 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
 
       try {
         setKaotoResource(CamelResourceFactory.createCamelResource(code, { path: resolvedPath }));
-      } catch {
+        setParseState(ResourceParseState.Valid);
+        setParsedError(undefined);
+      } catch (err) {
         // Invalid source: keep the last valid resource, or fall back to an empty one if there is none yet.
         setKaotoResource(
           (previous) => previous ?? CamelResourceFactory.createCamelResource('', { path: resolvedPath }),
         );
+        setParseState(ResourceParseState.Error);
+        setParsedError(err instanceof Error ? err.message : 'The file could not be parsed');
       }
     });
   }, [eventNotifier, fileExtension]);
@@ -61,8 +78,10 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
   const value = useMemo(
     () => ({
       kaotoResource,
+      parseState,
+      parsedError,
     }),
-    [kaotoResource],
+    [kaotoResource, parseState, parsedError],
   );
 
   if (!kaotoResource) {
