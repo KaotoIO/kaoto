@@ -139,28 +139,28 @@ jobs:
       # upload and a flag of its own to report coverage.
       - name: Upload UI coverage
         if: hashFiles('packages/ui/coverage/lcov.info') != ''
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/ui/coverage/lcov.info
           flags: ui
       - name: Upload forms coverage
         if: hashFiles('packages/forms/coverage/lcov.info') != ''
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/forms/coverage/lcov.info
           flags: forms
       - name: Upload web coverage
         if: hashFiles('packages/kaoto-web/coverage/lcov.info') != ''
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/kaoto-web/coverage/lcov.info
           flags: web
       - name: Upload VS Code coverage
         if: hashFiles('packages/kaoto-vscode/coverage/lcov.info') != ''
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: packages/kaoto-vscode/coverage/lcov.info
