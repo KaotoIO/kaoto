@@ -379,10 +379,7 @@ export const Explorer: FunctionComponent = () => {
       aria-label="Project explorer"
       style={{ inlineSize: `${width}px` }}
     >
-      {/* Section 1 — Route selector area (stub) */}
-      <div className="cs--explorer__route-selector" data-testid="route-selector-area" />
-
-      {/* Section 2 — Toolbar */}
+      {/* Section 1 — Toolbar */}
       <div className="cs--explorer__toolbar">
         <h2 className="cs--explorer__heading">Explorer</h2>
         <div className="cs--explorer__toolbar-actions">
@@ -424,7 +421,7 @@ export const Explorer: FunctionComponent = () => {
         </div>
       </div>
 
-      {/* Section 3 — Search */}
+      {/* Section 2 — Search */}
       <div className="cs--explorer__search">
         <Search
           size="sm"
@@ -443,7 +440,7 @@ export const Explorer: FunctionComponent = () => {
         onMouseDown={handleResizerMouseDown}
       />
 
-      {/* Section 4 — File tree */}
+      {/* Section 3 — File tree */}
       {/* A click on the free space below the items makes the root the folder of the next new file or folder */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
