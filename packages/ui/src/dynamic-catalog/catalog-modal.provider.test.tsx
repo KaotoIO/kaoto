@@ -478,4 +478,52 @@ describe('CatalogModalProvider', () => {
       expect(selectedComponent?.name).toBe('amqp');
     });
   });
+
+  describe('focus', () => {
+    const SvgStep: FunctionComponent = () => {
+      const { getNewComponent } = useContext(CatalogModalContext)!;
+      return (
+        <svg>
+          <g
+            data-testid="svg-step"
+            tabIndex={-1}
+            onKeyDown={() => {
+              void getNewComponent();
+            }}
+          />
+        </svg>
+      );
+    };
+
+    const openCatalogFromStep = async () => {
+      (mockCatalogRegistry.getEntity as Mock).mockResolvedValue({ component: { name: 'amqp' } });
+      render(<SvgStep />, { wrapper: createWrapper() });
+      const step = screen.getByTestId('svg-step');
+      step.focus();
+      fireEvent.keyDown(step, { key: 'Enter' });
+      await screen.findByRole('dialog');
+
+      return step;
+    };
+
+    it('should return the focus to the SVG element that had it when the modal is closed without selection', async () => {
+      const step = await openCatalogFromStep();
+
+      fireEvent.click(screen.getByLabelText('Close'));
+
+      await waitFor(() => {
+        expect(step).toHaveFocus();
+      });
+    });
+
+    it('should return the focus to the SVG element that had it when a component is selected', async () => {
+      const step = await openCatalogFromStep();
+
+      fireEvent.click(screen.getByTestId('tile-header-amqp'));
+
+      await waitFor(() => {
+        expect(step).toHaveFocus();
+      });
+    });
+  });
 });

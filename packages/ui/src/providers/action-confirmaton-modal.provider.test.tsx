@@ -55,6 +55,28 @@ describe('ActionConfirmationModalProvider', () => {
     });
   });
 
+  it.each(['Confirm', 'Cancel'])(
+    'returns the focus to the SVG element that had it when %s is clicked',
+    async (name) => {
+      render(
+        <ActionConfirmationModalContextProvider>
+          <svg>
+            <TestSvgComponent />
+          </svg>
+        </ActionConfirmationModalContextProvider>,
+      );
+      const step = screen.getByTestId('svg-step');
+      step.focus();
+      fireEvent.keyDown(step, { key: 'Delete' });
+
+      fireEvent.click(await screen.findByRole('button', { name }));
+
+      await waitFor(() => {
+        expect(step).toHaveFocus();
+      });
+    },
+  );
+
   it('should allow consumers to update the modal title and text', () => {
     const wrapper = render(
       <ActionConfirmationModalContextProvider>
@@ -138,4 +160,10 @@ const TestComponent: FunctionComponent<TestComponentProps> = (props) => {
   };
 
   return <button onClick={handleDelete}>Delete</button>;
+};
+
+const TestSvgComponent: FunctionComponent = () => {
+  const { actionConfirmation } = useContext(ActionConfirmationModalContext)!;
+
+  return <g data-testid="svg-step" tabIndex={-1} onKeyDown={() => void actionConfirmation({})} />;
 };

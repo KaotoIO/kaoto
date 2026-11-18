@@ -1,5 +1,6 @@
 import { ContextMenuItem, WithContextMenuProps } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
 import type { Mock } from 'vitest';
 
@@ -23,6 +24,7 @@ describe('withNodeContextMenu', () => {
   const Target: FunctionComponent<TargetProps> = ({ onContextMenu, contextMenuOpen, count }) => (
     <g
       data-testid="target"
+      tabIndex={0}
       data-menu-open={String(contextMenuOpen)}
       data-count={count !== undefined ? String(count) : undefined}
       onContextMenu={onContextMenu}
@@ -147,5 +149,124 @@ describe('withNodeContextMenu', () => {
 
     expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
     expect(target).toHaveAttribute('data-menu-open', 'false');
+  });
+
+  describe('keyboard navigation', () => {
+    const openMenu = async (target: HTMLElement) => {
+      target.focus();
+      fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+      await screen.findByTestId('item-a');
+      await settle();
+    };
+
+    it('exposes the items as a named menu', async () => {
+      const { target } = renderWithMenu(vi.fn().mockReturnValue([itemA, itemB]));
+
+      await openMenu(target);
+
+      expect(screen.getByRole('menu', { name: 'Context menu' })).toBeInTheDocument();
+    });
+
+    it('moves the focus to the first item when the menu opens', async () => {
+      const { target } = renderWithMenu(vi.fn().mockReturnValue([itemA, itemB]));
+
+      await openMenu(target);
+
+      expect(screen.getByRole('menuitem', { name: 'Item A' })).toHaveFocus();
+    });
+
+    it('moves the focus between the items with the arrow keys', async () => {
+      const user = userEvent.setup();
+      const { target } = renderWithMenu(vi.fn().mockReturnValue([itemA, itemB]));
+      await openMenu(target);
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByRole('menuitem', { name: 'Item B' })).toHaveFocus();
+    });
+
+    it('runs the focused item once on Enter and returns the focus to where it was', async () => {
+      const user = userEvent.setup();
+      const onClick = vi.fn();
+      const item = (
+        <ContextMenuItem key="item-a" data-testid="item-a" onClick={onClick}>
+          Item A
+        </ContextMenuItem>
+      );
+      const { target } = renderWithMenu(vi.fn().mockReturnValue([item]));
+      await openMenu(target);
+
+      await user.keyboard('{Enter}');
+
+      expect(onClick).toHaveBeenCalledTimes(1);
+      expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
+      expect(target).toHaveFocus();
+    });
+
+    it('closes on Escape and returns the focus to where it was', async () => {
+      const user = userEvent.setup();
+      const { target } = renderWithMenu(vi.fn().mockReturnValue([itemA]));
+      await openMenu(target);
+
+      await user.keyboard('{Escape}');
+
+      expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
+      expect(target).toHaveFocus();
+    });
+
+    it('closes on Tab and returns the focus to where it was', async () => {
+      const user = userEvent.setup();
+      const { target } = renderWithMenu(vi.fn().mockReturnValue([itemA, itemB]));
+      await openMenu(target);
+
+      await user.tab();
+
+      expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
+      expect(target).toHaveFocus();
+    });
+
+    it('moves the focus to the canvas when an action removes the element that had it', async () => {
+      const user = userEvent.setup();
+      const canvas = document.createElement('div');
+      canvas.id = 'canvas-main';
+      canvas.tabIndex = -1;
+      const origin = document.createElement('button');
+      document.body.append(canvas, origin);
+      const item = (
+        <ContextMenuItem
+          key="item-a"
+          data-testid="item-a"
+          onClick={() => {
+            origin.remove();
+          }}
+        >
+          Item A
+        </ContextMenuItem>
+      );
+      const { target } = renderWithMenu(vi.fn().mockReturnValue([item]));
+      origin.focus();
+      fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+      await screen.findByTestId('item-a');
+      await settle();
+
+      await user.keyboard('{Enter}');
+      await settle();
+
+      expect(canvas).toHaveFocus();
+      canvas.remove();
+    });
+
+    it('does not move the focus when it was not on an element before opening the menu', async () => {
+      const { target } = renderWithMenu(vi.fn().mockReturnValue([itemA]));
+      (document.activeElement as HTMLElement | null)?.blur();
+      fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+      await screen.findByTestId('item-a');
+      await settle();
+
+      fireEvent.keyDown(screen.getByRole('menuitem', { name: 'Item A' }), { key: 'Escape' });
+
+      expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
+      expect(document.body).toHaveFocus();
+    });
   });
 });

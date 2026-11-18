@@ -1,7 +1,9 @@
+import { MenuList } from '@patternfly/react-core';
 import { ContextMenu, ElementContext, GraphElement, observer, WithContextMenuProps } from '@patternfly/react-topology';
 import {
   ComponentType,
   FunctionComponent,
+  KeyboardEvent,
   MouseEvent,
   ReactElement,
   useCallback,
@@ -11,6 +13,8 @@ import {
   useRef,
   useState,
 } from 'react';
+
+import { CanvasDefaults } from '../../Canvas/canvas.defaults';
 
 interface OpenMenu {
   /** Increases on every right-click, so each open mounts its own `ContextMenu` */
@@ -24,12 +28,19 @@ interface NodeContextMenuPopupProps {
   children: ReactElement[];
 }
 
+const focusFirstItem = (list: HTMLUListElement | null) => {
+  list?.querySelector<HTMLElement>('[role="menuitem"]')?.focus({ preventScroll: true });
+};
+
 /**
  * Mounts PatternFly's `ContextMenu` closed and opens it on the next animation frame.
  *
  * `ContextMenu` closes itself and reopens on the next animation frame whenever its `children` change, and it
  * does so on mount as well when it mounts open. Opening it after the mount, with children that never change,
  * means the items are inserted into the DOM once and stay there until the menu is closed.
+ *
+ * PatternFly handles the menu keys only while the focus is inside the menu, so the first item takes the focus when
+ * the menu opens, and the element that had it gets it back when the menu closes (KaotoIO/kaoto#4429).
  */
 const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
   reference,
@@ -37,18 +48,55 @@ const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
   children,
 }) => {
   const [open, setOpen] = useState(false);
+  const origin = useRef<HTMLElement | SVGElement | null>(null);
+
   useEffect(() => {
+    const active = document.activeElement;
+    const isElement = active instanceof HTMLElement || active instanceof SVGElement;
+    origin.current = isElement && active !== document.body ? active : null;
+
     const frame = requestAnimationFrame(() => {
       setOpen(true);
     });
     return () => {
       cancelAnimationFrame(frame);
+      /* An action may have removed the element that had the focus, like deleting a step */
+      requestAnimationFrame(() => {
+        if (origin.current?.isConnected === false && document.activeElement === document.body) {
+          document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.focus({ preventScroll: true });
+        }
+      });
     };
   }, []);
 
+  const handleRequestClose = useCallback(() => {
+    origin.current?.focus({ preventScroll: true });
+    onRequestClose();
+  }, [onRequestClose]);
+
+  const handleKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        handleRequestClose();
+      }
+    },
+    [handleRequestClose],
+  );
+
+  /* Memoized because `ContextMenu` closes and reopens whenever its children change */
+  const list = useMemo(
+    () => (
+      <MenuList aria-label="Context menu" ref={focusFirstItem} onKeyDown={handleKeyDown}>
+        {children}
+      </MenuList>
+    ),
+    [children, handleKeyDown],
+  );
+
   return (
-    <ContextMenu reference={reference} open={open} onRequestClose={onRequestClose}>
-      {children}
+    <ContextMenu reference={reference} open={open} onRequestClose={handleRequestClose}>
+      {list}
     </ContextMenu>
   );
 };

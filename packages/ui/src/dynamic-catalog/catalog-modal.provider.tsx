@@ -14,6 +14,7 @@ import {
 } from 'react';
 
 import { Catalog, ITile, TileFilter } from '../components/Catalog';
+import { useReturnFocus } from '../hooks/use-return-focus.hook';
 import { CatalogKind, DefinedComponent } from '../models';
 import { CatalogContext } from './catalog.provider';
 import { useCatalogTiles } from './use-catalog-tiles.hook';
@@ -45,6 +46,7 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
   const { fetchTiles, getTiles } = useCatalogTiles();
   const [filteredTiles, setFilteredTiles] = useState<ITile[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  useReturnFocus(isModalOpen);
 
   const componentSelectionRef = useRef<{
     resolve: (component: DefinedComponent | undefined) => void;

@@ -1,5 +1,6 @@
 import { AddLarge, Branch, Replicate } from '@carbon/icons-react';
-import { ContextMenuSeparator, ElementModel, GraphElement } from '@patternfly/react-topology';
+import { Divider } from '@patternfly/react-core';
+import { ElementModel, GraphElement } from '@patternfly/react-topology';
 import { forwardRef, ReactElement } from 'react';
 
 import { AddStepMode, IVisualizationNode, NodeInteraction } from '../../../../models/visualization/base-visual-entity';
@@ -63,7 +64,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
   addCopyPasteItems(items, nodeInteractions, vizNode);
 
   if (nodeInteractions.canHavePreviousStep || nodeInteractions.canHaveNextStep) {
-    items.push(<ContextMenuSeparator key="context-menu-separator-add" />);
+    items.push(<Divider component="li" key="context-menu-separator-add" />);
   }
 
   items.push(
@@ -110,7 +111,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
     );
   }
   if (nodeInteractions.canHaveChildren || nodeInteractions.canHaveSpecialChildren) {
-    items.push(<ContextMenuSeparator key="context-menu-separator-insert" />);
+    items.push(<Divider component="li" key="context-menu-separator-insert" />);
   }
 
   if (nodeInteractions.canBeDisabled) {
@@ -131,7 +132,7 @@ export const NodeContextMenuFn = (element: GraphElement<ElementModel, CanvasNode
     );
   }
   if (nodeInteractions.canBeDisabled || nodeInteractions.canReplaceStep) {
-    items.push(<ContextMenuSeparator key="context-menu-separator-replace" />);
+    items.push(<Divider component="li" key="context-menu-separator-replace" />);
   }
 
   if (nodeInteractions.canRemoveStep) {
