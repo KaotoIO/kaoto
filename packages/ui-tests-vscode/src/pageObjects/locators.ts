@@ -60,6 +60,8 @@ export const kaotoLocators = {
 		root: `#kaoto-editor`,
 		emptyCanvas: `//div[@data-testid='visualization-empty-state']`,
 		topology: `//div[@data-test-id='topology']`,
+		// The canvas stays mounted while empty or resolving, so "drawn" means a node exists
+		topologyNode: `//div[@data-test-id='topology']//*[@data-kind='node']`,
 		designTabLink: `a[data-testid="design-tab"]`,
 		closeSideBar: `//button[@data-testid='close-side-bar']`,
 		propertyPanelCard: `canvas-form`,
@@ -239,6 +241,7 @@ export const locators: LocatorDiff['locators'] = {
 		root: By.css(`#kaoto-editor`),
 		emptyCanvas: By.xpath(`//div[@data-testid='visualization-empty-state']`),
 		topology: By.xpath(`//div[@data-test-id='topology']`),
+		topologyNode: By.xpath(`//div[@data-test-id='topology']//*[@data-kind='node']`),
 		designTabLink: By.css(`a[data-testid="design-tab"]`),
 		closeSideBar: By.xpath(`//button[@data-testid='close-side-bar']`),
 		propertyPanelCard: By.className(`canvas-form`),
