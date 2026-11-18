@@ -2156,13 +2156,14 @@ __metadata:
   linkType: hard
 
 "@double-great/stylelint-a11y@npm:^3.0.4":
-  version: 3.5.2
-  resolution: "@double-great/stylelint-a11y@npm:3.5.2"
+  version: 3.8.3
+  resolution: "@double-great/stylelint-a11y@npm:3.8.3"
   dependencies:
-    postcss: "npm:^8.5.26"
+    postcss: "npm:^8.5.29"
+    postcss-selector-parser: "npm:^7.1.0"
   peerDependencies:
-    stylelint: ">=16.0.0"
-  checksum: 10/7edec3800c21c35cbe4db578dd18bdcdc4ba217063f32b9cbffcb9ea0cf3b0d8595ca65571c522a4a067c33112c894d0943391ab818fbf338cea2d584a8f16fb
+    stylelint: ">=16.7.0"
+  checksum: 10/b00cbadab535f82b1a8a96effbea0e2cafaa4f6b94029667f90bf23f5973cb86b7e77a1a58732eabdd738a11c90f405fa8d09d9c57061aa226286489b321831b
   languageName: node
   linkType: hard
 
@@ -20844,6 +20845,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss-selector-parser@npm:^7.1.0":
+  version: 7.1.8
+  resolution: "postcss-selector-parser@npm:7.1.8"
+  dependencies:
+    util-deprecate: "npm:^1.0.2"
+  checksum: 10/4e91895bacc95f23cf150e01e999a479fd8472a842ea006684109bb6d70bb9e84146e78a86cea591782281e5ee5220af6f819c68eb378916499e6e3cfe498bbb
+  languageName: node
+  linkType: hard
+
 "postcss-selector-parser@npm:^7.1.1, postcss-selector-parser@npm:^7.1.4":
   version: 7.1.5
   resolution: "postcss-selector-parser@npm:7.1.5"
@@ -20884,7 +20894,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.45, postcss@npm:^8.5.14, postcss@npm:^8.5.15, postcss@npm:^8.5.16, postcss@npm:^8.5.26, postcss@npm:^8.5.32":
+"postcss@npm:^8.4.45, postcss@npm:^8.5.14, postcss@npm:^8.5.15, postcss@npm:^8.5.16, postcss@npm:^8.5.26, postcss@npm:^8.5.29, postcss@npm:^8.5.32":
   version: 8.5.32
   resolution: "postcss@npm:8.5.32"
   dependencies:
