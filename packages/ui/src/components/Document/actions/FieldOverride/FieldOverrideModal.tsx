@@ -13,7 +13,6 @@ import {
   ModalHeader,
   ModalVariant,
   Radio,
-  Spinner,
   Split,
   SplitItem,
 } from '@patternfly/react-core';
@@ -26,6 +25,7 @@ import { MetadataContext } from '../../../../providers';
 import { formatQNameWithPrefix } from '../../../../services/namespace-util';
 import { SchemaPathService } from '../../../../services/schema-path.service';
 import { DataMapperModal } from '../../../DataMapper/DataMapperModal';
+import { LoadingInline } from '../../../Loading';
 import { TypeaheadSelect, TypeaheadSelectOption } from '../AttachSchema/TypeaheadSelect';
 import { getFileName, pickAndValidateSchemaFiles } from '../utils';
 import { CandidateDisplay, getOverrideCandidates, OverrideMode } from './override-util';
@@ -269,7 +269,13 @@ export const FieldOverrideModal: FunctionComponent<FieldOverrideModalProps> = ({
             {/* Removal of individual schema files from this modal is intentionally not supported — files are managed via the document-level attach/detach flow */}
             <SchemaFileList existingFiles={existingFiles} pendingUploads={[]} onRemove={() => {}} />
             <Button
-              icon={isUploadingSchema ? <Spinner size="sm" aria-label="Uploading schema files" /> : <DocumentImport />}
+              icon={
+                isUploadingSchema ? (
+                  <LoadingInline compact iconDescription="Uploading schema files" />
+                ) : (
+                  <DocumentImport />
+                )
+              }
               onClick={handleSchemaUpload}
               isDisabled={isUploadingSchema}
               aria-label="Upload schema file"
