@@ -6,7 +6,7 @@ import {
   DocumentType,
   IDocument,
 } from '../../models/datamapper/document';
-import { Predicate, PredicateOperator } from '../../models/datamapper/xpath';
+import { Predicate, PredicateOperator, XPathOutputKind } from '../../models/datamapper/xpath';
 import { getCartXsd, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { LiteralNode, XPathNodeType } from './syntaxtree/xpath-syntaxtree-model';
@@ -22,6 +22,17 @@ describe('XPathService', () => {
       expect(XPathService.isSimplePath('@id')).toBe(true);
       expect(XPathService.isSimplePath('../parentField')).toBe(true);
       expect(XPathService.isSimplePath('attribute::id')).toBe(true);
+    });
+
+    it.each([['-@id'], ['@id cast as xs:string'], ['@id castable as xs:integer'], ['@id to 3']])(
+      'should return false for %s, whose atomic operator makes it more than a path',
+      (expression) => {
+        expect(XPathService.isSimplePath(expression)).toBe(false);
+      },
+    );
+
+    it('should return true for a path under treat as, which returns its operand unchanged', () => {
+      expect(XPathService.isSimplePath('@id treat as attribute()')).toBe(true);
     });
 
     it('should reject explicit non-child axes', () => {
@@ -82,6 +93,125 @@ describe('XPathService', () => {
       expect(XPathService.isSimplePath('/ns0:Root/union')).toBe(true);
     });
   });
+  describe('getOutputKind()', () => {
+    it.each([
+      ['@*'],
+      ['attribute::*'],
+      ['@node()'],
+      ['@OrderId'],
+      ['/ns0:ShipOrder/@*[. != ""]'],
+      ['/ns0:ShipOrder/(@a | @b)'],
+      ['if (c) then @OrderId else ()'],
+      ['@a intersect b'],
+      ['/ns0:ShipOrder/@*/.'],
+      ['@a treat as attribute()'],
+      ['namespace::*'],
+      ['/ns0:ShipOrder/namespace::p'],
+    ])('should classify %s as writing attributes only', (expression) => {
+      expect(XPathService.getOutputKind(expression)).toBe(XPathOutputKind.ATTRIBUTES);
+    });
+
+    it.each([
+      ['src/@* | src/node()'],
+      ['@OrderId | ns0:OrderPerson'],
+      ['/ns0:ShipOrder/(@OrderId | ns0:OrderPerson)'],
+      ['(@a, b)'],
+      ['if (c) then @a else b'],
+      ['@OrderId | $v'],
+      ["@*, 'text'"],
+      ['if (c) then some $x in X satisfies $x else @a'],
+      ['@a, for $x in X return $x'],
+      ['namespace::* | node()'],
+    ])('should classify %s as writing attributes and children', (expression) => {
+      expect(XPathService.getOutputKind(expression)).toBe(XPathOutputKind.ATTRIBUTES_AND_CHILDREN);
+    });
+
+    it.each([
+      ['@OrderId/..'],
+      ["Item[@type = 'a']"],
+      ['string(@OrderId)'],
+      ['node()'],
+      ['$v'],
+      ['current-group()'],
+      ['/'],
+      ['/ns0:ShipOrder/ns0:OrderPerson'],
+      ['-@a'],
+      ['+@a'],
+      ['@a cast as xs:string'],
+      ['@a castable as xs:string'],
+      ['@a instance of attribute()'],
+      ['@a to 7'],
+      ['@a castable as xs:integer and @b'],
+      ['@b or @a castable as xs:integer'],
+      ['@a idiv 2 | @b'],
+      ['@a << @b'],
+      ['@a >> @b | @c'],
+      ['@a is @b'],
+      ['some $x in @* satisfies $x'],
+      ['every $x in @* satisfies $x'],
+    ])('should classify %s as writing children', (expression) => {
+      expect(XPathService.getOutputKind(expression)).toBe(XPathOutputKind.CHILDREN);
+    });
+
+    it.each([['()'], ['if (c) then () else ()'], ['/ns0:ShipOrder/()']])(
+      'should classify %s as writing nothing',
+      (expression) => {
+        expect(XPathService.getOutputKind(expression)).toBe(XPathOutputKind.EMPTY);
+      },
+    );
+
+    it('should read a for expression as children even when it returns attributes, a known gap', () => {
+      expect(XPathService.getOutputKind('for $a in @* return $a')).toBe(XPathOutputKind.CHILDREN);
+    });
+
+    it('should resolve the context item through the callback', () => {
+      expect(XPathService.getOutputKind('.', () => XPathOutputKind.ATTRIBUTES)).toBe(XPathOutputKind.ATTRIBUTES);
+      expect(XPathService.getOutputKind('self::node()', () => XPathOutputKind.ATTRIBUTES)).toBe(
+        XPathOutputKind.ATTRIBUTES,
+      );
+      expect(XPathService.getOutputKind('.', () => XPathOutputKind.CHILDREN)).toBe(XPathOutputKind.CHILDREN);
+    });
+
+    it('should treat the context item as children without a callback', () => {
+      expect(XPathService.getOutputKind('.')).toBe(XPathOutputKind.CHILDREN);
+    });
+
+    it('should give CHILDREN for an unparsable expression', () => {
+      expect(XPathService.getOutputKind('/ns0:ShipOrder/(')).toBe(XPathOutputKind.CHILDREN);
+    });
+  });
+
+  describe('combineOutputKinds()', () => {
+    const { EMPTY, CHILDREN, ATTRIBUTES, ATTRIBUTES_AND_CHILDREN } = XPathOutputKind;
+
+    it.each<[XPathOutputKind, XPathOutputKind, XPathOutputKind]>([
+      [EMPTY, EMPTY, EMPTY],
+      [EMPTY, CHILDREN, CHILDREN],
+      [EMPTY, ATTRIBUTES, ATTRIBUTES],
+      [EMPTY, ATTRIBUTES_AND_CHILDREN, ATTRIBUTES_AND_CHILDREN],
+      [CHILDREN, CHILDREN, CHILDREN],
+      [CHILDREN, ATTRIBUTES, ATTRIBUTES_AND_CHILDREN],
+      [CHILDREN, ATTRIBUTES_AND_CHILDREN, ATTRIBUTES_AND_CHILDREN],
+      [ATTRIBUTES, ATTRIBUTES, ATTRIBUTES],
+      [ATTRIBUTES, ATTRIBUTES_AND_CHILDREN, ATTRIBUTES_AND_CHILDREN],
+      [ATTRIBUTES_AND_CHILDREN, ATTRIBUTES_AND_CHILDREN, ATTRIBUTES_AND_CHILDREN],
+    ])('should combine %s and %s into %s, in either order', (left, right, expected) => {
+      expect(XPathService.combineOutputKinds([left, right])).toBe(expected);
+      expect(XPathService.combineOutputKinds([right, left])).toBe(expected);
+    });
+
+    it.each<XPathOutputKind>([EMPTY, CHILDREN, ATTRIBUTES, ATTRIBUTES_AND_CHILDREN])(
+      'should keep a lone %s',
+      (kind) => {
+        expect(XPathService.combineOutputKinds([kind])).toBe(kind);
+      },
+    );
+
+    it('should give EMPTY for no parts', () => {
+      expect(XPathService.combineOutputKinds([])).toBe(EMPTY);
+    });
+  });
+
   describe('parse()', () => {
     it('should parse a field path', () => {
       const result = XPathService.parse('/aaa/bbb/ccc');
@@ -338,6 +468,54 @@ describe('XPathService', () => {
   });
 
   describe('extractFieldPaths()', () => {
+    it.each([['/aaa/@id cast as xs:string'], ['-/aaa/@id'], ['/aaa/@id to 7']])(
+      'should still extract the path inside %s',
+      (expression) => {
+        const paths = XPathService.extractFieldPaths(expression);
+
+        expect(paths[0].pathSegments.map((segment) => segment.name)).toEqual(['aaa', 'id']);
+      },
+    );
+
+    it.each([
+      ['string(-/aaa/@id + /aaa/bbb)'],
+      ['/aaa/@id castable as xs:integer and /aaa/bbb'],
+      ['/aaa/bbb or /aaa/@id castable as xs:integer'],
+    ])('should extract both paths of %s', (expression) => {
+      const paths = XPathService.extractFieldPaths(expression);
+
+      expect(paths.map((path) => path.pathSegments.map((segment) => segment.name))).toEqual(
+        expect.arrayContaining([
+          ['aaa', 'id'],
+          ['aaa', 'bbb'],
+        ]),
+      );
+      expect(paths).toHaveLength(2);
+    });
+
+    it.each([
+      ['/aaa * /bbb > /ccc'],
+      ['/aaa + /bbb - /ccc != 0'],
+      ['/aaa = /bbb + /ccc'],
+      ["/aaa = 'x' | /bbb | /ccc"],
+      ['not(/aaa = /bbb and /ccc)'],
+      ['concat(/aaa idiv /bbb, /ccc)'],
+      ['/aaa << /bbb | /ccc'],
+      ['/aaa >> /bbb | /ccc'],
+      ['if (/aaa * /bbb > 100) then /ccc else 0'],
+      ['string(/aaa | /bbb to /ccc)'],
+      ['string((/aaa) + /bbb - /ccc)'],
+      ['string(/aaa | /bbb + /ccc)'],
+      ["concat(if (/aaa = /bbb) then /ccc else '', 'x')"],
+    ])('should extract every path of %s', (expression) => {
+      const paths = XPathService.extractFieldPaths(expression);
+
+      expect(paths.map((path) => path.pathSegments.map((segment) => segment.name))).toEqual(
+        expect.arrayContaining([['aaa'], ['bbb'], ['ccc']]),
+      );
+      expect(paths).toHaveLength(3);
+    });
+
     it('should extract field paths from AST', () => {
       const paths = XPathService.extractFieldPaths('/aaa/bbb/ccc');
       expect(paths).toHaveLength(1);

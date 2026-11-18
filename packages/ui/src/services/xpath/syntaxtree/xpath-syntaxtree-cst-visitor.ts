@@ -4,6 +4,8 @@ import { PredicateOperator } from '../../../models/datamapper/xpath';
 import {
   ArithmeticExprNode,
   ArithmeticOperator,
+  AtomicExprNode,
+  AtomicOperator,
   CombineExprNode,
   CombineOperator,
   ComparisonExprNode,
@@ -23,6 +25,7 @@ import {
   ReverseStepNode,
   SourceRange,
   StepExprNode,
+  UnsupportedExprNode,
   VarRefNode,
   XPathNodeType,
 } from './xpath-syntaxtree-model';
@@ -37,22 +40,14 @@ type ArithmeticResult =
   | FunctionCallNode
   | ParenthesizedExprNode
   | CombineExprNode
+  | AtomicExprNode
   | undefined;
 
-type LogicalResult =
-  | LogicalExprNode
-  | ComparisonExprNode
-  | ArithmeticExprNode
-  | PathExprNode
-  | ParenthesizedExprNode
-  | CombineExprNode
-  | undefined;
+type LogicalResult = ExprSingleNode | undefined;
 
 /** What visiting a `UnionExpr`/`IntersectExceptExpr` layer yields: the combination, or — when the
- * layer carries no operator — the single path it wraps. */
-type CombineResult = CombineExprNode | PathExprNode | undefined;
-
-type BinaryExprNode = ArithmeticExprNode | LogicalExprNode;
+ * layer carries no operator — the single path it wraps, possibly under an atomic operator. */
+type CombineResult = CombineExprNode | PathExprNode | AtomicExprNode | undefined;
 
 /**
  * Configuration for processing binary expressions (arithmetic or logical).
@@ -236,6 +231,13 @@ export class CstVisitor {
       return CstVisitor.visitIfExpr(ifExpr);
     }
 
+    const forExpr = CstVisitor.getSingleNode(node, ['ForExpr']);
+    if (forExpr) return CstVisitor.createUnsupportedNode(forExpr, 'for');
+    const quantifiedExpr = CstVisitor.getSingleNode(node, ['QuantifiedExpr']);
+    if (quantifiedExpr && 'children' in quantifiedExpr) {
+      return CstVisitor.createUnsupportedNode(quantifiedExpr, 'Every' in quantifiedExpr.children ? 'every' : 'some');
+    }
+
     const orExpr = CstVisitor.getSingleNode(node, ['OrExpr']);
     if (!orExpr || !('children' in orExpr)) return undefined;
 
@@ -295,17 +297,28 @@ export class CstVisitor {
   }
 
   private static processComparisonExpr(comparisonExpr: CstElement): ExprSingleNode | undefined {
-    // Check for comparison operations
-    const compOperator = CstVisitor.extractComparisonOperator(comparisonExpr);
-    if (compOperator && compOperator !== PredicateOperator.Unknown) {
-      return CstVisitor.visitComparisonExpr(comparisonExpr);
+    const rangeExprs = CstVisitor.getNodes(comparisonExpr, ['RangeExpr']) ?? [];
+    if (rangeExprs.length > 1) {
+      return CstVisitor.visitComparisonExpr(comparisonExpr, rangeExprs[0], rangeExprs[1]);
     }
+    return rangeExprs[0] ? CstVisitor.visitRangeExpr(rangeExprs[0]) : undefined;
+  }
 
-    const rangeExpr = CstVisitor.getSingleNode(comparisonExpr, ['RangeExpr']);
-    if (!rangeExpr || !('children' in rangeExpr)) return undefined;
+  private static visitRangeExpr(rangeExpr: CstElement): ExprSingleNode | undefined {
+    if (!('children' in rangeExpr)) return undefined;
 
-    const additiveExpr = CstVisitor.getSingleNode(rangeExpr, ['AdditiveExpr']);
-    if (!additiveExpr || !('children' in additiveExpr)) return undefined;
+    const additiveExprs = CstVisitor.getNodes(rangeExpr, ['AdditiveExpr']) ?? [];
+    if ('To' in rangeExpr.children) {
+      const operands = additiveExprs
+        .map((additive) => CstVisitor.visitAdditiveLayer(additive))
+        .filter((operand): operand is NonNullable<typeof operand> => !!operand);
+      return CstVisitor.createAtomicNode(rangeExpr, AtomicOperator.Range, operands);
+    }
+    return additiveExprs[0] ? CstVisitor.visitAdditiveLayer(additiveExprs[0]) : undefined;
+  }
+
+  private static visitAdditiveLayer(additiveExpr: CstElement): ExprSingleNode | undefined {
+    if (!('children' in additiveExpr)) return undefined;
 
     // Check for arithmetic operations (additive: +, -)
     const additiveOperator = CstVisitor.extractArithmeticOperator(additiveExpr);
@@ -324,7 +337,7 @@ export class CstVisitor {
 
     // No arithmetic or comparison operator at this level — descend to the combining layer, which
     // collapses to the bare path when it carries no operator of its own.
-    const unionExpr = CstVisitor.getSingleNode(rangeExpr, ['AdditiveExpr', 'MultiplicativeExpr', 'UnionExpr']);
+    const unionExpr = CstVisitor.getSingleNode(additiveExpr, ['MultiplicativeExpr', 'UnionExpr']);
 
     if (unionExpr && 'children' in unionExpr) {
       return CstVisitor.visitUnionExpr(unionExpr);
@@ -623,16 +636,8 @@ export class CstVisitor {
 
     const result = CstVisitor.visitExprSingle(exprSingle);
     if (result) {
-      // Extract path expressions from the operand (handles PathExpr, ArithmeticExpr, LogicalExpr)
-      const paths = CstVisitor.extractPathsFromOperand(result);
-      if (paths.length > 0) {
-        exprNode.expressions.push(...paths);
-        CstVisitor.setParent(paths, exprNode);
-      } else {
-        // For other expression types (literals, var refs, etc.), add directly
-        exprNode.expressions.push(result);
-        result.parent = exprNode;
-      }
+      exprNode.expressions.push(result);
+      result.parent = exprNode;
     }
 
     return exprNode;
@@ -928,13 +933,46 @@ export class CstVisitor {
     return CstVisitor.visitBinaryExpr<CombineResult, CombineOperator>(node, {
       operandPath: ['InstanceofExpr'],
       extractOperator: () => operators[operatorIndex++],
-      visitOperand: (operand) => {
-        const pathExpr = CstVisitor.getSingleNode(operand, ['PathExpr']);
-        if (!pathExpr || !('children' in pathExpr)) return undefined;
-        return CstVisitor.visitPathExpr(pathExpr);
-      },
+      visitOperand: (operand) => CstVisitor.visitInstanceofExpr(operand),
       createNode: (cstNode, left, right, operator) => CstVisitor.createCombineNode(cstNode, left, right, operator),
     });
+  }
+
+  /**
+   * Visits an InstanceofExpr CST node, the layer that holds a leading sign, `cast as`, `castable as`,
+   * `treat as` and `instance of` around a path. Every one of them except `treat as` turns the path into
+   * atomic values, so the path is wrapped in an {@link AtomicExprNode} named after the outermost of them.
+   */
+  private static visitInstanceofExpr(node: CstElement): PathExprNode | AtomicExprNode | undefined {
+    const pathExpr = CstVisitor.getSingleNode(node, ['PathExpr']);
+    if (!pathExpr || !('children' in pathExpr) || !('children' in node)) return undefined;
+    const path = CstVisitor.visitPathExpr(pathExpr);
+    const operator = CstVisitor.extractAtomicOperator(node.children);
+    return operator ? CstVisitor.createAtomicNode(node, operator, [path]) : path;
+  }
+
+  private static extractAtomicOperator(children: CstNode['children']): AtomicOperator | undefined {
+    if ('Instance' in children) return AtomicOperator.InstanceOf;
+    if ('Castable' in children) return AtomicOperator.Castable;
+    if ('Cast' in children) return AtomicOperator.Cast;
+    if ('Minus' in children) return AtomicOperator.UnaryMinus;
+    if ('Plus' in children) return AtomicOperator.UnaryPlus;
+    return undefined;
+  }
+
+  private static createAtomicNode(
+    cstNode: CstElement,
+    operator: AtomicOperator,
+    operands: ExprSingleNode[],
+  ): AtomicExprNode {
+    const atomicNode: AtomicExprNode = {
+      type: XPathNodeType.AtomicExpr,
+      range: CstVisitor.createRangeFromNode(cstNode),
+      operator,
+      operands,
+    };
+    CstVisitor.setParent(operands, atomicNode);
+    return atomicNode;
   }
 
   /**
@@ -1075,22 +1113,7 @@ export class CstVisitor {
     return CstVisitor.visitBinaryExpr<LogicalResult, LogicalOperator>(node, {
       operandPath: ['ComparisonExpr'],
       extractOperator: () => LogicalOperator.And,
-      visitOperand: (operand) => {
-        const result = CstVisitor.processComparisonExpr(operand);
-        // Filter to only return valid logical operand types
-        if (
-          result &&
-          (result.type === XPathNodeType.LogicalExpr ||
-            result.type === XPathNodeType.ComparisonExpr ||
-            result.type === XPathNodeType.ArithmeticExpr ||
-            result.type === XPathNodeType.PathExpr ||
-            result.type === XPathNodeType.ParenthesizedExpr ||
-            result.type === XPathNodeType.CombineExpr)
-        ) {
-          return result as LogicalResult;
-        }
-        return undefined;
-      },
+      visitOperand: (operand) => CstVisitor.processComparisonExpr(operand),
       createNode: (cstNode, left, right) => CstVisitor.createLogicalNode(cstNode, left, right, LogicalOperator.And),
     });
   }
@@ -1108,13 +1131,14 @@ export class CstVisitor {
     });
   }
 
-  private static visitComparisonExpr(node: CstElement): ComparisonExprNode | undefined {
-    const rangeExprArray = CstVisitor.getNodes(node, ['RangeExpr']);
-    if (!rangeExprArray || rangeExprArray.length < 2) return undefined;
-
+  private static visitComparisonExpr(
+    node: CstElement,
+    leftRangeExpr: CstElement,
+    rightRangeExpr: CstElement,
+  ): ComparisonExprNode | undefined {
     const operator = CstVisitor.extractComparisonOperator(node);
-    const left = CstVisitor.extractOperand(rangeExprArray[0]);
-    const right = CstVisitor.extractOperand(rangeExprArray[1]);
+    const left = CstVisitor.visitComparisonOperand(leftRangeExpr);
+    const right = CstVisitor.visitComparisonOperand(rightRangeExpr);
 
     if (!left) return undefined;
 
@@ -1131,21 +1155,22 @@ export class CstVisitor {
     return compNode;
   }
 
-  private static extractOperand(rangeExpr: CstElement): CombineResult | LiteralNode {
-    const unionExpr = CstVisitor.getSingleNode(rangeExpr, ['AdditiveExpr', 'MultiplicativeExpr', 'UnionExpr']);
-    if (!unionExpr || !('children' in unionExpr)) return undefined;
+  /**
+   * Visits one side of a comparison like any other operand, so arithmetic, ranges and atomic operators keep all
+   * their operands. A bare literal (`… = 'x'`) is then lifted out of the path that wraps it, since predicate
+   * consumers such as `XPathService.extractPredicate` read the literal's value directly.
+   */
+  private static visitComparisonOperand(rangeExpr: CstElement): ExprSingleNode | undefined {
+    const operand = CstVisitor.visitRangeExpr(rangeExpr);
+    if (operand?.type !== XPathNodeType.PathExpr || operand.isAbsolute || operand.steps.length !== 1) return operand;
 
-    // A bare literal operand (`… = 'x'`) has to be recognised before the combining layer, which
-    // only ever yields paths and combinations of them.
-    const pathExpr = CstVisitor.getSingleNode(unionExpr, ['IntersectExceptExpr', 'InstanceofExpr', 'PathExpr']);
-    if (pathExpr && 'children' in pathExpr) {
-      const literal = CstVisitor.getSingleNode(pathExpr, ['RelativePathExpr', 'StepExpr', 'FilterExpr', 'Literal']);
-      if (literal && 'children' in literal) {
-        return CstVisitor.visitLiteral(literal);
-      }
+    const [step] = operand.steps;
+    const primary = step.filterExpr?.primary;
+    if (primary?.type !== XPathNodeType.Literal || step.predicates.length > 0 || step.filterExpr?.predicates.length) {
+      return operand;
     }
-
-    return CstVisitor.visitUnionExpr(unionExpr);
+    primary.parent = undefined;
+    return primary;
   }
 
   private static extractComparisonOperator(comparisonExpr: CstElement): PredicateOperator {
@@ -1156,33 +1181,8 @@ export class CstVisitor {
     return operator ?? PredicateOperator.Unknown;
   }
 
-  /**
-   * Extracts path expressions from a single operand.
-   * If operand is a PathExpr, returns it in an array; if it's a binary expression (arithmetic/logical),
-   * recursively extracts all paths from it.
-   *
-   * @param operand - The expression operand to extract paths from
-   * @returns Array of PathExprNode instances found in the operand
-   */
-  private static extractPathsFromOperand(operand: ExprSingleNode): PathExprNode[] {
-    if (operand.type === XPathNodeType.PathExpr) {
-      return [operand];
-    }
-    if (operand.type === XPathNodeType.ArithmeticExpr || operand.type === XPathNodeType.LogicalExpr) {
-      return CstVisitor.extractPathExprsFromBinaryExpr(operand);
-    }
-    return [];
-  }
-
-  /**
-   * Extracts all PathExprNode instances from an ArithmeticExprNode or LogicalExprNode.
-   * Recursively traverses left and right operands to collect all path expressions.
-   * This is crucial for DataMapper to draw mapping lines for all fields in arithmetic/logical expressions.
-   *
-   * Example: For `price * quantity`, this extracts both `price` and `quantity` paths.
-   */
-  private static extractPathExprsFromBinaryExpr(node: BinaryExprNode): PathExprNode[] {
-    return [...CstVisitor.extractPathsFromOperand(node.left), ...CstVisitor.extractPathsFromOperand(node.right)];
+  private static createUnsupportedNode(node: CstElement, keyword: UnsupportedExprNode['keyword']): UnsupportedExprNode {
+    return { type: XPathNodeType.UnsupportedExpr, range: CstVisitor.createRangeFromNode(node), keyword };
   }
 
   private static visitIfExpr(node: CstNode): IfExprNode {

@@ -39,6 +39,8 @@ export enum XPathNodeType {
   Expr = 'Expr',
   IfExpr = 'IfExpr',
   CombineExpr = 'CombineExpr',
+  AtomicExpr = 'AtomicExpr',
+  UnsupportedExpr = 'UnsupportedExpr',
 }
 
 /**
@@ -71,6 +73,20 @@ export enum CombineOperator {
   Union = 'Union',
   Intersect = 'Intersect',
   Except = 'Except',
+}
+
+/**
+ * Operators whose result is atomic values, never nodes, even when their operand is a path: a sign (`-@a`),
+ * `cast as`, `castable as`, `instance of` and the range `to`. `treat as` is not one of them, because it returns
+ * its operand unchanged.
+ */
+export enum AtomicOperator {
+  UnaryPlus = 'UnaryPlus',
+  UnaryMinus = 'UnaryMinus',
+  Cast = 'Cast',
+  Castable = 'Castable',
+  InstanceOf = 'InstanceOf',
+  Range = 'Range',
 }
 
 /**
@@ -176,7 +192,9 @@ export type ExprSingleNode =
   | FunctionCallNode
   | VarRefNode
   | ParenthesizedExprNode
-  | IfExprNode;
+  | IfExprNode
+  | AtomicExprNode
+  | UnsupportedExprNode;
 
 /**
  * Literal value in an XPath expression.
@@ -228,6 +246,8 @@ export interface FunctionCallNode extends XPathNode {
   type: XPathNodeType.FunctionCall;
   prefix?: string;
   localName: string;
+  /** One entry per argument, holding the argument's expression as written (operators, parentheses and
+   * all), not only the paths in it. Consumers that need only the paths collect them with `XPathUtil.getAllNodesOfType`. */
   arguments: ExprNode[];
 }
 
@@ -286,9 +306,10 @@ export interface PredicateNode extends XPathNode {
  */
 export interface ComparisonExprNode extends XPathNode {
   type: XPathNodeType.ComparisonExpr;
-  left: PathExprNode | LiteralNode | VarRefNode | CombineExprNode;
+  /** Each operand is the expression as written. A bare literal operand is a {@link LiteralNode}, not a path. */
+  left: ExprSingleNode;
   operator: PredicateOperator;
-  right?: PathExprNode | LiteralNode | VarRefNode | CombineExprNode;
+  right?: ExprSingleNode;
 }
 
 /**
@@ -311,7 +332,8 @@ export interface ArithmeticExprNode extends XPathNode {
     | ArithmeticExprNode
     | FunctionCallNode
     | ParenthesizedExprNode
-    | CombineExprNode;
+    | CombineExprNode
+    | AtomicExprNode;
   operator: ArithmeticOperator;
   right:
     | PathExprNode
@@ -320,7 +342,8 @@ export interface ArithmeticExprNode extends XPathNode {
     | ArithmeticExprNode
     | FunctionCallNode
     | ParenthesizedExprNode
-    | CombineExprNode;
+    | CombineExprNode
+    | AtomicExprNode;
 }
 
 /**
@@ -334,21 +357,9 @@ export interface ArithmeticExprNode extends XPathNode {
  */
 export interface LogicalExprNode extends XPathNode {
   type: XPathNodeType.LogicalExpr;
-  left:
-    | ComparisonExprNode
-    | LogicalExprNode
-    | ArithmeticExprNode
-    | PathExprNode
-    | ParenthesizedExprNode
-    | CombineExprNode;
+  left: ExprSingleNode;
   operator: LogicalOperator;
-  right:
-    | ComparisonExprNode
-    | LogicalExprNode
-    | ArithmeticExprNode
-    | PathExprNode
-    | ParenthesizedExprNode
-    | CombineExprNode;
+  right: ExprSingleNode;
 }
 
 /**
@@ -364,7 +375,44 @@ export interface LogicalExprNode extends XPathNode {
  */
 export interface CombineExprNode extends XPathNode {
   type: XPathNodeType.CombineExpr;
-  left: PathExprNode | LiteralNode | VarRefNode | CombineExprNode | FunctionCallNode | ParenthesizedExprNode;
+  left:
+    | PathExprNode
+    | LiteralNode
+    | VarRefNode
+    | CombineExprNode
+    | FunctionCallNode
+    | ParenthesizedExprNode
+    | AtomicExprNode;
   operator: CombineOperator;
-  right: PathExprNode | LiteralNode | VarRefNode | CombineExprNode | FunctionCallNode | ParenthesizedExprNode;
+  right:
+    | PathExprNode
+    | LiteralNode
+    | VarRefNode
+    | CombineExprNode
+    | FunctionCallNode
+    | ParenthesizedExprNode
+    | AtomicExprNode;
+}
+
+/**
+ * An operator whose result is atomic values, never nodes ({@link AtomicOperator}). The operands are kept, so
+ * the paths inside `@a cast as xs:string` still count as sources, but the expression as a whole is not a path:
+ * an `xsl:copy-of` of it writes text, not the attribute.
+ * Examples: `-@a`, `@a cast as xs:string`, `@a castable as xs:string`, `@a instance of attribute()`, `@a to 7`.
+ */
+export interface AtomicExprNode extends XPathNode {
+  type: XPathNodeType.AtomicExpr;
+  operator: AtomicOperator;
+  /** One operand, or two for {@link AtomicOperator.Range}. */
+  operands: ExprSingleNode[];
+}
+
+/**
+ * An expression the syntax tree doesn't model: `for … return`, `some … satisfies` or `every … satisfies`.
+ * Only its range and keyword are kept, so it can't be told apart from other expressions of the same keyword,
+ * and no paths are read from it.
+ */
+export interface UnsupportedExprNode extends XPathNode {
+  type: XPathNodeType.UnsupportedExpr;
+  keyword: 'for' | 'some' | 'every';
 }

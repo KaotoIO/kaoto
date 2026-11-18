@@ -69,6 +69,8 @@ export enum PredicateOperator {
   GreaterThanEqual = 'GreaterThanEqual',
   Ge = 'Ge',
   Is = 'Is',
+  Precede = 'Precede',
+  Follow = 'Follow',
 
   Unknown = 'Unknown',
 }
@@ -87,4 +89,24 @@ export enum PredicateOperatorSymbol {
   GreaterThanEqual = '>=',
   Ge = 'ge',
   Is = 'is',
+  Precede = '<<',
+  Follow = '>>',
+}
+
+/**
+ * What an XPath expression, or a DataMapper mapping item, writes into the element that receives its output,
+ * as far as attribute order is concerned. XSLT requires every attribute of an element to be written before any
+ * of its children, otherwise the transform fails with XTDE0410. "Children" follows XDM: child elements, text
+ * nodes, comments and processing instructions; attributes are not children. Namespace nodes count as
+ * `ATTRIBUTES`: they too must be written before any child, and may follow an attribute.
+ *
+ * `EMPTY` (writes nothing, such as `()` or a variable declaration) is kept apart from `CHILDREN`: an empty part
+ * next to attributes must not turn an attributes-only result into one that writes both. A result that can't be
+ * determined statically, such as a variable reference or a function call, counts as `CHILDREN`.
+ */
+export enum XPathOutputKind {
+  EMPTY = 'empty',
+  CHILDREN = 'children',
+  ATTRIBUTES = 'attributes',
+  ATTRIBUTES_AND_CHILDREN = 'attributesAndChildren',
 }

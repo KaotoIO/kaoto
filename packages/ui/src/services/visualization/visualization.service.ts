@@ -303,9 +303,9 @@ export class VisualizationService {
   }
 
   /**
-   * The standalone copy-ofs that name fields among `fields`, keyed by the earliest field they name, the one
+   * The standalone copy-ofs that return fields among `fields`, keyed by the earliest field they return, the one
    * the serializer places them before. A copy-of that is 1-to-1 with a field is drawn on that field's row
-   * instead, and one that names none stays after the fields.
+   * instead, and one that returns none stays after the fields.
    */
   private static groupAnchoredCopyOfs(
     fields: IField[],

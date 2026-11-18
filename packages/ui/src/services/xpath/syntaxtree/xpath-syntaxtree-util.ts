@@ -1,8 +1,11 @@
 import {
   ArithmeticExprNode,
+  AtomicExprNode,
   CombineExprNode,
+  CombineOperator,
   ComparisonExprNode,
   ExprNode,
+  ExprSingleNode,
   FilterExprNode,
   FunctionCallNode,
   IfExprNode,
@@ -120,6 +123,12 @@ export class XPathUtil {
     this.traverseNode(node.right, callback);
   }
 
+  private static traverseAtomicExpr(node: AtomicExprNode, callback: (node: XPathNode) => void): void {
+    for (const operand of node.operands) {
+      this.traverseNode(operand, callback);
+    }
+  }
+
   private static traverseNode(node: XPathNode, callback: (node: XPathNode) => void): void {
     callback(node);
 
@@ -162,6 +171,9 @@ export class XPathUtil {
         break;
       case XPathNodeType.ReverseStep:
         this.traverseReverseStep(node as ReverseStepNode, callback);
+        break;
+      case XPathNodeType.AtomicExpr:
+        this.traverseAtomicExpr(node as AtomicExprNode, callback);
         break;
     }
   }
@@ -228,5 +240,52 @@ export class XPathUtil {
       current = current.parent;
     }
     return chain;
+  }
+
+  /**
+   * The expressions that make up the result of `node`, i.e. what an `xsl:copy-of` of it writes. Only the parts
+   * that can contribute nodes to the result are followed: every item of a comma sequence, both operands of a
+   * union, the left operand of `intersect` / `except` (their result is a subset of it), the inside of
+   * parentheses, and the `then` / `else` branches of `if`. Predicates, function arguments and the operands of
+   * comparisons, arithmetic, logical and atomic operators never are, so `string(@id)` and `@id cast as
+   * xs:string` are single leaves.
+   *
+   * A path of one step whose primary is parenthesized, which is how the parser builds `(a | b)`, is unwrapped;
+   * a multi-step path such as `/x/(@a | b)` is not, because its parenthesized step is relative to `/x`. An
+   * empty `()` is returned as a leaf, since it writes nothing, and so is an `UnsupportedExpr` (`for … return`,
+   * `some` / `every`), whose result the syntax tree doesn't model.
+   * @param node - the expression to walk, usually the `exprNode` returned by `XPathService.parse`
+   * @returns the result leaves, in written order
+   */
+  static getResultExpressions(node: ExprNode | ExprSingleNode | undefined): ExprSingleNode[] {
+    if (!node) return [];
+    switch (node.type) {
+      case XPathNodeType.Expr:
+        return node.expressions.flatMap((expression) => XPathUtil.getResultExpressions(expression));
+      case XPathNodeType.CombineExpr:
+        return XPathUtil.getCombineResultExpressions(node);
+      case XPathNodeType.ParenthesizedExpr:
+        return node.expr ? XPathUtil.getResultExpressions(node.expr) : [node];
+      case XPathNodeType.IfExpr:
+        return [...XPathUtil.getResultExpressions(node.thenExpr), ...XPathUtil.getResultExpressions(node.elseExpr)];
+      case XPathNodeType.PathExpr: {
+        const primary = XPathUtil.getParenthesizedPrimary(node);
+        return primary ? XPathUtil.getResultExpressions(primary) : [node];
+      }
+      default:
+        return [node];
+    }
+  }
+
+  private static getCombineResultExpressions(node: CombineExprNode): ExprSingleNode[] {
+    const left = XPathUtil.getResultExpressions(node.left);
+    if (node.operator !== CombineOperator.Union) return left;
+    return [...left, ...XPathUtil.getResultExpressions(node.right)];
+  }
+
+  private static getParenthesizedPrimary(path: PathExprNode): ParenthesizedExprNode | undefined {
+    if (path.steps.length !== 1) return undefined;
+    const primary = path.steps[0].filterExpr?.primary;
+    return primary?.type === XPathNodeType.ParenthesizedExpr ? primary : undefined;
   }
 }

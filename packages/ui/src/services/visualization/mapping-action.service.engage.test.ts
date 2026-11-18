@@ -1268,9 +1268,9 @@ describe('MappingActionService — mapping engagement', () => {
           (c) => c instanceof FieldItem && c.field.name === 'Item',
         ) as FieldItem;
         const copyOf = itemFieldItem.children.find((c) => c instanceof CopyOfSelector) as CopyOfSelector;
-        expect(
-          CopyOfPlacementService.classify(copyOf.expression, itemFieldItem.field, () => '', itemFieldItem).kind,
-        ).toBe('other');
+        expect(CopyOfPlacementService.classify(copyOf.expression, itemFieldItem.field, {}, itemFieldItem).kind).toBe(
+          'other',
+        );
         expect(CopyOfPlacementService.getInlineField(copyOf)).toBeUndefined();
 
         const xslt = MappingSerializerService.serialize(tree, paramsMap);

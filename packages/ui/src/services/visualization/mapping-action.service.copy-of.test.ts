@@ -10,6 +10,7 @@ import {
   FieldItem,
   ForEachItem,
   IfItem,
+  MappingItem,
   MappingTree,
   WhenItem,
 } from '../../models/datamapper/mapping';
@@ -75,6 +76,13 @@ describe('MappingActionService — copy-of placement', () => {
     VisualizationService.generateNonDocumentNodeDataChildren(
       VisualizationService.generateStructuredDocumentChildren(docNode)[0],
     );
+
+  /** The rendered `Order` rows as field names, with the row of `mapping` shown as `label`. */
+  const rowLabels = (mapping: MappingItem, label: string) =>
+    orderChildren().map((n) => {
+      if (n instanceof MappingNodeData && n.mapping === mapping) return label;
+      return 'field' in n ? (n.field as { name: string }).name : undefined;
+    });
 
   it('never rewrites the model: a copy-of stays a standalone child of its parent whatever it selects', () => {
     const copyOf = addCopyOf('/ns0:Order/*');
@@ -221,6 +229,20 @@ describe('MappingActionService — copy-of placement', () => {
       'structural-update',
       'ShipTo',
     ],
+    [
+      'rebuilds when an unanchored copy-of becomes an if expression anchored on its branches',
+      '/ns0:Order/*',
+      'if (/ns0:Order/Id) then /ns0:Order/ShipTo else /ns0:Order/Item',
+      'structural-update',
+      undefined,
+    ],
+    [
+      'rebuilds when a copy-of becomes an except whose only named field is its right operand',
+      '/ns0:Order/ShipTo | /ns0:Order/Item',
+      '/ns0:Order/* except /ns0:Order/ShipTo',
+      'structural-update',
+      undefined,
+    ],
   ] as const)('%s', (_name, initial, edited, expectedResult, expectedInlineFieldName) => {
     const copyOf = addCopyOf(initial);
     snapshot();
@@ -286,6 +308,57 @@ describe('MappingActionService — copy-of placement', () => {
     const xslt = MappingSerializerService.serialize(tree, new Map());
     expect(xslt.indexOf('<Id')).toBeLessThan(xslt.indexOf('ns0:Order/TotalAmount, '));
     expect(xslt.indexOf('ns0:Order/TotalAmount, ')).toBeLessThan(xslt.indexOf('<TotalAmount'));
+  });
+
+  it.each([
+    ['both branches of if', 'if (/ns0:Order/Id) then /ns0:Order/ShipTo else /ns0:Order/Item', true, 'ShipTo'],
+    [
+      'a wildcard except, whose right operand is not in the result',
+      '/ns0:Order/* except /ns0:Order/ShipTo',
+      false,
+      undefined,
+    ],
+  ])(
+    'renders a copy-of selecting %s on the same side of TotalAmount as its XSLT is emitted',
+    (_name, select, beforeTotalAmount, nextRow) => {
+      const doc = tree.children[0] as FieldItem;
+      doc.children.push(
+        new FieldItem(doc, doc.field.fields.find((f) => f.name === 'Id')!),
+        new FieldItem(doc, doc.field.fields.find((f) => f.name === 'TotalAmount')!),
+      );
+      const copyOf = addCopyOf(select);
+
+      const labels = rowLabels(copyOf, 'copy');
+      expect(labels).toContain('copy');
+      expect(labels.indexOf('copy') < labels.indexOf('TotalAmount')).toBe(beforeTotalAmount);
+      expect(labels[labels.indexOf('copy') + 1]).toBe(nextRow);
+
+      const xslt = MappingSerializerService.serialize(tree, new Map());
+      expect(xslt).toContain(`select="${select}"`);
+      expect(xslt.indexOf(`select="${select}"`) < xslt.indexOf('<TotalAmount')).toBe(beforeTotalAmount);
+    },
+  );
+
+  it('still renders an xsl:if wrapping an if-expression copy-of last, while its XSLT moves before TotalAmount', () => {
+    const doc = tree.children[0] as FieldItem;
+    const ifItem = new IfItem(doc);
+    ifItem.expression = '/ns0:Order/Id';
+    const copyOf = new CopyOfSelector(ifItem);
+    copyOf.expression = 'if (/ns0:Order/Id) then /ns0:Order/ShipTo else /ns0:Order/Item';
+    ifItem.children.push(copyOf);
+    doc.children.push(
+      new FieldItem(doc, doc.field.fields.find((f) => f.name === 'Id')!),
+      new FieldItem(doc, doc.field.fields.find((f) => f.name === 'TotalAmount')!),
+      ifItem,
+    );
+
+    const labels = rowLabels(ifItem, 'if');
+    expect(labels).toContain('if');
+    expect(labels.indexOf('TotalAmount')).toBeLessThan(labels.indexOf('if'));
+
+    const xslt = MappingSerializerService.serialize(tree, new Map());
+    expect(xslt).toContain('<xsl:if');
+    expect(xslt.indexOf('<xsl:if')).toBeLessThan(xslt.indexOf('<TotalAmount'));
   });
 
   it.each([
