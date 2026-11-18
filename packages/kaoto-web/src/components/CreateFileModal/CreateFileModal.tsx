@@ -1,18 +1,6 @@
 import './CreateFileModal.scss';
 
-import {
-  Button,
-  ComposedModal,
-  Form,
-  InlineNotification,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  RadioTile,
-  Stack,
-  TextInput,
-  TileGroup,
-} from '@carbon/react';
+import { Button, Form, InlineNotification, RadioTile, Stack, TextInput, TileGroup } from '@carbon/react';
 import { FunctionComponent, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -20,6 +8,7 @@ import { CATALOG_URL } from '../../catalog-url';
 import { useFiles } from '../../hooks/useFiles';
 import { buildFilePath } from '../../services/files/file-path';
 import { fetchStarterTemplate, resolveStarterTemplate } from '../../services/templates/starter-templates';
+import { KaotoModal } from '../KaotoModal/KaotoModal';
 import { FILE_KINDS, FileKind } from './file-kinds';
 
 const FORM_ID = 'cs--create-file-form';
@@ -91,119 +80,116 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
   };
 
   return (
-    <ComposedModal
-      open
+    <KaotoModal
+      title="Create New File"
+      onClose={close}
       size="sm"
-      onClose={() => {
-        close();
-        return true;
-      }}
+      hasForm
       preventCloseOnClickOutside
       selectorPrimaryFocus={`#cs--create-file-kind-${FILE_KINDS[0].id}`}
       className="cs--create-file-modal"
       data-testid="create-file-modal"
+      footer={
+        <>
+          <Button kind="secondary" onClick={close}>
+            Cancel
+          </Button>
+          <Button kind="primary" type="submit" form={FORM_ID} disabled={!canCreate}>
+            {creating ? 'Creating…' : 'Create File'}
+          </Button>
+        </>
+      }
     >
-      <ModalHeader title="Create New File" />
-      <ModalBody hasForm>
-        <Form
-          id={FORM_ID}
-          onSubmit={handleSubmit}
-          onKeyDown={(event) => {
-            // The submit button sits in the footer, outside the form, so Enter in a field does not always submit
-            // Enter that confirms an IME composition only finishes the text, it does not submit
-            if (
-              event.key === 'Enter' &&
-              !event.nativeEvent.isComposing &&
-              event.target instanceof HTMLInputElement &&
-              event.target.type === 'text'
-            ) {
-              handleSubmit(event);
-            }
-          }}
-          aria-label="Create New File"
-        >
-          <Stack gap={6}>
-            <TileGroup
-              legend="File type"
-              name="file-type"
-              className="cds--tile-group cs--create-file-modal__types"
-              // The file is created with the values from the moment Create File was pressed
-              disabled={creating}
-              valueSelected={kind?.id}
-              onChange={(value) => {
-                setKind(FILE_KINDS.find((candidate) => candidate.id === value));
-              }}
-            >
-              {FILE_KINDS.map((candidate) => {
-                const Icon = candidate.icon;
-                return (
-                  <RadioTile
-                    key={candidate.id}
-                    id={`cs--create-file-kind-${candidate.id}`}
-                    value={candidate.id}
-                    className="cs--create-file-modal__type"
-                  >
-                    <span className="cs--create-file-modal__type-content">
-                      <Icon
-                        className={`cs--create-file-modal__type-icon cs--create-file-modal__type-icon--${candidate.id}`}
-                        aria-hidden
-                      />
-                      <span className="cs--create-file-modal__type-text">
-                        <span className="cs--create-file-modal__type-label">{candidate.label}</span>
-                        <span className="cs--create-file-modal__type-description">{candidate.description}</span>
-                      </span>
+      <Form
+        id={FORM_ID}
+        onSubmit={handleSubmit}
+        onKeyDown={(event) => {
+          // The submit button sits in the footer, outside the form, so Enter in a field does not always submit
+          // Enter that confirms an IME composition only finishes the text, it does not submit
+          if (
+            event.key === 'Enter' &&
+            !event.nativeEvent.isComposing &&
+            event.target instanceof HTMLInputElement &&
+            event.target.type === 'text'
+          ) {
+            handleSubmit(event);
+          }
+        }}
+        aria-label="Create New File"
+      >
+        <Stack gap={6}>
+          <TileGroup
+            legend="File type"
+            name="file-type"
+            className="cds--tile-group cs--create-file-modal__types"
+            // The file is created with the values from the moment Create File was pressed
+            disabled={creating}
+            valueSelected={kind?.id}
+            onChange={(value) => {
+              setKind(FILE_KINDS.find((candidate) => candidate.id === value));
+            }}
+          >
+            {FILE_KINDS.map((candidate) => {
+              const Icon = candidate.icon;
+              return (
+                <RadioTile
+                  key={candidate.id}
+                  id={`cs--create-file-kind-${candidate.id}`}
+                  value={candidate.id}
+                  className="cs--create-file-modal__type"
+                >
+                  <span className="cs--create-file-modal__type-content">
+                    <Icon
+                      className={`cs--create-file-modal__type-icon cs--create-file-modal__type-icon--${candidate.id}`}
+                      aria-hidden
+                    />
+                    <span className="cs--create-file-modal__type-text">
+                      <span className="cs--create-file-modal__type-label">{candidate.label}</span>
+                      <span className="cs--create-file-modal__type-description">{candidate.description}</span>
                     </span>
-                  </RadioTile>
-                );
-              })}
-            </TileGroup>
-            <TextInput
-              id="cs--create-file-name"
-              labelText="File name"
-              placeholder={kind ? `e.g. orders${kind.extension}` : 'Select a file type first'}
-              disabled={!kind || creating}
-              value={name}
-              onChange={(event) => {
-                setName(event.target.value);
-              }}
-              invalid={!!nameError || pathTaken}
-              invalidText={pathTaken ? 'A file with this path already exists' : nameError}
-              helperText={path && !pathTaken ? `Creates ${path}` : undefined}
-              autoComplete="off"
+                  </span>
+                </RadioTile>
+              );
+            })}
+          </TileGroup>
+          <TextInput
+            id="cs--create-file-name"
+            labelText="File name"
+            placeholder={kind ? `e.g. orders${kind.extension}` : 'Select a file type first'}
+            disabled={!kind || creating}
+            value={name}
+            onChange={(event) => {
+              setName(event.target.value);
+            }}
+            invalid={!!nameError || pathTaken}
+            invalidText={pathTaken ? 'A file with this path already exists' : nameError}
+            helperText={path && !pathTaken ? `Creates ${path}` : undefined}
+            autoComplete="off"
+          />
+          <TextInput
+            id="cs--create-file-folder"
+            labelText="Folder path (optional)"
+            placeholder="e.g. routes/subdir/"
+            disabled={!kind || creating}
+            value={folder}
+            onChange={(event) => {
+              setFolder(event.target.value);
+            }}
+            invalid={!!folderError}
+            invalidText={folderError}
+            autoComplete="off"
+          />
+          {failure && (
+            <InlineNotification
+              kind="error"
+              lowContrast
+              hideCloseButton
+              title="Could not create the file"
+              subtitle={failure}
             />
-            <TextInput
-              id="cs--create-file-folder"
-              labelText="Folder path (optional)"
-              placeholder="e.g. routes/subdir/"
-              disabled={!kind || creating}
-              value={folder}
-              onChange={(event) => {
-                setFolder(event.target.value);
-              }}
-              invalid={!!folderError}
-              invalidText={folderError}
-              autoComplete="off"
-            />
-            {failure && (
-              <InlineNotification
-                kind="error"
-                lowContrast
-                hideCloseButton
-                title="Could not create the file"
-                subtitle={failure}
-              />
-            )}
-          </Stack>
-        </Form>
-      </ModalBody>
-      <ModalFooter>
-        <Button kind="secondary" onClick={close}>
-          Cancel
-        </Button>
-        <Button kind="primary" type="submit" form={FORM_ID} disabled={!canCreate}>
-          {creating ? 'Creating…' : 'Create File'}
-        </Button>
-      </ModalFooter>
-    </ComposedModal>
+          )}
+        </Stack>
+      </Form>
+    </KaotoModal>
   );
 };
