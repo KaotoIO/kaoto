@@ -8417,7 +8417,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vscode/vsce@npm:^3.7.1, @vscode/vsce@npm:^3.9.2":
+"@vscode/vsce@npm:^3.9.2":
   version: 3.9.2
   resolution: "@vscode/vsce@npm:3.9.2"
   dependencies:
@@ -10340,13 +10340,6 @@ __metadata:
   version: 0.1.0
   resolution: "chunk-data@npm:0.1.0"
   checksum: 10/3ab3f7b7da54481bafed8f83f2d9f844b8f43f37c01f7b8079c440e10a5373b6572023743472f49304e20e6b750c8c830c42e3eff3413c073c4ba5448d64eed7
-  languageName: node
-  linkType: hard
-
-"ci-info@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "ci-info@npm:2.0.0"
-  checksum: 10/3b374666a85ea3ca43fa49aa3a048d21c9b475c96eb13c133505d2324e7ae5efd6a454f41efe46a152269e9b6a00c9edbe63ec7fa1921957165aae16625acd67
   languageName: node
   linkType: hard
 
@@ -14189,16 +14182,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.16.0":
-  version: 1.16.0
-  resolution: "follow-redirects@npm:1.16.0"
-  peerDependenciesMeta:
-    debug:
-      optional: true
-  checksum: 10/3fbe3d80b3b544c22705d837aa5d4a0d07a740d913534a2620b0a004c610af4148e3b58723536dd099aaa1c9d3a155964bde9665d6e5cb331460809a1fc572fd
-  languageName: node
-  linkType: hard
-
 "follow-redirects@npm:^1.16.2":
   version: 1.16.3
   resolution: "follow-redirects@npm:1.16.3"
@@ -15918,17 +15901,6 @@ __metadata:
   version: 1.2.7
   resolution: "is-callable@npm:1.2.7"
   checksum: 10/48a9297fb92c99e9df48706241a189da362bff3003354aea4048bd5f7b2eb0d823cd16d0a383cece3d76166ba16d85d9659165ac6fcce1ac12e6c649d66dbdb9
-  languageName: node
-  linkType: hard
-
-"is-ci@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "is-ci@npm:2.0.0"
-  dependencies:
-    ci-info: "npm:^2.0.0"
-  bin:
-    is-ci: bin.js
-  checksum: 10/77b869057510f3efa439bbb36e9be429d53b3f51abd4776eeea79ab3b221337fe1753d1e50058a9e2c650d38246108beffb15ccfd443929d77748d8c0cc90144
   languageName: node
   linkType: hard
 
@@ -19937,22 +19909,19 @@ __metadata:
   linkType: hard
 
 "ovsx@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "ovsx@npm:1.1.1"
+  version: 1.4.0
+  resolution: "ovsx@npm:1.4.0"
   dependencies:
     "@inquirer/prompts": "npm:^7.10.1"
-    "@vscode/vsce": "npm:^3.7.1"
-    commander: "npm:^6.2.1"
+    "@vscode/vsce": "npm:^4.0.0"
+    ci-info: "npm:^4.4.0"
+    commander: "npm:^14.0.3"
     cross-keychain: "npm:^1.1.0"
-    follow-redirects: "npm:^1.16.0"
-    is-ci: "npm:^2.0.0"
-    leven: "npm:^3.1.0"
     semver: "npm:^7.6.0"
-    tmp: "npm:^0.2.3"
     yauzl-promise: "npm:^4.0.0"
   bin:
     ovsx: bin/ovsx
-  checksum: 10/0898e3788379974eaa693082f1ed87c272a03d7e90a499b58e0b7f67de0dda0a7d1da5ccec3da65c8b96ea2514bad78194cf8443497edaabb889ac9966ca10ef
+  checksum: 10/63f221873f4f4e851dc73a2a2dbda108b8bc661dba18ab829e2dadb0611a79416af77025af1e9f3f5115c507ddcb9a153fcc392511fd369024d5494f62f64f35
   languageName: node
   linkType: hard
 
