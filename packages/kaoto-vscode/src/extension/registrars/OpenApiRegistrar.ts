@@ -15,13 +15,11 @@
  */
 import * as vscode from 'vscode';
 import { TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
-import { COMMAND_OPENAPI_DELETE, COMMAND_OPENAPI_IMPORT, COMMAND_OPENAPI_REFRESH, COMMAND_OPENAPI_SHOW_SOURCE, VIEW_OPENAPI } from '../../constants';
+import { COMMAND_OPENAPI_IMPORT, COMMAND_OPENAPI_REFRESH, VIEW_OPENAPI } from '../../constants';
 import { OpenApiProvider } from '../../views/openapi/OpenApiProvider';
-import { AbstractFolderTreeProvider } from '../../views/shared/AbstractFolderTreeProvider';
 import { ImportOpenApiCommand } from '../../commands/ImportOpenApiCommand';
-import { confirmFileDeleteDialog } from '../../utils/Modals';
-import { KaotoOutputChannel } from '../KaotoOutputChannel';
 import { sendCommandTrackingEvent } from './TrackingEvent';
+import { registerViewItemContextMenu } from './ViewItemContextMenu';
 import { IRegistrar } from './IRegistrar';
 
 export class OpenApiRegistrar implements IRegistrar {
@@ -47,7 +45,7 @@ export class OpenApiRegistrar implements IRegistrar {
 		const refreshCommand = vscode.commands.registerCommand(COMMAND_OPENAPI_REFRESH, () => openApiProvider.refresh());
 		this.context.subscriptions.push(openApiTreeView, dispose, refreshCommand);
 
-		this.registerViewItemContextMenu(openApiProvider, COMMAND_OPENAPI_SHOW_SOURCE, COMMAND_OPENAPI_DELETE);
+		registerViewItemContextMenu(this.context, this.telemetryService, openApiProvider);
 	}
 
 	public registerOpenApiImportCommand() {
@@ -57,31 +55,5 @@ export class OpenApiRegistrar implements IRegistrar {
 		});
 
 		this.context.subscriptions.push(importCommand);
-	}
-
-	private registerViewItemContextMenu(provider: AbstractFolderTreeProvider<any>, showSourceCommandId: string, deleteCommandId: string) {
-		const showSourceCommand = vscode.commands.registerCommand(showSourceCommandId, async (item: vscode.TreeItem) => {
-			if (!item.resourceUri) {
-				return;
-			}
-			await vscode.window.showTextDocument(item.resourceUri);
-			await sendCommandTrackingEvent(this.telemetryService, showSourceCommandId);
-		});
-
-		const deleteCommand = vscode.commands.registerCommand(deleteCommandId, async (item: vscode.TreeItem) => {
-			if (!item.resourceUri) {
-				return;
-			}
-			const confirmation = await confirmFileDeleteDialog(item.resourceUri.fsPath);
-			if (confirmation) {
-				await vscode.workspace.fs.delete(item.resourceUri, { recursive: true });
-				// ensure tree refresh (folder deletions may not trigger file-pattern watcher)
-				provider.refresh();
-				KaotoOutputChannel.logInfo(`Item '${item.resourceUri.fsPath}' was deleted.`);
-			}
-			await sendCommandTrackingEvent(this.telemetryService, deleteCommandId);
-		});
-
-		this.context.subscriptions.push(showSourceCommand, deleteCommand);
 	}
 }
