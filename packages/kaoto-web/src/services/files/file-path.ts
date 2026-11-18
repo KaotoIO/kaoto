@@ -1,6 +1,16 @@
 export type FilePathResult = { path: string } | { field: 'name' | 'folder'; error: string };
 
 const INVALID_SEGMENTS = new Set(['.', '..']);
+const NAME_REQUIRED = 'Enter a file name';
+const SEPARATOR = /[/\\]/;
+
+/** Trims the name and rejects what cannot be a single path segment */
+const checkFileName = (name: string, separatorError: string): { fileName: string } | { error: string } => {
+  const fileName = name.trim();
+  if (!fileName || INVALID_SEGMENTS.has(fileName)) return { error: NAME_REQUIRED };
+  if (SEPARATOR.test(fileName)) return { error: separatorError };
+  return { fileName };
+};
 
 /**
  * Builds the path of a new file from its folder and name, appending the extension when the name lacks it.
@@ -9,10 +19,10 @@ const INVALID_SEGMENTS = new Set(['.', '..']);
  * dropped, since the Explorer derives the folders from the paths and would show folders with an empty name otherwise.
  */
 export const buildFilePath = (folder: string, name: string, extension: string): FilePathResult => {
-  const fileName = name.trim();
-  if (!fileName) return { field: 'name', error: 'Enter a file name' };
-  if (/[/\\]/.test(fileName)) return { field: 'name', error: 'Enter the folder in the folder field' };
-  if (fileName === extension || INVALID_SEGMENTS.has(fileName)) return { field: 'name', error: 'Enter a file name' };
+  const checked = checkFileName(name, 'Enter the folder in the folder field');
+  if ('error' in checked) return { field: 'name', error: checked.error };
+  const { fileName } = checked;
+  if (fileName === extension) return { field: 'name', error: NAME_REQUIRED };
 
   const segments = folder
     .split('/')
@@ -32,10 +42,9 @@ export const buildFilePath = (folder: string, name: string, extension: string): 
  * The name is taken as typed, extension included, since renaming may change the type of the file.
  */
 export const buildRenamedPath = (path: string, name: string): { path: string } | { error: string } => {
-  const fileName = name.trim();
-  if (!fileName || INVALID_SEGMENTS.has(fileName)) return { error: 'Enter a file name' };
-  if (/[/\\]/.test(fileName)) return { error: 'A file name cannot contain / or \\' };
+  const checked = checkFileName(name, 'A file name cannot contain / or \\');
+  if ('error' in checked) return checked;
 
   const folder = path.slice(0, path.lastIndexOf('/') + 1);
-  return { path: `${folder}${fileName}` };
+  return { path: `${folder}${checked.fileName}` };
 };
