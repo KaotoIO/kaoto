@@ -158,7 +158,7 @@ export const DataMapper: FunctionComponent<IDataMapperProps> = ({ vizNode }) => 
   }
 
   if (isLoading) {
-    return <Loading />;
+    return <Loading small />;
   }
 
   return (

@@ -2,7 +2,7 @@ import { To } from '@kaoto/camel-catalog/types';
 import { FieldProps, ModelContextProvider, SchemaProvider, useFieldValue } from '@kaoto/forms';
 import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 
-import { Loading } from '../../../components/Loading';
+import { LoadingInline } from '../../../components/Loading';
 import { DirectEndpointNameField } from '../../../components/Visualization/Canvas/Form/fields/DirectEndpointNameField';
 import { toParser } from '../../../models/camel/parsers/to.parser';
 import { KaotoSchemaDefinition } from '../../../models/kaoto-schema';
@@ -60,7 +60,7 @@ export const RestRouteEndpointField: FunctionComponent<FieldProps> = ({
     [isParsing, onChange, resolved, value],
   );
 
-  if (!resolved) return <Loading />;
+  if (!resolved) return <LoadingInline description="Loading field" />;
 
   return (
     <div inert={isParsing || undefined}>

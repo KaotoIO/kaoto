@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash';
 import { FunctionComponent, Suspense, use, useContext, useMemo } from 'react';
 
 import { ParsedParameters } from '../../../../../../utils';
-import { Loading } from '../../../../../Loading';
+import { LoadingInline } from '../../../../../Loading';
 import { FieldErrorBoundary } from '../FieldErrorBoundary';
 import { MultiValuePropertyService } from './MultiValueProperty.service';
 
@@ -17,7 +17,7 @@ export const MultiValuePropertyEditor: FunctionComponent<FieldProps> = ({ propNa
 
   return (
     <FieldErrorBoundary>
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<LoadingInline description="Loading field" />}>
         <MultiValuePropertyEditorInner propName={propName} required={required} promise={multiValuePromise} />
       </Suspense>
     </FieldErrorBoundary>

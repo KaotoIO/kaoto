@@ -29,7 +29,7 @@ export const MetadataPage: FunctionComponent = () => {
   }
 
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<Loading small />}>
       <MetadataPageInner
         camelkResource={camelkResource}
         entitiesContext={entitiesContext!}

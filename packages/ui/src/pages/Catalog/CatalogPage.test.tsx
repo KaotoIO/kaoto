@@ -57,7 +57,7 @@ describe('CatalogPage', () => {
       { wrapper: VirtuosoWrapper },
     );
 
-    expect(screen.getByText('Fetching catalogs')).toBeInTheDocument();
+    expect(screen.getByText('Fetching catalogs', { selector: 'p' })).toBeInTheDocument();
     expect(screen.getByLabelText('Fetching catalogs')).toBeInTheDocument();
     expect(fetchTiles).toHaveBeenCalledTimes(1);
 
