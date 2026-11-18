@@ -4,6 +4,7 @@ import { useFiles } from '../../hooks/useFiles';
 import { buildRenamedPath } from '../../services/files/file-path';
 import { StoredFile } from '../../services/files/stored-file';
 import { NameField, NameResult } from './NameField';
+import { TAKEN, takenPaths } from './taken-paths';
 
 interface RenameFieldProps {
   file: StoredFile;
@@ -16,8 +17,6 @@ interface RenameFieldProps {
   onDone: (byKeyboard: boolean) => void;
 }
 
-const TAKEN = 'A file with that name already exists';
-
 /**
  * Renames a file in place of its name in the Explorer.
  *
@@ -26,13 +25,13 @@ const TAKEN = 'A file with that name already exists';
  * selected, so that typing replaces the name and keeps the extension.
  */
 export const RenameField: FunctionComponent<RenameFieldProps> = ({ file, onDone }) => {
-  const { files, renameFile } = useFiles();
+  const { files, folders, renameFile } = useFiles();
 
   const validate = (name: string): NameResult => {
     const result = buildRenamedPath(file.path, name);
     if ('error' in result) return result;
     if (result.path === file.path) return 'unchanged';
-    if (files.some((candidate) => candidate.path === result.path)) return { error: TAKEN };
+    if (takenPaths(files, folders).has(result.path)) return { error: TAKEN };
     return result;
   };
 

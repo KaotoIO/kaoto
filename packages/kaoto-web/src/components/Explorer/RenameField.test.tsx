@@ -111,7 +111,7 @@ describe('RenameField', () => {
   });
 
   it.each([
-    ['a taken name', 'other', 'A file with that name already exists'],
+    ['a taken name', 'other', 'A file or folder with that name already exists'],
     ['an empty name', '', 'Enter a file name'],
   ])(
     'keeps the field open with the error for %s on Enter, and gives up when the field loses the focus',
