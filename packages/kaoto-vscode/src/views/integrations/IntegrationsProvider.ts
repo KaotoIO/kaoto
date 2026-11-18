@@ -13,86 +13,96 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { commands, Event, EventEmitter, FileSystemWatcher, TreeDataProvider, TreeItem, TreeItemCollapsibleState, TreeItemLabel, Uri, workspace } from 'vscode';
-import { basename, join, relative, sep } from 'path'; // NOSONAR
+import { commands, Disposable, TreeItem, TreeItemCollapsibleState, Uri, workspace } from 'vscode';
+import { basename, join } from 'path'; // NOSONAR
 import { parse } from 'yaml';
 import { XMLParser } from 'fast-xml-parser';
 import { KaotoOutputChannel } from '../../extension/KaotoOutputChannel';
+import { AbstractFolderTreeProvider } from '../shared/AbstractFolderTreeProvider';
 import { Integration } from './Integration';
 import { Route } from './Route';
 import { Folder } from './Folder';
 import { File } from './File';
-import { CONTEXT_INTEGRATION_EXISTS, KAOTO_EXCLUDE_PATTERN, KAOTO_INTEGRATIONS_FILES_REGEXP_SETTING_ID } from '../../constants';
+import {
+	COMMAND_INTEGRATIONS_DELETE,
+	COMMAND_INTEGRATIONS_SHOW_SOURCE,
+	CONTEXT_INTEGRATION_EXISTS,
+	KAOTO_INTEGRATIONS_FILES_REGEXP_SETTING_ID,
+} from '../../constants';
 import { IntegrationFile, IntegrationFileIcon, IntegrationFileIconType, IntegrationFileDSL } from '../../types/IntegrationTreeItemType';
 
-type TreeItemType = TreeItem | undefined | null | void;
+export class IntegrationsProvider extends AbstractFolderTreeProvider<Folder> {
+	public readonly VIEW_ITEM_SHOW_SOURCE_COMMAND_ID: string = COMMAND_INTEGRATIONS_SHOW_SOURCE;
+	public readonly VIEW_ITEM_DELETE_COMMAND_ID: string = COMMAND_INTEGRATIONS_DELETE;
 
-export class IntegrationsProvider implements TreeDataProvider<TreeItem> {
-	private readonly _onDidChangeTreeData: EventEmitter<TreeItemType> = new EventEmitter<TreeItemType>();
-	readonly onDidChangeTreeData: Event<TreeItemType> = this._onDidChangeTreeData.event;
-
-	public static readonly EXCLUDE_PATTERN = KAOTO_EXCLUDE_PATTERN;
-
-	private fileWatcher: FileSystemWatcher;
-	private filePattern: string;
+	private configChangeDisposable?: Disposable;
 
 	constructor(readonly extensionUriPath: string) {
-		this.filePattern = this.getFilePattern();
-		this.fileWatcher = workspace.createFileSystemWatcher(this.filePattern);
-
-		this.fileWatcher.onDidChange(this.refresh.bind(this));
-		this.fileWatcher.onDidCreate(this.refresh.bind(this));
-		this.fileWatcher.onDidDelete(this.refresh.bind(this));
-
-		workspace.onDidChangeConfiguration((event) => {
-			if (event.affectsConfiguration(KAOTO_INTEGRATIONS_FILES_REGEXP_SETTING_ID)) {
-				this.filePattern = this.getFilePattern();
-				this.fileWatcher.dispose();
-
-				this.fileWatcher = workspace.createFileSystemWatcher(this.filePattern);
-				this.fileWatcher.onDidChange(this.refresh.bind(this));
-				this.fileWatcher.onDidCreate(this.refresh.bind(this));
-				this.fileWatcher.onDidDelete(this.refresh.bind(this));
-
-				this.refresh();
-			}
-		});
+		super();
+		this.initFileWatcher();
+		this.onConfigurationChange();
 	}
 
 	/**
 	 * Get the file pattern for the integrations view
 	 * @returns The file pattern
 	 */
-	private getFilePattern(): string {
+	protected getFilePattern(): string {
 		const filesRegexp: string[] = workspace.getConfiguration().get(KAOTO_INTEGRATIONS_FILES_REGEXP_SETTING_ID) as string[];
 		return '{' + filesRegexp.map((r) => '**/' + r).join(',') + '}';
 	}
 
-	refresh(): void {
-		this._onDidChangeTreeData.fire();
+	protected getExcludePattern(): string {
+		return IntegrationsProvider.EXCLUDE_PATTERN;
 	}
 
-	dispose(): void {
-		this.fileWatcher?.dispose();
+	protected onConfigurationChange(): void {
+		this.configChangeDisposable = workspace.onDidChangeConfiguration((event) => {
+			if (event.affectsConfiguration(KAOTO_INTEGRATIONS_FILES_REGEXP_SETTING_ID)) {
+				this.fileWatcher?.dispose();
+				this.initFileWatcher();
+				this.refresh();
+			}
+		});
 	}
 
-	getTreeItem(element: TreeItem): TreeItem {
-		return element;
+	protected createFolderItem(name: string, folderUri: Uri, isUnderMavenRoot: boolean, isMavenRoot: boolean, isWorkspaceRoot: boolean = false): Folder {
+		return new Folder(name, folderUri, isUnderMavenRoot, isMavenRoot, isWorkspaceRoot);
 	}
 
-	async getChildren(element?: TreeItem): Promise<TreeItem[]> {
+	protected isFolderItem(element: TreeItem): element is Folder {
+		return element instanceof Folder;
+	}
+
+	/**
+	 * Set the context for the integrations view
+	 * @param hasFiles Whether integration files were found
+	 */
+	protected setContext(hasFiles: boolean): void {
+		commands.executeCommand('setContext', CONTEXT_INTEGRATION_EXISTS, hasFiles);
+	}
+
+	/**
+	 * List the routes of a Camel file; the folders and files come from the shared provider
+	 */
+	override async getChildren(element?: TreeItem): Promise<TreeItem[]> {
 		if (element instanceof Integration) {
 			return await this.getRouteChildren(element);
 		}
-		const files = await workspace.findFiles(this.filePattern, IntegrationsProvider.EXCLUDE_PATTERN);
-		this.setContext(files.length > 0);
-		if (!element) {
-			return await this.getRootChildren(files);
-		}
-		if (element instanceof Folder) {
-			return await this.getFolderChildren(files, element);
-		}
-		return [];
+		return await super.getChildren(element);
+	}
+
+	/**
+	 * Read the files again on a refresh, not only when the file watcher reports a change
+	 */
+	override refresh(): void {
+		this.invalidateCache();
+		super.refresh();
+	}
+
+	override dispose(): void {
+		this.configChangeDisposable?.dispose();
+		super.dispose();
 	}
 
 	/**
@@ -105,145 +115,6 @@ export class IntegrationsProvider implements TreeDataProvider<TreeItem> {
 			return [];
 		}
 		return (await this.getRoutesInsideIntegrationFile(integration.dsl, integration.filepath)) || [];
-	}
-
-	/**
-	 * Get the children for the root
-	 * @param files The files to build children for
-	 * @returns The children
-	 */
-	private async getRootChildren(files: readonly Uri[]): Promise<TreeItem[]> {
-		const wfs = workspace.workspaceFolders || [];
-		if (wfs.length === 1) {
-			return await this.buildChildrenForPath(files, wfs[0].uri.fsPath, false, true);
-		}
-		const folders = wfs
-			.filter((wf) => files.some((f) => f.fsPath.startsWith(wf.uri.fsPath + sep)))
-			.map(
-				(wf) =>
-					new Folder(
-						wf.name,
-						wf.uri,
-						undefined,
-						false,
-						files.some((f) => f.fsPath === join(wf.uri.fsPath, 'pom.xml')),
-						true,
-					),
-			);
-		return folders;
-	}
-
-	/**
-	 * Get the children for a folder
-	 * @param files The files to build children for
-	 * @param folder The folder to get the children for
-	 * @returns The children
-	 */
-	private async getFolderChildren(files: readonly Uri[], folder: Folder): Promise<TreeItem[]> {
-		return await this.buildChildrenForPath(files, folder.folderUri.fsPath, folder.isUnderMavenRoot, false);
-	}
-
-	/**
-	 * Build children for a path
-	 * @param files The files to build children for
-	 * @param parentPath The parent path
-	 * @param ancestorUnderMavenRoot Whether the ancestor is under a Maven root
-	 * @param parentIsWorkspaceRoot Whether the parent is a workspace root
-	 * @returns The children
-	 */
-	private async buildChildrenForPath(
-		files: readonly Uri[],
-		parentPath: string,
-		ancestorUnderMavenRoot: boolean,
-		parentIsWorkspaceRoot: boolean,
-	): Promise<TreeItem[]> {
-		const directFiles: Uri[] = [];
-		const subfolderNames = new Set<string>();
-		const filePathSet = new Set<string>(files.map((f) => f.fsPath));
-		const prefix = parentPath + sep;
-
-		// filter the files to only include those that are direct files or subfolders
-		for (const file of files) {
-			if (!file.fsPath.startsWith(prefix)) {
-				continue;
-			}
-			const parts = relative(parentPath, file.fsPath).split(sep);
-			if (parts.length === 1) {
-				directFiles.push(file);
-			} else {
-				subfolderNames.add(parts[0]);
-			}
-		}
-
-		// check if the current path has a pom.xml file
-		const hasPomXml = directFiles.some((f) => basename(f.fsPath) === 'pom.xml');
-		// if the current path is under a Maven root or has a pom.xml file, set the underMavenRootForChildren flag to true
-		const underMavenRootForChildren = ancestorUnderMavenRoot || hasPomXml;
-
-		// build subfolders for the current path
-		const subfolders = Array.from(subfolderNames.values())
-			.sort((a, b) => a.localeCompare(b))
-			.map((name) => {
-				const childPath = join(parentPath, name);
-				const isChildMavenRoot = filePathSet.has(join(childPath, 'pom.xml'));
-				return new Folder(name, Uri.file(childPath), undefined, underMavenRootForChildren, isChildMavenRoot);
-			});
-
-		// build file items for the current path
-		const sortedDirectFiles = directFiles.slice().sort((a, b) => a.fsPath.localeCompare(b.fsPath));
-		const fileItems = await Promise.all(
-			sortedDirectFiles.map(async (file) => this.toTreeItemForFile(file, underMavenRootForChildren, parentIsWorkspaceRoot && !underMavenRootForChildren)),
-		);
-
-		// sort the items alphabetically
-		const items: TreeItem[] = [...subfolders, ...fileItems];
-		items.sort((a, b) => {
-			// Folders first, then files/integrations, both alphabetically
-			const aIsFolder = a instanceof Folder;
-			const bIsFolder = b instanceof Folder;
-			if (aIsFolder !== bIsFolder) {
-				return aIsFolder ? -1 : 1;
-			}
-			const aLabel = this.getItemLabel(a).toLowerCase();
-			const bLabel = this.getItemLabel(b).toLowerCase();
-			return aLabel.localeCompare(bLabel);
-		});
-
-		return items;
-	}
-
-	/**
-	 * Get the label of an item
-	 * @param item The item to get the label for
-	 * @returns The label
-	 */
-	private getItemLabel(item: TreeItem): string {
-		// if the item has a label property that is a string, return it (for example, a MarkdownString)
-		if (typeof item.label === 'string') {
-			return item.label;
-		}
-		// if the item has a label property that is a TreeItemLabel, return the label
-		if (this.isTreeItemLabel(item.label)) {
-			return item.label.label;
-		}
-		return '';
-	}
-
-	/**
-	 * Check if a value is a TreeItemLabel
-	 * @param value The value to check
-	 * @returns True if the value is a TreeItemLabel, false otherwise
-	 */
-	private isTreeItemLabel(value: unknown): value is TreeItemLabel {
-		return !!value && typeof (value as TreeItemLabel).label === 'string';
-	}
-
-	/**
-	 * Set the context for the integrations view
-	 * @param value The value to set the context for
-	 */
-	private setContext(value: boolean): void {
-		commands.executeCommand('setContext', CONTEXT_INTEGRATION_EXISTS, value);
 	}
 
 	/**
@@ -297,7 +168,7 @@ export class IntegrationsProvider implements TreeDataProvider<TreeItem> {
 	 * @param isTopLevelWithinWorkspace Whether the file is a top level within the workspace
 	 * @returns The tree item
 	 */
-	private async toTreeItemForFile(file: Uri, isUnderMavenRoot: boolean = false, isTopLevelWithinWorkspace: boolean = true): Promise<TreeItem> {
+	protected async toTreeItemForFile(file: Uri, isUnderMavenRoot: boolean, isTopLevelWithinWorkspace: boolean): Promise<TreeItem> {
 		const filename = basename(file.fsPath);
 		// Treat Camel, Kamelet and Pipe files as Integration items; others as plain files
 		if (
