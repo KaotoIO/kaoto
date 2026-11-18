@@ -83,10 +83,16 @@
     }
   }
 
-  // Leaf nodes: reduce base offset to match compact indent
+  // Leaf nodes have no expand chevron: start them where a folder's icon starts, so files and folders of one level
+  // line up
   .cds--tree-leaf-node,
   .cds--tree-leaf-node.cds--tree-node--with-icon {
-    padding-inline-start: $spacing-05;
+    padding-inline-start: $spacing-06;
+  }
+
+  // Folder and file icons take the blue of the Create buttons
+  .cds--tree-node__icon {
+    fill: $icon-interactive;
   }
 }
 
