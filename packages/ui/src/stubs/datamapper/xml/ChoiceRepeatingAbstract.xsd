@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="io.kaoto.datamapper.poc.test"
+           targetNamespace="io.kaoto.datamapper.poc.test" elementFormDefault="qualified">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="AbstractInChoice">
+          <xs:complexType>
+            <xs:choice>
+              <xs:element ref="Animal" maxOccurs="unbounded" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="Order">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Lines">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="Line" type="xs:string" maxOccurs="unbounded" />
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Animal" type="AnimalType" abstract="true" />
+  <xs:complexType name="AnimalType">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string" minOccurs="0" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Cat" type="AnimalType" substitutionGroup="Animal" />
+  <xs:element name="Dog" type="AnimalType" substitutionGroup="Animal" />
+</xs:schema>

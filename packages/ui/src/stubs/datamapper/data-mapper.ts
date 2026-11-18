@@ -58,6 +58,12 @@ function readStubFile(relativePath: string): string {
 export function getCopyOfSequenceOrderXsd(): string {
   return readStubFile('./xml/CopyOfSequenceOrder.xsd');
 }
+export function getChoiceRepeatingAbstractXsd(): string {
+  return readStubFile('./xml/ChoiceRepeatingAbstract.xsd');
+}
+export function getChoiceRepeatingAbstractCatXslt(): string {
+  return readStubFile('./xml/ChoiceRepeatingAbstractCat.xsl');
+}
 export function getShipOrderXsd(): string {
   return readStubFile('./xml/ShipOrder.xsd');
 }

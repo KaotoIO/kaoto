@@ -105,6 +105,19 @@ export class MappingActionRegistryService {
     return false;
   }
 
+  /**
+   * Whether the row is a copy-of row or sits anywhere below one. A copied subtree is not mapped field by field,
+   * so every row below a copy-of row carries no mapping, and the nearest row above it that has one is the
+   * copy-of row itself. Duplicate is not offered there. On a direct child it would write the new field inside
+   * `xsl:copy-of`. On a deeper row it would turn the copy-of into a field item, silently dropping every other
+   * copied child.
+   */
+  private static isInCopyOf(n: TargetNodeData): boolean {
+    let row = n;
+    while (!row.mapping && row instanceof TargetFieldNodeData) row = row.parent;
+    return row instanceof CopyOfFieldNodeData;
+  }
+
   private static readonly ACTION_REGISTRY: (IMappingAction | IMappingContextMenuAction)[] = [
     {
       key: MappingActionKind.ContextMenu,
@@ -451,7 +464,7 @@ export class MappingActionRegistryService {
       },
       isAllowed: (n) => {
         if (VisualizationUtilService.isMappingNode(n) && n.mapping instanceof IfItem) return true;
-        if (VisualizationUtilService.isFieldNode(n) && !MappingActionRegistryService.isCopyOfRow(n)) {
+        if (VisualizationUtilService.isFieldNode(n) && !MappingActionRegistryService.isInCopyOf(n)) {
           return VisualizationUtilService.isCollectionField(n);
         }
         return false;
