@@ -16,6 +16,7 @@
 import * as vscode from 'vscode';
 import {
 	KAOTO_CATALOG_URL_SETTING_ID,
+	KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID,
 	KAOTO_LSP_ENABLED_SETTING_ID,
 	KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID,
 	KAOTO_LSP_SERVER_JAR_SETTING_ID,
@@ -56,6 +57,8 @@ export class LanguageServerRegistrar implements IRegistrar {
 			this.lspManager.onDidRequestRetry(() => this.retryStart()),
 			// the catalogs of a new kaoto.catalog.url can change what the selected catalog is
 			this.catalogService.onDidReloadCatalogs(() => this.lspManager?.updateSettings()),
+			// the folders give the directories of ${workspaceFolder} in kaoto.localKameletDirectories, and whether the window is a Maven project
+			vscode.workspace.onDidChangeWorkspaceFolders(() => this.lspManager?.updateSettings()),
 			vscode.workspace.onDidChangeConfiguration(async (event) => {
 				if (event.affectsConfiguration(KAOTO_LSP_ENABLED_SETTING_ID)) {
 					if (LanguageServerRegistrar.isEnabled()) {
@@ -77,7 +80,9 @@ export class LanguageServerRegistrar implements IRegistrar {
 				if (
 					// with a new kaoto.catalog.url, the settings are sent once its catalogs are loaded, where the name is looked up
 					!event.affectsConfiguration(KAOTO_CATALOG_URL_SETTING_ID) &&
-					(event.affectsConfiguration(KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID) || event.affectsConfiguration(KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID))
+					(event.affectsConfiguration(KAOTO_RUNTIME_CATALOG_NAME_SETTING_ID) ||
+						event.affectsConfiguration(KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID) ||
+						event.affectsConfiguration(KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID))
 				) {
 					// a server that is not running reads the settings when it starts
 					await this.lspManager?.updateSettings();
