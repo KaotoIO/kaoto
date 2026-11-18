@@ -196,4 +196,133 @@ describe('KaotoEditor', () => {
     await Promise.resolve();
     expect(disposeSpy).toHaveBeenCalled();
   });
+
+  it('triggers onRetry callback when Retry button is clicked', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+
+    const onRetry = vi.fn();
+    let disconnect: ((error: Error) => void) | undefined;
+    const init: KaotoEditorInit = {
+      ...defaultInit,
+      onRetry,
+      onDisconnect: (listener) => {
+        disconnect = listener;
+        return () => {};
+      },
+    };
+
+    render(<KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={init} />);
+    await hostBus.request('host:document:setContent', {
+      reason: 'init',
+      fileUri: 'file:///route.camel.yaml',
+      content: '- route: {}',
+      readonly: false,
+    });
+
+    disconnect?.(new BridgeError('IO_ERROR', 'The peer rejected message delivery'));
+
+    const retryButton = await screen.findByRole('button', { name: 'Retry' });
+    retryButton.click();
+
+    expect(onRetry).toHaveBeenCalledOnce();
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
+
+  it('sets inert on canvas when the host provides unparseable YAML', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+
+    const { container } = render(<KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={defaultInit} />);
+    await hostBus.request('host:document:setContent', {
+      reason: 'init',
+      fileUri: 'file:///route.camel.yaml',
+      content: '- route:\n    steps: [ unclosed\n',
+      readonly: false,
+    });
+
+    await waitFor(() => {
+      const inertDiv = container.querySelector('[inert]');
+      expect(inertDiv).toBeInTheDocument();
+    });
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
+
+  it('falls back to window.location.reload when onRetry is not provided', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+
+    const reloadMock = vi.fn();
+    Object.defineProperty(window, 'location', {
+      value: { reload: reloadMock },
+      writable: true,
+    });
+
+    let disconnect: ((error: Error) => void) | undefined;
+    const init: KaotoEditorInit = {
+      ...defaultInit,
+      onDisconnect: (listener) => {
+        disconnect = listener;
+        return () => {};
+      },
+    };
+
+    render(<KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={init} />);
+    await hostBus.request('host:document:setContent', {
+      reason: 'init',
+      fileUri: 'file:///route.camel.yaml',
+      content: '- route: {}',
+      readonly: false,
+    });
+
+    disconnect?.(new BridgeError('IO_ERROR', 'The peer rejected message delivery'));
+
+    const retryButton = await screen.findByRole('button', { name: 'Retry' });
+    retryButton.click();
+
+    expect(reloadMock).toHaveBeenCalledOnce();
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
+
+  it('renders the catalog error empty state and permits reload with default catalog', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+
+    render(<KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={defaultInit} />);
+    await hostBus.request('host:document:setContent', {
+      reason: 'init',
+      fileUri: 'file:///route.camel.yaml',
+      content: '- route: {}',
+      readonly: false,
+    });
+
+    const reloadButton = await screen.findByRole('button', { name: 'Reload with default Catalog' });
+    expect(reloadButton).toBeInTheDocument();
+    reloadButton.click();
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
 });
