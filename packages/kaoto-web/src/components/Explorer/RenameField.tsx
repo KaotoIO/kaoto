@@ -1,5 +1,5 @@
 import { TextInput } from '@carbon/react';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useFiles } from '../../hooks/useFiles';
 import { buildRenamedPath } from '../../services/files/file-path';
@@ -28,34 +28,35 @@ const TAKEN = 'A file with that name already exists';
 export const RenameField: FunctionComponent<RenameFieldProps> = ({ file, onDone }) => {
   const { files, renameFile } = useFiles();
   const currentName = file.path.slice(file.path.lastIndexOf('/') + 1);
-  const [name, setName] = useState(currentName);
+  /** The name the field opened with; the file's name changes once the rename is stored, shortly before it closes */
+  const [openedName] = useState(currentName);
+  const [name, setName] = useState(openedName);
   const [failure, setFailure] = useState<string>();
   const [renaming, setRenaming] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  /** Set once renaming is over, so that the blur of a field about to unmount does not rename again */
-  const done = useRef(false);
   /**
-   * Set when the field unmounts. Clicking the rename button of another file moves the focus away first, which renames
-   * this file, and that file's field replaces this one before the rename finishes: then it must not close that field.
+   * Set once the field is finished: renamed, cancelled, or replaced by another file's field. Anything that comes in
+   * late is ignored then: the blur of a field about to unmount, or a rename that finishes after another file's field
+   * took this one's place (which must not close that field).
    */
-  const unmounted = useRef(false);
+  const closed = useRef(false);
   useEffect(() => {
     // StrictMode runs the effect, its cleanup and the effect again, so the flag is reset on every run
-    unmounted.current = false;
+    closed.current = false;
     return () => {
-      unmounted.current = true;
+      closed.current = true;
     };
   }, []);
 
-  useEffect(() => {
-    const input = inputRef.current;
-    if (!input) return;
-    input.focus();
-    const dot = currentName.indexOf('.');
-    input.setSelectionRange(0, dot > 0 ? dot : currentName.length);
-    // Only when the field opens
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  /** Focuses the input once it is attached and selects the part of the opened name before its first dot */
+  const focusInput = useCallback(
+    (input: HTMLInputElement | null) => {
+      if (!input) return;
+      input.focus();
+      const dot = openedName.indexOf('.');
+      input.setSelectionRange(0, dot > 0 ? dot : openedName.length);
+    },
+    [openedName],
+  );
 
   const result = buildRenamedPath(file.path, name);
   const unchanged = 'path' in result && result.path === file.path;
@@ -65,12 +66,13 @@ export const RenameField: FunctionComponent<RenameFieldProps> = ({ file, onDone 
   else if (taken) error = TAKEN;
 
   const finish = (byKeyboard: boolean) => {
-    done.current = true;
-    if (!unmounted.current) onDone(byKeyboard);
+    if (closed.current) return;
+    closed.current = true;
+    onDone(byKeyboard);
   };
 
   const rename = async (byKeyboard: boolean) => {
-    if (done.current || renaming) return;
+    if (closed.current || renaming) return;
     if (unchanged) {
       finish(byKeyboard);
       return;
@@ -105,7 +107,7 @@ export const RenameField: FunctionComponent<RenameFieldProps> = ({ file, onDone 
     >
       <TextInput
         id={`cs--explorer-rename-${file.id}`}
-        ref={inputRef}
+        ref={focusInput}
         size="sm"
         labelText="Rename file"
         hideLabel
