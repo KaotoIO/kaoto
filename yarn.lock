@@ -21354,12 +21354,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-inspector@npm:6.0.2":
-  version: 6.0.2
-  resolution: "react-inspector@npm:6.0.2"
+"react-inspector@npm:9.0.0":
+  version: 9.0.0
+  resolution: "react-inspector@npm:9.0.0"
   peerDependencies:
-    react: ^16.8.4 || ^17.0.0 || ^18.0.0
-  checksum: 10/5d23ad0f6f920458abd4c01af1b3cbdbe8846c254762fd6cfff4df119c54e08dd98ce8e91acacafb8173c19f07de2066df5b8e6cb19425751c1929a2620cbe77
+    react: ^18.0.0 || ^19.0.0
+  checksum: 10/4e5a65908d9daf5f3365389222e6ea8fc775375e57ef19ebfb2e43965f6e80bee2c2522a7d9093605abe11980d9c7f67b7d54114deea644b8742b98d80d25f06
   languageName: node
   linkType: hard
 
@@ -23257,12 +23257,12 @@ __metadata:
   linkType: hard
 
 "storybook-addon-remix-react-router@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "storybook-addon-remix-react-router@npm:6.0.0"
+  version: 6.1.0
+  resolution: "storybook-addon-remix-react-router@npm:6.1.0"
   dependencies:
     "@mjackson/form-data-parser": "npm:^0.4.0"
     compare-versions: "npm:^6.0.0"
-    react-inspector: "npm:6.0.2"
+    react-inspector: "npm:9.0.0"
   peerDependencies:
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
@@ -23273,7 +23273,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 10/bf8dbb1a9849b11173d0f941ed2d6952eeaf7be65ac4e9662489cbf6f5bae2fbd48f685a4da7d7fe3837a168abcfa5ea957124aff9e342a1ae9c592d05bda1bf
+  checksum: 10/b4feb7b3b1b5a483a5d371a6bdbd33ea2062a10365e93e36452dd358a937780c73549f964a1410eed4e1433d995502f3d8b6f02e717fa19b5f0a38f1eae81e56
   languageName: node
   linkType: hard
 
