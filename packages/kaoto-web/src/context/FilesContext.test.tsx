@@ -8,18 +8,29 @@ import { FilesProvider } from './FilesContext';
 
 const Consumer: FunctionComponent = () => {
   const { files, loading, error, reload, createFile, updateFile, renameFile, deleteFile, deleteFolder } = useFiles();
+  const [renameError, setRenameError] = useState<string>();
   let state = files.map((file) => `${file.id}=${file.content}`).join(',');
   if (loading) state = 'loading';
   if (error) state = `error ${error.message}`;
   return (
     <>
       <div data-testid="state">{state}</div>
+      <div data-testid="paths">{files.map((file) => file.path).join(',')}</div>
+      <div data-testid="rename-error">{renameError}</div>
       <button onClick={reload}>reload</button>
       <button onClick={() => void updateFile('a', 'changed').catch(() => undefined)}>update</button>
       <button onClick={() => void createFile({ id: 'c', path: 'a/c.camel.yaml', content: 'C' }).catch(() => undefined)}>
         create
       </button>
-      <button onClick={() => void renameFile('a', 'z.camel.yaml').catch(() => undefined)}>rename</button>
+      <button
+        onClick={() =>
+          void renameFile('a', 'z.camel.yaml').catch((renameFailure: unknown) => {
+            setRenameError(renameFailure instanceof Error ? renameFailure.message : String(renameFailure));
+          })
+        }
+      >
+        rename
+      </button>
       <button onClick={() => void deleteFile('a').catch(() => undefined)}>delete file</button>
       <button onClick={() => void deleteFolder('a').catch(() => undefined)}>delete folder</button>
     </>
@@ -152,7 +163,12 @@ describe('FilesProvider', () => {
       expect(rename).toHaveBeenCalledWith('a', 'z.camel.yaml');
     });
     await expect(rename.mock.results[0].value).rejects.toThrow();
+    // The rename field shows its error only because the context passes the rejection on
+    await waitFor(() => {
+      expect(screen.getByTestId('rename-error')).not.toBeEmptyDOMElement();
+    });
     expect((await store.getFiles()).map((file) => file.path)).toEqual(['a.camel.yaml', 'z.camel.yaml']);
+    expect(screen.getByTestId('paths')).toHaveTextContent('a.camel.yaml,z.camel.yaml');
     expect(screen.getByTestId('state')).toHaveTextContent('a=A,z=Z');
   });
 
