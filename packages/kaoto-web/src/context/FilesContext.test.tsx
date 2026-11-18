@@ -168,7 +168,7 @@ describe('FilesProvider', () => {
       expect(screen.getByTestId('rename-error')).not.toBeEmptyDOMElement();
     });
     expect((await store.getFiles()).map((file) => file.path)).toEqual(['a.camel.yaml', 'z.camel.yaml']);
-    expect(screen.getByTestId('paths')).toHaveTextContent('a.camel.yaml,z.camel.yaml');
+    expect(screen.getByTestId('paths').textContent).toBe('a.camel.yaml,z.camel.yaml');
     expect(screen.getByTestId('state')).toHaveTextContent('a=A,z=Z');
   });
 
