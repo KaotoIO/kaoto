@@ -2723,6 +2723,7 @@ describe('MappingSerializerService', () => {
       ['node()', '/ns0:Order/node()'],
       ['an attribute', '/ns0:Order/@id'],
       ['an unmatched name', '/ns0:Order/Item[Quantity > 1]/Unknown'],
+      ['a wildcard except, whose right operand is not in the result', '/ns0:Order/* except /ns0:Order/ShipTo'],
     ])('keeps a copy-of selecting %s last and adds no field to the target document', (_name, select) => {
       const { doc, tree } = load(
         wrap(`${valueOf('Id')}<xsl:copy-of select="${select.replace('>', '&gt;')}"/>${valueOf('TotalAmount')}`),
@@ -2741,6 +2742,7 @@ describe('MappingSerializerService', () => {
       ['a union', '/ns0:Order/ShipTo | /ns0:Order/Item'],
       ['a comma list', '/ns0:Order/Item, /ns0:Order/ShipTo'],
       ['parentheses', '(/ns0:Order/ShipTo | /ns0:Order/Item)'],
+      ['both branches of if', 'if (/ns0:Order/Id) then /ns0:Order/ShipTo else /ns0:Order/Item'],
     ])('anchors a copy-of selecting %s on the earliest field it names, before TotalAmount', (_name, select) => {
       const { doc, tree } = load(wrap(`${valueOf('Id')}<xsl:copy-of select="${select}"/>${valueOf('TotalAmount')}`));
       const fieldNames = doc.fields[0].fields.map((f) => f.name);
@@ -2749,6 +2751,42 @@ describe('MappingSerializerService', () => {
       const reloaded = load(out);
       expect(reloaded.doc.fields[0].fields.map((f) => f.name)).toEqual(fieldNames);
       expect(serialize(reloaded.tree)).toEqual(out);
+    });
+
+    it('moves an xsl:if wrapping an if-expression copy-of to the anchors of its branches, also after a reload', () => {
+      const { tree } = load(
+        wrap(
+          `${valueOf('Id')}${valueOf('TotalAmount')}` +
+            `<xsl:if test="/ns0:Order/Id"><xsl:copy-of select="if (/ns0:Order/Id) then /ns0:Order/ShipTo else /ns0:Order/Item"/></xsl:if>`,
+        ),
+      );
+      const out = serialize(tree);
+      expectAscending(order(out, '<Id', '<xsl:if', '<TotalAmount'));
+      expect(serialize(load(out).tree)).toEqual(out);
+    });
+
+    it('keeps an xsl:if wrapping a wildcard except copy-of after TotalAmount, also after a reload', () => {
+      const { tree } = load(
+        wrap(
+          `${valueOf('Id')}${valueOf('TotalAmount')}` +
+            `<xsl:if test="/ns0:Order/Id"><xsl:copy-of select="/ns0:Order/* except /ns0:Order/ShipTo"/></xsl:if>`,
+        ),
+      );
+      const out = serialize(tree);
+      expectAscending(order(out, '<Id', '<TotalAmount', '<xsl:if'));
+      expect(serialize(load(out).tree)).toEqual(out);
+    });
+
+    it('keeps an xsl:if wrapping a wildcard except copy-of in its authored slot before Id, also after a reload', () => {
+      const { tree } = load(
+        wrap(
+          `<xsl:if test="/ns0:Order/Id"><xsl:copy-of select="/ns0:Order/* except /ns0:Order/ShipTo"/></xsl:if>` +
+            `${valueOf('Id')}${valueOf('TotalAmount')}`,
+        ),
+      );
+      const out = serialize(tree);
+      expectAscending(order(out, '<xsl:if', '<Id', '<TotalAmount'));
+      expect(serialize(load(out).tree)).toEqual(out);
     });
 
     it('anchors a multi-field copy-of before the field item of its earliest field', () => {

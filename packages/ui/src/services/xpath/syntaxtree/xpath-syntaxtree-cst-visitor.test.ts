@@ -1,10 +1,23 @@
+import { CstElement, CstNode } from 'chevrotain';
+
+import { PredicateOperator } from '../../../models/datamapper/xpath';
 import { XPathService } from '../xpath.service';
 import { CstVisitor } from './xpath-syntaxtree-cst-visitor';
 import {
   ArithmeticExprNode,
+  ArithmeticOperator,
+  AtomicExprNode,
+  AtomicOperator,
+  ComparisonExprNode,
+  FunctionCallNode,
+  LiteralNode,
+  LogicalExprNode,
+  LogicalOperator,
   NameTestNode,
   ParenthesizedExprNode,
   PathExprNode,
+  UnsupportedExprNode,
+  XPathNode,
   XPathNodeType,
 } from './xpath-syntaxtree-model';
 import { XPathUtil } from './xpath-syntaxtree-util';
@@ -1037,5 +1050,264 @@ describe('Refactored helper methods coverage', () => {
         expect(rightParen.expr?.expressions[0]?.type).toBe(XPathNodeType.ComparisonExpr);
       }
     }
+  });
+});
+
+describe('Atomic and unsupported expressions', () => {
+  const visit = (xpath: string) => CstVisitor.visit(XPathService.parse(xpath).cst);
+
+  it.each([
+    ['-@a', AtomicOperator.UnaryMinus],
+    ['+@a', AtomicOperator.UnaryPlus],
+    ['@a cast as xs:string', AtomicOperator.Cast],
+    ['@a castable as xs:string', AtomicOperator.Castable],
+    ['@a instance of attribute()', AtomicOperator.InstanceOf],
+    ['@a cast as xs:integer instance of xs:integer', AtomicOperator.InstanceOf],
+  ])('should wrap the path of %s in an atomic expression', (xpath, operator) => {
+    const atomic = visit(xpath).expressions[0] as AtomicExprNode;
+
+    expect(atomic.type).toBe(XPathNodeType.AtomicExpr);
+    expect(atomic.operator).toBe(operator);
+    expect(atomic.operands).toHaveLength(1);
+    expect(atomic.operands[0].type).toBe(XPathNodeType.PathExpr);
+    expect(atomic.operands[0].parent).toBe(atomic);
+  });
+
+  it('should keep both operands of a range', () => {
+    const atomic = visit('@a to 7').expressions[0] as AtomicExprNode;
+
+    expect(atomic.type).toBe(XPathNodeType.AtomicExpr);
+    expect(atomic.operator).toBe(AtomicOperator.Range);
+    expect(atomic.operands.map((operand) => operand.type)).toEqual([XPathNodeType.PathExpr, XPathNodeType.PathExpr]);
+  });
+
+  it('should keep a path under treat as unwrapped, since treat as returns its operand', () => {
+    expect(visit('@a treat as attribute()').expressions[0].type).toBe(XPathNodeType.PathExpr);
+  });
+
+  it('should keep an atomic operand of a union', () => {
+    const union = visit('-@a | b').expressions[0];
+
+    expect(union.type).toBe(XPathNodeType.CombineExpr);
+    expect(union.type === XPathNodeType.CombineExpr && union.left.type).toBe(XPathNodeType.AtomicExpr);
+  });
+
+  it.each([
+    ['@b and @a castable as xs:integer', LogicalOperator.And, XPathNodeType.PathExpr, XPathNodeType.AtomicExpr],
+    ['@a castable as xs:integer and @b', LogicalOperator.And, XPathNodeType.AtomicExpr, XPathNodeType.PathExpr],
+    ['@a castable as xs:integer or @b', LogicalOperator.Or, XPathNodeType.AtomicExpr, XPathNodeType.PathExpr],
+  ])('should keep both operands of %s', (xpath, operator, leftType, rightType) => {
+    const logical = visit(xpath).expressions[0] as LogicalExprNode;
+
+    expect(logical.type).toBe(XPathNodeType.LogicalExpr);
+    expect(logical.operator).toBe(operator);
+    expect(logical.left.type).toBe(leftType);
+    expect(logical.right.type).toBe(rightType);
+  });
+
+  it('should keep a function argument as written instead of reducing it to its paths', () => {
+    const call = visit('string(-/aaa/@id + /bbb)').expressions[0] as PathExprNode;
+    const functionCall = call.steps[0].filterExpr?.primary as FunctionCallNode;
+    const argument = functionCall.arguments[0];
+    const arithmetic = argument.expressions[0] as ArithmeticExprNode;
+
+    expect(argument.expressions).toHaveLength(1);
+    expect(arithmetic.type).toBe(XPathNodeType.ArithmeticExpr);
+    expect(arithmetic.parent).toBe(argument);
+    expect(arithmetic.left.type).toBe(XPathNodeType.AtomicExpr);
+    expect(arithmetic.right.type).toBe(XPathNodeType.PathExpr);
+  });
+
+  it.each([
+    ['for $x in X return $x', 'for'],
+    ['some $x in X satisfies $x', 'some'],
+    ['every $x in X satisfies $x', 'every'],
+  ])('should keep %s as an unsupported expression', (xpath, keyword) => {
+    const unsupported = visit(xpath).expressions[0] as UnsupportedExprNode;
+
+    expect(unsupported.type).toBe(XPathNodeType.UnsupportedExpr);
+    expect(unsupported.keyword).toBe(keyword);
+  });
+
+  it('should keep a quantified if branch instead of dropping it', () => {
+    const ifExpr = visit('if (c) then some $x in X satisfies $x else @a').expressions[0];
+
+    expect(ifExpr.type).toBe(XPathNodeType.IfExpr);
+    expect(ifExpr.type === XPathNodeType.IfExpr && ifExpr.thenExpr.type).toBe(XPathNodeType.UnsupportedExpr);
+  });
+});
+
+describe('Operators and comparison operands', () => {
+  const visitFirst = (xpath: string) => CstVisitor.visit(XPathService.parse(xpath).cst).expressions[0];
+
+  it.each([
+    ['a idiv b * c', ArithmeticOperator.Multiply, ArithmeticOperator.Idiv],
+    ['a * b idiv c', ArithmeticOperator.Idiv, ArithmeticOperator.Multiply],
+  ])('should keep every operand and operator of %s', (xpath, outer, inner) => {
+    const arithmetic = visitFirst(xpath) as ArithmeticExprNode;
+    const nested = [arithmetic.left, arithmetic.right].find(
+      (operand) => operand.type === XPathNodeType.ArithmeticExpr,
+    ) as ArithmeticExprNode;
+
+    expect(arithmetic.operator).toBe(outer);
+    expect(nested.operator).toBe(inner);
+  });
+
+  it.each([
+    ['a << b', PredicateOperator.Precede],
+    ['a >> b', PredicateOperator.Follow],
+    ['a is b', PredicateOperator.Is],
+  ])('should keep both operands of the node comparison %s', (xpath, operator) => {
+    const comparison = visitFirst(xpath) as ComparisonExprNode;
+
+    expect(comparison.type).toBe(XPathNodeType.ComparisonExpr);
+    expect(comparison.operator).toBe(operator);
+    expect(comparison.right?.type).toBe(XPathNodeType.PathExpr);
+  });
+
+  it.each([
+    ['following::a', 'following'],
+    ['following-sibling::a', 'following-sibling'],
+  ])('should read the axis of %s', (xpath, axis) => {
+    const path = visitFirst(xpath) as PathExprNode;
+
+    expect(path.steps[0].axis).toBe(axis);
+  });
+
+  it.each([
+    ['a * b > 100', XPathNodeType.ArithmeticExpr, XPathNodeType.Literal],
+    ['1 to 3 = a', XPathNodeType.AtomicExpr, XPathNodeType.PathExpr],
+    ["a = 'x' | b", XPathNodeType.PathExpr, XPathNodeType.CombineExpr],
+    ['a = -1', XPathNodeType.PathExpr, XPathNodeType.AtomicExpr],
+    ["a = 'x'[1]", XPathNodeType.PathExpr, XPathNodeType.PathExpr],
+  ])('should keep each side of %s as written', (xpath, leftType, rightType) => {
+    const comparison = visitFirst(xpath) as ComparisonExprNode;
+
+    expect(comparison.left.type).toBe(leftType);
+    expect(comparison.right?.type).toBe(rightType);
+    expect(comparison.left.parent).toBe(comparison);
+    expect(comparison.right?.parent).toBe(comparison);
+  });
+
+  it('should lift a bare literal operand out of its path', () => {
+    const comparison = visitFirst("@key = 'Name'") as ComparisonExprNode;
+
+    expect((comparison.right as LiteralNode).value).toBe('Name');
+  });
+});
+
+/**
+ * Every name, literal and operator token the parser reads must reach a node of the syntax tree that
+ * `XPathUtil.getAllNodesOfType` can find. The expressions nest every operator family into every other, on both
+ * sides and with and without parentheses, and put each one into the containers that have dropped operands before.
+ */
+describe('Syntax tree token coverage', () => {
+  const BINARY_FAMILIES = [
+    ...['+', '-', '*', 'div', 'idiv', 'mod', 'and', 'or', '|', 'union', 'intersect', 'except', 'to'],
+    ...['=', '!=', '<', '<=', '>', '>=', 'eq', 'ne', 'lt', 'le', 'gt', 'ge', 'is', '<<', '>>'],
+  ].map((operator) => (x: string, y: string) => `${x} ${operator} ${y}`);
+  const ATOMIC_FAMILIES = [
+    (x: string) => `-${x}`,
+    (x: string) => `+${x}`,
+    (x: string) => `${x} cast as xs:string`,
+    (x: string) => `${x} castable as xs:string`,
+    (x: string) => `${x} instance of xs:string`,
+  ];
+  const INNER = [...BINARY_FAMILIES.map((family) => family('a', 'b')), ...ATOMIC_FAMILIES.map((family) => family('a'))];
+  const CONTAINERS = [
+    (x: string) => x,
+    (x: string) => `string(${x})`,
+    (x: string) => `n[${x}]`,
+    (x: string) => `if (${x}) then e else f`,
+    (x: string) => `if (e) then ${x} else f`,
+    (x: string) => `(${x})`,
+    (x: string) => `${x}, e`,
+  ];
+  const OPERATOR_TOKENS = new Set([
+    ...['Plus', 'Minus', 'Asterisk', 'Div', 'Idiv', 'Mod', 'And', 'Or', 'Union', 'Pipe', 'Intersect', 'Except', 'To'],
+    ...['Equal', 'NotEqual', 'LessThan', 'LessThanEqual', 'GreaterThan', 'GreaterThanEqual', 'Eq', 'Ne', 'Lt', 'Le'],
+    ...['Gt', 'Ge', 'Is', 'Precede', 'Follow', 'Cast', 'Castable', 'Instance'],
+  ]);
+  const LEAF_TOKENS = new Set(['NCName', 'StringLiteral', 'IntegerLiteral', 'DecimalLiteral', 'DoubleLiteral']);
+  const TYPE_RULES = new Set(['SingleType', 'SequenceType', 'KindTest']);
+  const OPERATOR_NODES = [
+    XPathNodeType.ArithmeticExpr,
+    XPathNodeType.LogicalExpr,
+    XPathNodeType.CombineExpr,
+    XPathNodeType.ComparisonExpr,
+    XPathNodeType.AtomicExpr,
+  ];
+  const LEAF_NODES = [XPathNodeType.NameTest, XPathNodeType.Literal, XPathNodeType.VarRef];
+
+  const parses = (xpath: string) => {
+    const parsed = XPathService.parse(xpath);
+    return parsed.lexErrors.length === 0 && parsed.parseErrors.length === 0;
+  };
+
+  const nested = (): string[] => {
+    const expressions: string[] = [];
+    for (const inner of INNER) {
+      for (const family of BINARY_FAMILIES) {
+        expressions.push(family(inner, 'c'), family('c', inner), family(`(${inner})`, 'c'), family('c', `(${inner})`));
+      }
+      for (const family of ATOMIC_FAMILIES) {
+        expressions.push(family(`(${inner})`));
+      }
+    }
+    for (const family of BINARY_FAMILIES) {
+      expressions.push(family('c', "'x'"), family('1', 'c'));
+    }
+    return expressions.filter(parses);
+  };
+
+  const collectTokens = (element: CstElement, rules: string[], leaves: number[], operators: string[]) => {
+    if (!('children' in element)) {
+      const token = element.tokenType.name;
+      const isFunctionName = rules.at(-1) === 'QName' && rules.at(-2) === 'FunctionCall';
+      if (rules.some((rule) => TYPE_RULES.has(rule))) return;
+      if (LEAF_TOKENS.has(token) && !isFunctionName) leaves.push(element.startOffset);
+      if (OPERATOR_TOKENS.has(token)) operators.push(token);
+      return;
+    }
+    for (const children of Object.values(element.children)) {
+      for (const child of children) {
+        collectTokens(child, [...rules, element.name], leaves, operators);
+      }
+    }
+  };
+
+  const findDrops = (xpath: string): string | undefined => {
+    const parsed = XPathService.parse(xpath);
+    const leaves: number[] = [];
+    const operators: string[] = [];
+    collectTokens(parsed.cst as CstNode, [], leaves, operators);
+
+    const root = CstVisitor.visit(parsed.cst);
+    const leafNodes = LEAF_NODES.flatMap((type) => XPathUtil.getAllNodesOfType<XPathNode>(root, type));
+    const operatorNodes = OPERATOR_NODES.flatMap((type) => XPathUtil.getAllNodesOfType<XPathNode>(root, type));
+    const lost = leaves.filter(
+      (offset) => !leafNodes.some((node) => node.range.start.offset <= offset && offset <= node.range.end.offset),
+    );
+
+    if (lost.length === 0 && operatorNodes.length === operators.length) return undefined;
+    return `${xpath} → ${lost.length} lost leaves, ${operators.length} operator tokens vs ${operatorNodes.length} nodes`;
+  };
+
+  it('should keep every token of every nested operator', () => {
+    const expressions = [...nested(), ...nested().map((expression) => `string(${expression})`)];
+
+    expect(expressions.length).toBeGreaterThan(3000);
+    expect(expressions.map(findDrops).filter((drop) => drop !== undefined)).toEqual([]);
+  });
+
+  it('should keep every token of every operator in every container', () => {
+    const base = [
+      ...BINARY_FAMILIES.map((family) => family('a', 'b')),
+      ...ATOMIC_FAMILIES.map((family) => family('a')),
+    ];
+    const expressions = base.flatMap((expression) => CONTAINERS.map((container) => container(expression)));
+
+    expect(expressions.filter((expression) => !parses(expression))).toEqual([]);
+    expect(expressions.map(findDrops).filter((drop) => drop !== undefined)).toEqual([]);
   });
 });

@@ -11,3 +11,4 @@ export * from './view';
 export * from './visualization';
 export { PathExpression } from './xpath';
 export { PathSegment } from './xpath';
+export { XPathOutputKind } from './xpath';

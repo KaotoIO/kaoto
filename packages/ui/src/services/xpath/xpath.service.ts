@@ -6,6 +6,7 @@ import {
   Predicate,
   PredicateOperator,
   PredicateOperatorSymbol,
+  XPathOutputKind,
 } from '../../models/datamapper/xpath';
 import { DocumentUtilService } from '../document/document-util.service';
 import { getPrefixForNamespaceURI } from '../namespace-util';
@@ -14,15 +15,14 @@ import { XPath2Parser } from './2.0/xpath-2.0-parser';
 import { XPathFunctionCatalogService } from './catalog/xpath-function-catalog.service';
 import { CstVisitor } from './syntaxtree/xpath-syntaxtree-cst-visitor';
 import {
-  CombineExprNode,
   ComparisonExprNode,
   ExprNode,
+  ExprSingleNode,
   FilterExprNode,
   LiteralNode,
   PathExprNode,
   PredicateNode,
   StepExprNode,
-  VarRefNode,
   XPathNode,
   XPathNodeType,
 } from './syntaxtree/xpath-syntaxtree-model';
@@ -153,6 +153,106 @@ export class XPathService {
     return (
       comparison.right?.type === XPathNodeType.Literal && (comparison.right as LiteralNode).literalType === 'string'
     );
+  }
+
+  /**
+   * Whether the result of `expression` writes attributes, children, both, or nothing into the element that
+   * receives it, which decides where an `xsl:copy-of` of it may go (XTDE0410: attributes must precede children).
+   * Only the parts that become the result are looked at ({@link XPathUtil.getResultExpressions}), and each path is
+   * judged by its last step, so `Item[@type = 'a']` and `string(@id)` write children while `@*`, `attribute::*`
+   * and `@node()` write attributes, and so do namespace nodes (`namespace::*`), which XTDE0410 also requires
+   * before any child. Anything that isn't a path writes children, including an operator that turns a path into
+   * atomic values (`-@a`, `@a cast as xs:string`, `@a instance of attribute()`, `@a to 7`). A lex or parse
+   * error gives `CHILDREN`.
+   *
+   * Known gaps, which only a hand-edited expression reaches, all reading as `CHILDREN`:
+   * - `for … return`, which the syntax tree doesn't model, even when it returns attributes;
+   * - variables and function calls, whose result can't be known statically;
+   * - an `attribute()` or `namespace-node()` kind test without an axis, because the syntax tree drops kind tests;
+   * - `ancestor-or-self::` / `descendant-or-self::` applied to an attribute step.
+   * @param expression - the XPath expression, typically an `xsl:copy-of` `select`
+   * @param getContextItemKind - the kind of the context item `.`, for example through an enclosing
+   * `xsl:for-each`; without it, `.` is treated as writing children
+   */
+  static getOutputKind(expression: string, getContextItemKind?: () => XPathOutputKind): XPathOutputKind {
+    const parsed = XPathService.parse(expression);
+    if (parsed.lexErrors.length > 0 || parsed.parseErrors.length > 0 || !parsed.exprNode) {
+      return XPathOutputKind.CHILDREN;
+    }
+    return XPathService.getResultsOutputKind(parsed.exprNode, getContextItemKind);
+  }
+
+  /**
+   * Combines the kinds of the parts that together make up one result, such as the operands of a union or the
+   * children of an `xsl:if`. Empty parts are ignored, so a result with no other part is `EMPTY`. Any
+   * `ATTRIBUTES_AND_CHILDREN`, or `ATTRIBUTES` together with `CHILDREN`, gives `ATTRIBUTES_AND_CHILDREN`.
+   * Otherwise the single remaining kind wins.
+   * @param kinds - the kinds of the parts, in any order
+   */
+  static combineOutputKinds(kinds: XPathOutputKind[]): XPathOutputKind {
+    let hasAttributes = false;
+    let hasChildren = false;
+    for (const kind of kinds) {
+      if (kind === XPathOutputKind.ATTRIBUTES_AND_CHILDREN) return XPathOutputKind.ATTRIBUTES_AND_CHILDREN;
+      if (kind === XPathOutputKind.ATTRIBUTES) hasAttributes = true;
+      if (kind === XPathOutputKind.CHILDREN) hasChildren = true;
+    }
+    if (hasAttributes && hasChildren) return XPathOutputKind.ATTRIBUTES_AND_CHILDREN;
+    if (hasAttributes) return XPathOutputKind.ATTRIBUTES;
+    if (hasChildren) return XPathOutputKind.CHILDREN;
+    return XPathOutputKind.EMPTY;
+  }
+
+  private static getResultsOutputKind(
+    node: ExprNode | ExprSingleNode,
+    getContextItemKind?: () => XPathOutputKind,
+  ): XPathOutputKind {
+    const kinds: XPathOutputKind[] = [];
+    for (const result of XPathUtil.getResultExpressions(node)) {
+      kinds.push(XPathService.getResultOutputKind(result, getContextItemKind));
+    }
+    return XPathService.combineOutputKinds(kinds);
+  }
+
+  private static getResultOutputKind(
+    result: ExprSingleNode,
+    getContextItemKind?: () => XPathOutputKind,
+  ): XPathOutputKind {
+    if (result.type === XPathNodeType.ParenthesizedExpr && !result.expr) return XPathOutputKind.EMPTY;
+    if (result.type !== XPathNodeType.PathExpr) return XPathOutputKind.CHILDREN;
+    if (result.steps.length === 0) return XPathOutputKind.CHILDREN;
+    return XPathService.getStepOutputKind(result, result.steps.length - 1, getContextItemKind);
+  }
+
+  private static getStepOutputKind(
+    path: PathExprNode,
+    index: number,
+    getContextItemKind?: () => XPathOutputKind,
+  ): XPathOutputKind {
+    const step = path.steps[index];
+    if (step.reverseStep) return XPathOutputKind.CHILDREN;
+    if (step.isAttribute || step.axis === 'namespace') return XPathOutputKind.ATTRIBUTES;
+    if (XPathService.isSelfStep(step)) return XPathService.getPrecedingStepKind(path, index, getContextItemKind);
+    const primary = step.filterExpr?.primary;
+    if (primary?.type !== XPathNodeType.ParenthesizedExpr) return XPathOutputKind.CHILDREN;
+    if (!primary.expr) return XPathOutputKind.EMPTY;
+    return XPathService.getResultsOutputKind(primary.expr, () =>
+      XPathService.getPrecedingStepKind(path, index, getContextItemKind),
+    );
+  }
+
+  private static getPrecedingStepKind(
+    path: PathExprNode,
+    index: number,
+    getContextItemKind?: () => XPathOutputKind,
+  ): XPathOutputKind {
+    if (index > 0) return XPathService.getStepOutputKind(path, index - 1, getContextItemKind);
+    if (path.isAbsolute || !getContextItemKind) return XPathOutputKind.CHILDREN;
+    return getContextItemKind();
+  }
+
+  private static isSelfStep(step: StepExprNode): boolean {
+    return step.axis === 'self' || step.filterExpr?.primary.type === XPathNodeType.ContextItemExpr;
   }
 
   /**
@@ -422,12 +522,11 @@ export class XPathService {
   }
 
   /**
-   * A {@link CombineExprNode} operand yields `''`, like a variable reference does: a predicate
-   * comparing against a union of sequences has no single {@link PathExpression} to report.
+   * Any operand other than a path or a literal yields `''`, like a variable reference does: a predicate comparing
+   * against a union of sequences, an arithmetic result or `@id cast as xs:integer` has no single
+   * {@link PathExpression} to report.
    */
-  private static extractOperand(
-    operand: PathExprNode | LiteralNode | VarRefNode | CombineExprNode,
-  ): PathExpression | string {
+  private static extractOperand(operand: ExprSingleNode): PathExpression | string {
     if ('steps' in operand) {
       return XPathService.extractPathExpression(operand);
     }

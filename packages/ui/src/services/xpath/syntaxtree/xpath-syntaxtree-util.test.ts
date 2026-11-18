@@ -1,8 +1,10 @@
 import { XPathService } from '../xpath.service';
 import {
+  ExprSingleNode,
   FunctionCallNode,
   LiteralNode,
   NameTestNode,
+  ParenthesizedExprNode,
   PathExprNode,
   StepExprNode,
   XPathNodeType,
@@ -249,6 +251,53 @@ describe('XPathUtil', () => {
       expect(range.end.line).toBe(2);
       expect(range.end.column).toBe(5);
       expect(range.end.offset).toBe(15);
+    });
+  });
+
+  describe('getResultExpressions()', () => {
+    const describeLeaf = (node: ExprSingleNode): string => {
+      if (node.type === XPathNodeType.ParenthesizedExpr) return node.expr ? '(…)' : '()';
+      if (node.type !== XPathNodeType.PathExpr) return node.type;
+      return node.steps
+        .map((step) => step.filterExpr?.primary.type ?? `${step.isAttribute ? '@' : ''}${step.nodeTest?.localName}`)
+        .join('/');
+    };
+    const resultsOf = (expression: string) =>
+      XPathUtil.getResultExpressions(XPathService.parse(expression).exprNode).map(describeLeaf);
+
+    it.each([
+      ['a comma sequence', 'a, b', ['a', 'b']],
+      ['a union', 'a | b', ['a', 'b']],
+      ['a union keyword', 'a union @b', ['a', '@b']],
+      ['the left operand of intersect', 'a intersect b', ['a']],
+      ['the left operand of except', 'a except b', ['a']],
+      ['the inside of parentheses', '(a | b)', ['a', 'b']],
+      ['both branches of if', 'if (c) then a else @b', ['a', '@b']],
+      ['a multi-step path with a parenthesized step', '/x/(@a | b)', [`x/${XPathNodeType.ParenthesizedExpr}`]],
+      ['a function call as one leaf', 'string(@id)', [XPathNodeType.FunctionCall]],
+      ['a variable reference as one leaf', '$v', [XPathNodeType.VarRef]],
+      ['a literal as one leaf', "'text'", [XPathNodeType.Literal]],
+      ['an atomic operator as one leaf', '@a cast as xs:string', [XPathNodeType.AtomicExpr]],
+      [
+        'a quantified if branch as an unsupported leaf',
+        'if (c) then some $x in X satisfies $x else @a',
+        [XPathNodeType.UnsupportedExpr, '@a'],
+      ],
+      ['a for expression as an unsupported leaf', '@a, for $x in X return $x', ['@a', XPathNodeType.UnsupportedExpr]],
+    ])('should return %s', (_name, expression, expected) => {
+      expect(resultsOf(expression)).toEqual(expected);
+    });
+
+    it('should return an empty sequence as an empty parenthesized leaf', () => {
+      const results = XPathUtil.getResultExpressions(XPathService.parse('()').exprNode);
+
+      expect(results).toHaveLength(1);
+      expect(results[0].type).toBe(XPathNodeType.ParenthesizedExpr);
+      expect((results[0] as ParenthesizedExprNode).expr).toBeUndefined();
+    });
+
+    it('should return nothing for an undefined node', () => {
+      expect(XPathUtil.getResultExpressions(undefined)).toEqual([]);
     });
   });
 });

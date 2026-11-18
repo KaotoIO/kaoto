@@ -10,16 +10,15 @@ import {
   MappingParentType,
   MappingTree,
   OtherwiseItem,
+  UnknownMappingItem,
+  ValueOfSelector,
+  VariableItem,
   WhenItem,
 } from '../../models/datamapper/mapping';
+import { XPathOutputKind } from '../../models/datamapper/xpath';
 import { XmlSchemaDocumentUtilService } from '../document/xml-schema/xml-schema-document-util.service';
-import {
-  ExprNode,
-  ExprSingleNode,
-  PathExprNode,
-  StepExprNode,
-  XPathNodeType,
-} from '../xpath/syntaxtree/xpath-syntaxtree-model';
+import { PathExprNode, StepExprNode, XPathNodeType } from '../xpath/syntaxtree/xpath-syntaxtree-model';
+import { XPathUtil } from '../xpath/syntaxtree/xpath-syntaxtree-util';
 import { XPathService } from '../xpath/xpath.service';
 import { MappingService } from './mapping.service';
 
@@ -32,9 +31,6 @@ import { MappingService } from './mapping.service';
  *   unmatched path), a separate node placed last.
  */
 export type CopyOfClassification = { kind: 'empty' } | { kind: 'other' } | { kind: 'child'; field: IField };
-
-/** Resolves a namespace prefix to its URI, or returns a falsy value when the prefix is unknown. */
-export type NamespaceResolver = (prefix: string) => string | null | undefined;
 
 const EMPTY: CopyOfClassification = { kind: 'empty' };
 const OTHER: CopyOfClassification = { kind: 'other' };
@@ -49,14 +45,14 @@ export class CopyOfPlacementService {
    * Classifies a copy-of `select` expression against the children of `parentField`.
    * @param expression - the `select` expression
    * @param parentField - the field (or document) whose element holds the copy-of's output
-   * @param resolveNamespace - resolves the prefixes used in the expression
+   * @param namespaceMap - the namespace URI of each prefix used in the expression
    * @param owner - the mapping item that directly contains the copy-of, used to resolve `.` through
    * an enclosing `xsl:for-each`
    */
   static classify(
     expression: string,
     parentField: IParentType,
-    resolveNamespace: NamespaceResolver,
+    namespaceMap: Record<string, string>,
     owner?: MappingParentType,
   ): CopyOfClassification {
     const trimmed = expression.trim();
@@ -64,25 +60,28 @@ export class CopyOfPlacementService {
 
     const path = CopyOfPlacementService.parseSinglePath(trimmed);
     if (!path) return OTHER;
-    const field = CopyOfPlacementService.resolvePathField(path, parentField, resolveNamespace, owner);
+    const field = CopyOfPlacementService.resolvePathField(path, parentField, namespaceMap, owner);
     return field ? { kind: 'child', field } : OTHER;
   }
 
   /**
-   * The child fields of `parentField` that a copy-of `select` expression references, in the order they are
-   * written. A single path gives the field {@link classify} would inline; a comma list, a union
-   * (`a | b`) or parentheses give every path that resolves to a child. Paths that don't resolve (wildcard,
-   * `node()`, attribute, variable, function, unknown name) contribute nothing, so such a copy-of is
-   * anchored on the fields it does name, and one that names none has no anchor.
+   * The child fields of `parentField` that a copy-of `select` expression returns, in the order they are
+   * written. A single path gives the field {@link classify} would inline; any other expression gives every
+   * path among its result expressions ({@link XPathUtil.getResultExpressions}) that resolves to a child. So
+   * a comma list, a union (`a | b`), parentheses and both branches of `if (c) then a else b` anchor on every
+   * field they name, while `a intersect b` and `a except b` anchor on `a` only, because `b` is not in the
+   * result. Paths that don't resolve (wildcard, `node()`, attribute, variable, function, unknown name)
+   * contribute nothing, so such a copy-of is anchored on the fields it does name, and one that names none has
+   * no anchor.
    * @param expression - the `select` expression
    * @param parentField - the field (or document) whose element holds the copy-of's output
-   * @param resolveNamespace - resolves the prefixes used in the expression
+   * @param namespaceMap - the namespace URI of each prefix used in the expression
    * @param owner - the mapping item that directly contains the copy-of
    */
-  static getReferencedFields(
+  private static getReferencedFields(
     expression: string,
     parentField: IParentType,
-    resolveNamespace: NamespaceResolver,
+    namespaceMap: Record<string, string>,
     owner?: MappingParentType,
   ): IField[] {
     const trimmed = expression.trim();
@@ -91,48 +90,91 @@ export class CopyOfPlacementService {
     if (parsed.parseErrors.length > 0 || parsed.lexErrors.length > 0) return [];
 
     const fields: IField[] = [];
-    const visit = (node: ExprSingleNode | ExprNode | undefined): void => {
-      if (!node) return;
-      switch (node.type) {
-        case XPathNodeType.Expr:
-          node.expressions.forEach(visit);
-          break;
-        case XPathNodeType.PathExpr: {
-          // `(a | b)` is a path of one step whose primary expression is the parenthesized group.
-          const primary = node.steps.length === 1 ? node.steps[0].filterExpr?.primary : undefined;
-          if (primary?.type === XPathNodeType.ParenthesizedExpr) {
-            visit(primary);
-            break;
-          }
-          const field = CopyOfPlacementService.resolvePathField(node, parentField, resolveNamespace, owner);
-          if (field && !fields.includes(field)) fields.push(field);
-          break;
-        }
-        case XPathNodeType.CombineExpr:
-          visit(node.left);
-          visit(node.right);
-          break;
-        case XPathNodeType.ParenthesizedExpr:
-          visit(node.expr);
-          break;
-        default:
-          break;
-      }
-    };
-    visit(parsed.exprNode);
+    for (const result of XPathUtil.getResultExpressions(parsed.exprNode)) {
+      if (result.type !== XPathNodeType.PathExpr) continue;
+      const field = CopyOfPlacementService.resolvePathField(result, parentField, namespaceMap, owner);
+      if (field && !fields.includes(field)) fields.push(field);
+    }
     return fields;
+  }
+
+  /**
+   * Whether `item` writes attributes, children, both, or nothing into the element that receives its output,
+   * which decides where it may go among its siblings (XTDE0410: attributes must precede children).
+   *
+   * A copy-of is judged by its `select` ({@link XPathService.getOutputKind}), with `.` resolved through the
+   * nearest enclosing `xsl:for-each`. A field item writes an attribute or an element, a value-of writes text,
+   * and a variable writes nothing. An instruction combines what its body writes, and `xsl:choose` combines every
+   * branch, since any of them may run. An {@link UnknownMappingItem} (`xsl:element`, `xsl:call-template`, …)
+   * counts as writing children: an instruction holding one next to an attribute then writes both, which keeps
+   * `xsl:if { xsl:attribute a, xsl:element X }` out of the attributes-only group. The rarer unknown item that
+   * writes attributes is misplaced by this, a deliberate trade-off that only imported stylesheets can reach.
+   * @param item - the mapping item to classify
+   */
+  static getOutputKind(item: MappingItem): XPathOutputKind {
+    if (item instanceof CopyOfSelector) return CopyOfPlacementService.getCopyOfOutputKind(item);
+    if (item instanceof ValueOfSelector) return XPathOutputKind.CHILDREN;
+    if (item instanceof FieldItem)
+      return item.field.isAttribute ? XPathOutputKind.ATTRIBUTES : XPathOutputKind.CHILDREN;
+    if (item instanceof VariableItem) return XPathOutputKind.EMPTY;
+    if (item instanceof UnknownMappingItem) return XPathOutputKind.CHILDREN;
+    if (item instanceof ChooseItem) {
+      const branches = [...item.when, item.otherwise].filter((branch): branch is WhenItem | OtherwiseItem => !!branch);
+      return CopyOfPlacementService.combineItemOutputKinds(branches);
+    }
+    if (item instanceof InstructionItem) return CopyOfPlacementService.combineItemOutputKinds(item.children);
+    return XPathOutputKind.CHILDREN;
+  }
+
+  private static combineItemOutputKinds(items: MappingItem[]): XPathOutputKind {
+    const kinds: XPathOutputKind[] = [];
+    for (const item of items) {
+      kinds.push(CopyOfPlacementService.getOutputKind(item));
+    }
+    return XPathService.combineOutputKinds(kinds);
+  }
+
+  private static getCopyOfOutputKind(selector: CopyOfSelector): XPathOutputKind {
+    if (!selector.expression.trim()) return XPathOutputKind.EMPTY;
+    return XPathService.getOutputKind(selector.expression, () =>
+      CopyOfPlacementService.getContextItemKind(selector.parent),
+    );
+  }
+
+  /**
+   * The kind of the context item `.` for a copy-of directly inside `owner`: the `select` of the nearest
+   * enclosing `xsl:for-each` or `xsl:for-each-group`, judged from the loop's own position. In a
+   * `for-each-group`, `.` is the first item of the current group, which comes from the group's `select`.
+   * Unlike {@link findEnclosingLoop}, this walks through field items too, because a literal result element
+   * doesn't change the context item. `MappingService.wrapWithForEach` and `wrapWithForEachGroup` put the loop
+   * around the target field, so `for-each select="@*"` > `Item` > `copy-of select="."` is the shape the UI
+   * creates. A copy-of outside any loop counts as children. `current-group()` is a function call, so it
+   * counts as children whatever the group's `select` is.
+   */
+  private static getContextItemKind(owner: MappingParentType): XPathOutputKind {
+    let current: MappingParentType = owner;
+    while (current instanceof MappingItem) {
+      if (current instanceof ForEachItem || current instanceof ForEachGroupItem) {
+        const loop = current;
+        return XPathService.getOutputKind(loop.expression, () =>
+          CopyOfPlacementService.getContextItemKind(loop.parent),
+        );
+      }
+      current = current.parent;
+    }
+    return XPathOutputKind.CHILDREN;
   }
 
   private static resolvePathField(
     path: PathExprNode,
     parentField: IParentType,
-    resolveNamespace: NamespaceResolver,
+    namespaceMap: Record<string, string>,
     owner?: MappingParentType,
   ): IField | undefined {
     if (path.steps.length === 0) return undefined;
 
     if (CopyOfPlacementService.isContextItem(path)) {
-      const result = CopyOfPlacementService.classifyThroughForEach(parentField, resolveNamespace, owner);
+      const result = CopyOfPlacementService.classifyThroughForEach(parentField, namespaceMap, owner);
       return result.kind === 'child' ? result.field : undefined;
     }
 
@@ -149,7 +191,7 @@ export class CopyOfPlacementService {
     const { prefix, localName } = step.nodeTest!;
     let namespaceURI = '';
     if (prefix) {
-      const resolved = resolveNamespace(prefix);
+      const resolved = namespaceMap[prefix];
       if (!resolved) return undefined;
       namespaceURI = resolved;
     }
@@ -198,11 +240,10 @@ export class CopyOfPlacementService {
   static classifyItem(selector: CopyOfSelector): CopyOfClassification {
     const contextField = CopyOfPlacementService.getContextField(selector.parent);
     if (!contextField) return selector.expression.trim() ? OTHER : EMPTY;
-    const namespaceMap = selector.mappingTree.namespaceMap;
     return CopyOfPlacementService.classify(
       selector.expression,
       contextField,
-      (prefix) => namespaceMap[prefix],
+      selector.mappingTree.namespaceMap,
       selector.parent,
     );
   }
@@ -216,29 +257,27 @@ export class CopyOfPlacementService {
     if (!selector.expression.trim()) return false;
     const outerField = CopyOfPlacementService.getContextField(fieldItem.parent);
     if (!outerField) return false;
-    const namespaceMap = fieldItem.mappingTree.namespaceMap;
     const result = CopyOfPlacementService.classify(
       selector.expression,
       outerField,
-      (prefix) => namespaceMap[prefix],
+      fieldItem.mappingTree.namespaceMap,
       fieldItem.parent,
     );
     return result.kind === 'child' && result.field === fieldItem.field;
   }
 
   /**
-   * Every child field a copy-of references, in written order: what it is anchored on when the target's
+   * Every child field a copy-of returns, in written order: what it is anchored on when the target's
    * `xs:sequence` places it among its siblings. The serializer sorts by the earliest of them in schema order
    * and the canvas renders the copy-of at the same place, so the two agree.
    */
   static getAnchorFields(selector: CopyOfSelector): IField[] {
     const contextField = CopyOfPlacementService.getContextField(selector.parent);
     if (!contextField) return [];
-    const namespaceMap = selector.mappingTree.namespaceMap;
     return CopyOfPlacementService.getReferencedFields(
       selector.expression,
       contextField,
-      (prefix) => namespaceMap[prefix],
+      selector.mappingTree.namespaceMap,
       selector.parent,
     );
   }
@@ -277,12 +316,12 @@ export class CopyOfPlacementService {
   /** `.` selects the iterated item of the nearest `xsl:for-each`, so classify that loop's `select`. */
   private static classifyThroughForEach(
     parentField: IParentType,
-    resolveNamespace: NamespaceResolver,
+    namespaceMap: Record<string, string>,
     owner?: MappingParentType,
   ): CopyOfClassification {
     const loop = CopyOfPlacementService.findEnclosingLoop(owner);
     if (!(loop instanceof ForEachItem)) return OTHER;
-    const result = CopyOfPlacementService.classify(loop.expression, parentField, resolveNamespace, loop.parent);
+    const result = CopyOfPlacementService.classify(loop.expression, parentField, namespaceMap, loop.parent);
     return result.kind === 'child' ? result : OTHER;
   }
 
@@ -298,12 +337,5 @@ export class CopyOfPlacementService {
       current = current.parent;
     }
     return undefined;
-  }
-
-  static canHostFieldItem(parent: MappingParentType): boolean {
-    return (
-      parent instanceof FieldItem ||
-      (parent instanceof InstructionItem && !(parent instanceof ChooseItem) && !(parent instanceof ForEachGroupItem))
-    );
   }
 }
