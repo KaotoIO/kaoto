@@ -1,4 +1,4 @@
-import { buildFilePath, buildRenamedPath } from './file-path';
+import { buildChildPath, buildFilePath, buildRenamedPath } from './file-path';
 
 describe('buildFilePath', () => {
   it.each([
@@ -52,5 +52,23 @@ describe('buildRenamedPath', () => {
     expect(buildRenamedPath('routes/orders.camel.yaml', name)).toEqual({
       error: 'A file name cannot contain / or \\',
     });
+  });
+});
+
+describe('buildChildPath', () => {
+  it.each([
+    ['', 'orders.camel.yaml', 'orders.camel.yaml'],
+    ['routes/async', ' orders.camel.yaml ', 'routes/async/orders.camel.yaml'],
+    ['routes', 'async', 'routes/async'],
+  ])('puts a child of %j named %j at %j', (folderPath, name, path) => {
+    expect(buildChildPath(folderPath, name, 'file')).toEqual({ path });
+  });
+
+  it.each([
+    ['file', 'Enter a file name', 'A file name cannot contain / or \\'],
+    ['folder', 'Enter a folder name', 'A folder name cannot contain / or \\'],
+  ] as const)('names the %s in its errors', (kind, empty, separator) => {
+    for (const name of ['', '   ', '.', '..']) expect(buildChildPath('routes', name, kind)).toEqual({ error: empty });
+    for (const name of ['a/b', 'a\\b']) expect(buildChildPath('routes', name, kind)).toEqual({ error: separator });
   });
 });

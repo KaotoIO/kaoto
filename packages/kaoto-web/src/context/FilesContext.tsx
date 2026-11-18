@@ -8,14 +8,19 @@ interface FilesProviderProps {
   store?: FilesStore;
 }
 
-/** The loaded files, tagged with their load attempt, so that a reload shows the loading state */
+/** The loaded files and folders, tagged with their load attempt, so that a reload shows the loading state */
 interface LoadedFiles {
   attempt: number;
   files: StoredFile[];
+  folders: string[];
   error?: Error;
 }
 
 const NO_FILES: StoredFile[] = [];
+const NO_FOLDERS: string[] = [];
+
+/** Whether the path is the folder or lies under it */
+const isInFolder = (path: string, folderPath: string) => path === folderPath || path.startsWith(`${folderPath}/`);
 
 const byPath = (a: StoredFile, b: StoredFile) => {
   if (a.path === b.path) return 0;
@@ -34,12 +39,12 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
 
   useEffect(() => {
     let isCurrent = true;
-    store.getFiles().then(
-      (files) => {
-        if (isCurrent) setLoaded({ attempt, files });
+    Promise.all([store.getFiles(), store.getFolders()]).then(
+      ([files, folders]) => {
+        if (isCurrent) setLoaded({ attempt, files, folders });
       },
       (error: unknown) => {
-        if (isCurrent) setLoaded({ attempt, files: NO_FILES, error: toError(error) });
+        if (isCurrent) setLoaded({ attempt, files: NO_FILES, folders: NO_FOLDERS, error: toError(error) });
       },
     );
     return () => {
@@ -54,8 +59,20 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
   const createFile = useCallback(
     async (file: NewFile) => {
       const created = await store.createFile(file);
-      setLoaded((previous) => previous && { ...previous, files: [...previous.files, created].sort(byPath) });
+      // The store creates the missing parent folders as well
+      const folders = await store.getFolders();
+      setLoaded((previous) => previous && { ...previous, files: [...previous.files, created].sort(byPath), folders });
       return created;
+    },
+    [store],
+  );
+
+  const createFolder = useCallback(
+    async (folderPath: string) => {
+      await store.createFolder(folderPath);
+      // The store creates the missing parent folders as well
+      const folders = await store.getFolders();
+      setLoaded((previous) => previous && { ...previous, folders });
     },
     [store],
   );
@@ -77,11 +94,14 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
   const renameFile = useCallback(
     async (id: string, path: string) => {
       const renamed = await store.renameFile(id, path);
+      // The store creates the missing parent folders of the new path as well
+      const folders = await store.getFolders();
       setLoaded(
         (previous) =>
           previous && {
             ...previous,
             files: previous.files.map((file) => (file.id === renamed.id ? renamed : file)).sort(byPath),
+            folders,
           },
       );
     },
@@ -100,7 +120,12 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
     async (folderPath: string) => {
       const deleted = new Set(await store.deleteFolder(folderPath));
       setLoaded(
-        (previous) => previous && { ...previous, files: previous.files.filter((file) => !deleted.has(file.id)) },
+        (previous) =>
+          previous && {
+            ...previous,
+            files: previous.files.filter((file) => !deleted.has(file.id)),
+            folders: previous.folders.filter((path) => !isInFolder(path, folderPath)),
+          },
       );
     },
     [store],
@@ -110,16 +135,18 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
   const value = useMemo<IFilesContext>(
     () => ({
       files: current?.files ?? NO_FILES,
+      folders: current?.folders ?? NO_FOLDERS,
       loading: !current,
       error: current?.error,
       reload,
       createFile,
+      createFolder,
       updateFile,
       renameFile,
       deleteFile,
       deleteFolder,
     }),
-    [current, reload, createFile, updateFile, renameFile, deleteFile, deleteFolder],
+    [current, reload, createFile, createFolder, updateFile, renameFile, deleteFile, deleteFolder],
   );
 
   return <FilesContext.Provider value={value}>{children}</FilesContext.Provider>;
