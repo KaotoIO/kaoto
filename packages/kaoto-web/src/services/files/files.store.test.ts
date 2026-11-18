@@ -81,12 +81,16 @@ describe('FilesStore', () => {
     }
   });
 
-  it('renames a file and keeps its id, content and timestamp', async () => {
+  it('renames a file, keeps its id and content and moves its update time', async () => {
+    const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
     const file = await store.createFile({ path: 'a.yaml', content: 'x' });
+    now.mockReturnValue(2000);
 
     const renamed = await store.renameFile(file.id, 'routes/b.yaml');
+    now.mockRestore();
 
-    expect(renamed).toEqual({ ...file, path: 'routes/b.yaml' });
+    // updatedAt tracks the stored entry, and the path is part of it
+    expect(renamed).toEqual({ ...file, path: 'routes/b.yaml', updatedAt: 2000 });
     expect(await store.getFiles()).toEqual([renamed]);
   });
 

@@ -8,7 +8,7 @@ export interface StoredFile {
   /** `/`-separated and unique, e.g. `routes/my-route.camel.yaml` */
   path: string;
   content: string;
-  /** Milliseconds since the epoch */
+  /** Milliseconds since the epoch; moves whenever the stored entry changes, on a new content or path */
   updatedAt: number;
 }
 

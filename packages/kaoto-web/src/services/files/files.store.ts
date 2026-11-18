@@ -63,10 +63,11 @@ export class FilesStore {
   /**
    * Moves the file to another path; its id stays, so that an open file stays open.
    *
-   * Rejects when another file has the path. The timestamp stays, as it tracks the content.
+   * Rejects when another file has the path. The update time moves, as it tracks the stored entry and the path is part
+   * of it.
    */
   async renameFile(id: string, path: string): Promise<StoredFile> {
-    return this.modifyFile(id, (existing) => ({ ...existing, path }));
+    return this.modifyFile(id, (existing) => ({ ...existing, path, updatedAt: Date.now() }));
   }
 
   async deleteFile(id: string): Promise<void> {
