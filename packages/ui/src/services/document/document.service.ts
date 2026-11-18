@@ -5,6 +5,7 @@ import {
   DocumentDefinitionType,
   DocumentInitializationModel,
   DocumentType,
+  FieldCardinality,
   IDocument,
   IField,
   IParentType,
@@ -576,10 +577,6 @@ export class DocumentService {
     return targetDefinitionType !== DocumentDefinitionType.JSON_SCHEMA;
   }
 
-  private static isRepeating(field: IField): boolean {
-    return field.maxOccurs === 'unbounded' || Number(field.maxOccurs) > 1;
-  }
-
   /**
    * Walks up through the chain of enclosing transparent compositors (xs:choice / xs:sequence) and
    * returns the nearest one that repeats, or `undefined` when none does. xs:choice and xs:sequence
@@ -596,7 +593,7 @@ export class DocumentService {
     if (!('wrapperKind' in parent) || (parent.wrapperKind !== 'choice' && parent.wrapperKind !== 'sequence')) {
       return undefined;
     }
-    return DocumentService.isRepeating(parent) ? parent : DocumentService.getEnclosingCollectionCompositor(parent);
+    return FieldCardinality.isCollection(parent) ? parent : DocumentService.getEnclosingCollectionCompositor(parent);
   }
 
   /**
@@ -611,14 +608,16 @@ export class DocumentService {
   }
 
   /**
-   * Returns true if the field represents a collection (maxOccurs is 'unbounded' or greater than 1).
-   * Also returns true if the field is a member of a collection choice wrapper, as members inherit
-   * the repeating nature from the choice wrapper.
+   * Returns true if the field represents a collection: its own `maxOccurs` makes it one (see
+   * {@link FieldCardinality.isCollection}), or it sits inside an enclosing repeating xs:choice / xs:sequence
+   * compositor and inherits the repeating nature from it (see {@link getEnclosingCollectionCompositor} for
+   * where that inheritance stops). Only the field's own ancestor chain is read, never a node's wrapper
+   * back-reference.
    * @param field - The field to inspect
    * @returns true if the field is a collection, false otherwise
    */
   static isCollectionField(field: IField) {
-    return DocumentService.isRepeating(field) || DocumentService.isFieldInsideCollectionChoiceWrapper(field);
+    return FieldCardinality.isCollection(field) || DocumentService.isFieldInsideCollectionChoiceWrapper(field);
   }
 
   /**

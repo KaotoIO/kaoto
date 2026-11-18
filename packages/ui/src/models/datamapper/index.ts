@@ -1,5 +1,6 @@
 export * from './connection-port';
 export * from './document';
+export * from './field-cardinality';
 export * from './mapping';
 export * from './nodepath';
 export * from './serialization';
