@@ -175,7 +175,8 @@ describe('Explorer', () => {
   it('renders the sidebar structure', async () => {
     renderComponent();
     expect(screen.getByTestId('explorer')).toBeInTheDocument();
-    expect(screen.getByTestId('route-selector-area')).toBeInTheDocument();
+    // There is no routes section above the Explorer: a file can hold dozens of routes
+    expect(screen.queryByTestId('route-selector-area')).not.toBeInTheDocument();
     expect(await screen.findByTestId('explorer-folder-integrations')).toBeInTheDocument();
     expect(screen.getByTestId('explorer-folder-resources')).toBeInTheDocument();
   });

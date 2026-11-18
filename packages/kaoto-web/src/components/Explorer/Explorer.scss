@@ -14,12 +14,6 @@
   overflow: hidden;
 }
 
-.cs--explorer__route-selector {
-  flex-shrink: 0;
-  min-block-size: $spacing-09;
-  border-block-end: 1px solid $border-subtle-01;
-}
-
 .cs--explorer__toolbar {
   display: flex;
   align-items: center;
