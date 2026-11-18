@@ -394,7 +394,7 @@ describe('Explorer', () => {
       expect(file).toHaveAttribute('aria-keyshortcuts', 'F2 Delete Backspace');
       expect(screen.getByRole('treeitem', { name: /^integrations/ })).toHaveAttribute(
         'aria-keyshortcuts',
-        'Delete Backspace',
+        'F2 Delete Backspace',
       );
       const deleteButton = screen.getByTestId('explorer-delete-main-flow');
       const renameButton = screen.getByTestId('explorer-rename-main-flow');
@@ -408,8 +408,10 @@ describe('Explorer', () => {
         'title',
         'Delete folder',
       );
-      // Folders cannot be renamed yet
-      expect(screen.queryByTestId(`explorer-rename-${toFolderId('integrations')}`)).not.toBeInTheDocument();
+      expect(screen.getByTestId(`explorer-rename-${toFolderId('integrations')}`)).toHaveAttribute(
+        'title',
+        'Rename folder',
+      );
     });
 
     it('deletes a file after confirmation without opening it', async () => {
@@ -670,18 +672,90 @@ describe('Explorer', () => {
       expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
     });
 
-    it('starts renaming the focused file on F2, but not a folder', async () => {
+    it('starts renaming the focused file or folder on F2', async () => {
       const user = userEvent.setup();
       renderComponent();
       await expandIntegrations(user);
 
-      screen.getByTestId('explorer-folder-integrations').focus();
-      await user.keyboard('{F2}');
-      expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
-
       screen.getByTestId('explorer-file-main-flow').focus();
       await user.keyboard('{F2}');
       expect(screen.getByRole('textbox', { name: 'Rename file' })).toHaveValue('main-flow.camel.yaml');
+      await user.keyboard('{Escape}');
+
+      screen.getByTestId('explorer-folder-resources').focus();
+      await user.keyboard('{F2}');
+      expect(screen.getByRole('textbox', { name: 'Rename folder' })).toHaveValue('resources');
+    });
+
+    describe('folders', () => {
+      const renameFolder = async (user: ReturnType<typeof userEvent.setup>, folderPath: string, name: string) => {
+        await user.click(screen.getByTestId(`explorer-rename-${toFolderId(folderPath)}`));
+        const input = screen.getByRole('textbox', { name: 'Rename folder' });
+        await user.clear(input);
+        await user.keyboard(`${name}{Enter}`);
+      };
+
+      it('renames a folder with the button, moves what it holds and focuses it again', async () => {
+        const user = userEvent.setup();
+        renderComponent();
+        await screen.findByTestId('explorer-folder-resources');
+
+        await user.click(screen.getByTestId(`explorer-rename-${toFolderId('resources')}`));
+        const input = screen.getByRole('textbox', { name: 'Rename folder' });
+        expect(input).toHaveValue('resources');
+        expect(input).toHaveFocus();
+        await user.clear(input);
+        await user.keyboard('assets{Enter}');
+
+        await waitFor(async () => {
+          expect((await storedFile('schema'))?.path).toBe('assets/schema.xsd');
+        });
+        expect((await storedFile('order-template'))?.path).toBe('assets/templates/order-template.json');
+        await waitFor(() => {
+          expect(screen.getByTestId('explorer-folder-assets')).toHaveFocus();
+        });
+        expect(screen.queryByTestId('explorer-folder-resources')).not.toBeInTheDocument();
+      });
+
+      it('keeps the open file open and a renamed folder expanded', async () => {
+        const user = userEvent.setup();
+        renderWithNavigation(<LocationDisplay />, '/workspace/file/rest-api');
+        await expandIntegrations(user);
+        const routes = screen.getByTestId('explorer-folder-integrations/routes');
+        await user.click(routes.querySelector('.cds--tree-parent-node__toggle')!);
+
+        await renameFolder(user, 'integrations/routes', 'api');
+
+        await waitFor(() => {
+          expect(screen.getByTestId('explorer-folder-integrations/api')).toHaveAttribute('aria-expanded', 'true');
+        });
+        expect(screen.getByTestId('location').textContent).toBe('/workspace/file/rest-api');
+        expect(screen.getByTestId('explorer-file-rest-api')).toHaveAttribute('aria-selected', 'true');
+      });
+
+      it('shows an error for a name that is taken and keeps the field open on Enter', async () => {
+        const user = userEvent.setup();
+        renderComponent();
+        await screen.findByTestId('explorer-folder-resources');
+
+        await renameFolder(user, 'resources', 'integrations');
+
+        expect(screen.getByText('A file or folder with that name already exists')).toBeInTheDocument();
+        expect(screen.getByRole('textbox', { name: 'Rename folder' })).toHaveFocus();
+        expect((await storedFile('schema'))?.path).toBe('resources/schema.xsd');
+      });
+
+      it('cancels on Escape and focuses the folder again', async () => {
+        const user = userEvent.setup();
+        renderComponent();
+        await screen.findByTestId('explorer-folder-resources');
+
+        await user.click(screen.getByTestId(`explorer-rename-${toFolderId('resources')}`));
+        await user.keyboard('x{Escape}');
+
+        expect(screen.queryByRole('textbox', { name: 'Rename folder' })).not.toBeInTheDocument();
+        expect(screen.getByTestId('explorer-folder-resources')).toHaveFocus();
+      });
     });
 
     it('renames the file in its folder on Enter and focuses its tree item again', async () => {
@@ -1146,6 +1220,39 @@ describe('Explorer', () => {
 
       await waitFor(async () => {
         expect(await storedPaths()).toContain('notes.txt');
+      });
+    });
+
+    it('creates the entry when the field loses the focus with a name that can be used', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await screen.findByTestId('explorer-folder-integrations');
+
+      await user.click(screen.getByRole('button', { name: 'New folder' }));
+      await user.keyboard('schemas');
+      await user.click(screen.getByRole('searchbox'));
+
+      expect(await screen.findByTestId('explorer-folder-schemas')).toBeInTheDocument();
+      // Leaving the field keeps the focus where the user put it
+      expect(screen.getByRole('searchbox')).toHaveFocus();
+    });
+
+    it('creates the entry at the root once the folder that had the focus was renamed away', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await screen.findByTestId('explorer-folder-resources');
+      // Renaming by leaving the field keeps the old folder as the last focused tree item
+      await user.click(screen.getByTestId(`explorer-rename-${toFolderId('resources')}`));
+      await user.clear(screen.getByRole('textbox', { name: 'Rename folder' }));
+      await user.keyboard('assets');
+      await user.click(screen.getByRole('searchbox'));
+      await screen.findByTestId('explorer-folder-assets');
+
+      await user.click(screen.getByRole('button', { name: 'New folder' }));
+      await user.keyboard('schemas{Enter}');
+
+      await waitFor(async () => {
+        expect(await filesStore.getFolders()).toContain('schemas');
       });
     });
 

@@ -17,6 +17,7 @@ const Consumer: FunctionComponent = () => {
     createFolder,
     updateFile,
     renameFile,
+    renameFolder,
     deleteFile,
     deleteFolder,
   } = useFiles();
@@ -47,6 +48,7 @@ const Consumer: FunctionComponent = () => {
       <button onClick={() => void deleteFile('a').catch(() => undefined)}>delete file</button>
       <button onClick={() => void deleteFolder('a').catch(() => undefined)}>delete folder</button>
       <button onClick={() => void createFolder('a/new').catch(() => undefined)}>create folder</button>
+      <button onClick={() => void renameFolder('a', 'z').catch(() => undefined)}>rename folder</button>
     </>
   );
 };
@@ -286,6 +288,20 @@ describe('FilesProvider', () => {
     });
     await expect(create.mock.results[0].value).rejects.toThrow();
     expect(screen.getByTestId('folders')).toHaveTextContent(/^a,a\/new$/);
+  });
+
+  it('renames a folder and exposes its files and folders at their new paths', async () => {
+    await store.createFile({ id: 'b', path: 'a/b.camel.yaml', content: 'B' });
+    await store.createFolder('a/empty');
+    renderProvider(store);
+    await screen.findByText('b=B');
+
+    fireEvent.click(screen.getByRole('button', { name: 'rename folder' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('folders')).toHaveTextContent(/^z,z\/empty$/);
+    });
+    expect((await store.getFiles()).map(({ path }) => path)).toEqual(['z/b.camel.yaml']);
   });
 
   it('drops the folders under a deleted folder and keeps the others', async () => {

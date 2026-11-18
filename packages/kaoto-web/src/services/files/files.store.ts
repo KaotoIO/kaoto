@@ -145,6 +145,38 @@ export class FilesStore {
     return this.modifyFile(id, (existing, now) => ({ ...existing, path, updatedAt: now }), path);
   }
 
+  /**
+   * Moves the folder with every folder and file under it to another path, in one transaction; their ids stay, so that
+   * an open file stays open. Creates the missing parent folders of the new path.
+   *
+   * Rejects when the folder does not exist, the new path is taken or lies under a file or inside the folder itself.
+   * The update time of the folder and of every entry under it moves, as their paths change; creation times stay.
+   *
+   * @returns the moved files with their new paths
+   */
+  async renameFolder(folderPath: string, newPath: string): Promise<StoredFile[]> {
+    return this.write(async (content, now) => {
+      const index = content.index(BY_PATH);
+      const folder = (await index.get(folderPath)) as StoredEntry | undefined;
+      if (folder?.kind !== 'folder') throw new Error(`The folder ${folderPath} does not exist`);
+      if (newPath.startsWith(`${folderPath}/`)) throw new Error('A folder cannot move into itself');
+      if (await index.getKey(newPath)) throw new Error(`${newPath} already exists`);
+      await ensureParents(content, newPath, now);
+
+      const entries = (await index.getAll(pathsUnder(folderPath))) as StoredEntry[];
+      const moved = entries.map((entry) => ({
+        ...entry,
+        path: `${newPath}${entry.path.slice(folderPath.length)}`,
+        updatedAt: now,
+      }));
+      await Promise.all([
+        content.put({ ...folder, path: newPath, updatedAt: now }),
+        ...moved.map((entry) => content.put(entry)),
+      ]);
+      return moved.filter((entry): entry is StoredEntry & { kind: 'file' } => entry.kind === 'file').map(toFile);
+    });
+  }
+
   async deleteFile(id: string): Promise<void> {
     await this.write(async (content) => {
       await content.delete(id);

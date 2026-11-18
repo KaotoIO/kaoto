@@ -18,6 +18,11 @@ export interface IFilesContext {
   updateFile: (id: string, content: string) => Promise<void>;
   /** Moves the file to the path; the files show it once it is stored. Rejects when the path is taken */
   renameFile: (id: string, path: string) => Promise<void>;
+  /**
+   * Moves the folder with everything under it; the files keep their ids. The files and folders show the new paths once
+   * they are stored. Rejects when the new path is taken
+   */
+  renameFolder: (folderPath: string, newPath: string) => Promise<void>;
   /** Removes the file from the store; the files drop it once it is deleted */
   deleteFile: (id: string) => Promise<void>;
   /** Removes the folder and every file and folder under it from the store; they are dropped once deleted */
