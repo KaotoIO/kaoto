@@ -391,7 +391,14 @@ describe('Explorer', () => {
       await expandFolder(user, 'integrations');
 
       expect(screen.getByRole('treeitem', { name: 'main-flow.camel.yaml' })).toBeInTheDocument();
-      expect(screen.getByRole('treeitem', { name: /^integrations/ })).toHaveAttribute('aria-keyshortcuts', 'Delete');
+      expect(screen.getByRole('treeitem', { name: /^integrations/ })).toHaveAttribute(
+        'aria-keyshortcuts',
+        'Delete Backspace',
+      );
+      expect(screen.getByRole('treeitem', { name: 'main-flow.camel.yaml' })).toHaveAttribute(
+        'aria-keyshortcuts',
+        'Delete Backspace',
+      );
       const deleteButton = screen.getByTestId('explorer-delete-main-flow');
       expect(deleteButton).toHaveAttribute('aria-hidden', 'true');
       expect(deleteButton).toHaveAttribute('tabindex', '-1');
@@ -513,12 +520,25 @@ describe('Explorer', () => {
       expect(screen.getByRole('heading', { name: 'Delete folder?' })).toBeInTheDocument();
     });
 
+    // The key labelled "delete" on a Mac keyboard sends Backspace
+    it('asks to delete the focused file on Backspace', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandFolder(user, 'integrations');
+      screen.getByTestId('explorer-file-main-flow').focus();
+
+      await user.keyboard('{Backspace}');
+
+      expect(screen.getByRole('heading', { name: 'Delete file?' })).toBeInTheDocument();
+      expect(screen.getByTestId('delete-confirm-modal')).toHaveTextContent('main-flow.camel.yaml');
+    });
+
     it('ignores other keys', async () => {
       const user = userEvent.setup();
       renderComponent();
       (await screen.findByTestId('explorer-folder-resources')).focus();
 
-      await user.keyboard('{Backspace}');
+      await user.keyboard('x');
 
       expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
     });
