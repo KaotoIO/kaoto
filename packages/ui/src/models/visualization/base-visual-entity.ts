@@ -164,7 +164,7 @@ export interface IVisualizationNode<T extends IVisualizationNodeData = IVisualiz
 
   removeChild(): void;
 
-  /** Retrieve the node's validation status, relying into the underlying entity */
+  /** Retrieve the node's validation status, relying on the underlying entity */
   getNodeValidationText(): Promise<string | undefined>;
 }
 
