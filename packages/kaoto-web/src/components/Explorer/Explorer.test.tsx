@@ -641,6 +641,19 @@ describe('Explorer', () => {
       expect(screen.queryByTestId('explorer-delete-main-flow')).not.toBeInTheDocument();
     });
 
+    it('edits the name with Backspace and Delete instead of asking to delete the file', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+
+      const input = await startRenaming(user);
+      await user.keyboard('{Backspace}{Delete}');
+
+      expect(input).toHaveValue('camel.yaml');
+      expect(input).toHaveFocus();
+      expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
+    });
+
     it('starts renaming the focused file on F2, but not a folder', async () => {
       const user = userEvent.setup();
       renderComponent();
