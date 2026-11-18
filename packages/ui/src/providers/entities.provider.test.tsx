@@ -14,7 +14,7 @@ import { camelRouteYaml_1_1_original, camelRouteYaml_1_1_updated } from '../stub
 import { EventNotifier } from '../utils';
 import { EntitiesContext, EntitiesProvider } from './entities.provider';
 import { KaotoResourceContext, KaotoResourceProvider } from './kaoto-resource.provider';
-import { SourceCodeSync } from './source-code-sync';
+import { inMemorySourceCodeAdapter, SourceCodeProvider } from './source-code.provider';
 
 /**
  * A controllable deferred promise: lets a test decide *when* (and whether) an
@@ -60,17 +60,17 @@ const buildMockResourceWrapper =
 
 /**
  * Compose the real provider chain. Source code enters through the single ingress
- * (SourceCodeSync emits `code:updated` on mount), KaotoResourceProvider builds the
+ * (SourceCodeProvider emits `code:updated` on mount), KaotoResourceProvider builds the
  * resource, and EntitiesProvider derives the entities from it.
  */
 const buildWrapper =
   (initialSourceCode?: string, fileExtension?: string) =>
   ({ children }: PropsWithChildren) => (
-    <SourceCodeSync initialSourceCode={initialSourceCode}>
+    <SourceCodeProvider adapter={inMemorySourceCodeAdapter(initialSourceCode)}>
       <KaotoResourceProvider fileExtension={fileExtension}>
         <EntitiesProvider>{children}</EntitiesProvider>
       </KaotoResourceProvider>
-    </SourceCodeSync>
+    </SourceCodeProvider>
   );
 
 describe('EntitiesProvider', () => {
@@ -133,15 +133,16 @@ describe('EntitiesProvider', () => {
       });
     });
 
-    it('should keep resource undefined when there is a wrong Source Code at mount', () => {
+    it('should fall back to an empty resource when there is a wrong Source Code at mount', async () => {
       useSourceCodeStore.getState().setSourceCode('- from: {');
 
       const { result } = renderHook(() => useContext(EntitiesContext), {
         wrapper: buildWrapper('- from: {'),
       });
 
-      // With invalid source code at mount, the resource stays undefined (loading screen)
-      expect(result.current).toBeNull();
+      await waitFor(() => {
+        expect(result.current?.camelResource.toJSON()).toEqual([]);
+      });
     });
   });
 
@@ -178,6 +179,11 @@ describe('EntitiesProvider', () => {
   it('should serialize using YAML 1.1', async () => {
     const notifierSpy = vi.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
+
+    // The context is provided once the first resource is initialized
+    await waitFor(() => {
+      expect(result.current).not.toBeNull();
+    });
 
     act(() => {
       eventNotifier.next('code:updated', { code: camelRouteYaml_1_1_original });
@@ -272,6 +278,11 @@ describe('EntitiesProvider', () => {
     const notifierSpy = vi.spyOn(eventNotifier, 'next');
     const { result } = renderHook(() => useContext(EntitiesContext), { wrapper: buildWrapper() });
 
+    // The context is provided once the first resource is initialized
+    await waitFor(() => {
+      expect(result.current).not.toBeNull();
+    });
+
     await act(async () => {
       result.current?.updateEntitiesFromCamelResource();
     });
@@ -347,6 +358,84 @@ describe('EntitiesProvider', () => {
       expect(resource.getEntities).not.toHaveBeenCalled();
 
       consoleErrorSpy.mockRestore();
+    });
+
+    // Rendering the children with the empty initial lists would flash an empty canvas before the document shows up.
+    it('should render the children only once the first resource is initialized', async () => {
+      const deferred = createDeferred<void>();
+      const visualEntities = [{ id: 'route-1' }];
+      const resource = createMockResource({
+        initialize: vi.fn().mockReturnValue(deferred.promise),
+        getVisualEntities: vi.fn().mockReturnValue(visualEntities),
+      });
+
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: buildMockResourceWrapper(resource),
+      });
+
+      expect(result.current).toBeNull();
+
+      await act(async () => {
+        deferred.resolve();
+        await deferred.promise;
+      });
+
+      expect(result.current?.visualEntities).toBe(visualEntities);
+    });
+
+    it('should expose a new resource only together with its own entities', async () => {
+      const first = createDeferred<void>();
+      const second = createDeferred<void>();
+      const firstVisual = [{ id: 'first' }];
+      const secondVisual = [{ id: 'second' }];
+      const firstResource = createMockResource({
+        initialize: vi.fn().mockReturnValue(first.promise),
+        getVisualEntities: vi.fn().mockReturnValue(firstVisual),
+      });
+      const secondResource = createMockResource({
+        initialize: vi.fn().mockReturnValue(second.promise),
+        getVisualEntities: vi.fn().mockReturnValue(secondVisual),
+      });
+
+      let current = firstResource;
+      const renders: Array<[KaotoResource | undefined, unknown]> = [];
+      const { result, rerender } = renderHook(
+        () => {
+          const context = useContext(EntitiesContext);
+          renders.push([context?.camelResource, context?.visualEntities]);
+          return context;
+        },
+        {
+          wrapper: ({ children }: PropsWithChildren) => (
+            <KaotoResourceContext.Provider value={{ kaotoResource: current }}>
+              <EntitiesProvider>{children}</EntitiesProvider>
+            </KaotoResourceContext.Provider>
+          ),
+        },
+      );
+
+      await act(async () => {
+        first.resolve();
+        await first.promise;
+      });
+      expect(result.current?.camelResource).toBe(firstResource);
+
+      // The second resource arrives, but is still initializing
+      current = secondResource;
+      rerender();
+      expect(result.current?.camelResource).toBe(firstResource);
+
+      renders.length = 0;
+      await act(async () => {
+        second.resolve();
+        await second.promise;
+      });
+
+      expect(result.current?.camelResource).toBe(secondResource);
+      expect(result.current?.visualEntities).toBe(secondVisual);
+      // Never the new resource with the previous entities
+      expect(renders).not.toContainEqual([secondResource, firstVisual]);
+      expect(renders).toHaveLength(1);
     });
 
     // Success-path cancellation guard — entities.provider.tsx line 49

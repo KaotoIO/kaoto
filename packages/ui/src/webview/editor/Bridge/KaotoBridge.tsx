@@ -1,6 +1,6 @@
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, useEffect, useMemo } from 'react';
+import { FunctionComponent, PropsWithChildren, useMemo } from 'react';
 
 import { NodeInteractionAddonProvider } from '../../../components/registers/interactions/node-interaction-addon.provider';
 import { RegisterComponents } from '../../../components/registers/RegisterComponents';
@@ -10,13 +10,7 @@ import { ControllerService } from '../../../components/Visualization/Canvas/cont
 import { CatalogTilesProvider } from '../../../dynamic-catalog/catalog-tiles.provider';
 import { IMetadataApi, MetadataProvider, VisibleFlowsProvider } from '../../../providers';
 
-interface KaotoBridgeProps extends IMetadataApi {
-  /** Signal that the existing editor tree and ref are mounted. */
-  onReady: () => void;
-}
-
-export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>> = ({
-  onReady,
+export const KaotoBridge: FunctionComponent<PropsWithChildren<IMetadataApi>> = ({
   children,
   getMetadata,
   setMetadata,
@@ -56,11 +50,6 @@ export const KaotoBridge: FunctionComponent<PropsWithChildren<KaotoBridgeProps>>
       onStepUpdated,
     ],
   );
-
-  /** Set editor as Ready */
-  useEffect(() => {
-    onReady();
-  }, [onReady]);
 
   return (
     <CatalogTilesProvider>

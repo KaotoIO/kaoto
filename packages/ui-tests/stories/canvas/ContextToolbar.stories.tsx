@@ -6,12 +6,13 @@ import {
   ContextToolbar,
   ControllerService,
   EntitiesProvider,
+  inMemorySourceCodeAdapter,
   kameletYaml,
   KaotoResourceProvider,
   pipeYaml,
   RuntimeProvider,
   SchemasLoaderProvider,
-  SourceCodeSync,
+  SourceCodeProvider,
   VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
 import { Divider, Toolbar, ToolbarContent, ToolbarGroup } from '@patternfly/react-core';
@@ -39,7 +40,7 @@ export default {
 
 const Template: StoryFn<{ sourceCode: string }> = (props: { sourceCode: string }) => {
   return (
-    <SourceCodeSync initialSourceCode={props.sourceCode}>
+    <SourceCodeProvider adapter={inMemorySourceCodeAdapter(props.sourceCode)}>
       <KaotoResourceProvider>
         <RuntimeProvider
           catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
@@ -66,7 +67,7 @@ const Template: StoryFn<{ sourceCode: string }> = (props: { sourceCode: string }
           </SchemasLoaderProvider>
         </RuntimeProvider>
       </KaotoResourceProvider>
-    </SourceCodeSync>
+    </SourceCodeProvider>
   );
 };
 
