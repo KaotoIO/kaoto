@@ -212,6 +212,77 @@ describe('FilesStore', () => {
     });
   });
 
+  describe('renaming folders', () => {
+    it('moves the folder with its subfolders and files and keeps their ids', async () => {
+      await store.createFolder('a/empty');
+      const file = await store.createFile({ path: 'a/c/d.yaml', content: 'x' });
+      await store.createFile({ path: 'a-b/e.yaml', content: '' });
+      await store.createFolder('ab');
+
+      const renamed = await store.renameFolder('a', 'z');
+
+      // The timestamps are checked in their own test
+      expect(renamed).toEqual([{ ...file, path: 'z/c/d.yaml', updatedAt: expect.any(Number) }]);
+      expect(await store.getFolders()).toEqual(['a-b', 'ab', 'z', 'z/c', 'z/empty']);
+      expect((await store.getFiles()).map(({ id, path }) => [id, path])).toEqual([
+        [expect.any(String), 'a-b/e.yaml'],
+        [file.id, 'z/c/d.yaml'],
+      ]);
+    });
+
+    it('moves a nested folder and creates the missing parents of its new path', async () => {
+      await store.createFolder('a/b');
+
+      await store.renameFolder('a/b', 'x/y');
+
+      expect(await store.getFolders()).toEqual(['a', 'x', 'x/y']);
+    });
+
+    it.each([
+      ['a taken folder path', 'f'],
+      ['a taken file path', 'g.yaml'],
+      ['a path under a file', 'g.yaml/a'],
+      ['a path inside the folder itself', 'a/inner'],
+    ])('rejects %s and writes nothing', async (_, newPath) => {
+      await store.createFolder('a');
+      await store.createFolder('f');
+      await store.createFile({ path: 'g.yaml', content: '' });
+
+      await expect(store.renameFolder('a', newPath)).rejects.toThrow();
+      expect(await store.getFolders()).toEqual(['a', 'f']);
+    });
+
+    it('rejects renaming a missing folder', async () => {
+      await expect(store.renameFolder('missing', 'other')).rejects.toThrow();
+    });
+
+    it('moves the update time of the folder and of every entry it holds, as their paths change', async () => {
+      const at = (time: number) => vi.spyOn(Date, 'now').mockReturnValue(time);
+      at(1000);
+      await store.createFolder('a/sub');
+      await store.createFile({ path: 'a/b.yaml', content: '' });
+      await store.createFolder('outside');
+      at(2000);
+
+      const [renamed] = await store.renameFolder('a', 'z');
+      vi.restoreAllMocks();
+
+      expect(renamed).toMatchObject({ path: 'z/b.yaml', createdAt: 1000, updatedAt: 2000 });
+      const { id } = (await store.getProjects())[0];
+      store.close();
+      const db = await openDB('kaoto');
+      const entries = (await db.getAll(`content:${id}`)) as { path: string; createdAt: number; updatedAt: number }[];
+      db.close();
+      const times = Object.fromEntries(entries.map(({ path, createdAt, updatedAt }) => [path, [createdAt, updatedAt]]));
+      expect(times).toEqual({
+        z: [1000, 2000],
+        'z/sub': [1000, 2000],
+        'z/b.yaml': [1000, 2000],
+        outside: [1000, 1000],
+      });
+    });
+  });
+
   describe('timestamps', () => {
     const at = (time: number) => vi.spyOn(Date, 'now').mockReturnValue(time);
     const project = async () => (await store.getProjects())[0];
@@ -253,7 +324,8 @@ describe('FilesStore', () => {
         [4000, () => store.updateFile('a', 'x')],
         [5000, () => store.renameFile('a', 'b.yaml')],
         [6000, () => store.deleteFile('a')],
-        [7000, () => store.deleteFolder('f')],
+        [6500, () => store.renameFolder('f', 'g')],
+        [7000, () => store.deleteFolder('g')],
       ];
       for (const [time, change] of changes) {
         at(time);

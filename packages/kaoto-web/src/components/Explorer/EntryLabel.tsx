@@ -8,7 +8,7 @@ interface EntryLabelProps {
   node: ExplorerFile;
   query: string;
   requestDelete: (node: ExplorerFile) => void;
-  requestRename: (fileId: string) => void;
+  requestRename: (nodeId: string) => void;
 }
 
 /** Wrap the matching substring in a <mark> for visual highlighting. */
@@ -26,7 +26,7 @@ function highlightMatch(name: string, query: string): ReactNode {
 }
 
 /**
- * The label of an Explorer entry with its buttons: rename (files only) and delete.
+ * The label of an Explorer entry with its buttons: rename and delete.
  *
  * It is a component of its own so that Carbon finds no text in the label and does not wrap a truncated name in its
  * tooltip button, which the buttons cannot be nested in; the name has a `title` for its full text instead.
@@ -39,16 +39,14 @@ export const EntryLabel: FunctionComponent<EntryLabelProps> = ({ node, query, re
   <>
     {highlightMatch(node.name, query)}
     <span className="cs--explorer__node-actions" aria-hidden="true">
-      {!node.children && (
-        <EntryActionButton
-          label="Rename file"
-          testId={`explorer-rename-${node.id}`}
-          icon={Edit}
-          onClick={() => {
-            requestRename(node.id);
-          }}
-        />
-      )}
+      <EntryActionButton
+        label={node.children ? 'Rename folder' : 'Rename file'}
+        testId={`explorer-rename-${node.id}`}
+        icon={Edit}
+        onClick={() => {
+          requestRename(node.id);
+        }}
+      />
       <EntryActionButton
         label={node.children ? 'Delete folder' : 'Delete file'}
         testId={`explorer-delete-${node.id}`}

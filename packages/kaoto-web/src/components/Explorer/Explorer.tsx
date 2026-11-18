@@ -39,6 +39,7 @@ import { ExplorerFile } from './explorer-file';
 import { filterFiles } from './filterFiles';
 import { CreatedEntry, NewEntryField, NewEntryKind } from './NewEntryField';
 import { RenameField } from './RenameField';
+import { RenameFolderField } from './RenameFolderField';
 
 const MIN_WIDTH = 160;
 const MAX_WIDTH = 480;
@@ -51,10 +52,13 @@ interface RenderOptions {
   handleToggle: (folderId: string) => ComponentProps<typeof TreeNode>['onToggle'];
   openIntegration: (fileId: string) => void;
   requestDelete: (node: ExplorerFile) => void;
-  requestRename: (fileId: string) => void;
+  /** Starts renaming the file or folder with the tree node id */
+  requestRename: (nodeId: string) => void;
   /** The file being renamed */
   renaming: StoredFile | undefined;
-  finishRename: (byKeyboard: boolean) => void;
+  /** The path of the folder being renamed */
+  renamingFolder: string | undefined;
+  finishRename: (byKeyboard: boolean, renamedNodeId?: string) => void;
   /** The file or folder being created */
   newEntry: NewEntry | undefined;
   finishCreate: (byKeyboard: boolean, created: CreatedEntry | undefined) => void;
@@ -100,10 +104,6 @@ function insertNewEntry(nodes: ExplorerFile[], entry: NewEntry): ExplorerFile[] 
 /** Whether the tree node id is the id of a folder */
 const isFolderId = (id: string): boolean => toFolderId(toFolderPath(id)) === id;
 
-/** Whether the folder is in the tree: created by the user or holding files */
-const folderExists = (files: { path: string }[], folders: string[], folderPath: string): boolean =>
-  folders.includes(folderPath) || files.some(({ path }) => path.startsWith(`${folderPath}/`));
-
 /** The folder paths from the outermost folder down to the folder itself */
 const folderAndParents = (folderPath: string): string[] =>
   folderPath ? folderPath.split('/').map((_, index, segments) => segments.slice(0, index + 1).join('/')) : [];
@@ -111,14 +111,14 @@ const folderAndParents = (folderPath: string): string[] =>
 /** The key labelled "delete" on a Mac keyboard sends Backspace */
 const DELETE_KEYS: ReadonlySet<string> = new Set(['Delete', 'Backspace']);
 
-/** Delete or Backspace on a tree item asks to delete it, F2 on a file renames it */
+/** Delete or Backspace on a tree item asks to delete it, F2 renames it */
 function handleEntryKeys(node: ExplorerFile, opts: RenderOptions) {
   return (event: ReactKeyboardEvent) => {
     if (DELETE_KEYS.has(event.key)) {
       // The key event bubbles through the folders around the item
       event.stopPropagation();
       opts.requestDelete(node);
-    } else if (event.key === 'F2' && !node.children) {
+    } else if (event.key === 'F2') {
       event.stopPropagation();
       event.preventDefault();
       opts.requestRename(node.id);
@@ -129,6 +129,16 @@ function handleEntryKeys(node: ExplorerFile, opts: RenderOptions) {
 function renderEntryLabel(node: ExplorerFile, opts: RenderOptions): React.ReactNode {
   if (opts.renaming?.id === node.id) {
     return <RenameField file={opts.renaming} onDone={opts.finishRename} />;
+  }
+  if (opts.renamingFolder !== undefined && node.children && toFolderPath(node.id) === opts.renamingFolder) {
+    return (
+      <RenameFolderField
+        folderPath={opts.renamingFolder}
+        onDone={(byKeyboard, renamedPath) => {
+          opts.finishRename(byKeyboard, renamedPath === undefined ? undefined : toFolderId(renamedPath));
+        }}
+      />
+    );
   }
   return (
     <EntryLabel node={node} query={opts.query} requestDelete={opts.requestDelete} requestRename={opts.requestRename} />
@@ -169,7 +179,7 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
           isExpanded={isExpanded}
           onToggle={opts.handleToggle(node.id)}
           onKeyDown={handleEntryKeys(node, opts)}
-          aria-keyshortcuts="Delete Backspace"
+          aria-keyshortcuts="F2 Delete Backspace"
           data-testid={`explorer-folder-${toFolderPath(node.id)}`}
         >
           {renderNodes(node.children, opts)}
@@ -279,8 +289,23 @@ export const Explorer: FunctionComponent = () => {
   }, [focusNode]);
 
   const renaming = renamingId ? files.find((file) => file.id === renamingId) : undefined;
-  const finishRename = (byKeyboard: boolean) => {
-    if (byKeyboard && renamingId) setFocusNode({ nodeId: renamingId });
+  const renamingFolder = renamingId && isFolderId(renamingId) ? toFolderPath(renamingId) : undefined;
+  const finishRename = (byKeyboard: boolean, renamedNodeId?: string) => {
+    if (renamedNodeId && renamingFolder !== undefined) {
+      // The folder ids follow the paths, so the folder and its subfolders stay expanded under their new ids
+      const newPath = toFolderPath(renamedNodeId);
+      setExpandedFolders((previous) =>
+        Object.fromEntries(
+          Object.entries(previous).map(([id, expanded]) => {
+            const path = toFolderPath(id);
+            const moved = path === renamingFolder || path.startsWith(`${renamingFolder}/`);
+            return [moved ? toFolderId(`${newPath}${path.slice(renamingFolder.length)}`) : id, expanded];
+          }),
+        ),
+      );
+    }
+    const nodeId = renamedNodeId ?? renamingId;
+    if (byKeyboard && nodeId) setFocusNode({ nodeId });
     setRenamingId(undefined);
   };
 
@@ -297,7 +322,8 @@ export const Explorer: FunctionComponent = () => {
     if (lastFocused === ROOT_TARGET) return '';
     if (lastFocused && isFolderId(lastFocused)) {
       const folderPath = toFolderPath(lastFocused);
-      if (folderExists(files, folders, folderPath)) return folderPath;
+      // Every folder is stored, so a folder that was renamed or deleted since is gone from the list
+      if (folders.includes(folderPath)) return folderPath;
     }
     const file = files.find(({ id }) => id === lastFocused) ?? files.find(({ id }) => id === selectedId);
     return file ? folderOf(file.path) : '';
@@ -472,6 +498,7 @@ export const Explorer: FunctionComponent = () => {
                 requestDelete: setNodeToDelete,
                 requestRename: setRenamingId,
                 renaming,
+                renamingFolder,
                 finishRename,
                 newEntry,
                 finishCreate,

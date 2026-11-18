@@ -50,10 +50,10 @@ describe('EntryLabel', () => {
     expect(remove.parentElement).toBe(rename.parentElement);
   });
 
-  it('offers only delete for a folder', () => {
+  it('offers rename and delete for a folder', () => {
     renderLabel(FOLDER);
 
-    expect(screen.queryByTestId('explorer-rename-folder:integrations')).not.toBeInTheDocument();
+    expect(screen.getByTestId('explorer-rename-folder:integrations')).toHaveAttribute('title', 'Rename folder');
     expect(screen.getByTestId('explorer-delete-folder:integrations')).toHaveAttribute('title', 'Delete folder');
   });
 
