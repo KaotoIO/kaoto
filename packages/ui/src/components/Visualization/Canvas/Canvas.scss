@@ -5,10 +5,16 @@
   }
 }
 
+// Shown over the mounted canvas; only its card takes pointer events, so the canvas behind it stays usable
 .canvas-empty-state {
   position: absolute;
   height: 100%;
   width: 100%;
+  pointer-events: none;
+
+  .pf-v6-c-card {
+    pointer-events: auto;
+  }
 }
 
 .hidden {

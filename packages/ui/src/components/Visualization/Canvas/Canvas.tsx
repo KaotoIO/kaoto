@@ -78,6 +78,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   isModelResolving = false,
   contextToolbar,
   applyCollapseOnUpdate = false,
+  children,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
   const settingsLayout = useMemo(
@@ -136,7 +137,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, []);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
-  useDeleteHotkey(selectedVizNode, clearSelection);
+  // While the model resolves, the selected node belongs to the previous model and its path may name another step
+  useDeleteHotkey(isModelResolving ? undefined : selectedVizNode, clearSelection);
 
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {
@@ -288,10 +290,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     }
   }, [selectedVizNode]);
 
-  if (isModelResolving) {
-    return null;
-  }
-
   return (
     <TopologyView
       id={CanvasDefaults.CANVAS_MAIN_ID}
@@ -315,6 +313,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       >
         <VisualizationSurface state={{ selectedIds }} />
       </CanvasOverlayContext.Provider>
+      {children}
     </TopologyView>
   );
 };

@@ -64,10 +64,9 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
 
   return (
     <VisualizationShell className={className} fallback={fallback}>
-      {!isEmpty && (
-        <Canvas contextToolbar={contextToolbar} nodes={nodes} edges={edges} isModelResolving={isResolving} />
-      )}
-      {isEmpty && <EmptyCanvas entitiesNumber={0} isModelResolving={isResolving} contextToolbar={contextToolbar} />}
+      <Canvas contextToolbar={contextToolbar} nodes={nodes} edges={edges} isModelResolving={isResolving}>
+        {isEmpty && <EmptyCanvas entitiesNumber={0} isModelResolving={isResolving} />}
+      </Canvas>
     </VisualizationShell>
   );
 };

@@ -136,6 +136,40 @@ describe('useVisibleVizNodes', () => {
     });
   });
 
+  it('keeps the last resolved nodes while the new ones resolve', async () => {
+    const e1 = mockEntity('e1', nodeA);
+    const e2 = mockEntity('e2', nodeB);
+
+    const { result, rerender } = renderHook(
+      ({ entities, visibleFlows }: { entities: BaseVisualEntity[]; visibleFlows: IVisibleFlows }) =>
+        useVisibleVizNodes(entities, visibleFlows),
+      {
+        initialProps: {
+          entities: [e1],
+          visibleFlows: { e1: true } as IVisibleFlows,
+        },
+      },
+    );
+
+    await waitFor(() => {
+      expect(result.current.vizNodes).toEqual([nodeA]);
+    });
+
+    rerender({
+      entities: [e1, e2],
+      visibleFlows: { e1: true, e2: true } as IVisibleFlows,
+    });
+
+    /* The previous nodes stay while the new ones resolve, so the canvas keeps its last settled model */
+    expect(result.current.isResolving).toBe(true);
+    expect(result.current.vizNodes).toEqual([nodeA]);
+
+    await waitFor(() => {
+      expect(result.current.vizNodes).toEqual([nodeA, nodeB]);
+    });
+    expect(result.current.isResolving).toBe(false);
+  });
+
   it('sets isResolving true on the first render with new entities/visibleFlows', async () => {
     const e1 = mockEntity('e1', nodeA);
     const e2 = mockEntity('e2', nodeB);

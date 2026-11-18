@@ -1,32 +1,31 @@
 import './Canvas.scss';
 
-import { TopologyView } from '@patternfly/react-topology';
-import { FunctionComponent, PropsWithChildren, ReactNode } from 'react';
+import { FunctionComponent } from 'react';
 
 import { VisualizationEmptyState } from '../EmptyState';
 
 interface EmptyCanvasProps {
   entitiesNumber: number;
-  contextToolbar?: ReactNode;
   isModelResolving?: boolean;
 }
 
-export const EmptyCanvas: FunctionComponent<PropsWithChildren<EmptyCanvasProps>> = ({
-  entitiesNumber,
-  contextToolbar,
-  isModelResolving,
-}) => {
+/**
+ * The empty state, shown over the canvas while it has no visible routes.
+ *
+ * The canvas stays mounted underneath, so the focus survives switching between the empty and the populated view and
+ * the canvas background menu is available here too. Only the card takes pointer events, the canvas behind it gets the
+ * rest (see `.canvas-empty-state` in `Canvas.scss`).
+ */
+export const EmptyCanvas: FunctionComponent<EmptyCanvasProps> = ({ entitiesNumber, isModelResolving }) => {
   if (isModelResolving) {
     return null;
   }
 
   return (
-    <TopologyView contextToolbar={contextToolbar}>
-      <VisualizationEmptyState
-        className="canvas-empty-state"
-        data-testid="visualization-empty-state"
-        entitiesNumber={entitiesNumber}
-      />
-    </TopologyView>
+    <VisualizationEmptyState
+      className="canvas-empty-state"
+      data-testid="visualization-empty-state"
+      entitiesNumber={entitiesNumber}
+    />
   );
 };

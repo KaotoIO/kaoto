@@ -1,4 +1,4 @@
-import { useCallback, useContext, useMemo, useState } from 'react';
+import { useCallback, useContext, useMemo } from 'react';
 
 import { EntityType } from '../models/entities';
 import { BaseVisualEntityDefinition, BaseVisualEntityDefinitionItem } from '../models/kaoto-resource';
@@ -14,7 +14,9 @@ export interface CanvasEntities {
 export const useCanvasEntities = (): CanvasEntities => {
   const { camelResource, updateEntitiesFromCamelResource } = useEntityContext();
   const visibleFlowsContext = useContext(VisibleFlowsContext)!;
-  const [groupedEntities] = useState<BaseVisualEntityDefinition>(() => camelResource.getCanvasEntityList());
+  // Read on every render: the canvas and its toolbar mount before the resource is initialized and stay mounted, so a
+  // list read once would stay empty. The resource caches the list, so this is cheap and stable once initialized.
+  const groupedEntities: BaseVisualEntityDefinition = camelResource.getCanvasEntityList();
 
   const createEntity = useCallback(
     (entityType: EntityType) => {

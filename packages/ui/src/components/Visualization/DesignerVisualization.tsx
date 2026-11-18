@@ -24,12 +24,7 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const { vizNodes, isResolving } = useVisibleVizNodes(entities, visibleFlows);
 
-  const { nodes, edges } = useMemo(() => {
-    if (isResolving) {
-      return { nodes: [], edges: [] };
-    }
-    return buildDesignerCanvasModel(vizNodes);
-  }, [vizNodes, isResolving]);
+  const { nodes, edges } = useMemo(() => buildDesignerCanvasModel(vizNodes), [vizNodes]);
 
   const emptyState = useMemo(() => {
     if (entities.length === 0) {
@@ -43,22 +38,15 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
 
   return (
     <VisualizationShell className={className} fallback={fallback}>
-      {!emptyState && (
-        <Canvas
-          contextToolbar={contextToolbar}
-          nodes={nodes}
-          edges={edges}
-          isModelResolving={isResolving}
-          applyCollapseOnUpdate
-        />
-      )}
-      {emptyState && (
-        <EmptyCanvas
-          entitiesNumber={emptyState.entitiesNumber}
-          isModelResolving={isResolving}
-          contextToolbar={contextToolbar}
-        />
-      )}
+      <Canvas
+        contextToolbar={contextToolbar}
+        nodes={nodes}
+        edges={edges}
+        isModelResolving={isResolving}
+        applyCollapseOnUpdate
+      >
+        {emptyState && <EmptyCanvas entitiesNumber={emptyState.entitiesNumber} isModelResolving={isResolving} />}
+      </Canvas>
     </VisualizationShell>
   );
 };
