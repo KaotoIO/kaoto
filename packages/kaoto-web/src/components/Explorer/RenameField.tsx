@@ -1,5 +1,12 @@
 import { TextInput } from '@carbon/react';
-import { FunctionComponent, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  FunctionComponent,
+  KeyboardEvent as ReactKeyboardEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { useFiles } from '../../hooks/useFiles';
 import { buildRenamedPath } from '../../services/files/file-path';
@@ -93,6 +100,18 @@ export const RenameField: FunctionComponent<RenameFieldProps> = ({ file, onDone 
     }
   };
 
+  /** Enter renames, Escape cancels; both are left to an IME composition, which they confirm or cancel */
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+    if (event.nativeEvent.isComposing) return;
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      void rename(true);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      finish(true);
+    }
+  };
+
   return (
     // The tree item around the field would take its clicks and keys: select the file, toggle, or search the tree
     // eslint-disable-next-line jsx-a11y/no-static-element-interactions
@@ -121,17 +140,7 @@ export const RenameField: FunctionComponent<RenameFieldProps> = ({ file, onDone 
           setName(event.target.value);
           setFailure(undefined);
         }}
-        onKeyDown={(event) => {
-          // Enter and Escape confirm or cancel an IME composition, not the rename
-          if (event.nativeEvent.isComposing) return;
-          if (event.key === 'Enter') {
-            event.preventDefault();
-            void rename(true);
-          } else if (event.key === 'Escape') {
-            event.preventDefault();
-            finish(true);
-          }
-        }}
+        onKeyDown={handleKeyDown}
         onBlur={() => {
           void rename(false);
         }}
