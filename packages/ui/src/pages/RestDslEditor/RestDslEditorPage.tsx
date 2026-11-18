@@ -253,9 +253,9 @@ export const RestDslEditorPage: FunctionComponent = () => {
                   )}
                 </div>
                 {isSchemaLoading || !schema || Object.keys(schema).length === 0 ? (
-                  <Loading>Loading schemas...</Loading>
+                  <Loading small>Loading schemas...</Loading>
                 ) : (
-                  <Suspense fallback={<Loading>Loading form...</Loading>}>
+                  <Suspense fallback={<Loading small>Loading form...</Loading>}>
                     <SuggestionRegistrar>
                       <KaotoForm
                         key={`${entityId}__${modelPath}`}

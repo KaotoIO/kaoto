@@ -1,6 +1,5 @@
 import { Download } from '@carbon/icons-react';
 import {
-  Bullseye,
   Button,
   Form,
   FormGroup,
@@ -8,7 +7,6 @@ import {
   ModalBody,
   ModalHeader,
   ModalVariant,
-  Spinner,
   Split,
   SplitItem,
   TextInput,
@@ -25,6 +23,7 @@ import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityCo
 import { DocumentationEntity } from '../../../../models/documentation';
 import { VisibleFlowsContext } from '../../../../providers';
 import { DocumentationService } from '../../../../services/documentation.service';
+import { Loading } from '../../../Loading';
 import { useGraphLayout } from '../../Custom/hooks/use-graph-layout.hook';
 import { HiddenCanvas } from '../FlowExportImage/HiddenCanvas';
 import { EntitiesMenu } from './EntitiesMenu';
@@ -176,9 +175,7 @@ export const ExportDocumentPreviewModal: FunctionComponent<IExportDocumentPrevie
       </ModalHeader>
       <ModalBody tabIndex={0} className="export-document-preview-body" data-testid="export-document-preview-body">
         {isLoading ? (
-          <Bullseye>
-            <Spinner aria-label="Loading markdown preview" data-testid="Loading markdown preview" />
-          </Bullseye>
+          <Loading description="Loading markdown preview" data-testid="Loading markdown preview" />
         ) : (
           <Markdown components={markdownComponentMapping} remarkPlugins={[remarkGfm]} urlTransform={imageUrlTransform}>
             {markdownText}

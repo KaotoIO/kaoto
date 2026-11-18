@@ -2,7 +2,7 @@ import { isDefined } from '@kaoto/forms';
 import { FunctionComponent, Suspense, useContext } from 'react';
 
 import { IVisualizationNode } from '../../models';
-import { LoadingSmall } from '../Loading';
+import { LoadingInline } from '../Loading';
 import { RenderingAnchorContext } from './rendering.provider';
 
 interface IRenderingAnchor {
@@ -25,7 +25,7 @@ export const RenderingAnchor: FunctionComponent<IRenderingAnchor> = ({ anchorTag
 
   // The registered components are lazy: keep their loading local to the anchor instead of suspending the editor
   return (
-    <Suspense fallback={<LoadingSmall />}>
+    <Suspense fallback={<LoadingInline />}>
       {registeredChildren.map(({ key, Component }) => (
         <Component key={key} vizNode={vizNode} />
       ))}

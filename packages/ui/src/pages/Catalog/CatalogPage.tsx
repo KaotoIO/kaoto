@@ -1,8 +1,8 @@
-import { Bullseye, Content, Spinner } from '@patternfly/react-core';
 import { FunctionComponent, useCallback, useEffect, useState } from 'react';
 
 import { Catalog, ITile } from '../../components/Catalog';
 import { LoadDefaultCatalog } from '../../components/LoadDefaultCatalog';
+import { Loading } from '../../components/Loading';
 import { PropertiesModal } from '../../components/PropertiesModal';
 import { useCatalogTiles } from '../../dynamic-catalog/ui';
 
@@ -40,13 +40,9 @@ export const CatalogPage: FunctionComponent = () => {
 
   if (status === 'loading') {
     return (
-      <Bullseye>
-        <Content>
-          <h2>
-            Fetching catalogs <Spinner isInline aria-label="Fetching catalogs" />
-          </h2>
-        </Content>
-      </Bullseye>
+      <Loading small description="Fetching catalogs">
+        Fetching catalogs
+      </Loading>
     );
   } else if (status === 'error') {
     return <LoadDefaultCatalog errorMessage={errorMessage} />;
