@@ -384,41 +384,44 @@ export const Explorer: FunctionComponent = () => {
 
       {/* Section 2 — Toolbar */}
       <div className="cs--explorer__toolbar">
-        <IconButton
-          label="Create a file"
-          kind="ghost"
-          size="sm"
-          align="bottom-start"
-          data-testid="explorer-add"
-          ref={addButtonRef}
-          onClick={openCreateModal}
-        >
-          <Add />
-        </IconButton>
-        <IconButton
-          label="New file"
-          kind="ghost"
-          size="sm"
-          align="bottom"
-          data-testid="explorer-new-file"
-          onClick={(event: React.MouseEvent<HTMLElement>) => {
-            startCreate('file', event);
-          }}
-        >
-          <DocumentAdd />
-        </IconButton>
-        <IconButton
-          label="New folder"
-          kind="ghost"
-          size="sm"
-          align="bottom"
-          data-testid="explorer-new-folder"
-          onClick={(event: React.MouseEvent<HTMLElement>) => {
-            startCreate('folder', event);
-          }}
-        >
-          <FolderAdd />
-        </IconButton>
+        <h2 className="cs--explorer__heading">Explorer</h2>
+        <div className="cs--explorer__toolbar-actions">
+          <IconButton
+            label="Create a file"
+            kind="ghost"
+            size="sm"
+            align="bottom-start"
+            data-testid="explorer-add"
+            ref={addButtonRef}
+            onClick={openCreateModal}
+          >
+            <Add />
+          </IconButton>
+          <IconButton
+            label="New file"
+            kind="ghost"
+            size="sm"
+            align="bottom"
+            data-testid="explorer-new-file"
+            onClick={(event: React.MouseEvent<HTMLElement>) => {
+              startCreate('file', event);
+            }}
+          >
+            <DocumentAdd />
+          </IconButton>
+          <IconButton
+            label="New folder"
+            kind="ghost"
+            size="sm"
+            align="bottom"
+            data-testid="explorer-new-folder"
+            onClick={(event: React.MouseEvent<HTMLElement>) => {
+              startCreate('folder', event);
+            }}
+          >
+            <FolderAdd />
+          </IconButton>
+        </div>
       </div>
 
       {/* Section 3 — Search */}

@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -252,6 +252,17 @@ describe('Explorer', () => {
     expect(screen.getByRole('button', { name: 'Create a file' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Delete' })).not.toBeInTheDocument();
     expect(screen.getByRole('searchbox', { name: 'Search files' })).toBeInTheDocument();
+  });
+
+  it('shows the Explorer heading in the toolbar row with the three buttons', () => {
+    renderComponent();
+
+    const heading = screen.getByRole('heading', { name: 'Explorer', level: 2 });
+    const toolbar = heading.closest<HTMLElement>('.cs--explorer__toolbar')!;
+    expect(toolbar).toBeInTheDocument();
+    for (const name of ['Create a file', 'New file', 'New folder']) {
+      expect(within(toolbar).getByRole('button', { name })).toBeInTheDocument();
+    }
   });
 
   it('filters the tree and auto-expands matching folders on search', async () => {
