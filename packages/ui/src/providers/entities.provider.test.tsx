@@ -546,6 +546,12 @@ describe('EntitiesProvider', () => {
       // Guard must block the write — no onChange call
       expect(changes).toHaveLength(0);
 
+      // updateEntitiesFromCamelResource must also be guarded during initialization
+      act(() => {
+        result.current!.updateEntitiesFromCamelResource();
+      });
+      expect(changes).toHaveLength(0);
+
       // Finish initialization — the new resource becomes available without error
       await act(async () => {
         finishInit();
@@ -553,6 +559,38 @@ describe('EntitiesProvider', () => {
       await waitFor(() => {
         expect(result.current).toBeTruthy();
       });
+    });
+
+    it('updateEntitiesFromCamelResource must NOT update or write when parseState is Error', async () => {
+      const BROKEN = `- route:\n    id: keep-me\n    from:\n      uri: timer:x\n      steps: [ unclosed\n`;
+      const changes: string[] = [];
+      const adapter = {
+        subscribe(apply: (d: { code: string; path?: string }) => void) {
+          apply({ code: BROKEN, path: 'a.camel.yaml' });
+          return () => {};
+        },
+        onChange(code: string) {
+          changes.push(code);
+        },
+      };
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: ({ children }: PropsWithChildren) => (
+          <SourceCodeProvider adapter={adapter}>
+            <KaotoResourceProvider>
+              <EntitiesProvider>{children}</EntitiesProvider>
+            </KaotoResourceProvider>
+          </SourceCodeProvider>
+        ),
+      });
+      await waitFor(() => {
+        expect(result.current).toBeTruthy();
+      });
+
+      act(() => {
+        result.current!.updateEntitiesFromCamelResource();
+      });
+
+      expect(changes).toHaveLength(0);
     });
   });
 });

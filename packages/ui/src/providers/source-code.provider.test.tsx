@@ -140,6 +140,13 @@ describe('SourceCodeProvider', () => {
     expect(useSourceCodeStore.temporal.getState().isTracking).toBe(true);
   });
 
+  it('does not resume tracking on unmount if tracking was already paused before mount', () => {
+    useSourceCodeStore.temporal.getState().pause();
+    const { unmount } = render(<SourceCodeProvider adapter={inMemorySourceCodeAdapter('initial')} history={history} />);
+    unmount();
+    expect(useSourceCodeStore.temporal.getState().isTracking).toBe(false);
+  });
+
   it('exposes the host history to the undo/redo context', () => {
     const { result } = renderHook(() => useContext(UndoRedoContext), {
       wrapper: ({ children }: PropsWithChildren) => (

@@ -243,4 +243,54 @@ describe('editor document binding', () => {
       revision: 1,
     });
   });
+
+  it('redelivers the document without path when path is empty in the store', async () => {
+    await host.request('host:document:setContent', { ...init, content: 'no-path' });
+    useSourceCodeStore.setState({ sourceCode: 'no-path', path: '' });
+    const remounted = vi.fn();
+    binding.adapter.subscribe(remounted);
+    expect(remounted).toHaveBeenCalledWith({ code: 'no-path', path: undefined });
+  });
+
+  it('rejects setContent when the request signal is aborted', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    // Dispatch request with aborted signal
+    const promise = host.request('host:document:setContent', init, { signal: controller.signal });
+    await expect(promise).rejects.toMatchObject({ code: 'CANCELLED' });
+  });
+
+  it('handles non-Error objects thrown during initialization', async () => {
+    apply.mockImplementationOnce(() => {
+      throw 'string error';
+    });
+    await expect(host.request('host:document:setContent', init)).rejects.toMatchObject({
+      code: 'INTERNAL_ERROR',
+    });
+    expect(binding.getState().initialized).toBe(false);
+    expect(binding.getState().error).toMatchObject({
+      code: 'INTERNAL_ERROR',
+      message: 'Could not initialize the document',
+    });
+  });
+
+  it('ignores redundant calls to ready and dispose', async () => {
+    binding.ready();
+    binding.ready();
+    await host.request('host:document:setContent', init);
+    // ready() after initialized is no-op
+    binding.ready();
+
+    binding.dispose();
+    binding.dispose();
+    await expect(host.request('host:document:getContent', null)).rejects.toMatchObject({ code: 'DISPOSED' });
+  });
+
+  it('ignores stale unsubscribe callbacks when a new subscriber has registered', () => {
+    const unsub1 = binding.adapter.subscribe(vi.fn());
+    const unsub2 = binding.adapter.subscribe(apply);
+    unsub1(); // unsub1 should not unset apply since apply is unsub2
+    expect(binding.adapter.onChange).toBeDefined();
+    unsub2();
+  });
 });

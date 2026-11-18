@@ -224,4 +224,23 @@ describe('KaotoResourceProvider', () => {
     expect(result.current?.parseState).toBe(ResourceParseState.Valid);
     expect(result.current?.parsedError).toBeUndefined();
   });
+
+  it('handles non-Error objects thrown during parse', () => {
+    const createSpy = vi.spyOn(CamelResourceFactory, 'createCamelResource').mockImplementationOnce(() => {
+      throw 'string error';
+    });
+
+    const { result } = renderHook(() => useContext(KaotoResourceContext), {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter('broken')}>
+          <KaotoResourceProvider>{children}</KaotoResourceProvider>
+        </SourceCodeProvider>
+      ),
+    });
+
+    expect(result.current?.parseState).toBe(ResourceParseState.Error);
+    expect(result.current?.parsedError).toBe('The file could not be parsed');
+
+    createSpy.mockRestore();
+  });
 });

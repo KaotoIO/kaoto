@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
-import { ComponentProps } from 'react';
+import { ComponentProps, useContext } from 'react';
 
+import { MetadataContext } from '../../../providers';
 import { EntitiesContext, EntitiesContextResult } from '../../../providers/entities.provider';
 import { KaotoBridge } from './KaotoBridge';
 
@@ -49,5 +50,28 @@ describe('KaotoBridge', () => {
   it('should render children components', () => {
     const { getByText } = renderBridge();
     expect(getByText('Test Child')).toBeInTheDocument();
+  });
+
+  it('provides metadataApi through MetadataProvider', () => {
+    let capturedApi: unknown;
+    const Consumer = () => {
+      capturedApi = useContext(MetadataContext);
+      return null;
+    };
+
+    render(
+      <EntitiesContext.Provider value={entitiesContext}>
+        <KaotoBridge {...defaultProps}>
+          <Consumer />
+        </KaotoBridge>
+      </EntitiesContext.Provider>,
+    );
+
+    expect(capturedApi).toBeDefined();
+    expect(capturedApi).toMatchObject({
+      getMetadata: mockGetMetadata,
+      setMetadata: mockSetMetadata,
+      getResourceContent: mockGetResourceContent,
+    });
   });
 });
