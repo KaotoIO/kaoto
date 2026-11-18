@@ -195,7 +195,7 @@ const BeanFieldBase: FunctionComponent<BeanFieldProps> = ({
       {isOpen &&
         beanSchemaPromise &&
         createPortal(
-          <Suspense fallback={<Loading />}>
+          <Suspense fallback={<Loading withOverlay />}>
             <NewBeanModalWithSchema
               beanSchemaPromise={beanSchemaPromise}
               beanName={beanName}

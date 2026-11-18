@@ -29,7 +29,7 @@ export const PipeErrorHandlerPage: FunctionComponent = () => {
   }
 
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<Loading small />}>
       <PipeErrorHandlerPageInner
         pipeResource={pipeResource}
         entitiesContext={entitiesContext!}

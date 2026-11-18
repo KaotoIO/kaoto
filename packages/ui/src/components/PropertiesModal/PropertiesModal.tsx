@@ -125,7 +125,7 @@ export const PropertiesModal: FunctionComponent<IPropertiesModalProps> = (props)
     >
       <ModalHeader title={title} description={description} />
       <ModalBody className="properties-modal__body">
-        {isLoading && <Loading>Loading properties...</Loading>}
+        {isLoading && <Loading small>Loading properties...</Loading>}
         {!isLoading && tabs.length === 0 && <EmptyTableState name={props.tile.name} />}
         {!isLoading && tabs.length > 0 && <PropertiesTabs tab={activeTab!} tab_index={activeTabKey} />}
       </ModalBody>

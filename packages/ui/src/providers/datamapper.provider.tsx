@@ -589,7 +589,7 @@ export const DataMapperProvider: FunctionComponent<DataMapperProviderProps> = ({
   return (
     <DataMapperContext.Provider value={value}>
       {isLoading ? (
-        <Loading />
+        <Loading small />
       ) : (
         <>
           <AlertGroup isToast>

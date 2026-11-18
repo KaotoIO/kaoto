@@ -10,7 +10,7 @@ import { isEmpty } from 'lodash';
 import { FunctionComponent, Suspense, use, useContext, useMemo } from 'react';
 
 import { ROOT_PATH, setValue } from '../../../../../../utils';
-import { Loading } from '../../../../../Loading';
+import { LoadingInline } from '../../../../../Loading';
 import { FieldErrorBoundary } from '../FieldErrorBoundary';
 import { ExpressionService } from './expression.service';
 import { ExpressionFieldInner } from './ExpressionFieldInner';
@@ -102,7 +102,7 @@ export const ExpressionField: FunctionComponent<FieldProps> = (props) => {
 
   return (
     <FieldErrorBoundary title="Expression editor unavailable">
-      <Suspense fallback={<Loading />}>
+      <Suspense fallback={<LoadingInline description="Loading expression field" />}>
         <ExpressionFieldImpl {...props} promise={languageNamesPromise} />
       </Suspense>
     </FieldErrorBoundary>

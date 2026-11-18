@@ -26,7 +26,7 @@ export const BeansPage: FunctionComponent = () => {
   }
 
   return (
-    <Suspense fallback={<Loading />}>
+    <Suspense fallback={<Loading small />}>
       <BeansPageInner
         beansHandler={beansHandler}
         entitiesContext={entitiesContext!}
