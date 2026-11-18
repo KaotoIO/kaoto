@@ -74,7 +74,7 @@ export class CamelInterceptFromVisualEntity
       data.primaryNodeId?.name as keyof ProcessorDefinition,
     );
     const canHaveChildren = stepsProperties.some((property) => property.type === 'branch');
-    const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
+    const canHaveSpecialChildren = stepsProperties.length > 1;
     const canReplaceStep = data.path !== CamelInterceptFromVisualEntity.ROOT_PATH;
     const canRemoveStep = data.path !== CamelInterceptFromVisualEntity.ROOT_PATH;
     const canBeDisabled = data.schema?.properties?.disabled !== undefined;
