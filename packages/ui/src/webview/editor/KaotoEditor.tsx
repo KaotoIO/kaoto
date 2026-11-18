@@ -6,6 +6,7 @@ import { PropsWithChildren, useCallback, useContext, useEffect, useRef, useState
 import { RouterProvider } from 'react-router';
 
 import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
+import { useKaotoResourceContext } from '../../hooks/useKaotoResourceContext/useKaotoResourceContext';
 import {
   BridgeError,
   IEventBus,
@@ -19,9 +20,8 @@ import { HostBridgeProvider } from '../../host-bridge/react/context';
 import { CatalogKind, FileTypes, FileTypesResponse, StepUpdateAction } from '../../models';
 import { DefaultSettingsAdapter } from '../../models/settings';
 import { KaotoResourceProvider } from '../../providers';
-import { ResourceParseState } from '../../providers/kaoto-resource.provider';
 import { EntitiesProvider } from '../../providers/entities.provider';
-import { useKaotoResourceContext } from '../../hooks/useKaotoResourceContext/useKaotoResourceContext';
+import { ResourceParseState } from '../../providers/kaoto-resource.provider';
 import { ReloadProvider } from '../../providers/reload.provider';
 import { RuntimeProvider } from '../../providers/runtime.provider';
 import { SettingsContext, SettingsProvider } from '../../providers/settings.provider';
@@ -312,26 +312,28 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
             {/* A reload remounts the provider, which asks the document binding for the current content again */}
             <SourceCodeProvider adapter={editorDocument.adapter} history={history}>
               <KaotoResourceProvider fileExtension={init.fileExtension}>
-                <EditorRuntimeProvider defaultCatalogUrl={defaultCatalogUrl}>
-                  <CatalogLoaderProvider getResourcesContentByType={getResourcesContentByType}>
-                    <EntitiesProvider>
-                      <KaotoBridge
-                        getMetadata={getMetadata}
-                        setMetadata={setMetadata}
-                        getResourceContent={getResourceContent}
-                        saveResourceContent={saveResourceContent}
-                        isResourceExist={isResourceExist}
-                        deleteResource={deleteResource}
-                        askUserForFileSelection={askUserForFileSelection}
-                        getSuggestions={getSuggestions}
-                        shouldSaveSchema={false}
-                        onStepUpdated={onStepUpdated}
-                      >
-                        <RouterProvider router={kaotoEditorRouter} />
-                      </KaotoBridge>
-                    </EntitiesProvider>
-                  </CatalogLoaderProvider>
-                </EditorRuntimeProvider>
+                <CanvasInertBoundary>
+                  <EditorRuntimeProvider defaultCatalogUrl={defaultCatalogUrl}>
+                    <CatalogLoaderProvider getResourcesContentByType={getResourcesContentByType}>
+                      <EntitiesProvider>
+                        <KaotoBridge
+                          getMetadata={getMetadata}
+                          setMetadata={setMetadata}
+                          getResourceContent={getResourceContent}
+                          saveResourceContent={saveResourceContent}
+                          isResourceExist={isResourceExist}
+                          deleteResource={deleteResource}
+                          askUserForFileSelection={askUserForFileSelection}
+                          getSuggestions={getSuggestions}
+                          shouldSaveSchema={false}
+                          onStepUpdated={onStepUpdated}
+                        >
+                          <RouterProvider router={kaotoEditorRouter} />
+                        </KaotoBridge>
+                      </EntitiesProvider>
+                    </CatalogLoaderProvider>
+                  </EditorRuntimeProvider>
+                </CanvasInertBoundary>
               </KaotoResourceProvider>
             </SourceCodeProvider>
           </ReloadProvider>

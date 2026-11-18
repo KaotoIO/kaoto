@@ -154,7 +154,9 @@ describe('KaotoResourceProvider', () => {
         </SourceCodeProvider>
       ),
     });
-    await waitFor(() => expect(result.current).toBeTruthy());
+    await waitFor(() => {
+      expect(result.current).toBeTruthy();
+    });
     expect(result.current!.entities).toHaveLength(0);
     expect(changes).toHaveLength(0);
 
@@ -197,7 +199,9 @@ describe('KaotoResourceProvider', () => {
     let deliver!: (code: string) => void;
     const adapter: SourceCodeAdapter = {
       subscribe(apply) {
-        deliver = (code) => apply({ code });
+        deliver = (code) => {
+          apply({ code });
+        };
         apply({ code: '- from: {' });
         return () => {};
       },

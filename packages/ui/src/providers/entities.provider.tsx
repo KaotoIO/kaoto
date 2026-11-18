@@ -3,12 +3,12 @@ import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEf
 
 import { Loading } from '../components/Loading';
 import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
-import { ResourceParseState } from './kaoto-resource.provider';
 import { BaseVisualEntity } from '../models';
 import { SourceSchemaType } from '../models/camel';
 import { BaseEntity } from '../models/entities';
 import { KaotoResource } from '../models/kaoto-resource';
 import { EventNotifier } from '../utils';
+import { ResourceParseState } from './kaoto-resource.provider';
 
 export interface EntitiesContextResult {
   entities: BaseEntity[];
