@@ -17,28 +17,34 @@ const overflowThreshold = 0;
  * (2) {@link additionalPriorityTags}.
  */
 export const sortTags = (allTiles: ITile[], filterTags: string[]): { sortedTags: string[]; overflowIndex: number } => {
-  const priorityTags = [...additionalPriorityTags];
-  const sortedTags = allTiles
-    .reduce((acc, tile) => {
-      tile.tags.forEach((tag) => {
-        !acc.includes(tag) && acc.push(tag);
-        tile.type === 'processor' && tag !== 'eip' && !priorityTags.includes(tag) && priorityTags.push(tag);
-      });
-      return acc;
-    }, [] as string[])
-    .sort((a, b) => {
-      if (filterTags.includes(a) && !filterTags.includes(b)) return -1;
-      if (filterTags.includes(b) && !filterTags.includes(a)) return 1;
-      if (priorityTags.includes(a) && !priorityTags.includes(b)) return -1;
-      if (priorityTags.includes(b) && !priorityTags.includes(a)) return 1;
+  const priorityTags = new Set(additionalPriorityTags);
+  const uniqueTags = new Set<string>();
+  for (const tile of allTiles) {
+    for (const tag of tile.tags) {
+      uniqueTags.add(tag);
+      if (tile.type === 'processor' && tag !== 'eip') priorityTags.add(tag);
+    }
+  }
 
-      const lowerA = a.toLowerCase();
-      const lowerB = b.toLowerCase();
-      if (lowerA < lowerB) return -1;
-      if (lowerA > lowerB) return 1;
-      return 0;
-    });
-  const num = sortedTags.filter((tag) => filterTags.includes(tag) || priorityTags.includes(tag)).length;
+  const filterTagsSet = new Set(filterTags);
+  const lowerCaseTags = new Map<string, string>();
+  for (const tag of uniqueTags) {
+    lowerCaseTags.set(tag, tag.toLowerCase());
+  }
+
+  const sortedTags = [...uniqueTags].sort((a, b) => {
+    if (filterTagsSet.has(a) && !filterTagsSet.has(b)) return -1;
+    if (filterTagsSet.has(b) && !filterTagsSet.has(a)) return 1;
+    if (priorityTags.has(a) && !priorityTags.has(b)) return -1;
+    if (priorityTags.has(b) && !priorityTags.has(a)) return 1;
+
+    const lowerA = lowerCaseTags.get(a)!;
+    const lowerB = lowerCaseTags.get(b)!;
+    if (lowerA < lowerB) return -1;
+    if (lowerA > lowerB) return 1;
+    return 0;
+  });
+  const num = sortedTags.filter((tag) => filterTagsSet.has(tag) || priorityTags.has(tag)).length;
   const overflowIndex = Math.max(num, overflowThreshold);
   return { sortedTags, overflowIndex };
 };

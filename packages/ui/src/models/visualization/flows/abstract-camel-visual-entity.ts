@@ -275,7 +275,7 @@ export abstract class AbstractCamelVisualEntity<T extends object> implements Bas
     const canHavePreviousStep = ProcessorStepsService.canHavePreviousStep(processorName);
     const stepsProperties = ProcessorStepsService.getProcessorStepsProperties(processorName);
     const canHaveChildren = stepsProperties.some((property) => property.type === 'branch');
-    const canHaveSpecialChildren = Object.keys(stepsProperties).length > 1;
+    const canHaveSpecialChildren = stepsProperties.length > 1;
     const canReplaceStep = ProcessorStepsService.canReplaceStep(processorName);
     const canRemoveFlow = data.path === this.getRootPath();
     const canRemoveStep = !canRemoveFlow && !DISABLED_REMOVE_STEPS.has(processorName);

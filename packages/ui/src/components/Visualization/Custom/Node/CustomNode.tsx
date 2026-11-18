@@ -90,17 +90,7 @@ const CustomNodeInner: FunctionComponent<CustomNodeInnerProps> = observer(
     const canDragNode = vizNode?.canDragNode() ?? false;
 
     const hasSomeInteractions = useMemo(
-      () =>
-        [
-          vizNode?.getNodeInteraction().canBeDisabled,
-          vizNode?.getNodeInteraction().canHaveChildren,
-          vizNode?.getNodeInteraction().canHaveNextStep,
-          vizNode?.getNodeInteraction().canHavePreviousStep,
-          vizNode?.getNodeInteraction().canHaveSpecialChildren,
-          vizNode?.getNodeInteraction().canRemoveFlow,
-          vizNode?.getNodeInteraction().canRemoveStep,
-          vizNode?.getNodeInteraction().canReplaceStep,
-        ].some(Boolean),
+      () => (vizNode ? Object.values(vizNode.getNodeInteraction()).some(Boolean) : false),
       [vizNode],
     );
 
