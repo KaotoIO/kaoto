@@ -900,12 +900,12 @@
       "view/item/context": [
         {
           "command": "kaoto.integrations.run.folder",
-          "when": "view == kaoto.integrations && viewItem == folder && !virtualWorkspace && kaoto.executorAvailable",
+          "when": "view == kaoto.integrations && (viewItem == folder || viewItem == folder-workspace-root) && !virtualWorkspace && kaoto.executorAvailable",
           "group": "inline@1"
         },
         {
           "command": "kaoto.camel.jbang.export.folder",
-          "when": "view == kaoto.integrations && viewItem == folder && !virtualWorkspace && kaoto.executorAvailable",
+          "when": "view == kaoto.integrations && (viewItem == folder || viewItem == folder-workspace-root) && !virtualWorkspace && kaoto.executorAvailable",
           "group": "inline@2"
         },
         {
@@ -915,7 +915,7 @@
         },
         {
           "command": "kaoto.integrations.delete",
-          "when": "view == kaoto.integrations && (viewItem == integration || viewItem == integration-standalone-child || viewItem == integration-maven-child || viewItem == file || viewItem == folder || viewItem == folder-maven-child || viewItem == folder-maven-root)",
+          "when": "view == kaoto.integrations && (viewItem == integration || viewItem == integration-standalone-child || viewItem == integration-maven-child || viewItem == file || viewItem == folder || viewItem == folder-workspace-root || viewItem == folder-maven-child || viewItem == folder-maven-root)",
           "group": "navigation@2"
         },
         {

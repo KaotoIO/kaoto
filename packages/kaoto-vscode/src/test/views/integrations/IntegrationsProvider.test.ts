@@ -113,6 +113,8 @@ suite('IntegrationsProvider', () => {
 	const originalFindFiles = vscode.workspace.findFiles;
 	const originalCommands = { executeCommand: vscode.commands.executeCommand };
 	const originalWorkspaceFolders = Object.getOwnPropertyDescriptor(vscode.workspace, 'workspaceFolders')!;
+	const originalOnDidChangeConfiguration = Object.getOwnPropertyDescriptor(vscode.workspace, 'onDidChangeConfiguration')!;
+	const onDidChangeConfiguration = vscode.workspace.onDidChangeConfiguration;
 	const providers: IntegrationsProvider[] = [];
 
 	let root: string;
@@ -194,6 +196,7 @@ suite('IntegrationsProvider', () => {
 		vscode.workspace.findFiles = originalFindFiles;
 		Object.assign(vscode.commands, originalCommands);
 		Object.defineProperty(vscode.workspace, 'workspaceFolders', originalWorkspaceFolders);
+		Object.defineProperty(vscode.workspace, 'onDidChangeConfiguration', originalOnDidChangeConfiguration);
 	});
 
 	test('lists the folders first, then the files, by name', async () => {
@@ -350,6 +353,21 @@ suite('IntegrationsProvider', () => {
 		assert.strictEqual((children[0] as Folder).folderUri.fsPath, folderPath('app'));
 	});
 
+	test('gives the workspace root folders their own context value, as the Tests and OpenAPI views do', async () => {
+		useWorkspaceFolders('app', 'service');
+		files = filesOf('app', 'service');
+
+		const children = await createProvider().getChildren();
+
+		assert.deepEqual(
+			children.map((child) => [child.label, child.contextValue]),
+			[
+				['app', 'folder-workspace-root'],
+				['service', 'folder-maven-root'],
+			],
+		);
+	});
+
 	test('searches the files of the integrations setting outside the excluded folders', async () => {
 		await createProvider().getChildren();
 
@@ -367,6 +385,14 @@ suite('IntegrationsProvider', () => {
 		integrationExists = [];
 		assert.deepEqual(await createProvider().getChildren(), []);
 		assert.deepEqual(integrationExists, [false]);
+	});
+
+	test('reads the files once for all folders until the view is refreshed', async () => {
+		const provider = createProvider();
+		await childrenOf(provider, 'maven-app', 'src', 'main');
+		await childrenOf(provider, 'standalone');
+
+		assert.lengthOf(findFilesCalls, 1);
 	});
 
 	test('reads the files again on refresh', async () => {
@@ -401,6 +427,28 @@ suite('IntegrationsProvider', () => {
 		} finally {
 			await updateFilesSetting(undefined);
 		}
+	});
+
+	test('stops following the files setting once disposed', () => {
+		const subscriptions: Array<{ disposed: boolean }> = [];
+		const recordSubscriptions: typeof vscode.workspace.onDidChangeConfiguration = (listener, thisArgs, disposables) => {
+			const subscription = onDidChangeConfiguration(listener, thisArgs, disposables);
+			const record = { disposed: false };
+			subscriptions.push(record);
+			return {
+				dispose: () => {
+					record.disposed = true;
+					subscription.dispose();
+				},
+			};
+		};
+		Object.defineProperty(vscode.workspace, 'onDidChangeConfiguration', { value: recordSubscriptions, configurable: true, writable: true });
+		const provider = createProvider();
+		Object.defineProperty(vscode.workspace, 'onDidChangeConfiguration', originalOnDidChangeConfiguration);
+
+		assert.deepEqual(subscriptions, [{ disposed: false }]);
+		provider.dispose();
+		assert.deepEqual(subscriptions, [{ disposed: true }]);
 	});
 });
 
