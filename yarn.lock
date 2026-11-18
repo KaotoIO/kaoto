@@ -24587,11 +24587,11 @@ __metadata:
   linkType: hard
 
 "ts-markdown@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "ts-markdown@npm:1.2.0"
+  version: 1.3.0
+  resolution: "ts-markdown@npm:1.3.0"
   dependencies:
     yaml: "npm:^2.4.5"
-  checksum: 10/d8674c0aa7a5a9ba452fa14f5f2541a1e27ae25b5e4bcdd1efbc18131d31dbbb8d94e2b206abf1c5aaecc64bcbd6dfb6a715954b074ef182a1e1a61608edc6b7
+  checksum: 10/64da613f2c4b6bda0f26263ade51037409d814e83b01d43024e954720f7f4586750cbc7f3fa39965e60edafd96663d02388d24059d191a3bf3967ba6175c87b9
   languageName: node
   linkType: hard
 
