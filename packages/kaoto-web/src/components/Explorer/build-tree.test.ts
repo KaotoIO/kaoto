@@ -90,4 +90,30 @@ describe('buildTree', () => {
   it('returns an empty tree for no files', () => {
     expect(buildTree([])).toEqual([]);
   });
+
+  it('shows created folders without files, with their parents', () => {
+    expect(buildTree([], ['a/b', 'c'])).toEqual([
+      {
+        id: toFolderId('a'),
+        name: 'a',
+        type: 'folder',
+        children: [{ id: toFolderId('a/b'), name: 'b', type: 'folder', children: [] }],
+      },
+      { id: toFolderId('c'), name: 'c', type: 'folder', children: [] },
+    ]);
+  });
+
+  it('merges a created folder with the folder of its files', () => {
+    expect(buildTree([{ id: 'f', path: 'a/f.camel.yaml' }], ['a', 'a/empty'])).toEqual([
+      {
+        id: toFolderId('a'),
+        name: 'a',
+        type: 'folder',
+        children: [
+          { id: toFolderId('a/empty'), name: 'empty', type: 'folder', children: [] },
+          { id: 'f', name: 'f.camel.yaml', type: 'integration' },
+        ],
+      },
+    ]);
+  });
 });

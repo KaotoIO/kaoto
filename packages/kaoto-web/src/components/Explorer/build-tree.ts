@@ -32,22 +32,20 @@ const sortNodes = (nodes: ExplorerFile[]): ExplorerFile[] => {
 };
 
 /**
- * Builds the Explorer tree from the flat list of stored files.
+ * Builds the Explorer tree from the flat list of stored files and the folders the user created.
  *
- * Folders are not stored; they are derived from the file paths, and their id is built with `toFolderId`.
- * The type of a file is derived from its path. Folders come before files, each in natural order by name.
+ * Folders come from the file paths and from `folders`, which keeps folders that hold no file; their id is built with
+ * `toFolderId`. The type of a file is derived from its path. Folders come before files, each in natural order by name.
  */
-export function buildTree(files: Pick<StoredFile, 'id' | 'path'>[]): ExplorerFile[] {
+export function buildTree(files: Pick<StoredFile, 'id' | 'path'>[], folders: string[] = []): ExplorerFile[] {
   const root: ExplorerFile[] = [];
   const folderChildren = new Map<string, ExplorerFile[]>();
 
-  for (const file of files) {
-    const segments = file.path.split('/');
-    const fileName = segments[segments.length - 1];
-
+  /** The children of the folder, creating it and its parents in the tree when needed */
+  const childrenOf = (segments: string[]): ExplorerFile[] => {
     let siblings = root;
     let folderPath = '';
-    for (const segment of segments.slice(0, -1)) {
+    for (const segment of segments) {
       folderPath = folderPath ? `${folderPath}/${segment}` : segment;
       let children = folderChildren.get(folderPath);
       if (!children) {
@@ -57,8 +55,16 @@ export function buildTree(files: Pick<StoredFile, 'id' | 'path'>[]): ExplorerFil
       }
       siblings = children;
     }
+    return siblings;
+  };
 
-    siblings.push({ id: file.id, name: fileName, type: getFileType(file.path) });
+  for (const file of files) {
+    const segments = file.path.split('/');
+    const fileName = segments[segments.length - 1];
+    childrenOf(segments.slice(0, -1)).push({ id: file.id, name: fileName, type: getFileType(file.path) });
+  }
+  for (const folderPath of folders) {
+    childrenOf(folderPath.split('/'));
   }
 
   return sortNodes(root);

@@ -30,7 +30,7 @@ describe('FilesStore', () => {
     now.mockRestore();
 
     expect(file.id).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
-    expect(file).toEqual({ id: file.id, path: 'a.camel.yaml', content: 'x', updatedAt: 1000 });
+    expect(file).toEqual({ id: file.id, path: 'a.camel.yaml', content: 'x', createdAt: 1000, updatedAt: 1000 });
     expect(await store.getFiles()).toEqual([file]);
   });
 
@@ -114,23 +114,6 @@ describe('FilesStore', () => {
     expect(await store.getFiles()).toEqual([]);
   });
 
-  it('deletes the files of a folder and its subfolders and returns their ids', async () => {
-    const paths = ['a.yaml', 'a/b.yaml', 'a/c/d.yaml', 'a-b/e.yaml', 'a.b/f.yaml', 'ab/g.yaml', 'x/a/h.yaml'];
-    const files = await Promise.all(paths.map((path) => store.createFile({ path, content: '' })));
-    const idOf = (path: string) => files.find((file) => file.path === path)!.id;
-
-    const deleted = await store.deleteFolder('a');
-
-    expect(deleted.sort()).toEqual([idOf('a/b.yaml'), idOf('a/c/d.yaml')].sort());
-    expect((await store.getFiles()).map((file) => file.path)).toEqual([
-      'a-b/e.yaml',
-      'a.b/f.yaml',
-      'a.yaml',
-      'ab/g.yaml',
-      'x/a/h.yaml',
-    ]);
-  });
-
   it('deletes the files of a nested folder only', async () => {
     await store.createFile({ path: 'a/b.yaml', content: '' });
     await store.createFile({ path: 'a/c/d.yaml', content: '' });
@@ -147,26 +130,236 @@ describe('FilesStore', () => {
     expect(await store.getFiles()).toHaveLength(1);
   });
 
-  it('lets a newer version of the database open while this store is connected', async () => {
-    await store.getFiles();
-
-    const upgraded = openDB('kaoto', 2);
-    const timeout = new Promise<string>((resolve) => {
-      setTimeout(() => {
-        resolve('blocked');
-      }, 1000);
+  describe('folders', () => {
+    it('starts without folders', async () => {
+      expect(await store.getFolders()).toEqual([]);
     });
 
-    const result = await Promise.race([upgraded.then(() => 'opened'), timeout]);
-    expect(result).toBe('opened');
-    (await upgraded).close();
+    it('creates folders with their parents and returns them sorted by path', async () => {
+      await store.createFolder('b');
+      await store.createFolder('a/c');
+
+      expect(await store.getFolders()).toEqual(['a', 'a/c', 'b']);
+    });
+
+    it('creates the missing parent folders of a file', async () => {
+      await store.createFile({ path: 'a/b/c.yaml', content: '' });
+
+      expect(await store.getFolders()).toEqual(['a', 'a/b']);
+    });
+
+    it('creates the missing parent folders of a renamed file', async () => {
+      const file = await store.createFile({ path: 'a.yaml', content: '' });
+
+      await store.renameFile(file.id, 'x/y/a.yaml');
+
+      expect(await store.getFolders()).toEqual(['x', 'x/y']);
+    });
+
+    it('keeps a folder after its last file is deleted', async () => {
+      const file = await store.createFile({ path: 'a/b.yaml', content: '' });
+
+      await store.deleteFile(file.id);
+
+      expect(await store.getFolders()).toEqual(['a']);
+    });
+
+    it('keeps a folder after its last file is renamed out of it', async () => {
+      const file = await store.createFile({ path: 'a/b.yaml', content: '' });
+
+      await store.renameFile(file.id, 'b.yaml');
+
+      expect(await store.getFolders()).toEqual(['a']);
+    });
+
+    it('rejects a second folder with the same path', async () => {
+      await store.createFolder('a');
+
+      await expect(store.createFolder('a')).rejects.toThrow();
+      expect(await store.getFolders()).toEqual(['a']);
+    });
+
+    it.each([
+      ['a folder at the path of a file', async (s: FilesStore) => s.createFolder('a.yaml')],
+      ['a file at the path of a folder', async (s: FilesStore) => s.createFile({ path: 'f', content: '' })],
+      ['a file under a file', async (s: FilesStore) => s.createFile({ path: 'a.yaml/b.yaml', content: '' })],
+      ['a folder under a file', async (s: FilesStore) => s.createFolder('a.yaml/b')],
+    ])('rejects %s and writes nothing', async (_, create) => {
+      await store.createFile({ path: 'a.yaml', content: '' });
+      await store.createFolder('f');
+
+      await expect(create(store)).rejects.toThrow();
+      expect((await store.getFiles()).map(({ path }) => path)).toEqual(['a.yaml']);
+      expect(await store.getFolders()).toEqual(['f']);
+    });
+
+    it('rejects renaming a file to the path of a folder', async () => {
+      const file = await store.createFile({ path: 'a.yaml', content: '' });
+      await store.createFolder('f');
+
+      await expect(store.renameFile(file.id, 'f')).rejects.toThrow();
+      expect((await store.getFiles()).map(({ path }) => path)).toEqual(['a.yaml']);
+    });
+
+    it('deletes a folder with its subfolders and files and nothing outside it', async () => {
+      for (const path of ['a', 'a/b', 'a-b', 'ab', 'x/a']) await store.createFolder(path);
+      const inside = await store.createFile({ path: 'a/c/d.yaml', content: '' });
+      await store.createFile({ path: 'a.b/f.yaml', content: '' });
+
+      expect(await store.deleteFolder('a')).toEqual([inside.id]);
+      expect(await store.getFolders()).toEqual(['a-b', 'a.b', 'ab', 'x', 'x/a']);
+      expect((await store.getFiles()).map(({ path }) => path)).toEqual(['a.b/f.yaml']);
+    });
   });
 
-  it('fails instead of hanging after a newer version took over the database', async () => {
-    await store.getFiles();
-    (await openDB('kaoto', 2)).close();
+  describe('timestamps', () => {
+    const at = (time: number) => vi.spyOn(Date, 'now').mockReturnValue(time);
+    const project = async () => (await store.getProjects())[0];
 
-    await expect(store.getFiles()).rejects.toThrow();
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('gives a folder its creation time as both timestamps', async () => {
+      at(1000);
+      await store.createFolder('a');
+
+      const { id } = await project();
+      store.close();
+      const db = await openDB('kaoto');
+      expect(await db.getAll(`content:${id}`)).toEqual([
+        { id: expect.any(String), path: 'a', kind: 'folder', createdAt: 1000, updatedAt: 1000 },
+      ]);
+      db.close();
+    });
+
+    it('keeps the creation time of a file when its content changes', async () => {
+      at(1000);
+      const file = await store.createFile({ path: 'a.yaml', content: '' });
+      at(2000);
+      const updated = await store.updateFile(file.id, 'x');
+
+      expect(updated).toMatchObject({ createdAt: 1000, updatedAt: 2000 });
+    });
+
+    it('keeps the project creation time and moves its update time on every change', async () => {
+      at(1000);
+      await store.getFiles();
+      const { createdAt } = await project();
+
+      const changes: [number, () => Promise<unknown>][] = [
+        [2000, () => store.createFolder('f')],
+        [3000, () => store.createFile({ id: 'a', path: 'a.yaml', content: '' })],
+        [4000, () => store.updateFile('a', 'x')],
+        [5000, () => store.renameFile('a', 'b.yaml')],
+        [6000, () => store.deleteFile('a')],
+        [7000, () => store.deleteFolder('f')],
+      ];
+      for (const [time, change] of changes) {
+        at(time);
+        await change();
+        expect(await project()).toMatchObject({ createdAt, updatedAt: time });
+      }
+      expect(createdAt).toBe(1000);
+    });
+  });
+
+  describe('database', () => {
+    const storeNames = async () => {
+      const db = await openDB('kaoto');
+      const names = [...db.objectStoreNames];
+      db.close();
+      return names;
+    };
+
+    /** Creates the database as an earlier kaoto-web build left it, with one file */
+    const createOldDatabase = async (withFolders: boolean) => {
+      const db = await openDB('kaoto', withFolders ? 2 : 1, {
+        upgrade(upgradeDb) {
+          upgradeDb.createObjectStore('files', { keyPath: 'id' }).createIndex('byPath', 'path', { unique: true });
+          if (withFolders) upgradeDb.createObjectStore('folders', { keyPath: 'path' });
+        },
+      });
+      await db.add('files', { id: 'old', path: 'a/b.yaml', content: 'x', updatedAt: 1 });
+      db.close();
+    };
+
+    it('creates the meta marker and one default project with its content table on a new database', async () => {
+      const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
+      await store.getFiles();
+      now.mockRestore();
+      store.close();
+
+      const projects = await store.getProjects();
+      expect(projects).toEqual([{ id: expect.any(String), name: 'Default', createdAt: 1000, updatedAt: 1000 }]);
+      expect((await storeNames()).sort()).toEqual(['meta', 'projects', `content:${projects[0].id}`].sort());
+      const db = await openDB('kaoto');
+      expect(await db.get('meta', 'schema')).toEqual({ key: 'schema', version: 1 });
+      db.close();
+    });
+
+    it.each([
+      ['files', false],
+      ['files and folders', true],
+    ])('replaces an old database with %s and drops its data', async (_, withFolders) => {
+      store.close();
+      await createOldDatabase(withFolders);
+
+      expect(await store.getFiles()).toEqual([]);
+      expect(await store.getProjects()).toHaveLength(1);
+      store.close();
+      const names = await storeNames();
+      expect(names).not.toContain('files');
+      expect(names).not.toContain('folders');
+    });
+
+    it('creates one default project when two stores open a new database at once', async () => {
+      const other = new FilesStore();
+
+      await Promise.all([store.getFiles(), other.getFiles()]);
+
+      expect(await store.getProjects()).toHaveLength(1);
+      expect(await other.getProjects()).toEqual(await store.getProjects());
+      other.close();
+    });
+
+    it('rejects when the schema marker is newer than the code', async () => {
+      await store.getFiles();
+      store.close();
+      const db = await openDB('kaoto');
+      await db.put('meta', { key: 'schema', version: 2 });
+      db.close();
+
+      await expect(new FilesStore().getFiles()).rejects.toThrow(/newer/);
+    });
+
+    it('lets another connection raise the version while this store is connected', async () => {
+      await store.getFiles();
+      const { version } = await openDB('kaoto').then((db) => {
+        db.close();
+        return db;
+      });
+
+      const upgraded = openDB('kaoto', version + 1);
+      const timeout = new Promise<string>((resolve) => {
+        setTimeout(() => {
+          resolve('blocked');
+        }, 1000);
+      });
+
+      const result = await Promise.race([upgraded.then(() => 'opened'), timeout]);
+      expect(result).toBe('opened');
+      (await upgraded).close();
+    });
+
+    it('reconnects and keeps working after another connection raised the version', async () => {
+      await store.createFile({ path: 'a.yaml', content: '' });
+      const current = await openDB('kaoto');
+      current.close();
+      (await openDB('kaoto', current.version + 1)).close();
+
+      expect((await store.getFiles()).map(({ path }) => path)).toEqual(['a.yaml']);
+    });
   });
 
   it('rejects when IndexedDB is unavailable', async () => {

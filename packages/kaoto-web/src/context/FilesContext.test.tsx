@@ -7,7 +7,19 @@ import { resetTestIndexedDB } from '../test/indexed-db';
 import { FilesProvider } from './FilesContext';
 
 const Consumer: FunctionComponent = () => {
-  const { files, loading, error, reload, createFile, updateFile, renameFile, deleteFile, deleteFolder } = useFiles();
+  const {
+    files,
+    folders,
+    loading,
+    error,
+    reload,
+    createFile,
+    createFolder,
+    updateFile,
+    renameFile,
+    deleteFile,
+    deleteFolder,
+  } = useFiles();
   const [renameError, setRenameError] = useState<string>();
   let state = files.map((file) => `${file.id}=${file.content}`).join(',');
   if (loading) state = 'loading';
@@ -17,6 +29,7 @@ const Consumer: FunctionComponent = () => {
       <div data-testid="state">{state}</div>
       <div data-testid="paths">{files.map((file) => file.path).join(',')}</div>
       <div data-testid="rename-error">{renameError}</div>
+      <div data-testid="folders">{folders.join(',')}</div>
       <button onClick={reload}>reload</button>
       <button onClick={() => void updateFile('a', 'changed').catch(() => undefined)}>update</button>
       <button onClick={() => void createFile({ id: 'c', path: 'a/c.camel.yaml', content: 'C' }).catch(() => undefined)}>
@@ -33,6 +46,7 @@ const Consumer: FunctionComponent = () => {
       </button>
       <button onClick={() => void deleteFile('a').catch(() => undefined)}>delete file</button>
       <button onClick={() => void deleteFolder('a').catch(() => undefined)}>delete folder</button>
+      <button onClick={() => void createFolder('a/new').catch(() => undefined)}>create folder</button>
     </>
   );
 };
@@ -195,6 +209,97 @@ describe('FilesProvider', () => {
 
     expect(await screen.findByText('a=A')).toBeInTheDocument();
     expect((await store.getFiles()).map((file) => file.id)).toEqual(['a']);
+  });
+
+  it('exposes the stored folders', async () => {
+    await store.createFolder('b');
+    await store.createFolder('a');
+
+    renderProvider(store);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('folders')).toHaveTextContent('a,b');
+    });
+  });
+
+  it('exposes an error when the folders cannot be loaded', async () => {
+    vi.spyOn(store, 'getFolders').mockRejectedValue(new Error('blocked'));
+
+    renderProvider(store);
+
+    expect(await screen.findByText('error blocked')).toBeInTheDocument();
+  });
+
+  it('stores a created folder and exposes it in path order', async () => {
+    await store.createFolder('b');
+    renderProvider(store);
+    await waitFor(() => {
+      expect(screen.getByTestId('folders')).toHaveTextContent('b');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'create folder' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('folders')).toHaveTextContent('a,a/new,b');
+    });
+    expect(await store.getFolders()).toEqual(['a', 'a/new', 'b']);
+  });
+
+  it('exposes the parent folders a created file brings along', async () => {
+    renderProvider(store);
+    await waitFor(() => {
+      expect(screen.getByTestId('state')).toBeEmptyDOMElement();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'create' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('folders')).toHaveTextContent(/^a$/);
+    });
+  });
+
+  it('keeps a folder after its last file is deleted', async () => {
+    await store.createFile({ id: 'a', path: 'x/a.camel.yaml', content: 'A' });
+    renderProvider(store);
+    await screen.findByText('a=A');
+
+    fireEvent.click(screen.getByRole('button', { name: 'delete file' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('state')).toBeEmptyDOMElement();
+    });
+    expect(screen.getByTestId('folders')).toHaveTextContent(/^x$/);
+  });
+
+  it('keeps the folders when the folder exists', async () => {
+    await store.createFolder('a/new');
+    const create = vi.spyOn(store, 'createFolder');
+    renderProvider(store);
+    await waitFor(() => {
+      expect(screen.getByTestId('folders')).toHaveTextContent('a/new');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'create folder' }));
+
+    await waitFor(() => {
+      expect(create).toHaveBeenCalledWith('a/new');
+    });
+    await expect(create.mock.results[0].value).rejects.toThrow();
+    expect(screen.getByTestId('folders')).toHaveTextContent(/^a,a\/new$/);
+  });
+
+  it('drops the folders under a deleted folder and keeps the others', async () => {
+    for (const path of ['a', 'a/c', 'ab']) await store.createFolder(path);
+    renderProvider(store);
+    await waitFor(() => {
+      expect(screen.getByTestId('folders')).toHaveTextContent('a,a/c,ab');
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'delete folder' }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('folders')).toHaveTextContent(/^ab$/);
+    });
   });
 
   it('keeps the files when deleting a folder fails', async () => {
