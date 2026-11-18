@@ -26370,11 +26370,11 @@ __metadata:
   linkType: hard
 
 "xml-formatter@npm:^3.6.5":
-  version: 3.6.7
-  resolution: "xml-formatter@npm:3.6.7"
+  version: 3.7.0
+  resolution: "xml-formatter@npm:3.7.0"
   dependencies:
     xml-parser-xo: "npm:^4.1.5"
-  checksum: 10/0bd9955ab43b60e0bbf55d092761f27dbe4a9871cc60554cc07f67d31a2ae50423d207b2d8f408aad7c5fb7651cc54cba325056b9ac7abcb5df246fc9826a8e3
+  checksum: 10/8ddbd08e483d2a93a59c4a6f8b4845230bdea184f0e2d356d1dd11833738d2107cf43fae213f7ab8bb650da388916224887a1e846778bf3afbee9d3bbf05383a
   languageName: node
   linkType: hard
 
