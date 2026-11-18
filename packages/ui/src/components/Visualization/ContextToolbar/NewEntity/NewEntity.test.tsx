@@ -53,6 +53,26 @@ describe('NewEntity', () => {
     });
   });
 
+  it('should give the focus back to the toggle after selecting an item', async () => {
+    const { Provider } = await TestProvidersWrapper();
+    const wrapper = render(
+      <Provider>
+        <NewEntity />
+      </Provider>,
+    );
+
+    const toggle = await wrapper.findByTestId('new-entity-list-dropdown');
+    fireEvent.click(toggle);
+
+    const element = await wrapper.findAllByRole('menuitem');
+    fireEvent.click(element[0]);
+
+    /* The chosen item disappears with the menu, the toggle must not leave the focus on the body */
+    await waitFor(() => {
+      expect(toggle).toHaveFocus();
+    });
+  });
+
   it('should toggle list of DSLs', async () => {
     const { Provider } = await TestProvidersWrapper();
     const wrapper = render(

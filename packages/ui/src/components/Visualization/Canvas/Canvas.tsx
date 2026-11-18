@@ -40,6 +40,7 @@ import { CanvasOverlayContext, CanvasOverlaySource } from '../Overlay/use-canvas
 import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
+import { CANVAS_NODE_SELECTOR, findCanvasNode } from './canvas-nodes';
 import { CanvasSideBar } from './CanvasSideBar';
 import { consumeNodeSelection } from './node-selection-state';
 
@@ -57,19 +58,6 @@ const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
 interface CanvasState {
   [SETTLED_EMPTY_STATE]?: boolean;
 }
-
-const CANVAS_NODE_SELECTOR = 'g.custom-node, g.placeholder-node, g.custom-group';
-
-/**
- * Finds the focusable canvas node by its topology id. The id includes the route scope,
- * so equal step paths in different routes resolve to their own node.
- */
-const findCanvasNode = (nodeId: string): SVGGElement | null => {
-  const wrapper = `[data-id="${CSS.escape(nodeId)}"]`;
-  return document.querySelector<SVGGElement>(
-    `${wrapper} > g.custom-node, ${wrapper} > g.placeholder-node, ${wrapper} > g.custom-group`,
-  );
-};
 
 export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   nodes,

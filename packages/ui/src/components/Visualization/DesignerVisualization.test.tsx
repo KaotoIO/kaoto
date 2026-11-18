@@ -1,5 +1,5 @@
 import { isNode, Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import type { MockInstance } from 'vitest';
 
@@ -167,5 +167,40 @@ describe('DesignerVisualization', () => {
     rerender(<DesignerVisualization entities={[]} />);
     expect(await screen.findByTestId('visualization-empty-state')).toBeInTheDocument();
     expect(screen.getByLabelText('Route canvas')).toBe(canvas);
+  });
+
+  describe('focus rescue', () => {
+    beforeEach(() => {
+      // The shared test setup replaces MutationObserver with a no-op implementation, the focus rescue needs the real one.
+      const { jsdom } = globalThis as unknown as { jsdom: { window: { MutationObserver: typeof MutationObserver } } };
+      vi.stubGlobal('MutationObserver', jsdom.window.MutationObserver);
+    });
+
+    afterEach(() => {
+      vi.unstubAllGlobals();
+    });
+
+    it('moves the focus to the canvas when the focused step disappears', async () => {
+      // jsdom has no viewport dimensions; keep the real node renderers mounted
+      controller.setRenderConstraint(false);
+      const { rerender } = await renderWithVisibleFlows(<DesignerVisualization entities={[entity]} />, map);
+
+      const step = await waitFor(() => {
+        const element = document.querySelector<SVGElement>('g.custom-node');
+        if (!element) throw new Error('The step is not drawn yet');
+        return element;
+      });
+      act(() => {
+        step.focus();
+      });
+      expect(step).toHaveFocus();
+
+      /* "Hide all": the routes are gone, and so is the focused step */
+      rerender(<DesignerVisualization entities={[]} />);
+
+      await waitFor(() => {
+        expect(screen.getByLabelText('Route canvas')).toHaveFocus();
+      });
+    });
   });
 });
