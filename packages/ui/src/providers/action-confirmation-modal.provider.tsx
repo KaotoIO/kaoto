@@ -13,6 +13,8 @@ import {
 } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useMemo, useRef, useState } from 'react';
 
+import { useReturnFocus } from '../hooks/use-return-focus.hook';
+
 export const ACTION_ID_CANCEL = 'cancel';
 export const ACTION_ID_CONFIRM = 'confirm';
 export interface ActionConfirmationButtonOption {
@@ -45,6 +47,7 @@ export const ActionConfirmationModalContextProvider: FunctionComponent<PropsWith
     resolve: (actionId: string) => void;
     reject: (error: unknown) => unknown;
   }>(undefined);
+  useReturnFocus(isModalOpen);
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
