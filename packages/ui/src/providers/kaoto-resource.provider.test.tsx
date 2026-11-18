@@ -10,8 +10,8 @@ import { camelRouteJson, camelRouteYaml } from '../stubs/camel-route';
 import { pipeYaml } from '../stubs/pipe';
 import { EventNotifier } from '../utils';
 import { EntitiesContext, EntitiesProvider } from './entities.provider';
-import { KaotoResourceContext, KaotoResourceProvider } from './kaoto-resource.provider';
-import { inMemorySourceCodeAdapter, SourceCodeProvider } from './source-code.provider';
+import { KaotoResourceContext, KaotoResourceProvider, ResourceParseState } from './kaoto-resource.provider';
+import { inMemorySourceCodeAdapter, SourceCodeAdapter, SourceCodeProvider } from './source-code.provider';
 
 describe('KaotoResourceProvider', () => {
   it('builds the resource and entities from the source code present at mount', async () => {
@@ -131,5 +131,93 @@ describe('KaotoResourceProvider', () => {
     // so the UI does not re-render/refresh on the invalid keystroke.
     expect(result.current?.currentSchemaType).toBe(SourceSchemaType.Pipe);
     expect(result.current?.visualEntities).toBe(visualEntitiesBeforeKeystroke);
+  });
+
+  it('a canvas edit on an unparseable first document must NOT overwrite it via adapter.onChange', async () => {
+    const BROKEN = `- route:\n    id: keep-me\n    from:\n      uri: timer:x\n      steps: [ unclosed\n`;
+    const changes: string[] = [];
+    const adapter: SourceCodeAdapter = {
+      subscribe(apply) {
+        apply({ code: BROKEN, path: 'a.camel.yaml' });
+        return () => {};
+      },
+      onChange(code) {
+        changes.push(code);
+      },
+    };
+    const { result } = renderHook(() => useContext(EntitiesContext), {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <SourceCodeProvider adapter={adapter}>
+          <KaotoResourceProvider>
+            <EntitiesProvider>{children}</EntitiesProvider>
+          </KaotoResourceProvider>
+        </SourceCodeProvider>
+      ),
+    });
+    await waitFor(() => expect(result.current).toBeTruthy());
+    expect(result.current!.entities).toHaveLength(0);
+    expect(changes).toHaveLength(0);
+
+    act(() => {
+      result.current!.updateSourceCodeFromEntities();
+    });
+
+    // Guard must block the write: no onChange call, broken content is preserved.
+    expect(changes).toHaveLength(0);
+  });
+
+  it('sets parseState to Valid when the document parses successfully', () => {
+    const { result } = renderHook(() => useContext(KaotoResourceContext), {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter(camelRouteYaml)}>
+          <KaotoResourceProvider>{children}</KaotoResourceProvider>
+        </SourceCodeProvider>
+      ),
+    });
+
+    expect(result.current?.parseState).toBe(ResourceParseState.Valid);
+    expect(result.current?.parsedError).toBeUndefined();
+  });
+
+  it('sets parseState to Error and parsedError when the document does not parse', () => {
+    const { result } = renderHook(() => useContext(KaotoResourceContext), {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter('- from: {')}>
+          <KaotoResourceProvider>{children}</KaotoResourceProvider>
+        </SourceCodeProvider>
+      ),
+    });
+
+    expect(result.current?.parseState).toBe(ResourceParseState.Error);
+    expect(result.current?.parsedError).toBeTypeOf('string');
+    expect(result.current?.parsedError!.length).toBeGreaterThan(0);
+  });
+
+  it('transitions from Error back to Valid when the document is fixed', () => {
+    let deliver!: (code: string) => void;
+    const adapter: SourceCodeAdapter = {
+      subscribe(apply) {
+        deliver = (code) => apply({ code });
+        apply({ code: '- from: {' });
+        return () => {};
+      },
+    };
+
+    const { result } = renderHook(() => useContext(KaotoResourceContext), {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <SourceCodeProvider adapter={adapter}>
+          <KaotoResourceProvider>{children}</KaotoResourceProvider>
+        </SourceCodeProvider>
+      ),
+    });
+
+    expect(result.current?.parseState).toBe(ResourceParseState.Error);
+
+    act(() => {
+      deliver(camelRouteYaml);
+    });
+
+    expect(result.current?.parseState).toBe(ResourceParseState.Valid);
+    expect(result.current?.parsedError).toBeUndefined();
   });
 });
