@@ -122,7 +122,8 @@ export const NameField: FunctionComponent<NameFieldProps> = ({
       void submit(true);
     } else if (event.key === 'Escape') {
       event.preventDefault();
-      finish(true);
+      // A started store cannot be taken back, so the field stays until it is done
+      if (!committing) finish(true);
     }
   };
 

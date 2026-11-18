@@ -3,7 +3,16 @@
 // issue) — the file-tree navigation and filtering logic may be consolidated.
 import './Explorer.scss';
 
-import { Add, Document, DocumentConfiguration, Folder, FolderOpen, TestTool } from '@carbon/icons-react';
+import {
+  Add,
+  Document,
+  DocumentAdd,
+  DocumentConfiguration,
+  Folder,
+  FolderAdd,
+  FolderOpen,
+  TestTool,
+} from '@carbon/icons-react';
 import { Button, FeatureFlags, IconButton, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
 import {
   ChangeEvent,
@@ -20,14 +29,15 @@ import {
 import { useNavigate, useParams } from 'react-router';
 
 import { useFiles } from '../../hooks/useFiles';
-import { StoredFile } from '../../services/files/stored-file';
+import { getFileType, StoredFile } from '../../services/files/stored-file';
 import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
 import { DeleteConfirmModal } from '../DeleteConfirmModal/DeleteConfirmModal';
 import { ErrorState } from '../ErrorState/ErrorState';
-import { buildTree, toFolderPath } from './build-tree';
+import { buildTree, toFolderId, toFolderPath } from './build-tree';
 import { EntryLabel } from './EntryLabel';
 import { ExplorerFile } from './explorer-file';
 import { filterFiles } from './filterFiles';
+import { CreatedEntry, NewEntryField, NewEntryKind } from './NewEntryField';
 import { RenameField } from './RenameField';
 
 const MIN_WIDTH = 160;
@@ -45,7 +55,58 @@ interface RenderOptions {
   /** The file being renamed */
   renaming: StoredFile | undefined;
   finishRename: (byKeyboard: boolean) => void;
+  /** The file or folder being created */
+  newEntry: NewEntry | undefined;
+  finishCreate: (byKeyboard: boolean, created: CreatedEntry | undefined) => void;
 }
+
+interface NewEntry {
+  kind: NewEntryKind;
+  /** The folder it is created in, empty for the root */
+  folderPath: string;
+  /** Changes with every start, so that a new start mounts a new field */
+  key: number;
+  /** The button that started creating, to focus again when creating is cancelled with Escape */
+  opener: HTMLElement;
+}
+
+/** The id of the tree node that holds the name field of a new file or folder */
+const NEW_ENTRY_ID = 'new-entry:';
+
+/** Stands for the root in the last focused tree item, after a click on the free space of the tree */
+const ROOT_TARGET = 'root:';
+
+/** Puts the node of the new entry into its folder: a folder first among the folders, a file first among the files */
+function insertNewEntry(nodes: ExplorerFile[], entry: NewEntry): ExplorerFile[] {
+  const node: ExplorerFile = { id: NEW_ENTRY_ID, name: '', type: entry.kind === 'folder' ? 'folder' : 'document' };
+  const insert = (siblings: ExplorerFile[]) => {
+    const index = entry.kind === 'folder' ? 0 : siblings.findIndex((sibling) => !sibling.children);
+    const at = index === -1 ? siblings.length : index;
+    return [...siblings.slice(0, at), node, ...siblings.slice(at)];
+  };
+  if (!entry.folderPath) return insert(nodes);
+
+  const folderId = toFolderId(entry.folderPath);
+  return nodes.map((candidate) => {
+    if (!candidate.children) return candidate;
+    if (candidate.id === folderId) return { ...candidate, children: insert(candidate.children) };
+    if (entry.folderPath.startsWith(`${toFolderPath(candidate.id)}/`)) {
+      return { ...candidate, children: insertNewEntry(candidate.children, entry) };
+    }
+    return candidate;
+  });
+}
+
+/** Whether the tree node id is the id of a folder */
+const isFolderId = (id: string): boolean => toFolderId(toFolderPath(id)) === id;
+
+/** Whether the folder is in the tree: created by the user or holding files */
+const folderExists = (files: { path: string }[], folders: string[], folderPath: string): boolean =>
+  folders.includes(folderPath) || files.some(({ path }) => path.startsWith(`${folderPath}/`));
+
+/** The folder paths from the outermost folder down to the folder itself */
+const folderAndParents = (folderPath: string): string[] =>
+  folderPath ? folderPath.split('/').map((_, index, segments) => segments.slice(0, index + 1).join('/')) : [];
 
 /** The key labelled "delete" on a Mac keyboard sends Backspace */
 const DELETE_KEYS: ReadonlySet<string> = new Set(['Delete', 'Backspace']);
@@ -84,6 +145,19 @@ function getFileIcon(type: ExplorerFile['type']) {
 
 function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNode[] {
   return nodes.map((node) => {
+    if (node.id === NEW_ENTRY_ID && opts.newEntry) {
+      return (
+        <TreeNode
+          key={`${NEW_ENTRY_ID}${opts.newEntry.key}`}
+          id={NEW_ENTRY_ID}
+          label={
+            <NewEntryField kind={opts.newEntry.kind} folderPath={opts.newEntry.folderPath} onDone={opts.finishCreate} />
+          }
+          renderIcon={opts.newEntry.kind === 'folder' ? Folder : Document}
+          data-testid="explorer-new-entry"
+        />
+      );
+    }
     const isExpanded = opts.query ? true : !!opts.expandedFolders[node.id];
     if (node.children) {
       return (
@@ -122,7 +196,8 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
 export const Explorer: FunctionComponent = () => {
   const { fileId: selectedId } = useParams();
   const navigate = useNavigate();
-  const [query, setQuery] = useState('');
+  const [searchText, setSearchText] = useState('');
+  const query = searchText.toLowerCase();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [nodeToDelete, setNodeToDelete] = useState<ExplorerFile>();
   const [renamingId, setRenamingId] = useState<string>();
@@ -160,12 +235,20 @@ export const Explorer: FunctionComponent = () => {
   }, []);
 
   const handleSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value.toLowerCase());
+    setSearchText(e.target.value);
   }, []);
 
-  const { files, loading, error, reload, deleteFile, deleteFolder } = useFiles();
-  const tree = useMemo(() => buildTree(files), [files]);
+  const { files, folders, loading, error, reload, deleteFile, deleteFolder } = useFiles();
+  const tree = useMemo(() => buildTree(files, folders), [files, folders]);
   const filtered = useMemo(() => filterFiles(tree, query), [tree, query]);
+
+  const [newEntry, setNewEntry] = useState<NewEntry>();
+  const nodes = useMemo(() => (newEntry ? insertNewEntry(filtered, newEntry) : filtered), [filtered, newEntry]);
+  /**
+   * The tree item that had the focus last, as clicking a toolbar button takes the focus away from it, with the file
+   * that was open then: once another file opens from outside the tree, the open file decides the folder instead.
+   */
+  const lastFocusedNodeRef = useRef<{ nodeId: string; openFileId: string | undefined } | undefined>(undefined);
 
   const handleToggle = useCallback(
     (folderId: string) =>
@@ -204,6 +287,42 @@ export const Explorer: FunctionComponent = () => {
   const openCreateModal = (event: React.MouseEvent<HTMLElement>) => {
     createOpenerRef.current = event.currentTarget;
     setIsCreateOpen(true);
+  };
+
+  /** The folder a new entry goes into: the last focused tree item's, else the open file's, else the root */
+  const targetFolderPath = (): string => {
+    const folderOf = (path: string) => path.slice(0, Math.max(path.lastIndexOf('/'), 0));
+    const focused = lastFocusedNodeRef.current;
+    const lastFocused = focused?.openFileId === selectedId ? focused?.nodeId : undefined;
+    if (lastFocused === ROOT_TARGET) return '';
+    if (lastFocused && isFolderId(lastFocused)) {
+      const folderPath = toFolderPath(lastFocused);
+      if (folderExists(files, folders, folderPath)) return folderPath;
+    }
+    const file = files.find(({ id }) => id === lastFocused) ?? files.find(({ id }) => id === selectedId);
+    return file ? folderOf(file.path) : '';
+  };
+
+  const startCreate = (kind: NewEntryKind, event: React.MouseEvent<HTMLElement>) => {
+    const opener = event.currentTarget;
+    const folderPath = targetFolderPath();
+    // The search would hide the new entry
+    setSearchText('');
+    setExpandedFolders((previous) => ({
+      ...previous,
+      ...Object.fromEntries(folderAndParents(folderPath).map((path) => [toFolderId(path), true])),
+    }));
+    setNewEntry((previous) => ({ kind, folderPath, key: (previous?.key ?? 0) + 1, opener }));
+  };
+
+  const finishCreate = (byKeyboard: boolean, created: CreatedEntry | undefined) => {
+    setNewEntry(undefined);
+    if (!created) {
+      if (byKeyboard) newEntry?.opener.focus();
+      return;
+    }
+    if (byKeyboard) setFocusNode({ nodeId: created.id });
+    if (!isFolderId(created.id) && OPENABLE_TYPES.has(getFileType(created.path))) openIntegration(created.id);
   };
 
   /**
@@ -255,6 +374,30 @@ export const Explorer: FunctionComponent = () => {
         >
           <Add />
         </IconButton>
+        <IconButton
+          label="New file"
+          kind="ghost"
+          size="sm"
+          align="bottom"
+          data-testid="explorer-new-file"
+          onClick={(event: React.MouseEvent<HTMLElement>) => {
+            startCreate('file', event);
+          }}
+        >
+          <DocumentAdd />
+        </IconButton>
+        <IconButton
+          label="New folder"
+          kind="ghost"
+          size="sm"
+          align="bottom"
+          data-testid="explorer-new-folder"
+          onClick={(event: React.MouseEvent<HTMLElement>) => {
+            startCreate('folder', event);
+          }}
+        >
+          <FolderAdd />
+        </IconButton>
       </div>
 
       {/* Section 3 — Search */}
@@ -263,6 +406,7 @@ export const Explorer: FunctionComponent = () => {
           size="sm"
           labelText="Search files"
           placeholder="Search files…"
+          value={searchText}
           onChange={handleSearch}
           data-testid="explorer-search"
         />
@@ -276,7 +420,23 @@ export const Explorer: FunctionComponent = () => {
       />
 
       {/* Section 4 — File tree */}
-      <div className="cs--explorer__tree" ref={treeRef}>
+      {/* A click on the free space below the items makes the root the folder of the next new file or folder */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div
+        className="cs--explorer__tree"
+        ref={treeRef}
+        data-testid="explorer-tree"
+        onMouseDown={(event) => {
+          if (!(event.target as HTMLElement).closest('[role="treeitem"]')) {
+            lastFocusedNodeRef.current = { nodeId: ROOT_TARGET, openFileId: selectedId };
+          }
+        }}
+        onFocus={(event) => {
+          const item = (event.target as HTMLElement).closest<HTMLElement>('[role="treeitem"]');
+          if (item?.id && item.id !== NEW_ENTRY_ID)
+            lastFocusedNodeRef.current = { nodeId: item.id, openFileId: selectedId };
+        }}
+      >
         {loading && (
           <div data-testid="explorer-loading">
             <SkeletonText paragraph lineCount={4} />
@@ -289,7 +449,7 @@ export const Explorer: FunctionComponent = () => {
             onRetry={reload}
           />
         )}
-        {!loading && !error && files.length === 0 && (
+        {!loading && !error && tree.length === 0 && !newEntry && (
           <div className="cs--explorer__empty" data-testid="explorer-empty">
             <p>No files yet</p>
             <Button kind="tertiary" size="sm" onClick={openCreateModal}>
@@ -297,13 +457,13 @@ export const Explorer: FunctionComponent = () => {
             </Button>
           </div>
         )}
-        {!loading && !error && files.length > 0 && (
+        {!loading && !error && (tree.length > 0 || newEntry) && (
           /* enableTreeviewControllable makes `selected` and `active` fully controlled —
              without it, Carbon TreeView only uses `selected` as an initial value and
              won't react to URL changes (e.g. browser back/forward). */
           <FeatureFlags enableTreeviewControllable>
             <TreeView label="Project files" hideLabel selected={selectedId ? [selectedId] : []} active={selectedId}>
-              {renderNodes(filtered, {
+              {renderNodes(nodes, {
                 query,
                 selectedId,
                 expandedFolders,
@@ -313,6 +473,8 @@ export const Explorer: FunctionComponent = () => {
                 requestRename: setRenamingId,
                 renaming,
                 finishRename,
+                newEntry,
+                finishCreate,
               })}
             </TreeView>
           </FeatureFlags>
