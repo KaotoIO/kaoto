@@ -9,7 +9,6 @@ import {
   ModalFooter,
   ModalHeader,
   Radio,
-  Spinner,
   Stack,
   StackItem,
 } from '@patternfly/react-core';
@@ -27,6 +26,7 @@ import {
 import { MetadataContext } from '../../../../providers';
 import { DocumentService } from '../../../../services/document/document.service';
 import { DataMapperModal } from '../../../DataMapper/DataMapperModal';
+import { LoadingInline } from '../../../Loading';
 import { createSchemaFileItems, getFileExtension, isJsonExtension, pickAndValidateSchemaFiles } from '../utils';
 import { RootElementSelect } from './RootElementSelect';
 import { SchemaFileDataList } from './SchemaFileDataList';
@@ -243,7 +243,11 @@ export const AttachSchemaModal: FunctionComponent<AttachSchemaModalProps> = ({
                 <Button
                   data-testid="attach-schema-modal-btn-file"
                   icon={
-                    isUploadingSchema ? <Spinner size="sm" aria-label="Uploading schema file(s)" /> : <DocumentImport />
+                    isUploadingSchema ? (
+                      <LoadingInline compact iconDescription="Uploading schema file(s)" />
+                    ) : (
+                      <DocumentImport />
+                    )
                   }
                   variant="secondary"
                   onClick={onFileUpload}

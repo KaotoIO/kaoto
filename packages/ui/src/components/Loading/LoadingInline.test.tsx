@@ -26,4 +26,17 @@ describe('LoadingInline', () => {
 
     expect(getByTitle('Loading')).toBeInTheDocument();
   });
+
+  it('should not render the compact modifier by default', () => {
+    const { container } = render(<LoadingInline />);
+
+    expect(container.querySelector('.loading-inline')).toBeInTheDocument();
+    expect(container.querySelector('.loading-inline--compact')).not.toBeInTheDocument();
+  });
+
+  it('should render the compact modifier when `compact` is set', () => {
+    const { container } = render(<LoadingInline compact />);
+
+    expect(container.querySelector('.loading-inline.loading-inline--compact')).toBeInTheDocument();
+  });
 });
