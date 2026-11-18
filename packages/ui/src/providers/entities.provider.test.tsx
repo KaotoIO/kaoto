@@ -496,7 +496,9 @@ describe('EntitiesProvider', () => {
       let deliver: (code: string) => void = () => {};
       const adapter = {
         subscribe(apply: (d: { code: string; path?: string }) => void) {
-          deliver = (code) => apply({ code, path: 'a.camel.yaml' });
+          deliver = (code) => {
+            apply({ code, path: 'a.camel.yaml' });
+          };
           apply({ code: camelRouteYaml, path: 'a.camel.yaml' });
           return () => {};
         },
@@ -513,14 +515,14 @@ describe('EntitiesProvider', () => {
           </SourceCodeProvider>
         ),
       });
-      await waitFor(() => expect(result.current?.camelResource).toBeTruthy());
+      await waitFor(() => {
+        expect(result.current?.camelResource).toBeTruthy();
+      });
 
       // Intercept the next initialize() so we control when it finishes
       let finishInit: () => void = () => {};
       const original = CamelRouteResource.prototype.initialize;
-      vi.spyOn(CamelRouteResource.prototype, 'initialize').mockImplementationOnce(function (
-        this: CamelRouteResource,
-      ) {
+      vi.spyOn(CamelRouteResource.prototype, 'initialize').mockImplementationOnce(function (this: CamelRouteResource) {
         return new Promise<void>((resolve) => {
           finishInit = () => {
             void original.call(this).then(resolve);
@@ -529,7 +531,9 @@ describe('EntitiesProvider', () => {
       });
 
       const newRouteYaml = camelRouteYaml.replace('route-8888', 'route-new');
-      act(() => deliver(newRouteYaml));
+      act(() => {
+        deliver(newRouteYaml);
+      });
 
       // The store now holds the new content, but initialize() is still pending
       expect(useSourceCodeStore.getState().sourceCode).toContain('route-new');
@@ -546,7 +550,9 @@ describe('EntitiesProvider', () => {
       await act(async () => {
         finishInit();
       });
-      await waitFor(() => expect(result.current).toBeTruthy());
+      await waitFor(() => {
+        expect(result.current).toBeTruthy();
+      });
     });
   });
 });

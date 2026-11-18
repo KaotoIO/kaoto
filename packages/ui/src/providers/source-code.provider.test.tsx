@@ -154,7 +154,7 @@ describe('SourceCodeProvider', () => {
 
   it('asks the adapter for the document again when the reload boundary remounts it', async () => {
     let tick = 0;
-    vi.spyOn(Date, 'now').mockImplementation(() => ++tick);
+    const dateSpy = vi.spyOn(Date, 'now').mockImplementation(() => ++tick);
     const onChange = vi.fn();
     const subscribe = vi.fn((apply: (document: SourceDocument) => void) => {
       apply({ code: camelRouteYaml, path: 'route.camel.yaml' });
@@ -183,6 +183,8 @@ describe('SourceCodeProvider', () => {
     expect(subscribe).toHaveBeenCalledTimes(2);
     expect(useSourceCodeStore.getState().sourceCode).toEqual(camelRouteYaml);
     expect(onChange).not.toHaveBeenCalled();
+
+    dateSpy.mockRestore();
   });
 
   it('unsubscribes from the adapter and the events on unmount', () => {
