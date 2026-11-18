@@ -18,14 +18,12 @@ import path from 'path'; // NOSONAR
 import { TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
 import {
 	COMMAND_CAMEL_NEW_FILE,
-	COMMAND_INTEGRATIONS_DELETE,
 	COMMAND_INTEGRATIONS_KUBERNETES_RUN,
 	COMMAND_INTEGRATIONS_REFRESH,
 	COMMAND_INTEGRATIONS_RUN,
 	COMMAND_INTEGRATIONS_RUN_ALL_WORKSPACES,
 	COMMAND_INTEGRATIONS_RUN_FOLDER,
 	COMMAND_INTEGRATIONS_RUN_WORKSPACE,
-	COMMAND_INTEGRATIONS_SHOW_SOURCE,
 	COMMAND_INTEGRATIONS_UPDATE_DEPENDENCIES,
 	CONTEXT_NEW_FILE_COMMANDS_AVAILABLE,
 	CONTEXT_WORKSPACE_HAS_POM_XML,
@@ -47,10 +45,9 @@ import { PortManager } from '../../services/PortManager';
 import { StarterTemplateService } from '../../services/StarterTemplateService';
 import { StepsOnSaveManager } from '../../services/StepsOnSaveManager';
 import { findFolderOfPomXml } from '../../utils/Path';
-import { confirmFileDeleteDialog } from '../../utils/Modals';
 import { safeGlobalStateGet, safeGlobalStateUpdate } from '../../utils/Vscode';
-import { KaotoOutputChannel } from '../KaotoOutputChannel';
 import { sendCommandTrackingEvent } from './TrackingEvent';
+import { registerViewItemContextMenu } from './ViewItemContextMenu';
 import { IRegistrar } from './IRegistrar';
 
 export class IntegrationsRegistrar implements IRegistrar {
@@ -221,29 +218,8 @@ export class IntegrationsRegistrar implements IRegistrar {
 	}
 
 	private registerIntegrationsItemsContextMenu(provider: IntegrationsProvider) {
-		// register show source menu button
-		const showSourceCommand = vscode.commands.registerCommand(COMMAND_INTEGRATIONS_SHOW_SOURCE, async (item: vscode.TreeItem) => {
-			if (!item.resourceUri) {
-				return;
-			}
-			await vscode.window.showTextDocument(item.resourceUri);
-			await sendCommandTrackingEvent(this.telemetryService, COMMAND_INTEGRATIONS_SHOW_SOURCE);
-		});
-
-		// register delete menu button
-		const deleteCommand = vscode.commands.registerCommand(COMMAND_INTEGRATIONS_DELETE, async (item: vscode.TreeItem) => {
-			if (!item.resourceUri) {
-				return;
-			}
-			const confirmation = await confirmFileDeleteDialog(item.resourceUri.fsPath);
-			if (confirmation) {
-				await vscode.workspace.fs.delete(item.resourceUri, { recursive: true });
-				// ensure tree refresh (folder deletions may not trigger file-pattern watcher)
-				provider.refresh();
-				KaotoOutputChannel.logInfo(`Item '${item.resourceUri.fsPath}' was deleted.`);
-			}
-			await sendCommandTrackingEvent(this.telemetryService, COMMAND_INTEGRATIONS_DELETE);
-		});
+		// register show source and delete menu buttons
+		registerViewItemContextMenu(this.context, this.telemetryService, provider);
 
 		// register update dependencies menu button
 		const updateDependenciesCommand = vscode.commands.registerCommand(COMMAND_INTEGRATIONS_UPDATE_DEPENDENCIES, async (integration: Integration) => {
@@ -251,7 +227,7 @@ export class IntegrationsRegistrar implements IRegistrar {
 			await sendCommandTrackingEvent(this.telemetryService, COMMAND_INTEGRATIONS_UPDATE_DEPENDENCIES);
 		});
 
-		this.context.subscriptions.push(showSourceCommand, deleteCommand, updateDependenciesCommand);
+		this.context.subscriptions.push(updateDependenciesCommand);
 	}
 
 	private async updateCamelDependencies(docPath: string): Promise<void> {

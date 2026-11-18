@@ -16,26 +16,16 @@
 import * as vscode from 'vscode';
 import path from 'path'; // NOSONAR
 import { TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
-import {
-	COMMAND_TESTS_CLEAR_RESULTS,
-	COMMAND_TESTS_DELETE,
-	COMMAND_TESTS_REFRESH,
-	COMMAND_TESTS_RUN,
-	COMMAND_TESTS_RUN_FOLDER,
-	COMMAND_TESTS_SHOW_SOURCE,
-	VIEW_TESTS,
-} from '../../constants';
+import { COMMAND_TESTS_CLEAR_RESULTS, COMMAND_TESTS_REFRESH, COMMAND_TESTS_RUN, COMMAND_TESTS_RUN_FOLDER, VIEW_TESTS } from '../../constants';
 import { TestsProvider } from '../../views/tests/TestsProvider';
 import { TestFolder } from '../../views/tests/TestFolder';
 import { Test } from '../../views/tests/Test';
-import { AbstractFolderTreeProvider } from '../../views/shared/AbstractFolderTreeProvider';
 import { NewCamelTestCommand } from '../../commands/NewCamelTestCommand';
 import { CamelCommandAPI } from '../../executors/api/CamelCommandAPI';
 import { CamelTaskFactory } from '../../tasks/CamelTaskFactory';
 import { CamelTask } from '../../tasks/CamelTask';
-import { confirmFileDeleteDialog } from '../../utils/Modals';
-import { KaotoOutputChannel } from '../KaotoOutputChannel';
 import { sendCommandTrackingEvent } from './TrackingEvent';
+import { registerViewItemContextMenu } from './ViewItemContextMenu';
 import { IRegistrar } from './IRegistrar';
 
 export class TestsRegistrar implements IRegistrar {
@@ -71,7 +61,7 @@ export class TestsRegistrar implements IRegistrar {
 		const clearResultsCommand = vscode.commands.registerCommand(COMMAND_TESTS_CLEAR_RESULTS, () => this.testsProvider.clearAllResults());
 		this.context.subscriptions.push(testsTreeView, dispose, refreshCommand, clearResultsCommand, refreshOnVisibilityChange);
 
-		this.registerViewItemContextMenu(this.testsProvider, COMMAND_TESTS_SHOW_SOURCE, COMMAND_TESTS_DELETE);
+		registerViewItemContextMenu(this.context, this.telemetryService, this.testsProvider);
 	}
 
 	public registerTestsInitCommands() {
@@ -143,31 +133,5 @@ export class TestsRegistrar implements IRegistrar {
 				this.testsProvider.setTestRunning(testPath, false);
 			}
 		}
-	}
-
-	private registerViewItemContextMenu(provider: AbstractFolderTreeProvider<any>, showSourceCommandId: string, deleteCommandId: string) {
-		const showSourceCommand = vscode.commands.registerCommand(showSourceCommandId, async (item: vscode.TreeItem) => {
-			if (!item.resourceUri) {
-				return;
-			}
-			await vscode.window.showTextDocument(item.resourceUri);
-			await sendCommandTrackingEvent(this.telemetryService, showSourceCommandId);
-		});
-
-		const deleteCommand = vscode.commands.registerCommand(deleteCommandId, async (item: vscode.TreeItem) => {
-			if (!item.resourceUri) {
-				return;
-			}
-			const confirmation = await confirmFileDeleteDialog(item.resourceUri.fsPath);
-			if (confirmation) {
-				await vscode.workspace.fs.delete(item.resourceUri, { recursive: true });
-				// ensure tree refresh (folder deletions may not trigger file-pattern watcher)
-				provider.refresh();
-				KaotoOutputChannel.logInfo(`Item '${item.resourceUri.fsPath}' was deleted.`);
-			}
-			await sendCommandTrackingEvent(this.telemetryService, deleteCommandId);
-		});
-
-		this.context.subscriptions.push(showSourceCommand, deleteCommand);
 	}
 }
