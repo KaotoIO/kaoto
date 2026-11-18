@@ -3,23 +3,13 @@
 // issue) — the file-tree navigation and filtering logic may be consolidated.
 import './Explorer.scss';
 
-import {
-  Add,
-  Document,
-  DocumentConfiguration,
-  Edit,
-  Folder,
-  FolderOpen,
-  TestTool,
-  TrashCan,
-} from '@carbon/icons-react';
+import { Add, Document, DocumentConfiguration, Folder, FolderOpen, TestTool } from '@carbon/icons-react';
 import { Button, FeatureFlags, IconButton, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
 import {
   ChangeEvent,
   ComponentProps,
   FunctionComponent,
   KeyboardEvent as ReactKeyboardEvent,
-  MouseEvent as ReactMouseEvent,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -35,6 +25,7 @@ import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
 import { DeleteConfirmModal } from '../DeleteConfirmModal/DeleteConfirmModal';
 import { ErrorState } from '../ErrorState/ErrorState';
 import { buildTree, toFolderPath } from './build-tree';
+import { EntryLabel } from './EntryLabel';
 import { ExplorerFile } from './explorer-file';
 import { filterFiles } from './filterFiles';
 import { RenameField } from './RenameField';
@@ -56,79 +47,11 @@ interface RenderOptions {
   finishRename: (byKeyboard: boolean) => void;
 }
 
-interface NodeLabelProps {
-  node: ExplorerFile;
-  query: string;
-  requestDelete: (node: ExplorerFile) => void;
-  requestRename: (fileId: string) => void;
-}
-
-interface NodeActionProps {
-  label: string;
-  testId: string;
-  icon: typeof TrashCan;
-  onClick: () => void;
-}
-
-/** A button that shows on hover at the end of a row */
-const NodeAction: FunctionComponent<NodeActionProps> = ({ label, testId, icon: Icon, onClick }) => (
-  <button
-    type="button"
-    className="cs--explorer__node-action"
-    title={label}
-    tabIndex={-1}
-    data-testid={testId}
-    onClick={(event: ReactMouseEvent) => {
-      // Neither select the file nor toggle the folder
-      event.stopPropagation();
-      onClick();
-    }}
-  >
-    <Icon />
-  </button>
-);
-
-/**
- * The label of a node with its buttons: rename (files only) and delete.
- *
- * It is a component of its own so that Carbon finds no text in the label and does not wrap a truncated name in its
- * tooltip button, which the buttons cannot be nested in; the name has a `title` for its full text instead.
- *
- * The buttons show on hover and are left out of the accessibility tree and the tab order: inside a tree item they would
- * add their names to the item's name and tab stops to every item. Keyboard and screen reader users press F2 or Delete
- * on the item.
- */
-const NodeLabel: FunctionComponent<NodeLabelProps> = ({ node, query, requestDelete, requestRename }) => (
-  <>
-    {highlightMatch(node.name, query)}
-    <span className="cs--explorer__node-actions" aria-hidden="true">
-      {!node.children && (
-        <NodeAction
-          label="Rename file"
-          testId={`explorer-rename-${node.id}`}
-          icon={Edit}
-          onClick={() => {
-            requestRename(node.id);
-          }}
-        />
-      )}
-      <NodeAction
-        label={node.children ? 'Delete folder' : 'Delete file'}
-        testId={`explorer-delete-${node.id}`}
-        icon={TrashCan}
-        onClick={() => {
-          requestDelete(node);
-        }}
-      />
-    </span>
-  </>
-);
-
 /** The key labelled "delete" on a Mac keyboard sends Backspace */
 const DELETE_KEYS: ReadonlySet<string> = new Set(['Delete', 'Backspace']);
 
 /** Delete or Backspace on a tree item asks to delete it, F2 on a file renames it */
-function handleNodeKeys(node: ExplorerFile, opts: RenderOptions) {
+function handleEntryKeys(node: ExplorerFile, opts: RenderOptions) {
   return (event: ReactKeyboardEvent) => {
     if (DELETE_KEYS.has(event.key)) {
       // The key event bubbles through the folders around the item
@@ -142,26 +65,12 @@ function handleNodeKeys(node: ExplorerFile, opts: RenderOptions) {
   };
 }
 
-function renderLabel(node: ExplorerFile, opts: RenderOptions): React.ReactNode {
+function renderEntryLabel(node: ExplorerFile, opts: RenderOptions): React.ReactNode {
   if (opts.renaming?.id === node.id) {
     return <RenameField file={opts.renaming} onDone={opts.finishRename} />;
   }
   return (
-    <NodeLabel node={node} query={opts.query} requestDelete={opts.requestDelete} requestRename={opts.requestRename} />
-  );
-}
-
-/** Wrap the matching substring in a <mark> for visual highlighting. */
-function highlightMatch(name: string, query: string): React.ReactNode {
-  if (!query) return <span title={name}>{name}</span>;
-  const idx = name.toLowerCase().indexOf(query);
-  if (idx === -1) return <span title={name}>{name}</span>;
-  return (
-    <span title={name}>
-      {name.slice(0, idx)}
-      <mark className="cs--explorer__highlight">{name.slice(idx, idx + query.length)}</mark>
-      {name.slice(idx + query.length)}
-    </span>
+    <EntryLabel node={node} query={opts.query} requestDelete={opts.requestDelete} requestRename={opts.requestRename} />
   );
 }
 
@@ -181,11 +90,11 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
         <TreeNode
           key={node.id}
           id={node.id}
-          label={renderLabel(node, opts)}
+          label={renderEntryLabel(node, opts)}
           renderIcon={isExpanded ? FolderOpen : Folder}
           isExpanded={isExpanded}
           onToggle={opts.handleToggle(node.id)}
-          onKeyDown={handleNodeKeys(node, opts)}
+          onKeyDown={handleEntryKeys(node, opts)}
           aria-keyshortcuts="Delete Backspace"
           data-testid={`explorer-folder-${toFolderPath(node.id)}`}
         >
@@ -197,10 +106,10 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
       <TreeNode
         key={node.id}
         id={node.id}
-        label={renderLabel(node, opts)}
+        label={renderEntryLabel(node, opts)}
         renderIcon={getFileIcon(node.type)}
         data-testid={`explorer-file-${node.id}`}
-        onKeyDown={handleNodeKeys(node, opts)}
+        onKeyDown={handleEntryKeys(node, opts)}
         aria-keyshortcuts="F2 Delete Backspace"
         onSelect={() => {
           if (OPENABLE_TYPES.has(node.type)) opts.openIntegration(node.id);
