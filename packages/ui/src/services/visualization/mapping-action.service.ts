@@ -615,7 +615,7 @@ export class MappingActionService {
   }
 
   private static createUserFieldItem(parent: TargetNodeData, field: IField): FieldItem {
-    const parentItem = MappingActionService.getOrCreateFieldItem(parent);
+    const parentItem = MappingActionService.getOrCreateParentFieldItem(parent);
     const fieldItem = MappingService.createFieldItem(parentItem, field);
     fieldItem.isUserCreated = true;
     return fieldItem;
