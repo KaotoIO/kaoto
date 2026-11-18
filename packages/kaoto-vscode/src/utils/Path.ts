@@ -78,16 +78,8 @@ export function resolvePaths(paths: string[], cwd: string): Set<string> {
  */
 // The cwd parameter changes based on which file/folder is clicked in the integrations view.
 function resolvePathAgainstCwd(pathString: string, cwd: string): string {
-	// Expand tilde (~) to home directory
-	let expandedTilde = pathString;
-	if (pathString === '~') {
-		expandedTilde = os.homedir();
-	} else if (pathString.startsWith('~/') || pathString.startsWith('~\\')) {
-		expandedTilde = path.join(os.homedir(), pathString.slice(2));
-	}
-
-	// Expand VS Code variables first
-	const expandedPath = expandVSCodeVariables(expandedTilde, cwd);
+	// Expand tilde and VS Code variables first
+	const expandedPath = expandPath(pathString, cwd, findWorkspaceFolder(cwd));
 
 	// resolve absolute paths first
 	if (path.isAbsolute(expandedPath)) {
@@ -99,25 +91,49 @@ function resolvePathAgainstCwd(pathString: string, cwd: string): string {
 }
 
 /**
+ * Expands the tilde (~) and the VS Code variables of a path, without resolving it against cwd.
+ *
+ * @param pathString The path string that may start with a tilde and contain VS Code variables
+ * @param cwd The current working directory (used for ${cwd} variable)
+ * @param workspaceFolder The workspace folder of ${workspaceFolder} and ${workspaceFolderBasename}, which stay as they are without one
+ * @returns The path string with the tilde and the variables expanded
+ */
+export function expandPath(pathString: string, cwd: string, workspaceFolder: Pick<WorkspaceFolder, 'uri' | 'name'> | undefined): string {
+	// Expand tilde (~) to home directory
+	let expandedTilde = pathString;
+	if (pathString === '~') {
+		expandedTilde = os.homedir();
+	} else if (pathString.startsWith('~/') || pathString.startsWith('~\\')) {
+		expandedTilde = path.join(os.homedir(), pathString.slice(2));
+	}
+
+	return expandVSCodeVariables(expandedTilde, cwd, workspaceFolder);
+}
+
+/**
+ * @returns the workspace folder that contains cwd, or else the first workspace folder
+ */
+function findWorkspaceFolder(cwd: string): WorkspaceFolder | undefined {
+	const workspaceFolders = workspace.workspaceFolders;
+	if (workspaceFolders && workspaceFolders.length > 0) {
+		// Try to find workspace folder that contains cwd
+		return workspaceFolders.find((wf) => cwd.startsWith(wf.uri.fsPath)) || workspaceFolders[0];
+	}
+	return undefined;
+}
+
+/**
  * Expands VS Code variables in a path string.
  * Supports common variables - ${workspaceFolder}, ${workspaceFolderBasename}, ${cwd}, ${homeDir} - in the path string.
  *
  * @param pathString The path string that may contain VS Code variables
  * @param cwd The current working directory (used for ${cwd} variable)
+ * @param workspaceFolder The workspace folder (used for ${workspaceFolder} and ${workspaceFolderBasename} variables)
  * @returns The path string with variables expanded
  */
-function expandVSCodeVariables(pathString: string, cwd: string): string {
+function expandVSCodeVariables(pathString: string, cwd: string, workspaceFolder: Pick<WorkspaceFolder, 'uri' | 'name'> | undefined): string {
 	if (!pathString.includes('${')) {
 		return pathString;
-	}
-
-	// Find workspace folder that contains cwd, or use first workspace folder
-	const workspaceFolders = workspace.workspaceFolders;
-	let workspaceFolder: WorkspaceFolder | undefined;
-
-	if (workspaceFolders && workspaceFolders.length > 0) {
-		// Try to find workspace folder that contains cwd
-		workspaceFolder = workspaceFolders.find((wf) => cwd.startsWith(wf.uri.fsPath)) || workspaceFolders[0];
 	}
 
 	let expanded = pathString;
