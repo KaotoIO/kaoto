@@ -53,6 +53,8 @@ export const DeleteConfirmModal: FunctionComponent<DeleteConfirmModalProps> = ({
         return true;
       }}
       preventCloseOnClickOutside
+      // Carbon does not name the dialog after the ModalHeader title, so screen readers would announce it unnamed
+      aria-label={heading}
       className="cs--delete-confirm-modal"
       data-testid="delete-confirm-modal"
     >

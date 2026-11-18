@@ -20,7 +20,8 @@ describe('DeleteConfirmModal', () => {
   it('shows the heading and what is deleted in a modal dialog', () => {
     renderModal(vi.fn());
 
-    const dialog = screen.getByRole('dialog');
+    // The heading names the dialog, so screen readers announce it when the focus moves in
+    const dialog = screen.getByRole('dialog', { name: 'Delete file?' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(screen.getByRole('heading', { name: 'Delete file?' })).toBeInTheDocument();
     expect(dialog).toHaveTextContent('Are you sure you want to delete a.camel.yaml? This action cannot be undone.');
@@ -83,6 +84,8 @@ describe('DeleteConfirmModal', () => {
 
     expect(onClose).not.toHaveBeenCalled();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
+    // Carbon hides a dialog it closes itself while it stays mounted, so check that it is still shown
+    expect(screen.getByTestId('delete-confirm-modal')).toHaveClass('is-visible');
     finish();
     await waitFor(() => {
       expect(onClose).toHaveBeenCalledTimes(1);
