@@ -137,7 +137,7 @@ describe('Toggle Source Code', function () {
 		expect(await readFile(path.join(temporaryFolder, CAMEL_FILE), 'utf8')).to.equal(original);
 
 		// Change the route ID as well so the canvas exposes when this source update has arrived.
-		await source.setText((await source.getText()).replace('log-from-properties', 'log-from-source').replace('camelroute51', 'source-synced-route'));
+		await setSourceText(source, (await source.getText()).replace('log-from-properties', 'log-from-source').replace('camelroute51', 'source-synced-route'));
 		await editorView.openEditor(CAMEL_FILE, 0);
 		const refreshed = await switchToKaotoFrame(driver, false, CAMEL_FILE);
 		try {
@@ -338,7 +338,7 @@ describe('Toggle Source Code', function () {
 		const original = await readFile(routePath, 'utf8');
 		const updated = original.replace('camelroute51', routeId);
 		const editor = await getSourceEditor();
-		await editor.setText(updated);
+		await setSourceText(editor, updated);
 		await driver.wait(() => editor.isDirty(), 5_000, 'Source edit was not reflected in the dirty marker');
 		expect(await editor.isDirty()).to.equal(true);
 		expect(await readFile(routePath, 'utf8')).to.equal(original);
@@ -384,6 +384,53 @@ describe('Toggle Source Code', function () {
 			`The source editor did not render in the second editor group within ${timeout}ms`,
 		);
 		return editor!;
+	}
+
+	/**
+	 * Replaces the text of the source editor and waits until the editor shows it. TextEditor.setText pastes the text
+	 * and puts the previous clipboard content back as soon as it has pressed Ctrl+V, but VS Code runs the paste through
+	 * its main process, a moment later. When the clipboard is restored first, the editor gets the previous clipboard
+	 * content instead, and the text is pasted again.
+	 */
+	async function setSourceText(editor: TextEditor, text: string, attempts: number = 3): Promise<void> {
+		const expected = sortedLines(text);
+		for (let attempt = 1; attempt <= attempts; attempt++) {
+			await editor.setText(text);
+			try {
+				await editor.getDriver().wait(async () => sortedLines(await getRenderedText(editor)) === expected, 3_000);
+				return;
+			} catch (error) {
+				if (!(error instanceof Error) || error.name !== 'TimeoutError') {
+					throw error;
+				}
+				console.log(`The source editor did not show the pasted text (attempt ${attempt} of ${attempts})`);
+			}
+		}
+		throw new Error(`The source editor did not show the pasted text after ${attempts} attempts`);
+	}
+
+	/** Reads the lines that the source editor renders, without the clipboard that TextEditor.getText() uses. */
+	async function getRenderedText(editor: TextEditor): Promise<string> {
+		try {
+			const lines = await editor.findElements(By.css('.view-lines .view-line'));
+			return (await Promise.all(lines.map((line) => line.getText()))).join('\n');
+		} catch (error) {
+			// VS Code replaces the line elements while it renders the pasted text.
+			if (error instanceof Error && error.name === 'StaleElementReferenceError') {
+				return '';
+			}
+			throw error;
+		}
+	}
+
+	/** The non-empty lines of a text without indentation, sorted: the rendered lines need not be in document order. */
+	function sortedLines(text: string): string {
+		return text
+			.split('\n')
+			.map((line) => line.trim())
+			.filter((line) => line.length > 0)
+			.sort()
+			.join('\n');
 	}
 
 	async function waitForEditorGroupsLength(length: number, timeout: number = 5_000): Promise<number> {
