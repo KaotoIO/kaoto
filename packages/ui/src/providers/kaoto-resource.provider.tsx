@@ -20,7 +20,7 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
 
   /**
    * Start with undefined. The real source code arrives through the single
-   * `code:updated` ingress, emitted on mount by the SourceCodeSync. Using a lazy
+   * `code:updated` ingress, emitted by the SourceCodeProvider. Using a lazy
    * initializer avoids re-parsing the YAML on every render.
    */
   const [kaotoResource, setKaotoResource] = useState<KaotoResource | undefined>();
@@ -32,11 +32,13 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
    *
    * While editing, the source is transiently unparseable on many keystrokes. In that
    * case we keep the last valid resource instead of substituting one: building an empty
-   * resource here would default to a Camel Route (no path is known mid-edit), flipping
-   * the schema type of Kamelets/Pipes to Route and forcing the UI to re-render on every
-   * invalid keystroke. Swallowing the error and not updating state mirrors the previous
-   * "thrown error aborts the update" behavior, so the resource stays put until the
-   * source parses again.
+   * resource here would default to a Camel Route when no path is known, flipping the
+   * schema type of Kamelets/Pipes to Route and forcing the UI to re-render on every
+   * invalid keystroke. The resource stays put until the source parses again.
+   *
+   * When there is no previous resource (the very first document does not parse), an empty
+   * resource for the resolved path is provided instead, so the editor does not stay on the
+   * loader forever and the user can fix the source in the code editor.
    *
    * Re-subscribes if `fileExtension` changes; in practice the editor remounts per file,
    * so a `fileExtension` change without a following `code:updated` event does not occur.
@@ -48,7 +50,10 @@ export const KaotoResourceProvider: FunctionComponent<KaotoResourceProviderProps
       try {
         setKaotoResource(CamelResourceFactory.createCamelResource(code, { path: resolvedPath }));
       } catch {
-        // Transiently invalid source: keep the last valid resource untouched.
+        // Invalid source: keep the last valid resource, or fall back to an empty one if there is none yet.
+        setKaotoResource(
+          (previous) => previous ?? CamelResourceFactory.createCamelResource('', { path: resolvedPath }),
+        );
       }
     });
   }, [eventNotifier, fileExtension]);

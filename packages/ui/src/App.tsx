@@ -18,10 +18,11 @@ import {
   EntitiesProvider,
   KaotoResourceProvider,
   KeyboardShortcutsProvider,
+  localStorageSourceCodeAdapter,
   RuntimeProvider,
   SchemasLoaderProvider,
   SettingsProvider,
-  SourceCodeLocalStorageProvider,
+  SourceCodeProvider,
   VisibleFlowsProvider,
 } from './providers';
 import { CatalogSchemaLoader } from './utils/catalog-schema-loader';
@@ -48,7 +49,7 @@ const App = () => {
 
   return (
     <SettingsProvider adapter={settingsAdapter}>
-      <SourceCodeLocalStorageProvider>
+      <SourceCodeProvider adapter={localStorageSourceCodeAdapter}>
         <KaotoResourceProvider>
           <RuntimeProvider
             catalogUrl={catalogUrl}
@@ -84,7 +85,7 @@ const App = () => {
             </SchemasLoaderProvider>
           </RuntimeProvider>
         </KaotoResourceProvider>
-      </SourceCodeLocalStorageProvider>
+      </SourceCodeProvider>
     </SettingsProvider>
   );
 };

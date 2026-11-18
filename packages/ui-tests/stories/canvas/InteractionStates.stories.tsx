@@ -8,10 +8,11 @@ import {
   CatalogTilesProvider,
   ControllerService,
   EntitiesProvider,
+  inMemorySourceCodeAdapter,
   KaotoResourceProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
-  SourceCodeSync,
+  SourceCodeProvider,
   useVisibleVizNodes,
   VisibleFlowsProvider,
 } from '@kaoto/kaoto/testing';
@@ -61,7 +62,7 @@ const ContextDecorator = (Story: StoryFn) => {
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
-    <SourceCodeSync>
+    <SourceCodeProvider adapter={inMemorySourceCodeAdapter()}>
       <KaotoResourceProvider>
         <RuntimeProvider
           catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
@@ -85,7 +86,7 @@ const ContextDecorator = (Story: StoryFn) => {
           </SchemasLoaderProvider>
         </RuntimeProvider>
       </KaotoResourceProvider>
-    </SourceCodeSync>
+    </SourceCodeProvider>
   );
 };
 

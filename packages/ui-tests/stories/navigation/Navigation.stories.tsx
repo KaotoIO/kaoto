@@ -2,10 +2,11 @@ import {
   EntitiesContext,
   EntitiesContextResult,
   EntitiesProvider,
+  inMemorySourceCodeAdapter,
   KaotoResourceProvider,
   Navigation,
   Shell,
-  SourceCodeSync,
+  SourceCodeProvider,
   SourceSchemaType,
 } from '@kaoto/kaoto/testing';
 import { StoryFn } from '@storybook/react';
@@ -15,13 +16,13 @@ export default {
   title: 'Navigation/Navigation',
   decorators: [
     (Story: StoryFn) => (
-      <SourceCodeSync>
+      <SourceCodeProvider adapter={inMemorySourceCodeAdapter()}>
         <KaotoResourceProvider>
           <EntitiesProvider>
             <Story />
           </EntitiesProvider>
         </KaotoResourceProvider>
-      </SourceCodeSync>
+      </SourceCodeProvider>
     ),
   ],
   component: Navigation,

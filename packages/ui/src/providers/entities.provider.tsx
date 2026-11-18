@@ -1,5 +1,7 @@
+import { Content, ContentVariants } from '@patternfly/react-core';
 import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { Loading } from '../components/Loading';
 import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
 import { BaseVisualEntity } from '../models';
 import { SourceSchemaType } from '../models/camel';
@@ -38,8 +40,16 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
   const eventNotifier = EventNotifier.getInstance();
 
   const { kaotoResource } = useKaotoResourceContext();
-  const [entities, setEntities] = useState<BaseEntity[]>([]);
-  const [visualEntities, setVisualEntities] = useState<BaseVisualEntity[]>([]);
+  /**
+   * The resource is initialized asynchronously. A new resource only becomes visible to consumers together with its own
+   * entities, in a single update; until then the previous resource and its entities stay in place (and nothing is
+   * rendered before the first one is ready, to avoid flashing an empty canvas).
+   */
+  const [ready, setReady] = useState<{
+    resource: KaotoResource;
+    entities: BaseEntity[];
+    visualEntities: BaseVisualEntity[];
+  }>();
 
   useEffect(() => {
     let cancelled = false;
@@ -47,13 +57,15 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
       try {
         await kaotoResource.initialize();
         if (cancelled) return;
-        setEntities(kaotoResource.getEntities());
-        setVisualEntities(kaotoResource.getVisualEntities());
+        setReady({
+          resource: kaotoResource,
+          entities: kaotoResource.getEntities(),
+          visualEntities: kaotoResource.getVisualEntities(),
+        });
       } catch (error) {
         if (cancelled) return;
         console.error('Failed to initialize KaotoResource', error);
-        setEntities([]);
-        setVisualEntities([]);
+        setReady({ resource: kaotoResource, entities: [], visualEntities: [] });
       }
     };
     void init();
@@ -63,35 +75,48 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
     };
   }, [kaotoResource]);
 
+  const readyResource = ready?.resource;
+
   const updateSourceCodeFromEntities = useCallback(() => {
-    void kaotoResource.toSourceCode().then((code) => {
+    void readyResource?.toSourceCode().then((code) => {
       eventNotifier.next('entities:updated', code);
     });
-  }, [kaotoResource, eventNotifier]);
+  }, [readyResource, eventNotifier]);
 
   const updateEntitiesFromCamelResource = useCallback(() => {
-    const entities = kaotoResource.getEntities();
-    const visualEntities = kaotoResource.getVisualEntities();
-    setEntities(entities);
-    setVisualEntities(visualEntities);
+    if (!readyResource) return;
+    const entities = readyResource.getEntities();
+    const visualEntities = readyResource.getVisualEntities();
+    setReady({ resource: readyResource, entities, visualEntities });
 
     /**
      * Notify consumers that entities has been refreshed, hence the code needs to be updated
      */
     updateSourceCodeFromEntities();
-  }, [kaotoResource, updateSourceCodeFromEntities]);
+  }, [readyResource, updateSourceCodeFromEntities]);
 
   const value = useMemo(
-    () => ({
-      entities,
-      visualEntities,
-      currentSchemaType: kaotoResource.getType(),
-      camelResource: kaotoResource,
-      updateEntitiesFromCamelResource,
-      updateSourceCodeFromEntities,
-    }),
-    [entities, visualEntities, kaotoResource, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
+    () =>
+      ready && {
+        entities: ready.entities,
+        visualEntities: ready.visualEntities,
+        currentSchemaType: ready.resource.getType(),
+        camelResource: ready.resource,
+        updateEntitiesFromCamelResource,
+        updateSourceCodeFromEntities,
+      },
+    [ready, updateEntitiesFromCamelResource, updateSourceCodeFromEntities],
   );
+
+  if (!value) {
+    return (
+      <Loading>
+        <Content data-testid="loading-entities" component={ContentVariants.h3}>
+          Loading entities...
+        </Content>
+      </Loading>
+    );
+  }
 
   return <EntitiesContext.Provider value={value}>{children}</EntitiesContext.Provider>;
 };
