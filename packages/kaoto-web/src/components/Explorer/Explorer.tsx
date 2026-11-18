@@ -80,10 +80,14 @@ const NodeLabel: FunctionComponent<NodeLabelProps> = ({ node, query, requestDele
   );
 };
 
-/** Delete on a tree item asks to delete it */
+/** The key labelled "delete" on a Mac keyboard sends Backspace */
+const DELETE_KEYS: ReadonlySet<string> = new Set(['Delete', 'Backspace']);
+const DELETE_KEY_SHORTCUTS = 'Delete Backspace';
+
+/** Delete or Backspace on a tree item asks to delete it */
 function handleDeleteKey(node: ExplorerFile, opts: RenderOptions) {
   return (event: ReactKeyboardEvent) => {
-    if (event.key !== 'Delete') return;
+    if (!DELETE_KEYS.has(event.key)) return;
     // The key event bubbles through the folders around the item
     event.stopPropagation();
     opts.requestDelete(node);
@@ -125,7 +129,7 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
           isExpanded={isExpanded}
           onToggle={opts.handleToggle(node.id)}
           onKeyDown={handleDeleteKey(node, opts)}
-          aria-keyshortcuts="Delete"
+          aria-keyshortcuts={DELETE_KEY_SHORTCUTS}
           data-testid={`explorer-folder-${toFolderPath(node.id)}`}
         >
           {renderNodes(node.children, opts)}
@@ -140,7 +144,7 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
         renderIcon={getFileIcon(node.type)}
         data-testid={`explorer-file-${node.id}`}
         onKeyDown={handleDeleteKey(node, opts)}
-        aria-keyshortcuts="Delete"
+        aria-keyshortcuts={DELETE_KEY_SHORTCUTS}
         onSelect={() => {
           if (OPENABLE_TYPES.has(node.type)) opts.openIntegration(node.id);
         }}
