@@ -19,6 +19,7 @@ import * as vscode from 'vscode';
 import {
 	KAOTO_CATALOG_URL_SETTING_ID,
 	KAOTO_EDITOR_VIEW_TYPE,
+	KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID,
 	KAOTO_LSP_ENABLED_SETTING_ID,
 	KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID,
 	KAOTO_LSP_SERVER_JAR_SETTING_ID,
@@ -31,11 +32,13 @@ import { KaotoCatalogService } from '../../../services/KaotoCatalogService';
 
 suite('LanguageServerRegistrar', () => {
 	const originalOnDidChangeConfiguration = vscode.workspace.onDidChangeConfiguration;
+	const originalOnDidChangeWorkspaceFolders = vscode.workspace.onDidChangeWorkspaceFolders;
 	const originalStart = CamelLanguageServerManager.prototype.start;
 	const originalUpdateSettings = CamelLanguageServerManager.prototype.updateSettings;
 	let context: vscode.ExtensionContext;
 	let registrar: LanguageServerRegistrar;
 	let changeConfiguration: (event: vscode.ConfigurationChangeEvent) => Promise<void>;
+	let changeWorkspaceFolders: () => void;
 	let reloadCatalogs: () => void;
 	let updates: number;
 
@@ -52,6 +55,13 @@ suite('LanguageServerRegistrar', () => {
 		Object.defineProperty(vscode.workspace, 'onDidChangeConfiguration', {
 			value: (listener: typeof changeConfiguration) => {
 				changeConfiguration = listener;
+				return new vscode.Disposable(() => undefined);
+			},
+			configurable: true,
+		});
+		Object.defineProperty(vscode.workspace, 'onDidChangeWorkspaceFolders', {
+			value: (listener: typeof changeWorkspaceFolders) => {
+				changeWorkspaceFolders = listener;
 				return new vscode.Disposable(() => undefined);
 			},
 			configurable: true,
@@ -78,6 +88,7 @@ suite('LanguageServerRegistrar', () => {
 		CamelLanguageServerManager.prototype.start = originalStart;
 		CamelLanguageServerManager.prototype.updateSettings = originalUpdateSettings;
 		Object.defineProperty(vscode.workspace, 'onDidChangeConfiguration', { value: originalOnDidChangeConfiguration, configurable: true });
+		Object.defineProperty(vscode.workspace, 'onDidChangeWorkspaceFolders', { value: originalOnDidChangeWorkspaceFolders, configurable: true });
 		context.subscriptions.forEach((subscription) => subscription.dispose());
 	});
 
@@ -89,6 +100,18 @@ suite('LanguageServerRegistrar', () => {
 
 	test('sends the settings to the server when kaoto.lsp.extraComponents changes', async () => {
 		await changeConfiguration(changeOf(KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID));
+
+		expect(updates).to.equal(1);
+	});
+
+	test('sends the settings to the server when kaoto.localKameletDirectories changes', async () => {
+		await changeConfiguration(changeOf(KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID));
+
+		expect(updates).to.equal(1);
+	});
+
+	test('sends the settings to the server when the workspace folders change', () => {
+		changeWorkspaceFolders();
 
 		expect(updates).to.equal(1);
 	});

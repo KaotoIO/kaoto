@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as path from 'path'; // NOSONAR
 import * as vscode from 'vscode';
 import { CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
-import { KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID } from '../constants';
+import { KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID, KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID } from '../constants';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { KaotoCatalogService } from '../services/KaotoCatalogService';
+import { expandPath } from '../utils/Path';
 
 /** The runtime provider of the catalog of the Camel Language Server. */
 export type CamelLspRuntimeProvider = 'DEFAULT' | 'QUARKUS' | 'SPRINGBOOT';
@@ -33,18 +35,25 @@ export interface CamelLspSettings {
 		/** The Camel Quarkus or Camel Spring Boot version, whose catalog the server downloads. */
 		'Camel catalog runtime provider version'?: string;
 		'extra-components'?: unknown[];
+		/** The directories of the local Kamelets: the server resolves a relative directory against the folder of the edited file. */
+		'local-kamelet-directories'?: string[];
 	};
 }
 
 /**
  * @returns the settings of the server for the integration catalog of the canvas, the one selected in Kaoto or the default one
- * in a Maven project, and `kaoto.lsp.extraComponents`
+ * in a Maven project, `kaoto.lsp.extraComponents` and `kaoto.localKameletDirectories`
  */
 export async function readCamelLspSettings(catalogService: KaotoCatalogService): Promise<CamelLspSettings> {
 	// the canvas of a Maven project uses the default catalog, not the selected one
 	const catalog = (await isMavenWindow()) ? catalogService.getDefaultIntegrationCatalog() : catalogService.resolveSelectedIntegrationCatalog();
-	const extraComponents = vscode.workspace.getConfiguration().get<unknown[] | null>(KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID);
-	return toCamelLspSettings(catalog, extraComponents);
+	const configuration = vscode.workspace.getConfiguration();
+	const extraComponents = configuration.get<unknown[] | null>(KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID);
+	const localKameletDirectories = toLocalKameletDirectories(
+		configuration.get<unknown>(KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID),
+		vscode.workspace.workspaceFolders,
+	);
+	return toCamelLspSettings(catalog, extraComponents, localKameletDirectories);
 }
 
 /**
@@ -63,7 +72,11 @@ async function isMavenWindow(): Promise<boolean> {
  * the Camel Quarkus or Camel Spring Boot version, and for the Camel version except in a Camel Quarkus catalog.
  * Citrus catalogs are not Camel catalogs: nothing is set for them, and the server keeps the catalog it bundles.
  */
-export function toCamelLspSettings(catalog: CatalogLibraryEntry | undefined, extraComponents?: unknown[] | null): CamelLspSettings {
+export function toCamelLspSettings(
+	catalog: CatalogLibraryEntry | undefined,
+	extraComponents?: unknown[] | null,
+	localKameletDirectories?: string[],
+): CamelLspSettings {
 	const settings: CamelLspSettings = { camel: {} };
 	if (catalog && !catalog.runtime.toLowerCase().includes('citrus')) {
 		const runtimeProvider = toCamelLspRuntimeProvider(catalog.runtime);
@@ -81,7 +94,48 @@ export function toCamelLspSettings(catalog: CatalogLibraryEntry | undefined, ext
 	if (components.length > 0) {
 		settings.camel['extra-components'] = components;
 	}
+	if (localKameletDirectories && localKameletDirectories.length > 0) {
+		settings.camel['local-kamelet-directories'] = localKameletDirectories;
+	}
 	return settings;
+}
+
+/**
+ * Maps `kaoto.localKameletDirectories` to the directories of the server with `expandPath`, the expansion of the canvas.
+ * The canvas resolves the directories against the folder of the edited file, and the server resolves a relative directory
+ * against it too: so a relative directory stays relative, and `${cwd}`, the folder of the file, becomes `.`, as does an
+ * empty entry, which the canvas reads as that folder. The canvas takes the workspace folder of the edited file for
+ * `${workspaceFolder}` and `${workspaceFolderBasename}`, while one list serves all the files of the window: so they give
+ * one directory per workspace folder. The server reads them in the order of the folders and keeps the first Kamelet of a
+ * name, so a Kamelet of an earlier folder wins over the one of the same name in the folder of the edited file.
+ *
+ * @returns the directories, without duplicates
+ */
+export function toLocalKameletDirectories(
+	directories: unknown,
+	workspaceFolders: readonly Pick<vscode.WorkspaceFolder, 'uri' | 'name'>[] | undefined,
+): string[] {
+	if (!Array.isArray(directories)) {
+		return [];
+	}
+	// without a folder, the workspace folder variables stay as they are, as on the canvas
+	const folders = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders : [undefined];
+	const resolved = new Set<string>();
+	for (const directory of directories) {
+		if (typeof directory !== 'string') {
+			continue;
+		}
+		// the server drops a blank directory, and reads the folder of the edited file for '.'
+		const entry = directory === '' ? '.' : directory;
+		if (entry.trim() === '') {
+			continue;
+		}
+		for (const folder of folders) {
+			const expanded = expandPath(entry, '.', folder);
+			resolved.add(path.isAbsolute(expanded) ? path.normalize(expanded) : expanded);
+		}
+	}
+	return [...resolved];
 }
 
 /**

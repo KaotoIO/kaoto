@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 import { expect } from 'chai';
+import * as os from 'os';
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
-import { KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID } from '../../constants';
-import { readCamelLspSettings, toCamelLspRuntimeProvider, toCamelLspSettings } from '../../lsp/CamelLspSettings';
+import { KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID, KAOTO_LSP_EXTRA_COMPONENTS_SETTING_ID } from '../../constants';
+import { readCamelLspSettings, toCamelLspRuntimeProvider, toCamelLspSettings, toLocalKameletDirectories } from '../../lsp/CamelLspSettings';
 import { KaotoCatalogService } from '../../services/KaotoCatalogService';
+import { resolvePaths } from '../../utils/Path';
 import { initializeKaotoCatalogService, preserveKaotoCatalogServiceInstance } from '../utils/TestSetup';
 
 suite('CamelLspSettings', () => {
 	const EXTRA_COMPONENTS = [{ component: { kind: 'component', scheme: 'acme', syntax: 'acme:name' }, properties: {} }];
+	/** The default of kaoto.localKameletDirectories. */
+	const DEFAULT_LOCAL_KAMELET_DIRECTORIES = ['./kamelets'];
 
 	const mainCatalog: CatalogLibraryEntry = {
 		name: 'Camel Main 4.23.0',
@@ -174,6 +179,142 @@ suite('CamelLspSettings', () => {
 			expect(toCamelLspSettings(mainCatalog, [...malformed, ...EXTRA_COMPONENTS]).camel['extra-components']).to.deep.equal(EXTRA_COMPONENTS);
 			expect(toCamelLspSettings(mainCatalog, malformed).camel).to.not.have.property('extra-components');
 		});
+
+		test('sends the local Kamelet directories', () => {
+			expect(toCamelLspSettings(mainCatalog, null, ['./kamelets']).camel['local-kamelet-directories']).to.deep.equal(['./kamelets']);
+			expect(toCamelLspSettings(undefined, null, ['./kamelets'])).to.deep.equal({ camel: { 'local-kamelet-directories': ['./kamelets'] } });
+		});
+
+		test('sends no local Kamelet directories when there are none', () => {
+			expect(toCamelLspSettings(mainCatalog, null, undefined).camel).to.not.have.property('local-kamelet-directories');
+			expect(toCamelLspSettings(mainCatalog, null, []).camel).to.not.have.property('local-kamelet-directories');
+		});
+	});
+
+	suite('toLocalKameletDirectories', () => {
+		const HOME = os.homedir();
+		const folders = [
+			{ uri: vscode.Uri.file('/workspace/service'), name: 'service' },
+			{ uri: vscode.Uri.file('/workspace/routes'), name: 'routes' },
+		];
+
+		test('keeps the relative directories, which the server resolves against the folder of the edited file', () => {
+			expect(toLocalKameletDirectories(['./kamelets', 'kamelets', '../shared/kamelets'], folders)).to.deep.equal([
+				'./kamelets',
+				'kamelets',
+				'../shared/kamelets',
+			]);
+		});
+
+		test('keeps the absolute directories', () => {
+			const absolute = path.join(HOME, 'kamelets');
+
+			expect(toLocalKameletDirectories([absolute], folders)).to.deep.equal([absolute]);
+		});
+
+		test('expands the home directory', () => {
+			expect(toLocalKameletDirectories(['~', '~/kamelets', '${homeDir}/shared'], folders)).to.deep.equal([
+				path.normalize(HOME),
+				path.join(HOME, 'kamelets'),
+				path.join(HOME, 'shared'),
+			]);
+		});
+
+		test('turns ${cwd}, the folder of the edited file, into a relative directory', () => {
+			expect(toLocalKameletDirectories(['${cwd}', '${cwd}/kamelets'], folders)).to.deep.equal(['.', './kamelets']);
+		});
+
+		test('gives one directory per workspace folder for ${workspaceFolder} and ${workspaceFolderBasename}', () => {
+			expect(toLocalKameletDirectories(['${workspaceFolder}/kamelets', '../${workspaceFolderBasename}-kamelets'], folders)).to.deep.equal([
+				path.join(folders[0].uri.fsPath, 'kamelets'),
+				path.join(folders[1].uri.fsPath, 'kamelets'),
+				'../service-kamelets',
+				'../routes-kamelets',
+			]);
+		});
+
+		test('keeps the workspace folder variables in a window without a folder, as the canvas does', () => {
+			expect(toLocalKameletDirectories(['${workspaceFolder}/kamelets', './kamelets'], [])).to.deep.equal(['${workspaceFolder}/kamelets', './kamelets']);
+			expect(toLocalKameletDirectories(['${workspaceFolder}/kamelets'], undefined)).to.deep.equal(['${workspaceFolder}/kamelets']);
+		});
+
+		test('turns an empty entry, which the canvas reads as the folder of the edited file, into a relative directory', () => {
+			expect(toLocalKameletDirectories([''], folders)).to.deep.equal(['.']);
+		});
+
+		test('ignores the duplicates and the entries that are not directories', () => {
+			expect(toLocalKameletDirectories(['./kamelets', '  ', 42, null, './kamelets'], folders)).to.deep.equal(['./kamelets']);
+			expect(toLocalKameletDirectories(undefined, folders)).to.deep.equal([]);
+			expect(toLocalKameletDirectories('./kamelets', folders)).to.deep.equal([]);
+		});
+
+		suite('compared with the canvas', () => {
+			const originalWorkspaceFolders = Object.getOwnPropertyDescriptor(vscode.workspace, 'workspaceFolders')!;
+			/** The forms of kaoto.localKameletDirectories that the canvas resolves with resolvePaths. */
+			const DIRECTORIES = [
+				'',
+				'./kamelets',
+				'kamelets',
+				'../shared/kamelets',
+				'~',
+				'~/kamelets',
+				'${homeDir}/kamelets',
+				'${cwd}',
+				'${cwd}/kamelets',
+				'${workspaceFolder}/kamelets',
+				'../${workspaceFolderBasename}-kamelets',
+				path.join(path.sep, 'opt', 'kamelets'),
+			];
+
+			/**
+			 * @returns the directories that the server reads for a file of the given folder: it resolves a relative directory
+			 * against the folder of the file, and keeps the first of the same directories
+			 */
+			const readByServer = (directories: string[], fileFolder: string) => [
+				...new Set(directories.map((directory) => path.normalize(path.isAbsolute(directory) ? directory : path.resolve(fileFolder, directory)))),
+			];
+
+			const useWorkspaceFolders = (workspaceFolders: typeof folders | undefined) =>
+				Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => workspaceFolders, configurable: true });
+
+			teardown(() => {
+				Object.defineProperty(vscode.workspace, 'workspaceFolders', originalWorkspaceFolders);
+			});
+
+			test('gives the server the directories of the canvas in a window with one folder', () => {
+				useWorkspaceFolders([folders[0]]);
+				const fileFolder = path.join(folders[0].uri.fsPath, 'src', 'main', 'resources', 'camel');
+
+				expect(readByServer(toLocalKameletDirectories(DIRECTORIES, vscode.workspace.workspaceFolders), fileFolder)).to.deep.equal([
+					...resolvePaths(DIRECTORIES, fileFolder),
+				]);
+			});
+
+			test('gives the server the directories of the canvas in a window without a folder', () => {
+				useWorkspaceFolders(undefined);
+				const fileFolder = path.join(path.sep, 'tmp', 'camel');
+
+				expect(readByServer(toLocalKameletDirectories(DIRECTORIES, vscode.workspace.workspaceFolders), fileFolder)).to.deep.equal([
+					...resolvePaths(DIRECTORIES, fileFolder),
+				]);
+			});
+
+			test('gives the server the directories of the canvas, and the ones of the other folders, in a window with several folders', () => {
+				useWorkspaceFolders(folders);
+				const fileFolder = path.join(folders[1].uri.fsPath, 'camel');
+
+				const server = readByServer(toLocalKameletDirectories(DIRECTORIES, vscode.workspace.workspaceFolders), fileFolder);
+				const canvas = [...resolvePaths(DIRECTORIES, fileFolder)];
+
+				expect(server).to.include.members(canvas);
+				expect(server.filter((directory) => !canvas.includes(directory))).to.deep.equal([
+					path.join(folders[0].uri.fsPath, 'kamelets'),
+					path.resolve(fileFolder, '..', 'service-kamelets'),
+				]);
+				// the server keeps the first Kamelet of a name: one of the first folder wins over the one that the canvas reads
+				expect(server.indexOf(path.join(folders[0].uri.fsPath, 'kamelets'))).to.be.below(server.indexOf(path.join(folders[1].uri.fsPath, 'kamelets')));
+			});
+		});
 	});
 
 	suite('readCamelLspSettings', () => {
@@ -228,7 +369,11 @@ suite('CamelLspSettings', () => {
 			} as unknown as KaotoCatalogService;
 
 			expect(await readCamelLspSettings(catalogService)).to.deep.equal({
-				camel: { 'Camel catalog version': '4.23.0', 'Camel catalog runtime provider': 'DEFAULT' },
+				camel: {
+					'Camel catalog version': '4.23.0',
+					'Camel catalog runtime provider': 'DEFAULT',
+					'local-kamelet-directories': DEFAULT_LOCAL_KAMELET_DIRECTORIES,
+				},
 			});
 		});
 
@@ -265,6 +410,7 @@ suite('CamelLspSettings', () => {
 					'Camel catalog version': '4.22.1',
 					'Camel catalog runtime provider': 'QUARKUS',
 					'Camel catalog runtime provider version': '3.40.0',
+					'local-kamelet-directories': DEFAULT_LOCAL_KAMELET_DIRECTORIES,
 				},
 			});
 		});
@@ -283,7 +429,31 @@ suite('CamelLspSettings', () => {
 			});
 			const catalogService = { resolveSelectedIntegrationCatalog: () => quarkusCatalog } as unknown as KaotoCatalogService;
 
-			expect(await readCamelLspSettings(catalogService)).to.deep.equal(toCamelLspSettings(quarkusCatalog, EXTRA_COMPONENTS));
+			expect(await readCamelLspSettings(catalogService)).to.deep.equal(
+				toCamelLspSettings(quarkusCatalog, EXTRA_COMPONENTS, DEFAULT_LOCAL_KAMELET_DIRECTORIES),
+			);
+		});
+
+		test('reads kaoto.localKameletDirectories, with one directory per workspace folder for ${workspaceFolder}', async () => {
+			useWorkspaceFolders('service', 'routes');
+			Object.defineProperty(vscode.workspace, 'getConfiguration', {
+				value: (section?: string, scope?: vscode.ConfigurationScope | null) => {
+					const config = originalGetConfiguration(section, scope);
+					return {
+						...config,
+						get: (key: string, defaultValue?: unknown) =>
+							key === KAOTO_LOCAL_KAMELET_DIRECTORIES_SETTING_ID ? ['${workspaceFolder}/kamelets', './kamelets'] : config.get(key, defaultValue),
+					};
+				},
+				configurable: true,
+			});
+			const catalogService = { resolveSelectedIntegrationCatalog: () => quarkusCatalog } as unknown as KaotoCatalogService;
+
+			expect((await readCamelLspSettings(catalogService)).camel['local-kamelet-directories']).to.deep.equal([
+				path.join(vscode.Uri.file('/workspace/service').fsPath, 'kamelets'),
+				path.join(vscode.Uri.file('/workspace/routes').fsPath, 'kamelets'),
+				'./kamelets',
+			]);
 		});
 	});
 });
