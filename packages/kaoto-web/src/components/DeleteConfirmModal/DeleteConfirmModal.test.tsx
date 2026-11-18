@@ -67,6 +67,31 @@ describe('DeleteConfirmModal', () => {
   it.each([
     ['Cancel', () => userEvent.click(screen.getByRole('button', { name: 'Cancel' }))],
     ['Escape', () => userEvent.keyboard('{Escape}')],
+  ])('stays open on %s while deleting and closes once when the deletion is done', async (_, close) => {
+    let finish: () => void = () => undefined;
+    const onDelete = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        }),
+    );
+    renderModal(onDelete);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    await close();
+
+    expect(onClose).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    finish();
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it.each([
+    ['Cancel', () => userEvent.click(screen.getByRole('button', { name: 'Cancel' }))],
+    ['Escape', () => userEvent.keyboard('{Escape}')],
   ])('closes without deleting on %s', async (_, close) => {
     const onDelete = vi.fn();
     renderModal(onDelete);
