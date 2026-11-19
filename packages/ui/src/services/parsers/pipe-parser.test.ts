@@ -154,6 +154,17 @@ spec:
       ]);
     });
 
+    it('lists the endpoint properties of a sink error handler as parameters', () => {
+      const parsed = parse({
+        sink: { endpoint: { uri: 'log:error', properties: { showHeaders: true } } },
+      });
+
+      expect(parsed?.data).toEqual([
+        ['sink', 'URI', '', 'log:error'],
+        ['', '', 'showHeaders', 'true'],
+      ]);
+    });
+
     it('lists the referenced endpoint of a sink error handler', () => {
       const parsed = parse({
         sink: { endpoint: { ref: { kind: 'Kamelet', apiVersion: 'camel.apache.org/v1', name: 'error-sink' } } },

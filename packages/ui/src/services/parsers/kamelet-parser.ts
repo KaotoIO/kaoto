@@ -148,7 +148,7 @@ export class KameletParser {
         });
         const parsedParams = CommonParser.parseParameters(typeModel, ['headers', 'schema']);
         Object.entries(parsedParams).forEach(([paramKey, paramValue]) => {
-          typeTable.data.push([paramKey, '', paramValue]);
+          typeTable.data.push([paramKey, paramValue]);
         });
         channelTables.push(typeTable);
 
