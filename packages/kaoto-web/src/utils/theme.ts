@@ -9,6 +9,24 @@ interface ThemeSettings {
   headerInverse: boolean;
 }
 
+/** PatternFly switches its tokens to dark through this class on `<html>` */
+const PATTERNFLY_DARK_CLASS = 'pf-v6-theme-dark';
+const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)';
+
+/**
+ * Keep PatternFly's theme in line with the content theme.
+ *
+ * The canvas, its controls and the form come from `@kaoto/kaoto` and use PatternFly tokens, which do not react to
+ * `data-theme-setting`. They all sit in the content area, so an inverted header does not matter here.
+ */
+function syncPatternFlyTheme(): void {
+  const { themeSetting } = document.documentElement.dataset;
+  const isDark =
+    themeSetting === 'dark' || (themeSetting !== 'light' && globalThis.matchMedia(SYSTEM_DARK_QUERY).matches);
+
+  document.documentElement.classList.toggle(PATTERNFLY_DARK_CLASS, isDark);
+}
+
 /**
  * Get current theme settings from cookies
  * @returns Object with themeSetting and headerInverse values
@@ -28,6 +46,7 @@ export function setThemeSetting(themeSetting: ThemeSetting): void {
   // Update HTML attribute immediately (no re-render needed)
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.themeSetting = themeSetting;
+    syncPatternFlyTheme();
   }
 }
 
@@ -77,4 +96,8 @@ export function initializeTheme(): void {
       'Header inverse cookie changed between SSR and hydration. ' + 'Change will take effect on next navigation.',
     );
   }
+
+  syncPatternFlyTheme();
+  // The "system" setting follows the OS, also when it changes while the app is open
+  globalThis.matchMedia(SYSTEM_DARK_QUERY).addEventListener('change', syncPatternFlyTheme);
 }
