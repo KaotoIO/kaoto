@@ -38,6 +38,7 @@
   --cs-tint: #{$blue-10};
   --cs-tint-strong: #{$blue-20};
   --cs-field: #{$white};
+  --cs-surface: #{$white};
   --cs-canvas: #{$white};
   --cs-on-accent: #{$white};
   --cs-on-accent-hover: #{rgba($white, 0.16)};
@@ -57,7 +58,8 @@
   --cs-accent: #{$blue-60};
   --cs-tint: #{$gray-90};
   --cs-tint-strong: #{$gray-80};
-  --cs-field: #{$gray-80};
+  --cs-field: #{$blue-10};
+  --cs-surface: #{$gray-80};
   --cs-canvas: #{$gray-90-hover};
   --cs-on-accent: #{$white};
   --cs-on-accent-hover: #{rgba($white, 0.16)};

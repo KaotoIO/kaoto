@@ -1,5 +1,7 @@
 // The Kaoto theme: a layer over the plain Carbon theme, selected through `data-theme-style` on <html>
 // (see utils/theme.ts). Its colours are the `--cs-*` custom properties set per light/dark theme in main.scss.
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/themes';
 
 // Radius of the floating cards (Explorer, canvas, form panel) and of the rows and fields inside them
 $card-radius: 8px;
@@ -12,6 +14,14 @@ $control-radius: 4px;
   }
 }
 
+/// Rules that only apply in the Kaoto theme while the content is dark. utils/theme.ts sets PatternFly's dark class
+/// for exactly that case: the dark setting, or the system setting on a dark OS.
+@mixin kaoto-theme-dark {
+  @at-root :root[data-theme-style='kaoto'].pf-v6-theme-dark #{&} {
+    @content;
+  }
+}
+
 /// The fill of the Carbon fields inside the element. The fields keep Carbon's own painting (fill and border are
 /// gradients), only their fill tokens change.
 @mixin field-fill {
@@ -19,6 +29,15 @@ $control-radius: 4px;
   --cds-field-01: var(--cs-field);
   --cds-field-02: var(--cs-field);
   --cds-field-03: var(--cs-field);
+}
+
+/// The fields are light in the dark theme too. They become a light Carbon theme zone, so their text, icons, menus
+/// and focus ring are made for a light fill.
+@mixin light-field-zone {
+  @include theme(themes.$white);
+  @include field-fill;
+
+  color: $text-primary;
 }
 
 /// Ghost icon buttons on the accent colour: white icons, translucent white for the states
