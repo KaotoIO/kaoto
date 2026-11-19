@@ -14,10 +14,25 @@ Run from the repository root.
 
 | Task                                     | Command                                               |
 | ---------------------------------------- | ----------------------------------------------------- |
-| Compile the tests to `out/`              | `yarn workspace @kaoto/ui-tests-vscode build`         |
+| Type-check the tests                     | `yarn workspace @kaoto/ui-tests-vscode build`         |
 | Lint                                     | `yarn workspace @kaoto/ui-tests-vscode lint`          |
 | Package the extension and run all tests  | `yarn workspace @kaoto/ui-tests-vscode test:ui`       |
 | Remove downloads, compiled tests, VSIXes | `yarn workspace @kaoto/ui-tests-vscode test:ui:clean` |
+
+ExTester runs the tests from their TypeScript sources: it loads the `src/**/*.test.ts` files and
+`src/pageObjects/locators.ts` through [tsx](https://tsx.is), a dev dependency of this package, so nothing is compiled
+first. tsx transpiles each file on its own and checks no types, so `build` runs `tsc` without output (CI runs it in the
+Packages job), and `tsconfig.json` keeps `isolatedModules` on, which makes `tsc` report code that cannot be transpiled
+file by file.
+
+The ExTester Runner settings in the repository's `.vscode/settings.json` still run compiled tests from `out/`, because
+the Runner cannot run the sources yet
+([vscode-extension-tester#2667](https://github.com/redhat-developer/vscode-extension-tester/issues/2667)). Compile the
+tests before you run them from the Runner:
+
+```bash
+yarn workspace @kaoto/ui-tests-vscode tsc --noEmit false --rootDir src --outDir out
+```
 
 `test:ui` packages the extension's current `dist/` into `vscode-kaoto.vsix` in this folder, so build the extension
 first:
@@ -40,11 +55,11 @@ use the group scripts:
 export VSIX_FILE=./kaoto-ci.vsix
 
 yarn workspace @kaoto/ui-tests-vscode test:ui:vsix            # all groups (extester.config.json globs)
-yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:editor     # out/editor/*.test.js
-yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:source     # out/source/*.test.js
-yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:views      # out/views/*.test.js
-yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:project    # out/project/*.test.js
-yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:deploy     # out/deploy/*.test.js (minikube settings)
+yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:editor     # src/editor/*.test.ts
+yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:source     # src/source/*.test.ts
+yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:views      # src/views/*.test.ts
+yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:project    # src/project/*.test.ts
+yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:deploy     # src/deploy/*.test.ts (minikube settings)
 ```
 
 CI also sets `CODE_VERSION=max` (latest VS Code that ExTester supports), `TEST_RESOURCES` (ExTester storage, uploaded
@@ -91,13 +106,13 @@ remove `WAYLAND_DISPLAY`, and override `XDG_SESSION_TYPE`. Run from `packages/ui
 as described above:
 
 ```bash
-# Compile the tests, download VS Code/ChromeDriver, and install the chosen VSIX.
+# Download VS Code/ChromeDriver and install the chosen VSIX.
 VSIX_FILE=./kaoto-ci.vsix yarn setup:test:ui:vsix
 
 # Run the editor group using the existing X11/XWayland display.
 env -u ELECTRON_RUN_AS_NODE -u WAYLAND_DISPLAY \
   XDG_SESSION_TYPE=x11 KAOTO_DISABLE_WHATS_NEW=true \
-  yarn exec extest run-tests 'out/editor/*.test.js'
+  yarn exec extest run-tests 'src/editor/*.test.ts'
 ```
 
 Use your actual VSIX path in the setup command. Both Wayland detection variables must be handled; clearing only one can
@@ -127,12 +142,12 @@ These notes come from tracking down a layout check that failed on CI only
 - **Start with the CI screenshot.** A failed group uploads the artifact `ui-test-screenshots-<group>-<os>` with a
   screenshot of the window at the moment of the failure.
 - **Run one file or a few.** `extest run-tests` takes one or more globs. From the repository root, for example:
-  `yarn workspace @kaoto/ui-tests-vscode exec extest run-tests 'out/editor/PropertyPanelLoading.test.js' 'out/editor/SwitchBetweenTabs.test.js'`.
+  `yarn workspace @kaoto/ui-tests-vscode exec extest run-tests 'src/editor/PropertyPanelLoading.test.ts' 'src/editor/SwitchBetweenTabs.test.ts'`.
   Quote each glob as an argument of its own; a list of files in one shell variable can reach ExTester as a single
   argument that matches nothing, and with `failZero` such a run fails with `0 passing`.
-- **Iterate without repackaging.** After one `setup:test:ui:vsix`, a change to the tests only needs
-  `yarn workspace @kaoto/ui-tests-vscode build` and `yarn workspace @kaoto/ui-tests-vscode exec extest run-tests …`.
-  Rebuild and reinstall the VSIX only when the extension or the UI changes.
+- **Iterate without repackaging.** After one `setup:test:ui:vsix`, a change to the tests only needs another
+  `yarn workspace @kaoto/ui-tests-vscode exec extest run-tests …`, which loads the changed sources. Rebuild and reinstall
+  the VSIX only when the extension or the UI changes.
 - **The tests run zoomed out.** `src/vscode-settings.json` sets `window.zoomLevel: -3`, so `devicePixelRatio` is about
   0.58 and the webview's CSS viewport depends on the screen: a large local monitor gives a much taller layout than the
   Windows CI runner. A layout check can therefore pass locally and fail on CI. ExTester cannot resize the Electron
@@ -171,4 +186,5 @@ a pixel, even though nothing changed for the user.
 | `test Fixture with speci@l chars/`                                   | Workspace the tests open; its name contains spaces and special characters |
 | `extester.config.json`                                               | ExTester setup and run options                                            |
 
-The tests locate the fixture from `__dirname` (`out/<group>/../../`), so the compiled tests must stay in `out/<group>/`.
+The tests and `src/utils` locate the fixture from `__dirname` (`src/<folder>/../../`), so these files must stay one folder
+below `src/`.
