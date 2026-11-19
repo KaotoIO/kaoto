@@ -386,7 +386,7 @@ suite('KaotoCatalogService in the window', () => {
 			const picked = await service.showCatalogPicker();
 
 			expect(picked).to.equal(false);
-			expect(vscode.workspace.getConfiguration('kaoto').inspect('runtimeCatalogName')?.workspaceValue).to.equal(undefined);
+			expect(vscode.workspace.getConfiguration('kaoto').inspect('runtimeCatalogName')?.workspaceValue).to.be.undefined;
 		});
 
 		test('points to pom.xml in a Maven project instead of offering catalogs', async () => {
