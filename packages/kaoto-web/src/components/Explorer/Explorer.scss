@@ -1,6 +1,7 @@
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
 @use '@carbon/react/scss/type' as *;
+@use '../../styles/kaoto-theme' as kaoto;
 
 .cs--explorer {
   // inline-size is set via inline style (resizable)
@@ -12,6 +13,15 @@
   background-color: $background;
   border-inline-end: 1px solid $border-subtle-01;
   overflow: hidden;
+
+  // A floating card. It must not clip: the tooltips of the header buttons open outside of it. The header rounds its
+  // own corners instead, and the tree scrolls on its own.
+  @include kaoto.kaoto-theme {
+    overflow: visible;
+    border: 1px solid $border-subtle;
+    border-radius: kaoto.$card-radius;
+    background-color: var(--cs-tint);
+  }
 }
 
 .cs--explorer__toolbar {
@@ -24,6 +34,22 @@
   flex-shrink: 0;
   background-color: $background;
   border-block-end: 1px solid $border-subtle-01;
+
+  @include kaoto.kaoto-theme {
+    @include kaoto.on-accent-ghost-button;
+
+    // The card radius minus its border
+    border-start-start-radius: calc(#{kaoto.$card-radius} - 1px);
+    border-start-end-radius: calc(#{kaoto.$card-radius} - 1px);
+    border-block-end: none;
+    background-color: var(--cs-accent);
+
+    // Slightly bolder lines for the icons
+    .cds--btn--ghost svg {
+      stroke: var(--cs-on-accent);
+      stroke-width: 1px;
+    }
+  }
 }
 
 .cs--explorer__heading {
@@ -36,6 +62,10 @@
   text-overflow: ellipsis;
   text-transform: uppercase;
   white-space: nowrap;
+
+  @include kaoto.kaoto-theme {
+    color: var(--cs-on-accent);
+  }
 }
 
 .cs--explorer__toolbar-actions {
@@ -97,6 +127,24 @@
   // Folder and file icons take the blue of the Create buttons
   .cds--tree-node__icon {
     fill: $icon-interactive;
+  }
+
+  // The rows show the tint of the card; hover, selection and the focus ring are rounded
+  @include kaoto.kaoto-theme {
+    .cds--tree-node {
+      border-radius: kaoto.$control-radius;
+      background-color: transparent;
+    }
+
+    .cds--tree-node__label {
+      border-radius: kaoto.$control-radius;
+    }
+
+    .cds--tree-node__label:hover,
+    .cds--tree-node__label:focus,
+    .cds--tree-node--selected > .cds--tree-node__label {
+      background-color: var(--cs-tint-strong);
+    }
   }
 }
 

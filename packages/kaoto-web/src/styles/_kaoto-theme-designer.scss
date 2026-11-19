@@ -1,0 +1,84 @@
+// Kaoto theme: the canvas and the form side panel. Both come from @kaoto/kaoto, which the VS Code extension uses
+// too, so they are styled from here through their class names. The rules use the `--cs-*` custom properties only,
+// so they could move to @kaoto/kaoto as they are.
+@use '@carbon/react/scss/spacing' as *;
+@use 'kaoto-theme' as kaoto;
+
+.cs--integration-shell {
+  @include kaoto.kaoto-theme {
+    // The canvas
+    .pf-topology-content {
+      background-color: var(--cs-canvas);
+    }
+
+    // The side bar keeps its width and lets the canvas show through; the form is a floating card inside it.
+    // PatternFly's drawer panel under it would paint its own background.
+    .pf-v6-c-drawer__panel,
+    .canvas-sidebar {
+      background-color: transparent;
+    }
+
+    .canvas-sidebar__layer {
+      block-size: calc(100% - #{$spacing-03} * 2);
+      margin: $spacing-03;
+      border: 1px solid;
+      border-color: var(--cs-tint-strong);
+      border-radius: kaoto.$card-radius;
+      background-color: var(--cs-tint);
+
+      // The fields keep Carbon's own painting (fill and border are gradients) and only change their fill
+      --cds-field-01: var(--cs-field);
+      --cds-field-02: var(--cs-field);
+      --cds-field-03: var(--cs-field);
+    }
+
+    .canvas-form__header {
+      @include kaoto.on-accent-ghost-button;
+
+      border-start-start-radius: calc(#{kaoto.$card-radius} - 1px);
+      border-start-end-radius: calc(#{kaoto.$card-radius} - 1px);
+      background-color: var(--cs-accent);
+    }
+
+    .form-header__title {
+      color: var(--cs-on-accent);
+    }
+
+    // The step icon sits on a tile, like the icons of the canvas nodes
+    .form-header img {
+      padding: $spacing-02;
+      border-radius: kaoto.$card-radius;
+      background-color: var(--cs-on-accent);
+    }
+
+    .canvas-header-close {
+      padding: $spacing-02;
+      block-size: auto;
+      min-block-size: 0;
+      inline-size: auto;
+
+      svg {
+        block-size: $spacing-06;
+        inline-size: $spacing-06;
+      }
+    }
+
+    .canvas-form__body {
+      --kaoto-form-toolbar-background: var(--cs-tint);
+    }
+
+    // The field groups are cards on the tint
+    .canvas-sidebar .cds--tile {
+      border: 1px solid;
+      border-color: var(--cs-tint-strong);
+      border-radius: kaoto.$card-radius;
+      background-color: var(--cs-field);
+    }
+
+    // The edit-in-place field (e.g. Uri) does not follow the field tokens
+    .canvas-sidebar .c4p--edit-in-place {
+      border-radius: kaoto.$control-radius;
+      background-color: var(--cs-field);
+    }
+  }
+}

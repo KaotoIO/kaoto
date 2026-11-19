@@ -1,5 +1,7 @@
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../styles/kaoto-theme' as kaoto;
 
 .cs--project-toolbar {
   display: flex;
@@ -8,6 +10,12 @@
   flex-shrink: 0;
   background-color: $background;
   border-block-end: 1px solid $border-subtle;
+
+  // One bar with the header above it
+  @include kaoto.kaoto-theme {
+    border-block-end-color: var(--cs-tint-strong);
+    background-color: var(--cs-tint);
+  }
 }
 
 .cs--project-toolbar__controls {
@@ -25,5 +33,12 @@
 
   .cds--content-switcher-btn {
     justify-content: center;
+  }
+
+  @include kaoto.kaoto-theme {
+    .cds--content-switcher-btn,
+    .cds--content-switcher__label {
+      font-weight: font-weight('semibold');
+    }
   }
 }

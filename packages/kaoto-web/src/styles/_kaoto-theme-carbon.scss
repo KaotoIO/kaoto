@@ -1,0 +1,34 @@
+// Kaoto theme: Carbon components that are used all over the app
+@use 'kaoto-theme' as kaoto;
+
+// The selected part of a content switcher takes the accent colour instead of black. Carbon paints it through
+// `::after` and the outline through the buttons and their `::before` dividers.
+.cds--content-switcher {
+  @include kaoto.kaoto-theme {
+    .cds--content-switcher-btn {
+      border-color: var(--cs-accent);
+      box-shadow: none;
+
+      &::before {
+        border-color: var(--cs-accent);
+      }
+
+      &:not(.cds--content-switcher--selected):hover,
+      &:not(.cds--content-switcher--selected):focus {
+        background-color: var(--cs-tint-strong);
+      }
+    }
+
+    .cds--content-switcher--selected,
+    .cds--content-switcher--selected:hover,
+    .cds--content-switcher--selected:focus,
+    .cds--content-switcher--selected::after {
+      background-color: var(--cs-accent);
+      color: var(--cs-on-accent);
+    }
+
+    .cds--content-switcher--selected svg {
+      fill: var(--cs-on-accent);
+    }
+  }
+}
