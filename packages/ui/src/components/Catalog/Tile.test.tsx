@@ -47,4 +47,12 @@ describe('Tile', () => {
 
     expect(getByTestId('tile-tile-name')).toHaveAttribute('title', 'tile-title');
   });
+
+  it('shows the version of the tile', () => {
+    const { getByTestId } = render(
+      <Tile tile={{ ...tile, version: '4.10.0' }} onClick={vi.fn()} onTagClick={vi.fn()} />,
+    );
+
+    expect(getByTestId('tile-tile-name')).toHaveTextContent('4.10.0');
+  });
 });
