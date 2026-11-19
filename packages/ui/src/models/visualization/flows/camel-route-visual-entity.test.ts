@@ -115,6 +115,18 @@ describe('Camel Route', () => {
 
       expect(camelEntity.entityDef.route.from?.uri).toEqual(uri);
     });
+
+    it('should take over the route id from the model', () => {
+      camelEntity.updateModel('route.id', 'route-1234');
+
+      expect(camelEntity.getId()).toBe('route-1234');
+    });
+
+    it('should keep the entity id when the route id is removed from the model', () => {
+      camelEntity.updateModel('route.id', undefined);
+
+      expect(camelEntity.getId()).toBe('route-8888');
+    });
   });
 
   describe('addStep', () => {
