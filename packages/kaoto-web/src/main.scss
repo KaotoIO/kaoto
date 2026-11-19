@@ -1,4 +1,5 @@
 @use '@carbon/ibm-products/css/index.min';
+@use 'styles/carbon-feature-flags';
 @use '@carbon/react' with (
   $font-path: '@ibm/plex',
   $font-display: 'block'

@@ -1,0 +1,7 @@
+// Carbon feature flags of kaoto-web. `main.scss` loads this file before `@carbon/react`, so the flags are set by the
+// time Carbon builds its component styles.
+@use '@carbon/react/scss/feature-flags';
+
+// The Carbon v12 look (rounded buttons, fields, content switchers and tooltips), until kaoto-web moves to Carbon v12.
+// It also turns on the other `enable-v12-*` style flags; `main.tsx` sets the matching component flags.
+@include feature-flags.enable('enable-v12-release');
