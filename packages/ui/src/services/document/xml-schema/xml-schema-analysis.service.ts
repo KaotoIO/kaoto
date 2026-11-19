@@ -117,8 +117,7 @@ export class XmlSchemaAnalysisService {
     const schemaLocation = child.getAttribute('schemaLocation');
     if (!schemaLocation) return null;
 
-    const namespace =
-      localName === 'import' || localName === 'override' ? child.getAttribute('namespace') || null : null;
+    const namespace = localName === 'import' ? child.getAttribute('namespace') || null : null;
     return { type: localName, schemaLocation, namespace };
   }
 

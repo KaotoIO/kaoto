@@ -112,7 +112,11 @@ export class DocumentUtilService {
   private static resolveFragmentKeyForOverride(doc: IDocument, typeQName: QName): string {
     if (doc && 'xmlSchemaCollection' in doc && (doc as XmlSchemaDocument).xmlSchemaCollection) {
       const xmlDoc = doc as XmlSchemaDocument;
-      const schemaType = XmlSchemaDocumentUtilService.lookupSchemaType(xmlDoc.xmlSchemaCollection, typeQName);
+      const schemaType = XmlSchemaDocumentUtilService.lookupSchemaType(
+        xmlDoc.xmlSchemaCollection,
+        typeQName,
+        xmlDoc.definition?.entrySchemaFile,
+      );
       return XmlSchemaDocumentUtilService.buildTypeFragmentKey(schemaType?.getParent()?.getSourceURI(), typeQName);
     }
     return typeQName.toString();
@@ -509,7 +513,8 @@ export class DocumentUtilService {
     if (origRefs !== undefined) {
       field.namedTypeFragmentRefs = [...origRefs];
     } else if (!origFields && origType === Types.Container && origTypeQName) {
-      field.namedTypeFragmentRefs = [origTypeQName.toString()];
+      const doc = DocumentUtilService.getOwnerDocument(field);
+      field.namedTypeFragmentRefs = [DocumentUtilService.resolveFragmentKeyForOverride(doc, origTypeQName)];
       // Eagerly resolve type fragment so children are immediately available
       DocumentUtilService.resolveTypeFragment(field);
     } else {

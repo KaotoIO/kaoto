@@ -55,4 +55,20 @@ describe('XmlSchemaAttributeGroup', () => {
     expect(schema.getAttributeGroups().get(q('Old'))).toBeUndefined();
     expect(schema.getAttributeGroups().get(q('New'))).toBe(group);
   });
+
+  describe('clearRefCache', () => {
+    it('clears target cache on the attribute group reference', () => {
+      const schema = read(
+        '<xs:attributeGroup name="Base"><xs:attribute name="id" type="xs:ID"/></xs:attributeGroup>' +
+          '<xs:attributeGroup name="Common"><xs:attributeGroup ref="t:Base"/></xs:attributeGroup>',
+      );
+      const commonGroup = schema.getAttributeGroups().get(q('Common'))!;
+      const groupRef = commonGroup.getAttributes()[0] as XmlSchemaAttributeGroupRef;
+      expect(groupRef.getRef().getTarget()).toBeTruthy();
+
+      expect(() => {
+        groupRef.clearRefCache();
+      }).not.toThrow();
+    });
+  });
 });

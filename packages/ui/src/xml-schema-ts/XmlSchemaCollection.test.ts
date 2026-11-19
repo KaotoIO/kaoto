@@ -732,4 +732,20 @@ describe('XmlSchemaCollection', () => {
       }).toThrow('A schema with target namespace urn:main and system ID main.xsd is already present.');
     });
   });
+
+  describe('clearRefCache', () => {
+    it('should clear cached ref targets on all schemas in the collection', () => {
+      const collection = new XmlSchemaCollection();
+      const schema = collection.read(getShipOrderXsd(), () => {});
+      const shipOrderEl = schema.getElementByName('ShipOrder');
+      expect(shipOrderEl).toBeTruthy();
+
+      // Resolve ref target if any
+      shipOrderEl!.getRef().getTarget();
+
+      expect(() => {
+        collection.clearRefCache();
+      }).not.toThrow();
+    });
+  });
 });

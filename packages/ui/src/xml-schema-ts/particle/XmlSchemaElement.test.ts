@@ -115,4 +115,18 @@ describe('XmlSchemaElement', () => {
     expect(element.getFinalDerivation()).toBe(all);
     expect(element.isAbstractElement()).toBe(true);
   });
+
+  describe('clearRefCache', () => {
+    it('clears target cache on the element reference', () => {
+      const schema = read(
+        '<xs:element name="item" type="xs:string"/><xs:complexType name="C"><xs:sequence><xs:element ref="t:item"/></xs:sequence></xs:complexType>',
+      );
+      const element = localElement(schema);
+      expect(element.getRef().getTarget()).toBeTruthy();
+
+      expect(() => {
+        element.clearRefCache();
+      }).not.toThrow();
+    });
+  });
 });

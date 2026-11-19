@@ -1160,7 +1160,7 @@ export class SchemaBuilder {
   }
 
   private handleGroupRef(schema: XmlSchema, groupEl: Element, schemaEl: Element) {
-    const group = new XmlSchemaGroupRef();
+    const group = new XmlSchemaGroupRef(schema);
 
     const minOccurs = this.getMinOccurs(groupEl);
     minOccurs != null && group.setMinOccurs(minOccurs);

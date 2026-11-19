@@ -2208,5 +2208,84 @@ describe('XmlSchemaDocumentService', () => {
       expect(result.document?.fields[0].name).toBe('Root');
       expect(result.document?.fields[0].type).toBe(Types.String);
     });
+
+    it('should resolve child element and group references in secondary schema fragments against the declaring schema', () => {
+      const entryXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/ns"
+           xmlns:tns="http://example.com/ns">
+  <xs:import namespace="http://example.com/ns" schemaLocation="Secondary.xsd"/>
+  <xs:simpleType name="CustomType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:group name="CommonGroup">
+    <xs:sequence>
+      <xs:element name="EntryGroupElem" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="tns:CustomType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const secondaryXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/ns"
+           xmlns:tns="http://example.com/ns">
+  <xs:simpleType name="CustomType">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  <xs:group name="CommonGroup">
+    <xs:sequence>
+      <xs:element name="SecondaryGroupElem" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="SecondaryType">
+    <xs:sequence>
+      <xs:element name="scopedChild" type="tns:CustomType"/>
+      <xs:group ref="tns:CommonGroup"/>
+    </xs:sequence>
+    <xs:attribute name="scopedAttr" type="tns:CustomType"/>
+  </xs:complexType>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'doc',
+        { 'Entry.xsd': entryXsd, 'Secondary.xsd': secondaryXsd },
+        { namespaceUri: 'http://example.com/ns', name: 'Root' },
+        undefined,
+        undefined,
+        undefined,
+        'Entry.xsd',
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.document).toBeDefined();
+
+      const secondaryFragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'Secondary.xsd',
+        new QName('http://example.com/ns', 'SecondaryType'),
+      );
+      const secondaryFragment = result.document!.namedTypeFragments[secondaryFragmentKey];
+      expect(secondaryFragment).toBeDefined();
+
+      const scopedChild = secondaryFragment.fields.find((f) => f.name === 'scopedChild');
+      expect(scopedChild).toBeDefined();
+      expect(scopedChild!.type).toBe(Types.Integer);
+
+      const scopedAttr = secondaryFragment.fields.find((f) => f.name === 'scopedAttr' && f.isAttribute);
+      expect(scopedAttr).toBeDefined();
+      expect(scopedAttr!.type).toBe(Types.Integer);
+
+      const groupElem = secondaryFragment.fields.find((f) => f.name === 'SecondaryGroupElem');
+      expect(groupElem).toBeDefined();
+      expect(groupElem!.type).toBe(Types.Boolean);
+    });
   });
 });
