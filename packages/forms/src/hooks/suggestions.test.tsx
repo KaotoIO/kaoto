@@ -44,7 +44,7 @@ describe('useSuggestions', () => {
   let mockProvider: SuggestionProvider;
   let getProvidersMock: Mock;
 
-  const TestComponent = () => {
+  const TestComponent = ({ disabled = false, readOnly = false }: { disabled?: boolean; readOnly?: boolean }) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const [value, setValue] = useState<string | number>('');
 
@@ -73,6 +73,8 @@ describe('useSuggestions', () => {
           }}
           data-testid="test-input"
           aria-label="Test input"
+          disabled={disabled}
+          readOnly={readOnly}
         />
 
         {suggestionsMenu}
@@ -692,5 +694,66 @@ describe('useSuggestions', () => {
       expect(result.queryByTestId('suggestions-menu')).not.toBeInTheDocument();
       expect(focusSpy).not.toHaveBeenCalled();
     });
+  });
+
+  describe('keyboard', () => {
+    const openWithCtrlSpace = async (result: ReturnType<typeof renderWithContext>) => {
+      await act(async () => {
+        fireEvent.keyDown(result.getByTestId('test-input'), { ctrlKey: true, code: 'Space' });
+      });
+      await waitFor(() => {
+        expect(result.getByTestId('suggestions-menu')).toBeInTheDocument();
+      });
+    };
+
+    it('opens the suggestions with Alt+Escape too', async () => {
+      const result = renderWithContext(<TestComponent />);
+
+      await act(async () => {
+        fireEvent.keyDown(result.getByTestId('test-input'), { altKey: true, code: 'Escape', key: 'Escape' });
+      });
+
+      await waitFor(() => {
+        expect(result.getByTestId('suggestions-menu')).toBeInTheDocument();
+      });
+    });
+
+    it('moves from the search field to the first suggestion with ArrowDown', async () => {
+      const result = renderWithContext(<TestComponent />);
+      await openWithCtrlSpace(result);
+      const firstSuggestion = await result.findByRole('menuitem', { name: 'suggestion1' });
+      const focus = vi.spyOn(firstSuggestion, 'focus');
+
+      fireEvent.keyDown(result.getByRole('searchbox'), { key: 'ArrowDown' });
+
+      expect(focus).toHaveBeenCalled();
+    });
+
+    it('closes the suggestions with Escape on a suggestion', async () => {
+      const result = renderWithContext(<TestComponent />);
+      await openWithCtrlSpace(result);
+
+      await act(async () => {
+        fireEvent.keyDown(await result.findByRole('menuitem', { name: 'suggestion1' }), { key: 'Escape' });
+      });
+
+      await waitFor(() => {
+        expect(result.queryByTestId('suggestions-menu')).not.toBeInTheDocument();
+      });
+      expect(setValueMock).not.toHaveBeenCalled();
+    });
+  });
+
+  it.each([
+    ['disabled', { disabled: true }],
+    ['read-only', { readOnly: true }],
+  ])('does not open the suggestions of a %s input', async (_, inputProps) => {
+    const result = renderWithContext(<TestComponent {...inputProps} />);
+
+    await act(async () => {
+      fireEvent.click(result.getByRole('button', { name: 'Open suggestions' }));
+    });
+
+    expect(result.queryByTestId('suggestions-menu')).not.toBeInTheDocument();
   });
 });
