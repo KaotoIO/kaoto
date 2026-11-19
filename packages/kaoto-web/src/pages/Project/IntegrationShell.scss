@@ -1,11 +1,20 @@
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
+@use '../../styles/kaoto-theme' as kaoto;
 
 .cs--integration-shell {
   display: flex;
   flex-direction: column;
   block-size: 100%;
   inline-size: 100%;
+
+  // A floating card; it clips its content to the rounded corners
+  @include kaoto.kaoto-theme {
+    overflow: hidden;
+    border: 1px solid $border-subtle;
+    border-radius: kaoto.$card-radius;
+    background-color: var(--cs-canvas);
+  }
 }
 
 .cs--integration-shell__body {

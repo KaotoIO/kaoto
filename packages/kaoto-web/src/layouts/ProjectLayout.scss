@@ -1,5 +1,6 @@
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
+@use '../styles/kaoto-theme' as kaoto;
 
 .cs--project-layout {
   display: flex;
@@ -14,6 +15,12 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+
+  // The Explorer and the canvas float as cards on the page background
+  @include kaoto.kaoto-theme {
+    gap: $spacing-03;
+    padding: $spacing-03;
+  }
 }
 
 .cs--project-layout__outlet {

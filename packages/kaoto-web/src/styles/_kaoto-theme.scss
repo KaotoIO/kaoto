@@ -1,0 +1,37 @@
+// The Kaoto theme: a layer over the plain Carbon theme, selected through `data-theme-style` on <html>
+// (see utils/theme.ts). Its colours are the `--cs-*` custom properties set per light/dark theme in main.scss.
+
+// Radius of the floating cards (Explorer, canvas, form panel) and of the rows and fields inside them
+$card-radius: 8px;
+$control-radius: 4px;
+
+/// Rules that only apply in the Kaoto theme
+@mixin kaoto-theme {
+  :root[data-theme-style='kaoto'] & {
+    @content;
+  }
+}
+
+/// Ghost icon buttons on the accent colour: white icons, translucent white for the states
+@mixin on-accent-ghost-button {
+  .cds--btn--ghost {
+    color: var(--cs-on-accent);
+
+    svg {
+      fill: var(--cs-on-accent);
+    }
+
+    &:hover {
+      background-color: var(--cs-on-accent-hover);
+    }
+
+    &:active {
+      background-color: var(--cs-on-accent-active);
+    }
+
+    &:focus {
+      border-color: var(--cs-on-accent);
+      box-shadow: inset 0 0 0 1px var(--cs-on-accent);
+    }
+  }
+}

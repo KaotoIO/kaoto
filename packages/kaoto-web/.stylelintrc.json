@@ -5,6 +5,10 @@
   "reportInvalidScopeDisables": true,
   "reportDescriptionlessDisables": true,
   "rules": {
+    "carbon/theme-use": [
+      true,
+      { "severity": "error", "validateGradients": "recommended", "validateVariables": ["/^--cs-/"] }
+    ],
     "a11y/media-prefers-reduced-motion": true,
     "a11y/no-outline-none": true,
     "a11y/selector-pseudo-class-focus": true,
