@@ -10,6 +10,7 @@ import {
   IParentType,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
+import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import {
   CopyOfSelector,
   FieldItem,
@@ -241,7 +242,7 @@ export class MappingSerializerService {
 
   /**
    * Drops every path segment deeper than the outermost repeating wrapper (`choice`, `abstract`, a
-   * `sequence` inside a choice, with `maxOccurs` other than one) between `field` and the element it is
+   * `sequence` inside a choice, that is a collection) between `field` and the element it is
    * written into, so members of that wrapper tie on path and keep authored order — preserving a valid
    * interleaving such as `(A,B)(C,D)(A,B)` instead of regrouping it by schema index. Wrappers above
    * that element are ignored: they repeat the element as a whole, not the order of its children, so
@@ -274,9 +275,8 @@ export class MappingSerializerService {
     return chain;
   }
 
-  /** `maxOccurs === 0` is a degenerate case with no real-world schema instance expected; treating it as repeating is harmless. */
   private static isRepeatingOrderWrapper(field: IField): boolean {
-    return field.wrapperKind !== undefined && field.maxOccurs !== 1;
+    return field.wrapperKind !== undefined && FieldCardinality.isCollection(field);
   }
 
   /**
@@ -881,7 +881,7 @@ export class MappingSerializerService {
     if (existing) return existing;
 
     const substitutionMatch = FieldOverrideService.findSubstitutionGroupHead(parentField, name, namespace);
-    if (substitutionMatch?.headField.maxOccurs === 1) {
+    if (substitutionMatch && !FieldCardinality.isCollection(substitutionMatch.headField)) {
       DocumentUtilService.applySubstitutionToField(substitutionMatch.headField, substitutionMatch.info);
       return substitutionMatch.headField;
     }

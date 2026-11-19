@@ -1075,7 +1075,7 @@ describe('VisualizationService / abstract fields', () => {
     });
   });
 
-  describe('Bug regression: wrap-with-if on unselected abstract wrapper (maxOccurs=1)', () => {
+  describe('Bug regression: wrap-with-if on unselected abstract wrapper', () => {
     let abstractField: ReturnType<typeof createMockAbstractField>;
     let parentFieldItem: FieldItem;
     let localTree: MappingTree;
@@ -1146,6 +1146,20 @@ describe('VisualizationService / abstract fields', () => {
       const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
       const addNodes = children.filter((c) => c instanceof AddMappingNodeData);
       expect(addNodes).toHaveLength(0);
+    });
+
+    it('should show AddMappingNodeData for a repeating wrapper', () => {
+      abstractField.maxOccurs = 2;
+      const wrapperFieldItem = parentFieldItem.children[0] as FieldItem;
+      MappingService.wrapWithIf(wrapperFieldItem);
+
+      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
+      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
+      freshParentNode.mapping = parentFieldItem;
+
+      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
+      const addNodes = children.filter((c) => c instanceof AddMappingNodeData);
+      expect(addNodes).toHaveLength(1);
     });
   });
 });

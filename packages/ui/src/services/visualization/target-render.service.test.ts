@@ -736,6 +736,24 @@ describe('TargetRenderService', () => {
       expect(TargetRenderService.computeTargetPath(absorbedField, renderIndex).toString()).toBe(absorbedPath);
       expect(TargetRenderService.computeTargetPath(visibleField, renderIndex).toString()).toBe(visiblePath);
     });
+
+    it.each([
+      [1, true],
+      [2, false],
+    ])('should give an unselected choice wrapper with maxOccurs=%s a path segment: %s', (maxOccurs, hasSegment) => {
+      const choiceDoc = TestUtil.createChoiceWithAbstractTargetDoc();
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const notificationItem = MappingService.createFieldItem(tree, findField(choiceDoc, 'Notification'));
+      const shortItem = MappingService.createFieldItem(notificationItem, findField(notificationItem.field, 'Short'));
+      const choice = shortItem.field.fields[1];
+      choice.maxOccurs = maxOccurs;
+      const webhookItem = MappingService.createFieldItem(shortItem, findField(choice, 'Webhook'));
+      const wrapperSegment = hasSegment ? `${choice.id}/` : '';
+
+      expect(TargetRenderService.computeTargetPath(webhookItem, TargetRenderIndex.EMPTY).toString()).toBe(
+        `targetBody:Body://${notificationItem.id}/${shortItem.id}/${wrapperSegment}${webhookItem.id}`,
+      );
+    });
   });
 
   describe('getRenderedChildFields()', () => {

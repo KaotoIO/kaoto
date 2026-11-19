@@ -1,5 +1,6 @@
 import { IField } from '../../models/datamapper/document';
 import { IWrapperCandidate } from '../../models/datamapper/field-action';
+import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import { FieldItem } from '../../models/datamapper/mapping';
 import { DocumentService } from '../document/document.service';
 import { FieldOverrideService } from '../document/field-override.service';
@@ -17,7 +18,7 @@ interface CandidateEntry {
  * dissolved recursively, choices and abstract wrappers are expanded into
  * their concrete members/substitutes. Fields whose `maxOccurs` slot is
  * already occupied by `existingFieldItems` are excluded. In `forEachContext`,
- * non-collection (maxOccurs=1) plain fields are skipped because for-each
+ * non-collection plain fields are skipped because for-each
  * iterates collections only.
  *
  * Returns parallel arrays: `candidates` for the modal UI and `fields` for
@@ -112,12 +113,7 @@ export class FieldCandidateService extends WrapperBaseService {
 
   private static shouldSkipField(child: IField, forEachContext: boolean): boolean {
     if (!forEachContext) return false;
-    return (
-      child.wrapperKind !== 'choice' &&
-      child.wrapperKind !== 'abstract' &&
-      child.maxOccurs !== 'unbounded' &&
-      Number(child.maxOccurs) <= 1
-    );
+    return child.wrapperKind !== 'choice' && child.wrapperKind !== 'abstract' && !FieldCardinality.isCollection(child);
   }
 
   private static isSlotExhausted(child: IField, existingFieldItems: FieldItem[]): boolean {

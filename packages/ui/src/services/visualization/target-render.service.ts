@@ -1,4 +1,5 @@
 import { IField } from '../../models/datamapper/document';
+import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import {
   CopyOfSelector,
   FieldItem,
@@ -333,7 +334,7 @@ export class TargetRenderService {
     const segments: string[] = [];
     let current = field.parent;
     while (VisualizationUtilService.isWrapperField(current)) {
-      if (current.maxOccurs !== 1) {
+      if (FieldCardinality.isCollection(current)) {
         return [];
       }
       if (!VisualizationUtilService.isSelectedWrapperField(current)) {

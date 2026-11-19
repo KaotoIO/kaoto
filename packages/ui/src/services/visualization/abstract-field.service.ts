@@ -8,6 +8,7 @@ import {
   IFieldMenuGroup,
   IWrapperCandidate,
 } from '../../models/datamapper/field-action';
+import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import { IFieldSubstituteInfo } from '../../models/datamapper/types';
 import {
   FieldItemNodeData,
@@ -29,10 +30,10 @@ import { WrapperBaseService } from './wrapper-base.service';
  * `selectedMemberQName`.
  *
  * Selection uses a two-track dispatch shared with {@link ChoiceFieldService}:
- * - **Per-instance** (target side, maxOccurs>1): each {@link FieldItem}
+ * - **Per-instance** (target side, wrapper is a collection): each {@link FieldItem}
  *   carries its own selection, so multiple collection instances can pick
  *   different substitutes.
- * - **Document-level** (source side, or maxOccurs=1): sets
+ * - **Document-level** (source side, or wrapper is not a collection): sets
  *   `selectedMemberQName` on the field itself, affecting all instances.
  */
 export class AbstractFieldService extends WrapperBaseService {
@@ -113,7 +114,7 @@ export class AbstractFieldService extends WrapperBaseService {
 
   /**
    * Applies a substitution selection. Routes to per-instance (target side,
-   * maxOccurs>1) or document-level based on context.
+   * wrapper is a collection) or document-level based on context.
    */
   static applyAbstractSubstitution(
     nodeData: NodeData,
@@ -124,7 +125,7 @@ export class AbstractFieldService extends WrapperBaseService {
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
-    if (isTargetSide && wrapperField.maxOccurs !== 1) {
+    if (isTargetSide && FieldCardinality.isCollection(wrapperField)) {
       this.applyPerInstanceAbstractSubstitution(
         nodeData,
         wrapperField,
@@ -148,7 +149,7 @@ export class AbstractFieldService extends WrapperBaseService {
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
-    if (isTargetSide && wrapperField.maxOccurs !== 1) {
+    if (isTargetSide && FieldCardinality.isCollection(wrapperField)) {
       this.clearPerInstanceWrapperSelection(nodeData as TargetNodeData, wrapperField);
       return;
     }

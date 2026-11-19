@@ -194,7 +194,7 @@ export class VisualizationUtilService {
   /**
    * Identifies a per-instance member of a maxOccurs>1 abstract wrapper — a FieldItem
    * that holds an independent substitution selection, as opposed to the document-level
-   * `selectedMemberQName` model used for maxOccurs=1. Target-side only by construction:
+   * `selectedMemberQName` model used for a wrapper that is not a collection. Target-side only by construction:
    * both `FieldItemNodeData` and `TargetAbstractFieldNodeData` are target-only types.
    */
   static isAbstractWrapperMember(nodeData: NodeData): boolean {

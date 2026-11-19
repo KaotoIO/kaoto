@@ -2,6 +2,7 @@ import xmlFormat from 'xml-formatter';
 import { qname } from 'xml-name-validator';
 
 import { IDocument, IField } from '../../models/datamapper/document';
+import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import {
   CopyOfSelector,
   FieldItem,
@@ -273,7 +274,7 @@ export class VisualizationService {
         nodes.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, item));
       }
     }
-    if (field.maxOccurs !== 1) {
+    if (FieldCardinality.isCollection(field)) {
       nodes.push(new AddMappingNodeData(parent as TargetNodeData, field));
     }
     return nodes;
