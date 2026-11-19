@@ -61,16 +61,14 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
   const { nodes, edges } = diagram;
   /** The model is not settled until the diagram of the current nodes is built as well */
   const isModelResolving = isResolving || diagram.source !== vizNodes;
-  const isEmpty = nodes.length === 0 && edges.length === 0;
+  /* There is no empty state before the first diagram is built */
+  const isEmpty = diagram.source !== undefined && nodes.length === 0 && edges.length === 0;
 
   return (
     <VisualizationShell className={className} fallback={fallback}>
-      {!isEmpty && (
-        <Canvas contextToolbar={contextToolbar} nodes={nodes} edges={edges} isModelResolving={isModelResolving} />
-      )}
-      {isEmpty && (
-        <EmptyCanvas entitiesNumber={0} isModelResolving={isModelResolving} contextToolbar={contextToolbar} />
-      )}
+      <Canvas contextToolbar={contextToolbar} nodes={nodes} edges={edges} isModelResolving={isModelResolving}>
+        {isEmpty && <EmptyCanvas entitiesNumber={0} />}
+      </Canvas>
     </VisualizationShell>
   );
 };

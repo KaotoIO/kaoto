@@ -60,10 +60,12 @@ describe('TopologyVisualization', () => {
   });
 
   it('shows the empty state when there are no routes', async () => {
-    await renderTopology([]);
+    const { container } = await renderTopology([]);
 
-    expect(await screen.findByTestId('visualization-empty-state')).toBeInTheDocument();
-    expect(fromModelSpy).not.toHaveBeenCalled();
+    /* The empty state is shown inside the canvas, over an empty graph */
+    const emptyState = await screen.findByTestId('visualization-empty-state');
+    expect(container.querySelector('#canvas-main')).toContainElement(emptyState);
+    expect(getDrawnNodeIds()).toEqual([[]]);
   });
 
   it('keeps the canvas and its diagram until the next diagram is built', async () => {
@@ -93,6 +95,25 @@ describe('TopologyVisualization', () => {
     await renderTopology([entity]);
 
     expect(await screen.findByTestId('visualization-empty-state')).toBeInTheDocument();
-    expect(fromModelSpy).not.toHaveBeenCalled();
+    expect(getDrawnNodeIds()).toEqual([[]]);
+  });
+
+  it('keeps the same canvas when the routes are removed and added again', async () => {
+    const { container, rerenderWith } = await renderTopology([entity]);
+    await waitFor(() => {
+      expect(fromModelSpy).toHaveBeenCalledTimes(1);
+    });
+    const root = container.querySelector('#canvas-main');
+
+    rerenderWith([]);
+    expect(await screen.findByTestId('visualization-empty-state')).toBeInTheDocument();
+    expect(container.querySelector('#canvas-main')).toBe(root);
+
+    rerenderWith([entity]);
+    await waitFor(() => {
+      expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
+    });
+    expect(container.querySelector('#canvas-main')).toBe(root);
+    expect(getDrawnNodeIds()).toEqual([['route-8888'], [], ['route-8888']]);
   });
 });

@@ -1,4 +1,4 @@
-import { FunctionComponent, ReactNode, useContext, useMemo } from 'react';
+import { FunctionComponent, ReactNode, useContext, useMemo, useState } from 'react';
 
 import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
 import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
@@ -26,34 +26,27 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
 
   const { nodes, edges } = useMemo(() => buildDesignerCanvasModel(vizNodes), [vizNodes]);
 
-  const emptyState = useMemo(() => {
-    if (entities.length === 0) {
-      return { entitiesNumber: 0 };
-    }
-    if (vizNodes.length === 0 && !isResolving) {
-      return { entitiesNumber: entities.length };
-    }
-    return undefined;
-  }, [entities, vizNodes, isResolving]);
-
+  /*
+   * The number of entities of the model that is drawn. While the next model resolves, the canvas still shows the
+   * previous one, so its empty state stays as it is until then (and there is none before the first model).
+   */
+  const [drawnEntitiesNumber, setDrawnEntitiesNumber] = useState<number>();
+  if (!isResolving && drawnEntitiesNumber !== entities.length) {
+    setDrawnEntitiesNumber(entities.length);
+  }
   return (
     <VisualizationShell className={className} fallback={fallback}>
-      {!emptyState && (
-        <Canvas
-          contextToolbar={contextToolbar}
-          nodes={nodes}
-          edges={edges}
-          isModelResolving={isResolving}
-          applyCollapseOnUpdate
-        />
-      )}
-      {emptyState && (
-        <EmptyCanvas
-          entitiesNumber={emptyState.entitiesNumber}
-          isModelResolving={isResolving}
-          contextToolbar={contextToolbar}
-        />
-      )}
+      <Canvas
+        contextToolbar={contextToolbar}
+        nodes={nodes}
+        edges={edges}
+        isModelResolving={isResolving}
+        applyCollapseOnUpdate
+      >
+        {drawnEntitiesNumber !== undefined && vizNodes.length === 0 && (
+          <EmptyCanvas entitiesNumber={drawnEntitiesNumber} />
+        )}
+      </Canvas>
     </VisualizationShell>
   );
 };

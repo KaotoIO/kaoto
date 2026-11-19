@@ -45,21 +45,4 @@ describe('EmptyCanvas', () => {
     });
     expect(result?.container).toMatchSnapshot();
   });
-
-  it('should not render empty state while viz nodes are still resolving', async () => {
-    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
-    const { Provider } = await TestProvidersWrapper();
-
-    render(
-      <RuntimeProvider>
-        <Provider>
-          <VisualizationProvider controller={ControllerService.createController()}>
-            <EmptyCanvas entitiesNumber={1} isModelResolving />
-          </VisualizationProvider>
-        </Provider>
-      </RuntimeProvider>,
-    );
-
-    expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
-  });
 });
