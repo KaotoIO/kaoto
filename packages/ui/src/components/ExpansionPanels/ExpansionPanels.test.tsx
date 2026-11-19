@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useContext, useEffect } from 'react';
 
 import { ExpansionContext } from './ExpansionContext';
@@ -144,6 +144,72 @@ const renderPanels = (configs: PanelConfig[]) => {
   return render(<ExpansionPanels>{configs.map(createPanelElement)}</ExpansionPanels>);
 };
 
+/**
+ * jsdom has no layout engine, so offsetHeight is always 0. This stub gives the container, the panel headers and
+ * the panels fixed heights, already while the panels register. Change the returned object to change a height later.
+ */
+const stubLayoutHeights = (heights: { container: number; header: number; panel: number }) => {
+  vi.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockImplementation(function (this: HTMLElement) {
+    if (this.classList.contains('expansion-panels')) return heights.container;
+    if (this.classList.contains('expansion-panel__summary')) return heights.header;
+    if (this.classList.contains('expansion-panel')) return heights.panel;
+    return 0;
+  });
+  return heights;
+};
+
+const waitForAnimationFrames = async () => {
+  await act(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+};
+
+/** Waits for the registration microtasks and the animation frames they schedule. */
+const waitForLayoutToSettle = async () => {
+  await waitForUpdate();
+  await waitForAnimationFrames();
+};
+
+const dragResizeHandle = (summary: string, deltaY: number) => {
+  const panel = screen.getByText(summary).closest('.expansion-panel') as HTMLElement;
+  const handle = panel.querySelector('.expansion-panel__resize-handle') as HTMLElement;
+  fireEvent.mouseDown(handle, { clientY: 100 });
+  fireEvent.mouseMove(document, { clientY: 100 + deltaY });
+  fireEvent.mouseUp(document);
+};
+
+/**
+ * The global test setup runs animation frames as microtasks and cannot cancel them.
+ * This stub collects the frames instead, so a test decides when the next frame runs.
+ */
+const collectAnimationFrames = () => {
+  const frames = new Map<number, FrameRequestCallback>();
+  let nextId = 1;
+  vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
+    frames.set(nextId, callback);
+    return nextId++;
+  });
+  vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation((id) => {
+    frames.delete(id);
+  });
+  return {
+    runNextFrame: () => {
+      const callbacks = [...frames.values()];
+      frames.clear();
+      act(() => {
+        callbacks.forEach((callback) => {
+          callback(performance.now());
+        });
+      });
+    },
+  };
+};
+
+/** jsdom has no TransitionEvent, so the property name is set on a plain event. */
+const fireTransitionEnd = (target: HTMLElement, propertyName: string) => {
+  fireEvent(target, Object.assign(new Event('transitionend', { bubbles: true }), { propertyName }));
+};
+
+const getPanelsContainer = (container: HTMLElement) => container.querySelector('.expansion-panels') as HTMLElement;
+
 // Helper component for testing layout callbacks
 const createTestPanelWithCallback = (callbackRef: { current: boolean }) => {
   const TestPanel = ({ id }: { id: string }) => {
@@ -188,6 +254,7 @@ describe('ExpansionPanels', () => {
 
   afterEach(() => {
     globalThis.ResizeObserver = originalResizeObserver;
+    vi.restoreAllMocks();
   });
 
   describe('Panel Registration and Ordering', () => {
@@ -902,6 +969,233 @@ describe('ExpansionPanels', () => {
       // Verify the callback was executed after panel registration
       // This ensures connection ports are synced for primitive parameters
       expect(callbackRef.current).toBe(true);
+    });
+  });
+
+  describe('Panel ordering with other children', () => {
+    it('should lay out panels in their order when other elements sit between them', async () => {
+      stubLayoutHeights({ container: 1000, header: 50, panel: 300 });
+
+      const { container } = render(
+        <ExpansionPanels>
+          {createPanelElement({ id: 'panel-1', summary: 'Panel 1', defaultHeight: 200 })}
+          <div>Divider</div>
+          {createPanelElement({ id: 'panel-2', summary: 'Panel 2', defaultHeight: 300 })}
+        </ExpansionPanels>,
+      );
+      await waitForLayoutToSettle();
+
+      expect(getGridTemplate(container)).toBe('200px 300px');
+    });
+  });
+
+  describe('Resizing by dragging the handle', () => {
+    it('should grow the dragged panel and shrink the expanded panel below it', async () => {
+      stubLayoutHeights({ container: 600, header: 50, panel: 300 });
+      const { container } = renderPanels([
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 300 },
+        { id: 'panel-2', summary: 'Panel 2', minHeight: 100, defaultHeight: 300 },
+      ]);
+      await waitForLayoutToSettle();
+
+      dragResizeHandle('Panel 1', 50);
+
+      expect(getGridTemplate(container)).toBe('350px 250px');
+    });
+
+    it('should take the space from the next expanded panel when collapsed panels sit in between', async () => {
+      stubLayoutHeights({ container: 650, header: 50, panel: 300 });
+      const { container } = renderPanels([
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 300 },
+        { id: 'panel-2', summary: 'Panel 2', minHeight: 100, defaultHeight: 300, defaultExpanded: false },
+        { id: 'panel-3', summary: 'Panel 3', minHeight: 100, defaultHeight: 300 },
+      ]);
+      await waitForLayoutToSettle();
+
+      dragResizeHandle('Panel 1', 50);
+
+      expect(getGridTemplate(container)).toBe('350px 50px 250px');
+    });
+
+    it.each([
+      { case: 'it is the last panel', belowExpanded: true, dragged: 'Panel 2', expected: '300px 300px' },
+      { case: 'only collapsed panels are below it', belowExpanded: false, dragged: 'Panel 1', expected: '300px 50px' },
+    ])('should not resize a panel when $case', async ({ belowExpanded, dragged, expected }) => {
+      stubLayoutHeights({ container: 600, header: 50, panel: 300 });
+      const { container } = renderPanels([
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 300 },
+        { id: 'panel-2', summary: 'Panel 2', minHeight: 100, defaultHeight: 300, defaultExpanded: belowExpanded },
+      ]);
+      await waitForLayoutToSettle();
+      const templateBeforeDrag = getGridTemplate(container);
+
+      dragResizeHandle(dragged, 50);
+
+      expect(templateBeforeDrag).toBe(expected);
+      expect(getGridTemplate(container)).toBe(expected);
+    });
+  });
+
+  describe('Expanding and collapsing', () => {
+    it('should share the space equally above the min heights when a panel expands next to an expanded one', async () => {
+      stubLayoutHeights({ container: 600, header: 50, panel: 300 });
+      const { container } = renderPanels([
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 400 },
+        { id: 'panel-2', summary: 'Panel 2', minHeight: 100, defaultHeight: 100, defaultExpanded: false },
+      ]);
+      await waitForLayoutToSettle();
+
+      await clickElement(screen.getByText('Panel 2'));
+
+      expect(getGridTemplate(container)).toBe('300px 300px');
+    });
+
+    it('should give a panel no taller than its header at least its min height when it expands into a full container', async () => {
+      stubLayoutHeights({ container: 150, header: 50, panel: 100 });
+      const { container } = renderPanels([
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 300 },
+        { id: 'panel-2', summary: 'Panel 2', minHeight: 100, defaultHeight: 50, defaultExpanded: false },
+      ]);
+      await waitForLayoutToSettle();
+
+      await clickElement(screen.getByText('Panel 2'));
+
+      expect(getGridTemplate(container)).toBe('100px 100px');
+    });
+
+    it('should not hand out the space of a collapsed panel again when defaultExpanded turns false afterwards', async () => {
+      stubLayoutHeights({ container: 600, header: 50, panel: 300 });
+      const panel2 = { id: 'panel-2', summary: 'Panel 2', defaultHeight: 300 };
+      const { container, rerender } = renderPanels([{ id: 'panel-1', summary: 'Panel 1', defaultHeight: 300 }, panel2]);
+      await waitForLayoutToSettle();
+      await clickElement(screen.getByText('Panel 1'));
+      expect(getGridTemplate(container)).toBe('50px 550px');
+
+      rerender(
+        <ExpansionPanels>
+          {[{ id: 'panel-1', summary: 'Panel 1', defaultHeight: 300, defaultExpanded: false }, panel2].map(
+            createPanelElement,
+          )}
+        </ExpansionPanels>,
+      );
+      await waitForUpdate();
+
+      expect(getGridTemplate(container)).toBe('50px 550px');
+    });
+  });
+
+  describe('Container resize with collapsed panels', () => {
+    it('should keep collapsed panels at their header height and give the expanded panels the rest', async () => {
+      const layout = stubLayoutHeights({ container: 650, header: 50, panel: 300 });
+      const { container } = renderPanels([
+        { id: 'panel-1', summary: 'Panel 1', minHeight: 100, defaultHeight: 300, defaultExpanded: false },
+        { id: 'panel-2', summary: 'Panel 2', minHeight: 100, defaultHeight: 300 },
+        { id: 'panel-3', summary: 'Panel 3', minHeight: 100, defaultHeight: 300 },
+      ]);
+      await waitForLayoutToSettle();
+
+      layout.container = 850;
+      await triggerContainerResize(mockResizeObserver);
+
+      expect(getGridTemplate(container)).toBe('50px 400px 400px');
+    });
+  });
+
+  describe('Layout change notifications', () => {
+    const renderPanelsWithLayoutListeners = () => {
+      const onLayoutChange1 = vi.fn();
+      const onLayoutChange2 = vi.fn();
+      const view = render(
+        <ExpansionPanels>
+          <ExpansionPanel id="panel-1" summary="Panel 1" onLayoutChange={onLayoutChange1}>
+            Content 1
+          </ExpansionPanel>
+          <ExpansionPanel id="panel-2" summary="Panel 2" onLayoutChange={onLayoutChange2}>
+            Content 2
+          </ExpansionPanel>
+        </ExpansionPanels>,
+      );
+      return { ...view, onLayoutChange1, onLayoutChange2 };
+    };
+
+    it('should run a queued layout change only after a panel registration has settled', async () => {
+      stubLayoutHeights({ container: 600, header: 50, panel: 300 });
+      const onQueuedChange = vi.fn();
+      const QueueLayoutChangeOnMount = () => {
+        const context = useContext(ExpansionContext);
+        useEffect(() => {
+          context.queueLayoutChange(onQueuedChange);
+        }, [context]);
+        return null;
+      };
+
+      render(
+        <ExpansionPanels>
+          <QueueLayoutChangeOnMount />
+          {createPanelElement({ id: 'panel-1', summary: 'Panel 1' })}
+        </ExpansionPanels>,
+      );
+      expect(onQueuedChange).not.toHaveBeenCalled();
+
+      await waitForLayoutToSettle();
+
+      expect(onQueuedChange).toHaveBeenCalledTimes(1);
+    });
+
+    it('should notify every panel once per animation frame while the container scrolls', async () => {
+      stubLayoutHeights({ container: 600, header: 50, panel: 300 });
+      const { container, onLayoutChange1, onLayoutChange2 } = renderPanelsWithLayoutListeners();
+      await waitForLayoutToSettle();
+      onLayoutChange1.mockClear();
+      onLayoutChange2.mockClear();
+
+      const animationFrames = collectAnimationFrames();
+
+      fireEvent.scroll(getPanelsContainer(container));
+      fireEvent.scroll(getPanelsContainer(container));
+      animationFrames.runNextFrame();
+
+      expect(onLayoutChange1).toHaveBeenCalledExactlyOnceWith('panel-1');
+      expect(onLayoutChange2).toHaveBeenCalledExactlyOnceWith('panel-2');
+    });
+
+    it('should notify every panel when the grid row transition of the container ends', async () => {
+      stubLayoutHeights({ container: 600, header: 50, panel: 300 });
+      const { container, onLayoutChange1, onLayoutChange2 } = renderPanelsWithLayoutListeners();
+      await waitForLayoutToSettle();
+      onLayoutChange1.mockClear();
+      onLayoutChange2.mockClear();
+
+      fireTransitionEnd(getPanelsContainer(container), 'grid-template-rows');
+      await waitForAnimationFrames();
+
+      expect(onLayoutChange1).toHaveBeenCalledWith('panel-1');
+      expect(onLayoutChange2).toHaveBeenCalledWith('panel-2');
+    });
+
+    it.each([
+      {
+        case: 'another property of the container',
+        getTarget: (container: HTMLElement) => getPanelsContainer(container),
+        propertyName: 'opacity',
+      },
+      {
+        case: 'the grid rows of a panel inside the container',
+        getTarget: () => screen.getByText('Panel 1').closest('.expansion-panel') as HTMLElement,
+        propertyName: 'grid-template-rows',
+      },
+    ])('should not notify the panels when a transition of $case ends', async ({ getTarget, propertyName }) => {
+      stubLayoutHeights({ container: 600, header: 50, panel: 300 });
+      const { container, onLayoutChange1, onLayoutChange2 } = renderPanelsWithLayoutListeners();
+      await waitForLayoutToSettle();
+      onLayoutChange1.mockClear();
+      onLayoutChange2.mockClear();
+
+      fireTransitionEnd(getTarget(container), propertyName);
+      await waitForAnimationFrames();
+
+      expect(onLayoutChange1).not.toHaveBeenCalled();
+      expect(onLayoutChange2).not.toHaveBeenCalled();
     });
   });
 });
