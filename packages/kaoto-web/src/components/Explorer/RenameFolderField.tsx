@@ -14,10 +14,15 @@ interface RenameFolderFieldProps {
    * @param renamedPath the new path of the folder, or undefined when renaming was cancelled or the name is unchanged
    */
   onDone: (byKeyboard: boolean, renamedPath: string | undefined) => void;
+  /**
+   * Called as soon as the folder is renamed in storage, also when another entry's field has replaced this one by then
+   * and `onDone` is not called any more.
+   */
+  onRenamed: (fromPath: string, toPath: string) => void;
 }
 
 /** Renames a folder in place of its name in the Explorer; everything in it moves along */
-export const RenameFolderField: FunctionComponent<RenameFolderFieldProps> = ({ folderPath, onDone }) => {
+export const RenameFolderField: FunctionComponent<RenameFolderFieldProps> = ({ folderPath, onDone, onRenamed }) => {
   const { files, folders, renameFolder } = useFiles();
   const renamedPath = useRef<string | undefined>(undefined);
   const slash = folderPath.lastIndexOf('/');
@@ -34,6 +39,7 @@ export const RenameFolderField: FunctionComponent<RenameFolderFieldProps> = ({ f
   const commit = async (path: string) => {
     await renameFolder(folderPath, path);
     renamedPath.current = path;
+    onRenamed(folderPath, path);
   };
 
   return (
