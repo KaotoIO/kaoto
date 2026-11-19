@@ -59,4 +59,122 @@ describe('KameletParser', () => {
       expect(parsedTables[3].data[0][0]).toBe('camel:timer');
     });
   });
+
+  describe('parseKameletEntity() data types', () => {
+    const kameletWithDataTypes = `
+apiVersion: camel.apache.org/v1
+kind: Kamelet
+metadata:
+  name: typed-source
+spec:
+  definition:
+    title: Typed Source
+    properties:
+      period:
+        type: integer
+  types:
+    in:
+      mediaType: text/plain
+    out:
+      mediaType: application/json
+  dataTypes:
+    in:
+      default: text
+      headers:
+        CamelHttpMethod:
+          title: Method
+          description: The HTTP method
+      types:
+        text:
+          mediaType: text/plain
+          headers:
+            Content-Type:
+              default: text/plain
+          schema:
+            properties:
+              name:
+                type: string
+                title: Name
+    out:
+      types:
+        json:
+          mediaType: application/json
+    error:
+      default: error
+  dependencies:
+    - camel:timer
+  template:
+    from:
+      uri: timer:tick
+      steps:
+        - log:
+            id: log-1
+`;
+
+    const parse = () =>
+      KameletParser.parseKameletEntity(
+        CamelResourceFactory.createCamelResource(kameletWithDataTypes).getVisualEntities()[0] as KameletVisualEntity,
+      );
+    const byTitle = (title: string) => parse().find((table) => table.title === title);
+
+    it('adds a table per channel, type, header set and schema', () => {
+      expect(parse().map((table) => [table.title, table.headingLevel])).toEqual([
+        ['Steps', 'h1'],
+        ['Definition', 'h1'],
+        ['Types', 'h1'],
+        ['Data Types', 'h1'],
+        ['IN', 'h2'],
+        ['IN : Headers', 'h2'],
+        ['IN : text', 'h3'],
+        ['IN : text : Headers', 'h3'],
+        ['IN : text : Schema', 'h3'],
+        ['OUT', 'h2'],
+        ['OUT : json', 'h3'],
+        ['ERROR', 'h2'],
+        ['Dependencies', 'h1'],
+      ]);
+    });
+
+    it('lists the media types of both directions', () => {
+      expect(byTitle('Types')?.data).toEqual([
+        ['in', 'text/plain'],
+        ['out', 'application/json'],
+      ]);
+    });
+
+    it.each([
+      ['IN', [['Default Data Type', 'text']]],
+      ['OUT', []],
+      ['ERROR', [['Default Data Type', 'error']]],
+    ])('shows the default data type of the %s channel', (title, data) => {
+      expect(byTitle(title)?.data).toEqual(data);
+    });
+
+    it.each([
+      [
+        'IN : Headers',
+        [
+          ['CamelHttpMethod', 'title', 'Method'],
+          ['', 'description', 'The HTTP method'],
+        ],
+      ],
+      ['IN : text : Headers', [['Content-Type', 'default', 'text/plain']]],
+      [
+        'IN : text : Schema',
+        [
+          ['name', 'type', 'string'],
+          ['', 'title', 'Name'],
+        ],
+      ],
+    ])('lists the properties in %s', (title, data) => {
+      expect(byTitle(title)?.data).toEqual(data);
+    });
+
+    it('lists a step without parameters on a row of its own', () => {
+      expect(byTitle('Steps')?.data).toEqual([
+        [undefined, 'from', 'timer:tick', '', ''],
+        ['log-1', 'log', '', '', ''],
+      ]);
+    });
+  });
 });
