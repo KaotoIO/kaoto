@@ -7,6 +7,7 @@ import { DocumentUtilService } from '../document-util.service';
 import type { JsonSchemaAnalysisReport } from './json-schema-analysis.service';
 import { JsonSchemaAnalysisService } from './json-schema-analysis.service';
 import {
+  bindingRequiredOf,
   CreateJsonSchemaDocumentResult,
   JsonSchemaCollection,
   JsonSchemaDocument,
@@ -348,6 +349,7 @@ export class JsonSchemaDocumentService {
     // create a temporary field, get it populated with fragment children
     const field: JsonSchemaField = new JsonSchemaField(parent, '', type);
     field.namedTypeFragmentRefs = schemaMeta.$ref ? [schemaMeta.$ref] : [];
+    field.required = [...(schemaMeta.required ?? [])];
 
     if (type === Types.Array) {
       this.populateArrayItems(field, schemaMeta);
@@ -359,8 +361,10 @@ export class JsonSchemaDocumentService {
 
     return {
       type: updatedField.type,
+      required: updatedField.required,
       fields: updatedField.fields,
       namedTypeFragmentRefs: updatedField.namedTypeFragmentRefs,
+      optionalFragmentRefs: updatedField.optionalFragmentRefs,
     };
   }
 
@@ -444,8 +448,14 @@ export class JsonSchemaDocumentService {
    * at this moment. If we want to do something with `not` then it would also need some change here.
    * @param field
    * @param schema
+   * @param isRequiredBinding - whether the `required` reached through `schema` applies to the field; false inside an
+   *   `anyOf` or `oneOf` member, as another member may allow the property to be absent
    */
-  private updateFieldFromComposition(field: JsonSchemaField, schema: JsonSchemaMetadata): JsonSchemaField {
+  private updateFieldFromComposition(
+    field: JsonSchemaField,
+    schema: JsonSchemaMetadata,
+    isRequiredBinding = true,
+  ): JsonSchemaField {
     const memberSchema = (keyword: string, index: number): JsonSchemaMetadata => ({
       ...schema,
       path: `${schema.path}/${keyword}/${index}`,
@@ -453,17 +463,22 @@ export class JsonSchemaDocumentService {
 
     let updated = schema.anyOf?.reduce(
       (current, compositionSchemaDef, index) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('anyOf', index)),
+        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('anyOf', index), false),
       field,
     );
     updated = schema.oneOf?.reduce(
       (current, compositionSchemaDef, index) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('oneOf', index)),
+        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('oneOf', index), false),
       updated ?? field,
     );
     updated = schema.allOf?.reduce(
       (current, compositionSchemaDef, index) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('allOf', index)),
+        this.doUpdateWithJSONSchemaDefinition(
+          current,
+          compositionSchemaDef,
+          memberSchema('allOf', index),
+          isRequiredBinding,
+        ),
       updated ?? field,
     );
     return updated ?? field;
@@ -473,11 +488,12 @@ export class JsonSchemaDocumentService {
     field: JsonSchemaField,
     schemaDef: JSONSchema7Definition,
     schemaContext: JsonSchemaMetadata,
+    isRequiredBinding: boolean,
   ): JsonSchemaField {
     if (typeof schemaDef === 'boolean' || Object.keys(schemaDef).length === 0) return field;
 
     if (schemaDef.$ref) {
-      this.handleSchemaRef(field, schemaDef.$ref, schemaContext);
+      this.handleSchemaRef(field, schemaDef.$ref, schemaContext, isRequiredBinding);
     }
 
     const schemaMeta: JsonSchemaMetadata = {
@@ -491,7 +507,7 @@ export class JsonSchemaDocumentService {
     const type = JsonSchemaDocumentUtilService.electFieldTypeFromSchema(schemaMeta);
     const updatedField = this.updateFieldByType(field, type, schemaMeta);
 
-    return this.updateFieldFromComposition(updatedField, schemaMeta);
+    return this.updateFieldFromComposition(updatedField, schemaMeta, isRequiredBinding);
   }
 
   private ensureFieldType(field: JsonSchemaField, type: Types): JsonSchemaField {
@@ -502,7 +518,17 @@ export class JsonSchemaDocumentService {
     return field.copyTo(answer);
   }
 
-  private handleSchemaRef(field: JsonSchemaField, ref: string, schemaContext: JsonSchemaMetadata): void {
+  /**
+   * Registers the type fragment `ref` points to on the field.
+   * @param isRequiredBinding - false for a `$ref` inside an `anyOf` or `oneOf` member: the `required` of the referenced
+   *   definition then doesn't apply to the field, see {@link JsonSchemaField.optionalFragmentRefs}
+   */
+  private handleSchemaRef(
+    field: JsonSchemaField,
+    ref: string,
+    schemaContext: JsonSchemaMetadata,
+    isRequiredBinding = true,
+  ): void {
     const resolved = JsonSchemaDocumentUtilService.createJsonSchemaReference(
       ref,
       schemaContext,
@@ -511,7 +537,7 @@ export class JsonSchemaDocumentService {
 
     if (resolved) {
       const fullRef = resolved.isExternal() ? resolved.getFullReference() : ref;
-      field.namedTypeFragmentRefs.push(fullRef);
+      field.addFragmentRef(fullRef, isRequiredBinding);
 
       if (resolved.isExternal() && !this.jsonDocument.namedTypeFragments[fullRef]) {
         this.populateExternalTypeFragment(resolved);
@@ -612,8 +638,11 @@ export class JsonSchemaDocumentService {
         subField.maxOccurs = Number.MAX_SAFE_INTEGER;
       });
     } else if (updatedFragment.type === Types.Container) {
+      // the referenced definitions are complete now, so their required properties apply; they aren't stored on the
+      // field, as a field type override replaces its refs and the children then take the required of the new ones
+      const required = bindingRequiredOf(updatedFragment, this.jsonDocument.namedTypeFragments);
       updatedFragment.fields.forEach((subField) => {
-        subField.minOccurs = updatedFragment.required?.includes(subField.key) ? 1 : 0;
+        subField.minOccurs = required.includes(subField.key) ? 1 : 0;
         subField.maxOccurs = 1;
       });
     }

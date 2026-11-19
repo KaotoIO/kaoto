@@ -15,7 +15,8 @@ import {
   getProductJsonSchema,
 } from '../../../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from '../document-util.service';
-import { JsonSchemaDocument } from './json-schema-document.model';
+import { FieldOverrideService } from '../field-override.service';
+import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 
 function createTestJsonDocument(documentType: DocumentType, documentId: string, content: string): JsonSchemaDocument {
@@ -805,6 +806,157 @@ describe('JsonSchemaDocumentService', () => {
     expect(field.typeQName?.getLocalPart()).toBe('string');
   });
 
+  it.each([
+    ['as its own $ref', { $ref: '#/definitions/Address' }, 1],
+    ['through an allOf member', { allOf: [{ $ref: '#/definitions/Address' }] }, 1],
+    ['through an anyOf member, which may not apply', { anyOf: [{ $ref: '#/definitions/Address' }, {}] }, 0],
+    ['through a oneOf member, which may not apply', { oneOf: [{ $ref: '#/definitions/Address' }, {}] }, 0],
+  ] as [string, JSONSchema7, number][])(
+    'should apply the required properties of a definition referenced %s',
+    (_desc, addrSchema, streetMinOccurs) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        properties: { addr: addrSchema },
+        definitions: {
+          Address: {
+            type: 'object',
+            required: ['street'],
+            properties: { street: { type: 'string' }, city: { type: 'string' } },
+          },
+        },
+      };
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+      const addr = doc.fields[0].fields.find((f) => f.key === 'addr')!;
+
+      DocumentUtilService.resolveTypeFragment(addr);
+
+      expect(addr.fields.find((f) => f.key === 'street')!.minOccurs).toBe(streetMinOccurs);
+      expect(addr.fields.find((f) => f.key === 'city')!.minOccurs).toBe(0);
+    },
+  );
+
+  it('should take the required properties of the new definition after a field type override', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: { billing: { $ref: '#/definitions/Address' } },
+      definitions: {
+        Address: { type: 'object', required: ['street'], properties: { street: { type: 'string' } } },
+        PoBox: {
+          type: 'object',
+          required: ['box'],
+          properties: { street: { type: 'string' }, box: { type: 'string' } },
+        },
+      },
+    };
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const billing = doc.fields[0].fields.find((f) => f.key === 'billing')!;
+    const poBox = FieldOverrideService.getAllOverrideCandidates(doc, {})['#/definitions/PoBox'];
+
+    FieldOverrideService.applyFieldTypeOverride(billing, poBox, {}, FieldOverrideVariant.FORCE);
+
+    expect(billing.fields.find((f) => f.key === 'street')!.minOccurs).toBe(0);
+    expect(billing.fields.find((f) => f.key === 'box')!.minOccurs).toBe(1);
+  });
+
+  it.each([
+    [
+      'a definition that requires a property it inherits through its own allOf $ref',
+      { $ref: '#/definitions/Person' },
+      { name: 1 },
+    ],
+    [
+      'an allOf $ref member that adds a required property',
+      { allOf: [{ $ref: '#/definitions/Named' }, { $ref: '#/definitions/RequiresName' }] },
+      { name: 1, nickname: 0 },
+    ],
+    [
+      'an allOf $ref member that adds a required property before the member that declares it',
+      { allOf: [{ $ref: '#/definitions/RequiresName' }, { $ref: '#/definitions/Named' }] },
+      { name: 1, nickname: 0 },
+    ],
+    [
+      'an allOf $ref member that requires a property declared inline',
+      {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+        allOf: [{ $ref: '#/definitions/RequiresName' }],
+      },
+      { name: 1 },
+    ],
+    [
+      'an allOf $ref member that allows any value',
+      {
+        allOf: [
+          { $ref: '#/definitions/Named' },
+          { $ref: '#/definitions/RequiresName' },
+          { $ref: '#/definitions/AnyValue' },
+        ],
+      },
+      { name: 1 },
+    ],
+    [
+      'its own $ref and an anyOf member with the same $ref',
+      { $ref: '#/definitions/Address', anyOf: [{ $ref: '#/definitions/Address' }, { type: 'null' }] },
+      { street: 1 },
+    ],
+    [
+      'a property merged from a definition that refers to a definition only optionally and one that always does',
+      { allOf: [{ $ref: '#/definitions/MaybeHome' }, { $ref: '#/definitions/WithHome' }] },
+      { home: 0 },
+      ['home'],
+      { street: 1 },
+    ],
+  ] as [string, JSONSchema7, Record<string, number>, string[]?, Record<string, number>?][])(
+    'should apply the required properties for %s',
+    (_desc, valueSchema, minOccursByKey, nestedPath = [], nestedMinOccursByKey = {}) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        properties: { value: valueSchema },
+        definitions: {
+          Named: { type: 'object', properties: { name: { type: 'string' }, nickname: { type: 'string' } } },
+          RequiresName: { type: 'object', required: ['name'] },
+          Person: { type: 'object', required: ['name'], allOf: [{ $ref: '#/definitions/Named' }] },
+          Address: { type: 'object', required: ['street'], properties: { street: { type: 'string' } } },
+          MaybeHome: {
+            type: 'object',
+            properties: { home: { anyOf: [{ $ref: '#/definitions/Address' }, { type: 'null' }] } },
+          },
+          WithHome: { type: 'object', properties: { home: { $ref: '#/definitions/Address' } } },
+          AnyValue: {},
+        },
+      };
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+      const value = DocumentUtilService.resolveTypeFragment(
+        doc.fields[0].fields.find((f) => f.key === 'value')!,
+      ) as JsonSchemaField;
+
+      const minOccursOf = (field: JsonSchemaField, keys: string[]) =>
+        Object.fromEntries(keys.map((key) => [key, field.fields.find((f) => f.key === key)!.minOccurs]));
+      expect(minOccursOf(value, Object.keys(minOccursByKey))).toEqual(minOccursByKey);
+      const nested = nestedPath.reduce<JsonSchemaField>(
+        (field, key) =>
+          DocumentUtilService.resolveTypeFragment(field.fields.find((f) => f.key === key)!) as JsonSchemaField,
+        value,
+      );
+      expect(minOccursOf(nested, Object.keys(nestedMinOccursByKey))).toEqual(nestedMinOccursByKey);
+    },
+  );
+
+  it('should create an object with a $ref to a missing definition from its own properties', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        x: { type: 'object', properties: { a: { type: 'string' } }, $ref: '#/definitions/Missing' },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const x = doc.fields[0].fields.find((f) => f.key === 'x')!;
+    expect(x.type).toBe(Types.Container);
+    expect(x.fields.map((f) => f.key)).toEqual(['a']);
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,
@@ -859,6 +1011,9 @@ describe('JsonSchemaDocumentService', () => {
       const street = billingAddress!.fields.find((f) => f.key === 'street');
       expect(street).toBeDefined();
       expect(street!.type).toBe(Types.String);
+      // Address in CommonTypes.schema.json requires street, city and country
+      expect(street!.minOccurs).toBe(1);
+      expect(billingAddress!.fields.find((f) => f.key === 'state')!.minOccurs).toBe(0);
     });
 
     it('should resolve $id-based URI external $ref', () => {
