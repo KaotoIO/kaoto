@@ -101,6 +101,56 @@ function createNoNsSubstitutionDoc() {
   return result.document;
 }
 
+const NS_RESUBSTITUTION = 'http://www.example.com/RESUBSTITUTION';
+
+function createNonAbstractHeadDoc() {
+  const xsd = `
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+      targetNamespace="${NS_RESUBSTITUTION}"
+      xmlns="${NS_RESUBSTITUTION}"
+      elementFormDefault="qualified">
+      <xs:element name="Root">
+        <xs:complexType><xs:sequence><xs:element ref="Head"/></xs:sequence></xs:complexType>
+      </xs:element>
+      <xs:element name="Head" type="HeadType"/>
+      <xs:element name="SubA" type="SubAType" substitutionGroup="Head"/>
+      <xs:element name="SubB" type="SubBType" substitutionGroup="Head"/>
+      <xs:complexType name="HeadType">
+        <xs:sequence><xs:element name="base" type="xs:string"/></xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="SubAType">
+        <xs:complexContent>
+          <xs:extension base="HeadType">
+            <xs:sequence><xs:element name="extraA" type="xs:string"/></xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+      <xs:complexType name="SubBType">
+        <xs:complexContent>
+          <xs:extension base="HeadType">
+            <xs:sequence><xs:element name="extraB" type="xs:string"/></xs:sequence>
+          </xs:extension>
+        </xs:complexContent>
+      </xs:complexType>
+    </xs:schema>`;
+  const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+    'Resubstitution.xsd': xsd,
+  });
+  definition.rootElementChoice = { namespaceUri: NS_RESUBSTITUTION, name: 'Root' };
+  const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+  if (result.validationStatus !== 'success' || !result.document) {
+    throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create non-abstract head document');
+  }
+  return result.document;
+}
+
+const XS_INT_CANDIDATE = {
+  displayName: 'xs:int',
+  typeQName: new QName(NS_XML_SCHEMA, 'int'),
+  type: Types.Integer,
+  isBuiltIn: true,
+};
+
 describe('FieldOverrideService', () => {
   describe('getSafeOverrideCandidates()', () => {
     it('should return only xs:int restrictions for the capacity field', () => {
@@ -719,6 +769,42 @@ describe('FieldOverrideService', () => {
       expect(doc.definition.fieldTypeOverrides![0].type).toBe(`${registeredPrefix}:EmployeeType`);
     });
 
+    it('should leave a substituted field unchanged', () => {
+      const doc = createNonAbstractHeadDoc();
+      const namespaceMap = { xs: NS_XML_SCHEMA, ns: NS_RESUBSTITUTION };
+      const headField = doc.fields[0].fields[0];
+      FieldOverrideService.applyFieldSubstitution(headField, 'ns:SubA', namespaceMap);
+
+      FieldOverrideService.applyFieldTypeOverride(
+        headField,
+        XS_INT_CANDIDATE,
+        namespaceMap,
+        FieldOverrideVariant.FORCE,
+      );
+
+      expect(headField.name).toBe('SubA');
+      expect(headField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+      expect(doc.definition.fieldTypeOverrides ?? []).toHaveLength(0);
+    });
+
+    it('should leave an abstract wrapper with a selected member unchanged', () => {
+      const doc = createSubstitutionDoc();
+      const namespaceMap = { xs: NS_XML_SCHEMA, sub: NS_SUBSTITUTION };
+      const abstractAnimalField = doc.fields[0];
+      FieldOverrideService.applyFieldSubstitution(abstractAnimalField, 'sub:Cat', namespaceMap);
+
+      FieldOverrideService.applyFieldTypeOverride(
+        abstractAnimalField,
+        XS_INT_CANDIDATE,
+        namespaceMap,
+        FieldOverrideVariant.FORCE,
+      );
+
+      expect(abstractAnimalField.typeOverride).toBe(FieldOverrideVariant.NONE);
+      expect(abstractAnimalField.selectedMemberQName?.getLocalPart()).toBe('Cat');
+      expect(doc.definition.fieldTypeOverrides ?? []).toHaveLength(0);
+    });
+
     it('should throw TypeError for PrimitiveDocument', () => {
       const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, 'test-doc');
       const document = new PrimitiveDocument(definition);
@@ -1122,6 +1208,46 @@ describe('FieldOverrideService', () => {
       expect(abstractAnimalField.selectedMemberQName).toBeUndefined();
       expect(abstractAnimalField.fields).toHaveLength(originalFieldCount);
       expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
+    });
+
+    it('should not substitute a field that has a type override', () => {
+      const doc = createNonAbstractHeadDoc();
+      const namespaceMap = { xs: NS_XML_SCHEMA, ns: NS_RESUBSTITUTION };
+      const headField = doc.fields[0].fields[0];
+      FieldOverrideService.applyFieldTypeOverride(
+        headField,
+        XS_INT_CANDIDATE,
+        namespaceMap,
+        FieldOverrideVariant.FORCE,
+      );
+
+      FieldOverrideService.applyFieldSubstitution(headField, 'ns:SubA', namespaceMap);
+
+      expect(headField.name).toBe('Head');
+      expect(headField.typeOverride).toBe(FieldOverrideVariant.FORCE);
+      expect(doc.definition.fieldSubstitutions ?? []).toHaveLength(0);
+    });
+
+    it('should drop the overrides below the previous substitute when a substituted field is substituted again', () => {
+      const doc = createNonAbstractHeadDoc();
+      const namespaceMap = { xs: NS_XML_SCHEMA, ns: NS_RESUBSTITUTION };
+      const headField = doc.fields[0].fields[0];
+      FieldOverrideService.applyFieldSubstitution(headField, 'ns:SubA', namespaceMap);
+      const extraAField = headField.fields.find((f) => f.name === 'extraA')!;
+      FieldOverrideService.applyFieldTypeOverride(
+        extraAField,
+        XS_INT_CANDIDATE,
+        namespaceMap,
+        FieldOverrideVariant.FORCE,
+      );
+
+      FieldOverrideService.applyFieldSubstitution(headField, 'ns:SubB', namespaceMap);
+
+      expect(headField.name).toBe('SubB');
+      expect(doc.definition.fieldSubstitutions).toEqual([
+        { schemaPath: '/ns:Root/ns:Head', name: 'ns:SubB', originalName: 'ns:Head' },
+      ]);
+      expect(doc.definition.fieldTypeOverrides).toEqual([]);
     });
 
     it('should apply substitution via applySubstitutionToField when field is not abstract', () => {
