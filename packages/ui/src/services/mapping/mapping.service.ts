@@ -1286,6 +1286,10 @@ export class MappingService {
 
   /**
    * In-place update of name and expression on an existing {@link VariableItem}.
+   *
+   * A non-empty expression drops the {@link VariableItem.rawElement} kept from loading, together with its other
+   * attributes (e.g. `as`) and content, so the variable is written like a new one. With an empty expression the element
+   * stays; the serializer writes its current name and expression.
    * @param variable - the variable item to update
    * @param name - the new variable name
    * @param expression - the new XPath expression

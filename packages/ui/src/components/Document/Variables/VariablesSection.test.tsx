@@ -4,6 +4,7 @@ import { VARIABLES_SECTION_ANCHOR } from '../../../models/datamapper/connection-
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { useDocumentTreeStore } from '../../../store/document-tree.store';
+import { getVariableStylesheetPreservedXslt } from '../../../stubs/datamapper/data-mapper';
 import { ExpansionPanels } from '../../ExpansionPanels/ExpansionPanels';
 import { VariablesSection } from './VariablesSection';
 
@@ -112,6 +113,75 @@ describe('VariablesSection', () => {
 
       await waitFor(() => {
         expect(screen.queryByTestId('variable-row-obsolete')).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('A stylesheet variable kept as written, in the saved XSLT', () => {
+    let savedXslt = '';
+
+    const renderWithStylesheet = () =>
+      render(
+        <DataMapperProvider
+          initialXsltFile={getVariableStylesheetPreservedXslt()}
+          onUpdateMappings={(xslt) => {
+            savedXslt = xslt;
+          }}
+        >
+          <MappingLinksProvider>
+            <ExpansionPanels>
+              <VariablesSection isReadOnly={false} />
+            </ExpansionPanels>
+          </MappingLinksProvider>
+        </DataMapperProvider>,
+      );
+
+    /** The `xsl:variable` element of `name` in the XSLT reported last */
+    const savedVariable = (name: string) =>
+      Array.from(
+        new DOMParser()
+          .parseFromString(savedXslt, 'text/xml')
+          .getElementsByTagNameNS('http://www.w3.org/1999/XSL/Transform', 'variable'),
+      ).find((element) => element.getAttribute('name') === name);
+
+    beforeEach(() => {
+      savedXslt = '';
+    });
+
+    it('should save a cleared expression without the old select and keep the as attribute', async () => {
+      renderWithStylesheet();
+      const row = await screen.findByTestId('variable-row-globalTax');
+
+      fireEvent.change(within(row).getByRole('textbox'), { target: { value: '' } });
+
+      await waitFor(() => {
+        expect(savedVariable('globalTax')?.getAttribute('select')).toBe('');
+      });
+      expect(savedVariable('globalTax')?.getAttribute('as')).toBe('xs:decimal');
+    });
+
+    it('should save the expression of a variable without the reference to a deleted variable', async () => {
+      renderWithStylesheet();
+      await screen.findByTestId('variable-row-taxRate');
+
+      fireEvent.click(screen.getByTestId('delete-variable-taxRate-button'));
+      fireEvent.click(screen.getByTestId('delete-variable-taxRate-modal-confirm-btn'));
+
+      await waitFor(() => {
+        expect(savedVariable('globalTax')?.getAttribute('select')).toBe('');
+      });
+    });
+
+    it('should save the expression of a variable with the new name of a renamed variable', async () => {
+      renderWithStylesheet();
+      const row = await screen.findByTestId('variable-row-taxRate');
+
+      fireEvent.doubleClick(within(row).getByText('$'));
+      fireEvent.change(screen.getByTestId('new-variable-name-input'), { target: { value: 'rate' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
+
+      await waitFor(() => {
+        expect(savedVariable('globalTax')?.getAttribute('select')).toBe('$rate * 100');
       });
     });
   });

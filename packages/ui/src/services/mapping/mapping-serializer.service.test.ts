@@ -56,6 +56,7 @@ import {
   getVariableNestedInForEachXslt,
   getVariableReservedNamesXslt,
   getVariableSimpleXslt,
+  getVariableStylesheetPreservedXslt,
   getVariableStylesheetReservedNamesXslt,
   getVariableStylesheetTextContentXslt,
   getVariableStylesheetXslt,
@@ -1763,6 +1764,115 @@ describe('MappingSerializerService', () => {
       ).singleNodeValue as Element;
       expect(varElement).not.toBeNull();
       expect(varElement.textContent?.trim()).toBe('Hello World');
+    });
+
+    it('should keep a text-content stylesheet variable without select when its expression is empty', () => {
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getVariableStylesheetTextContentXslt(),
+        targetDoc,
+        mappingTree,
+        sourceParameterMap,
+      ));
+
+      const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+
+      const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
+      const varElement = xsltDocument.evaluate(
+        '/xsl:stylesheet/xsl:variable[@name="label"]',
+        xsltDocument,
+        xslNsResolver,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+      ).singleNodeValue as Element;
+      expect(varElement.hasAttribute('select')).toBe(false);
+      expect(varElement.textContent?.trim()).toBe('Hello World');
+    });
+
+    describe('a stylesheet variable kept as written', () => {
+      const load = (xslt: string) => {
+        let mappingTree = new MappingTree(
+          DocumentType.TARGET_BODY,
+          BODY_DOCUMENT_ID,
+          DocumentDefinitionType.XML_SCHEMA,
+        );
+        ({ mappingTree } = MappingSerializerService.deserialize(xslt, targetDoc, mappingTree, sourceParameterMap));
+        return mappingTree;
+      };
+      const variableNamed = (mappingTree: MappingTree, name: string) =>
+        mappingTree.globalVariables.find((variable) => variable.name === name)!;
+      /** The saved `xsl:variable` element of `name` */
+      const savedVariable = (serialized: string, name: string) => {
+        const xsltDocument = domParser.parseFromString(serialized, 'text/xml');
+        return xsltDocument.evaluate(
+          `/xsl:stylesheet/xsl:variable[@name="${name}"]`,
+          xsltDocument,
+          xslNsResolver,
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+        ).singleNodeValue as Element;
+      };
+
+      it('should write a cleared expression as an empty select and keep the other attributes and the comment', () => {
+        const mappingTree = load(getVariableStylesheetPreservedXslt());
+        const globalTax = variableNamed(mappingTree, 'globalTax');
+
+        MappingService.updateExpression(globalTax, '');
+        const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+
+        const saved = savedVariable(serialized, 'globalTax');
+        expect(saved.getAttribute('select')).toBe('');
+        expect(saved.getAttribute('as')).toBe('xs:decimal');
+        const comments = Array.from(saved.childNodes).filter((node) => node.nodeType === Node.COMMENT_NODE);
+        expect(comments.map((comment) => comment.nodeValue)).toEqual([' tax rate in percent ']);
+      });
+
+      it('should load a cleared expression back as empty', () => {
+        const mappingTree = load(getVariableStylesheetPreservedXslt());
+        MappingService.updateExpression(variableNamed(mappingTree, 'globalTax'), '');
+
+        const reloaded = load(MappingSerializerService.serialize(mappingTree, sourceParameterMap));
+
+        expect(variableNamed(reloaded, 'globalTax').expression).toBe('');
+      });
+
+      it('should drop the expression that referred to a deleted variable', () => {
+        const mappingTree = load(getVariableStylesheetPreservedXslt());
+        const taxRate = variableNamed(mappingTree, 'taxRate');
+
+        MappingService.removeVariableReferences(taxRate);
+        MappingService.removeVariable(taxRate);
+        const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+
+        expect(savedVariable(serialized, 'globalTax').getAttribute('select')).toBe('');
+      });
+
+      it('should write the new name of a renamed variable into the expression', () => {
+        const mappingTree = load(getVariableStylesheetPreservedXslt());
+        const taxRate = variableNamed(mappingTree, 'taxRate');
+
+        MappingService.renameVariableReferences(taxRate, 'rate');
+        MappingService.updateVariable(taxRate, 'rate', taxRate.expression);
+        const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+
+        expect(savedVariable(serialized, 'globalTax').getAttribute('select')).toBe('$rate * 100');
+      });
+
+      it('should write an unchanged expression as loaded', () => {
+        const mappingTree = load(getVariableStylesheetPreservedXslt());
+
+        const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+
+        const saved = savedVariable(serialized, 'globalTax');
+        expect(saved.getAttribute('select')).toBe('$taxRate * 100');
+        expect(saved.getAttribute('as')).toBe('xs:decimal');
+      });
+
+      it.each(['items', 'note', 'separator'])('should write %s, loaded without a select, without one', (name) => {
+        const mappingTree = load(getVariableStylesheetPreservedXslt());
+
+        const serialized = MappingSerializerService.serialize(mappingTree, sourceParameterMap);
+
+        expect(savedVariable(serialized, name).hasAttribute('select')).toBe(false);
+      });
     });
 
     it('should deserialize external XSL file with comments correctly', () => {
