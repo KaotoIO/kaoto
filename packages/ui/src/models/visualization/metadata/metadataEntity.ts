@@ -16,8 +16,4 @@ export class MetadataEntity implements BaseEntity {
   toJSON() {
     return { metadata: this.parent.metadata };
   }
-
-  updateModel(): void {
-    return;
-  }
 }

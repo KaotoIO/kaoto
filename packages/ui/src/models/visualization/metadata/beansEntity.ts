@@ -27,8 +27,4 @@ export class BeansEntity implements BaseEntity {
   toJSON() {
     return { beans: this.parent.beans };
   }
-
-  updateModel(): void {
-    return;
-  }
 }
