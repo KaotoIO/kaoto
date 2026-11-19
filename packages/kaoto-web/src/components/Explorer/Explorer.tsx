@@ -21,7 +21,6 @@ import {
   KeyboardEvent as ReactKeyboardEvent,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -29,6 +28,7 @@ import {
 import { useNavigate, useParams } from 'react-router';
 
 import { useFiles } from '../../hooks/useFiles';
+import { usePanelResizer } from '../../hooks/usePanelResizer';
 import { getFileType, StoredFile } from '../../services/files/stored-file';
 import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
 import { DeleteConfirmModal } from '../DeleteConfirmModal/DeleteConfirmModal';
@@ -220,33 +220,11 @@ export const Explorer: FunctionComponent = () => {
   /** The button that opened the Create New File modal */
   const createOpenerRef = useRef<HTMLElement | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
-  const [width, setWidth] = useState(DEFAULT_WIDTH);
-  const startX = useRef<number>(0);
-  const startWidth = useRef<number>(DEFAULT_WIDTH);
-  // widthRef mirrors the width state so handleResizerMouseDown can read the
-  // current value in a mousedown handler without taking width as a dependency
-  // (which would recreate the callback on every mousemove during a drag).
-  const widthRef = useRef<number>(DEFAULT_WIDTH);
-  useLayoutEffect(() => {
-    widthRef.current = width;
+  const { width, handleResizerMouseDown } = usePanelResizer({
+    initialWidth: DEFAULT_WIDTH,
+    minWidth: MIN_WIDTH,
+    maxWidth: MAX_WIDTH,
   });
-
-  const handleResizerMouseDown = useCallback((e: React.MouseEvent) => {
-    startX.current = e.clientX;
-    startWidth.current = widthRef.current;
-
-    const onMouseMove = (ev: MouseEvent) => {
-      const delta = ev.clientX - startX.current;
-      const next = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, startWidth.current + delta));
-      setWidth(next);
-    };
-    const onMouseUp = () => {
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-  }, []);
 
   const handleSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
