@@ -5,9 +5,9 @@
 $card-radius: 8px;
 $control-radius: 4px;
 
-/// Rules that only apply in the Kaoto theme
+/// Rules that only apply in the Kaoto theme; include it inside the rule it refines
 @mixin kaoto-theme {
-  :root[data-theme-style='kaoto'] & {
+  @at-root :root[data-theme-style='kaoto'] #{&} {
     @content;
   }
 }
