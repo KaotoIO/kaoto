@@ -1,3 +1,4 @@
+@use 'sass:selector';
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
 @use '@carbon/react/scss/type' as *;
@@ -259,7 +260,8 @@
   // Truncate the name before the buttons instead of running under them
   padding-inline-end: $spacing-07;
 
-  &:has(.cs--explorer__node-action + .cs--explorer__node-action) {
+  // Explicit parent selector: a bare & in a mixin has no scoping root for Sonar (css:S8776)
+  @at-root #{selector.append(&, ':has(.cs--explorer__node-action + .cs--explorer__node-action)')} {
     padding-inline-end: $spacing-10;
   }
 
