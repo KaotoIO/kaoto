@@ -91,4 +91,49 @@ describe('ArrayField', () => {
 
     expect(wrapper!.getAllByRole('textbox').length).toBe(3);
   });
+
+  it('adds new items in front of the existing ones, created from the first schema of a tuple', async () => {
+    const tupleSchema: JSONSchema4 = { ...schema, items: [{ type: 'number', default: 8080 }, { type: 'string' }] };
+    const { Provider, onChange } = FieldTestProvider({ schema: tupleSchema, model: [80] });
+    let wrapper: RenderResult | undefined;
+    await act(async () => {
+      wrapper = render(
+        <Provider>
+          <ArrayField propName={ROOT_PATH} />
+        </Provider>,
+      );
+    });
+
+    fireEvent.click(wrapper!.getByTestId(`${ROOT_PATH}__add`));
+
+    expect(onChange).toHaveBeenCalledWith(ROOT_PATH, [8080, 80]);
+  });
+
+  it('is titled after its property when the schema has no title', async () => {
+    const { Provider } = FieldTestProvider({ schema: { ...schema, title: undefined } });
+    let wrapper: RenderResult | undefined;
+    await act(async () => {
+      wrapper = render(
+        <Provider>
+          <ArrayField propName="#.endpoints" />
+        </Provider>,
+      );
+    });
+
+    expect(wrapper!.getByText('Endpoints')).toBeInTheDocument();
+  });
+
+  it('fails without a schema for its items', () => {
+    const { Provider } = FieldTestProvider({ schema: { ...schema, items: undefined } });
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() =>
+      render(
+        <Provider>
+          <ArrayField propName="#.endpoints" />
+        </Provider>,
+      ),
+    ).toThrow('ArrayField: items schema is not defined for #.endpoints');
+    consoleError.mockRestore();
+  });
 });
