@@ -466,12 +466,7 @@ export class CitrusTestVisualEntity implements BaseVisualEntity {
     }
   }
 
-  private async getVizNodeFromStep(
-    action: TestActions,
-    path: string,
-    preResolvedName?: string,
-  ): Promise<IVisualizationNode> {
-    const actionName = preResolvedName ?? (await CitrusTestSchemaService.getTestActionName(action));
+  private async getVizNodeFromStep(action: TestActions, path: string, actionName: string): Promise<IVisualizationNode> {
     const data: IVisualizationNodeData = {
       name: actionName,
       path,
