@@ -95,8 +95,8 @@ export class PipeParser {
           Object.entries(parsedProperties).forEach(([propKey, propValue], index) => {
             parsedTable.data.push([
               parsedTable.data.length === 0 && index === 0 ? keys[0] : '',
-              propKey,
               '',
+              propKey,
               propValue,
             ]);
           });

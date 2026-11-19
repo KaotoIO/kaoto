@@ -122,7 +122,7 @@ export class RouteParser {
         parsedTable.data.push([index === 0 && model.id ? model.id : '', '', '', '', paramKey, paramValue]),
       );
     const parsedSteps = model.steps && CommonParser.parseSteps(model.steps);
-    if (!parsedParams && (!parsedSteps || parsedSteps.length === 0)) {
+    if (objectParamsLength === 0 && (!parsedSteps || parsedSteps.length === 0)) {
       parsedTable.data.push([model.id ?? '', '', '', '', '', '']);
       return;
     }

@@ -331,6 +331,12 @@ describe('RouteParser', () => {
         ]);
       });
 
+      it('lists a section without parameters and steps on a row with its id', () => {
+        const parsed = parse({ id: 'rc-1', onCompletion: [{ onCompletion: { id: 'completion-1' } }] });
+
+        expect(parsed[1].data).toEqual([['completion-1', '', '', '', '', '']]);
+      });
+
       it('names a section without parameters on its first step', () => {
         const parsed = parse({
           id: 'rc-1',

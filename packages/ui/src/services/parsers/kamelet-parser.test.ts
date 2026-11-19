@@ -158,6 +158,7 @@ spec:
           ['', 'description', 'The HTTP method'],
         ],
       ],
+      ['IN : text', [['mediaType', 'text/plain']]],
       ['IN : text : Headers', [['Content-Type', 'default', 'text/plain']]],
       [
         'IN : text : Schema',
@@ -166,6 +167,7 @@ spec:
           ['', 'title', 'Name'],
         ],
       ],
+      ['OUT : json', [['mediaType', 'application/json']]],
     ])('lists the properties in %s', (title, data) => {
       expect(byTitle(title)?.data).toEqual(data);
     });
