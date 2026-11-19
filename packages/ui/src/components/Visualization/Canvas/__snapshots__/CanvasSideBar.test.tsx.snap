@@ -33,7 +33,7 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
               </h2>
             </div>
             <span
-              class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--top cds--tooltip cds--icon-tooltip"
+              class="cds--popover-container cds--popover--caret cds--popover--high-contrast cds--popover--left cds--tooltip cds--icon-tooltip"
             >
               <div
                 class="cds--tooltip-trigger__wrapper"
@@ -50,12 +50,12 @@ exports[`CanvasSideBar > displays selected node information 1`] = `
                     focusable="false"
                     height="16"
                     preserveAspectRatio="xMidYMid meet"
-                    viewBox="0 0 32 32"
+                    viewBox="0 0 16 16"
                     width="16"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      d="M17.4141 16 24 9.4141 22.5859 8 16 14.5859 9.4143 8 8 9.4141 14.5859 16 8 22.5859 9.4143 24 16 17.4141 22.5859 24 24 22.5859 17.4141 16z"
+                      d="M8,1C4.1,1,1,4.1,1,8s3.1,7,7,7s7-3.1,7-7S11.9,1,8,1z M10.7,11.5L8,8.8l-2.7,2.7l-0.8-0.8L7.2,8L4.5,5.3l0.8-0.8L8,7.2 l2.7-2.7l0.8,0.8L8.8,8l2.7,2.7L10.7,11.5z"
                     />
                   </svg>
                 </button>
