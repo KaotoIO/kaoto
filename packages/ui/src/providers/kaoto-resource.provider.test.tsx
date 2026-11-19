@@ -195,6 +195,55 @@ describe('KaotoResourceProvider', () => {
     expect(result.current?.parsedError!.length).toBeGreaterThan(0);
   });
 
+  it('sets parseState to Error and parsedError when a .camel.xml document is malformed', () => {
+    const { result } = renderHook(() => useContext(KaotoResourceContext), {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <SourceCodeProvider adapter={inMemorySourceCodeAdapter('<route><from uri="timer:tick"', 'route.camel.xml')}>
+          <KaotoResourceProvider>{children}</KaotoResourceProvider>
+        </SourceCodeProvider>
+      ),
+    });
+
+    expect(result.current?.parseState).toBe(ResourceParseState.Error);
+    expect(result.current?.parsedError).toBeTypeOf('string');
+    expect(result.current?.parsedError!.length).toBeGreaterThan(0);
+  });
+
+  it('a canvas edit on an unparseable first XML document must NOT overwrite it via adapter.onChange', async () => {
+    const BROKEN = `<camel><route><from uri="timer:x"><steps><to`;
+    const changes: string[] = [];
+    const adapter: SourceCodeAdapter = {
+      subscribe(apply) {
+        apply({ code: BROKEN, path: 'a.camel.xml' });
+        return () => {};
+      },
+      onChange(code) {
+        changes.push(code);
+      },
+    };
+    const { result } = renderHook(() => useContext(EntitiesContext), {
+      wrapper: ({ children }: PropsWithChildren) => (
+        <SourceCodeProvider adapter={adapter}>
+          <KaotoResourceProvider>
+            <EntitiesProvider>{children}</EntitiesProvider>
+          </KaotoResourceProvider>
+        </SourceCodeProvider>
+      ),
+    });
+    await waitFor(() => {
+      expect(result.current).toBeTruthy();
+    });
+    expect(result.current!.entities).toHaveLength(0);
+    expect(changes).toHaveLength(0);
+
+    act(() => {
+      result.current!.updateSourceCodeFromEntities();
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(changes).toHaveLength(0);
+  });
+
   it('transitions from Error back to Valid when the document is fixed', () => {
     let deliver!: (code: string) => void;
     const adapter: SourceCodeAdapter = {

@@ -28,10 +28,9 @@ describe('CamelResourceFactory', () => {
       expect(resource).not.toBeInstanceOf(CamelXMLRouteResource);
     });
 
-    it('should use XML serializer with path with XML and YAML content', () => {
+    it('should throw when non-XML content is passed with a .xml path', () => {
       const yamlContent = '- from:\n    uri: timer:foo';
-      const resource = CamelResourceFactory.createCamelResource(yamlContent, { path: 'route.xml' });
-      expect(resource).toBeInstanceOf(CamelXMLRouteResource);
+      expect(() => CamelResourceFactory.createCamelResource(yamlContent, { path: 'route.xml' })).toThrow();
     });
 
     it('should use YAML serializer with path with YAML and XML content', () => {
