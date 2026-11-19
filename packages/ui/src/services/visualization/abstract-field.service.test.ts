@@ -326,7 +326,7 @@ describe('AbstractFieldService', () => {
 
   describe('applyAbstractSubstitution', () => {
     it('should route to per-instance when target side and maxOccurs > 1', () => {
-      const wrapperField = mockField({ maxOccurs: -1 });
+      const wrapperField = mockField({ maxOccurs: 2 });
       const childField = mockField({ name: 'Cat', namespaceURI: 'http://test' });
       wrapperField.fields = [childField];
       const tree = createMappingTree();
@@ -354,8 +354,19 @@ describe('AbstractFieldService', () => {
       expect(MappingService.updateFieldItemField).toHaveBeenCalledWith(fieldItem, childField);
     });
 
-    it('should route to document-level when source side', () => {
-      const wrapperField = mockField({ maxOccurs: -1 });
+    it.each([
+      { scenario: 'on the source side', overrides: { maxOccurs: 2 }, isTargetSide: false },
+      { scenario: 'when maxOccurs is 1', overrides: { maxOccurs: 1 }, isTargetSide: true },
+      {
+        scenario: 'on the target side when only the substitute repeats',
+        overrides: {
+          maxOccurs: 1,
+          fields: [mockField({ name: 'Cat', namespaceURI: 'http://test', maxOccurs: 'unbounded' })],
+        },
+        isTargetSide: true,
+      },
+    ])('should route to document-level $scenario', ({ overrides, isTargetSide }) => {
+      const wrapperField = mockField(overrides);
       const nodeData = {} as FieldNodeData;
 
       AbstractFieldService.applyAbstractSubstitution(
@@ -365,33 +376,17 @@ describe('AbstractFieldService', () => {
         {},
         undefined,
         namespaceMap,
-        false,
+        isTargetSide,
       );
 
       expect(FieldOverrideService.applyFieldSubstitution).toHaveBeenCalledWith(wrapperField, 'ns:Cat', namespaceMap);
-    });
-
-    it('should route to document-level when maxOccurs is 1', () => {
-      const wrapperField = mockField({ maxOccurs: 1 });
-      const nodeData = {} as FieldNodeData;
-
-      AbstractFieldService.applyAbstractSubstitution(
-        nodeData,
-        wrapperField,
-        'ns:Cat',
-        {},
-        undefined,
-        namespaceMap,
-        true,
-      );
-
-      expect(FieldOverrideService.applyFieldSubstitution).toHaveBeenCalledWith(wrapperField, 'ns:Cat', namespaceMap);
+      expect(MappingService.updateFieldItemField).not.toHaveBeenCalled();
     });
   });
 
   describe('clearAbstractSubstitution', () => {
     it('should route to per-instance when target side and maxOccurs > 1', () => {
-      const wrapperField = mockField({ maxOccurs: -1 });
+      const wrapperField = mockField({ maxOccurs: 2 });
       const tree = createMappingTree();
       const fieldItem = new FieldItem(tree, wrapperField);
       const nodeData = createFieldItemNodeData(fieldItem);
@@ -404,7 +399,7 @@ describe('AbstractFieldService', () => {
 
     it('should route to document-level when source side', () => {
       const ownerDocument = TestUtil.createTargetOrderDoc();
-      const wrapperField = mockField({ maxOccurs: -1, ownerDocument });
+      const wrapperField = mockField({ maxOccurs: 2, ownerDocument });
       const nodeData = {} as FieldNodeData;
 
       AbstractFieldService.clearAbstractSubstitution(nodeData, wrapperField, namespaceMap, false);
@@ -450,7 +445,7 @@ describe('AbstractFieldService', () => {
     it('should cascade clear to parent choice when document-level source maxOccurs>1', () => {
       const ownerDocument = TestUtil.createTargetOrderDoc();
       const parentChoiceField = mockField({ wrapperKind: 'choice', ownerDocument });
-      const wrapperField = mockField({ maxOccurs: -1, ownerDocument, parent: parentChoiceField });
+      const wrapperField = mockField({ maxOccurs: 2, ownerDocument, parent: parentChoiceField });
       const nodeData = {} as FieldNodeData;
 
       vi.spyOn(WrapperSelectionService, 'findParentWrapper').mockReturnValue(parentChoiceField);
@@ -466,7 +461,7 @@ describe('AbstractFieldService', () => {
     });
 
     it('should NOT cascade for per-instance clear (target maxOccurs>1)', () => {
-      const wrapperField = mockField({ maxOccurs: -1 });
+      const wrapperField = mockField({ maxOccurs: 2 });
       const tree = createMappingTree();
       const fieldItem = new FieldItem(tree, wrapperField);
       const nodeData = createFieldItemNodeData(fieldItem);

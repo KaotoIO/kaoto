@@ -304,7 +304,7 @@ describe('ChoiceFieldService', () => {
   describe('dispatchChoiceSelection', () => {
     it('should route to per-instance when target side and maxOccurs > 1', () => {
       const memberField = mockField({ name: 'email' });
-      const wrapper = mockField({ maxOccurs: -1, fields: [memberField] });
+      const wrapper = mockField({ maxOccurs: 2, fields: [memberField] });
       const tree = createMappingTree();
       const fieldItem = new FieldItem(tree, wrapper);
       const nodeData = createFieldItemNodeData(fieldItem);
@@ -326,11 +326,23 @@ describe('ChoiceFieldService', () => {
 
       expect(WrapperSelectionService.setChoiceSelection).toHaveBeenCalledWith(ownerDocument, wrapper, 0, namespaceMap);
     });
+
+    it('should route to document-level on the target side when only the selected member repeats', () => {
+      const ownerDocument = TestUtil.createTargetOrderDoc();
+      const memberField = mockField({ name: 'email', maxOccurs: 'unbounded' });
+      const wrapper = mockField({ maxOccurs: 1, ownerDocument, fields: [memberField] });
+      const nodeData = createTargetFieldNodeData(wrapper);
+
+      ChoiceFieldService.dispatchChoiceSelection(nodeData, wrapper, { memberIndex: 0 }, namespaceMap, true);
+
+      expect(WrapperSelectionService.setChoiceSelection).toHaveBeenCalledWith(ownerDocument, wrapper, 0, namespaceMap);
+      expect(MappingService.updateFieldItemField).not.toHaveBeenCalled();
+    });
   });
 
   describe('clearChoiceSelectionOnField', () => {
     it('should route to per-instance when target side and maxOccurs > 1', () => {
-      const wrapper = mockField({ maxOccurs: -1 });
+      const wrapper = mockField({ maxOccurs: 2 });
       const tree = createMappingTree();
       const fieldItem = new FieldItem(tree, wrapper);
       const nodeData = createFieldItemNodeData(fieldItem);

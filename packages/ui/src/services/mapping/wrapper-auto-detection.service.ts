@@ -1,4 +1,5 @@
 import { IDocument, IField, IParentType, PrimitiveDocument } from '../../models/datamapper/document';
+import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import {
   CopyOfSelector,
   FieldItem,
@@ -32,7 +33,7 @@ import { CopyOfPlacementService } from './copy-of-placement.service';
  * decided by the target tree once per structural snapshot ({@link TargetRenderService}).
  *
  * Three conditions must all hold for wrapper auto-detection:
- * 1. `maxOccurs = 1` on the wrapper (or field for non-abstract substitution)
+ * 1. The wrapper (or field for non-abstract substitution) is not a collection
  * 2. Element uniquely identifies the target (not ambiguous across branches)
  * 3. No conditional instruction wrapping (`xsl:if`, `xsl:choose`)
  */
@@ -128,7 +129,7 @@ export class WrapperAutoDetectionService {
     namespaceMap: Record<string, string>,
   ): boolean {
     if (wrapperField.selectedMemberQName) return false;
-    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return false;
+    if (FieldCardinality.isCollection(wrapperField)) return false;
     if (!WrapperAutoDetectionService.isUniqueInWrapper(candidateField, wrapperField)) return false;
     if (WrapperAutoDetectionService.hasConditionalWrapper(mappingItem)) return false;
     if (WrapperAutoDetectionService.hasExistingSubstitutionMetadata(wrapperField, targetDocument, namespaceMap))
@@ -159,7 +160,7 @@ export class WrapperAutoDetectionService {
     namespaceMap: Record<string, string>,
   ): boolean {
     if (wrapperField.selectedMemberIndex !== undefined) return false;
-    if (!WrapperAutoDetectionService.isMaxOccursOne(wrapperField)) return false;
+    if (FieldCardinality.isCollection(wrapperField)) return false;
     if (!WrapperAutoDetectionService.isUniqueInWrapper(memberField, wrapperField)) return false;
     if (WrapperAutoDetectionService.hasConditionalWrapper(mappingItem)) return false;
     if (WrapperAutoDetectionService.hasExistingChoiceMetadata(wrapperField, targetDocument, namespaceMap)) return false;
@@ -193,7 +194,7 @@ export class WrapperAutoDetectionService {
     const field = fieldItem.field;
     if (field.typeOverride !== FieldOverrideVariant.SUBSTITUTION) return;
     if (!field.originalField) return;
-    if (!WrapperAutoDetectionService.isMaxOccursOne(field)) return;
+    if (FieldCardinality.isCollection(field)) return;
     if (WrapperAutoDetectionService.hasConditionalWrapper(fieldItem)) return;
 
     ensureNamespaceRegistered(field.namespaceURI, namespaceMap, field.namespacePrefix ?? undefined);
@@ -226,10 +227,6 @@ export class WrapperAutoDetectionService {
       current = current.parent;
     }
     return false;
-  }
-
-  private static isMaxOccursOne(field: IField): boolean {
-    return field.maxOccurs === 1;
   }
 
   static isUniqueInWrapper(identifyingField: IField, wrapperField: IField): boolean {

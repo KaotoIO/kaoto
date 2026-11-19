@@ -29,6 +29,8 @@ import {
   getTestDocumentXsd,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { DocumentUtilService } from '../document/document-util.service';
+import { FieldOverrideService } from '../document/field-override.service';
 import { JsonSchemaField } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { XPathService } from '../xpath/xpath.service';
@@ -612,6 +614,29 @@ describe('WrapperAutoDetectionService', () => {
       expect(faxMember).toBeDefined();
       expect(choiceWrapper!.selectedMemberIndex).toBe(choiceWrapper!.fields.indexOf(faxMember!));
     });
+
+    it('should NOT auto-detect when the choice repeats', () => {
+      const schema = getSchemaTestXsd().replace(
+        '<xs:choice>\n        <xs:group ref="test:ContactGroup"/>',
+        '<xs:choice maxOccurs="unbounded">\n        <xs:group ref="test:ContactGroup"/>',
+      );
+      const targetDoc = createTargetDoc(schema, 'SchemaTestUnbounded.xsd');
+      const xslt = makeXslt(
+        { ns0: NS_SCHEMA_TEST },
+        `    <ns0:Root>
+      <ns0:person>
+        <ns0:fax>123-456</ns0:fax>
+      </ns0:person>
+    </ns0:Root>`,
+      );
+
+      deserializeAndAutoDetect(xslt, targetDoc);
+
+      const personField = targetDoc.fields[0].fields.find((f) => f.name === 'person');
+      const choiceWrapper = personField?.fields.find((f) => f.wrapperKind === 'choice');
+      expect(choiceWrapper?.maxOccurs).toBe('unbounded');
+      expect(choiceWrapper?.selectedMemberIndex).toBeUndefined();
+    });
   });
 
   describe('post-deserialize integration', () => {
@@ -733,6 +758,32 @@ describe('WrapperAutoDetectionService', () => {
       const headField = targetDoc.fields[0].fields.find((f) => f.name === 'HeadElement');
       expect(headField).toBeDefined();
       expect(headField!.typeOverride).not.toBe(FieldOverrideVariant.SUBSTITUTION);
+    });
+
+    it('should NOT persist metadata for a substituted head field that repeats', () => {
+      const schema = getNonAbstractSubstitutionXsd().replace(
+        '<xs:element ref="HeadElement"/>',
+        '<xs:element ref="HeadElement" maxOccurs="unbounded"/>',
+      );
+      const targetDoc = createTargetDoc(schema, 'NonAbstractUnboundedSubstituted.xsd');
+      const rootField = targetDoc.fields[0];
+      const substitution = FieldOverrideService.findSubstitutionGroupHead(rootField, 'SubElement', NS_NONABSTRACT);
+      if (!substitution) throw new Error('SubElement is not in the HeadElement substitution group');
+      DocumentUtilService.applySubstitutionToField(substitution.headField, substitution.info);
+      const mappingTree = new MappingTree(
+        DocumentType.TARGET_BODY,
+        BODY_DOCUMENT_ID,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const rootItem = new FieldItem(mappingTree, rootField);
+      mappingTree.children.push(rootItem);
+      rootItem.children.push(new FieldItem(rootItem, substitution.headField));
+
+      WrapperAutoDetectionService.autoDetectWrapperSelections(mappingTree, targetDoc, { ns0: NS_NONABSTRACT });
+
+      expect(substitution.headField.typeOverride).toBe(FieldOverrideVariant.SUBSTITUTION);
+      expect(substitution.headField.maxOccurs).toBe('unbounded');
+      expect(targetDoc.definition.fieldSubstitutions ?? []).toHaveLength(0);
     });
 
     it('should substitute field but NOT persist metadata when inside xsl:if', () => {

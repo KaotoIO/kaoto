@@ -9,6 +9,7 @@ import {
   IMemberSelection,
   IWrapperCandidate,
 } from '../../models/datamapper/field-action';
+import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import {
   FieldItemNodeData,
   NodeData,
@@ -29,10 +30,10 @@ import { WrapperBaseService } from './wrapper-base.service';
  * exactly one member can be selected at a time via `selectedMemberIndex`.
  *
  * Selection uses a two-track dispatch shared with {@link AbstractFieldService}:
- * - **Per-instance** (target side, maxOccurs>1): each {@link FieldItem}
+ * - **Per-instance** (target side, wrapper is a collection): each {@link FieldItem}
  *   carries its own selected member, so multiple collection instances can
  *   pick different branches.
- * - **Document-level** (source side, or maxOccurs=1): sets
+ * - **Document-level** (source side, or wrapper is not a collection): sets
  *   `selectedMemberIndex` on the wrapper field itself, affecting all
  *   instances.
  */
@@ -207,7 +208,7 @@ export class ChoiceFieldService extends WrapperBaseService {
 
   /**
    * Applies a choice member selection. Routes to per-instance (target side,
-   * maxOccurs>1) or document-level based on context.
+   * wrapper is a collection) or document-level based on context.
    */
   static dispatchChoiceSelection(
     nodeData: NodeData,
@@ -216,7 +217,7 @@ export class ChoiceFieldService extends WrapperBaseService {
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
-    if (isTargetSide && wrapper.maxOccurs !== 1) {
+    if (isTargetSide && FieldCardinality.isCollection(wrapper)) {
       this.applyPerInstanceChoiceSelection(nodeData, wrapper, selection, namespaceMap);
       return;
     }
@@ -230,7 +231,7 @@ export class ChoiceFieldService extends WrapperBaseService {
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
-    if (isTargetSide && wrapper.maxOccurs !== 1) {
+    if (isTargetSide && FieldCardinality.isCollection(wrapper)) {
       this.clearPerInstanceWrapperSelection(nodeData as TargetNodeData, wrapper);
       return;
     }
