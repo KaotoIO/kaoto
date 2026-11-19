@@ -20,23 +20,31 @@ export class EndpointsEntityHandler {
     return testEntity.endpoints || [];
   }
 
-  getDefinedEndpointsNameAndType(): { name: string; type: string }[] {
+  /**
+   * The endpoints that have a name and a type, each with its index in the list of all endpoints,
+   * which is the index `getEndpoint` and `deleteEndpoint` expect.
+   */
+  getDefinedEndpointsNameAndType(): { name: string; type: string; index: number }[] {
     const endpoints = this.getEndpoints();
-    const definedEndpoints: { name: string; type: string }[] = [];
+    const definedEndpoints: { name: string; type: string; index: number }[] = [];
 
-    for (const endpoint of endpoints) {
+    endpoints.forEach((endpoint, index) => {
       if (isDefined(endpoint.type)) {
-        definedEndpoints.push({ name: (endpoint.name as string) ?? '', type: (endpoint.type as string) ?? 'unknown' });
+        definedEndpoints.push({
+          name: (endpoint.name as string) ?? '',
+          type: endpoint.type as string,
+          index,
+        });
       } else {
         const type = this.getEndpointType(endpoint);
         if (type) {
           const name = this.findEndpointName(type, endpoint);
           if (name) {
-            definedEndpoints.push({ name: name, type: type });
+            definedEndpoints.push({ name: name, type: type, index });
           }
         }
       }
-    }
+    });
 
     return definedEndpoints;
   }
@@ -47,7 +55,9 @@ export class EndpointsEntityHandler {
       return [];
     }
 
-    const allEndpoints: { name: string; type: string }[] = this.getDefinedEndpointsNameAndType();
+    const allEndpoints: { name: string; type: string }[] = this.getDefinedEndpointsNameAndType().map(
+      ({ name, type }) => ({ name, type }),
+    );
 
     for (const action of testEntity.actions ?? []) {
       if (action.createEndpoint !== undefined) {
