@@ -10,6 +10,7 @@ import { SourceSchemaType } from '../../camel';
 import { IKameletDefinition, IKameletMetadata, IKameletSpecProperty } from '../../camel/kamelets-catalog';
 import { CatalogKind } from '../../catalog-kind';
 import { NodeLabelType } from '../../settings';
+import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
 import { AbstractCamelVisualEntity } from './abstract-camel-visual-entity';
 import { KameletVisualEntity } from './kamelet-visual-entity';
 
@@ -56,12 +57,23 @@ describe('KameletVisualEntity', () => {
         },
         template: {
           route: {
-            from: camelFromJson.from,
+            from: cloneDeep(camelFromJson.from),
           },
         },
         dependencies: [],
       },
     };
+  });
+
+  const getNodeData = (path: string): IVisualizationNodeData => ({
+    path,
+    name: path,
+    isPlaceholder: false,
+    isGroup: false,
+    iconUrl: '',
+    title: '',
+    description: '',
+    processorIconTooltip: '',
   });
 
   it('should normalize template.from to template.route.from and remove template.from', () => {
@@ -248,6 +260,113 @@ describe('KameletVisualEntity', () => {
       const vizNode = await kamelet.toVizNode();
 
       expect(vizNode.getNodeTitle()).toBe('Kamelet');
+    });
+  });
+
+  describe('getCopiedContent', () => {
+    it('should copy a step of the kamelet route', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+
+      const copiedContent = kamelet.getCopiedContent('template.route.from.steps.0.to', {
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+      });
+
+      expect(copiedContent).toEqual({ name: 'to', definition: { uri: 'direct:my-route' } });
+    });
+  });
+
+  describe('updateModel', () => {
+    it('should update a step of the kamelet route', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+
+      kamelet.updateModel('template.route.from.steps.0.to', { uri: 'log:info' });
+
+      expect(kamelet.toJSON().route.from.steps).toEqual([{ to: { uri: 'log:info' } }]);
+    });
+
+    it.each([
+      ['a named kamelet', 'My Kamelet', 'My Kamelet'],
+      ['a kamelet without name', undefined, 'kamelet-1234'],
+    ])('should keep the id of %s when updating a step', (_description, name, expectedId) => {
+      mockRandomValues();
+      kameletDef.metadata.name = name as IKameletMetadata['name'];
+      const kamelet = new KameletVisualEntity(kameletDef);
+
+      kamelet.updateModel('template.route.from.steps.0.to', { uri: 'log:info' });
+
+      expect(kamelet.id).toBe(expectedId);
+    });
+  });
+
+  describe('addStep', () => {
+    it('should replace the root `from` with the selected component and keep its steps', () => {
+      mockRandomValues();
+      const kamelet = new KameletVisualEntity(kameletDef);
+
+      const newPath = kamelet.addStep({
+        definedComponent: { name: 'cron', type: CatalogKind.Component },
+        mode: AddStepMode.ReplaceStep,
+        data: getNodeData('template.route.from'),
+      });
+
+      expect(newPath).toBe('template.route.from');
+      expect(kamelet.toJSON().route.from).toEqual({
+        id: 'from-1234',
+        uri: 'cron',
+        parameters: {},
+        steps: [{ to: { uri: 'direct:my-route' } }],
+      });
+    });
+
+    it('should replace a step of the kamelet route and keep the root `from`', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+
+      kamelet.addStep({
+        definedComponent: { name: 'log', type: CatalogKind.Component },
+        mode: AddStepMode.ReplaceStep,
+        data: getNodeData('template.route.from.steps.0.to'),
+      });
+
+      const from = kamelet.toJSON().route.from;
+      expect(from.uri).toBe('timer');
+      expect(from.steps).toEqual([{ to: expect.objectContaining({ uri: 'log:InfoLogger' }) }]);
+    });
+
+    it('should append a step after a step of the kamelet route', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+
+      kamelet.addStep({
+        definedComponent: { name: 'log', type: CatalogKind.Component },
+        mode: AddStepMode.AppendStep,
+        data: getNodeData('template.route.from.steps.0.to'),
+      });
+
+      expect(kamelet.toJSON().route.from.steps).toEqual([
+        { to: { uri: 'direct:my-route' } },
+        { to: expect.objectContaining({ uri: 'log:InfoLogger' }) },
+      ]);
+    });
+  });
+
+  describe('removeStep', () => {
+    it('should clear the uri of the root `from` and keep its steps', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+
+      kamelet.removeStep('template.route.from');
+
+      expect(kamelet.toJSON().route.from).toEqual({
+        uri: '',
+        parameters: { timerName: 'tutorial' },
+        steps: [{ to: { uri: 'direct:my-route' } }],
+      });
+    });
+
+    it('should remove a step of the kamelet route', () => {
+      const kamelet = new KameletVisualEntity(kameletDef);
+
+      kamelet.removeStep('template.route.from.steps.0.to');
+
+      expect(kamelet.toJSON().route.from.steps).toEqual([]);
     });
   });
 });
