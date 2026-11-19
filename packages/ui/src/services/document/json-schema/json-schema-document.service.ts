@@ -452,23 +452,24 @@ export class JsonSchemaDocumentService {
    * @param schema
    */
   private updateFieldFromComposition(field: JsonSchemaField, schema: JsonSchemaMetadata): JsonSchemaField {
-    const anyOfSchema: JsonSchemaMetadata = { ...schema, path: schema.path + '/anyOf' };
-    const oneOfSchema: JsonSchemaMetadata = { ...schema, path: schema.path + '/oneOf' };
-    const allOfSchema: JsonSchemaMetadata = { ...schema, path: schema.path + '/allOf' };
+    const memberSchema = (keyword: string, index: number): JsonSchemaMetadata => ({
+      ...schema,
+      path: `${schema.path}/${keyword}/${index}`,
+    });
 
     let updated = schema.anyOf?.reduce(
-      (current, compositionSchemaDef) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, anyOfSchema),
+      (current, compositionSchemaDef, index) =>
+        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('anyOf', index)),
       field,
     );
     updated = schema.oneOf?.reduce(
-      (current, compositionSchemaDef) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, oneOfSchema),
+      (current, compositionSchemaDef, index) =>
+        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('oneOf', index)),
       updated ?? field,
     );
     updated = schema.allOf?.reduce(
-      (current, compositionSchemaDef) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, allOfSchema),
+      (current, compositionSchemaDef, index) =>
+        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('allOf', index)),
       updated ?? field,
     );
     return updated ?? field;
