@@ -12,8 +12,4 @@ export class PipeErrorHandlerEntity implements BaseEntity {
   toJSON() {
     return { errorHandler: this.parent.errorHandler };
   }
-
-  updateModel(): void {
-    return;
-  }
 }

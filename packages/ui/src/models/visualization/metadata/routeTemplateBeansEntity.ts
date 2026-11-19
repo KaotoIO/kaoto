@@ -16,8 +16,4 @@ export class RouteTemplateBeansEntity implements BaseEntity {
   toJSON() {
     return { beans: this.parent.beans };
   }
-
-  updateModel(): void {
-    return;
-  }
 }
