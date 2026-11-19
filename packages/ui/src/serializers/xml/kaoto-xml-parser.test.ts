@@ -74,6 +74,26 @@ describe('XmlParser', () => {
     expect(result).toEqual([]);
   });
 
+  it('returns an empty array for empty XML in parseXML', async () => {
+    expect(await parser.parseXML('')).toEqual([]);
+    expect(await parser.parseXML('   \n  ')).toEqual([]);
+  });
+
+  it('throws an error for malformed XML in parseXML', async () => {
+    const xml = `<routes><route><from uri="direct:start"`;
+    await expect(parser.parseXML(xml)).rejects.toThrow();
+  });
+
+  it('returns an empty array for empty XML in parseRootElementDefinitions', () => {
+    expect(parser.parseRootElementDefinitions('')).toEqual([]);
+    expect(parser.parseRootElementDefinitions('   \n  ')).toEqual([]);
+  });
+
+  it('throws an error for malformed XML in parseRootElementDefinitions', () => {
+    const xml = `<routes><route><from uri="direct:start"`;
+    expect(() => parser.parseRootElementDefinitions(xml)).toThrow();
+  });
+
   it('identifies valid XML correctly', () => {
     const xml = `<routes><route><from uri="direct:start" /></route></routes>`;
     expect(isXML(xml)).toBe(true);

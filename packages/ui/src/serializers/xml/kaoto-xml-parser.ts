@@ -49,13 +49,22 @@ export class KaotoXmlParser {
     this.beanParser = new BeansXmlParser();
   }
 
-  async parseXML(xml: string): Promise<unknown> {
-    try {
-      const xmlDoc = KaotoXmlParser.domParser.parseFromString(xml, 'application/xml');
-      return this.parseFromXmlDocument(xmlDoc);
-    } catch (e) {
-      console.log('Error parsing XML', e);
+  static parseXmlToDocument(xml: string): Document {
+    const xmlDoc = KaotoXmlParser.domParser.parseFromString(xml, 'application/xml');
+    const parserErrors = xmlDoc.getElementsByTagName('parsererror');
+    if (parserErrors.length > 0 || xmlDoc.documentElement?.nodeName === 'parsererror') {
+      const errorText = parserErrors[0]?.textContent || xmlDoc.documentElement?.textContent || 'XML parsing error';
+      throw new Error(errorText.trim());
     }
+    return xmlDoc;
+  }
+
+  async parseXML(xml: string): Promise<unknown> {
+    if (!xml || xml.trim() === '') {
+      return [];
+    }
+    const xmlDoc = KaotoXmlParser.parseXmlToDocument(xml);
+    return this.parseFromXmlDocument(xmlDoc);
   }
 
   async parseFromXmlDocument(xmlDoc: Document): Promise<unknown> {
@@ -106,9 +115,15 @@ export class KaotoXmlParser {
     return rawEntities;
   }
   parseRootElementDefinitions(xml: string): { name: string; value: string }[] {
+    if (!xml || xml.trim() === '') {
+      return [];
+    }
     const rootElementDeclarations = [];
-    const xmlDoc = KaotoXmlParser.domParser.parseFromString(xml, 'application/xml');
+    const xmlDoc = KaotoXmlParser.parseXmlToDocument(xml);
     const rootElement = xmlDoc.documentElement;
+    if (!rootElement) {
+      return [];
+    }
 
     for (let i = 0; i < rootElement.attributes.length; i++) {
       const attr = rootElement.attributes[i];
