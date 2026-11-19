@@ -9,15 +9,39 @@ const clearState = () => {
   }
   delete document.documentElement.dataset.themeSetting;
   delete document.documentElement.dataset.headerInverse;
+  document.documentElement.classList.remove('pf-v6-theme-dark');
 };
+
+/** Stubs the OS colour scheme; the returned function changes it and notifies the listeners, like the browser does. */
+const mockSystemColorScheme = (prefersDark: boolean) => {
+  const listeners = new Set<() => void>();
+  const mediaQueryList = {
+    matches: prefersDark,
+    addEventListener: (_type: string, listener: () => void) => listeners.add(listener),
+    removeEventListener: (_type: string, listener: () => void) => listeners.delete(listener),
+  };
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn(() => mediaQueryList),
+  );
+
+  return (nextPrefersDark: boolean) => {
+    mediaQueryList.matches = nextPrefersDark;
+    for (const listener of listeners) listener();
+  };
+};
+
+const isPatternFlyDark = () => document.documentElement.classList.contains('pf-v6-theme-dark');
 
 describe('theme', () => {
   beforeEach(() => {
     clearState();
+    mockSystemColorScheme(false);
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     clearState();
   });
 
@@ -94,6 +118,56 @@ describe('theme', () => {
       expect(warn).toHaveBeenCalledTimes(2);
       expect(document.documentElement.dataset.themeSetting).toBe('light');
       expect(document.documentElement.dataset.headerInverse).toBe('false');
+    });
+  });
+
+  describe('PatternFly dark theme', () => {
+    it.each([
+      { themeSetting: 'dark', prefersDark: false, expected: true },
+      { themeSetting: 'light', prefersDark: true, expected: false },
+      { themeSetting: 'system', prefersDark: true, expected: true },
+      { themeSetting: 'system', prefersDark: false, expected: false },
+    ] as const)(
+      'should be $expected on start for "$themeSetting" when the OS prefers dark: $prefersDark',
+      ({ themeSetting, prefersDark, expected }) => {
+        mockSystemColorScheme(prefersDark);
+        document.cookie = `theme-setting=${themeSetting}`;
+
+        initializeTheme();
+
+        expect(isPatternFlyDark()).toBe(expected);
+      },
+    );
+
+    it('should follow a change of the theme setting', () => {
+      initializeTheme();
+
+      setThemeSetting('dark');
+      expect(isPatternFlyDark()).toBe(true);
+
+      setThemeSetting('light');
+      expect(isPatternFlyDark()).toBe(false);
+    });
+
+    it('should follow the OS while the setting is "system"', () => {
+      const setSystemPrefersDark = mockSystemColorScheme(false);
+      initializeTheme();
+
+      setSystemPrefersDark(true);
+      expect(isPatternFlyDark()).toBe(true);
+
+      setSystemPrefersDark(false);
+      expect(isPatternFlyDark()).toBe(false);
+    });
+
+    it('should ignore the OS while the setting is explicit', () => {
+      const setSystemPrefersDark = mockSystemColorScheme(false);
+      document.cookie = 'theme-setting=light';
+      initializeTheme();
+
+      setSystemPrefersDark(true);
+
+      expect(isPatternFlyDark()).toBe(false);
     });
   });
 });
