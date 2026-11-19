@@ -225,7 +225,8 @@
   color: inherit;
 }
 
-// The buttons sit at the end of the row and show while the row is hovered or focused
+// The buttons sit at the end of the row. They show while the row is hovered or focused, and always on devices without
+// hover (touch): there a tap would have to open the file or toggle the folder first to reveal them.
 .cs--explorer__node-actions {
   position: absolute;
   inset-block: 0;
@@ -254,8 +255,7 @@
   }
 }
 
-.cs--explorer__tree .cds--tree-node__label:hover,
-.cs--explorer__tree .cds--tree-node:focus > .cds--tree-node__label {
+@mixin show-node-actions {
   // Truncate the name before the buttons instead of running under them
   padding-inline-end: $spacing-07;
 
@@ -265,6 +265,17 @@
 
   .cs--explorer__node-actions {
     visibility: visible;
+  }
+}
+
+.cs--explorer__tree .cds--tree-node__label:hover,
+.cs--explorer__tree .cds--tree-node:focus > .cds--tree-node__label {
+  @include show-node-actions;
+}
+
+@media (hover: none) {
+  .cs--explorer__tree .cds--tree-node__label {
+    @include show-node-actions;
   }
 }
 
