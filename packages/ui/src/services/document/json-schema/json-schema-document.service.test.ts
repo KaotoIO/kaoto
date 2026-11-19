@@ -731,6 +731,28 @@ describe('JsonSchemaDocumentService', () => {
     });
   });
 
+  it.each([
+    ['an empty definition', {}],
+    ['a boolean definition', true],
+  ])('should register the definitions that follow %s', (_desc, emptyDefinition) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      definitions: {
+        Empty: emptyDefinition,
+        Real: { type: 'object', properties: { a: { type: 'string' } } },
+      },
+      properties: {
+        x: { $ref: '#/definitions/Real' },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const xField = doc.fields[0].fields.find((f) => f.key === 'x');
+    expect(doc.namedTypeFragments['#/definitions/Real']).toBeDefined();
+    expect(xField!.type).toBe(Types.Container);
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,
