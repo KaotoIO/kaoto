@@ -63,4 +63,28 @@ describe('RestParser', () => {
       expect(parsed.data[0][1]).toBe('openapi');
     });
   });
+
+  describe('parseRestEntity() operations', () => {
+    it('lists each operation with its route, naming the method once', () => {
+      const restEntity = new CamelRestVisualEntity({
+        rest: {
+          id: 'rest-1',
+          path: '/api',
+          get: [
+            { id: 'get-1', path: '/orders', to: 'direct:list' },
+            { path: '/orders/{id}', to: { uri: 'direct:get' } },
+          ],
+          post: [{ id: 'post-1' }],
+        },
+      } as ConstructorParameters<typeof CamelRestVisualEntity>[0]);
+
+      const parsed = RestParser.parseRestEntity(restEntity);
+
+      expect(parsed.data).toEqual([
+        ['GET', 'get-1', '/orders', 'direct:list'],
+        ['', '', '/orders/{id}', 'direct:get'],
+        ['POST', 'post-1', '', ''],
+      ]);
+    });
+  });
 });
