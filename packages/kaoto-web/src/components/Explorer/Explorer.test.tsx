@@ -1104,6 +1104,31 @@ describe('Explorer', () => {
       });
     });
 
+    it('forgets the focused folder once another file opens, also after coming back to the first one', async () => {
+      const OpenFileButtons = () => {
+        const navigate = useNavigate();
+        return (
+          <>
+            <button onClick={() => void navigate('/workspace/file/main-flow')}>Open main-flow</button>
+            <button onClick={() => void navigate('/workspace/file/rest-api')}>Open rest-api</button>
+          </>
+        );
+      };
+      const user = userEvent.setup();
+      renderWithNavigation(<OpenFileButtons />, '/workspace/file/rest-api');
+      (await screen.findByTestId('explorer-folder-resources')).focus();
+      await user.click(screen.getByRole('button', { name: 'Open main-flow' }));
+      await user.click(screen.getByRole('button', { name: 'Open rest-api' }));
+
+      await user.click(screen.getByRole('button', { name: 'New file' }));
+      await user.keyboard('notes.txt{Enter}');
+
+      await waitFor(async () => {
+        expect(await storedPaths()).toContain('integrations/routes/notes.txt');
+      });
+      expect(await storedPaths()).not.toContain('resources/notes.txt');
+    });
+
     it('starts a known file type from its template and opens it', async () => {
       serveCatalog();
       const user = userEvent.setup();

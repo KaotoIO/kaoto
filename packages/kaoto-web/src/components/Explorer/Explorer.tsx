@@ -259,10 +259,14 @@ export const Explorer: FunctionComponent = () => {
   const [newEntry, setNewEntry] = useState<NewEntry>();
   const nodes = useMemo(() => (newEntry ? insertNewEntry(filtered, newEntry) : filtered), [filtered, newEntry]);
   /**
-   * The tree item that had the focus last, as clicking a toolbar button takes the focus away from it, with the file
-   * that was open then: once another file opens from outside the tree, the open file decides the folder instead.
+   * The tree item that had the focus last, as clicking a toolbar button takes the focus away from it. Forgotten whenever
+   * another file opens, also from outside the tree and when coming back to the file it was remembered with: the open
+   * file decides the folder then.
    */
-  const lastFocusedNodeRef = useRef<{ nodeId: string; openFileId: string | undefined } | undefined>(undefined);
+  const lastFocusedNodeRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    lastFocusedNodeRef.current = undefined;
+  }, [selectedId]);
 
   const handleToggle = useCallback(
     (folderId: string) =>
@@ -312,8 +316,7 @@ export const Explorer: FunctionComponent = () => {
   /** The folder a new entry goes into: the last focused tree item's, else the open file's, else the root */
   const targetFolderPath = (): string => {
     const folderOf = (path: string) => path.slice(0, Math.max(path.lastIndexOf('/'), 0));
-    const focused = lastFocusedNodeRef.current;
-    const lastFocused = focused?.openFileId === selectedId ? focused?.nodeId : undefined;
+    const lastFocused = lastFocusedNodeRef.current;
     if (lastFocused === ROOT_TARGET) return '';
     if (lastFocused && isFolderId(lastFocused)) {
       const folderPath = toFolderPath(lastFocused);
@@ -449,13 +452,12 @@ export const Explorer: FunctionComponent = () => {
         data-testid="explorer-tree"
         onMouseDown={(event) => {
           if (!(event.target as HTMLElement).closest('[role="treeitem"]')) {
-            lastFocusedNodeRef.current = { nodeId: ROOT_TARGET, openFileId: selectedId };
+            lastFocusedNodeRef.current = ROOT_TARGET;
           }
         }}
         onFocus={(event) => {
           const item = (event.target as HTMLElement).closest<HTMLElement>('[role="treeitem"]');
-          if (item?.id && item.id !== NEW_ENTRY_ID)
-            lastFocusedNodeRef.current = { nodeId: item.id, openFileId: selectedId };
+          if (item?.id && item.id !== NEW_ENTRY_ID) lastFocusedNodeRef.current = item.id;
         }}
       >
         {loading && (
