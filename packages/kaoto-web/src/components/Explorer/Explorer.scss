@@ -149,14 +149,17 @@
     $level: '.cds--tree > li';
 
     @for $depth from 0 through 9 {
+      $folder-offset: $spacing-02 + $depth * $spacing-05;
+      $leaf-offset: $spacing-06 - $spacing-02 + $depth * $spacing-05;
+
       #{$level}.cds--tree-parent-node > .cds--tree-node__label {
-        margin-inline-start: -($spacing-02 + $depth * $spacing-05) !important;
-        padding-inline-start: $spacing-02 + $depth * $spacing-05 !important;
+        margin-inline-start: -$folder-offset !important; /* NOSONAR css:S9423 - beats Carbon's inline offset */
+        padding-inline-start: $folder-offset !important; /* NOSONAR css:S9423 - beats Carbon's inline offset */
       }
 
       #{$level}.cds--tree-leaf-node > .cds--tree-node__label {
-        margin-inline-start: -($spacing-06 - $spacing-02 + $depth * $spacing-05) !important;
-        padding-inline-start: $spacing-06 - $spacing-02 + $depth * $spacing-05 !important;
+        margin-inline-start: -$leaf-offset !important; /* NOSONAR css:S9423 - beats Carbon's inline offset */
+        padding-inline-start: $leaf-offset !important; /* NOSONAR css:S9423 - beats Carbon's inline offset */
       }
 
       $level: '#{$level} > ul > li';
