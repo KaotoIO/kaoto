@@ -43,9 +43,21 @@ describe('CamelInterceptFromVisualEntity', () => {
       [{ intercept: { id: 'interceptId' } }, false],
       [{ interceptFrom: { id: 'interceptFromId' } }, true],
       [{ interceptSendToEndpoint: { id: 'interceptSendToEndpointId' } }, false],
-    ])('should return %s for %s', (definition, result) => {
+      [{ interceptFrom: 'direct:start' }, true],
+      [{ interceptFrom: 42 }, false],
+      [undefined, false],
+      [null, false],
+      [[{ interceptFrom: {} }], false],
+      ['interceptFrom', false],
+    ])('should evaluate %s as applicable: %s', (definition, result) => {
       expect(CamelInterceptFromVisualEntity.isApplicable(definition)).toEqual(result);
     });
+  });
+
+  it('should use the id as the node label of the interceptFrom group', () => {
+    const entity = new CamelInterceptFromVisualEntity({ interceptFrom: { id: 'interceptFrom-1' } });
+
+    expect(entity.getNodeLabel('interceptFrom')).toBe('interceptFrom-1');
   });
 
   it('should return the id', () => {
