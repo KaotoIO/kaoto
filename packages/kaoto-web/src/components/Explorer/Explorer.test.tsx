@@ -487,6 +487,10 @@ describe('Explorer', () => {
         expect(screen.queryByTestId(`explorer-file-${file.id}`)).not.toBeInTheDocument();
       }
       expect(await storedPaths()).toEqual(outside.map((file) => file.path).sort());
+      // The stored folders too, or the empty ones would come back on a reload
+      const storedFolders = await filesStore.getFolders();
+      expect(storedFolders.filter((path) => path === 'integrations' || path.startsWith('integrations/'))).toEqual([]);
+      expect(storedFolders).toContain('resources');
       expect(screen.getByTestId('explorer-folder-resources')).toBeInTheDocument();
     });
 
@@ -594,22 +598,22 @@ describe('Explorer', () => {
     });
 
     it.each([
-      ['the open file', 'explorer-delete-main-flow', '/workspace'],
-      ['the folder of the open file', `explorer-delete-${toFolderId('integrations')}`, '/workspace'],
-      ['another file', 'explorer-delete-error-handler', '/workspace/file/main-flow'],
-      ['another folder', `explorer-delete-${toFolderId('resources')}`, '/workspace/file/main-flow'],
-    ])('leads to %s and stays at %s', async (_, deleteButton, location) => {
+      ['the open file', '/workspace', 'main-flow'],
+      ['the folder of the open file', '/workspace', toFolderId('integrations')],
+      ['another file', '/workspace/file/main-flow', 'error-handler'],
+      ['another folder', '/workspace/file/main-flow', toFolderId('resources')],
+    ])('deleting %s leads to %s', async (_, location, nodeId) => {
       const user = userEvent.setup();
       renderWithNavigation(<LocationDisplay />, '/workspace/file/main-flow');
       await expandFolder(user, 'integrations');
 
-      await user.click(screen.getByTestId(deleteButton));
+      await user.click(screen.getByTestId(`explorer-delete-${nodeId}`));
       await user.click(screen.getByRole('button', { name: 'Delete' }));
 
+      // A wrong redirect has happened by the time the node is gone, so waiting for the location cannot pass too early
       await waitFor(() => {
-        expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
+        expect(screen.queryByTestId(`explorer-delete-${nodeId}`)).not.toBeInTheDocument();
       });
-      // The navigation can finish after the modal closes
       await waitFor(() => {
         expect(screen.getByTestId('location').textContent).toBe(location);
       });
