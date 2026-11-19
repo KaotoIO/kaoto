@@ -78,10 +78,9 @@ $fields: ':is(.cds--text-input__field-outer-wrapper, .cds--text-area__wrapper, .
       background-color: var(--cs-field);
     }
 
-    // The edit-in-place field (e.g. Uri) does not follow the field tokens
+    // The edit-in-place field (e.g. Uri) has square corners in Carbon's v12 look
     .canvas-sidebar .c4p--edit-in-place {
       border-radius: kaoto.$control-radius;
-      background-color: var(--cs-field);
     }
   }
 }
