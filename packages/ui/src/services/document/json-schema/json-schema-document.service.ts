@@ -326,7 +326,7 @@ export class JsonSchemaDocumentService {
   private populateTypeFragmentsFromDefinition(parent: JsonSchemaParentType, schema: JsonSchemaMetadata) {
     const definitions = { ...schema.$defs, ...schema.definitions };
     for (const [definitionName, definitionSchema] of Object.entries(definitions)) {
-      if (typeof definitionSchema === 'boolean' || Object.keys(definitionSchema).length === 0) return;
+      if (typeof definitionSchema === 'boolean' || Object.keys(definitionSchema).length === 0) continue;
       const path =
         schema.path + (schema.$defs && definitionName in schema.$defs ? '/$defs/' : '/definitions/') + definitionName;
       const definitionSchemaMeta: JsonSchemaMetadata = {
