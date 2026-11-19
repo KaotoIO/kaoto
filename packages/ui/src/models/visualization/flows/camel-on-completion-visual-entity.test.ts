@@ -39,9 +39,19 @@ describe('CamelOnCompletionVisualEntity', () => {
       [{ intercept: { id: 'interceptId' } }, false],
       [{ interceptFrom: { id: 'interceptFromId' } }, false],
       [{ interceptSendToEndpoint: { id: 'interceptSendToEndpointId' } }, false],
-    ])('should return %s for %s', (definition, result) => {
+      [undefined, false],
+      [null, false],
+      [[{ onCompletion: {} }], false],
+      ['onCompletion', false],
+    ])('should evaluate %s as applicable: %s', (definition, result) => {
       expect(CamelOnCompletionVisualEntity.isApplicable(definition)).toEqual(result);
     });
+  });
+
+  it('should use the id as the node label of the onCompletion group', () => {
+    const entity = new CamelOnCompletionVisualEntity({ onCompletion: { id: 'onCompletion-1' } });
+
+    expect(entity.getNodeLabel('onCompletion')).toBe('onCompletion-1');
   });
 
   it('should return the id', () => {
