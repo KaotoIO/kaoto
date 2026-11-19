@@ -137,8 +137,31 @@
     }
 
     .cds--tree-node__label {
+      margin-inline-end: $spacing-02;
       border-radius: kaoto.$control-radius;
     }
+
+    // Carbon sets each label's start offset as an inline style, worked out for its own indentation of 24px per
+    // level. The Explorer indents by 16px, so the labels reach 8px per level past the tree and are cut off there,
+    // with the start of their rounded corners and focus ring. These offsets fit the Explorer's indentation and keep
+    // a $spacing-02 gap to the card edge; only !important wins over an inline style.
+    /* stylelint-disable carbon/layout-use -- see above */
+    $level: '.cds--tree > li';
+
+    @for $depth from 0 through 9 {
+      #{$level}.cds--tree-parent-node > .cds--tree-node__label {
+        margin-inline-start: -($spacing-02 + $depth * $spacing-05) !important;
+        padding-inline-start: $spacing-02 + $depth * $spacing-05 !important;
+      }
+
+      #{$level}.cds--tree-leaf-node > .cds--tree-node__label {
+        margin-inline-start: -($spacing-06 - $spacing-02 + $depth * $spacing-05) !important;
+        padding-inline-start: $spacing-06 - $spacing-02 + $depth * $spacing-05 !important;
+      }
+
+      $level: '#{$level} > ul > li';
+    }
+    /* stylelint-enable carbon/layout-use */
 
     .cds--tree-node__label:hover,
     .cds--tree-node__label:focus,
