@@ -502,4 +502,28 @@ describe('SchemaPropertyFilter', () => {
       expect(Object.keys(result!)).toEqual(['username', 'userEmail']);
     });
   });
+
+  describe('filter - array values in the model', () => {
+    const properties: JSONSchema4['properties'] = {
+      entries: {
+        type: 'array',
+        title: 'Entries',
+        items: { type: 'object', properties: { label: { type: 'string', title: 'Label' } } },
+      },
+    };
+
+    it('does not search an array property whose value is not a list', () => {
+      const result = SchemaPropertyFilter.filter(properties, 'hello', undefined, { entries: { label: 'hello' } });
+
+      expect(result).toEqual({});
+    });
+
+    it('excludes an array property when none of its items match', () => {
+      const result = SchemaPropertyFilter.filter(properties, 'hello', undefined, {
+        entries: [{ label: 'bye' }],
+      });
+
+      expect(result).toEqual({});
+    });
+  });
 });
