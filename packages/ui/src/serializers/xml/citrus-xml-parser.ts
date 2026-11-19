@@ -663,13 +663,22 @@ function serializeJsonArray(
   depth: number,
   textAsChildren: boolean,
 ): void {
-  const indent = '  '.repeat(depth + 1);
-  const singularTag = key.endsWith('s') ? key.slice(0, -1) : key;
-  lines.push(`${indent}  <${key}>`);
-  for (const item of items) {
-    if (typeof item === 'object') {
-      serializeJsonElement(item as Record<string, unknown>, singularTag, lines, depth + 2, textAsChildren);
+  const elements = items.filter((item): item is Record<string, unknown> => typeof item === 'object');
+
+  // A list under a singular key, like the repeated <header> elements read from XML, is one element per item
+  if (!key.endsWith('s')) {
+    for (const element of elements) {
+      serializeJsonElement(element, key, lines, depth + 1, textAsChildren);
     }
+    return;
+  }
+
+  // A list under a plural key, like the headers of the YAML DSL, gets a wrapper with one singular element per item
+  const indent = '  '.repeat(depth + 1);
+  const singularTag = key.slice(0, -1);
+  lines.push(`${indent}  <${key}>`);
+  for (const element of elements) {
+    serializeJsonElement(element, singularTag, lines, depth + 2, textAsChildren);
   }
   lines.push(`${indent}  </${key}>`);
 }
