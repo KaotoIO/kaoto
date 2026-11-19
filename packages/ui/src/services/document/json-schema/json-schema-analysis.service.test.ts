@@ -156,6 +156,40 @@ describe('JsonSchemaAnalysisService', () => {
       expect(refs).toEqual([]);
     });
 
+    it('should extract $ref from additionalItems', () => {
+      const schema: JSONSchema7 = {
+        type: 'array',
+        items: [{ type: 'string' }],
+        additionalItems: { $ref: '#/definitions/Rest' },
+      };
+
+      const refs = JsonSchemaAnalysisService.extractRefs(schema);
+
+      expect(refs).toEqual(['#/definitions/Rest']);
+    });
+
+    it('should not extract from boolean additionalItems', () => {
+      const schema: JSONSchema7 = {
+        type: 'array',
+        items: [{ type: 'string' }],
+        additionalItems: false,
+      };
+
+      const refs = JsonSchemaAnalysisService.extractRefs(schema);
+
+      expect(refs).toEqual([]);
+    });
+
+    it.each<[string, JSONSchema7]>([
+      ['properties', { properties: { flag: true, ref: { $ref: '#/definitions/Ref' } } }],
+      ['items array', { items: [false, { $ref: '#/definitions/Ref' }] }],
+      ['allOf', { allOf: [true, { $ref: '#/definitions/Ref' }] }],
+    ])('should skip boolean subschemas in %s', (_keyword, schema) => {
+      const refs = JsonSchemaAnalysisService.extractRefs(schema);
+
+      expect(refs).toEqual(['#/definitions/Ref']);
+    });
+
     it('should extract $ref from patternProperties', () => {
       const schema: JSONSchema7 = {
         type: 'object',
@@ -270,6 +304,23 @@ describe('JsonSchemaAnalysisService', () => {
         expect(result.edges).toHaveLength(0);
         expect(result.missingReferences).toHaveLength(0);
         expect(result.errors).toHaveLength(0);
+      });
+
+      it('should skip a reference to its own file path', () => {
+        const schema = createMetadata('self', 'self.json', {
+          type: 'object',
+          definitions: { Node: { type: 'string' } },
+          properties: {
+            root: { $ref: './self.json#/definitions/Node' },
+          },
+        });
+
+        const result = JsonSchemaAnalysisService.analyze([schema]);
+
+        expect(result.edges).toHaveLength(0);
+        expect(result.circularDependencies).toHaveLength(0);
+        expect(result.missingReferences).toHaveLength(0);
+        expect(result.warnings).toHaveLength(0);
       });
     });
 
@@ -422,6 +473,45 @@ describe('JsonSchemaAnalysisService', () => {
         expect(result.loadOrder).toHaveLength(2);
         expect(result.loadOrder).toContain('A');
         expect(result.loadOrder).toContain('B');
+      });
+
+      it('should produce complete loading order for two independent cycles', () => {
+        const schemaA = createMetadata('A', 'A.json', { properties: { b: { $ref: './B.json' } } });
+        const schemaB = createMetadata('B', 'B.json', { properties: { a: { $ref: './A.json' } } });
+        const schemaC = createMetadata('C', 'C.json', { properties: { d: { $ref: './D.json' } } });
+        const schemaD = createMetadata('D', 'D.json', { properties: { c: { $ref: './C.json' } } });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB, schemaC, schemaD]);
+
+        expect(result.circularDependencies).toHaveLength(2);
+        expect(result.loadOrder).toHaveLength(4);
+        expect(new Set(result.loadOrder)).toEqual(new Set(['A', 'B', 'C', 'D']));
+      });
+    });
+
+    describe('reference resolution fallbacks', () => {
+      it('should resolve a reference by file name when the path does not match', () => {
+        const schemaA = createMetadata('A', 'app/A.json', {
+          properties: { b: { $ref: 'B.json#/definitions/TypeB' } },
+        });
+        const schemaB = createMetadata('B', 'lib/B.json', { definitions: { TypeB: { type: 'string' } } });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
+
+        expect(result.missingReferences).toHaveLength(0);
+        expect(result.edges).toEqual([
+          { from: 'A', to: 'B', ref: 'B.json#/definitions/TypeB', localPart: '/definitions/TypeB' },
+        ]);
+      });
+
+      it('should resolve an absolute path reference', () => {
+        const schemaA = createMetadata('A', 'app/A.json', { properties: { b: { $ref: '/B.json' } } });
+        const schemaB = createMetadata('B', 'B.json', { type: 'object' });
+
+        const result = JsonSchemaAnalysisService.analyze([schemaA, schemaB]);
+
+        expect(result.missingReferences).toHaveLength(0);
+        expect(result.edges.map((edge) => edge.to)).toEqual(['B']);
       });
     });
 
