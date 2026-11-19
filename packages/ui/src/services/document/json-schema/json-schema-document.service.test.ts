@@ -772,6 +772,24 @@ describe('JsonSchemaDocumentService', () => {
     expect(aFields[0].type).toBe(Types.String);
   });
 
+  it.each(['allOf', 'anyOf', 'oneOf'] as const)(
+    'should resolve a $ref to a definition declared inside %s',
+    (composition) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        [composition]: [{ type: 'object' }, { definitions: { D: { type: 'string' } } }],
+        properties: {
+          x: { $ref: `#/${composition}/1/definitions/D` },
+        },
+      };
+
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      const xField = doc.fields[0].fields.find((f) => f.key === 'x');
+      expect(xField!.type).toBe(Types.String);
+    },
+  );
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,
