@@ -62,7 +62,6 @@ describe('ImportOperationsStep', () => {
   it('marks "Select all operations" as partially checked when only some operations are selected', () => {
     const wizard = createWizardState({
       isOpenApiParsed: true,
-      importSelectAll: false,
       importOperations: [operation(), operation({ operationId: 'addPet', method: 'post', selected: false })],
     });
     render(<ImportOperationsStep wizard={wizard} />);

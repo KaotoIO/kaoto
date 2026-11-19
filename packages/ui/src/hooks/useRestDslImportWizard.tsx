@@ -27,7 +27,6 @@ export const useRestDslImportWizard = () => {
   const [importSource, setImportSource] = useState<ImportSourceOption>('file');
   const [importCreateRest, setImportCreateRest] = useState(false);
   const [importCreateRoutes, setImportCreateRoutes] = useState(true);
-  const [importSelectAll, setImportSelectAll] = useState(true);
   const [isOpenApiParsed, setIsOpenApiParsed] = useState(false);
   const [openApiSpecText, setOpenApiSpecText] = useState('');
   const [sourceIdentifier, setSourceIdentifier] = useState('');
@@ -53,7 +52,6 @@ export const useRestDslImportWizard = () => {
     setImportSource('file');
     setImportCreateRest(false);
     setImportCreateRoutes(true);
-    setImportSelectAll(true);
     setImportUri('');
     setParseError(null);
     clearImportResult();
@@ -91,7 +89,6 @@ export const useRestDslImportWizard = () => {
       }
 
       setImportOperations(operations);
-      setImportSelectAll(true);
       setIsOpenApiParsed(true);
       return { success: true };
     } catch (error) {
@@ -142,7 +139,6 @@ export const useRestDslImportWizard = () => {
     setIsOpenApiParsed(false);
     setOpenApiLoadSource(undefined);
     setSourceIdentifier('');
-    setImportSelectAll(true);
     setParseError(null);
     clearImportResult();
   }, [clearImportResult]);
@@ -184,26 +180,20 @@ export const useRestDslImportWizard = () => {
           ...operation,
           routeExists: routeExistsByKey.get(OpenApiProcessingService.getOperationKey(operation)) ?? false,
         }));
-        const next = OpenApiProcessingService.toggleSelectAllOperations(withRouteExists, checked);
-        const selectable = next.filter((operation) => !operation.routeExists);
-        const allSelected = selectable.length > 0 && selectable.every((operation) => operation.selected);
-        setImportSelectAll(allSelected);
-        return next;
+        return OpenApiProcessingService.toggleSelectAllOperations(withRouteExists, checked);
       });
     },
     [importOperationsWithRouteExists],
   );
 
   const handleToggleOperation = useCallback((operationId: string, method: string, path: string, checked: boolean) => {
-    setImportOperations((prev) => {
-      const next = prev.map((operation) =>
+    setImportOperations((prev) =>
+      prev.map((operation) =>
         operation.operationId === operationId && operation.method === method && operation.path === path
           ? { ...operation, selected: checked }
           : operation,
-      );
-      setImportSelectAll(next.every((operation) => operation.selected));
-      return next;
-    });
+      ),
+    );
   }, []);
 
   const handleImportOpenApi = useCallback((): boolean => {
@@ -300,7 +290,6 @@ export const useRestDslImportWizard = () => {
       setImportOperations([]);
       setIsOpenApiParsed(false);
       setOpenApiLoadSource(undefined);
-      setImportSelectAll(true);
       setSourceIdentifier('');
       setImportUri('');
       setParseError(null);
@@ -328,7 +317,6 @@ export const useRestDslImportWizard = () => {
     importUri,
     importCreateRest,
     importCreateRoutes,
-    importSelectAll,
     importOperations: importOperationsWithRouteExists,
     parseError,
     importStatus,

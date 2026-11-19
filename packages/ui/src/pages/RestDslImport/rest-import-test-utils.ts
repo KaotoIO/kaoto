@@ -10,7 +10,6 @@ export const createWizardState = (overrides: Partial<RestDslImportWizardState> =
   importUri: '',
   importCreateRest: false,
   importCreateRoutes: true,
-  importSelectAll: true,
   importOperations: [],
   parseError: null,
   importStatus: null,
