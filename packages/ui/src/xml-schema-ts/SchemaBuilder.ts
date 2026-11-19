@@ -74,14 +74,6 @@ export class SchemaBuilder {
     }
   }
 
-  getExtReg() {
-    return this.extReg;
-  }
-
-  setExtReg(extReg: ExtensionRegistry) {
-    this.extReg = extReg;
-  }
-
   build(doc: Document, uri?: string): XmlSchema {
     const schemaEl = doc.documentElement as Element;
     return this.handleXmlSchemaElement(schemaEl, uri);
