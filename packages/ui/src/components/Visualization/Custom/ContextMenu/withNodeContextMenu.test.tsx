@@ -1,4 +1,4 @@
-import { ContextMenuItem, WithContextMenuProps } from '@patternfly/react-topology';
+import { action, ContextMenuItem, WithContextMenuProps } from '@patternfly/react-topology';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FunctionComponent } from 'react';
@@ -223,6 +223,29 @@ describe('withNodeContextMenu', () => {
 
       expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
       expect(target).toHaveFocus();
+    });
+
+    it('closes when the element gets new data, and returns the focus to where it was', async () => {
+      const actions = vi.fn().mockReturnValue([itemA]);
+      const { element, target } = renderWithMenu(actions);
+      await openMenu(target);
+      expect(screen.getByRole('menuitem', { name: 'Item A' })).toHaveFocus();
+
+      /* A model update keeps the element and replaces its data: the items of the open menu belong to the old one */
+      act(
+        action(() => {
+          element.setData({ vizNode: 'next' });
+        }),
+      );
+      await settle();
+
+      expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
+      expect(target).toHaveAttribute('data-menu-open', 'false');
+      expect(target).toHaveFocus();
+
+      fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+      expect(await screen.findByTestId('item-a')).toBeInTheDocument();
+      expect(actions).toHaveBeenCalledTimes(2);
     });
 
     it('moves the focus to the canvas when an action removes the element that had it', async () => {

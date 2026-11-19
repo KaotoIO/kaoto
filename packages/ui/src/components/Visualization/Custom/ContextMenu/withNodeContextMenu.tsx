@@ -20,6 +20,8 @@ interface OpenMenu {
   /** Increases on every right-click, so each open mounts its own `ContextMenu` */
   id: number;
   reference: { x: number; y: number };
+  /** The element's data the actions are built from */
+  data: unknown;
 }
 
 interface NodeContextMenuPopupProps {
@@ -60,9 +62,13 @@ const NodeContextMenuPopup: FunctionComponent<NodeContextMenuPopupProps> = ({
     });
     return () => {
       cancelAnimationFrame(frame);
-      /* An action may have removed the element that had the focus, like deleting a step */
       requestAnimationFrame(() => {
-        if (origin.current?.isConnected === false && document.activeElement === document.body) {
+        if (document.activeElement !== document.body) return;
+        if (origin.current?.isConnected) {
+          /* The menu was closed from outside while it had the focus, like when its element got new data */
+          origin.current.focus({ preventScroll: true });
+        } else if (origin.current) {
+          /* An action may have removed the element that had the focus, like deleting a step */
           document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.focus({ preventScroll: true });
         }
       });
@@ -120,16 +126,32 @@ export const withNodeContextMenu =
       /** Counts every open, independently of the close that a `mousedown` may queue in the same event batch */
       const openCount = useRef(0);
 
-      const onContextMenu = useCallback((event: MouseEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
-        openCount.current += 1;
-        setMenu({ id: openCount.current, reference: { x: event.clientX, y: event.clientY } });
-      }, []);
+      const onContextMenu = useCallback(
+        (event: MouseEvent) => {
+          event.preventDefault();
+          event.stopPropagation();
+          openCount.current += 1;
+          setMenu({
+            id: openCount.current,
+            reference: { x: event.clientX, y: event.clientY },
+            data: element.getData(),
+          });
+        },
+        [element],
+      );
 
       const onRequestClose = useCallback(() => {
         setMenu(null);
       }, []);
+
+      /*
+       * The canvas stays mounted across a model update, which keeps the element and replaces its data. The actions of
+       * an open menu were built from the previous data and would act on the previous model, so the menu closes.
+       */
+      const data: unknown = element.getData();
+      if (menu !== null && menu.data !== data) {
+        setMenu(null);
+      }
 
       const items = useMemo(() => (menu === null ? null : actions(element)), [element, menu]);
 
