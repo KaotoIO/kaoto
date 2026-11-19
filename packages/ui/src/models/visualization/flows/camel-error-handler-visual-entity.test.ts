@@ -32,6 +32,10 @@ describe('CamelErrorHandlerVisualEntity', () => {
       [true, { errorHandler: { id: 'errorHandlerId' } }],
       [false, { from: { id: 'from-1234', steps: [] } }],
       [false, { errorHandler: { id: 'errorHandlerId' }, anotherProperty: true }],
+      [false, undefined],
+      [false, null],
+      [false, [{ errorHandler: {} }]],
+      [false, 'errorHandler'],
     ])('should return %s for %s', (result, definition) => {
       expect(CamelErrorHandlerVisualEntity.isApplicable(definition)).toEqual(result);
     });
@@ -138,6 +142,30 @@ describe('CamelErrorHandlerVisualEntity', () => {
       canRemoveFlow: true,
       canBeDisabled: false,
     });
+  });
+
+  it.each(['addStep', 'pasteStep', 'removeStep'] as const)(
+    'should leave the definition unchanged on %s',
+    (operation) => {
+      const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+
+      entity[operation]();
+
+      expect(entity.toJSON()).toEqual({ errorHandler: { noErrorHandler: { id: 'noErrorHandlerId' } } });
+    },
+  );
+
+  it('should not allow to drag or drop on the error handler node', () => {
+    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+
+    expect(entity.canDragNode('errorHandler')).toBe(false);
+    expect(entity.canDropOnNode('errorHandler')).toBe(false);
+  });
+
+  it('should not omit any field from the form', () => {
+    const entity = new CamelErrorHandlerVisualEntity(errorHandlerDef);
+
+    expect(entity.getOmitFormFields()).toEqual([]);
   });
 
   it('getCopiedContent should return the content to be copied', () => {
