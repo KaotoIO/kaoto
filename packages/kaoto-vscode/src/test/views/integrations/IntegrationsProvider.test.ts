@@ -423,6 +423,30 @@ suite('IntegrationsProvider', () => {
 		assert.lengthOf(findFilesCalls, 1);
 	});
 
+	test('searches again after a file search fails', async () => {
+		vscode.workspace.findFiles = async (include: vscode.GlobPattern, exclude?: vscode.GlobPattern | null) => {
+			findFilesCalls.push({ include, exclude });
+			if (findFilesCalls.length === 1) {
+				throw new Error('The file search failed');
+			}
+			return files;
+		};
+		const provider = createProvider();
+
+		try {
+			await provider.getChildren();
+			assert.fail('Should have thrown an error');
+		} catch (error) {
+			assert.include((error as Error).message, 'The file search failed');
+		}
+
+		assert.deepEqual(
+			(await provider.getChildren()).map((child) => child.label),
+			['maven-app', 'standalone', 'a-route.camel.yaml'],
+		);
+		assert.lengthOf(findFilesCalls, 2);
+	});
+
 	test('reads the files again after a refresh that comes during a file search', async () => {
 		let finishFirstSearch = () => {};
 		vscode.workspace.findFiles = async (include: vscode.GlobPattern, exclude?: vscode.GlobPattern | null) => {
