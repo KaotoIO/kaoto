@@ -1,6 +1,6 @@
 import './CanvasForm.scss';
 
-import { Close } from '@carbon/icons-react';
+import { CloseFilled } from '@carbon/icons-react';
 import { IconButton } from '@carbon/react';
 import { FunctionComponent, useCallback, useContext, useEffect, useRef } from 'react';
 
@@ -54,10 +54,12 @@ export const CanvasForm: FunctionComponent<CanvasFormProps> = ({ vizNode, onClos
               kind="ghost"
               size="sm"
               label="Close"
+              // Opens to the left: above or below the header a host can cut it off
+              align="left"
               onClick={onCloseFn}
               className="canvas-header-close"
             >
-              <Close />
+              <CloseFilled />
             </IconButton>
           </div>
         </div>
