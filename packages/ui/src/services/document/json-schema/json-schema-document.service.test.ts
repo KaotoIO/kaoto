@@ -537,6 +537,7 @@ describe('JsonSchemaDocumentService', () => {
     const fooField = root.fields.find((f) => f.key === 'foo');
     expect(fooField).toBeDefined();
     expect(fooField!.type).toBe(Types.String);
+    expect(fooField!.typeQName?.getLocalPart()).toBe('string');
   });
 
   it('should refine AnyType to concrete type via composition', () => {
@@ -789,6 +790,20 @@ describe('JsonSchemaDocumentService', () => {
       expect(xField!.type).toBe(Types.String);
     },
   );
+
+  it.each([
+    [
+      'tuple array items',
+      { type: 'array', items: [{ type: 'string' }, { type: 'number' }] } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields[0],
+    ],
+  ])('should keep the typeQName of the first declared type for %s', (_desc, schema, getField) => {
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const field = getField(doc);
+    expect(field.type).toBe(Types.String);
+    expect(field.typeQName?.getLocalPart()).toBe('string');
+  });
 
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
