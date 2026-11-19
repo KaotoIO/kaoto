@@ -6,12 +6,16 @@ import { ApicurioArtifact, ApicurioArtifactSearchResult, SchemaLoadedResult } fr
 
 const REGISTRY_NOT_CONFIGURED_TITLE_ID = 'rest-openapi-apicurio-not-configured-title';
 
+const getArtifactsUrl = (registryUrl: string) => `${registryUrl}/apis/registry/v2/groups/default/artifacts/`;
+
 type ApicurioImportSourceProps = {
   registryUrl?: string;
   onSchemaLoaded: (result: SchemaLoadedResult) => { error?: string };
   /** Called when another artifact is selected, so the previous artifact is no longer importable while it loads */
   onCleared?: () => void;
   onOpenSettings?: () => void;
+  /** URL of an artifact already loaded by the wizard, so its selection is shown again when the step is revisited */
+  loadedSourceIdentifier?: string;
 };
 
 export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> = ({
@@ -19,11 +23,16 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
   onSchemaLoaded,
   onCleared,
   onOpenSettings,
+  loadedSourceIdentifier = '',
 }) => {
+  const loadedArtifactId =
+    registryUrl && loadedSourceIdentifier.startsWith(getArtifactsUrl(registryUrl))
+      ? loadedSourceIdentifier.slice(getArtifactsUrl(registryUrl).length)
+      : '';
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedId, setSelectedId] = useState('');
+  const [selectedId, setSelectedId] = useState(loadedArtifactId);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(!!loadedArtifactId);
   const [error, setError] = useState('');
   const startRequest = useLatestRequest();
 
@@ -82,7 +91,7 @@ export const ApicurioImportSource: FunctionComponent<ApicurioImportSourceProps> 
       setIsLoaded(false);
 
       try {
-        const artifactUrl = `${registryUrl}/apis/registry/v2/groups/default/artifacts/${artifactId}`;
+        const artifactUrl = `${getArtifactsUrl(registryUrl)}${artifactId}`;
         const response = await fetch(artifactUrl);
         if (!response.ok) {
           throw new Error(`Failed to fetch artifact (${response.status})`);
