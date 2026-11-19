@@ -1,10 +1,11 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { parse } from 'yaml';
 
 import { DynamicCatalogRegistry } from '../../../../dynamic-catalog/dynamic-catalog-registry';
 import { getFirstCitrusCatalogMap, setupCitrusDynamicCatalogRegistry } from '../../../../stubs/test-load-catalog';
 import { CitrusTestResource } from '../../../citrus/citrus-test-resource';
-import { Test } from '../../../citrus/entities/Test.d';
+import { Test, TestActions } from '../../../citrus/entities/Test.d';
 import { EndpointsEntityHandler } from './endpoints-entity-handler';
 
 describe('EndpointsEntityHandler', () => {
@@ -293,6 +294,112 @@ describe('EndpointsEntityHandler', () => {
 
       const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
       expect(definedEndpoints[0]).toEqual({ name: 'emptyTypeEndpoint', type: '' });
+    });
+
+    it('should list a typed endpoint without a name with an empty name', () => {
+      testModel.endpoints = [{ type: 'http' }];
+
+      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
+
+      expect(definedEndpoints).toEqual([{ name: '', type: 'http' }]);
+    });
+
+    it('should take the name from the endpoint root when it precedes the endpoint type', () => {
+      testModel.endpoints = [{ name: 'rootName', http: { client: { requestUrl: 'http://localhost:8080' } } }];
+
+      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
+
+      expect(definedEndpoints).toEqual([{ name: 'rootName', type: 'http.client' }]);
+    });
+
+    it.each([
+      ['without a type', { name: 'incomplete' }],
+      ['without a name', { http: { client: { requestUrl: 'http://localhost:8080' } } }],
+    ])('should not list an endpoint %s', (_description, endpoint) => {
+      testModel.endpoints = [endpoint];
+
+      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
+
+      expect(definedEndpoints).toEqual([]);
+    });
+
+    it.each([
+      ['an action other than createEndpoint', { print: { message: 'Hello' } }],
+      ['a createEndpoint action without a type', { createEndpoint: { name: 'jmsQueue' } }],
+      ['a createEndpoint action without a name', { createEndpoint: { type: 'jms' } }],
+      ['an empty createEndpoint action', { createEndpoint: null }],
+    ])('should not list an endpoint for %s', (_description, action) => {
+      testModel.actions = [action as TestActions];
+
+      const allEndpoints = endpointsHandler.getAllEndpointsNameAndType();
+
+      expect(allEndpoints).toEqual([]);
+    });
+
+    it('should list the defined endpoints when the YAML actions key of the test is empty', () => {
+      testModel.actions = parse('actions:').actions;
+      testModel.endpoints = [{ http: { client: { name: 'httpClient' } } }];
+
+      const allEndpoints = endpointsHandler.getAllEndpointsNameAndType();
+
+      expect(allEndpoints).toEqual([{ name: 'httpClient', type: 'http.client' }]);
+    });
+
+    it('should get the endpoint at the given index', () => {
+      const jmsEndpoint = { jms: { asynchronous: { name: 'jmsQueue' } } };
+      testModel.endpoints = [{ http: { client: { name: 'httpClient' } } }, jmsEndpoint];
+
+      const endpoint = endpointsHandler.getEndpoint(1);
+
+      expect(endpoint).toBe(jmsEndpoint);
+    });
+
+    it('should delete the endpoint at the given index', () => {
+      const httpEndpoint = { http: { client: { name: 'httpClient' } } };
+      testModel.endpoints = [httpEndpoint, { jms: { asynchronous: { name: 'jmsQueue' } } }];
+
+      endpointsHandler.deleteEndpoint(1);
+
+      expect(testModel.endpoints).toEqual([httpEndpoint]);
+    });
+
+    it('should update the endpoint matching the model name when no previous name is given', () => {
+      testModel.endpoints = [{ http: { client: { name: 'httpClient', requestUrl: 'http://localhost:8080' } } }];
+
+      endpointsHandler.updateEndpoint(
+        'http-client',
+        { name: 'httpClient', requestUrl: 'http://localhost:9090' },
+        undefined,
+      );
+
+      expect(testModel.endpoints).toEqual([
+        { http: { client: { name: 'httpClient', requestUrl: 'http://localhost:9090' } } },
+      ]);
+    });
+
+    it('should append the endpoint when no existing endpoint has the previous name', () => {
+      const otherEndpoint = { http: { client: { name: 'otherClient' } } };
+      testModel.endpoints = [otherEndpoint];
+
+      endpointsHandler.updateEndpoint('http-client', { name: 'httpClient' }, 'httpClient');
+
+      expect(testModel.endpoints).toEqual([otherEndpoint, { http: { client: { name: 'httpClient' } } }]);
+    });
+
+    it('should not update an endpoint without a type that carries the previous name', () => {
+      const untypedEndpoint = { name: 'httpClient' };
+      testModel.endpoints = [untypedEndpoint, { http: { client: { name: 'httpClient' } } }];
+
+      endpointsHandler.updateEndpoint(
+        'http-client',
+        { name: 'httpClient', requestUrl: 'http://localhost:9090' },
+        'httpClient',
+      );
+
+      expect(testModel.endpoints).toEqual([
+        untypedEndpoint,
+        { http: { client: { name: 'httpClient', requestUrl: 'http://localhost:9090' } } },
+      ]);
     });
   });
 });
