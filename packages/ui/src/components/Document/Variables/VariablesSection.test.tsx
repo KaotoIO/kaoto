@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 import { VARIABLES_SECTION_ANCHOR } from '../../../models/datamapper/connection-port';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
@@ -67,6 +67,52 @@ describe('VariablesSection', () => {
       renderVariablesSection(true);
 
       expect(screen.queryByTestId('add-variable-button')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Rename and delete a variable', () => {
+    const addVariable = async (name: string) => {
+      fireEvent.click(await screen.findByTestId('add-variable-button'));
+      fireEvent.change(screen.getByTestId('new-variable-name-input'), { target: { value: name } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
+      return screen.findByTestId(`variable-row-${name}`);
+    };
+
+    it('should show the renamed variable after the rename is confirmed', async () => {
+      renderVariablesSection();
+      const row = await addVariable('oldName');
+
+      fireEvent.doubleClick(within(row).getByText('$'));
+      fireEvent.change(screen.getByTestId('new-variable-name-input'), { target: { value: 'newName' } });
+      fireEvent.click(screen.getByTestId('new-variable-submit-btn'));
+
+      expect(await screen.findByTestId('variable-row-newName')).toBeInTheDocument();
+      expect(screen.queryByTestId('variable-row-oldName')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('new-variable-name-input')).not.toBeInTheDocument();
+    });
+
+    it('should show the variable unchanged when the rename is cancelled', async () => {
+      renderVariablesSection();
+      const row = await addVariable('oldName');
+
+      fireEvent.doubleClick(within(row).getByText('$'));
+      fireEvent.change(screen.getByTestId('new-variable-name-input'), { target: { value: 'newName' } });
+      fireEvent.click(screen.getByTestId('new-variable-cancel-btn'));
+
+      expect(screen.getByTestId('variable-row-oldName')).toBeInTheDocument();
+      expect(screen.queryByTestId('new-variable-name-input')).not.toBeInTheDocument();
+    });
+
+    it('should remove the variable after the deletion is confirmed', async () => {
+      renderVariablesSection();
+      await addVariable('obsolete');
+
+      fireEvent.click(screen.getByTestId('delete-variable-obsolete-button'));
+      fireEvent.click(screen.getByTestId('delete-variable-obsolete-modal-confirm-btn'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('variable-row-obsolete')).not.toBeInTheDocument();
+      });
     });
   });
 
