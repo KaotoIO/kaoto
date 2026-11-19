@@ -147,6 +147,27 @@ describe('ArrayBadgesField', () => {
 
       expect(onPropertyChange).not.toHaveBeenCalled();
     });
+
+    it('should not add the item when pressing another key', () => {
+      const onPropertyChange = vi.fn();
+      renderField({}, onPropertyChange);
+      const input = getInput();
+
+      fireEvent.change(input, { target: { value: 'typing' } });
+      fireEvent.keyDown(input, { key: 'g', code: 'KeyG' });
+
+      expect(onPropertyChange).not.toHaveBeenCalled();
+    });
+
+    it('should start a new list when the value is null', () => {
+      const onPropertyChange = vi.fn();
+      renderField({ [PROP_NAME]: null }, onPropertyChange);
+
+      fireEvent.change(getInput(), { target: { value: 'first' } });
+      fireEvent.click(getAddButton());
+
+      expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, ['first']);
+    });
   });
 
   describe('Remove Functionality', () => {
@@ -181,5 +202,17 @@ describe('ArrayBadgesField', () => {
 
       expect(getClearAllButton()).not.toBeDisabled();
     });
+  });
+
+  it('is labelled after its property when the schema has no title', () => {
+    render(
+      <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
+        <SchemaProvider schema={{ ...mockSchema, title: undefined }}>
+          <ArrayBadgesField propName={PROP_NAME} />
+        </SchemaProvider>
+      </ModelContextProvider>,
+    );
+
+    expect(screen.getByRole('textbox', { name: PROP_NAME })).toBeInTheDocument();
   });
 });
