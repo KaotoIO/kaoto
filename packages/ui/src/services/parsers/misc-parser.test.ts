@@ -82,4 +82,33 @@ describe('MiscParser', () => {
       });
     });
   });
+
+  describe('parseMetadataEntity() labels', () => {
+    it('lists the labels in a table of their own', () => {
+      const entity = new MetadataEntity({
+        metadata: {
+          name: 'my-pipe',
+          labels: { app: 'orders', tier: 'backend' },
+        } as unknown as Partial<IKameletMetadata>,
+      });
+
+      const parsedTables = MiscParser.parseMetadataEntity(entity, 'Metadata');
+
+      expect(parsedTables.map((table) => [table.title, table.headingLevel, table.data])).toEqual([
+        ['Metadata', 'h1', [['name', 'my-pipe']]],
+        [
+          'Metadata : Labels',
+          'h2',
+          [
+            ['app', 'orders'],
+            ['tier', 'backend'],
+          ],
+        ],
+      ]);
+    });
+
+    it('returns no tables without metadata', () => {
+      expect(MiscParser.parseMetadataEntity(new MetadataEntity({}), 'Metadata')).toEqual([]);
+    });
+  });
 });
