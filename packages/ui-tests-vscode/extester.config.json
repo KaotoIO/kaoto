@@ -5,16 +5,16 @@
   },
   "run": {
     "testFiles": [
-      "out/editor/*.test.js",
-      "out/source/*.test.js",
-      "out/views/*.test.js",
-      "out/deploy/*.test.js",
-      "out/project/*.test.js"
+      "src/editor/*.test.ts",
+      "src/source/*.test.ts",
+      "src/views/*.test.ts",
+      "src/deploy/*.test.ts",
+      "src/project/*.test.ts"
     ],
     "resources": ["./test Fixture with speci@l chars"],
     "extensionsDir": "./test-resources",
     "settings": "./src/vscode-settings.json",
     "mochaConfig": "./src/.mocharc.json",
-    "customPageObjects": "./out/pageObjects/locators.js"
+    "customPageObjects": "./src/pageObjects/locators.ts"
   }
 }

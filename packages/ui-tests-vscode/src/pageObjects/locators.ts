@@ -17,8 +17,8 @@
 /**
  * Kaoto IT-test custom locator contribution.
  *
- * Compiled to `out-ui-tests/pageObjects/locators.js` and registered with ExTester via
- * `extester.config.json` → `run.customPageObjects`.
+ * Registered with ExTester via `extester.config.json` → `run.customPageObjects`;
+ * ExTester loads this TypeScript file through tsx, without compiling it.
  *
  * The exported `locators` object follows the `LocatorDiff` shape expected by
  * `vscode-extension-tester`:  any unknown top-level key is accepted because
@@ -193,8 +193,8 @@ export const kaotoLocators = {
  * ExTester custom page-objects locator contribution.
  *
  * All selectors that require a `By` object at runtime are registered here.
- * This file is compiled to `out-ui-tests/pageObjects/locators.js` and loaded by
- * ExTester's `customPageObjects.locatorsPath` option before tests run.
+ * ExTester loads this file through tsx, as its `customPageObjects.locatorsPath`
+ * option, before tests run.
  *
  * Page object classes extend `AbstractElement` and call
  * `MyClass.locators.Kaoto*.*` to access these selectors.
