@@ -125,6 +125,35 @@ describe('Canvas', () => {
     });
   });
 
+  it('renders its children over the graph and leaves their Escape key to them', async () => {
+    const { Provider } = await TestProvidersWrapper();
+    const controller = ControllerService.createController();
+    const { container } = render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas {...getCanvasPropsFromVizNodes([], 0)}>
+            <button>Create a route</button>
+          </Canvas>
+        </VisualizationProvider>
+      </Provider>,
+    );
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+    const button = screen.getByRole('button', { name: 'Create a route' });
+    expect(container.querySelector('#canvas-main')).toContainElement(button);
+    expect(container.querySelector('[data-kind="graph"]')).toBeInTheDocument();
+
+    button.focus();
+    fireEvent.keyDown(button, { key: 'Escape' });
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    /* Escape on the canvas itself moves the focus to the canvas root */
+    expect(button).toHaveFocus();
+  });
+
   it('should move focus to the search input when sidebar opens', async () => {
     const focusSpy = vi.spyOn(HTMLElement.prototype, 'focus');
     // Without a schema the side panel renders the node source instead of the form (and its search input)

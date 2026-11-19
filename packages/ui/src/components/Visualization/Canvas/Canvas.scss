@@ -5,10 +5,21 @@
   }
 }
 
-.canvas-empty-state {
+// The children of the canvas are laid over its graph. Only their own content takes pointer events, so the canvas behind
+// them can still be right-clicked and panned
+.canvas-overlay {
   position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.canvas-empty-state {
   height: 100%;
-  width: 100%;
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-v6-c-card {
+    pointer-events: auto;
+  }
 }
 
 .hidden {

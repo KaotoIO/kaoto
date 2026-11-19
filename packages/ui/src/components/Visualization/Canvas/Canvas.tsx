@@ -78,6 +78,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   isModelResolving = false,
   contextToolbar,
   applyCollapseOnUpdate = false,
+  children,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
   const settingsLayout = useMemo(
@@ -266,9 +267,13 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   useArrowKeyNavigation(nodes);
 
+  /** Holds the children, like the empty state, which are laid over the graph */
+  const overlayRef = useRef<HTMLDivElement>(null);
+
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      // Escape inside the overlay belongs to its own controls, like a menu of the empty state
+      if (event.key === 'Escape' && !overlayRef.current?.contains(event.target as Node)) {
         clearSelection();
       }
     },
@@ -312,6 +317,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       >
         <VisualizationSurface state={{ selectedIds }} />
       </CanvasOverlayContext.Provider>
+      {children && (
+        <div ref={overlayRef} className="canvas-overlay">
+          {children}
+        </div>
+      )}
     </TopologyView>
   );
 };

@@ -6,7 +6,7 @@ import type { MockInstance } from 'vitest';
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../models/visualization/flows';
 import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
-import { TestProvidersWrapper } from '../../stubs';
+import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../stubs';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { COLLAPSE_STATE } from './Canvas/collapse-handler-state';
 import { ControllerService } from './Canvas/controller.service';
@@ -35,20 +35,22 @@ describe('DesignerVisualization', () => {
       visibleFlowsContext: { visibleFlows, allFlowsVisible: true, visualFlowsApi: new VisualFlowsApi(vi.fn()) },
     });
 
-    const result = render(
-      <Provider>
-        <VisualizationProvider controller={controller}>{ui}</VisualizationProvider>
-      </Provider>,
+    /* The empty state for a file without routes reads the runtime */
+    const { Provider: RuntimeProvider } = TestRuntimeProviderWrapper();
+    const wrap = (children: ReactElement) => (
+      <RuntimeProvider>
+        <Provider>
+          <VisualizationProvider controller={controller}>{children}</VisualizationProvider>
+        </Provider>
+      </RuntimeProvider>
     );
+
+    const result = render(wrap(ui));
 
     return {
       ...result,
       rerender: (newUi: ReactElement) => {
-        result.rerender(
-          <Provider>
-            <VisualizationProvider controller={controller}>{newUi}</VisualizationProvider>
-          </Provider>,
-        );
+        result.rerender(wrap(newUi));
       },
     };
   }
@@ -165,6 +167,34 @@ describe('DesignerVisualization', () => {
     const empty = await screen.findByTestId('visualization-empty-state');
     /* The single existing entity is reported as hidden */
     expect(empty).toHaveTextContent('There are no visible routes');
-    expect(fromModelSpy).not.toHaveBeenCalled();
+    /* The empty state is shown inside the canvas, over an empty graph */
+    expect(document.getElementById('canvas-main')).toContainElement(empty);
+    expect(getDrawnModel().nodes).toEqual([]);
+  });
+
+  it('keeps the same canvas across the empty and the populated view', async () => {
+    const { container, rerender } = await renderWithVisibleFlows(<DesignerVisualization entities={[entity]} />, map);
+    await waitFor(() => {
+      expect(fromModelSpy).toHaveBeenCalledTimes(1);
+    });
+    const root = container.querySelector('#canvas-main');
+    const graph = container.querySelector('[data-kind="graph"]');
+
+    /* Populated -> empty: the last route is removed */
+    rerender(<DesignerVisualization entities={[]} />);
+    const empty = await screen.findByTestId('visualization-empty-state');
+    expect(empty).toHaveTextContent('There are no routes defined');
+    expect(container.querySelector('#canvas-main')).toBe(root);
+    expect(container.querySelector('[data-kind="graph"]')).toBe(graph);
+
+    /* Empty -> populated: the empty state stays until the new model is drawn, then the canvas is fitted again */
+    rerender(<DesignerVisualization entities={[entity]} />);
+    expect(screen.getByTestId('visualization-empty-state')).toHaveTextContent('There are no routes defined');
+    await waitFor(() => {
+      expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
+    });
+    expect(container.querySelector('#canvas-main')).toBe(root);
+    expect(container.querySelector('[data-kind="graph"]')).toBe(graph);
+    expect(fromModelSpy).toHaveBeenLastCalledWith(expect.anything(), false);
   });
 });

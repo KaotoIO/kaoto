@@ -50,10 +50,10 @@ export class KaotoEditor extends AbstractElement {
 	}
 
 	/**
-	 * Wait until the topology (route graph) is visible.
+	 * Wait until the topology (route graph) has at least one drawn node.
 	 */
 	static async waitForTopology(driver: WebDriver, timeout = CANVAS_LOAD_TIMEOUT): Promise<void> {
-		await driver.wait(until.elementLocated(By.xpath(kaotoLocators.KaotoEditor.topology)), timeout, 'Kaoto topology was not loaded properly');
+		await driver.wait(until.elementLocated(By.xpath(kaotoLocators.KaotoEditor.topologyNode)), timeout, 'Kaoto topology was not loaded properly');
 		await driver.sleep(1_000); // stabilize — topology re-renders briefly on macOS CI
 	}
 
