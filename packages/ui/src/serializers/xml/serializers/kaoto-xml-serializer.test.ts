@@ -58,6 +58,26 @@ describe('ToXMLConverter', () => {
     expect(xmlSerializer.serializeToString(result)).toEqual(xmlSerializer.serializeToString(doc));
   });
 
+  it('puts the given root element declarations on the camel element instead of the default namespace', async () => {
+    const result = await KaotoXmlSerializer.serialize(
+      [],
+      [
+        { name: 'xmlns', value: 'http://camel.apache.org/schema/xml-io' },
+        { name: 'xmlns:foo', value: 'urn:foo' },
+      ],
+    );
+
+    expect(xmlSerializer.serializeToString(result)).toBe(
+      '<camel xmlns="http://camel.apache.org/schema/xml-io" xmlns:foo="urn:foo"/>',
+    );
+  });
+
+  it('uses the Spring namespace without root element declarations', async () => {
+    const result = await KaotoXmlSerializer.serialize([], []);
+
+    expect(xmlSerializer.serializeToString(result)).toBe('<camel xmlns="http://camel.apache.org/schema/spring"/>');
+  });
+
   it('Convert error handler to XML correctly', async () => {
     const doc = domParser.parseFromString(
       `<camel xmlns="http://camel.apache.org/schema/spring"><errorHandler><deadLetterChannel deadLetterUri="mock:dead"><redeliveryPolicy maximumRedeliveries="3" redeliveryDelay="250"/></deadLetterChannel></errorHandler></camel>`,
