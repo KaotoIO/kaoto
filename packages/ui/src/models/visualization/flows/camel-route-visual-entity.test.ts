@@ -6,9 +6,10 @@ import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson } from '../../../stubs/camel-route';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
+import { CatalogKind } from '../../catalog-kind';
 import { EntityType } from '../../entities/base-entity';
 import { NodeLabelType } from '../../settings/settings.model';
-import { IVisualizationNode } from '../base-visual-entity';
+import { AddStepMode, IVisualizationNode, IVisualizationNodeData } from '../base-visual-entity';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
 
 describe('Camel Route', () => {
@@ -25,6 +26,17 @@ describe('Camel Route', () => {
 
   beforeEach(() => {
     camelEntity = new CamelRouteVisualEntity(cloneDeep(camelRouteJson));
+  });
+
+  describe('isApplicable', () => {
+    it.each([
+      { definition: { route: { from: { uri: 'timer:clock', steps: [] } } }, expected: true },
+      { definition: { from: { uri: 'timer:clock', steps: [] } }, expected: true },
+      { definition: { rest: {} }, expected: false },
+      { definition: undefined, expected: false },
+    ])('should return $expected for $definition', ({ definition, expected }) => {
+      expect(CamelRouteVisualEntity.isApplicable(definition)).toBe(expected);
+    });
   });
 
   describe('id', () => {
@@ -102,6 +114,25 @@ describe('Camel Route', () => {
       camelEntity.updateModel('route.from.uri', uri);
 
       expect(camelEntity.entityDef.route.from?.uri).toEqual(uri);
+    });
+  });
+
+  describe('addStep', () => {
+    it('should replace the endpoint of the from node and keep its steps', () => {
+      const steps = camelEntity.entityDef.route.from.steps;
+
+      const result = camelEntity.addStep({
+        definedComponent: { name: 'log', type: CatalogKind.Component },
+        mode: AddStepMode.ReplaceStep,
+        data: {
+          path: 'route.from',
+          primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+        } as IVisualizationNodeData,
+      });
+
+      expect(result).toBe('route.from');
+      expect(camelEntity.entityDef.route.from).toMatchObject({ uri: 'log', parameters: {} });
+      expect(camelEntity.entityDef.route.from.steps).toBe(steps);
     });
   });
 
