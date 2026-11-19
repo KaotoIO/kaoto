@@ -8,6 +8,7 @@ import { RenameFolderField } from './RenameFolderField';
 
 describe('RenameFolderField', () => {
   const onDone = vi.fn();
+  const onRenamed = vi.fn();
 
   beforeEach(async () => {
     resetTestIndexedDB();
@@ -18,6 +19,7 @@ describe('RenameFolderField', () => {
       { id: 'schema', path: 'resources/schema.xsd', content: '' },
     ]);
     onDone.mockReset();
+    onRenamed.mockReset();
   });
 
   afterEach(() => {
@@ -25,14 +27,14 @@ describe('RenameFolderField', () => {
   });
 
   const renderField = (folderPath = 'integrations/routes') => {
-    render(withFiles(<RenameFolderField folderPath={folderPath} onDone={onDone} />));
-    return screen.getByRole('textbox', { name: 'Rename folder' }) as HTMLInputElement;
+    const view = render(withFiles(<RenameFolderField folderPath={folderPath} onDone={onDone} onRenamed={onRenamed} />));
+    return { input: screen.getByRole('textbox', { name: 'Rename folder' }) as HTMLInputElement, ...view };
   };
 
   const storedPaths = async () => (await filesStore.getFiles()).map((file) => file.path).sort();
 
   it('opens with the folder name, focused and selected', () => {
-    const input = renderField();
+    const { input } = renderField();
 
     expect(input).toHaveValue('routes');
     expect(input).toHaveFocus();
@@ -48,6 +50,7 @@ describe('RenameFolderField', () => {
     await waitFor(() => {
       expect(onDone).toHaveBeenCalledWith(true, 'integrations/flows');
     });
+    expect(onRenamed).toHaveBeenCalledWith('integrations/routes', 'integrations/flows');
     expect(await storedPaths()).toEqual([
       'integrations/flows/async/kafka.camel.yaml',
       'integrations/flows/rest-api.camel.yaml',
@@ -93,7 +96,7 @@ describe('RenameFolderField', () => {
 
   it('keeps the field open with an error for a name with a slash', async () => {
     const user = userEvent.setup();
-    const input = renderField();
+    const { input } = renderField();
 
     await user.keyboard('a/b{Enter}');
 
@@ -109,6 +112,31 @@ describe('RenameFolderField', () => {
     await user.keyboard('flows{Escape}');
 
     expect(onDone).toHaveBeenCalledWith(true, undefined);
+    expect(onRenamed).not.toHaveBeenCalled();
     expect(rename).not.toHaveBeenCalled();
+  });
+
+  it('reports the rename once it is stored, also when the field is gone by then', async () => {
+    let finishRename: () => void = () => {};
+    const rename = filesStore.renameFolder.bind(filesStore);
+    vi.spyOn(filesStore, 'renameFolder').mockImplementation(
+      (from, to) =>
+        new Promise((resolve, reject) => {
+          finishRename = () => {
+            rename(from, to).then(resolve, reject);
+          };
+        }),
+    );
+    const user = userEvent.setup();
+    const { unmount } = renderField();
+    await user.keyboard('flows{Enter}');
+
+    unmount();
+    finishRename();
+
+    await waitFor(() => {
+      expect(onRenamed).toHaveBeenCalledWith('integrations/routes', 'integrations/flows');
+    });
+    expect(onDone).not.toHaveBeenCalled();
   });
 });

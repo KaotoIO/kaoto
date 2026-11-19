@@ -37,6 +37,7 @@ import { buildTree, toFolderId, toFolderPath } from './build-tree';
 import { EntryLabel } from './EntryLabel';
 import { ExplorerFile } from './explorer-file';
 import { filterFiles } from './filterFiles';
+import { moveExpandedFolders } from './move-expanded-folders';
 import { CreatedEntry, NewEntryField, NewEntryKind } from './NewEntryField';
 import { RenameField } from './RenameField';
 import { RenameFolderField } from './RenameFolderField';
@@ -59,6 +60,8 @@ interface RenderOptions {
   /** The path of the folder being renamed */
   renamingFolder: string | undefined;
   finishRename: (byKeyboard: boolean, renamedNodeId?: string) => void;
+  /** Moves the expansion state along with a folder renamed in storage */
+  moveExpanded: (fromPath: string, toPath: string) => void;
   /** The file or folder being created */
   newEntry: NewEntry | undefined;
   finishCreate: (byKeyboard: boolean, created: CreatedEntry | undefined) => void;
@@ -137,6 +140,7 @@ function renderEntryLabel(node: ExplorerFile, opts: RenderOptions): React.ReactN
         onDone={(byKeyboard, renamedPath) => {
           opts.finishRename(byKeyboard, renamedPath === undefined ? undefined : toFolderId(renamedPath));
         }}
+        onRenamed={opts.moveExpanded}
       />
     );
   }
@@ -290,20 +294,11 @@ export const Explorer: FunctionComponent = () => {
 
   const renaming = renamingId ? files.find((file) => file.id === renamingId) : undefined;
   const renamingFolder = renamingId && isFolderId(renamingId) ? toFolderPath(renamingId) : undefined;
+  /** The folder ids follow the paths, so a renamed folder and its subfolders stay expanded under their new ids */
+  const moveExpanded = useCallback((fromPath: string, toPath: string) => {
+    setExpandedFolders((previous) => moveExpandedFolders(previous, fromPath, toPath));
+  }, []);
   const finishRename = (byKeyboard: boolean, renamedNodeId?: string) => {
-    if (renamedNodeId && renamingFolder !== undefined) {
-      // The folder ids follow the paths, so the folder and its subfolders stay expanded under their new ids
-      const newPath = toFolderPath(renamedNodeId);
-      setExpandedFolders((previous) =>
-        Object.fromEntries(
-          Object.entries(previous).map(([id, expanded]) => {
-            const path = toFolderPath(id);
-            const moved = path === renamingFolder || path.startsWith(`${renamingFolder}/`);
-            return [moved ? toFolderId(`${newPath}${path.slice(renamingFolder.length)}`) : id, expanded];
-          }),
-        ),
-      );
-    }
     const nodeId = renamedNodeId ?? renamingId;
     if (byKeyboard && nodeId) setFocusNode({ nodeId });
     setRenamingId(undefined);
@@ -500,6 +495,7 @@ export const Explorer: FunctionComponent = () => {
                 renaming,
                 renamingFolder,
                 finishRename,
+                moveExpanded,
                 newEntry,
                 finishCreate,
               })}
