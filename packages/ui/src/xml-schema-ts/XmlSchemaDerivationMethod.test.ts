@@ -56,4 +56,48 @@ describe('XmlSchemaDerivationMethod', () => {
       expect(method.isExtension()).toBe(false);
     });
   });
+
+  describe('flags', () => {
+    it('should keep the empty flag that is set', () => {
+      const method = XmlSchemaDerivationMethod.schemaValueOf('');
+
+      method.setEmpty(true);
+
+      expect(method.isEmpty()).toBe(true);
+      expect(method.notAll()).toBe(true);
+      expect(method.isNone()).toBe(false);
+    });
+
+    it('should clear the other flags when all is set', () => {
+      const method = XmlSchemaDerivationMethod.schemaValueOf('extension');
+      method.setEmpty(true);
+
+      method.setAll(true);
+
+      expect(method.isAll()).toBe(true);
+      expect(method.isEmpty()).toBe(false);
+      expect(method.isExtension()).toBe(false);
+    });
+
+    it('should keep the other flags when all is unset', () => {
+      const method = XmlSchemaDerivationMethod.schemaValueOf('extension');
+
+      method.setAll(false);
+
+      expect(method.isAll()).toBe(false);
+      expect(method.isExtension()).toBe(true);
+    });
+
+    it.each(['#all', 'extension list restriction substitution union'])(
+      'should clear every flag of "%s" with setNone',
+      (value) => {
+        const method = XmlSchemaDerivationMethod.schemaValueOf(value);
+        method.setEmpty(true);
+
+        method.setNone(true);
+
+        expect(method.isNone()).toBe(true);
+      },
+    );
+  });
 });
