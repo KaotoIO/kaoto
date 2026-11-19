@@ -3,9 +3,11 @@ import { render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import type { MockInstance } from 'vitest';
 
+import { CamelRouteResource } from '../../models/camel';
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../models/visualization/flows';
 import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
+import { KaotoResourceContext, ResourceParseState } from '../../providers/kaoto-resource.provider';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../stubs';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { COLLAPSE_STATE } from './Canvas/collapse-handler-state';
@@ -196,5 +198,96 @@ describe('DesignerVisualization', () => {
     expect(container.querySelector('#canvas-main')).toBe(root);
     expect(container.querySelector('[data-kind="graph"]')).toBe(graph);
     expect(fromModelSpy).toHaveBeenLastCalledWith(expect.anything(), false);
+  });
+
+  describe('when the last document did not parse', () => {
+    const parsedError = 'All mapping items must start at the same column at line 5, column 1';
+
+    /** The resource context for the given parse outcome. The entities stay those of the last valid document */
+    const withParseState = (ui: ReactElement, parseState: ResourceParseState) => (
+      <KaotoResourceContext.Provider
+        value={{
+          kaotoResource: new CamelRouteResource(),
+          parseState,
+          parsedError: parseState === ResourceParseState.Error ? parsedError : undefined,
+        }}
+      >
+        {ui}
+      </KaotoResourceContext.Provider>
+    );
+
+    it('shows the broken-file state over the last drawn diagram and blocks it until the file parses again', async () => {
+      /* While the document does not parse, the entities provider keeps the entities of the last valid one */
+      const entities = [entity];
+      const { container, rerender } = await renderWithVisibleFlows(
+        withParseState(<DesignerVisualization entities={entities} />, ResourceParseState.Valid),
+        map,
+      );
+      await waitFor(() => {
+        expect(fromModelSpy).toHaveBeenCalledTimes(1);
+      });
+      const root = container.querySelector('#canvas-main');
+      const graph = container.querySelector('[data-kind="graph"]');
+
+      rerender(withParseState(<DesignerVisualization entities={entities} />, ResourceParseState.Error));
+
+      const brokenState = await screen.findByTestId('broken-file-empty-state');
+      expect(screen.getByTestId('broken-file-parse-error')).toHaveTextContent(parsedError);
+      expect(root).toContainElement(brokenState);
+      expect(container.querySelector('#canvas-main')).toBe(root);
+      expect(container.querySelector('[data-kind="graph"]')).toBe(graph);
+      expect(graph?.closest('[inert]')).not.toBeNull();
+      expect(fromModelSpy).toHaveBeenCalledTimes(1);
+
+      rerender(withParseState(<DesignerVisualization entities={entities} />, ResourceParseState.Valid));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('broken-file-empty-state')).not.toBeInTheDocument();
+      });
+      expect(container.querySelector('[data-kind="graph"]')).toBe(graph);
+      expect(graph?.closest('[inert]')).toBeNull();
+    });
+
+    it('draws the diagram of the new source once it parses', async () => {
+      const entities = [entity];
+      const { container, rerender } = await renderWithVisibleFlows(
+        withParseState(<DesignerVisualization entities={entities} />, ResourceParseState.Error),
+        { ...map, 'route-9999': true },
+      );
+      await screen.findByTestId('broken-file-empty-state');
+      const graph = container.querySelector('[data-kind="graph"]');
+
+      /* The fixed source has another route: the entities provider hands over its entities */
+      rerender(withParseState(<DesignerVisualization entities={[otherEntity]} />, ResourceParseState.Valid));
+
+      const expectedIds = getExpectedIds([await otherEntity.toVizNode()]);
+      await waitFor(() => {
+        expect(getDrawnIds()).toEqual(expectedIds);
+      });
+      expect(screen.queryByTestId('broken-file-empty-state')).not.toBeInTheDocument();
+      expect(container.querySelector('[data-kind="graph"]')).toBe(graph);
+    });
+
+    it('lays nothing over the canvas while there is a diagram and the source parses', async () => {
+      const { container } = await renderWithVisibleFlows(
+        withParseState(<DesignerVisualization entities={[entity]} />, ResourceParseState.Valid),
+        map,
+      );
+      await waitFor(() => {
+        expect(fromModelSpy).toHaveBeenCalled();
+      });
+
+      expect(container.querySelector('.canvas-overlay')).not.toBeInTheDocument();
+    });
+
+    it('shows the broken-file state instead of the empty state when the first document does not parse', async () => {
+      await renderWithVisibleFlows(
+        withParseState(<DesignerVisualization entities={[]} />, ResourceParseState.Error),
+        map,
+      );
+
+      expect(await screen.findByTestId('broken-file-empty-state')).toBeInTheDocument();
+      expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
+    });
   });
 });

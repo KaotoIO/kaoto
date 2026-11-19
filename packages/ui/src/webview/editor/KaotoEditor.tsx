@@ -48,10 +48,22 @@ export interface KaotoEditorInit {
  * Sits inside KaotoResourceProvider. When the last document did not parse, the canvas is made
  * inert so that no user interaction (or React re-render callback) can serialize the empty fallback
  * resource and overwrite the host's copy of the broken file.
+ *
+ * Inert content is hidden from assistive technologies, including the broken-file state on the canvas, so the parse
+ * error is announced from a status outside the boundary. The status is always rendered and only its text changes, so
+ * screen readers pick the change up.
  */
 const CanvasInertBoundary = ({ children }: PropsWithChildren) => {
-  const { parseState } = useKaotoResourceContext();
-  return <div inert={parseState === ResourceParseState.Error || undefined}>{children}</div>;
+  const { parseState, parsedError } = useKaotoResourceContext();
+  const isFileBroken = parseState === ResourceParseState.Error;
+  return (
+    <>
+      <output className="kaoto-editor-parse-status">
+        {isFileBroken ? `This file could not be parsed. ${parsedError ?? ''}` : ''}
+      </output>
+      <div inert={isFileBroken || undefined}>{children}</div>
+    </>
+  );
 };
 
 /**

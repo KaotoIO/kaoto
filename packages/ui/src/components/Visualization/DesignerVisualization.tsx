@@ -2,10 +2,12 @@ import { FunctionComponent, ReactNode, useContext, useMemo, useState } from 'rea
 
 import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
 import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
+import { KaotoResourceContext, ResourceParseState } from '../../providers/kaoto-resource.provider';
 import { VisibleFlowsContext } from '../../providers/visible-flows.provider';
 import { Canvas } from './Canvas';
 import { EmptyCanvas } from './Canvas/EmptyCanvas';
 import { buildDesignerCanvasModel } from './designer-canvas-model';
+import { BrokenFileEmptyState } from './EmptyState';
 import { VisualizationShell } from './VisualizationShell';
 
 interface DesignerVisualizationProps {
@@ -23,6 +25,12 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
 }) => {
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const { vizNodes, isResolving } = useVisibleVizNodes(entities, visibleFlows);
+  const kaotoResourceContext = useContext(KaotoResourceContext);
+  /*
+   * The last document did not parse. The entities are those of the last valid document, so the canvas keeps showing
+   * it, but it is blocked: an edit there would not reach the source.
+   */
+  const isFileBroken = kaotoResourceContext?.parseState === ResourceParseState.Error;
 
   const { nodes, edges } = useMemo(() => buildDesignerCanvasModel(vizNodes), [vizNodes]);
 
@@ -34,6 +42,20 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
   if (!isResolving && drawnEntitiesNumber !== entities.length) {
     setDrawnEntitiesNumber(entities.length);
   }
+  /** What is laid over the canvas, if anything. A single child, so the canvas renders no overlay without one */
+  let overlay: ReactNode = null;
+  if (isFileBroken) {
+    overlay = (
+      <BrokenFileEmptyState
+        className="canvas-empty-state"
+        data-testid="broken-file-empty-state"
+        parsedError={kaotoResourceContext.parsedError}
+      />
+    );
+  } else if (drawnEntitiesNumber !== undefined && vizNodes.length === 0) {
+    overlay = <EmptyCanvas entitiesNumber={drawnEntitiesNumber} />;
+  }
+
   return (
     <VisualizationShell className={className} fallback={fallback}>
       <Canvas
@@ -42,10 +64,9 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
         edges={edges}
         isModelResolving={isResolving}
         applyCollapseOnUpdate
+        blocked={isFileBroken}
       >
-        {drawnEntitiesNumber !== undefined && vizNodes.length === 0 && (
-          <EmptyCanvas entitiesNumber={drawnEntitiesNumber} />
-        )}
+        {overlay}
       </Canvas>
     </VisualizationShell>
   );

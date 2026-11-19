@@ -1,0 +1,13 @@
+@use '@carbon/react/scss/spacing' as *;
+
+.broken-file-error {
+  display: block;
+  margin-block-start: $spacing-03;
+  max-block-size: 12rem;
+  overflow: auto;
+  white-space: pre-wrap;
+
+  // A long token, like a URI, wraps instead of widening the card
+  overflow-wrap: anywhere;
+  text-align: start;
+}

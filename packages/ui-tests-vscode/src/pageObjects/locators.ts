@@ -59,6 +59,8 @@ export const kaotoLocators = {
 		 */
 		root: `#kaoto-editor`,
 		emptyCanvas: `//div[@data-testid='visualization-empty-state']`,
+		brokenFile: `//*[@data-testid='broken-file-empty-state']`,
+		brokenFileParseError: `//*[@data-testid='broken-file-parse-error']`,
 		topology: `//div[@data-test-id='topology']`,
 		// The canvas is also there while it is empty, so a drawn route needs a node
 		topologyNode: `//div[@data-test-id='topology']//*[@data-kind='node']`,
@@ -240,6 +242,8 @@ export const locators: LocatorDiff['locators'] = {
 		constructor: By.xpath(`//div[@data-testid='visualization-empty-state']`),
 		root: By.css(`#kaoto-editor`),
 		emptyCanvas: By.xpath(`//div[@data-testid='visualization-empty-state']`),
+		brokenFile: By.xpath(`//*[@data-testid='broken-file-empty-state']`),
+		brokenFileParseError: By.xpath(`//*[@data-testid='broken-file-parse-error']`),
 		topology: By.xpath(`//div[@data-test-id='topology']`),
 		topologyNode: By.xpath(`//div[@data-test-id='topology']//*[@data-kind='node']`),
 		designTabLink: By.css(`a[data-testid="design-tab"]`),

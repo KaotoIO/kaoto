@@ -109,3 +109,8 @@ html body {
 .kaoto-editor-document-status {
   @include visually-hidden;
 }
+
+/* Announces the parse error, which the inert canvas cannot (see `CanvasInertBoundary`) */
+.kaoto-editor-parse-status {
+  @include visually-hidden;
+}
