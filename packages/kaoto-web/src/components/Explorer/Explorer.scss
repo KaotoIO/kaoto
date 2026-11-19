@@ -50,6 +50,15 @@
       stroke-width: 1px;
     }
   }
+
+  // In the dark theme the tooltips are light and open over the light search field: a border and a shadow set them
+  // apart from it
+  @include kaoto.kaoto-theme-dark {
+    .cds--popover-content {
+      outline: 1px solid $border-strong;
+      box-shadow: 0 2px 6px $shadow;
+    }
+  }
 }
 
 .cs--explorer__heading {
