@@ -72,4 +72,85 @@ describe('CommonParser', () => {
       expect(params['name']).toBe('myChoice');
     });
   });
+
+  describe('parseSteps() nesting', () => {
+    const steps = [
+      { filter: { id: 'filter-1', steps: [{ log: { id: 'log-1', message: 'in filter' } }] } },
+      {
+        choice: {
+          id: 'choice-1',
+          when: [
+            {
+              id: 'when-1',
+              expression: { simple: { expression: '${header.a}' } },
+              steps: [{ to: { id: 'to-1', uri: 'log:a' } }],
+            },
+          ],
+          otherwise: { id: 'otherwise-1', steps: [{ to: { id: 'to-2', uri: 'log:b' } }] },
+        },
+      },
+      {
+        doTry: {
+          id: 'try-1',
+          doCatch: [{ id: 'catch-1', exception: ['java.io.IOException'], steps: [] }],
+          doFinally: { id: 'finally-1' },
+        },
+      },
+    ] as unknown as Parameters<typeof CommonParser.parseSteps>[0];
+
+    it('lists nested steps and branches after their parent, in order', () => {
+      const parsed = CommonParser.parseSteps(steps);
+
+      expect(parsed.map((step) => [step.id, step.name])).toEqual([
+        ['filter-1', 'filter'],
+        ['log-1', 'log'],
+        ['choice-1', 'choice'],
+        ['when-1', 'when'],
+        ['to-1', 'to'],
+        ['otherwise-1', 'otherwise'],
+        ['to-2', 'to'],
+        ['try-1', 'doTry'],
+        ['catch-1', 'doCatch'],
+        ['finally-1', 'doFinally'],
+      ]);
+    });
+
+    it('lists the expression and the exceptions of a branch', () => {
+      const parsed = CommonParser.parseSteps(steps);
+
+      expect(parsed.find((step) => step.id === 'when-1')?.parameters).toEqual({ 'expression (simple)': '${header.a}' });
+      expect(parsed.find((step) => step.id === 'catch-1')?.parameters).toEqual({ exception: 'java.io.IOException' });
+    });
+
+    it('reads the XSLT file of a DataMapper step whose XSLT step is a URI', () => {
+      const parsed = CommonParser.parseSteps([
+        { step: { id: 'kaoto-datamapper-1', steps: [{ to: 'xslt-saxon:mapping.xsl' }] } },
+      ] as unknown as Parameters<typeof CommonParser.parseSteps>[0]);
+
+      expect(parsed[0].parameters).toEqual({ 'XSLT file name': 'mapping.xsl' });
+    });
+  });
+
+  describe('parseParameters() values', () => {
+    it('returns no parameters without a model', () => {
+      expect(CommonParser.parseParameters(undefined)).toEqual({});
+    });
+
+    it('prefixes nested objects and lists with their path and joins lists of text', () => {
+      expect(
+        CommonParser.parseParameters({
+          options: { retries: 3, backoff: { delay: 100 } },
+          endpoints: [{ name: 'a' }, { name: 'b' }],
+          tags: ['x', 'y'],
+          empty: [],
+        }),
+      ).toEqual({
+        'options.retries': '3',
+        'options.backoff.delay': '100',
+        'endpoints.0.name': 'a',
+        'endpoints.1.name': 'b',
+        tags: 'x, y',
+      });
+    });
+  });
 });
