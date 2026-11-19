@@ -211,4 +211,38 @@ describe('EditInPlaceField', () => {
       expect(onChangeMock).not.toHaveBeenCalled();
     });
   });
+
+  describe('default value and label', () => {
+    const renderWithSchema = async (fieldSchema: JSONSchema4) => {
+      render(
+        <SchemaProvider schema={fieldSchema}>
+          <ModelContextProvider model={{}} onPropertyChange={vi.fn()}>
+            <EditInPlaceField propName={PROP_NAME} />
+          </ModelContextProvider>
+        </SchemaProvider>,
+      );
+      const label = fieldSchema.title ?? 'URI';
+      await act(async () => {
+        fireEvent.mouseEnter(screen.getByLabelText(`More info for ${label} field`));
+      });
+    };
+
+    it.each<[string, unknown, string]>([
+      ['a text', 'timer:tick', 'Default: timer:tick'],
+      ['a number', 5, 'Default: 5'],
+      ['an object', { scheme: 'timer' }, 'Default: {"scheme":"timer"}'],
+      ['no value', undefined, 'Default: no default value'],
+      ['null', null, 'Default: no default value'],
+    ])('shows %s as the default value', async (_, defaultValue, text) => {
+      await renderWithSchema({ ...schema, default: defaultValue } as JSONSchema4);
+
+      expect(screen.getByText(text)).toBeInTheDocument();
+    });
+
+    it('is labelled URI when the schema has no title', async () => {
+      await renderWithSchema({ type: 'string' });
+
+      expect(screen.getByRole('button', { name: 'Edit URI' })).toBeInTheDocument();
+    });
+  });
 });
