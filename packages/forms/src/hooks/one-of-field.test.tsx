@@ -1,5 +1,6 @@
-import { act, render, screen } from '@testing-library/react';
-import { FunctionComponent, useMemo, useState } from 'react';
+import { act, render, renderHook, screen } from '@testing-library/react';
+import { JSONSchema4 } from 'json-schema';
+import { FunctionComponent, PropsWithChildren, useMemo, useState } from 'react';
 
 import { CanvasFormTabsContext, CanvasFormTabsContextResult } from '../providers/canvas-form-tabs.provider';
 import { ModelContext } from '../providers/ModelProvider';
@@ -68,5 +69,117 @@ describe('useOneOfField', () => {
     });
 
     expect(capturedSchema).toBe('Schema B');
+  });
+
+  describe('onSchemaChange', () => {
+    const stringSchema = { title: 'Plain text', type: 'string' as const };
+
+    const renderOneOf = (model: unknown, selectedTab: CanvasFormTabsContextResult['selectedTab'] = 'All') => {
+      const onPropertyChange = vi.fn();
+      const schema = { oneOf: [schemaA, schemaB, stringSchema] };
+      const wrapper = ({ children }: PropsWithChildren) => (
+        <CanvasFormTabsContext.Provider value={{ selectedTab, setSelectedTab: vi.fn() }}>
+          <ModelContext.Provider value={{ model, errors: {}, onPropertyChange }}>
+            <SchemaContext.Provider value={{ schema, definitions: {} }}>{children}</SchemaContext.Provider>
+          </ModelContext.Provider>
+        </CanvasFormTabsContext.Provider>
+      );
+      const hook = renderHook(() => useOneOfField(ROOT_PATH), { wrapper });
+      const schemaNamed = (name: string) => hook.result.current.oneOfSchemas.find((entry) => entry.name === name)!;
+      return { ...hook, onPropertyChange, schemaNamed };
+    };
+
+    it('keeps the model when the selected schema is picked again', () => {
+      const { result, onPropertyChange, schemaNamed } = renderOneOf({ foo: 'value' });
+
+      act(() => {
+        result.current.onSchemaChange(schemaNamed('Schema A'));
+      });
+
+      expect(onPropertyChange).not.toHaveBeenCalled();
+      expect(result.current.selectedOneOfSchema?.name).toBe('Schema A');
+    });
+
+    it('replaces the properties of the previous schema with the ones of the new schema and keeps the rest', () => {
+      const { result, onPropertyChange, schemaNamed } = renderOneOf({ foo: 'value', id: 'route-1' });
+
+      act(() => {
+        result.current.onSchemaChange(schemaNamed('Schema B'));
+      });
+
+      expect(onPropertyChange).toHaveBeenCalledWith(ROOT_PATH, { id: 'route-1', bar: {} });
+      expect(result.current.selectedOneOfSchema?.name).toBe('Schema B');
+    });
+
+    it('starts an empty model with the properties of the new schema', () => {
+      const { result, onPropertyChange, schemaNamed } = renderOneOf(undefined);
+
+      act(() => {
+        result.current.onSchemaChange(schemaNamed('Schema B'));
+      });
+
+      expect(onPropertyChange).toHaveBeenCalledWith(ROOT_PATH, { bar: {} });
+    });
+
+    it('selects a schema that is not an object without changing the model', () => {
+      const { result, onPropertyChange, schemaNamed } = renderOneOf({ foo: 'value' });
+
+      act(() => {
+        result.current.onSchemaChange(schemaNamed('Plain text'));
+      });
+
+      expect(onPropertyChange).not.toHaveBeenCalled();
+      expect(result.current.selectedOneOfSchema?.name).toBe('Plain text');
+    });
+
+    it('removes the properties of the selected schema when the selection is cleared', () => {
+      const { result, onPropertyChange } = renderOneOf({ foo: 'value', id: 'route-1' });
+
+      act(() => {
+        result.current.onSchemaChange(undefined);
+      });
+
+      expect(onPropertyChange).toHaveBeenCalledWith(ROOT_PATH, { id: 'route-1' });
+      expect(result.current.selectedOneOfSchema).toBeUndefined();
+    });
+
+    it('clears the selection of an empty model without changing it', () => {
+      const { result, onPropertyChange, schemaNamed } = renderOneOf(undefined);
+      act(() => {
+        result.current.onSchemaChange(schemaNamed('Plain text'));
+      });
+
+      act(() => {
+        result.current.onSchemaChange(undefined);
+      });
+
+      expect(onPropertyChange).not.toHaveBeenCalled();
+      expect(result.current.selectedOneOfSchema).toBeUndefined();
+    });
+  });
+
+  describe('shouldRender in the Modified tab', () => {
+    const renderInModifiedTab = (model: unknown, schema: JSONSchema4 = combinedSchema) => {
+      const wrapper = ({ children }: PropsWithChildren) => (
+        <CanvasFormTabsContext.Provider value={{ selectedTab: 'Modified', setSelectedTab: vi.fn() }}>
+          <ModelContext.Provider value={{ model, errors: {}, onPropertyChange: vi.fn() }}>
+            <SchemaContext.Provider value={{ schema, definitions: {} }}>{children}</SchemaContext.Provider>
+          </ModelContext.Provider>
+        </CanvasFormTabsContext.Provider>
+      );
+      return renderHook(() => useOneOfField(ROOT_PATH), { wrapper }).result.current.shouldRender;
+    };
+
+    it('renders a selected schema with a value', () => {
+      expect(renderInModifiedTab({ foo: 'value' })).toBe(true);
+    });
+
+    it('hides the field without a value', () => {
+      expect(renderInModifiedTab(undefined)).toBe(false);
+    });
+
+    it('hides the field when the selected schema has no properties', () => {
+      expect(renderInModifiedTab('text', { oneOf: [{ title: 'Plain text', type: 'string' }] })).toBe(false);
+    });
   });
 });
