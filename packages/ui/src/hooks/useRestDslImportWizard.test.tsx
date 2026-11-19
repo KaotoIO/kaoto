@@ -368,7 +368,6 @@ describe('useRestDslImportWizard', () => {
       expect(result.current.importSource).toBe('file');
       expect(result.current.importCreateRest).toBe(false);
       expect(result.current.importCreateRoutes).toBe(true);
-      expect(result.current.importSelectAll).toBe(true);
       expect(result.current.importOperations).toHaveLength(0);
       expect(result.current.importStatus).toBeNull();
     });
@@ -637,21 +636,18 @@ describe('useRestDslImportWizard', () => {
       });
 
       expect(result.current.importOperations).toHaveLength(2);
-      expect(result.current.importSelectAll).toBe(true);
 
       act(() => {
         result.current.handleToggleSelectAllOperations(false);
       });
 
       expect(result.current.importOperations.every((op) => !op.selected)).toBe(true);
-      expect(result.current.importSelectAll).toBe(false);
 
       act(() => {
         result.current.handleToggleSelectAllOperations(true);
       });
 
       expect(result.current.importOperations.every((op) => op.selected)).toBe(true);
-      expect(result.current.importSelectAll).toBe(true);
     });
   });
 
@@ -689,7 +685,6 @@ describe('useRestDslImportWizard', () => {
       const addPetOp = result.current.importOperations.find((op) => op.operationId === 'addPet');
       expect(getPetOp?.selected).toBe(false);
       expect(addPetOp?.selected).toBe(true);
-      expect(result.current.importSelectAll).toBe(false);
     });
   });
 

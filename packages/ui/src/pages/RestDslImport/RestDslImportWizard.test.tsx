@@ -3,6 +3,7 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock, MockInstance } from 'vitest';
 
 import { CamelRouteResource } from '../../models/camel/camel-route-resource';
+import { EntityType } from '../../models/entities';
 import { KaotoResource } from '../../models/kaoto-resource';
 import { DefaultSettingsAdapter } from '../../models/settings';
 import { SettingsContext } from '../../providers';
@@ -406,21 +407,42 @@ describe('RestDslImportWizard', () => {
     const stepButton = (name: RegExp) =>
       within(screen.getByRole('navigation', { name: 'Import steps' })).getByRole('button', { name });
 
-    it('discards the result when the specification is edited, and keeps Specification reachable', async () => {
+    it('discards the result when the source is removed', async () => {
       renderWizard();
       await importSpec(GET_PET_SPEC);
       await screen.findByText('Import succeeded. 1 operation added.');
 
-      goToSpecificationStep();
-      fireEvent.change(await screen.findByRole('textbox', { name: 'OpenAPI Specification' }), {
-        target: { value: 'openapi: 3.0.0' },
-      });
+      goToStep(/import source/i);
+      fireEvent.click(screen.getByRole('button', { name: /remove file/i }));
 
       expect(stepButton(/result/i)).toBeDisabled();
       expect(stepButton(/operations/i)).toHaveTextContent('Incomplete');
+    });
 
-      goToStep(/import source/i);
-      expect(stepButton(/specification/i)).toBeEnabled();
+    it('keeps Operations and Specification out of reach once the import succeeded', async () => {
+      renderWizard();
+      await importSpec(GET_PET_SPEC);
+      await screen.findByText('Import succeeded. 1 operation added.');
+
+      expect(stepButton(/specification/i)).toBeDisabled();
+      expect(stepButton(/operations/i)).toBeDisabled();
+    });
+
+    it('does not create a second Rest entity when the Operations step is revisited after a Rest-only import', async () => {
+      const countRestEntities = () =>
+        camelResource.getEntities().filter((entity) => entity.type === EntityType.Rest).length;
+      renderWizard();
+      await parseSpecAndGoToOperations(GET_PET_SPEC);
+      fireEvent.click(await screen.findByLabelText('Create Rest DSL operations'));
+      fireEvent.click(screen.getByLabelText('Create routes with direct endpoints'));
+      fireEvent.click(screen.getByRole('button', { name: /^Import$/i }));
+      await screen.findByText('Import succeeded. 1 operation added.');
+      expect(countRestEntities()).toBe(1);
+
+      goToOperationsStep();
+
+      expect(screen.queryByRole('button', { name: /^Import$/i })).not.toBeInTheDocument();
+      expect(countRestEntities()).toBe(1);
     });
 
     it('discards the failure when the specification is edited', async () => {
@@ -594,6 +616,45 @@ describe('RestDslImportWizard', () => {
   });
 
   describe('Source selection', () => {
+    it('shows the selected Apicurio artifact and the Loaded notice when the user comes back to Import source', async () => {
+      fetchSpy.mockImplementation((input) => {
+        if (String(input).includes('/search/artifacts')) {
+          return Promise.resolve(
+            new Response(JSON.stringify({ artifacts: [{ id: 'pets', name: 'Pets', type: 'OPENAPI' }] }), {
+              status: 200,
+            }),
+          );
+        }
+        return Promise.resolve(new Response(GET_PET_SPEC, { status: 200 }));
+      });
+      renderWizard();
+      fireEvent.click(screen.getByLabelText('Import from Apicurio'));
+      fireEvent.click(await screen.findByLabelText(/Pets/));
+      await screen.findByText('Loaded');
+
+      goToSpecificationStep();
+      await screen.findByRole('textbox', { name: 'OpenAPI Specification' });
+      goToStep(/import source/i);
+
+      expect(await screen.findByLabelText(/Pets/)).toBeChecked();
+      expect(screen.getByText('Loaded')).toBeInTheDocument();
+    });
+
+    it('shows that the specification was edited manually when the user comes back to Import source', async () => {
+      renderWizard();
+      await loadSpecAndGoToSpecification(GET_PET_SPEC);
+      fireEvent.change(screen.getByRole('textbox', { name: 'OpenAPI Specification' }), {
+        target: { value: GET_PET_BY_ID_SPEC },
+      });
+      fireEvent.click(screen.getByRole('button', { name: /parse specification/i }));
+      expect(screen.getByRole('button', { name: /^Next$/i })).toBeEnabled();
+
+      goToStep(/import source/i);
+
+      expect(screen.getByText('Specification edited manually')).toBeInTheDocument();
+      expect(screen.queryByText('Schema loaded successfully')).not.toBeInTheDocument();
+    });
+
     it('keeps the URI when the user comes back to Import source', async () => {
       fetchSpy.mockResolvedValue(new Response(GET_PET_SPEC, { status: 200 }));
       renderWizard();
@@ -685,12 +746,53 @@ describe('RestDslImportWizard', () => {
 
       expect(await screen.findByText('Import failed.')).toBeInTheDocument();
       expect(screen.getByRole('heading', { name: 'What you can do' })).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: /go to designer/i })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /go to designer/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /go to rest editor/i })).toBeInTheDocument();
 
       fireEvent.click(screen.getByRole('button', { name: /^Back$/i }));
 
       expect(await screen.findByRole('button', { name: /^Import$/i })).toBeInTheDocument();
+    });
+  });
+
+  describe('Failed result footer', () => {
+    beforeEach(() => {
+      camelResource.addNewEntity = vi.fn(() => {
+        throw new Error('boom');
+      });
+      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    });
+
+    it('offers Back, Go to Designer and Go to Rest Editor', async () => {
+      renderWizard();
+      await importSpec(GET_PET_SPEC);
+      await screen.findByText('Import failed.');
+
+      expect(screen.getByRole('button', { name: /^Back$/i })).toBeEnabled();
+      expect(screen.getByRole('button', { name: /go to designer/i })).toBeEnabled();
+      expect(screen.getByRole('button', { name: /go to rest editor/i })).toBeEnabled();
+    });
+
+    it('calls onGoToDesigner and resets the wizard when Go to Designer is clicked', async () => {
+      renderWizard();
+      await importSpec(GET_PET_SPEC);
+      fireEvent.click(await screen.findByRole('button', { name: /go to designer/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText('No import results yet.')).toBeInTheDocument();
+        expect(mockOnGoToDesigner).toHaveBeenCalled();
+      });
+    });
+
+    it('calls onClose and resets the wizard when Go to Rest Editor is clicked', async () => {
+      renderWizard();
+      await importSpec(GET_PET_SPEC);
+      fireEvent.click(await screen.findByRole('button', { name: /go to rest editor/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText('No import results yet.')).toBeInTheDocument();
+        expect(mockOnClose).toHaveBeenCalled();
+      });
     });
   });
 

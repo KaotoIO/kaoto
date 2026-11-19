@@ -120,6 +120,24 @@ describe('ApicurioImportSource', () => {
     expect(screen.getByText('No OpenAPI artifacts found.')).toBeInTheDocument();
   });
 
+  it('shows the artifact already loaded by the wizard as selected, with the Loaded notice', async () => {
+    fetchSpy.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ artifacts: [{ id: 'pets', name: 'Pets', type: 'OPENAPI' }] }),
+    } as Response);
+
+    render(
+      <ApicurioImportSource
+        registryUrl={registryUrl}
+        onSchemaLoaded={mockOnSchemaLoaded}
+        loadedSourceIdentifier={`${registryUrl}/apis/registry/v2/groups/default/artifacts/pets`}
+      />,
+    );
+
+    expect(await screen.findByRole('radio', { name: /Pets/ })).toBeChecked();
+    expect(screen.getByText('Loaded')).toBeInTheDocument();
+  });
+
   it('shows message when registry URL is not configured', () => {
     render(<ApicurioImportSource onSchemaLoaded={mockOnSchemaLoaded} />);
     expect(screen.getByText(/Configure the Apicurio Registry URL in Settings/)).toBeInTheDocument();
