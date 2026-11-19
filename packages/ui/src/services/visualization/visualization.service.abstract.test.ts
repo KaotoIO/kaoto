@@ -1135,7 +1135,12 @@ describe('VisualizationService / abstract fields', () => {
       expect(leafChildren).toHaveLength(0);
     });
 
-    it('should not show AddMappingNodeData for maxOccurs=1', () => {
+    it.each([
+      [1, 0],
+      [2, 1],
+      ['unbounded', 1],
+    ] as const)('should give a wrapper with maxOccurs=%s %s AddMappingNodeData', (maxOccurs, expectedCount) => {
+      abstractField.maxOccurs = maxOccurs;
       const wrapperFieldItem = parentFieldItem.children[0] as FieldItem;
       MappingService.wrapWithIf(wrapperFieldItem);
 
@@ -1145,21 +1150,7 @@ describe('VisualizationService / abstract fields', () => {
 
       const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
       const addNodes = children.filter((c) => c instanceof AddMappingNodeData);
-      expect(addNodes).toHaveLength(0);
-    });
-
-    it('should show AddMappingNodeData for a repeating wrapper', () => {
-      abstractField.maxOccurs = 2;
-      const wrapperFieldItem = parentFieldItem.children[0] as FieldItem;
-      MappingService.wrapWithIf(wrapperFieldItem);
-
-      const freshTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
-      const freshParentNode = new TargetFieldNodeData(freshTargetDocNode, parentFieldItem.field);
-      freshParentNode.mapping = parentFieldItem;
-
-      const children = VisualizationService.generateNonDocumentNodeDataChildren(freshParentNode);
-      const addNodes = children.filter((c) => c instanceof AddMappingNodeData);
-      expect(addNodes).toHaveLength(1);
+      expect(addNodes).toHaveLength(expectedCount);
     });
   });
 });

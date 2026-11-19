@@ -24,6 +24,7 @@ import {
   getCopyOfSequenceOrderXsd,
   getShipOrderInstructionOrderXslt,
   getShipOrderLeapfrogOrderXslt,
+  getTestDocumentXsd,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from '../document/document-util.service';
@@ -327,6 +328,53 @@ describe('MappingSerializerService — sortForSerialization', () => {
       // ...and C (PushMulti, unrelated anchor) must keep its authored position ahead of the A/B pair,
       // not be swept into the pairing just because it ties with them on the truncated path.
       expect(pushMultiPos).toBeLessThan(copyOfPos);
+    });
+  });
+
+  describe('sequence inside a choice', () => {
+    it.each([
+      {
+        element: 'SequenceInChoiceElement',
+        schemaOrder: ['key', 'value'],
+        keepsAuthoredOrder: false,
+        description: 'a single choice sorts its sequence members by schema position',
+      },
+      {
+        element: 'CollectionSequenceInChoiceElement',
+        schemaOrder: ['seqKey', 'seqValue'],
+        keepsAuthoredOrder: true,
+        description: 'a repeating choice keeps its sequence members in authored order',
+      },
+    ])('$description', ({ element, schemaOrder, keepsAuthoredOrder }) => {
+      const definition = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'TestDocument.xsd': getTestDocumentXsd() },
+      );
+      const targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document!;
+      const root = findField(targetDoc.fields, 'TestDocument');
+      const elementField = findField(root.fields, element);
+      const sequence = elementField.fields[0].fields.find((f) => f.wrapperKind === 'sequence');
+      if (!sequence) throw new Error(`no sequence wrapper inside the choice of ${element}`);
+
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const rootItem = new FieldItem(tree, root);
+      tree.children.push(rootItem);
+      const elementItem = new FieldItem(rootItem, elementField);
+      rootItem.children.push(elementItem);
+      const authoredOrder = [...schemaOrder].reverse();
+      for (const name of authoredOrder) {
+        const memberItem = new FieldItem(elementItem, findField(sequence.fields, name));
+        elementItem.children.push(memberItem);
+        addLiteralValue(memberItem, name);
+      }
+
+      const xslt = MappingSerializerService.serialize(tree, new Map());
+      const [before, after] = keepsAuthoredOrder ? authoredOrder : schemaOrder;
+      expect(xslt).toContain(`<${before}>`);
+      expect(xslt).toContain(`<${after}>`);
+      expect(xslt.indexOf(`<${before}>`)).toBeLessThan(xslt.indexOf(`<${after}>`));
     });
   });
 
