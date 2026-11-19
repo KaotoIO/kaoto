@@ -1155,7 +1155,7 @@ describe('MappingLinksService', () => {
       expect(copyOfLink.targetNodePath).not.toBe(valueOfLink.targetNodePath);
     });
 
-    it('should connect a copy-of to its field row and a value-of next to it to its own node', () => {
+    it('should connect a copy-of to its field row and a value-of next to it to its parent row', () => {
       const manualTree = new MappingTree(
         targetDoc.documentType,
         targetDoc.documentId,
@@ -1181,7 +1181,7 @@ describe('MappingLinksService', () => {
 
       expect(copyOfLink.targetNodePath).toBe(copyOf.nodePath.toString());
       expect(copyOfLink.lineStyle).toBe(MappingLineStyle.COPY_OF);
-      expect(valueOfLink.targetNodePath).toBe(valueOf.nodePath.toString());
+      expect(valueOfLink.targetNodePath).toBe(rootItem.nodePath.toString());
       expect(valueOfLink.lineStyle).toBe(MappingLineStyle.REGULAR);
     });
   });

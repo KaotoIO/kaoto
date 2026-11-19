@@ -211,7 +211,7 @@ export class MappingActionRegistryService {
           (!(n.mapping instanceof InstructionItem) || MappingActionRegistryService.outputParentAcceptsText(n))
         );
       },
-      isDisabled: (n) => MappingActionService.hasValueOfSelector(n),
+      isDisabled: (n) => MappingActionService.hasValueOfSelector(n) || MappingActionService.hasCopyOfSelector(n),
     },
     {
       key: MappingActionKind.CopyOfSelector,
