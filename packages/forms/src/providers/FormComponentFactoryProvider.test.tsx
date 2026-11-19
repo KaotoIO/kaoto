@@ -7,6 +7,7 @@ import { BooleanField } from '../fields/BooleanField';
 import { DisabledField } from '../fields/DisabledField';
 import { EditInPlaceField } from '../fields/EditInPlaceField';
 import { EnumField } from '../fields/EnumField';
+import { IndexedValuesField } from '../fields/IndexedValuesField/IndexedValuesField';
 import { AllOfField } from '../fields/ObjectField/AllOfField';
 import { ObjectField } from '../fields/ObjectField/ObjectField';
 import { OneOfField } from '../fields/OneOfField/OneOfField';
@@ -36,6 +37,7 @@ describe('FormComponentFactoryProvider', () => {
     [{ type: 'string', title: 'Query' }, TextAreaField],
     [{ type: 'string', title: 'Script' }, TextAreaField],
     [{ type: 'string', enum: ['in', 'out'] }, EnumField],
+    [{ type: 'object', title: 'Constructors' }, IndexedValuesField],
     [{ type: 'object', properties: {} }, PropertiesField],
     [{ type: 'object' }, PropertiesField],
     [{ type: 'string' }, StringField],
@@ -73,5 +75,20 @@ describe('FormComponentFactoryProvider', () => {
     );
 
     vi.restoreAllMocks();
+  });
+
+  it('prefers the field of the custom fields factory and falls back to the built-in one', () => {
+    const CustomField: FunctionComponent = () => null;
+    const customFieldsFactory = (schema: JSONSchema4) => (schema.format === 'color' ? CustomField : undefined);
+    const { result } = renderHook(() => useContext(FormComponentFactoryContext), {
+      wrapper: ({ children }) => (
+        <FormComponentFactoryProvider customFieldsFactory={customFieldsFactory}>
+          {children}
+        </FormComponentFactoryProvider>
+      ),
+    });
+
+    expect(result.current?.({ type: 'string', format: 'color' })).toBe(CustomField);
+    expect(result.current?.({ type: 'string' })).toBe(StringField);
   });
 });
