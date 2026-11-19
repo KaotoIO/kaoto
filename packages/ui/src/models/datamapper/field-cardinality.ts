@@ -5,8 +5,8 @@ import type { IField } from './document';
  * The structural cardinality of one field, taken from its own `minOccurs` and `maxOccurs`.
  *
  * It deliberately ignores wrappers and enclosing compositors, so it answers "does this field itself repeat"
- * and not "does this row repeat". Use `DocumentService.isCollectionField` for the answer that also
- * inherits repetition from an enclosing repeating `xs:choice` / `xs:sequence` compositor.
+ * and not "does this row repeat". Use `VisualizationUtilService.getEffectiveCardinality` for the answer for a
+ * tree row, which also inherits repetition from the outermost repeating wrapper above the field.
  *
  * Instances are built from the two plain properties only, so object-literal and spread copies of an
  * {@link IField} give the same answer as the original field. No property is added to `IField`, because

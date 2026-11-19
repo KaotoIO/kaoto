@@ -24,6 +24,72 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+        <xs:element name="AbstractInSequenceInChoice">
+          <xs:complexType>
+            <xs:choice>
+              <xs:sequence maxOccurs="unbounded">
+                <xs:element ref="Animal" />
+              </xs:sequence>
+              <xs:element name="NoAnimal" type="xs:string" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="BoundedChoice">
+          <xs:complexType>
+            <xs:choice maxOccurs="3">
+              <xs:element name="Bounded" type="xs:string" maxOccurs="5" />
+              <xs:element name="Single" type="xs:string" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="NestedRepeat">
+          <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+              <xs:sequence maxOccurs="3">
+                <xs:element name="A" type="xs:string" />
+              </xs:sequence>
+              <xs:element name="B" type="xs:string" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SequenceInSingleChoice">
+          <xs:complexType>
+            <xs:choice>
+              <xs:sequence>
+                <xs:element name="Key" type="xs:string" />
+                <xs:element name="Value" type="xs:string" />
+              </xs:sequence>
+              <xs:element name="Entry" type="xs:string" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SequenceInRepeatingChoice">
+          <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+              <xs:sequence>
+                <xs:element name="Key" type="xs:string" />
+                <xs:element name="Value" type="xs:string" />
+              </xs:sequence>
+              <xs:element name="Entry" type="xs:string" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="OptionalMemberInRequiredChoice">
+          <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+              <xs:element name="Optional" type="xs:string" minOccurs="0" />
+              <xs:element name="Required" type="xs:string" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RequiredMemberInOptionalChoice">
+          <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+              <xs:element name="Required" type="xs:string" />
+              <xs:element name="Other" type="xs:string" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

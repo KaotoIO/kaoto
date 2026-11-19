@@ -1,4 +1,5 @@
 import { IField, IParentType } from '../../models/datamapper/document';
+import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import {
   CopyOfSelector,
   FieldItem,
@@ -37,29 +38,31 @@ import { WrapperSelectionService } from '../document/wrapper-selection.service';
  */
 export class VisualizationUtilService {
   /**
-   * Returns `true` if the node's field is a collection (array/repeating element).
-   * Also checks the choice wrapper field for collection status when the node is a selected choice member.
-   * For unselected choice members (children of a collection choice wrapper), the collection status
-   * is inherited from the parent wrapper via DocumentService.isCollectionField().
+   * Returns the cardinality a tree row effectively has, for deciding whether the row repeats.
+   *
+   * The maximum is the `maxOccurs` of the outermost repeating choice, sequence or abstract wrapper between the
+   * field and its nearest real element ({@link DocumentService.getOutermostRepeatingWrapper}), or the field's
+   * own `maxOccurs` when no wrapper repeats. It is that level's bound, not the product of the nested bounds:
+   * for `choice(3) > A(5)` it is 3. The minimum is always the field's own. Only the field's ancestor chain is read, so the
+   * answer is the same for every node class that shows the field, whichever wrapper back-reference it carries.
+   * This is the one place that builds a {@link FieldCardinality} instance for a row.
+   * @param nodeData - The node to resolve.
+   * @returns the effective cardinality, or `undefined` for a node that shows no field
+   */
+  static getEffectiveCardinality(nodeData: NodeData): FieldCardinality | undefined {
+    const field = VisualizationUtilService.getField(nodeData);
+    if (!field) return undefined;
+    const outermost = DocumentService.getOutermostRepeatingWrapper(field);
+    return new FieldCardinality(field.minOccurs, (outermost ?? field).maxOccurs);
+  }
+
+  /**
+   * Returns `true` if the row repeats, as resolved by {@link getEffectiveCardinality}. Drives the collection
+   * icon, the collection-gated mapping actions and the automatic `for-each` on a field-to-field drop.
    * @param nodeData - The node to test.
    */
-  static isCollectionField(nodeData: NodeData) {
-    if (!(nodeData instanceof FieldNodeData || nodeData instanceof FieldItemNodeData)) return false;
-    if (nodeData instanceof FieldItemNodeData && nodeData.wrapperField) {
-      return DocumentService.isCollectionField(nodeData.wrapperField);
-    }
-    if (DocumentService.isCollectionField(nodeData.field)) return true;
-    // A selected choice branch (choice member or an xs:sequence branch) inherits the repeating
-    // nature from its enclosing choice, which may sit above intermediate wrappers — so read it
-    // from the choice back-reference rather than the node's direct parent.
-    const selectedChoiceWrapper = VisualizationUtilService.getSelectedChoiceWrapper(nodeData);
-    if (selectedChoiceWrapper) {
-      return DocumentService.isCollectionField(selectedChoiceWrapper);
-    }
-    if (VisualizationUtilService.isAbstractField(nodeData)) {
-      return !!nodeData.abstractField && DocumentService.isCollectionField(nodeData.abstractField);
-    }
-    return false;
+  static isCollectionField(nodeData: NodeData): boolean {
+    return VisualizationUtilService.getEffectiveCardinality(nodeData)?.isCollection ?? false;
   }
 
   /**

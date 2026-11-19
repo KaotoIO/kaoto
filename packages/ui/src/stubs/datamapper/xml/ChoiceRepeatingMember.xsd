@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:p" xmlns="urn:p" elementFormDefault="qualified">
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="Item" type="xs:string" maxOccurs="unbounded"/>
+        <xs:element name="Other" type="xs:string"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

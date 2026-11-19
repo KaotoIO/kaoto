@@ -1,20 +1,54 @@
-import { DocumentDefinitionType, IField } from '../../models/datamapper/document';
-import { CopyOfSelector, FieldItem, MappingTree } from '../../models/datamapper/mapping';
+import { DocumentDefinitionType, DocumentType, IField } from '../../models/datamapper/document';
+import { FieldCardinality } from '../../models/datamapper/field-cardinality';
+import { CopyOfSelector, FieldItem, ForEachItem, MappingTree } from '../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
+  AddMappingNodeData,
   ChoiceFieldNodeData,
   CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
+  MappingNodeData,
+  NodeData,
   SequenceFieldNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
+  TargetFieldNodeData,
 } from '../../models/datamapper/visualization';
-import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import {
+  createTargetTree,
+  descendantRow,
+  documentRows,
+  findField,
+  parseXsdDocument,
+  rowNamed,
+  rowWhere,
+} from '../../stubs/datamapper/cardinality-test-helpers';
+import {
+  getChoiceRepeatingAbstractCatXslt,
+  getChoiceRepeatingAbstractXsd,
+  getChoiceRepeatingContainerMemberXsd,
+  getChoiceRepeatingMemberXsd,
+  getChoiceWithAbstractXsd,
+  getFieldSubstitutionXsd,
+  TestUtil,
+} from '../../stubs/datamapper/data-mapper';
+import { createGuardedCsvCopyOfRow } from '../../stubs/datamapper/target-render-test-helpers';
+import { FieldOverrideService } from '../document/field-override.service';
+import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
+import { MappingSerializerService } from '../mapping/mapping-serializer.service';
+import { ChoiceFieldService } from './choice-field.service';
+import { MappingActionService } from './mapping-action.service';
 import { VisualizationUtilService } from './visualization-util.service';
+
+const NS_POC = 'io.kaoto.datamapper.poc.test';
+const NS_P = 'urn:p';
+const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+const NS_CHOICE_ABSTRACT = 'http://www.example.com/CHOICE_ABSTRACT';
+const NOTIFICATION = { namespaceUri: NS_CHOICE_ABSTRACT, name: 'Notification' };
 
 function createMockField(baseField: IField, overrides: Partial<IField> = {}): IField {
   return { ...baseField, ...overrides };
@@ -127,41 +161,65 @@ describe('VisualizationUtilService', () => {
     });
 
     it('should return true for selected abstract field when wrapper is collection', () => {
-      const wrapperField = createMockField(sourceDoc.fields[0], {
-        maxOccurs: 'unbounded',
-      });
-      const substituteField = createMockField(sourceDoc.fields[0], { name: 'Cat', maxOccurs: 1 });
-      const abstractNode = new AbstractFieldNodeData(sourceDocNode, substituteField);
-      abstractNode.abstractField = wrapperField;
-      expect(VisualizationUtilService.isCollectionField(abstractNode)).toBe(true);
+      const doc = parseXsdDocument(DocumentType.SOURCE_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd());
+      const wrapper = findField(doc, 'AbstractAnimal');
+      expect(wrapper.maxOccurs).toBe('unbounded');
+      FieldOverrideService.applyFieldSubstitution(wrapper, 'ns0:Dog', { ns0: NS_SUBSTITUTION });
+
+      const dogRow = rowNamed(documentRows(doc)[0], 'Dog');
+      expect(dogRow).toBeInstanceOf(AbstractFieldNodeData);
+      expect((dogRow as AbstractFieldNodeData).abstractField).toBe(wrapper);
+      expect(VisualizationUtilService.isCollectionField(dogRow)).toBe(true);
     });
 
     it('should return false for selected abstract field when wrapper is not collection', () => {
-      const wrapperField = createMockField(sourceDoc.fields[0], {
-        maxOccurs: 1,
-      });
-      const substituteField = createMockField(sourceDoc.fields[0], { name: 'Cat', maxOccurs: 1 });
-      const abstractNode = new AbstractFieldNodeData(sourceDocNode, substituteField);
-      abstractNode.abstractField = wrapperField;
-      expect(VisualizationUtilService.isCollectionField(abstractNode)).toBe(false);
+      const doc = parseXsdDocument(DocumentType.SOURCE_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd());
+      const wrapper = findField(doc, 'AbstractLabel');
+      expect(wrapper.maxOccurs).toBe(1);
+      FieldOverrideService.applyFieldSubstitution(wrapper, 'ns0:Nickname', { ns0: NS_SUBSTITUTION });
+
+      const nicknameRow = rowNamed(documentRows(doc)[0], 'Nickname');
+      expect((nicknameRow as AbstractFieldNodeData).abstractField).toBe(wrapper);
+      expect(VisualizationUtilService.isCollectionField(nicknameRow)).toBe(false);
     });
 
     it('should return true for a selected sequence branch when the enclosing choice is a collection', () => {
-      // The enclosing collection choice may sit above intermediate wrappers, so the sequence's own
-      // maxOccurs (and its direct parent) are 1 — collection status comes from the choice back-ref.
-      const choiceWrapper = createMockField(sourceDoc.fields[0], { name: '__choice__', maxOccurs: 'unbounded' });
-      const sequenceField = createMockField(sourceDoc.fields[0], { name: '__sequence__', maxOccurs: 1 });
-      const sequenceNode = new SequenceFieldNodeData(sourceDocNode, sequenceField);
-      sequenceNode.choiceField = choiceWrapper;
-      expect(VisualizationUtilService.isCollectionField(sequenceNode)).toBe(true);
+      const doc = parseXsdDocument(
+        DocumentType.SOURCE_BODY,
+        'ChoiceRepeatingAbstract.xsd',
+        getChoiceRepeatingAbstractXsd(),
+      );
+      const container = findField(doc, 'SequenceInRepeatingChoice');
+      const choice = findField(container, '__choice__');
+      const sequence = findField(choice, '__sequence__');
+      expect(sequence.maxOccurs).toBe(1);
+      WrapperSelectionService.setChoiceSelection(doc, choice, 0, { ns0: NS_POC });
+
+      const sequenceRow = rowWhere(
+        rowNamed(documentRows(doc)[0], 'SequenceInRepeatingChoice'),
+        (row) => row instanceof SequenceFieldNodeData,
+        'for the selected sequence branch',
+      );
+      expect(VisualizationUtilService.getSelectedChoiceWrapper(sequenceRow)).toBe(choice);
+      expect(VisualizationUtilService.isCollectionField(sequenceRow)).toBe(true);
     });
 
     it('should return false for a selected sequence branch when the enclosing choice is not a collection', () => {
-      const choiceWrapper = createMockField(sourceDoc.fields[0], { name: '__choice__', maxOccurs: 1 });
-      const sequenceField = createMockField(sourceDoc.fields[0], { name: '__sequence__', maxOccurs: 1 });
-      const sequenceNode = new SequenceFieldNodeData(sourceDocNode, sequenceField);
-      sequenceNode.choiceField = choiceWrapper;
-      expect(VisualizationUtilService.isCollectionField(sequenceNode)).toBe(false);
+      const doc = parseXsdDocument(
+        DocumentType.SOURCE_BODY,
+        'ChoiceRepeatingAbstract.xsd',
+        getChoiceRepeatingAbstractXsd(),
+      );
+      const choice = findField(findField(doc, 'SequenceInSingleChoice'), '__choice__');
+      WrapperSelectionService.setChoiceSelection(doc, choice, 0, { ns0: NS_POC });
+
+      const sequenceRow = rowWhere(
+        rowNamed(documentRows(doc)[0], 'SequenceInSingleChoice'),
+        (row) => row instanceof SequenceFieldNodeData,
+        'for the selected sequence branch',
+      );
+      expect(VisualizationUtilService.getSelectedChoiceWrapper(sequenceRow)).toBe(choice);
+      expect(VisualizationUtilService.isCollectionField(sequenceRow)).toBe(false);
     });
 
     it('should return true for a source child of a sequence branch inside a collection choice', () => {
@@ -184,6 +242,272 @@ describe('VisualizationUtilService', () => {
       seqNode.choiceField = choiceWrapper;
       const keyNode = new FieldNodeData(seqNode, keyField);
       expect(VisualizationUtilService.isCollectionField(keyNode)).toBe(true);
+    });
+  });
+
+  describe('getEffectiveCardinality on parsed schemas', () => {
+    const abstractDoc = (documentType: DocumentType) =>
+      parseXsdDocument(documentType, 'ChoiceRepeatingAbstract.xsd', getChoiceRepeatingAbstractXsd());
+
+    const repeatingChoiceOf = (parent: IField): IField => {
+      const choice = parent.fields.find((field) => field.wrapperKind === 'choice' && field.maxOccurs === 'unbounded');
+      if (!choice) throw new Error(`No repeating choice under ${parent.name}`);
+      return choice;
+    };
+
+    const forEachRow = (parent: NodeData): NodeData =>
+      rowWhere(parent, (row) => row instanceof MappingNodeData && row.mapping instanceof ForEachItem, 'for-each');
+
+    describe('a repeating member of a non-repeating choice', () => {
+      const selectItem = (xsdName: string, xsd: string) => {
+        const doc = parseXsdDocument(DocumentType.TARGET_BODY, xsdName, xsd);
+        const tree = createTargetTree(doc, { ns0: NS_P });
+        const rootRow = documentRows(doc, tree)[0];
+        const choiceRow = rowWhere(rootRow, (row) => row instanceof TargetChoiceFieldNodeData, 'for the choice');
+        const choice = findField(doc, '__choice__');
+        ChoiceFieldService.dispatchChoiceSelection(choiceRow, choice, { memberIndex: 0 }, tree.namespaceMap, true);
+        return { doc, tree };
+      };
+
+      it('should read the selected member as a collection', () => {
+        const { doc, tree } = selectItem('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
+        const itemRow = rowNamed(documentRows(doc, tree)[0], 'Item');
+
+        expect(VisualizationUtilService.isCollectionField(itemRow)).toBe(true);
+        expect(VisualizationUtilService.getEffectiveCardinality(itemRow)).toEqual(new FieldCardinality(1, 'unbounded'));
+      });
+
+      it('should still read the member as a collection after "Wrap with for-each"', () => {
+        const { doc, tree } = selectItem('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
+        MappingActionService.applyForEach(rowNamed(documentRows(doc, tree)[0], 'Item') as TargetFieldNodeData);
+
+        const wrappedItemRow = rowNamed(forEachRow(documentRows(doc, tree)[0]), 'Item');
+        expect(wrappedItemRow).toBeInstanceOf(FieldItemNodeData);
+        expect(VisualizationUtilService.isCollectionField(wrappedItemRow)).toBe(true);
+      });
+
+      it('should not read a child of the selected member as a collection', () => {
+        const { doc, tree } = selectItem('ChoiceRepeatingContainerMember.xsd', getChoiceRepeatingContainerMemberXsd());
+        const nameRow = rowNamed(rowNamed(documentRows(doc, tree)[0], 'Item'), 'Name');
+
+        expect(VisualizationUtilService.isCollectionField(nameRow)).toBe(false);
+      });
+    });
+
+    describe('a repeating abstract wrapper in a non-repeating choice', () => {
+      it('should read the wrapper row and its target member rows as collections', () => {
+        const doc = abstractDoc(DocumentType.TARGET_BODY);
+        const tree = createTargetTree(doc, { ns0: NS_POC });
+        MappingSerializerService.deserialize(
+          getChoiceRepeatingAbstractCatXslt(),
+          doc,
+          tree,
+          TestUtil.createParameterMap(),
+        );
+        const containerRow = rowNamed(documentRows(doc, tree)[0], 'AbstractInChoice');
+        const wrapperRow = rowWhere(containerRow, (row) => row instanceof TargetAbstractFieldNodeData, 'for Animal');
+        const catRow = rowNamed(wrapperRow, 'Cat');
+        const dogRow = rowNamed(wrapperRow, 'Dog');
+
+        expect(catRow).toBeInstanceOf(FieldItemNodeData);
+        expect(VisualizationUtilService.isCollectionField(wrapperRow)).toBe(true);
+        expect(VisualizationUtilService.isCollectionField(catRow)).toBe(true);
+        expect(VisualizationUtilService.isCollectionField(dogRow)).toBe(true);
+      });
+
+      it('should read a source candidate row of the unselected wrapper as a collection', () => {
+        const doc = abstractDoc(DocumentType.SOURCE_BODY);
+        const containerRow = rowNamed(documentRows(doc)[0], 'AbstractInChoice');
+        const wrapperRow = descendantRow(containerRow, (row) => row instanceof AbstractFieldNodeData, 'for Animal');
+
+        expect(VisualizationUtilService.isCollectionField(rowNamed(wrapperRow, 'Dog'))).toBe(true);
+      });
+    });
+
+    it('should read a source candidate row of an unselected repeating abstract wrapper as a collection', () => {
+      const doc = parseXsdDocument(DocumentType.SOURCE_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd());
+      const wrapperRow = descendantRow(
+        documentRows(doc)[0],
+        (row) => row instanceof AbstractFieldNodeData && row.field.name === 'AbstractAnimal',
+        'for AbstractAnimal',
+      );
+
+      expect(VisualizationUtilService.isCollectionField(rowNamed(wrapperRow, 'Dog'))).toBe(true);
+    });
+
+    it('should read a source candidate row of a non-repeating abstract wrapper in a repeating choice as a collection', () => {
+      const doc = parseXsdDocument(
+        DocumentType.SOURCE_BODY,
+        'ChoiceWithAbstract.xsd',
+        getChoiceWithAbstractXsd(),
+        NOTIFICATION,
+      );
+      const repeatingChoice = repeatingChoiceOf(findField(doc, 'Short'));
+      const abstractMessage = findField(repeatingChoice, 'AbstractMessage');
+      expect(abstractMessage.maxOccurs).toBe(1);
+
+      const emailField = findField(abstractMessage, 'Email');
+      const emailRow = new FieldNodeData(
+        new AbstractFieldNodeData(new DocumentNodeData(doc), abstractMessage),
+        emailField,
+      );
+      expect(VisualizationUtilService.isCollectionField(emailRow)).toBe(true);
+    });
+
+    it('should read the candidate rows under a reverted wrapper field item inside a for-each as collections', () => {
+      const doc = parseXsdDocument(
+        DocumentType.TARGET_BODY,
+        'ChoiceWithAbstract.xsd',
+        getChoiceWithAbstractXsd(),
+        NOTIFICATION,
+      );
+      const shortField = findField(doc, 'Short');
+      const abstractMessage = findField(repeatingChoiceOf(shortField), 'AbstractMessage');
+      const tree = createTargetTree(doc, { ns0: NS_CHOICE_ABSTRACT });
+      const notificationItem = new FieldItem(tree, doc.fields[0]);
+      tree.children.push(notificationItem);
+      const shortItem = new FieldItem(notificationItem, shortField);
+      notificationItem.children.push(shortItem);
+      const forEach = new ForEachItem(shortItem);
+      shortItem.children.push(forEach);
+      forEach.children.push(new FieldItem(forEach, abstractMessage));
+
+      const wrapperItemRow = rowWhere(
+        forEachRow(rowNamed(documentRows(doc, tree)[0], 'Short')),
+        (row) => row instanceof FieldItemNodeData && row.field === abstractMessage,
+        'for the AbstractMessage field item',
+      );
+      expect(VisualizationUtilService.isCollectionField(rowNamed(wrapperItemRow, 'Email'))).toBe(true);
+      expect(VisualizationUtilService.isCollectionField(rowNamed(wrapperItemRow, 'SMS'))).toBe(true);
+    });
+
+    it('should keep reading the rows of a non-repeating abstract wrapper in a repeating choice as collections', () => {
+      const doc = parseXsdDocument(
+        DocumentType.TARGET_BODY,
+        'ChoiceWithAbstract.xsd',
+        getChoiceWithAbstractXsd(),
+        NOTIFICATION,
+      );
+      const abstractMessage = findField(repeatingChoiceOf(findField(doc, 'Short')), 'AbstractMessage');
+      const emailField = findField(abstractMessage, 'Email');
+      const shortRow = new TargetFieldNodeData(
+        new TargetDocumentNodeData(doc, createTargetTree(doc, { ns0: NS_CHOICE_ABSTRACT })),
+        findField(doc, 'Short'),
+      );
+      const wrapperRow = new TargetAbstractFieldNodeData(shortRow, abstractMessage);
+      const memberRow = new TargetFieldNodeData(wrapperRow, emailField);
+      const selectedRow = new TargetAbstractFieldNodeData(shortRow, emailField);
+      selectedRow.abstractField = abstractMessage;
+
+      expect(VisualizationUtilService.isCollectionField(wrapperRow)).toBe(true);
+      expect(VisualizationUtilService.isCollectionField(memberRow)).toBe(true);
+      expect(VisualizationUtilService.isCollectionField(selectedRow)).toBe(true);
+    });
+
+    it('should keep reading a mapped row under a repeating sequence branch of a non-repeating choice as a collection', () => {
+      const doc = abstractDoc(DocumentType.TARGET_BODY);
+      const container = findField(doc, 'AbstractInSequenceInChoice');
+      const choice = findField(container, '__choice__');
+      const catField = findField(findField(findField(choice, '__sequence__'), 'Animal'), 'Cat');
+      const tree = createTargetTree(doc, { ns0: NS_POC });
+      const rootItem = new FieldItem(tree, doc.fields[0]);
+      tree.children.push(rootItem);
+      const containerItem = new FieldItem(rootItem, container);
+      rootItem.children.push(containerItem);
+      containerItem.children.push(new FieldItem(containerItem, catField));
+
+      const catRow = descendantRow(
+        rowNamed(documentRows(doc, tree)[0], 'AbstractInSequenceInChoice'),
+        (row) => row instanceof FieldItemNodeData && row.field === catField,
+        'for the mapped Cat',
+      );
+      const wrapperField = (catRow as FieldItemNodeData).wrapperField;
+      expect(wrapperField?.wrapperKind).toBe('abstract');
+      expect(wrapperField?.maxOccurs).toBe(1);
+      expect(VisualizationUtilService.isCollectionField(catRow)).toBe(true);
+    });
+
+    it('should take the maximum from the outermost repeating wrapper when two levels repeat', () => {
+      const doc = abstractDoc(DocumentType.SOURCE_BODY);
+      const containerRow = rowNamed(documentRows(doc)[0], 'NestedRepeat');
+      const choice = findField(findField(doc, 'NestedRepeat'), '__choice__');
+      const aField = findField(choice, 'A');
+      const aRow = new FieldNodeData(containerRow, aField);
+
+      expect(VisualizationUtilService.getEffectiveCardinality(aRow)).toEqual(new FieldCardinality(1, 'unbounded'));
+    });
+
+    it('should take the maximum from the repeating choice over a member bound', () => {
+      const doc = abstractDoc(DocumentType.SOURCE_BODY);
+      const bounded = findField(findField(doc, 'BoundedChoice'), 'Bounded');
+      const boundedRow = new FieldNodeData(rowNamed(documentRows(doc)[0], 'BoundedChoice'), bounded);
+
+      expect(VisualizationUtilService.getEffectiveCardinality(boundedRow)).toEqual(new FieldCardinality(1, 3));
+    });
+
+    it.each([
+      ['OptionalMemberInRequiredChoice', 'Optional', new FieldCardinality(0, 'unbounded')],
+      ['RequiredMemberInOptionalChoice', 'Required', new FieldCardinality(1, 'unbounded')],
+    ])('should keep the own minimum of %s/%s', (containerName, memberName, expected) => {
+      const doc = abstractDoc(DocumentType.SOURCE_BODY);
+      const member = findField(findField(doc, containerName), memberName);
+      const memberRow = new FieldNodeData(rowNamed(documentRows(doc)[0], containerName), member);
+
+      expect(VisualizationUtilService.getEffectiveCardinality(memberRow)).toEqual(expected);
+    });
+
+    describe('copy-of rows', () => {
+      it('should read a bare copy-of row on a repeating field as a collection', () => {
+        const doc = TestUtil.createTargetOrderDoc();
+        const tree = createTargetTree(doc, { ns0: NS_POC });
+        const shipOrderItem = new FieldItem(tree, doc.fields[0]);
+        tree.children.push(shipOrderItem);
+        const copyOf = new CopyOfSelector(shipOrderItem);
+        copyOf.expression = '/ns0:ShipOrder/Item';
+        shipOrderItem.children.push(copyOf);
+        const row = rowWhere(documentRows(doc, tree)[0], (r) => r instanceof CopyOfFieldNodeData, 'for the copy-of');
+
+        expect(VisualizationUtilService.getField(row)?.name).toBe('Item');
+        expect(VisualizationUtilService.isCollectionField(row)).toBe(true);
+      });
+
+      it('should read a guarded copy-of row on a repeating field as a collection', () => {
+        const row = createGuardedCsvCopyOfRow();
+        expect(row.autoOptionalIfItem).toBeDefined();
+        expect(FieldCardinality.isCollection(row.field)).toBe(true);
+        expect(VisualizationUtilService.isCollectionField(row)).toBe(true);
+      });
+
+      it('should read a copy-of row on a candidate of a wrapper in a repeating choice as a collection', () => {
+        const doc = parseXsdDocument(
+          DocumentType.TARGET_BODY,
+          'ChoiceWithAbstract.xsd',
+          getChoiceWithAbstractXsd(),
+          NOTIFICATION,
+        );
+        const abstractMessage = findField(repeatingChoiceOf(findField(doc, 'Short')), 'AbstractMessage');
+        const emailField = findField(abstractMessage, 'Email');
+        const tree = createTargetTree(doc, { ns0: NS_CHOICE_ABSTRACT });
+        const notificationItem = new FieldItem(tree, doc.fields[0]);
+        tree.children.push(notificationItem);
+        const copyOf = new CopyOfSelector(notificationItem);
+        copyOf.expression = '/ns0:Notification/ns0:Short/ns0:Email';
+        notificationItem.children.push(copyOf);
+        const copyOfRow = new CopyOfFieldNodeData(new TargetDocumentNodeData(doc, tree), copyOf, emailField);
+
+        expect(VisualizationUtilService.isCollectionField(copyOfRow)).toBe(true);
+      });
+    });
+
+    it('should return no cardinality for a node without a field', () => {
+      expect(VisualizationUtilService.getEffectiveCardinality(sourceDocNode)).toBeUndefined();
+      expect(VisualizationUtilService.isCollectionField(sourceDocNode)).toBe(false);
+    });
+
+    it('should keep the add-mapping placeholder row out of the collection answer', () => {
+      const itemField = findField(targetDoc, 'Item');
+      const placeholder = new AddMappingNodeData(targetDocNode, itemField);
+      expect(VisualizationUtilService.isCollectionField(placeholder)).toBe(false);
     });
   });
 
