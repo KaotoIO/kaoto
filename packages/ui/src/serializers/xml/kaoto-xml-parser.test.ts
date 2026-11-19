@@ -99,6 +99,34 @@ describe('XmlParser', () => {
     expect(isXML(xml)).toBe(true);
   });
 
+  it('reads the root element declarations with their whitespace collapsed', () => {
+    const xml = `<camel xmlns="http://camel.apache.org/schema/xml-io"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+         http://camel.apache.org/schema/xml-io
+         https://camel.apache.org/schema/xml-io/camel-xml-io.xsd
+         http://example.com/extra"
+       version="  4.0
+       ">
+  <route><from uri="direct:start"/></route>
+</camel>`;
+
+    expect(parser.parseRootElementDefinitions(xml)).toEqual([
+      { name: 'xmlns', value: 'http://camel.apache.org/schema/xml-io' },
+      { name: 'xmlns:xsi', value: 'http://www.w3.org/2001/XMLSchema-instance' },
+      {
+        name: 'xsi:schemaLocation',
+        value:
+          'http://camel.apache.org/schema/xml-io https://camel.apache.org/schema/xml-io/camel-xml-io.xsd http://example.com/extra',
+      },
+      { name: 'version', value: '4.0' },
+    ]);
+  });
+
+  it.each([undefined, 42, { xml: '<route/>' }])('does not take %s for XML', (code) => {
+    expect(isXML(code)).toBe(false);
+  });
+
   it('identifies invalid XML correctly', () => {
     const xml = `not an xml`;
     expect(isXML(xml)).toBe(false);
