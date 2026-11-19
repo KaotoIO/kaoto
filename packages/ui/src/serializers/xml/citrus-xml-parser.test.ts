@@ -539,6 +539,14 @@ ${body}
         '<actions><purge-endpoint><endpoint name="a"/><endpoint name="b"/></purge-endpoint></actions>',
       ],
       [
+        'repeated message headers',
+        '<actions><send endpoint="e"><message><headers><header name="a" value="1"/><header name="b" value="2"/></headers></message></send></actions>',
+      ],
+      [
+        'repeated elements of a selector',
+        '<actions><receive endpoint="e"><selector><element name="a" value="1"/><element name="b" value="2"/></selector></receive></actions>',
+      ],
+      [
         'an XML payload',
         '<actions><send endpoint="e"><message><body><payload><order id="1"><item>x</item></order></payload></body></message></send></actions>',
       ],
