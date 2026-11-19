@@ -5,3 +5,10 @@
  * - 'dark': Always use dark theme (g100)
  */
 export type ThemeSetting = 'system' | 'light' | 'dark';
+
+/**
+ * The look of the app, independent of the light/dark setting.
+ * - 'kaoto': Carbon plus the Kaoto layer (floating cards, blue accents, tinted surfaces)
+ * - 'carbon': the plain IBM Carbon theme
+ */
+export type ThemeStyle = 'kaoto' | 'carbon';

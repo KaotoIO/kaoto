@@ -1,4 +1,4 @@
-import type { ThemeSetting } from '../types/theme';
+import type { ThemeSetting, ThemeStyle } from '../types/theme';
 import { getThemeFromCookies, setThemeInCookies } from './cookies';
 
 /**
@@ -7,6 +7,7 @@ import { getThemeFromCookies, setThemeInCookies } from './cookies';
 interface ThemeSettings {
   themeSetting: ThemeSetting;
   headerInverse: boolean;
+  themeStyle: ThemeStyle;
 }
 
 /** PatternFly switches its tokens to dark through this class on `<html>` */
@@ -29,7 +30,7 @@ function syncPatternFlyTheme(): void {
 
 /**
  * Get current theme settings from cookies
- * @returns Object with themeSetting and headerInverse values
+ * @returns Object with themeSetting, headerInverse and themeStyle values
  */
 export function getThemeSettings(): ThemeSettings {
   return getThemeFromCookies();
@@ -65,6 +66,20 @@ export function setHeaderInverse(headerInverse: boolean): void {
 }
 
 /**
+ * Update theme style and apply to HTML
+ * @param themeStyle - Theme style (kaoto, carbon)
+ */
+export function setThemeStyle(themeStyle: ThemeStyle): void {
+  // Update cookie
+  setThemeInCookies({ themeStyle });
+
+  // Update HTML attribute immediately (no re-render needed)
+  if (typeof document !== 'undefined') {
+    document.documentElement.dataset.themeStyle = themeStyle;
+  }
+}
+
+/**
  * Initialize theme on page load (sync HTML attributes with cookies)
  * Call this once when the app starts
  * Only updates attributes if they're not already set by SSR
@@ -72,7 +87,7 @@ export function setHeaderInverse(headerInverse: boolean): void {
 export function initializeTheme(): void {
   if (typeof document === 'undefined') return;
 
-  const { themeSetting, headerInverse } = getThemeSettings();
+  const { themeSetting, headerInverse, themeStyle } = getThemeSettings();
 
   // Get current attributes set by SSR
   const currentThemeSetting = document.documentElement.dataset.themeSetting;
@@ -96,6 +111,8 @@ export function initializeTheme(): void {
       'Header inverse cookie changed between SSR and hydration. ' + 'Change will take effect on next navigation.',
     );
   }
+
+  document.documentElement.dataset.themeStyle = themeStyle;
 
   syncPatternFlyTheme();
   // The "system" setting follows the OS, also when it changes while the app is open

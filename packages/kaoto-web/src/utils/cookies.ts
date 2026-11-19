@@ -1,6 +1,8 @@
-import type { ThemeSetting } from '../types/theme';
+import type { ThemeSetting, ThemeStyle } from '../types/theme';
 
 // Constants
+const THEME_STYLES: ThemeStyle[] = ['kaoto', 'carbon'];
+const DEFAULT_THEME_STYLE: ThemeStyle = 'kaoto';
 /** Cookie max age: 1 year in seconds */
 const COOKIE_MAX_AGE_ONE_YEAR = 31536000;
 
@@ -24,9 +26,10 @@ interface CookieOptions {
  * Theme values from cookies (Read operation)
  *
  * Structure returned when reading theme preferences from cookies.
- * Both fields are REQUIRED because defaults are always provided:
+ * All fields are REQUIRED because defaults are always provided:
  * - themeSetting defaults to 'system' if not set
  * - headerInverse defaults to false if not set
+ * - themeStyle defaults to 'kaoto' if not set
  *
  * Used for both client-side and server-side rendering to maintain
  * consistent theme state.
@@ -38,14 +41,16 @@ interface ThemeFromCookies {
   themeSetting: ThemeSetting;
   /** Whether the header uses inverse/complementary colors - always present */
   headerInverse: boolean;
+  /** Look of the app (kaoto or carbon) - always present */
+  themeStyle: ThemeStyle;
 }
 
 /**
  * Theme values to set in cookies (Write operation)
  *
  * Structure used when updating theme preferences in cookies.
- * Both properties are OPTIONAL to allow partial updates - you can update
- * just the theme setting, just the header inverse, or both.
+ * All properties are OPTIONAL to allow partial updates - you can update
+ * any subset of them.
  *
  * Note: While this could be defined as `Partial<ThemeFromCookies>`, keeping
  * it separate provides better documentation and makes the read/write distinction
@@ -58,6 +63,8 @@ interface ThemeValues {
   themeSetting?: ThemeSetting;
   /** Header inverse setting to update (optional) */
   headerInverse?: boolean;
+  /** Theme style to update (optional) */
+  themeStyle?: ThemeStyle;
 }
 
 /**
@@ -148,7 +155,7 @@ export function setCookie(name: string, value: string, options: CookieOptions = 
 /**
  * Get theme values from cookies.
  * Can be used client-side (reads from document.cookie) or server-side (pass cookie string).
- * Always returns both values with defaults applied.
+ * Always returns all values with defaults applied.
  */
 export function getThemeFromCookies(cookieString?: string): ThemeFromCookies {
   const rawCookieString = cookieString ?? (typeof document !== 'undefined' ? document.cookie : '');
@@ -163,15 +170,18 @@ export function getThemeFromCookies(cookieString?: string): ThemeFromCookies {
     ? (themeSetting as ThemeSetting)
     : 'system';
 
+  const themeStyle = THEME_STYLES.find((style) => style === cookies['theme-style']) ?? DEFAULT_THEME_STYLE;
+
   return {
     themeSetting: validatedThemeSetting,
     headerInverse,
+    themeStyle,
   };
 }
 
 /**
  * Set theme values in cookies (client-side only).
- * Supports partial updates - you can set just themeSetting, just headerInverse, or both.
+ * Supports partial updates - you can set any subset of the values.
  */
 export function setThemeInCookies(values: ThemeValues): void {
   if (values.themeSetting !== undefined) {
@@ -185,5 +195,8 @@ export function setThemeInCookies(values: ThemeValues): void {
   }
   if (values.headerInverse !== undefined) {
     setCookie('header-inverse', String(values.headerInverse));
+  }
+  if (values.themeStyle !== undefined) {
+    setCookie('theme-style', values.themeStyle);
   }
 }
