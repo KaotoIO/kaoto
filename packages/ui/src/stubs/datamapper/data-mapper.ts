@@ -64,6 +64,12 @@ export function getChoiceRepeatingAbstractXsd(): string {
 export function getChoiceRepeatingAbstractCatXslt(): string {
   return readStubFile('./xml/ChoiceRepeatingAbstractCat.xsl');
 }
+export function getChoiceRepeatingMemberXsd(): string {
+  return readStubFile('./xml/ChoiceRepeatingMember.xsd');
+}
+export function getChoiceRepeatingContainerMemberXsd(): string {
+  return readStubFile('./xml/ChoiceRepeatingContainerMember.xsd');
+}
 export function getShipOrderXsd(): string {
   return readStubFile('./xml/ShipOrder.xsd');
 }

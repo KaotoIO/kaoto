@@ -591,6 +591,11 @@ export class DocumentService {
    * repeating element is not itself a collection (that repeat is handled at the element's own mapping
    * level). This is the single source of truth for both {@link isFieldInsideCollectionChoiceWrapper}
    * (does it repeat at all?) and the popover's effective-maxOccurs display (what is the repeat count?).
+   *
+   * An abstract wrapper also stops this walk, so it never sees a repeating compositor or abstract wrapper
+   * above one. {@link getOutermostRepeatingWrapper} is the walk that passes through every wrapper kind
+   * and keeps the outermost repeating one; it backs the node-level answer in
+   * `VisualizationUtilService.getEffectiveCardinality`.
    * @param field - The field whose ancestor compositors to inspect
    * @returns the nearest repeating enclosing choice/sequence compositor, or `undefined`
    */
@@ -600,6 +605,26 @@ export class DocumentService {
       return undefined;
     }
     return FieldCardinality.isCollection(parent) ? parent : DocumentService.getEnclosingCollectionCompositor(parent);
+  }
+
+  /**
+   * Walks up through every enclosing wrapper (xs:choice, xs:sequence and abstract element) to the first real
+   * element or document, and returns the outermost one that repeats, or `undefined` when none does.
+   *
+   * Unlike {@link getEnclosingCollectionCompositor}, which returns the nearest repeating choice or sequence and
+   * stops at an abstract wrapper, this walk passes through abstract wrappers too. It keeps the outermost
+   * repeating wrapper, so in `choice(unbounded) > sequence(3) > A` it returns the choice.
+   * @param field - The field whose wrapper ancestors to inspect
+   * @returns the outermost repeating wrapper ancestor, or `undefined`
+   */
+  static getOutermostRepeatingWrapper(field: IField): IField | undefined {
+    let outermost: IField | undefined;
+    let parent: IParentType | undefined = field.parent;
+    while (parent && 'wrapperKind' in parent && parent.wrapperKind !== undefined) {
+      if (FieldCardinality.isCollection(parent)) outermost = parent;
+      parent = parent.parent;
+    }
+    return outermost;
   }
 
   /**
@@ -619,6 +644,9 @@ export class DocumentService {
    * compositor and inherits the repeating nature from it (see {@link getEnclosingCollectionCompositor} for
    * where that inheritance stops). Only the field's own ancestor chain is read, never a node's wrapper
    * back-reference.
+   *
+   * This is a schema-level answer. For the question "does this tree row repeat", which the collection icon and
+   * the collection-gated mapping actions ask, use `VisualizationUtilService.getEffectiveCardinality`.
    * @param field - The field to inspect
    * @returns true if the field is a collection, false otherwise
    */

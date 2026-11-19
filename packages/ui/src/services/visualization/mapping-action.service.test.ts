@@ -28,6 +28,8 @@ import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import { Types } from '../../models/datamapper/types';
 import {
   AddMappingNodeData,
+  ChoiceFieldNodeData,
+  CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -44,23 +46,41 @@ import {
 } from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import {
+  createTargetTree,
+  descendantRow,
+  documentRows,
+  findField,
+  parseXsdDocument,
+  rowNamed,
+  rowWhere,
+} from '../../stubs/datamapper/cardinality-test-helpers';
+import {
   getAdtInXsd,
+  getChoiceRepeatingAbstractCatXslt,
+  getChoiceRepeatingAbstractXsd,
+  getChoiceRepeatingContainerMemberXsd,
+  getChoiceRepeatingMemberXsd,
+  getChoiceWithAbstractXsd,
   getConditionalMappingsToShipOrderXslt,
+  getFieldSubstitutionXsd,
   getShipOrderToShipOrderXslt,
   getShipOrderValueOfInContainerXslt,
   getUnknownApplyTemplateXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
-import { expectNoDecisionChange } from '../../stubs/datamapper/target-render-test-helpers';
+import { createGuardedCsvCopyOfRow, expectNoDecisionChange } from '../../stubs/datamapper/target-render-test-helpers';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
+import { FieldOverrideService } from '../document/field-override.service';
 import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
+import { ChoiceFieldService } from './choice-field.service';
 import { MappingActionService } from './mapping-action.service';
 import { MappingActionRegistryService } from './mapping-action-registry.service';
 import { TargetRenderService } from './target-render.service';
 import { VisualizationService } from './visualization.service';
+import { VisualizationUtilService } from './visualization-util.service';
 
 describe('MappingActionService', () => {
   let sourceDoc: XmlSchemaDocument;
@@ -1616,42 +1636,25 @@ describe('MappingActionService', () => {
       });
 
       it('should preserve document-level selection after duplicating a wrapper member', () => {
-        const baseField = sourceDoc.fields[0];
-        const catField = { ...baseField, name: 'Cat', displayName: 'Cat', fields: [] };
-        const dogField = { ...baseField, name: 'Dog', displayName: 'Dog', fields: [] };
-        const abstractField = {
-          ...baseField,
-          name: 'AbstractElement',
-          displayName: 'AbstractElement',
-          wrapperKind: 'abstract' as const,
-          selectedMemberQName: {
-            getNamespaceURI: () => baseField.namespaceURI ?? '',
-            getLocalPart: () => 'Cat',
-          },
-          maxOccurs: 'unbounded' as const,
-          fields: [catField, dogField],
-          ownerDocument: targetDoc,
-        } as unknown as typeof baseField;
-        const parentField = { ...targetDoc.fields[0], fields: [abstractField] };
-
-        const localTree = new MappingTree(
-          targetDoc.documentType,
-          targetDoc.documentId,
-          DocumentDefinitionType.XML_SCHEMA,
+        const substitutionDoc = parseXsdDocument(
+          DocumentType.TARGET_BODY,
+          'FieldSubstitution.xsd',
+          getFieldSubstitutionXsd(),
         );
-        localTree.namespaceMap = {};
-        const parentFieldItem = new FieldItem(localTree, parentField as (typeof targetDoc.fields)[0]);
-        const catFieldItem = new FieldItem(parentFieldItem, catField as unknown as typeof baseField);
-        parentFieldItem.children.push(catFieldItem);
+        const namespaceMap = { ns0: 'http://www.example.com/SUBSTITUTION' };
+        const abstractField = findField(substitutionDoc, 'AbstractAnimal');
+        expect(abstractField.maxOccurs).toBe('unbounded');
+        FieldOverrideService.applyFieldSubstitution(abstractField, 'ns0:Cat', namespaceMap);
+        const catField = findField(abstractField, 'Cat');
+
+        const localTree = createTargetTree(substitutionDoc, namespaceMap);
+        const parentFieldItem = new FieldItem(localTree, substitutionDoc.fields[0]);
         localTree.children.push(parentFieldItem);
+        parentFieldItem.children.push(new FieldItem(parentFieldItem, catField));
 
-        const localTargetDocNode = new TargetDocumentNodeData(targetDoc, localTree);
-        const parentNode = new TargetFieldNodeData(localTargetDocNode, parentField as (typeof targetDoc.fields)[0]);
-        parentNode.mapping = parentFieldItem;
-
-        const catNode = new TargetAbstractFieldNodeData(parentNode, catField as unknown as typeof baseField);
-        catNode.abstractField = abstractField;
-        catNode.mapping = catFieldItem;
+        const catNode = rowNamed(documentRows(substitutionDoc, localTree)[0], 'Cat') as TargetNodeData;
+        expect(catNode).toBeInstanceOf(FieldItemNodeData);
+        expect((catNode as FieldItemNodeData).wrapperField).toBe(abstractField);
 
         const menuItems = MappingActionRegistryService.getMappingContextMenuItems(catNode);
         const duplicateAction = menuItems.find((item) => item.key === MappingActionKind.Duplicate);
@@ -2520,6 +2523,285 @@ describe('MappingActionService', () => {
           item.apply(freshAddMappingNode, { onUpdate, openModal });
         }).not.toThrow();
       }
+    });
+  });
+
+  describe('a repeating member of a non-repeating choice', () => {
+    const NS_P = 'urn:p';
+    const NS_POC = 'io.kaoto.datamapper.poc.test';
+
+    const collectItems = <T extends MappingItem>(
+      root: MappingTree | MappingItem,
+      type: new (...args: never[]) => T,
+    ): T[] =>
+      root.children.flatMap((child) => [...(child instanceof type ? [child] : []), ...collectItems(child, type)]);
+
+    const forEachRow = (parent: NodeData): NodeData =>
+      rowWhere(parent, (row) => row instanceof MappingNodeData && row.mapping instanceof ForEachItem, 'for-each');
+
+    const selectItem = (xsdName: string, xsd: string) => {
+      const doc = parseXsdDocument(DocumentType.TARGET_BODY, xsdName, xsd);
+      const localTree = createTargetTree(doc, { ns0: NS_P });
+      const choiceRow = rowWhere(
+        documentRows(doc, localTree)[0],
+        (row) => row instanceof TargetChoiceFieldNodeData,
+        'for the choice',
+      );
+      ChoiceFieldService.dispatchChoiceSelection(
+        choiceRow,
+        findField(doc, '__choice__'),
+        { memberIndex: 0 },
+        localTree.namespaceMap,
+        true,
+      );
+      const itemRow = () => rowNamed(documentRows(doc, localTree)[0], 'Item') as TargetNodeData;
+      const wrapItem = () => {
+        MappingActionService.applyForEach(itemRow() as TargetFieldNodeData);
+      };
+      const wrappedItemRow = () => rowNamed(forEachRow(documentRows(doc, localTree)[0]), 'Item') as TargetNodeData;
+      return { localTree, itemRow, wrapItem, wrappedItemRow };
+    };
+
+    const collectionContainerRow = (): NodeData => rowNamed(documentRows(TestUtil.createSourceOrderDoc())[0], 'Item');
+
+    const collectionChoiceRow = (): NodeData => {
+      const doc = parseXsdDocument(
+        DocumentType.SOURCE_BODY,
+        'ChoiceRepeatingAbstract.xsd',
+        getChoiceRepeatingAbstractXsd(),
+      );
+      const choiceRow = rowWhere(
+        rowNamed(documentRows(doc)[0], 'SequenceInRepeatingChoice'),
+        (row) => row instanceof ChoiceFieldNodeData,
+        'for the choice',
+      );
+      expect(VisualizationUtilService.isCollectionField(choiceRow)).toBe(true);
+      return choiceRow;
+    };
+
+    const collectionKeys = [MappingActionKind.ForEach, MappingActionKind.ForEachGroup, MappingActionKind.Duplicate];
+    const menuKeys = (node: TargetNodeData) =>
+      MappingActionRegistryService.getMappingContextMenuItems(node).map((item) => item.key);
+
+    it('should offer for-each, for-each-group and Duplicate on the selected member', () => {
+      const { itemRow } = selectItem('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
+      expect(menuKeys(itemRow())).toEqual(expect.arrayContaining(collectionKeys));
+    });
+
+    it('should still offer for-each, for-each-group and Duplicate after "Wrap with for-each"', () => {
+      const { wrapItem, wrappedItemRow } = selectItem('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
+      wrapItem();
+      expect(menuKeys(wrappedItemRow())).toEqual(expect.arrayContaining(collectionKeys));
+    });
+
+    it('should create one for-each when a collection container is dropped onto the selected member', () => {
+      const { localTree, itemRow } = selectItem(
+        'ChoiceRepeatingContainerMember.xsd',
+        getChoiceRepeatingContainerMemberXsd(),
+      );
+      MappingActionService.engageMapping(localTree, collectionContainerRow() as FieldNodeData, itemRow());
+
+      expect(collectItems(localTree, ForEachItem)).toHaveLength(1);
+    });
+
+    it('should map the wrapped member with a value-of when a collection container is dropped onto it', () => {
+      const { localTree, wrapItem, wrappedItemRow } = selectItem(
+        'ChoiceRepeatingContainerMember.xsd',
+        getChoiceRepeatingContainerMemberXsd(),
+      );
+      wrapItem();
+      MappingActionService.engageMapping(localTree, collectionContainerRow() as FieldNodeData, wrappedItemRow());
+
+      expect(collectItems(localTree, ForEachItem)).toHaveLength(1);
+      const itemItem = collectItems(localTree, FieldItem).find((item) => item.field.name === 'Item');
+      expect(itemItem?.children.some((child) => child instanceof ValueOfSelector)).toBe(true);
+      expect(collectItems(localTree, CopyOfSelector)).toEqual([]);
+      expect(itemItem?.children.some((child) => child instanceof FieldItem)).toBe(false);
+    });
+
+    it('should create one for-each with a choose when a collection choice is dropped onto the selected member', () => {
+      const { localTree, itemRow } = selectItem(
+        'ChoiceRepeatingContainerMember.xsd',
+        getChoiceRepeatingContainerMemberXsd(),
+      );
+      MappingActionService.engageMapping(localTree, collectionChoiceRow() as FieldNodeData, itemRow());
+
+      const forEachItems = collectItems(localTree, ForEachItem);
+      expect(forEachItems).toHaveLength(1);
+      expect(forEachItems[0].children[0]).toBeInstanceOf(ChooseItem);
+    });
+
+    it('should nest a for-each with a choose when a collection choice is dropped onto the wrapped member', () => {
+      const { localTree, wrapItem, wrappedItemRow } = selectItem(
+        'ChoiceRepeatingContainerMember.xsd',
+        getChoiceRepeatingContainerMemberXsd(),
+      );
+      wrapItem();
+      MappingActionService.engageMapping(localTree, collectionChoiceRow() as FieldNodeData, wrappedItemRow());
+
+      const [outer, inner] = collectItems(localTree, ForEachItem);
+      expect(inner).toBeDefined();
+      expect(collectItems(outer, ForEachItem)).toEqual([inner]);
+      expect(inner.children[0]).toBeInstanceOf(ChooseItem);
+    });
+
+    describe('a member row of a repeating abstract wrapper', () => {
+      const loadCatRow = () => {
+        const doc = parseXsdDocument(
+          DocumentType.TARGET_BODY,
+          'ChoiceRepeatingAbstract.xsd',
+          getChoiceRepeatingAbstractXsd(),
+        );
+        const localTree = createTargetTree(doc, { ns0: NS_POC });
+        MappingSerializerService.deserialize(getChoiceRepeatingAbstractCatXslt(), doc, localTree, paramsMap);
+        const wrapperRow = rowWhere(
+          rowNamed(documentRows(doc, localTree)[0], 'AbstractInChoice'),
+          (row) => row instanceof TargetAbstractFieldNodeData,
+          'for Animal',
+        );
+        return {
+          localTree,
+          catRow: rowNamed(wrapperRow, 'Cat') as TargetNodeData,
+          dogRow: rowNamed(wrapperRow, 'Dog') as TargetNodeData,
+        };
+      };
+
+      it('should offer for-each, for-each-group and Duplicate on the member rows', () => {
+        const { catRow, dogRow } = loadCatRow();
+        expect(menuKeys(catRow)).toEqual(expect.arrayContaining(collectionKeys));
+        expect(menuKeys(dogRow)).toEqual(expect.arrayContaining(collectionKeys));
+      });
+
+      it('should create a for-each when a collection container is dropped onto it', () => {
+        const { localTree, catRow } = loadCatRow();
+        MappingActionService.engageMapping(localTree, collectionContainerRow() as FieldNodeData, catRow);
+
+        expect(collectItems(localTree, ForEachItem)).toHaveLength(1);
+      });
+
+      it('should create a for-each with a choose inside it when a collection choice is dropped onto it', () => {
+        const { localTree, catRow } = loadCatRow();
+        MappingActionService.engageMapping(localTree, collectionChoiceRow() as FieldNodeData, catRow);
+
+        const catItem = collectItems(localTree, FieldItem).find((item) => item.field.name === 'Cat');
+        const forEach = catItem?.children.find((child) => child instanceof ForEachItem);
+        expect(forEach?.children[0]).toBeInstanceOf(ChooseItem);
+      });
+    });
+
+    it('should duplicate a candidate row under a reverted wrapper field item into that field item', () => {
+      const notification = { namespaceUri: 'http://www.example.com/CHOICE_ABSTRACT', name: 'Notification' };
+      const doc = parseXsdDocument(
+        DocumentType.TARGET_BODY,
+        'ChoiceWithAbstract.xsd',
+        getChoiceWithAbstractXsd(),
+        notification,
+      );
+      const shortField = findField(doc, 'Short');
+      const repeatingChoice = shortField.fields.find(
+        (field) => field.wrapperKind === 'choice' && field.maxOccurs === 'unbounded',
+      );
+      if (!repeatingChoice) throw new Error('No repeating choice under Short');
+      const abstractMessage = findField(repeatingChoice, 'AbstractMessage');
+      const localTree = createTargetTree(doc, { ns0: notification.namespaceUri });
+      const notificationItem = new FieldItem(localTree, doc.fields[0]);
+      localTree.children.push(notificationItem);
+      const shortItem = new FieldItem(notificationItem, shortField);
+      notificationItem.children.push(shortItem);
+      const forEach = new ForEachItem(shortItem);
+      shortItem.children.push(forEach);
+      const wrapperItem = new FieldItem(forEach, abstractMessage);
+      forEach.children.push(wrapperItem);
+
+      const wrapperItemRow = rowWhere(
+        forEachRow(rowNamed(documentRows(doc, localTree)[0], 'Short')),
+        (row) => row instanceof FieldItemNodeData && row.field === abstractMessage,
+        'for the AbstractMessage field item',
+      );
+      const emailRow = rowNamed(wrapperItemRow, 'Email') as TargetNodeData;
+      expect(menuKeys(emailRow)).toContain(MappingActionKind.Duplicate);
+
+      MappingActionService.duplicateFieldNode(emailRow as TargetFieldNodeData);
+
+      const emailItems = collectItems(localTree, FieldItem).filter((item) => item.field.name === 'Email');
+      expect(emailItems.length).toBeGreaterThan(0);
+      expect(emailItems.every((item) => item.parent === wrapperItem)).toBe(true);
+      expect(collectItems(localTree, FieldItem).filter((item) => item.field.wrapperKind !== undefined)).toEqual([
+        wrapperItem,
+      ]);
+    });
+
+    describe('a copy-of row on a repeating field', () => {
+      const excludedKeys = [
+        MappingActionKind.ForEach,
+        MappingActionKind.ForEachGroup,
+        MappingActionKind.ForEachCurrentGroup,
+        MappingActionKind.Duplicate,
+      ];
+
+      it('should offer no collection-gated action on a bare copy-of row', () => {
+        const doc = TestUtil.createTargetOrderDoc();
+        const localTree = createTargetTree(doc, { ns0: NS_POC });
+        const shipOrderItem = new FieldItem(localTree, doc.fields[0]);
+        localTree.children.push(shipOrderItem);
+        const copyOf = new CopyOfSelector(shipOrderItem);
+        copyOf.expression = '/ns0:ShipOrder/Item';
+        shipOrderItem.children.push(copyOf);
+        const row = rowWhere(
+          documentRows(doc, localTree)[0],
+          (r) => r instanceof CopyOfFieldNodeData,
+          'for the copy-of',
+        ) as TargetNodeData;
+
+        expect(VisualizationUtilService.isCollectionField(row)).toBe(true);
+        for (const key of excludedKeys) expect(menuKeys(row)).not.toContain(key);
+      });
+
+      it('should offer no collection-gated action on a guarded copy-of row', () => {
+        const row = createGuardedCsvCopyOfRow();
+        expect(VisualizationUtilService.isCollectionField(row)).toBe(true);
+        for (const key of excludedKeys) expect(menuKeys(row)).not.toContain(key);
+      });
+    });
+
+    describe('a source candidate row of an unselected repeating abstract wrapper', () => {
+      const sourceDogRow = (): NodeData => {
+        const doc = parseXsdDocument(DocumentType.SOURCE_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd());
+        const wrapperRow = descendantRow(
+          documentRows(doc)[0],
+          (row) => VisualizationUtilService.isAbstractField(row) && row.field.name === 'AbstractAnimal',
+          'for AbstractAnimal',
+        );
+        return rowNamed(wrapperRow, 'Dog');
+      };
+
+      it('should create a for-each when dropped onto a repeating target container that is not wrapped', () => {
+        const [shipOrderRow] = documentRows(targetDoc, tree);
+        MappingActionService.engageMapping(
+          tree,
+          sourceDogRow() as FieldNodeData,
+          rowNamed(shipOrderRow, 'Item') as TargetNodeData,
+        );
+
+        expect(collectItems(tree, ForEachItem)).toHaveLength(1);
+      });
+
+      it('should map field to field when dropped onto a target member already wrapped in a for-each', () => {
+        const doc = parseXsdDocument(DocumentType.TARGET_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd());
+        const localTree = createTargetTree(doc, { ns0: 'http://www.example.com/SUBSTITUTION' });
+        const zooItem = new FieldItem(localTree, doc.fields[0]);
+        localTree.children.push(zooItem);
+        const forEach = new ForEachItem(zooItem);
+        zooItem.children.push(forEach);
+        const dogItem = new FieldItem(forEach, findField(findField(doc, 'AbstractAnimal'), 'Dog'));
+        forEach.children.push(dogItem);
+
+        const targetDogRow = rowNamed(forEachRow(documentRows(doc, localTree)[0]), 'Dog') as TargetNodeData;
+        MappingActionService.engageMapping(localTree, sourceDogRow() as FieldNodeData, targetDogRow);
+
+        expect(collectItems(localTree, ForEachItem)).toEqual([forEach]);
+        expect(dogItem.children.some((child) => child instanceof ValueOfSelector)).toBe(true);
+      });
     });
   });
 });

@@ -15,8 +15,11 @@ import { IFieldSubstitution } from '../../models/datamapper/metadata';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
 import { PathExpression } from '../../models/datamapper/xpath';
 import { IMetadataApi } from '../../providers';
+import { findField, parseXsdDocument } from '../../stubs/datamapper/cardinality-test-helpers';
 import {
   getCartJsonSchema,
+  getChoiceRepeatingAbstractXsd,
+  getChoiceRepeatingMemberXsd,
   getExtensionSimpleXsd,
   getMultipleElementsXsd,
   getTestDocumentXsd,
@@ -1090,6 +1093,76 @@ describe('DocumentService', () => {
       const element = { maxOccurs: 'unbounded', parent: {} as IParentType } as IField;
       const child = { maxOccurs: 1, parent: element } as IField;
       expect(DocumentService.getEnclosingCollectionCompositor(child)).toBeUndefined();
+    });
+  });
+
+  describe('getOutermostRepeatingWrapper()', () => {
+    const abstractDoc = () =>
+      parseXsdDocument(DocumentType.TARGET_BODY, 'ChoiceRepeatingAbstract.xsd', getChoiceRepeatingAbstractXsd());
+
+    it('should return undefined for a repeating member of a non-repeating choice', () => {
+      const doc = parseXsdDocument(
+        DocumentType.TARGET_BODY,
+        'ChoiceRepeatingMember.xsd',
+        getChoiceRepeatingMemberXsd(),
+      );
+      expect(DocumentService.getOutermostRepeatingWrapper(findField(doc, 'Item'))).toBeUndefined();
+    });
+
+    it('should pass through a non-repeating choice to stop at the real element above it', () => {
+      const container = findField(abstractDoc(), 'AbstractInChoice');
+      const choice = findField(container, '__choice__');
+      expect(choice.maxOccurs).toBe(1);
+      expect(DocumentService.getOutermostRepeatingWrapper(choice)).toBeUndefined();
+    });
+
+    it('should return a repeating abstract wrapper that the compositor walk stops at', () => {
+      const container = findField(abstractDoc(), 'AbstractInChoice');
+      const animal = findField(container, 'Animal');
+      const cat = findField(animal, 'Cat');
+      expect(DocumentService.getEnclosingCollectionCompositor(cat)).toBeUndefined();
+      expect(DocumentService.getOutermostRepeatingWrapper(cat)).toBe(animal);
+    });
+
+    it('should pass through a non-repeating abstract wrapper to a repeating sequence above it', () => {
+      const container = findField(abstractDoc(), 'AbstractInSequenceInChoice');
+      const sequence = findField(container, '__sequence__');
+      const animal = findField(sequence, 'Animal');
+      expect(animal.maxOccurs).toBe(1);
+      expect(DocumentService.getOutermostRepeatingWrapper(findField(animal, 'Dog'))).toBe(sequence);
+    });
+
+    it('should return the outermost repeating wrapper when two levels repeat', () => {
+      const container = findField(abstractDoc(), 'NestedRepeat');
+      const choice = findField(container, '__choice__');
+      const sequence = findField(choice, '__sequence__');
+      expect(sequence.maxOccurs).toBe(3);
+      expect(DocumentService.getEnclosingCollectionCompositor(findField(sequence, 'A'))).toBe(sequence);
+      expect(DocumentService.getOutermostRepeatingWrapper(findField(sequence, 'A'))).toBe(choice);
+    });
+
+    it('should return the repeating choice for a member that repeats with its own bound', () => {
+      const container = findField(abstractDoc(), 'BoundedChoice');
+      const choice = findField(container, '__choice__');
+      expect(DocumentService.getOutermostRepeatingWrapper(findField(choice, 'Bounded'))).toBe(choice);
+    });
+
+    it('should stop at a real element even when it repeats', () => {
+      const shipOrder = TestUtil.createTargetOrderDoc();
+      const title = findField(findField(shipOrder, 'Item'), 'Title');
+      expect(DocumentService.getOutermostRepeatingWrapper(title)).toBeUndefined();
+    });
+
+    it('should end the walk at a field without a parent', () => {
+      const orphan = { maxOccurs: 1 } as IField;
+      expect(DocumentService.getOutermostRepeatingWrapper(orphan)).toBeUndefined();
+    });
+
+    it('should end the walk at a primitive document, which is its own parent', () => {
+      const primitive = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      expect(DocumentService.getOutermostRepeatingWrapper(primitive)).toBeUndefined();
     });
   });
 
