@@ -26,10 +26,11 @@ export const getToolbarAnchor = (element: Node) => {
 export const CanvasToolbar = observer(() => {
   const store = useContext(CanvasToolbarContext);
   const controller = useVisualizationController();
-  const target = store?.target;
+  // A model update can remove the target's element from the graph before its node unmounts and leaves the store
+  const target = store?.target?.element.hasParent() ? store.target : undefined;
   const anchor = target ? getToolbarAnchor(target.element) : { centerX: 0, bottomY: 0 };
   const { activeRef, outgoingRef } = useToolbarCrossfade(target?.element.getId());
-  if (!target || !controller.hasGraph()) return null;
+  if (!store || !target || !controller.hasGraph()) return null;
   const graph = controller.getGraph();
   const { x, y } = graph.getBounds();
   return (

@@ -9,7 +9,10 @@ type ResolvedVisibleVizNodes = {
   vizNodes: IVisualizationNode[];
 };
 
+const NO_VIZ_NODES: IVisualizationNode[] = [];
+
 export type UseVisibleVizNodesResult = {
+  /** The last resolved nodes. While `isResolving`, they belong to the previous inputs (empty before the first resolution). */
   vizNodes: IVisualizationNode[];
   /** True while `toVizNode()` work for the current entities/visibleFlows pass is still in flight. */
   isResolving: boolean;
@@ -50,7 +53,8 @@ export function useVisibleVizNodes(
   }, [entities, visibleFlows]);
 
   return {
-    vizNodes: isResolving ? [] : (resolved?.vizNodes ?? []),
+    // The previous nodes stay while the new ones resolve, so the canvas keeps its last model instead of going blank
+    vizNodes: resolved?.vizNodes ?? NO_VIZ_NODES,
     isResolving,
   };
 }

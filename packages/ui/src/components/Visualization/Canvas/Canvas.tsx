@@ -136,7 +136,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, []);
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
-  useDeleteHotkey(selectedVizNode, clearSelection);
+  // While a model resolves, the canvas still shows the previous one, where the selected step's path may name another step
+  useDeleteHotkey(isModelResolving ? undefined : selectedVizNode, clearSelection);
 
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {
@@ -287,10 +288,6 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       });
     }
   }, [selectedVizNode]);
-
-  if (isModelResolving) {
-    return null;
-  }
 
   return (
     <TopologyView

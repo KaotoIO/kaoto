@@ -122,6 +122,31 @@ describe('DesignerVisualization', () => {
     expect(getDrawnIds()).toEqual(expectedIds);
   });
 
+  it('keeps the canvas in the document while a changed model resolves', async () => {
+    const { container, rerender } = await renderWithVisibleFlows(<DesignerVisualization entities={[entity]} />, map);
+    await waitFor(() => {
+      expect(fromModelSpy).toHaveBeenCalledTimes(1);
+    });
+    const root = container.querySelector('#canvas-main');
+    const graph = container.querySelector('[data-kind="graph"]');
+    expect(root).toBeInTheDocument();
+    expect(graph).toBeInTheDocument();
+
+    /* A new entities array starts a new resolution, like any edit does */
+    rerender(<DesignerVisualization entities={[entity]} />);
+
+    expect(container.querySelector('#canvas-main')).toBe(root);
+    expect(fromModelSpy).toHaveBeenCalledTimes(1);
+
+    await waitFor(() => {
+      expect(fromModelSpy).toHaveBeenCalledTimes(2);
+    });
+    /* The new model is merged into the graph that is already drawn */
+    expect(fromModelSpy).toHaveBeenLastCalledWith(expect.anything(), true);
+    expect(container.querySelector('#canvas-main')).toBe(root);
+    expect(container.querySelector('[data-kind="graph"]')).toBe(graph);
+  });
+
   it('does not show EmptyCanvas while viz nodes are resolving', async () => {
     await renderWithVisibleFlows(<DesignerVisualization entities={[entity]} />, map);
 
