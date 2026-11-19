@@ -1,7 +1,7 @@
 import { FunctionComponent, ReactNode, useEffect, useMemo, useState } from 'react';
 
 import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
-import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
+import { BaseVisualEntity, IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { Canvas, CanvasEdge, CanvasNode } from './Canvas';
 import { EmptyCanvas } from './Canvas/EmptyCanvas';
 import { FlowService } from './Canvas/flow.service';
@@ -26,16 +26,12 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
   );
   const { vizNodes, isResolving } = useVisibleVizNodes(entities, allFlowsVisible);
 
-  const [canvasModel, setCanvasModel] = useState<{ nodes: CanvasNode[]; edges: CanvasEdge[] }>({
-    nodes: [],
-    edges: [],
-  });
-
-  const [wasResolving, setWasResolving] = useState(isResolving);
-  if (wasResolving !== isResolving) {
-    setWasResolving(isResolving);
-    if (isResolving) setCanvasModel({ nodes: [], edges: [] });
-  }
+  /** The diagram that is drawn, and the nodes it was built from: it stays in place until the next one is built */
+  const [diagram, setDiagram] = useState<{
+    source?: IVisualizationNode[];
+    nodes: CanvasNode[];
+    edges: CanvasEdge[];
+  }>({ nodes: [], edges: [] });
 
   useEffect(() => {
     if (isResolving) {
@@ -47,11 +43,14 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
     FlowService.getTopologyFlowDiagram(vizNodes)
       .then((model) => {
         if (!cancelled) {
-          setCanvasModel(model);
+          setDiagram({ source: vizNodes, ...model });
         }
       })
       .catch((err: unknown) => {
         console.error('Failed to build topology diagram', err);
+        if (!cancelled) {
+          setDiagram({ source: vizNodes, nodes: [], edges: [] });
+        }
       });
 
     return () => {
@@ -59,15 +58,19 @@ export const TopologyVisualization: FunctionComponent<TopologyVisualizationProps
     };
   }, [vizNodes, isResolving]);
 
-  const { nodes, edges } = canvasModel;
-  const isEmpty = useMemo(() => nodes.length === 0 && edges.length === 0, [nodes, edges]);
+  const { nodes, edges } = diagram;
+  /** The model is not settled until the diagram of the current nodes is built as well */
+  const isModelResolving = isResolving || diagram.source !== vizNodes;
+  const isEmpty = nodes.length === 0 && edges.length === 0;
 
   return (
     <VisualizationShell className={className} fallback={fallback}>
       {!isEmpty && (
-        <Canvas contextToolbar={contextToolbar} nodes={nodes} edges={edges} isModelResolving={isResolving} />
+        <Canvas contextToolbar={contextToolbar} nodes={nodes} edges={edges} isModelResolving={isModelResolving} />
       )}
-      {isEmpty && <EmptyCanvas entitiesNumber={0} isModelResolving={isResolving} contextToolbar={contextToolbar} />}
+      {isEmpty && (
+        <EmptyCanvas entitiesNumber={0} isModelResolving={isModelResolving} contextToolbar={contextToolbar} />
+      )}
     </VisualizationShell>
   );
 };

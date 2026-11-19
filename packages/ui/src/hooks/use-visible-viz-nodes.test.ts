@@ -107,6 +107,44 @@ describe('useVisibleVizNodes', () => {
     expect(e2.toVizNode).not.toHaveBeenCalled();
   });
 
+  it('keeps the previous nodes while the next ones resolve', async () => {
+    vi.useFakeTimers();
+    const e1 = mockEntity('e1', nodeA);
+    const e2 = mockEntity('e2', nodeB);
+    vi.mocked(e2.toVizNode).mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => {
+            resolve(nodeB);
+          }, 100),
+        ),
+    );
+    const entities = [e1, e2];
+    const { result, rerender } = renderHook(
+      ({ visibleFlows }: { visibleFlows: IVisibleFlows }) => useVisibleVizNodes(entities, visibleFlows),
+      { initialProps: { visibleFlows: { e1: true, e2: false } as IVisibleFlows } },
+    );
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    const settled = result.current.vizNodes;
+    expect(settled).toEqual([nodeA]);
+
+    rerender({ visibleFlows: { e1: true, e2: true } });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(50);
+    });
+
+    expect(result.current.isResolving).toBe(true);
+    expect(result.current.vizNodes).toBe(settled);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(50);
+    });
+    expect(result.current.isResolving).toBe(false);
+    expect(result.current.vizNodes).toEqual([nodeA, nodeB]);
+  });
+
   it('updates when visibleFlows changes', async () => {
     const e1 = mockEntity('e1', nodeA);
     const e2 = mockEntity('e2', nodeB);

@@ -12,12 +12,13 @@ import { cloneDeep } from 'lodash';
 import { NodeToolbarTrigger, SettingsModel } from '../../../../models';
 import { CamelRouteResource } from '../../../../models/camel/camel-route-resource';
 import { SettingsProvider } from '../../../../providers';
-import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
+import { CanvasToolbarContext, CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
 import { camelRouteJson, TestProvidersWrapper } from '../../../../stubs';
 import { createRouteVisualizationController } from '../../../../stubs/route-visualization-controller';
 import { CustomGroupExpanded } from '../../Custom/Group/CustomGroupExpanded';
 import { CustomNodeObserver } from '../../Custom/Node/CustomNode';
 import { CanvasDefaults } from '../canvas.defaults';
+import { CanvasToolbarStore } from './canvas-toolbar-store';
 import { CanvasToolbar, getToolbarAnchor } from './CanvasToolbar';
 
 describe('CanvasToolbar integration', () => {
@@ -138,6 +139,56 @@ describe('CanvasToolbar integration', () => {
     expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
     rerender(view(a.getId(), NodeToolbarTrigger.onSelection));
     rerender(view(a.getId(), NodeToolbarTrigger.onSelection, false));
+    expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
+  });
+
+  it('hides the toolbar when a model update removes its step from the graph', async () => {
+    const resource = new CamelRouteResource([cloneDeep(camelRouteJson)]);
+    const { Provider } = await TestProvidersWrapper({ camelResource: resource });
+    const { controller } = await createRouteVisualizationController(resource);
+    const step = controller
+      .getElements()
+      .filter(isNode)
+      .find((node) => node.getData()?.vizNode?.data.path === 'route.from.steps.0.set-header')!;
+    const store = new CanvasToolbarStore(NodeToolbarTrigger.onSelection);
+    act(() => {
+      store.update({ element: step, vizNode: step.getData().vizNode, isCollapsed: false }, true);
+    });
+    render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <CanvasToolbarContext.Provider value={store}>
+            <svg>
+              <CanvasToolbar />
+            </svg>
+          </CanvasToolbarContext.Provider>
+        </VisualizationProvider>
+      </Provider>,
+    );
+    expect(screen.getByTestId('step-toolbar')).toBeInTheDocument();
+
+    /*
+     * The canvas stays mounted across a model update. The update takes the element out of the graph first; its node
+     * leaves the store only afterwards, when it unmounts, so the toolbar renders once more with the removed element.
+     */
+    const model = controller.toModel();
+    act(
+      action(() => {
+        controller.fromModel(
+          {
+            ...model,
+            nodes: model.nodes
+              ?.filter((node) => node.id !== step.getId())
+              .map((node) => ({ ...node, children: node.children?.filter((child) => child !== step.getId()) })),
+            edges: model.edges?.filter((edge) => edge.source !== step.getId() && edge.target !== step.getId()),
+          },
+          true,
+        );
+      }),
+    );
+
+    expect(step.hasParent()).toBe(false);
+    expect(store.target?.element).toBe(step);
     expect(screen.queryByTestId('step-toolbar')).not.toBeInTheDocument();
   });
 

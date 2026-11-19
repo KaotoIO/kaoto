@@ -3,6 +3,7 @@ import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import hotkeys from 'hotkeys-js';
 import { useState } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
@@ -316,6 +317,85 @@ describe('Canvas', () => {
       await clickBackground();
 
       expect(container.querySelector('#canvas-main')).toHaveFocus();
+    });
+  });
+
+  describe('while the model resolves', () => {
+    const renderWith = async (
+      { Provider, controller }: Pick<Awaited<ReturnType<typeof renderCanvas>>, 'Provider' | 'controller'>,
+      rerender: RenderResult['rerender'],
+      props: Parameters<typeof Canvas>[0],
+    ) => {
+      rerender(
+        <Provider>
+          <VisualizationProvider controller={controller}>
+            <Canvas {...props} />
+          </VisualizationProvider>
+        </Provider>,
+      );
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+    };
+
+    it('keeps the canvas and its graph in the document and does not redraw', async () => {
+      const result = await renderCanvas();
+      const canvasProps = getCanvasPropsFromVizNodes([result.vizNode], 1);
+      await renderWith(result, result.rerender, canvasProps);
+      const root = result.container.querySelector('#canvas-main');
+      const graph = result.container.querySelector('[data-kind="graph"]');
+      expect(root).toBeInTheDocument();
+      expect(graph).toBeInTheDocument();
+      const fromModelSpy = vi.spyOn(result.controller, 'fromModel');
+
+      await renderWith(result, result.rerender, { ...canvasProps, isModelResolving: true });
+
+      expect(result.container.querySelector('#canvas-main')).toBe(root);
+      expect(result.container.querySelector('[data-kind="graph"]')).toBe(graph);
+      expect(fromModelSpy).not.toHaveBeenCalled();
+
+      await renderWith(result, result.rerender, getCanvasPropsFromVizNodes([await entity.toVizNode()], 1));
+
+      expect(result.container.querySelector('#canvas-main')).toBe(root);
+      expect(result.container.querySelector('[data-kind="graph"]')).toBe(graph);
+      expect(fromModelSpy).toHaveBeenCalledTimes(1);
+      expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), true);
+    });
+
+    it('turns the Delete hotkey off, because the selected step belongs to the previous model', async () => {
+      /** `hotkeys-js` is mocked globally in vitest-mocks-setup.ts */
+      const pressDelete = async () => {
+        const registrations = vi.mocked(hotkeys).mock.calls.filter(([keys]) => keys === 'Delete, backspace');
+        const handler = registrations[registrations.length - 1][1] as unknown as (event: KeyboardEvent) => void;
+        await act(async () => {
+          handler(new KeyboardEvent('keydown', { key: 'Delete' }));
+          await vi.runAllTimersAsync();
+        });
+      };
+      const result = await renderCanvas();
+      const canvasProps = getCanvasPropsFromVizNodes([result.vizNode], 1);
+      await renderWith(result, result.rerender, canvasProps);
+      const stepId = canvasProps.nodes.find(
+        (node) => node.data?.vizNode?.data.path === 'route.from.steps.0.set-header',
+      )!.id;
+      const selected = result.controller.getNodeById(stepId)!.getData().vizNode as IVisualizationNode;
+      const removeChildSpy = vi.spyOn(selected, 'removeChild').mockImplementation(() => {});
+      act(() => {
+        result.controller.fireEvent(SELECTION_EVENT, [stepId]);
+      });
+      await screen.findByTestId('close-side-bar');
+
+      await renderWith(result, result.rerender, { ...canvasProps, isModelResolving: true });
+      await pressDelete();
+      expect(removeChildSpy).not.toHaveBeenCalled();
+
+      await renderWith(result, result.rerender, canvasProps);
+      act(() => {
+        result.controller.fireEvent(SELECTION_EVENT, [stepId]);
+      });
+      await screen.findByTestId('close-side-bar');
+      await pressDelete();
+      expect(removeChildSpy).toHaveBeenCalledTimes(1);
     });
   });
 
