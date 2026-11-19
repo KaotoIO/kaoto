@@ -6,6 +6,7 @@ import { XmlSchemaComplexContent } from './complex/XmlSchemaComplexContent';
 import { XmlSchemaComplexContentExtension } from './complex/XmlSchemaComplexContentExtension';
 import { XmlSchemaComplexContentRestriction } from './complex/XmlSchemaComplexContentRestriction';
 import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
+import { ExtensionRegistry } from './extensions/ExtensionRegistry';
 import { XmlSchemaImport } from './external/XmlSchemaImport';
 import { XmlSchemaInclude } from './external/XmlSchemaInclude';
 import { XmlSchemaRedefine } from './external/XmlSchemaRedefine';
@@ -16,6 +17,7 @@ import { XmlSchemaGroupRef } from './particle/XmlSchemaGroupRef';
 import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 import { QName } from './QName';
 import { DefaultURIResolver } from './resolver/DefaultURIResolver';
+import { SchemaBuilder } from './SchemaBuilder';
 import { XmlSchemaSimpleContent } from './simple/XmlSchemaSimpleContent';
 import { XmlSchemaSimpleContentExtension } from './simple/XmlSchemaSimpleContentExtension';
 import { XmlSchemaSimpleContentRestriction } from './simple/XmlSchemaSimpleContentRestriction';
@@ -549,6 +551,32 @@ describe('SchemaBuilder', () => {
       expect(type).toBeInstanceOf(XmlSchemaComplexType);
       expect(type.getName()).toBe('Address');
       expect(group.getName()).toBe('Lines');
+    });
+  });
+
+  describe('extension registry', () => {
+    it('takes the extension registry of its collection', () => {
+      const collection = new XmlSchemaCollection();
+
+      const builder = new SchemaBuilder(collection);
+
+      expect(builder.getExtReg()).toBe(collection.getExtReg());
+    });
+
+    it('hands the extension attributes to the extension registry it is given', () => {
+      const deserialized: string[] = [];
+      const registry = new ExtensionRegistry();
+      registry.setDefaultExtensionDeserializer({ deserialize: (_, name) => deserialized.push(name.toString()) });
+      const builder = new SchemaBuilder(new XmlSchemaCollection());
+      const document = new DOMParser().parseFromString(
+        xsd('<xs:element name="a" type="xs:string" xmlns:ext="urn:ext" ext:note="x"/>'),
+        'text/xml',
+      );
+
+      builder.setExtReg(registry);
+      builder.build(document);
+
+      expect(deserialized).toContain(new QName('urn:ext', 'note').toString());
     });
   });
 });
