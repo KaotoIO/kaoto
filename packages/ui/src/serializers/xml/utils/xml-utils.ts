@@ -55,10 +55,6 @@ export function setNamespaces(element: Element, namespaces: { key: string; value
   }
 }
 
-export function capitalize(str: string): string {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
 /** Escapes the 5 characters XML requires escaping in text content and attribute values. */
 export function escapeXml(val: string): string {
   return val
