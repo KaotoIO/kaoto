@@ -570,6 +570,7 @@ describe('ExpansionPanel', () => {
     it('should report the panel id from the layout change queued on toggle', () => {
       const onLayoutChange = vi.fn();
       renderPanel({ id: 'test-panel', onLayoutChange });
+      mockQueueLayoutChange.mockClear();
 
       fireEvent.click(screen.getByText('Test Summary'));
       lastQueuedLayoutChange()();
@@ -580,6 +581,7 @@ describe('ExpansionPanel', () => {
     it('should report the panel id from the layout change queued on unmount', () => {
       const onLayoutChange = vi.fn();
       const { unmount } = renderPanel({ id: 'test-panel', onLayoutChange });
+      mockQueueLayoutChange.mockClear();
 
       unmount();
       lastQueuedLayoutChange()();
