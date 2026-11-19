@@ -790,6 +790,29 @@ describe('JsonSchemaDocumentService', () => {
     },
   );
 
+  it.each([
+    [
+      'tuple array items',
+      { type: 'array', items: [{ type: 'string' }, { type: 'number' }] } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields[0],
+    ],
+    [
+      'a property redeclared with another type in a composition',
+      {
+        type: 'object',
+        properties: { foo: { type: 'string' } },
+        anyOf: [{ properties: { foo: { type: 'number' } } }],
+      } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields.find((f) => f.key === 'foo')!,
+    ],
+  ])('should keep the typeQName of the first declared type for %s', (_desc, schema, getField) => {
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const field = getField(doc);
+    expect(field.type).toBe(Types.String);
+    expect(field.typeQName?.getLocalPart()).toBe('string');
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,

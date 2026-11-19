@@ -303,7 +303,7 @@ export class JsonSchemaDocumentService {
       this.handleSchemaRef(field, schema.$ref, schema);
       this.assignRefTypeQName(field, schema.$ref);
     } else {
-      this.assignTypeMetadata(field, schema);
+      this.assignTypeMetadata(field, schema, fieldType);
     }
 
     this.populateTypeFragmentsFromDefinition(field, schema);
@@ -560,8 +560,9 @@ export class JsonSchemaDocumentService {
     field.typeQName = refQName;
   }
 
-  private assignTypeMetadata(field: JsonSchemaField, schema: JsonSchemaMetadata): void {
-    if (schema.type) {
+  private assignTypeMetadata(field: JsonSchemaField, schema: JsonSchemaMetadata, schemaType: Types): void {
+    // a later declaration of another type doesn't change the field type, so it mustn't change the typeQName either
+    if (schema.type && field.type === schemaType) {
       const typeArray = Array.isArray(schema.type) ? schema.type : [schema.type];
       const typeString = typeArray[0];
       const typeQName = new QName(null, typeString);
