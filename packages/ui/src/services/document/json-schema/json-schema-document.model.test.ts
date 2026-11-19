@@ -1,6 +1,45 @@
-import { JsonSchemaCollection, JsonSchemaMetadata } from './json-schema-document.model';
+import { JSONSchema7 } from 'json-schema';
+
+import { DocumentDefinition, DocumentDefinitionType, DocumentType, Types } from '../../../models/datamapper';
+import { DocumentUtilService } from '../document-util.service';
+import {
+  JsonSchemaCollection,
+  JsonSchemaDocument,
+  JsonSchemaField,
+  JsonSchemaMetadata,
+} from './json-schema-document.model';
+import { JsonSchemaDocumentService } from './json-schema-document.service';
+
+function createJsonDocument(schema: JSONSchema7): JsonSchemaDocument {
+  const definition = new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.JSON_SCHEMA, 'Body', {
+    'main.json': JSON.stringify(schema),
+  });
+  const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+  if (!result.document) {
+    throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
+  }
+  return result.document;
+}
+
+function expandProperty(parent: { fields: JsonSchemaField[] }, key: string): JsonSchemaField {
+  const field = parent.fields.find((f) => f.key === key);
+  if (!field) throw new Error(`Property ${key} not found`);
+  DocumentUtilService.resolveTypeFragment(field);
+  return field;
+}
 
 describe('JsonSchemaCollection', () => {
+  describe('addAlias', () => {
+    it('should return false and register no alias when the identifier is unknown', () => {
+      const collection = new JsonSchemaCollection();
+
+      const added = collection.addAlias('unknown.json', './unknown.json');
+
+      expect(added).toBe(false);
+      expect(collection.getJsonSchema('./unknown.json')).toBeUndefined();
+    });
+  });
+
   describe('resolveReference', () => {
     const mockCurrentSchema = { identifier: 'main.json', filePath: 'schemas/main.json', path: '#' };
 
@@ -131,6 +170,35 @@ describe('JsonSchemaCollection', () => {
         expect(result!.filePath).toBe('schemas/common.json');
       });
 
+      it('should resolve a ./ reference from a schema in the root folder', () => {
+        const collection = new JsonSchemaCollection();
+        collection.setDefinitionFiles({
+          'main.json': '{"$id": "main", "type": "object"}',
+          'common.json': '{"$id": "common", "type": "object"}',
+          'other/common.json': '{"$id": "other-common", "type": "object"}',
+        });
+        const currentSchema = { identifier: 'main', filePath: 'main.json', path: '#' };
+
+        const result = collection.resolveReference('./common.json#/definitions/Type', currentSchema);
+
+        expect(result?.identifier).toBe('common');
+      });
+
+      it('should keep a leading ../ when the reference climbs above the folder of the current schema', () => {
+        const collection = new JsonSchemaCollection();
+        collection.setDefinitionFiles({
+          'schemas/main.json': '{"$id": "main", "type": "object"}',
+          '../common.json': '{"$id": "outside", "type": "object"}',
+          'schemas/types/common.json': '{"$id": "inside", "type": "object"}',
+        });
+        const currentSchema = { identifier: 'main', filePath: 'schemas/main.json', path: '#' };
+
+        const result = collection.resolveReference('../../common.json#/definitions/Type', currentSchema);
+
+        expect(result?.identifier).toBe('outside');
+        expect(result?.filePath).toBe('../common.json');
+      });
+
       it('should fallback to filename-only match when unique', () => {
         const collection = new JsonSchemaCollection();
         const definitionFiles = {
@@ -250,6 +318,135 @@ describe('JsonSchemaCollection', () => {
         const newResult = collection.resolveReference('new.json#/definitions/Type', mockCurrentSchema);
         expect(newResult).not.toBeNull();
       });
+    });
+  });
+});
+
+describe('JsonSchemaField', () => {
+  describe('adopting the properties of a referenced definition', () => {
+    it('should copy the nested properties of the definition', () => {
+      const document = createJsonDocument({
+        type: 'object',
+        definitions: {
+          Location: {
+            type: 'object',
+            properties: { position: { type: 'object', properties: { latitude: { type: 'number' } } } },
+          },
+        },
+        properties: { location: { $ref: '#/definitions/Location' } },
+      });
+
+      const location = expandProperty(document.fields[0], 'location');
+
+      const position = location.fields.find((f) => f.key === 'position');
+      expect(position?.parent).toBe(location);
+      expect(position?.fields.map((f) => [f.key, f.type])).toEqual([['latitude', Types.Numeric]]);
+      expect(position?.fields[0].parent).toBe(position);
+    });
+
+    it('should mark a property as required when the referencing schema requires it', () => {
+      const document = createJsonDocument({
+        type: 'object',
+        definitions: {
+          Address: { type: 'object', properties: { street: { type: 'string' }, zip: { type: 'string' } } },
+        },
+        properties: {
+          address: { type: 'object', required: ['street'], allOf: [{ $ref: '#/definitions/Address' }] },
+        },
+      });
+
+      const address = expandProperty(document.fields[0], 'address');
+
+      expect(address.fields.map((f) => [f.key, f.minOccurs])).toEqual([
+        ['street', 1],
+        ['zip', 0],
+      ]);
+    });
+
+    it('should let the items of an array definition repeat', () => {
+      const document = createJsonDocument({
+        type: 'object',
+        definitions: { Tags: { type: 'array', items: { type: 'string' } } },
+        properties: { tags: { $ref: '#/definitions/Tags' } },
+      });
+
+      const tags = expandProperty(document.fields[0], 'tags');
+
+      expect(tags.fields).toHaveLength(1);
+      expect(tags.fields[0].maxOccurs).toBe(Number.MAX_SAFE_INTEGER);
+    });
+
+    it('should replace an untyped property with the typed property of the definition', () => {
+      const document = createJsonDocument({
+        type: 'object',
+        definitions: { Named: { type: 'object', properties: { name: { type: 'string' } } } },
+        properties: {
+          person: { type: 'object', properties: { name: {} }, allOf: [{ $ref: '#/definitions/Named' }] },
+        },
+      });
+
+      const person = expandProperty(document.fields[0], 'person');
+
+      expect(person.fields.map((f) => [f.key, f.type])).toEqual([['name', Types.String]]);
+    });
+
+    it('should keep the description of a property when the definition has none', () => {
+      const document = createJsonDocument({
+        type: 'object',
+        definitions: { Named: { type: 'object', properties: { name: { type: 'string' } } } },
+        properties: {
+          person: {
+            type: 'object',
+            properties: { name: { type: 'string', description: 'Full name' } },
+            allOf: [{ $ref: '#/definitions/Named' }],
+          },
+        },
+      });
+
+      const person = expandProperty(document.fields[0], 'person');
+
+      expect(person.fields).toHaveLength(1);
+      expect(person.fields[0].description).toBe('Full name');
+    });
+
+    it('should add the definition reference of a property merged from a second definition', () => {
+      const document = createJsonDocument({
+        type: 'object',
+        definitions: {
+          Address: { type: 'object', properties: { street: { type: 'string' } } },
+          WithHome: {
+            type: 'object',
+            properties: { home: { type: 'object', properties: { floor: { type: 'integer' } } } },
+          },
+          WithHomeAddress: { type: 'object', properties: { home: { $ref: '#/definitions/Address' } } },
+        },
+        properties: {
+          person: { allOf: [{ $ref: '#/definitions/WithHome' }, { $ref: '#/definitions/WithHomeAddress' }] },
+        },
+      });
+
+      const person = expandProperty(document.fields[0], 'person');
+      const home = expandProperty(person, 'home');
+
+      expect(home.fields.map((f) => f.key)).toEqual(['floor', 'street']);
+    });
+
+    it('should not add a definition reference twice when two definitions share it', () => {
+      const document = createJsonDocument({
+        type: 'object',
+        definitions: {
+          Address: { type: 'object', properties: { street: { type: 'string' } } },
+          Home: { type: 'object', properties: { home: { $ref: '#/definitions/Address' } } },
+          OtherHome: { type: 'object', properties: { home: { $ref: '#/definitions/Address' } } },
+        },
+        properties: {
+          person: { allOf: [{ $ref: '#/definitions/Home' }, { $ref: '#/definitions/OtherHome' }] },
+        },
+      });
+
+      const person = expandProperty(document.fields[0], 'person');
+
+      expect(person.fields[0].namedTypeFragmentRefs).toEqual(['#/definitions/Address']);
     });
   });
 });
