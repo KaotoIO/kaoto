@@ -81,10 +81,6 @@
   .cds--search {
     inline-size: 100%;
 
-    @include kaoto.kaoto-theme {
-      @include kaoto.field-fill;
-    }
-
     @include kaoto.kaoto-theme-dark {
       @include kaoto.light-field-zone;
     }
