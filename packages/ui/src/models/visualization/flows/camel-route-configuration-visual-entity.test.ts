@@ -39,6 +39,10 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       [true, routeConfigurationStub],
       [false, { from: { id: 'from-1234', steps: [] } }],
       [false, { routeConfiguration: { intercept: [] }, anotherProperty: true }],
+      [false, undefined],
+      [false, null],
+      [false, [{ routeConfiguration: {} }]],
+      [false, 'routeConfiguration'],
     ])('should return %s for %s', (result, definition) => {
       expect(CamelRouteConfigurationVisualEntity.isApplicable(definition)).toEqual(result);
     });
@@ -117,6 +121,18 @@ describe('CamelRouteConfigurationVisualEntity', () => {
       expect(defWithEmptyIntercept.routeConfiguration.intercept).toBeUndefined();
       expect(defWithEmptyIntercept.routeConfiguration.onException).toBeUndefined();
     });
+  });
+
+  it('should omit the configuration clauses shown as canvas nodes from the form', () => {
+    const entity = new CamelRouteConfigurationVisualEntity(routeConfigurationDef);
+
+    expect(entity.getOmitFormFields()).toEqual([
+      'intercept',
+      'interceptFrom',
+      'interceptSendToEndpoint',
+      'onException',
+      'onCompletion',
+    ]);
   });
 
   describe('updateModel', () => {
