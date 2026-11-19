@@ -18,6 +18,10 @@ describe('CamelOnExceptionVisualEntity', () => {
       [true, { onException: { id: 'onExceptionId' } }],
       [false, { from: { id: 'from-1234', steps: [] } }],
       [false, { onException: { id: 'onExceptionId' }, anotherProperty: true }],
+      [false, undefined],
+      [false, null],
+      [false, [{ onException: {} }]],
+      [false, 'onException'],
     ])('should return %s for %s', (result, definition) => {
       expect(CamelOnExceptionVisualEntity.isApplicable(definition)).toEqual(result);
     });
@@ -38,6 +42,38 @@ describe('CamelOnExceptionVisualEntity', () => {
 
       expect(entity.id).toMatch(ONEXCEPTION_ID_REGEXP);
       expect(onExceptionDef.onException.id).toEqual(entity.id);
+    });
+  });
+
+  it('should return the id', () => {
+    const entity = new CamelOnExceptionVisualEntity({ onException: { id: 'onExceptionId' } });
+
+    expect(entity.getId()).toBe('onExceptionId');
+  });
+
+  it('should set the id in the entity and its definition', () => {
+    const entity = new CamelOnExceptionVisualEntity({ onException: { id: 'onExceptionId' } });
+
+    entity.setId('new-id');
+
+    expect(entity.getId()).toBe('new-id');
+    expect(entity.toJSON()).toEqual({ onException: { id: 'new-id' } });
+  });
+
+  it('should use the id as the node label of the onException group', () => {
+    const entity = new CamelOnExceptionVisualEntity({ onException: { id: 'onException-1' } });
+
+    expect(entity.getNodeLabel('onException')).toBe('onException-1');
+  });
+
+  it('should serialize the entity', () => {
+    const onExceptionDef: { onException: OnException } = {
+      onException: { id: 'onExceptionId', exception: ['java.lang.Exception'], steps: [] },
+    };
+    const entity = new CamelOnExceptionVisualEntity(onExceptionDef);
+
+    expect(entity.toJSON()).toEqual({
+      onException: { id: 'onExceptionId', exception: ['java.lang.Exception'], steps: [] },
     });
   });
 
