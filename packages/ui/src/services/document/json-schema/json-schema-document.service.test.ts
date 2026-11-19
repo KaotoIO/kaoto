@@ -1,4 +1,4 @@
-import { JSONSchema7 } from 'json-schema';
+import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import { DocumentDefinition, DocumentDefinitionType, PathExpression, Types } from '../../../models/datamapper';
 import { BODY_DOCUMENT_ID, DocumentType } from '../../../models/datamapper/document';
@@ -601,6 +601,136 @@ describe('JsonSchemaDocumentService', () => {
     expect(bField!.type).toBe(Types.Numeric);
   });
 
+  it('should use the first entry of a type array as the field type', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        nullableName: { type: ['string', 'null'] },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const field = doc.fields[0].fields.find((f) => f.key === 'nullableName');
+    expect(field!.type).toBe(Types.String);
+    expect(field!.typeQName?.getLocalPart()).toBe('string');
+  });
+
+  it('should create no item field for an array without items', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        list: { type: 'array' },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const list = doc.fields[0].fields.find((f) => f.key === 'list');
+    expect(list!.type).toBe(Types.Array);
+    expect(list!.fields).toHaveLength(0);
+  });
+
+  it('should create the item field from tuple-form items', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        tuple: { type: 'array', items: [{ type: 'string' }] },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const tuple = doc.fields[0].fields.find((f) => f.key === 'tuple');
+    expect(tuple!.fields).toHaveLength(1);
+    expect(tuple!.fields[0].type).toBe(Types.String);
+    expect(tuple!.fields[0].maxOccurs).toBe(Number.MAX_SAFE_INTEGER);
+  });
+
+  it('should turn a field into an array when a composition declares an array type', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        tags: { allOf: [{ type: 'array', items: { type: 'string' } }] },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const tags = doc.fields[0].fields.find((f) => f.key === 'tags');
+    expect(tags!.type).toBe(Types.Array);
+    expect(tags!.fields).toHaveLength(1);
+    expect(tags!.fields[0].type).toBe(Types.String);
+  });
+
+  it('should ignore boolean and empty composition entries', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        value: { anyOf: [true, {}, { type: 'string' }] },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const value = doc.fields[0].fields.find((f) => f.key === 'value');
+    expect(value!.type).toBe(Types.String);
+  });
+
+  it('should not duplicate a boolean property that a composition declares again', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        flag: true,
+      },
+      allOf: [{ properties: { flag: true } }],
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const root = doc.fields[0];
+    expect(root.fields.filter((f) => f.key === 'flag')).toHaveLength(1);
+    expect(root.fields[0].type).toBe(Types.AnyType);
+  });
+
+  describe('named type fragments from definitions', () => {
+    it('should register $defs and definitions under their own paths', () => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        $defs: { Name: { type: 'string' } },
+        definitions: { Count: { type: 'number' } },
+        properties: {
+          name: { $ref: '#/$defs/Name' },
+          count: { $ref: '#/definitions/Count' },
+        },
+      };
+
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      expect(Object.keys(doc.namedTypeFragments).sort((a, b) => a.localeCompare(b))).toEqual([
+        '#/$defs/Name',
+        '#/definitions/Count',
+      ]);
+      const root = doc.fields[0];
+      expect(root.fields.find((f) => f.key === 'name')!.type).toBe(Types.String);
+      expect(root.fields.find((f) => f.key === 'count')!.type).toBe(Types.Numeric);
+    });
+
+    it.each<[string, JSONSchema7Definition]>([
+      ['boolean', true],
+      ['empty', {}],
+    ])('should not register a %s definition as a type fragment', (_kind, definition) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        definitions: { Anything: definition },
+      };
+
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      expect(doc.namedTypeFragments).toEqual({});
+    });
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,
@@ -837,6 +967,52 @@ describe('JsonSchemaDocumentService', () => {
       expect(result.errors?.map((e) => e.message).join('; ')).toContain('CommonTypes.schema.json');
       expect(result.errors).toBeDefined();
       expect(result.errors!.length).toBeGreaterThan(0);
+    });
+
+    it.each<[string, string]>([
+      ['does not exist', 'Missing'],
+      ['is a boolean schema', 'Flag'],
+    ])('should throw when an external $ref points to a definition that %s', (_case, definitionName) => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        {
+          'Main.json': JSON.stringify({
+            type: 'object',
+            properties: { other: { $ref: `./Other.json#/definitions/${definitionName}` } },
+          }),
+          'Other.json': JSON.stringify({ type: 'object', definitions: { Flag: true } }),
+        },
+      );
+
+      expect(() => JsonSchemaDocumentService.createJsonSchemaDocument(definition)).toThrow(
+        `Cannot resolve definition at Other.json#/definitions/${definitionName}`,
+      );
+    });
+
+    it('should return a warning status with the analysis warnings when the document can still be created', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.JSON_SCHEMA,
+        'test-doc',
+        {
+          'main.json': JSON.stringify({ $id: 'other.json', type: 'object', properties: { s: { type: 'string' } } }),
+          'other.json': JSON.stringify({ type: 'string' }),
+        },
+      );
+
+      const result = JsonSchemaDocumentService.createJsonSchemaDocument(definition);
+
+      expect(result.validationStatus).toBe('warning');
+      expect(result.document).toBeDefined();
+      expect(result.warnings).toEqual([
+        {
+          message:
+            "Schema $id 'other.json' in file 'main.json' conflicts with file path of another schema 'other.json'",
+          filePath: 'main.json',
+        },
+      ]);
     });
   });
 
