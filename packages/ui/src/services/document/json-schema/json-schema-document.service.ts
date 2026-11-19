@@ -277,6 +277,8 @@ export class JsonSchemaDocumentService {
       path: fullRef,
     };
 
+    // register a placeholder first, so that a circular reference back to this fragment doesn't build it again
+    this.jsonDocument.namedTypeFragments[fullRef] = { fields: [], namedTypeFragmentRefs: [] };
     this.jsonDocument.namedTypeFragments[fullRef] = this.doCreateFragmentFromJSONSchema(
       this.jsonDocument,
       defSchemaMeta,

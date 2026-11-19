@@ -930,6 +930,21 @@ describe('JsonSchemaDocumentService', () => {
       expect(amount!.type).toBe(Types.Numeric);
     });
 
+    it('should create the document for circular references across files', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'circular', {
+        'A.json': JSON.stringify({ type: 'object', properties: { b: { $ref: './B.json' } } }),
+        'B.json': JSON.stringify({ type: 'object', properties: { a: { $ref: './A.json' } } }),
+      });
+
+      const bField = doc.fields[0].fields.find((f) => f.key === 'b')!;
+      DocumentUtilService.resolveTypeFragment(bField);
+      const aField = bField.fields.find((f) => f.key === 'a')!;
+      DocumentUtilService.resolveTypeFragment(aField);
+      expect(bField.type).toBe(Types.Container);
+      expect(aField.type).toBe(Types.Container);
+      expect(aField.fields.find((f) => f.key === 'b')).toBeDefined();
+    });
+
     it('should use first schema as document schema', () => {
       const customerFirstDoc = createMultiSchemaDocument(DocumentType.PARAM, 'customerFirst', {
         'Customer.schema.json': getCustomerJsonSchema(),
