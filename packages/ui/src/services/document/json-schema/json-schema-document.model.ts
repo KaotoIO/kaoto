@@ -522,7 +522,7 @@ export class JsonSchemaField extends BaseField {
     to.typeQName = this.typeQName;
     to.typeOverride = this.typeOverride;
     to.originalField = this.originalField;
-    to.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
+    to.namedTypeFragmentRefs = [...this.namedTypeFragmentRefs];
     to.wrapperKind = this.wrapperKind;
     to.selectedMemberIndex = this.selectedMemberIndex;
     to.selectedMemberQName = this.selectedMemberQName;
