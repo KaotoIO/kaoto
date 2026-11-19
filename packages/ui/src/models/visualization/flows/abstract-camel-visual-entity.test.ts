@@ -5,13 +5,16 @@ import { cloneDeep } from 'lodash';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
 import { mockRandomValues } from '../../../stubs';
 import { camelRouteJson, camelRouteWithKameletJson } from '../../../stubs/camel-route';
+import { kameletJson } from '../../../stubs/kamelet-route';
 import { getFirstCatalogMap, setupDynamicCatalogRegistry } from '../../../stubs/test-load-catalog';
 import { getValue } from '../../../utils';
 import { CatalogKind } from '../../catalog-kind';
 import { PlaceholderType } from '../../placeholder.constants';
 import { NodeLabelType } from '../../settings';
 import { AddStepMode, IVisualizationNodeData } from '../base-visual-entity';
+import { CamelRouteConfigurationVisualEntity } from './camel-route-configuration-visual-entity';
 import { CamelRouteVisualEntity } from './camel-route-visual-entity';
+import { KameletVisualEntity } from './kamelet-visual-entity';
 
 describe('AbstractCamelVisualEntity', () => {
   let abstractVisualEntity: CamelRouteVisualEntity;
@@ -88,6 +91,107 @@ describe('AbstractCamelVisualEntity', () => {
 
       expect(result).toBe('route-8888');
     });
+
+    it('should return the step ID as a node label when the label type is ID', () => {
+      const result = abstractVisualEntity.getNodeLabel(
+        'route.from.steps.1.choice.when.0.steps.0.log',
+        NodeLabelType.Id,
+        {
+          primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
+        },
+      );
+
+      expect(result).toBe('log-1');
+    });
+
+    it('should return the step description as a node label', () => {
+      abstractVisualEntity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'timer:clock', steps: [{ log: { id: 'log-1', description: 'Log the body' } }] } },
+      });
+
+      const result = abstractVisualEntity.getNodeLabel('route.from.steps.0.log', NodeLabelType.Description, {
+        primaryNodeId: { name: 'log', catalogKind: CatalogKind.Pattern },
+      });
+
+      expect(result).toBe('Log the body');
+    });
+
+    it('should return the component name as a node label for a step written as a plain URI string', () => {
+      abstractVisualEntity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'timer:clock', steps: [{ to: 'log:info' }] } },
+      });
+
+      const result = abstractVisualEntity.getNodeLabel('route.from.steps.0.to', NodeLabelType.Description, {
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+        secondaryNodeId: { name: 'log', catalogKind: CatalogKind.Component },
+      });
+
+      expect(result).toBe('log');
+    });
+
+    it.each([
+      ['kamelet:beer-source', 'kamelet:beer-source', { name: 'beer-source', catalogKind: CatalogKind.Kamelet }],
+      ['kamelet', 'kamelet', undefined],
+    ])('should return %s as a node label for the %s endpoint', (expected, uri, tertiaryNodeId) => {
+      abstractVisualEntity = new CamelRouteVisualEntity({ route: { from: { uri, steps: [] } } });
+
+      const result = abstractVisualEntity.getNodeLabel('route.from', NodeLabelType.Description, {
+        primaryNodeId: { name: 'from', catalogKind: CatalogKind.Entity },
+        secondaryNodeId: { name: 'kamelet', catalogKind: CatalogKind.Component },
+        tertiaryNodeId,
+      });
+
+      expect(result).toBe(expected);
+    });
+
+    it.each([
+      ['step-1', { id: 'step-1', steps: [] }],
+      ['step', { steps: [] }],
+    ])('should return %s as a node label for the step EIP %j', (expected, stepDefinition) => {
+      abstractVisualEntity = new CamelRouteVisualEntity({
+        route: { from: { uri: 'timer:clock', steps: [{ step: stepDefinition }] } },
+      });
+
+      const result = abstractVisualEntity.getNodeLabel('route.from.steps.0.step', NodeLabelType.Description, {
+        primaryNodeId: { name: 'step', catalogKind: CatalogKind.Pattern },
+      });
+
+      expect(result).toBe(expected);
+    });
+
+    it.each(['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'] as const)(
+      'should return the ID of the %s configuration as its node label',
+      (configuration) => {
+        const routeConfigurationEntity = new CamelRouteConfigurationVisualEntity({
+          routeConfiguration: { [configuration]: [{ [configuration]: { id: `${configuration}-1` } }] },
+        });
+
+        const result = routeConfigurationEntity.getNodeLabel(
+          `routeConfiguration.${configuration}.0.${configuration}`,
+          NodeLabelType.Description,
+          { primaryNodeId: { name: configuration, catalogKind: CatalogKind.Entity } },
+        );
+
+        expect(result).toBe(`${configuration}-1`);
+      },
+    );
+
+    it.each(['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'] as const)(
+      'should return the processor name as the node label of the %s configuration without ID',
+      (configuration) => {
+        const routeConfigurationEntity = new CamelRouteConfigurationVisualEntity({
+          routeConfiguration: { [configuration]: [{ [configuration]: {} }] },
+        });
+
+        const result = routeConfigurationEntity.getNodeLabel(
+          `routeConfiguration.${configuration}.0.${configuration}`,
+          NodeLabelType.Description,
+          { primaryNodeId: { name: configuration, catalogKind: CatalogKind.Entity } },
+        );
+
+        expect(result).toBe(configuration);
+      },
+    );
   });
 
   describe('getNodeInteraction', () => {
@@ -492,6 +596,53 @@ describe('AbstractCamelVisualEntity', () => {
     });
   });
 
+  describe('pasteStep next to a special child step', () => {
+    const WHEN_CLIPBOARD_CONTENT = {
+      name: 'when',
+      definition: { id: 'when-pasted', expression: { simple: { expression: '${header.myChoice} == 2' } }, steps: [] },
+    };
+
+    it.each([
+      [AddStepMode.AppendStep, 'after', ['when-1', 'when-pasted']],
+      [AddStepMode.PrependStep, 'before', ['when-pasted', 'when-1']],
+    ])('should insert the pasted when clause in %s mode %s the selected one', (mode, _position, expectedIds) => {
+      const choice = abstractVisualEntity.entityDef.route.from.steps[1].choice!;
+      choice.when![0].id = 'when-1';
+
+      abstractVisualEntity.pasteStep({
+        clipboardContent: WHEN_CLIPBOARD_CONTENT,
+        mode,
+        data: createMockNodeData({
+          name: 'when',
+          path: 'route.from.steps.1.choice.when.0',
+          primaryNodeId: { name: 'when', catalogKind: CatalogKind.Pattern },
+        }),
+      });
+
+      expect(choice.when!.map((when) => when.id)).toEqual(expectedIds);
+    });
+  });
+
+  describe('canDragNode and canDropOnNode', () => {
+    it.each([
+      { path: undefined, expected: false },
+      { path: 'route', expected: false },
+      { path: 'route.from', expected: false },
+      { path: 'route.from.steps.0.setHeader', expected: true },
+      { path: 'route.from.steps.1.choice.when.0', expected: true },
+    ])('should return $expected for the path $path', ({ path, expected }) => {
+      expect(abstractVisualEntity.canDragNode(path)).toBe(expected);
+      expect(abstractVisualEntity.canDropOnNode(path)).toBe(expected);
+    });
+
+    it('should not allow to drag or drop on the from node of a Kamelet', () => {
+      const kameletEntity = new KameletVisualEntity(cloneDeep(kameletJson));
+
+      expect(kameletEntity.canDragNode('template.route.from')).toBe(false);
+      expect(kameletEntity.canDropOnNode('template.route.from')).toBe(false);
+    });
+  });
+
   describe('getCopiedContent', () => {
     it('should return the copied content for a step', () => {
       const copiedContent = abstractVisualEntity.getCopiedContent('route.from.steps.2.to', {
@@ -659,6 +810,17 @@ describe('AbstractCamelVisualEntity', () => {
 
       // The result must not be the same object reference as the catalog entry
       expect(result?.properties?.parameters).not.toBe(kameletEntry!.spec.definition);
+    });
+
+    it('should return the kamelet component parameters when the Kamelet is not in the catalog', async () => {
+      const result = await abstractVisualEntity.fetchNodeSchema({
+        primaryNodeId: { name: 'to', catalogKind: CatalogKind.Pattern },
+        secondaryNodeId: { name: 'kamelet', catalogKind: CatalogKind.Component },
+        tertiaryNodeId: { name: 'not-existing-kamelet', catalogKind: CatalogKind.Kamelet },
+      });
+
+      expect(result?.properties?.parameters?.['x-component-name']).toBe('kamelet');
+      expect(result?.properties?.parameters?.['x-kamelet-name']).toBeUndefined();
     });
 
     it('should return undefined when the primaryNodeId entry has no propertiesSchema', async () => {
