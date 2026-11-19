@@ -60,7 +60,7 @@ export class EditorTabs extends AbstractElement {
 	 * tab has fully loaded.
 	 */
 	static async waitForDesignTab(driver: WebDriver, timeout = 5_000): Promise<void> {
-		await driver.wait(until.elementLocated(By.xpath(kaotoLocators.KaotoEditor.topology)), timeout, 'Design canvas was not loaded properly!');
+		await driver.wait(until.elementLocated(By.xpath(kaotoLocators.KaotoEditor.topologyNode)), timeout, 'Design canvas was not loaded properly!');
 	}
 
 	/**

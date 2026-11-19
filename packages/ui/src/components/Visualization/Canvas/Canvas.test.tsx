@@ -5,6 +5,7 @@ import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-
 import userEvent from '@testing-library/user-event';
 import hotkeys from 'hotkeys-js';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
@@ -152,6 +153,33 @@ describe('Canvas', () => {
 
     /* Escape on the canvas itself moves the focus to the canvas root */
     expect(button).toHaveFocus();
+  });
+
+  it('leaves Escape key from portaled elements to them', async () => {
+    const { Provider } = await TestProvidersWrapper();
+    const controller = ControllerService.createController();
+    const { container } = render(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas {...getCanvasPropsFromVizNodes([], 0)}>
+            {createPortal(<button>Portaled menu item</button>, document.body)}
+          </Canvas>
+        </VisualizationProvider>
+      </Provider>,
+    );
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+    const portaledButton = screen.getByRole('button', { name: 'Portaled menu item' });
+    expect(container.querySelector('#canvas-main')).not.toContainElement(portaledButton);
+
+    portaledButton.focus();
+    fireEvent.keyDown(portaledButton, { key: 'Escape' });
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(portaledButton).toHaveFocus();
   });
 
   it('should move focus to the search input when sidebar opens', async () => {
