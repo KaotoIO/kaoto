@@ -14,6 +14,13 @@ $fields: ':is(.cds--text-input__field-outer-wrapper, .cds--text-area__wrapper, .
       background-color: var(--cs-canvas);
     }
 
+    // The icon tiles of the steps and of the group headers take the fill of the fields
+    /* stylelint-disable-next-line selector-class-pattern -- class name of @kaoto/kaoto */
+    .custom-node__container__image,
+    .custom-group img {
+      background-color: var(--cs-field);
+    }
+
     // The side bar keeps its width and lets the canvas show through; the form is a floating card inside it.
     // PatternFly's drawer panel under it would paint its own background.
     .pf-v6-c-drawer__panel,
@@ -51,7 +58,7 @@ $fields: ':is(.cds--text-input__field-outer-wrapper, .cds--text-area__wrapper, .
     .form-header img {
       padding: $spacing-02;
       border-radius: kaoto.$card-radius;
-      background-color: var(--cs-on-accent);
+      background-color: var(--cs-field);
     }
 
     .canvas-header-close {
@@ -75,12 +82,24 @@ $fields: ':is(.cds--text-input__field-outer-wrapper, .cds--text-area__wrapper, .
       border: 1px solid;
       border-color: var(--cs-tint-strong);
       border-radius: kaoto.$card-radius;
-      background-color: var(--cs-field);
+      background-color: var(--cs-surface);
     }
 
     // The edit-in-place field (e.g. Uri) has square corners in Carbon's v12 look
     .canvas-sidebar .c4p--edit-in-place {
       border-radius: kaoto.$control-radius;
+    }
+  }
+
+  @include kaoto.kaoto-theme-dark {
+    .canvas-sidebar #{$fields} {
+      @include kaoto.light-field-zone;
+    }
+
+    // On the "Add step" placeholder only the plus takes the fill of the fields; its tile stays dark
+    /* stylelint-disable-next-line selector-class-pattern -- class name of @kaoto/kaoto */
+    .placeholder-node__container__image svg {
+      fill: var(--cs-field);
     }
   }
 }
