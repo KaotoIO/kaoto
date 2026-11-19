@@ -524,4 +524,107 @@ describe('ExpansionPanel', () => {
       expect(mockRegisterLayoutCallback).not.toHaveBeenCalled();
     });
   });
+
+  describe('Generated id', () => {
+    it('should register panels without an id under distinct generated ids', () => {
+      render(
+        <ExpansionContext.Provider
+          value={{
+            register: mockRegister,
+            unregister: mockUnregister,
+            resize: mockResize,
+            setExpanded: mockSetExpanded,
+            queueLayoutChange: mockQueueLayoutChange,
+            registerLayoutCallback: mockRegisterLayoutCallback,
+            unregisterLayoutCallback: mockUnregisterLayoutCallback,
+          }}
+        >
+          <ExpansionPanel summary="Panel 1">Content 1</ExpansionPanel>
+          <ExpansionPanel summary="Panel 2">Content 2</ExpansionPanel>
+        </ExpansionContext.Provider>,
+      );
+
+      const [firstId, secondId] = mockRegister.mock.calls.map(([id]) => id);
+      expect(firstId).toEqual(expect.any(String));
+      expect(secondId).toEqual(expect.any(String));
+      expect(firstId).not.toBe(secondId);
+    });
+  });
+
+  describe('Layout change reporting', () => {
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    const lastQueuedLayoutChange = (): (() => void) => mockQueueLayoutChange.mock.calls.at(-1)?.[0];
+
+    it('should report the panel id from the layout change queued on mount', () => {
+      const onLayoutChange = vi.fn();
+      renderPanel({ id: 'test-panel', onLayoutChange });
+
+      lastQueuedLayoutChange()();
+
+      expect(onLayoutChange).toHaveBeenCalledExactlyOnceWith('test-panel');
+    });
+
+    it('should report the panel id from the layout change queued on toggle', () => {
+      const onLayoutChange = vi.fn();
+      renderPanel({ id: 'test-panel', onLayoutChange });
+
+      fireEvent.click(screen.getByText('Test Summary'));
+      lastQueuedLayoutChange()();
+
+      expect(onLayoutChange).toHaveBeenCalledExactlyOnceWith('test-panel');
+    });
+
+    it('should report the panel id from the layout change queued on unmount', () => {
+      const onLayoutChange = vi.fn();
+      const { unmount } = renderPanel({ id: 'test-panel', onLayoutChange });
+
+      unmount();
+      lastQueuedLayoutChange()();
+
+      expect(onLayoutChange).toHaveBeenCalledExactlyOnceWith('test-panel');
+    });
+
+    it('should report the panel id from the registered layout callback', () => {
+      const onLayoutChange = vi.fn();
+      renderPanel({ id: 'test-panel', onLayoutChange });
+      const [, layoutCallback] = mockRegisterLayoutCallback.mock.calls[0];
+
+      layoutCallback();
+
+      expect(onLayoutChange).toHaveBeenCalledExactlyOnceWith('test-panel');
+    });
+
+    it('should report the layout on every animation frame while the panel is resized', () => {
+      // The global test setup runs animation frames as microtasks, so the frame loop of a drag would never yield.
+      // Collect the frames instead and run them one by one.
+      const frames: FrameRequestCallback[] = [];
+      vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => frames.push(callback));
+      vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {
+        frames.length = 0;
+      });
+      const runNextFrame = () => {
+        frames.splice(0).forEach((callback) => {
+          callback(performance.now());
+        });
+      };
+      const onLayoutChange = vi.fn();
+      renderPanel({ id: 'test-panel', onLayoutChange, defaultExpanded: true });
+      const resizeHandle = document.querySelector('.expansion-panel__resize-handle') as HTMLElement;
+
+      fireEvent.mouseDown(resizeHandle, { clientY: 100 });
+      runNextFrame();
+      runNextFrame();
+      const callsDuringDrag = onLayoutChange.mock.calls.length;
+      fireEvent.mouseUp(document);
+      runNextFrame();
+
+      expect(callsDuringDrag).toBe(2);
+      // One final report on mouseup, and no more frames after the drag ended
+      expect(onLayoutChange).toHaveBeenCalledTimes(3);
+      expect(onLayoutChange).toHaveBeenCalledWith('test-panel');
+    });
+  });
 });
