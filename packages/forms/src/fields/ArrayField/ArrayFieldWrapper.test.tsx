@@ -58,4 +58,27 @@ describe('ArrayFieldWrapper', () => {
 
     expect(wrapper.queryByTestId('testArray__children')).toBeInTheDocument();
   });
+
+  it.each([
+    ['no value', undefined, 'Default: no default value'],
+    ['null', null, 'Default: no default value'],
+    ['a number', 8080, 'Default: 8080'],
+    ['a boolean', false, 'Default: false'],
+    ['a list', ['a', 'b'], 'Default: ["a","b"]'],
+    ['an object', { mode: 'fast' }, 'Default: {"mode":"fast"}'],
+  ])('shows %s as the default value', async (_, defaultValue, text) => {
+    const wrapper = render(<ArrayFieldWrapper {...defaultProps} defaultValue={defaultValue} />);
+
+    await act(async () => {
+      fireEvent.mouseEnter(wrapper.getByLabelText('More info for Test Array Field field'));
+    });
+
+    expect(wrapper.getByText(text)).toBeInTheDocument();
+  });
+
+  it('marks a required field', () => {
+    const wrapper = render(<ArrayFieldWrapper {...defaultProps} required />);
+
+    expect(wrapper.getByText('Test Array Field').closest('h4')).toHaveTextContent(/^\*\s*Test Array Field$/);
+  });
 });
