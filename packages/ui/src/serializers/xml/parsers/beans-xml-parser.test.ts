@@ -81,4 +81,36 @@ describe('BeanXmlParser', () => {
       'nested.field2': 'nf2_p',
     });
   });
+
+  it('takes the id and class attributes as name and type of the bean', async () => {
+    const bean = await BeansXmlParser.transformBeanFactory(
+      getElementFromXml('<bean id="myBean" class="com.example.MyBean"/>'),
+    );
+
+    expect(bean).toMatchObject({ name: 'myBean', type: 'com.example.MyBean' });
+    expect(bean.constructors).toBeUndefined();
+    expect(bean.properties).toBeUndefined();
+  });
+
+  it('reads properties given by name and reference and skips those without a value', () => {
+    const result = BeansXmlParser.parseBeanProperties(
+      getElementFromXml(`<bean><properties>
+          <property name="dataSource" ref="myDataSource"/>
+          <property key="empty"/>
+        </properties></bean>`),
+    );
+
+    expect(result).toEqual({ dataSource: 'myDataSource' });
+  });
+
+  it('skips constructor arguments without a value', () => {
+    const result = BeansXmlParser.parseBeanConstructors(
+      getElementFromXml(`<bean><constructors>
+          <constructor index="0"/>
+          <constructor index="1" value="Hello"/>
+        </constructors></bean>`),
+    );
+
+    expect(result).toEqual({ '1': 'Hello' });
+  });
 });
