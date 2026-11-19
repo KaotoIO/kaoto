@@ -2,6 +2,7 @@ import type { Get, Rest, RouteDefinition } from '@kaoto/camel-catalog/types';
 import { expect } from 'chai';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { parse } from 'yaml';
 import { OpenApiImportService, OpenApiParseError, OpenApiValidationError } from '../../services/OpenApiImportService';
 
 suite('OpenApiImportService', function () {
@@ -361,6 +362,93 @@ paths: {}
 
 			const hasRest = result.some((item) => 'get' in item || 'post' in item);
 			expect(hasRest).to.equal(false);
+		});
+	});
+
+	suite('listOperations', function () {
+		test('lists the method, path and operation id of every operation', function () {
+			const operations = service.listOperations(createSpecWithMultipleOperations());
+
+			expect(operations.map(({ method, path, operationId }) => `${method} ${path} ${operationId}`)).to.have.members([
+				'get /users getUsers',
+				'post /users createUser',
+				'get /posts getPosts',
+			]);
+		});
+
+		test('rejects an empty specification', function () {
+			expect(() => service.listOperations('  ')).to.throw(OpenApiValidationError, 'cannot be empty');
+		});
+
+		test('rejects a specification that is not OpenAPI', function () {
+			expect(() => service.listOperations('swagger: "2.0"\npaths: {}\n')).to.throw();
+		});
+	});
+
+	suite('filterSpecByOperations', function () {
+		const select = (spec: string, ...operationIds: string[]) =>
+			service.listOperations(spec).filter(({ operationId }) => operationIds.includes(operationId));
+
+		test('keeps only the selected operations and drops the paths left without one', function () {
+			const spec = createSpecWithMultipleOperations();
+
+			const filtered = parse(service.filterSpecByOperations(spec, select(spec, 'getUsers'))) as { paths: Record<string, object> };
+
+			expect(Object.keys(filtered.paths)).to.deep.equal(['/users']);
+			expect(Object.keys(filtered.paths['/users'])).to.deep.equal(['get']);
+		});
+
+		test('keeps what a path has besides its operations', function () {
+			const spec = `
+openapi: "3.0.0"
+info:
+  title: Test API
+  version: 1.0.0
+paths:
+  /users/{id}:
+    summary: A single user
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      operationId: getUser
+      responses:
+        '200':
+          description: Success
+    delete:
+      operationId: deleteUser
+      responses:
+        '204':
+          description: Deleted
+`;
+
+			const filtered = parse(service.filterSpecByOperations(spec, select(spec, 'getUser'))) as {
+				paths: Record<string, Record<string, unknown>>;
+			};
+
+			const pathItem = filtered.paths['/users/{id}'];
+			expect(Object.keys(pathItem)).to.have.members(['summary', 'parameters', 'get']);
+			expect(pathItem.summary).to.equal('A single user');
+		});
+	});
+
+	suite('generateCamelYaml', function () {
+		test('writes the rest definition before one route per operation', async function () {
+			const yaml = await service.generateCamelYaml(createSpecWithMultipleOperations(), { shouldGenerateRest: true, shouldGenerateRoutes: true });
+
+			const entries = parse(yaml) as Record<string, unknown>[];
+			expect(entries.map((entry) => Object.keys(entry)[0])).to.deep.equal(['rest', 'route', 'route', 'route']);
+		});
+
+		test('writes only routes by default', async function () {
+			const yaml = await service.generateCamelYaml(createMinimalValidSpec());
+
+			const entries = parse(yaml) as Record<string, unknown>[];
+			expect(entries.length).to.be.greaterThan(0);
+			expect(entries.every((entry) => 'route' in entry)).to.equal(true);
 		});
 	});
 });
