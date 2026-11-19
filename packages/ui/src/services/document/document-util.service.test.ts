@@ -23,6 +23,7 @@ import { VisualizationUtilService } from '../visualization/visualization-util.se
 import { DocumentUtilService } from './document-util.service';
 import { XmlSchemaField, XmlSchemaTypeFragment } from './xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema/xml-schema-document.service';
+import { XmlSchemaDocumentUtilService } from './xml-schema/xml-schema-document-util.service';
 import { XmlSchemaTypesService } from './xml-schema/xml-schema-types.service';
 
 describe('DocumentUtilService', () => {
@@ -1837,7 +1838,10 @@ describe('DocumentUtilService', () => {
       });
 
       // Verify the fragment exists and has fields
-      const fragmentKey = `{${NS}}DetailedAddressType`;
+      const fragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'LazyLoadingTestExtensions.xsd',
+        new QName(NS, 'DetailedAddressType'),
+      );
       const fragment = doc.namedTypeFragments[fragmentKey];
       expect(fragment).toBeDefined();
       expect(fragment.fields.length).toBeGreaterThan(0);

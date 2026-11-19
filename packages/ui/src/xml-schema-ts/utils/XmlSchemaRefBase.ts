@@ -9,6 +9,10 @@ export abstract class XmlSchemaRefBase {
 
   protected abstract forgetTargetObject(): void;
 
+  clearTarget(): void {
+    this.forgetTargetObject();
+  }
+
   setNamedObject(named: XmlSchemaNamed) {
     this.namedTwin = named;
   }

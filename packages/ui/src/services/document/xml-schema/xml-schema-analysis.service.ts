@@ -2,13 +2,15 @@ import { ReportMessage, SchemaAnalysisReport } from '../../../models/datamapper/
 import { PathUtil } from '../../path-util';
 import { stronglyConnectedComponents } from './graph-util';
 
-interface SchemaDirective {
-  type: 'include' | 'import';
+export type SchemaDirectiveType = 'include' | 'import' | 'redefine' | 'override';
+
+export interface SchemaDirective {
+  type: SchemaDirectiveType;
   schemaLocation: string;
   namespace: string | null;
 }
 
-interface SchemaFileInfo {
+export interface SchemaFileInfo {
   filePath: string;
   targetNamespace: string | null;
   directives: SchemaDirective[];
@@ -107,6 +109,19 @@ export class XmlSchemaAnalysisService {
     return successors;
   }
 
+  private static parseDirective(child: Element): SchemaDirective | null {
+    const localName = child.localName;
+    if (localName !== 'include' && localName !== 'import' && localName !== 'redefine' && localName !== 'override') {
+      return null;
+    }
+    const schemaLocation = child.getAttribute('schemaLocation');
+    if (!schemaLocation) return null;
+
+    const namespace =
+      localName === 'import' || localName === 'override' ? child.getAttribute('namespace') || null : null;
+    return { type: localName, schemaLocation, namespace };
+  }
+
   private static parseSchemaFileInfo(
     filePath: string,
     content: string,
@@ -130,18 +145,9 @@ export class XmlSchemaAnalysisService {
       targetNamespace = root.getAttribute('targetNamespace') || null;
 
       for (const child of Array.from(root.children)) {
-        const localName = child.localName;
-        if (localName === 'include') {
-          const schemaLocation = child.getAttribute('schemaLocation');
-          if (schemaLocation) {
-            directives.push({ type: 'include', schemaLocation, namespace: null });
-          }
-        } else if (localName === 'import') {
-          const schemaLocation = child.getAttribute('schemaLocation');
-          if (schemaLocation) {
-            const ns = child.getAttribute('namespace') || null;
-            directives.push({ type: 'import', schemaLocation, namespace: ns });
-          }
+        const directive = XmlSchemaAnalysisService.parseDirective(child);
+        if (directive) {
+          directives.push(directive);
         }
       }
     } catch (e: unknown) {

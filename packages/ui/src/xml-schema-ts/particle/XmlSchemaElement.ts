@@ -142,6 +142,10 @@ export class XmlSchemaElement
     return this.ref;
   }
 
+  clearRefCache(): void {
+    this.ref.clearTarget();
+  }
+
   getSchemaType() {
     return this.schemaType;
   }

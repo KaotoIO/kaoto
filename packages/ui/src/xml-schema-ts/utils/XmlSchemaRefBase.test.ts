@@ -186,6 +186,14 @@ describe('XmlSchemaRefBase', () => {
       refBase.setTargetQName(new QName('http://test.example.com', 'elem2'));
       expect(refBase.getTargetObject()).toBeNull();
     });
+
+    it('should clear target object when clearTarget() is explicitly called', () => {
+      refBase.setTargetObject('cachedObject');
+      expect(refBase.getTargetObject()).toBe('cachedObject');
+
+      refBase.clearTarget();
+      expect(refBase.getTargetObject()).toBeNull();
+    });
   });
 
   describe('complex scenarios', () => {

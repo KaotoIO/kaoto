@@ -10,6 +10,8 @@ import { IChoiceSelection, IFieldSubstitution, IFieldTypeOverride } from '../../
 import { FieldOverrideVariant, IFieldSubstituteInfo, Types } from '../../models/datamapper/types';
 import { QName } from '../../xml-schema-ts/QName';
 import { SchemaPathService } from '../schema-path.service';
+import { XmlSchemaDocument } from './xml-schema/xml-schema-document.model';
+import { XmlSchemaDocumentUtilService } from './xml-schema/xml-schema-document-util.service';
 
 export type ParseTypeOverrideFn = (
   typeString: string,
@@ -80,7 +82,7 @@ export class DocumentUtilService {
     const doc = DocumentUtilService.getOwnerDocument(field);
     const unresolvedRefs: string[] = [];
     for (const ref of field.namedTypeFragmentRefs) {
-      const fragment = doc.namedTypeFragments[ref];
+      const fragment = DocumentUtilService.findNamedTypeFragment(doc, ref);
       if (!fragment) {
         unresolvedRefs.push(ref);
         continue;
@@ -97,6 +99,23 @@ export class DocumentUtilService {
       field.originalField.namedTypeFragmentRefs = unresolvedRefs;
     }
     return field;
+  }
+
+  private static findNamedTypeFragment(doc: IDocument, ref: string): ITypeFragment | undefined {
+    if (doc.namedTypeFragments[ref]) {
+      return doc.namedTypeFragments[ref];
+    }
+    const matchingKey = Object.keys(doc.namedTypeFragments).find((k) => k.endsWith(`#${ref}`));
+    return matchingKey ? doc.namedTypeFragments[matchingKey] : undefined;
+  }
+
+  private static resolveFragmentKeyForOverride(doc: IDocument, typeQName: QName): string {
+    if (doc && 'xmlSchemaCollection' in doc && (doc as XmlSchemaDocument).xmlSchemaCollection) {
+      const xmlDoc = doc as XmlSchemaDocument;
+      const schemaType = XmlSchemaDocumentUtilService.lookupSchemaType(xmlDoc.xmlSchemaCollection, typeQName);
+      return XmlSchemaDocumentUtilService.buildTypeFragmentKey(schemaType?.getParent()?.getSourceURI(), typeQName);
+    }
+    return typeQName.toString();
   }
 
   static captureOriginalFieldState(field: IField): IOriginalFieldState {
@@ -449,7 +468,8 @@ export class DocumentUtilService {
     field.fields = [];
 
     if (type === Types.Container) {
-      field.namedTypeFragmentRefs = [typeQName.toString()];
+      const doc = DocumentUtilService.getOwnerDocument(field);
+      field.namedTypeFragmentRefs = [DocumentUtilService.resolveFragmentKeyForOverride(doc, typeQName)];
       // Eagerly resolve type fragment so children are immediately available
       DocumentUtilService.resolveTypeFragment(field);
     } else {

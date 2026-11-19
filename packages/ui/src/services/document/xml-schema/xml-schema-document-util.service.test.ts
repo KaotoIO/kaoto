@@ -1379,7 +1379,8 @@ describe('XmlSchemaDocumentUtilService', () => {
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
 
       expect(result.validationStatus).toBe('success');
-      expect(result.document!.namedTypeFragments['T'].fields.map((f) => f.name)).toEqual(['fromTypes']);
+      const key = XmlSchemaDocumentUtilService.buildTypeFragmentKey('Types.xsd', new QName('', 'T'));
+      expect(result.document!.namedTypeFragments[key].fields.map((f) => f.name)).toEqual(['fromTypes']);
     });
 
     it('should still populate a named type that is declared only in a schema outside the entry assembly', () => {
@@ -1407,8 +1408,9 @@ describe('XmlSchemaDocumentUtilService', () => {
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
 
       expect(result.validationStatus).toBe('success');
-      expect(result.document!.namedTypeFragments['Detached'].fields.map((f) => f.name)).toEqual(['leaf']);
-      expect(result.document!.fields[0].fields[0].namedTypeFragmentRefs).toContain('Detached');
+      const detachedKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey('Detached.xsd', new QName('', 'Detached'));
+      expect(result.document!.namedTypeFragments[detachedKey].fields.map((f) => f.name)).toEqual(['leaf']);
+      expect(result.document!.fields[0].fields[0].namedTypeFragmentRefs).toContain(detachedKey);
     });
 
     it('should keep a saved root choice resolvable after attaching a schema that includes its entry schema', () => {
@@ -1467,7 +1469,8 @@ describe('XmlSchemaDocumentUtilService', () => {
 
       expect(result.validationStatus).toBe('success');
       expect(result.documentDefinition!.entrySchemaFile).toBe('B.xsd');
-      expect(result.document!.namedTypeFragments['T'].fields.map((f) => f.name)).toEqual(['fromB']);
+      const keyB = XmlSchemaDocumentUtilService.buildTypeFragmentKey('B.xsd', new QName('', 'T'));
+      expect(result.document!.namedTypeFragments[keyB].fields.map((f) => f.name)).toEqual(['fromB']);
     });
 
     it('should visit each schema once per scoped lookup in a diamond-shaped include graph', () => {
@@ -1711,6 +1714,51 @@ describe('XmlSchemaDocumentUtilService', () => {
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('warning');
       expect(result.documentDefinition?.entrySchemaFile).toBe('CircularIncludeA.xsd');
+    });
+  });
+
+  describe('buildTypeFragmentKey()', () => {
+    it('should build scoped key with sourceURI and QName', () => {
+      const qname = new QName('http://example.com', 'AddressType');
+      const key = XmlSchemaDocumentUtilService.buildTypeFragmentKey('schemas/base.xsd', qname);
+      expect(key).toBe('schemas/base.xsd#{http://example.com}AddressType');
+    });
+
+    it('should build canonical QName string when sourceURI is null or empty', () => {
+      const qname = new QName('http://example.com', 'AddressType');
+      expect(XmlSchemaDocumentUtilService.buildTypeFragmentKey(null, qname)).toBe('{http://example.com}AddressType');
+      expect(XmlSchemaDocumentUtilService.buildTypeFragmentKey('', qname)).toBe('{http://example.com}AddressType');
+      expect(XmlSchemaDocumentUtilService.buildTypeFragmentKey(undefined, qname)).toBe(
+        '{http://example.com}AddressType',
+      );
+    });
+  });
+
+  describe('lookupSchemaElement() and lookupSchemaGroup()', () => {
+    it('should return null when element or group QName is null', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      expect(XmlSchemaDocumentUtilService.lookupSchemaElement(doc.xmlSchemaCollection, null)).toBeNull();
+      expect(XmlSchemaDocumentUtilService.lookupSchemaGroup(doc.xmlSchemaCollection, null)).toBeNull();
+    });
+
+    it('should lookup schema element by QName', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const firstEl = XmlSchemaDocumentUtilService.getFirstElement(doc.xmlSchemaCollection);
+      const qname = firstEl?.getQName();
+      expect(qname).toBeDefined();
+
+      const found = XmlSchemaDocumentUtilService.lookupSchemaElement(doc.xmlSchemaCollection, qname!);
+      expect(found).toBeDefined();
+      expect(found?.getQName()?.toString()).toBe(qname?.toString());
+    });
+
+    it('should return null when element is not found', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const notFound = XmlSchemaDocumentUtilService.lookupSchemaElement(
+        doc.xmlSchemaCollection,
+        new QName('http://nonexistent', 'NonExistent'),
+      );
+      expect(notFound).toBeNull();
     });
   });
 });
