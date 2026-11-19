@@ -17,7 +17,13 @@
     {
       "description": "Match npmPreapprovedPackages in .yarnrc.yml, which Yarn exempts from the age gate",
       "matchDatasources": ["npm"],
-      "matchPackageNames": ["@kaoto/camel-catalog", "@kaoto/forms"],
+      "matchPackageNames": [
+        "@kaoto/camel-catalog",
+        "@kaoto/forms",
+        "@redhat-developer/locators",
+        "@redhat-developer/page-objects",
+        "vscode-extension-tester"
+      ],
       "minimumReleaseAge": null
     }
   ]
