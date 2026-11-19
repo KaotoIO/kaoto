@@ -404,13 +404,7 @@ export class JsonSchemaDocumentService {
   ): JsonSchemaField {
     if (typeof schemaDef === 'boolean' || Object.keys(schemaDef).length === 0) {
       // boolean or empty schema means it inherits from the composition, deferring to enrich it with composition
-      const existing = parent.fields.find((f) => f.key === fieldKey && f.type === Types.AnyType);
-      if (existing) return existing;
-
-      const field = new JsonSchemaField(parent, fieldKey, Types.AnyType);
-      parent.fields.push(field);
-      this.jsonDocument.totalFieldCount++;
-      return field;
+      return this.findOrCreateField(parent, fieldKey, Types.AnyType);
     }
 
     return this.populateFieldFromSchema(parent, fieldKey, {

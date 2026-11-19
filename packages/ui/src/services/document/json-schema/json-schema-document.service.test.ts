@@ -753,6 +753,25 @@ describe('JsonSchemaDocumentService', () => {
     expect(xField!.type).toBe(Types.Container);
   });
 
+  it.each([
+    ['a boolean schema', true],
+    ['an empty schema', {}],
+  ])('should not duplicate a typed property redeclared as %s in a composition', (_desc, redeclared) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        a: { type: 'string' },
+      },
+      allOf: [{ properties: { a: redeclared } }],
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const aFields = doc.fields[0].fields.filter((f) => f.key === 'a');
+    expect(aFields).toHaveLength(1);
+    expect(aFields[0].type).toBe(Types.String);
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,
