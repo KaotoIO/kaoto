@@ -1,6 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
+import { parse } from 'yaml';
 
 import { DynamicCatalog } from '../../../dynamic-catalog/dynamic-catalog';
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog/dynamic-catalog-registry';
@@ -373,6 +374,46 @@ describe('CitrusTestVisualEntity', () => {
       expect(camelJbangGroup['camelVersion']).toBe('4.0');
       expect((camelGroup['jbang'] as Record<string, unknown>)['run']).not.toHaveProperty('camelVersion');
     });
+
+    it.each([
+      [
+        'a branch container',
+        { iterate: { condition: 'i < 5', actions: [{ http: { sendRequest: { client: 'fooClient' } } }] } },
+        { iterate: { condition: 'i < 5', actions: [{ http: { client: 'fooClient', sendRequest: {} } }] } },
+      ],
+      [
+        'a single-node container',
+        { waitFor: { action: { http: { sendRequest: { client: 'fooClient' } } } } },
+        { waitFor: { action: { http: { client: 'fooClient', sendRequest: {} } } } },
+      ],
+    ])('should normalise group properties of actions nested in %s', async (_description, action, expected) => {
+      const entity = new CitrusTestVisualEntity({ name: 'test-1234', actions: [action as TestActions] });
+
+      const snapshot = await entity.normaliseForSerialisation();
+
+      expect(snapshot.actions).toEqual([expected]);
+    });
+
+    it.each([
+      ['a container without nested actions', { iterate: { condition: 'i < 5' } }],
+      ['an action unknown to the catalog', { myCustomAction: { message: 'hello' } }],
+      ['a group property preceding the grouped action', { http: { client: 'fooClient', sendRequest: {} } }],
+    ])('should keep %s unchanged', async (_description, action) => {
+      const entity = new CitrusTestVisualEntity({ name: 'test-1234', actions: [cloneDeep(action) as TestActions] });
+
+      const snapshot = await entity.normaliseForSerialisation();
+
+      expect(snapshot.actions).toEqual([action]);
+    });
+
+    it('should keep a test whose YAML actions key is empty unchanged', async () => {
+      const test = parse('name: test-1234\nactions:') as Test;
+      const entity = new CitrusTestVisualEntity(test);
+
+      const snapshot = await entity.normaliseForSerialisation();
+
+      expect(snapshot).toEqual({ name: 'test-1234', actions: null });
+    });
   });
 
   describe('updateModel', () => {
@@ -511,6 +552,35 @@ describe('CitrusTestVisualEntity', () => {
 
       expect(entity.test.actions).toHaveLength(1);
       expect(entity.test.actions[0].delay).toBeDefined();
+    });
+
+    it.each([
+      [AddStepMode.PrependStep, ['print', 'echo', 'delay'], 'actions.1'],
+      [AddStepMode.AppendStep, ['print', 'delay', 'echo'], 'actions.2'],
+      [AddStepMode.ReplaceStep, ['print', 'echo'], 'actions.1'],
+    ])('should apply %s relative to the selected action node', (mode, expectedActions, expectedPath) => {
+      const entity = new CitrusTestVisualEntity({
+        name: 'test-1234',
+        actions: [{ print: { message: 'Hello World!' } }, { delay: { milliseconds: 5000 } }],
+      });
+
+      const newPath = entity.addStep({
+        definedComponent: { name: 'echo', type: CatalogKind.TestAction, definition: undefined },
+        mode,
+        data: {
+          name: 'delay',
+          path: 'actions.1.delay',
+          isPlaceholder: false,
+          isGroup: false,
+          title: '',
+          description: '',
+          iconUrl: '',
+          processorIconTooltip: '',
+        },
+      });
+
+      expect(entity.test.actions.map((action) => Object.keys(action)[0])).toEqual(expectedActions);
+      expect(newPath).toBe(expectedPath);
     });
 
     it('should replace a placeholder step', () => {
@@ -662,6 +732,12 @@ describe('CitrusTestVisualEntity', () => {
     it('should return undefined if the path is undefined', () => {
       const copiedContent = citrusTestEntity.getCopiedContent();
       expect(copiedContent).toBeUndefined();
+    });
+
+    it('should return the whole test as copied content for the root path', () => {
+      const copiedContent = citrusTestEntity.getCopiedContent(CitrusTestVisualEntity.ROOT_PATH, rootTestIds);
+
+      expect(copiedContent).toEqual({ name: CITRUS_TEST_ROOT_ENTITY_NAME, definition: citrusTestJson });
     });
 
     it('should return the copied content for a step', () => {
