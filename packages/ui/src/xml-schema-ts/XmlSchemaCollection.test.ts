@@ -21,12 +21,17 @@ import { XmlSchemaComplexType } from './complex/XmlSchemaComplexType';
 import { XmlSchemaKey } from './constraint/XmlSchemaKey';
 import { XmlSchemaKeyref } from './constraint/XmlSchemaKeyref';
 import { XmlSchemaUnique } from './constraint/XmlSchemaUnique';
+import { ExtensionRegistry } from './extensions/ExtensionRegistry';
+import { XmlSchemaImport } from './external/XmlSchemaImport';
 import { XmlSchemaElement } from './particle/XmlSchemaElement';
 import { XmlSchemaGroupRef } from './particle/XmlSchemaGroupRef';
 import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 import { QName } from './QName';
+import { DefaultURIResolver } from './resolver/DefaultURIResolver';
+import { SchemaKey } from './SchemaKey';
 import { XmlSchemaSimpleType } from './simple/XmlSchemaSimpleType';
 import { XmlSchemaSimpleTypeRestriction } from './simple/XmlSchemaSimpleTypeRestriction';
+import { NodeNamespaceContext } from './utils/NodeNamespaceContext';
 import { XmlSchemaCollection } from './XmlSchemaCollection';
 import { XmlSchemaGroup } from './XmlSchemaGroup';
 import { XmlSchemaUse } from './XmlSchemaUse';
@@ -574,6 +579,157 @@ describe('XmlSchemaCollection', () => {
       expect(roleAttr).toBeTruthy();
       expect(roleAttr.getUnhandledAttributes()).not.toBeNull();
       expect(roleAttr.getUnhandledAttributes()!.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Lookups across the collection', () => {
+    const NS = 'urn:lookup';
+    const readLookupSchema = () => {
+      const collection = new XmlSchemaCollection();
+      collection.read(
+        `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${NS}">
+          <xs:attribute name="Component" type="xs:string"/>
+          <xs:element name="Component" type="xs:string"/>
+          <xs:attributeGroup name="Component"/>
+          <xs:group name="Component"><xs:sequence/></xs:group>
+          <xs:notation name="Component" public="image/png"/>
+        </xs:schema>`,
+        () => {},
+      );
+      return collection;
+    };
+
+    type Lookup = (collection: XmlSchemaCollection, name: QName | null) => { getName(): string | null } | null;
+    const lookups: [string, Lookup][] = [
+      ['getAttributeByQName', (collection, name) => collection.getAttributeByQName(name)],
+      ['getElementByQName', (collection, name) => collection.getElementByQName(name)],
+      ['getAttributeGroupByQName', (collection, name) => collection.getAttributeGroupByQName(name)],
+      ['getGroupByQName', (collection, name) => collection.getGroupByQName(name)],
+      ['getNotationByQName', (collection, name) => collection.getNotationByQName(name)],
+    ];
+
+    it.each(lookups)('%s finds a component declared in one of the schemas', (_, lookup) => {
+      const collection = readLookupSchema();
+
+      const component = lookup(collection, new QName(NS, 'Component'));
+
+      expect(component?.getName()).toBe('Component');
+    });
+
+    it.each(lookups)('%s returns null for a name no schema declares', (_, lookup) => {
+      const collection = readLookupSchema();
+
+      expect(lookup(collection, new QName(NS, 'Missing'))).toBeNull();
+    });
+
+    it.each(lookups)('%s returns null without a name', (_, lookup) => {
+      const collection = readLookupSchema();
+
+      expect(lookup(collection, null)).toBeNull();
+    });
+
+    it('finds the schema of a namespace', () => {
+      const collection = new XmlSchemaCollection();
+      const schema = collection.read(
+        `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${NS}"/>`,
+        () => {},
+      );
+
+      expect(collection.schemaForNamespace(NS)).toBe(schema);
+      expect(collection.schemaForNamespace('urn:missing')).toBeNull();
+    });
+  });
+
+  describe('Schema resolver', () => {
+    it('resolves an include with the schema resolver it is given', () => {
+      const collection = new XmlSchemaCollection();
+      const resolver = new DefaultURIResolver({
+        'types.xsd':
+          '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:simpleType name="Code"><xs:restriction base="xs:string"/></xs:simpleType></xs:schema>',
+      });
+
+      collection.setSchemaResolver(resolver);
+      const schema = collection.read(
+        '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:main"><xs:include schemaLocation="types.xsd"/></xs:schema>',
+        () => {},
+        'main.xsd',
+      );
+
+      expect(collection.getSchemaResolver()).toBe(resolver);
+      expect(schema.getTypeByQName(new QName('urn:main', 'Code'))).not.toBeNull();
+    });
+  });
+
+  describe('Known namespace map', () => {
+    it('resolves an import without a schema location through the known namespaces', () => {
+      const known = new XmlSchemaCollection().read(
+        '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:known"/>',
+        () => {},
+      );
+      const collection = new XmlSchemaCollection();
+      collection.setKnownNamespaceMap({ 'urn:known': known });
+
+      const schema = collection.read(
+        '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:main"><xs:import namespace="urn:known"/></xs:schema>',
+        () => {},
+      );
+
+      expect((schema.getExternals()[0] as XmlSchemaImport).schema).toBe(known);
+      expect(collection.getKnownNamespaceMap()).toEqual({ 'urn:known': known });
+    });
+
+    it('knows no schema without a namespace', () => {
+      expect(new XmlSchemaCollection().getKnownSchema(null)).toBeNull();
+    });
+  });
+
+  describe('Extension registry', () => {
+    it('reads the extension attributes of a schema with the extension registry it is given', () => {
+      const deserialized: string[] = [];
+      const registry = new ExtensionRegistry();
+      registry.setDefaultExtensionDeserializer({ deserialize: (_, name) => deserialized.push(name.toString()) });
+      const collection = new XmlSchemaCollection();
+
+      collection.setExtReg(registry);
+      collection.read(
+        '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ext="urn:ext"><xs:element name="a" type="xs:string" ext:note="x"/></xs:schema>',
+        () => {},
+      );
+
+      expect(collection.getExtReg()).toBe(registry);
+      expect(deserialized).toContain(new QName('urn:ext', 'note').toString());
+    });
+  });
+
+  describe('Namespace context', () => {
+    it('resolves a prefix the schema does not declare through the namespace context of the collection', () => {
+      const declaring = new DOMParser().parseFromString('<root xmlns:ext="urn:ext"/>', 'text/xml').documentElement;
+      const context = NodeNamespaceContext.getNamespaceContext(declaring);
+      const collection = new XmlSchemaCollection();
+
+      collection.setNamespaceContext(context);
+      const schema = collection.read(
+        '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="a" type="ext:Type"/></xs:schema>',
+        () => {},
+      );
+
+      expect(collection.getNamespaceContext()).toBe(context);
+      expect(schema.getElementByName('a')?.getSchemaTypeName()?.toString()).toBe('{urn:ext}Type');
+    });
+  });
+
+  describe('addSchema', () => {
+    it('rejects a second schema with the same namespace and system id', () => {
+      const collection = new XmlSchemaCollection();
+      const schema = collection.read(
+        '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:main"/>',
+        () => {},
+        'main.xsd',
+      );
+
+      expect(() => {
+        collection.addSchema(new SchemaKey('urn:main', 'main.xsd'), schema);
+      }).toThrow('A schema with target namespace urn:main and system ID main.xsd is already present.');
     });
   });
 });
