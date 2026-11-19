@@ -75,25 +75,31 @@ describe('cookies', () => {
 
   describe('getThemeFromCookies', () => {
     it('should return the defaults when there are no cookies', () => {
-      expect(getThemeFromCookies()).toEqual({ themeSetting: 'system', headerInverse: false });
+      expect(getThemeFromCookies()).toEqual({ themeSetting: 'system', headerInverse: false, themeStyle: 'kaoto' });
     });
 
     it('should read the values from document.cookie', () => {
       document.cookie = 'theme-setting=dark';
       document.cookie = 'header-inverse=true';
+      document.cookie = 'theme-style=carbon';
 
-      expect(getThemeFromCookies()).toEqual({ themeSetting: 'dark', headerInverse: true });
+      expect(getThemeFromCookies()).toEqual({ themeSetting: 'dark', headerInverse: true, themeStyle: 'carbon' });
     });
 
     it('should read the values from the provided cookie string', () => {
-      expect(getThemeFromCookies('theme-setting=light; header-inverse=true')).toEqual({
+      expect(getThemeFromCookies('theme-setting=light; header-inverse=true; theme-style=carbon')).toEqual({
         themeSetting: 'light',
         headerInverse: true,
+        themeStyle: 'carbon',
       });
     });
 
     it('should fall back to "system" for an invalid theme setting', () => {
       expect(getThemeFromCookies('theme-setting=purple').themeSetting).toBe('system');
+    });
+
+    it('should fall back to "kaoto" for an invalid theme style', () => {
+      expect(getThemeFromCookies('theme-style=purple').themeStyle).toBe('kaoto');
     });
 
     it('should treat any header-inverse value other than "true" as false', () => {
@@ -102,10 +108,10 @@ describe('cookies', () => {
   });
 
   describe('setThemeInCookies', () => {
-    it('should set both values', () => {
-      setThemeInCookies({ themeSetting: 'dark', headerInverse: true });
+    it('should set all values', () => {
+      setThemeInCookies({ themeSetting: 'dark', headerInverse: true, themeStyle: 'carbon' });
 
-      expect(getThemeFromCookies()).toEqual({ themeSetting: 'dark', headerInverse: true });
+      expect(getThemeFromCookies()).toEqual({ themeSetting: 'dark', headerInverse: true, themeStyle: 'carbon' });
     });
 
     it('should support updating only the theme setting', () => {
@@ -120,6 +126,13 @@ describe('cookies', () => {
 
       expect(getCookie('theme-setting')).toBeNull();
       expect(getCookie('header-inverse')).toBe('false');
+    });
+
+    it('should support updating only the theme style', () => {
+      setThemeInCookies({ themeStyle: 'carbon' });
+
+      expect(getCookie('theme-style')).toBe('carbon');
+      expect(getCookie('theme-setting')).toBeNull();
     });
 
     it('should not set an invalid theme setting', () => {

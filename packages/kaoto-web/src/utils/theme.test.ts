@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { getThemeSettings, initializeTheme, setHeaderInverse, setThemeSetting } from './theme';
+import { getThemeSettings, initializeTheme, setHeaderInverse, setThemeSetting, setThemeStyle } from './theme';
 
 const clearState = () => {
   for (const cookie of document.cookie.split(';')) {
@@ -9,6 +9,7 @@ const clearState = () => {
   }
   delete document.documentElement.dataset.themeSetting;
   delete document.documentElement.dataset.headerInverse;
+  delete document.documentElement.dataset.themeStyle;
   document.documentElement.classList.remove('pf-v6-theme-dark');
 };
 
@@ -47,14 +48,15 @@ describe('theme', () => {
 
   describe('getThemeSettings', () => {
     it('should return the defaults when there are no cookies', () => {
-      expect(getThemeSettings()).toEqual({ themeSetting: 'system', headerInverse: false });
+      expect(getThemeSettings()).toEqual({ themeSetting: 'system', headerInverse: false, themeStyle: 'kaoto' });
     });
 
     it('should return the values stored in the cookies', () => {
       document.cookie = 'theme-setting=dark';
       document.cookie = 'header-inverse=true';
+      document.cookie = 'theme-style=carbon';
 
-      expect(getThemeSettings()).toEqual({ themeSetting: 'dark', headerInverse: true });
+      expect(getThemeSettings()).toEqual({ themeSetting: 'dark', headerInverse: true, themeStyle: 'carbon' });
     });
   });
 
@@ -76,15 +78,26 @@ describe('theme', () => {
     });
   });
 
+  describe('setThemeStyle', () => {
+    it('should store the cookie and update the html attribute', () => {
+      setThemeStyle('carbon');
+
+      expect(document.documentElement.dataset.themeStyle).toBe('carbon');
+      expect(getThemeSettings().themeStyle).toBe('carbon');
+    });
+  });
+
   describe('initializeTheme', () => {
     it('should set the html attributes from the cookies when they are missing', () => {
       document.cookie = 'theme-setting=light';
       document.cookie = 'header-inverse=true';
+      document.cookie = 'theme-style=carbon';
 
       initializeTheme();
 
       expect(document.documentElement.dataset.themeSetting).toBe('light');
       expect(document.documentElement.dataset.headerInverse).toBe('true');
+      expect(document.documentElement.dataset.themeStyle).toBe('carbon');
     });
 
     it('should use the defaults when there are no cookies', () => {
@@ -92,6 +105,7 @@ describe('theme', () => {
 
       expect(document.documentElement.dataset.themeSetting).toBe('system');
       expect(document.documentElement.dataset.headerInverse).toBe('false');
+      expect(document.documentElement.dataset.themeStyle).toBe('kaoto');
     });
 
     it('should not warn when the attributes match the cookies', () => {
