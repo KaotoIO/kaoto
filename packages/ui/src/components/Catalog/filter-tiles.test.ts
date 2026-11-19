@@ -119,4 +119,33 @@ describe('filterTiles', () => {
     const result = filterTiles(tiles, options);
     expect(result).toEqual([tilesMap.cron]);
   });
+
+  it('ranks a tile whose name contains the search term above a tile that only matches by description', () => {
+    const nameMatch: ITile = {
+      name: 'jsonpath',
+      title: 'JSON Evaluator',
+      description: 'Evaluate an expression.',
+      tags: [],
+      type: CatalogKind.Component,
+      iconUrl: 'test-icon-url',
+    };
+    const descriptionMatch: ITile = {
+      name: 'log',
+      title: 'Log',
+      description: 'Log the message path.',
+      tags: [],
+      type: CatalogKind.Component,
+      iconUrl: 'test-icon-url',
+    };
+
+    const result = filterTiles([descriptionMatch, nameMatch], { searchTerm: 'path' });
+
+    expect(result).toEqual([nameMatch, descriptionMatch]);
+  });
+
+  it('returns all tiles when no options are given', () => {
+    const result = filterTiles(tiles);
+
+    expect(result).toEqual(tiles);
+  });
 });
