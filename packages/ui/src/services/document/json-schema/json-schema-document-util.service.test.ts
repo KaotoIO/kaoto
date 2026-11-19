@@ -1,3 +1,5 @@
+import { JSONSchema7 } from 'json-schema';
+
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../models/datamapper';
 import { NS_XPATH_FUNCTIONS } from '../../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant, Types } from '../../../models/datamapper/types';
@@ -55,6 +57,19 @@ describe('JsonSchemaDocumentUtilService', () => {
       parent.fields.push(child1);
 
       const result = JsonSchemaDocumentUtilService.getChildField(parent, Types.Integer, 'child1', NS_XPATH_FUNCTIONS);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined when no namespace is given, as JSON fields belong to the fn namespace', () => {
+      const doc = new JsonSchemaDocument(
+        new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.JSON_SCHEMA, 'test-doc'),
+      );
+      const parent = new JsonSchemaField(doc, 'parent', Types.Container);
+      const child1 = new JsonSchemaField(doc, 'child1', Types.String);
+      parent.fields.push(child1);
+
+      const result = JsonSchemaDocumentUtilService.getChildField(parent, Types.String, 'child1', '');
 
       expect(result).toBeUndefined();
     });
@@ -231,6 +246,27 @@ describe('JsonSchemaDocumentUtilService', () => {
 
     it('should return "map" for AnyType (default)', () => {
       expect(JsonSchemaDocumentUtilService.toXsltTypeName(Types.AnyType)).toBe('map');
+    });
+  });
+
+  describe('electFieldTypeFromSchema()', () => {
+    it.each<[string, JSONSchema7, Types]>([
+      ['items without a type', { items: { type: 'string' } }, Types.Array],
+      ['properties without a type', { properties: { name: { type: 'string' } } }, Types.Container],
+      ['neither type, items nor properties', {}, Types.AnyType],
+      ['array before object', { type: ['object', 'array'] }, Types.Array],
+      ['object before string', { type: ['string', 'object'] }, Types.Container],
+      ['string before integer', { type: ['integer', 'string'] }, Types.String],
+      ['integer before number', { type: ['number', 'integer'] }, Types.Integer],
+      ['number before boolean', { type: ['boolean', 'number'] }, Types.Numeric],
+      ['boolean alongside null', { type: ['null', 'boolean'] }, Types.Boolean],
+      ['null only', { type: 'null' }, Types.AnyType],
+    ])('should elect the field type for %s', (_description, schema, expected) => {
+      const metadata: JsonSchemaMetadata = { ...schema, identifier: 'test-schema', filePath: 'test.json', path: '#' };
+
+      const result = JsonSchemaDocumentUtilService.electFieldTypeFromSchema(metadata);
+
+      expect(result).toBe(expected);
     });
   });
 
@@ -489,6 +525,21 @@ describe('JsonSchemaDocumentUtilService', () => {
       expect(result).toBeNull();
     });
 
+    it('should throw for a reference to a folder instead of matching any loaded schema', () => {
+      const schema: JsonSchemaMetadata = {
+        type: 'object',
+        identifier: 'test-schema',
+        filePath: 'test.json',
+        path: '#',
+      };
+      const collection = new JsonSchemaCollection();
+      collection.addJsonSchema(schema);
+
+      expect(() => {
+        JsonSchemaDocumentUtilService.createJsonSchemaReference('types/#/definitions/Type', schema, collection);
+      }).toThrow(/Cannot resolve external schema reference/);
+    });
+
     it('should handle ref without fragment', () => {
       const schema1: JsonSchemaMetadata = {
         type: 'object',
@@ -681,6 +732,60 @@ describe('JsonSchemaDocumentUtilService', () => {
       expect(definition2).toBeDefined();
       expect(definition2).toEqual({ type: 'number' });
     });
+
+    it('should resolve a fragment that has no leading slash', () => {
+      const schema: JsonSchemaMetadata = {
+        type: 'object',
+        identifier: 'test-schema',
+        filePath: 'test.json',
+        path: '#',
+        definitions: { Address: { type: 'object' } },
+      };
+      const collection = new JsonSchemaCollection();
+      collection.addJsonSchema(schema);
+      const ref = JsonSchemaDocumentUtilService.createJsonSchemaReference('#definitions/Address', schema, collection);
+
+      const definition = JsonSchemaDocumentUtilService.resolveJsonSchemaReference(ref!);
+
+      expect(definition).toEqual({ type: 'object' });
+    });
+
+    it.each(['#/definitions//Address', '#/definitions/Address/'])('should skip empty segments in %s', (refString) => {
+      const schema: JsonSchemaMetadata = {
+        type: 'object',
+        identifier: 'test-schema',
+        filePath: 'test.json',
+        path: '#',
+        definitions: { Address: { type: 'object' } },
+      };
+      const collection = new JsonSchemaCollection();
+      collection.addJsonSchema(schema);
+      const ref = JsonSchemaDocumentUtilService.createJsonSchemaReference(refString, schema, collection);
+
+      const definition = JsonSchemaDocumentUtilService.resolveJsonSchemaReference(ref!);
+
+      expect(definition).toEqual({ type: 'object' });
+    });
+
+    it.each(['#/definitions/Missing/properties/street', '#/definitions/Address/type/length'])(
+      'should return undefined when %s continues below a missing or primitive value',
+      (refString) => {
+        const schema: JsonSchemaMetadata = {
+          type: 'object',
+          identifier: 'test-schema',
+          filePath: 'test.json',
+          path: '#',
+          definitions: { Address: { type: 'object' } },
+        };
+        const collection = new JsonSchemaCollection();
+        collection.addJsonSchema(schema);
+        const ref = JsonSchemaDocumentUtilService.createJsonSchemaReference(refString, schema, collection);
+
+        const definition = JsonSchemaDocumentUtilService.resolveJsonSchemaReference(ref!);
+
+        expect(definition).toBeUndefined();
+      },
+    );
 
     it('should resolve external reference', () => {
       const schema1: JsonSchemaMetadata = {
