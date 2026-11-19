@@ -8,6 +8,8 @@ import { FieldOverrideVariant } from '../../../models/datamapper/types';
 import {
   getAccountJsonSchema,
   getCamelYamlDslJsonSchema,
+  getCircularAJsonSchema,
+  getCircularBJsonSchema,
   getCommonTypesJsonSchema,
   getCustomerJsonSchema,
   getMainWithRefJsonSchema,
@@ -1052,6 +1054,21 @@ describe('JsonSchemaDocumentService', () => {
 
       expect(amount).toBeDefined();
       expect(amount!.type).toBe(Types.Numeric);
+    });
+
+    it('should create the document for circular references across files', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'circular', {
+        'CircularA.schema.json': getCircularAJsonSchema(),
+        'CircularB.schema.json': getCircularBJsonSchema(),
+      });
+
+      const bField = doc.fields[0].fields.find((f) => f.key === 'b')!;
+      DocumentUtilService.resolveTypeFragment(bField);
+      const aField = bField.fields.find((f) => f.key === 'a')!;
+      DocumentUtilService.resolveTypeFragment(aField);
+      expect(bField.type).toBe(Types.Container);
+      expect(aField.type).toBe(Types.Container);
+      expect(aField.fields.find((f) => f.key === 'b')).toBeDefined();
     });
 
     it('should use first schema as document schema', () => {

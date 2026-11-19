@@ -278,10 +278,11 @@ export class JsonSchemaDocumentService {
       path: fullRef,
     };
 
-    this.jsonDocument.namedTypeFragments[fullRef] = this.doCreateFragmentFromJSONSchema(
-      this.jsonDocument,
-      defSchemaMeta,
-    );
+    // register the fragment before building it, so that a circular reference back to it finds the key and stays a
+    // lazy reference
+    const fragment: JsonSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: [] };
+    this.jsonDocument.namedTypeFragments[fullRef] = fragment;
+    Object.assign(fragment, this.doCreateFragmentFromJSONSchema(this.jsonDocument, defSchemaMeta));
   }
 
   /**
