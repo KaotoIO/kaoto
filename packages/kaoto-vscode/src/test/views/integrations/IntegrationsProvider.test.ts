@@ -114,6 +114,7 @@ suite('IntegrationsProvider', () => {
 	const originalCommands = { executeCommand: vscode.commands.executeCommand };
 	const originalWorkspaceFolders = Object.getOwnPropertyDescriptor(vscode.workspace, 'workspaceFolders')!;
 	const originalOnDidChangeConfiguration = Object.getOwnPropertyDescriptor(vscode.workspace, 'onDidChangeConfiguration')!;
+	const originalFs = Object.getOwnPropertyDescriptor(vscode.workspace, 'fs')!;
 	const onDidChangeConfiguration = vscode.workspace.onDidChangeConfiguration;
 	const providers: IntegrationsProvider[] = [];
 
@@ -197,6 +198,7 @@ suite('IntegrationsProvider', () => {
 		Object.assign(vscode.commands, originalCommands);
 		Object.defineProperty(vscode.workspace, 'workspaceFolders', originalWorkspaceFolders);
 		Object.defineProperty(vscode.workspace, 'onDidChangeConfiguration', originalOnDidChangeConfiguration);
+		Object.defineProperty(vscode.workspace, 'fs', originalFs);
 	});
 
 	test('lists the folders first, then the files, by name', async () => {
@@ -411,6 +413,70 @@ suite('IntegrationsProvider', () => {
 			(await provider.getChildren()).map((child) => child.label),
 			['maven-app', 'standalone'],
 		);
+	});
+
+	test('shares one file search between the requests made while it runs', async () => {
+		const provider = createProvider();
+
+		await Promise.all([provider.getChildren(), provider.getChildren(), provider.getChildren()]);
+
+		assert.lengthOf(findFilesCalls, 1);
+	});
+
+	test('reads the files again after a refresh that comes during a file search', async () => {
+		let finishFirstSearch = () => {};
+		vscode.workspace.findFiles = async (include: vscode.GlobPattern, exclude?: vscode.GlobPattern | null) => {
+			findFilesCalls.push({ include, exclude });
+			if (findFilesCalls.length > 1) {
+				return files;
+			}
+			// The first search lists the workspace before a-route.camel.yaml is created
+			const filesBefore = files.filter((file) => path.basename(file.fsPath) !== 'a-route.camel.yaml');
+			await new Promise<void>((resolve) => (finishFirstSearch = () => resolve()));
+			return filesBefore;
+		};
+		const provider = createProvider();
+
+		const firstRequest = provider.getChildren();
+		provider.refresh();
+		finishFirstSearch();
+		await firstRequest;
+
+		assert.include(
+			(await provider.getChildren()).map((child) => child.label),
+			'a-route.camel.yaml',
+		);
+		assert.lengthOf(findFilesCalls, 2);
+	});
+
+	test('checks for a pom.xml again after a refresh that comes during the check', async () => {
+		const mavenAppPom = folderPath('app', 'maven-app/pom.xml');
+		const realFs = vscode.workspace.fs;
+		let pomChecks = 0;
+		let firstCheckStarted = () => {};
+		const firstCheck = new Promise<void>((resolve) => (firstCheckStarted = () => resolve()));
+		let finishFirstCheck = () => {};
+		const stat = async (uri: vscode.Uri) => {
+			if (uri.fsPath === mavenAppPom && ++pomChecks === 1) {
+				// The first check runs before the pom.xml of maven-app is created
+				firstCheckStarted();
+				await new Promise<void>((resolve) => (finishFirstCheck = () => resolve()));
+				throw vscode.FileSystemError.FileNotFound(uri);
+			}
+			return realFs.stat(uri);
+		};
+		Object.defineProperty(vscode.workspace, 'fs', { value: { ...realFs, stat }, configurable: true });
+		const provider = createProvider();
+
+		const firstRequest = provider.getChildren();
+		await firstCheck;
+		provider.refresh();
+		finishFirstCheck();
+		await firstRequest;
+		const mavenApp = (await provider.getChildren()).find((child) => child.label === 'maven-app');
+
+		assert.strictEqual(mavenApp?.contextValue, 'folder-maven-root');
+		assert.strictEqual(pomChecks, 2);
 	});
 
 	test('follows a change of the files setting', async function () {
