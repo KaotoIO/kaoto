@@ -12,6 +12,15 @@ $control-radius: 4px;
   }
 }
 
+/// The fill of the Carbon fields inside the element. The fields keep Carbon's own painting (fill and border are
+/// gradients), only their fill tokens change.
+@mixin field-fill {
+  --cds-field: var(--cs-field);
+  --cds-field-01: var(--cs-field);
+  --cds-field-02: var(--cs-field);
+  --cds-field-03: var(--cs-field);
+}
+
 /// Ghost icon buttons on the accent colour: white icons, translucent white for the states
 @mixin on-accent-ghost-button {
   .cds--btn--ghost {

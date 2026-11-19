@@ -4,6 +4,9 @@
 @use '@carbon/react/scss/spacing' as *;
 @use 'kaoto-theme' as kaoto;
 
+// The wrappers of the Carbon fields in the form
+$fields: ':is(.cds--text-input__field-outer-wrapper, .cds--text-area__wrapper, .cds--number__input-wrapper, .cds--list-box__wrapper, .cds--search, .c4p--edit-in-place)';
+
 .cs--integration-shell {
   @include kaoto.kaoto-theme {
     // The canvas
@@ -25,11 +28,11 @@
       border-color: var(--cs-tint-strong);
       border-radius: kaoto.$card-radius;
       background-color: var(--cs-tint);
+    }
 
-      // The fields keep Carbon's own painting (fill and border are gradients) and only change their fill
-      --cds-field-01: var(--cs-field);
-      --cds-field-02: var(--cs-field);
-      --cds-field-03: var(--cs-field);
+    // Only the fields change their fill; other parts of the form use the field tokens too (e.g. the notifications)
+    .canvas-sidebar #{$fields} {
+      @include kaoto.field-fill;
     }
 
     .canvas-form__header {
