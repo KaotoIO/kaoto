@@ -65,16 +65,16 @@ describe('CatalogFilter', () => {
     });
 
     it.each([
-      [[], ['database'], '2 more'],
-      [['database'], ['Clear', 'database'], '2 more'],
-    ])('with the filter tags %j shows %j before the overflow label', (filterTags, visibleLabels, overflowLabel) => {
+      [[], ['database']],
+      [['database'], ['Clear', 'database']],
+    ])('with the filter tags %j shows %j before the overflow label', (filterTags, visibleLabels) => {
       renderFilter({ filterTags, tagsOverflowIndex: 1 });
 
       visibleLabels.forEach((label) => {
         expect(screen.getByText(label)).toBeInTheDocument();
       });
       expect(screen.queryByText('cloud')).not.toBeInTheDocument();
-      expect(screen.getByText(overflowLabel)).toBeInTheDocument();
+      expect(screen.getByText('2 more')).toBeInTheDocument();
     });
   });
 

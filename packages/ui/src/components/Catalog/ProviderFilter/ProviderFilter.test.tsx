@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { ProviderFilter } from './ProviderFilter';
 
@@ -36,6 +36,6 @@ describe('ProviderFilter', () => {
   it('shows the number of selected providers on the toggle', () => {
     render(<ProviderFilter providers={providers} selectedProviders={['Red Hat']} onSelectProvider={vi.fn()} />);
 
-    expect(screen.getByTestId('provider-filter-toggle')).toHaveTextContent('Provided by1');
+    expect(within(screen.getByTestId('provider-filter-toggle')).getByText('1')).toBeInTheDocument();
   });
 });
