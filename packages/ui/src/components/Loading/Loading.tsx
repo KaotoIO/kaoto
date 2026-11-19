@@ -26,9 +26,9 @@ export const Loading: FunctionComponent<PropsWithChildren<LoadingProps>> = ({
     <div className={fullPage ? 'loading loading--full-page' : 'loading'}>
       <CarbonLoading description={description} withOverlay={false} />
       {children ? (
-        <p className="loading__message" data-testid={dataTestId}>
+        <div className="loading__message" data-testid={dataTestId}>
           {children}
-        </p>
+        </div>
       ) : null}
     </div>
   );

@@ -11,6 +11,8 @@
   min-block-size: 200px;
 
   &__message {
+    @include type-style('body-02');
+
     margin: 0;
   }
 

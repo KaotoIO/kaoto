@@ -23,6 +23,18 @@ describe('Loading', () => {
     expect(getByText('Loading content')).toBeInTheDocument();
   });
 
+  it('should not nest block content inside a paragraph', () => {
+    const { getByRole } = render(
+      <Loading>
+        <h3>Loading entities...</h3>
+      </Loading>,
+    );
+
+    const heading = getByRole('heading', { level: 3, name: 'Loading entities...' });
+
+    expect(heading.closest('p')).toBeNull();
+  });
+
   it('should render the Carbon loading CSS class', () => {
     const { container } = render(<Loading />);
 
