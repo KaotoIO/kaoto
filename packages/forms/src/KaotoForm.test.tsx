@@ -1,5 +1,5 @@
 import { act, createEvent, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useRef, useState } from 'react';
+import { createRef, useRef, useState } from 'react';
 
 import { KaotoForm, KaotoFormApi, KaotoFormProps } from './KaotoForm';
 import { CanvasFormTabsContext } from './providers/canvas-form-tabs.provider';
@@ -98,6 +98,31 @@ describe('KaotoForm', () => {
     fireEvent.click(validateButton);
 
     expect(wrapper.asFragment()).toMatchSnapshot();
+  });
+
+  it('shows a model that changed from outside without reporting it as a change', () => {
+    const onChangeMock = vi.fn();
+    const { rerender } = render(<KaotoForm {...defaultProps} model={{ name: 'Alice' }} onChange={onChangeMock} />);
+
+    rerender(<KaotoForm {...defaultProps} model={{ name: 'Bob' }} onChange={onChangeMock} />);
+
+    expect(screen.getByRole('textbox', { name: /Name/ })).toHaveValue('Bob');
+    expect(onChangeMock).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['no errors for a valid model', { name: 'Alice' }, null],
+    ['the errors of an invalid model', {}, { '#.name': ["must have required property 'name'"] }],
+  ])('validates to %s', (_, model, expected) => {
+    const formRef = createRef<KaotoFormApi>();
+    render(<KaotoForm {...defaultProps} model={model} ref={formRef} />);
+
+    let errors: Record<string, string[]> | null | undefined;
+    act(() => {
+      errors = formRef.current?.validate();
+    });
+
+    expect(errors).toEqual(expected);
   });
 
   describe('toolbar options', () => {
