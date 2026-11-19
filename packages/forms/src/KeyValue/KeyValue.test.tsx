@@ -118,4 +118,45 @@ describe('KeyValue', () => {
     // onChange called once for the add action, not a second time for the echo
     expect(onChangeMock).toHaveBeenCalledTimes(1);
   });
+
+  describe('focus', () => {
+    it('focuses the key of a newly added pair', () => {
+      render(<KeyValue propName={propName} initialModel={initialModel} onChange={vi.fn()} />);
+
+      fireEvent.click(screen.getByTestId(`${propName}__add`));
+
+      const keys = screen.getAllByTestId(`${propName}__key`);
+      expect(keys).toHaveLength(3);
+      expect(keys[2]).toHaveFocus();
+    });
+
+    it.each([
+      ['key', 'key1', 'newKey1'],
+      ['value', 'value1', 'newValue1'],
+    ])('keeps the focus in the %s being typed when the list updates', (_, current, typed) => {
+      render(<KeyValue propName={propName} initialModel={initialModel} onChange={vi.fn()} />);
+      const input = screen.getByDisplayValue(current);
+      fireEvent.focus(input);
+      const focus = vi.spyOn(input, 'focus');
+
+      fireEvent.change(input, { target: { value: typed } });
+
+      expect(focus).toHaveBeenCalled();
+    });
+
+    it.each([
+      ['key', 'key1', 'newKey1'],
+      ['value', 'value1', 'newValue1'],
+    ])('does not take the focus back to a %s that was left', (_, current, typed) => {
+      render(<KeyValue propName={propName} initialModel={initialModel} onChange={vi.fn()} />);
+      const input = screen.getByDisplayValue(current);
+      fireEvent.focus(input);
+      fireEvent.blur(input);
+      const focus = vi.spyOn(input, 'focus');
+
+      fireEvent.change(input, { target: { value: typed } });
+
+      expect(focus).not.toHaveBeenCalled();
+    });
+  });
 });
