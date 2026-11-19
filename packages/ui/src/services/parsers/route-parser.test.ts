@@ -246,4 +246,99 @@ describe('RouteParser', () => {
       expect(parsed.data[0][5]).toBe('');
     });
   });
+
+  describe('tables built from a definition', () => {
+    it('lists the route parameters and the description of a step', async () => {
+      const resource = CamelResourceFactory.createCamelResource(`
+- route:
+    id: route-1
+    autoStartup: false
+    from:
+      id: from-1
+      uri: timer:tick
+      steps:
+        - to:
+            id: to-1
+            uri: log:out
+            description: Log it
+`);
+      await resource.initialize();
+
+      const parsed = RouteParser.parseRouteEntity(resource.getVisualEntities()[0] as CamelRouteVisualEntity);
+
+      expect(parsed.data).toEqual([
+        ['', '', '', 'autoStartup', 'false'],
+        ['from-1', 'from', 'timer:tick', '', ''],
+        ['to-1', 'to', 'log:out', 'description', 'Log it'],
+      ]);
+    });
+
+    describe('parseRouteConfigurationEntity()', () => {
+      const parse = (routeConfiguration: Record<string, unknown>) =>
+        RouteParser.parseRouteConfigurationEntity(
+          new CamelRouteConfigurationVisualEntity({ routeConfiguration } as ConstructorParameters<
+            typeof CamelRouteConfigurationVisualEntity
+          >[0]),
+        );
+
+      it('shows the precondition', () => {
+        expect(parse({ id: 'rc-1', precondition: '{{feature.enabled}}' })[0].data).toEqual([
+          ['Precondition', '{{feature.enabled}}'],
+        ]);
+      });
+
+      it('leaves out sections without content', () => {
+        const parsed = parse({
+          id: 'rc-1',
+          errorHandler: {},
+          intercept: [{}],
+          interceptFrom: [],
+          interceptSendToEndpoint: [{}],
+          onCompletion: [],
+          onException: [{}],
+        });
+
+        expect(parsed.map((table) => table.title)).toEqual(['rc-1']);
+      });
+
+      it('lists an interceptFrom given as URI', () => {
+        const parsed = parse({ id: 'rc-1', interceptFrom: [{ interceptFrom: 'kamelet:*' }] });
+
+        expect(parsed[1].title).toBe('Intercept From');
+        expect(parsed[1].data).toEqual([['', '', '', '', 'uri', 'kamelet:*']]);
+      });
+
+      it('names the section on its first parameter and then lists its steps', () => {
+        const parsed = parse({
+          id: 'rc-1',
+          interceptSendToEndpoint: [
+            {
+              interceptSendToEndpoint: {
+                id: 'intercept-1',
+                uri: 'mock:*',
+                skipSendToOriginalEndpoint: true,
+                steps: [{ log: { id: 'log-1', message: 'x', loggingLevel: 'WARN' } }],
+              },
+            },
+          ],
+        });
+
+        expect(parsed[1].data).toEqual([
+          ['intercept-1', '', '', '', 'uri', 'mock:*'],
+          ['', '', '', '', 'skipSendToOriginalEndpoint', 'true'],
+          ['', 'log-1', 'log', '', 'message', 'x'],
+          ['', '', '', '', 'loggingLevel', 'WARN'],
+        ]);
+      });
+
+      it('names a section without parameters on its first step', () => {
+        const parsed = parse({
+          id: 'rc-1',
+          onCompletion: [{ onCompletion: { id: 'completion-1', steps: [{ log: { id: 'log-2', message: 'done' } }] } }],
+        });
+
+        expect(parsed[1].data).toEqual([['completion-1', 'log-2', 'log', '', 'message', 'done']]);
+      });
+    });
+  });
 });
