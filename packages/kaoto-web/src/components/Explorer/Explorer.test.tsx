@@ -835,7 +835,10 @@ describe('Explorer', () => {
       await waitFor(async () => {
         expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
       });
-      expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
+      // The field closes once the store resolves, shortly after the path is stored
+      await waitFor(() => {
+        expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
+      });
       expect(screen.getByRole('searchbox')).toHaveFocus();
     });
 
