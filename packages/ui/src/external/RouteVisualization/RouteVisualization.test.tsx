@@ -1,7 +1,7 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { useSuggestionRegistry } from '@kaoto/forms';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
 import type { Mock } from 'vitest';
 
@@ -90,6 +90,42 @@ describe('RouteVisualization', () => {
     }
 
     expect(document.querySelector('.canvas-surface')).toBeInTheDocument();
+  });
+
+  it('shows the broken-file state while the code does not parse, without writing to it, and the canvas again once it does', async () => {
+    const codeChange = vi.fn();
+    const renderWithCode = (code: string) => (
+      <RouteVisualization
+        catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+        runtimeCatalogName=""
+        testingCatalogName=""
+        code={code}
+        codeChange={codeChange}
+      />
+    );
+    const { rerender } = render(renderWithCode(camelRouteYaml));
+    for (let i = 0; i < 5 && !document.querySelector('.canvas-surface'); i++) {
+      await act(async () => {
+        fetchResolve();
+      });
+    }
+    const graph = document.querySelector('[data-kind="graph"]');
+    expect(graph).toBeInTheDocument();
+    codeChange.mockClear();
+
+    rerender(renderWithCode('- route:\n    from:\n      uri: timer:tick\n     steps: [\n'));
+
+    expect(await screen.findByTestId('broken-file-empty-state')).toBeInTheDocument();
+    expect(screen.getByTestId('broken-file-parse-error')).toHaveTextContent('line 4');
+    expect(codeChange).not.toHaveBeenCalled();
+
+    rerender(renderWithCode(camelRouteYaml));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('broken-file-empty-state')).not.toBeInTheDocument();
+    });
+    /* The canvas stayed mounted throughout */
+    expect(document.querySelector('[data-kind="graph"]')).toBe(graph);
   });
 
   /** Renders the component with DesignerVisualization replaced by `probe` and waits until the probe is mounted */

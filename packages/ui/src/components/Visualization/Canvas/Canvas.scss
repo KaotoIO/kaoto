@@ -13,6 +13,19 @@
   pointer-events: none;
 }
 
+// A blocking overlay covers the graph and its control bar, and takes the pointer events itself, so nothing behind it
+// can be reached. The control bar comes later in the DOM, so the overlay has to be raised above it
+.canvas-overlay-blocking {
+  z-index: 1;
+  pointer-events: auto;
+  background-color: color-mix(in srgb, var(--pf-t--global--background--color--primary--default) 70%, transparent);
+}
+
+// Lets `inert` wrap a part of the canvas without changing its layout
+.canvas-blockable {
+  display: contents;
+}
+
 .canvas-empty-state {
   height: 100%;
 

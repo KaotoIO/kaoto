@@ -50,6 +50,11 @@ interface CanvasProps {
   isModelResolving?: boolean;
   contextToolbar?: ReactNode;
   applyCollapseOnUpdate?: boolean;
+  /**
+   * Blocks every interaction with the graph, its control bar and its side panel, while the children stay usable. The
+   * graph stays mounted, so it is back as it was when the block is lifted.
+   */
+  blocked?: boolean;
 }
 
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
@@ -78,6 +83,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   isModelResolving = false,
   contextToolbar,
   applyCollapseOnUpdate = false,
+  blocked = false,
   children,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
@@ -138,7 +144,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
   // While a model resolves, the canvas still shows the previous one, where the selected step's path may name another step
-  useDeleteHotkey(isModelResolving ? undefined : selectedVizNode, clearSelection);
+  useDeleteHotkey(isModelResolving || blocked ? undefined : selectedVizNode, clearSelection);
 
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {
@@ -304,9 +310,19 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       onSideBarResize={setSidebarWidth}
       sideBarResizable
       sideBarOpen={isSidebarOpen}
-      sideBar={isSidebarOpen ? <CanvasSideBar vizNode={selectedVizNode} onClose={clearSelection} /> : null}
+      sideBar={
+        isSidebarOpen ? (
+          <div className="canvas-blockable" inert={blocked || undefined}>
+            <CanvasSideBar vizNode={selectedVizNode} onClose={clearSelection} />
+          </div>
+        ) : null
+      }
       contextToolbar={contextToolbar}
-      controlBar={<TopologyControlBar controlButtons={controlButtons} />}
+      controlBar={
+        <div className="canvas-blockable" inert={blocked || undefined}>
+          <TopologyControlBar controlButtons={controlButtons} />
+        </div>
+      }
       onFocus={handleFocus}
       onClick={handleCanvasClick}
       onKeyDown={handleKeyDown}
@@ -316,10 +332,12 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       <CanvasOverlayContext.Provider
         value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}
       >
-        <VisualizationSurface state={{ selectedIds }} />
+        <div className="canvas-blockable" inert={blocked || undefined}>
+          <VisualizationSurface state={{ selectedIds }} />
+        </div>
       </CanvasOverlayContext.Provider>
       {children && (
-        <div ref={overlayRef} className="canvas-overlay">
+        <div ref={overlayRef} className={clsx('canvas-overlay', { 'canvas-overlay-blocking': blocked })}>
           {children}
         </div>
       )}

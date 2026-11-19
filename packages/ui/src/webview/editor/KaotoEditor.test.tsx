@@ -260,6 +260,42 @@ describe('KaotoEditor', () => {
     editorBridge.dispose();
   });
 
+  it('announces the parse error from outside the inert canvas, and clears it once the source parses', async () => {
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+
+    render(<KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={defaultInit} />);
+    await hostBus.request('host:document:setContent', {
+      reason: 'init',
+      fileUri: 'file:///route.camel.yaml',
+      content: '- route:\n    steps: [ unclosed\n',
+      readonly: false,
+    });
+
+    /* The broken-file state on the canvas is a status as well, but an inert one */
+    const findParseStatus = () => screen.getAllByRole('status').find((status) => status.closest('[inert]') === null);
+    await waitFor(() => {
+      expect(findParseStatus()).toHaveTextContent('This file could not be parsed.');
+    });
+
+    await hostBus.request('host:document:setContent', {
+      reason: 'hostUpdate',
+      fileUri: 'file:///route.camel.yaml',
+      content: '- route:\n    from:\n      uri: timer:tick\n',
+    });
+
+    await waitFor(() => {
+      expect(findParseStatus()).toHaveTextContent('');
+    });
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
+
   it('falls back to window.location.reload when onRetry is not provided', async () => {
     const { host, editor } = createMemoryTransports();
     const hostBus = createEventBus({ role: 'host', onError: vi.fn() });

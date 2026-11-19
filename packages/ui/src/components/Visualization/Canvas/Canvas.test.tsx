@@ -377,24 +377,51 @@ describe('Canvas', () => {
     });
   });
 
-  describe('while the model resolves', () => {
-    const renderWith = async (
-      { Provider, controller }: Pick<Awaited<ReturnType<typeof renderCanvas>>, 'Provider' | 'controller'>,
-      rerender: RenderResult['rerender'],
-      props: Parameters<typeof Canvas>[0],
-    ) => {
-      rerender(
-        <Provider>
-          <VisualizationProvider controller={controller}>
-            <Canvas {...props} />
-          </VisualizationProvider>
-        </Provider>,
-      );
-      await act(async () => {
-        await vi.runAllTimersAsync();
-      });
-    };
+  const renderWith = async (
+    { Provider, controller }: Pick<Awaited<ReturnType<typeof renderCanvas>>, 'Provider' | 'controller'>,
+    rerender: RenderResult['rerender'],
+    props: Parameters<typeof Canvas>[0],
+  ) => {
+    rerender(
+      <Provider>
+        <VisualizationProvider controller={controller}>
+          <Canvas {...props} />
+        </VisualizationProvider>
+      </Provider>,
+    );
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+  };
 
+  /** `hotkeys-js` is mocked globally in vitest-mocks-setup.ts */
+  const pressDelete = async () => {
+    const registrations = vi.mocked(hotkeys).mock.calls.filter(([keys]) => keys === 'Delete, backspace');
+    const handler = registrations[registrations.length - 1][1] as unknown as (event: KeyboardEvent) => void;
+    await act(async () => {
+      handler(new KeyboardEvent('keydown', { key: 'Delete' }));
+      await vi.runAllTimersAsync();
+    });
+  };
+
+  /** Selects the set-header step of the stub route, which opens the side panel, and spies on its removal */
+  const selectStep = async (
+    result: Awaited<ReturnType<typeof renderCanvas>>,
+    canvasProps: ReturnType<typeof getCanvasPropsFromVizNodes>,
+  ) => {
+    const stepId = canvasProps.nodes.find(
+      (node) => node.data?.vizNode?.data.path === 'route.from.steps.0.set-header',
+    )!.id;
+    const selected = result.controller.getNodeById(stepId)!.getData().vizNode as IVisualizationNode;
+    const removeChildSpy = vi.spyOn(selected, 'removeChild').mockImplementation(() => {});
+    act(() => {
+      result.controller.fireEvent(SELECTION_EVENT, [stepId]);
+    });
+    await screen.findByTestId('close-side-bar');
+    return { stepId, removeChildSpy };
+  };
+
+  describe('while the model resolves', () => {
     it('keeps the canvas and its graph in the document and does not redraw', async () => {
       const result = await renderCanvas();
       const canvasProps = getCanvasPropsFromVizNodes([result.vizNode], 1);
@@ -420,27 +447,10 @@ describe('Canvas', () => {
     });
 
     it('turns the Delete hotkey off, because the selected step belongs to the previous model', async () => {
-      /** `hotkeys-js` is mocked globally in vitest-mocks-setup.ts */
-      const pressDelete = async () => {
-        const registrations = vi.mocked(hotkeys).mock.calls.filter(([keys]) => keys === 'Delete, backspace');
-        const handler = registrations[registrations.length - 1][1] as unknown as (event: KeyboardEvent) => void;
-        await act(async () => {
-          handler(new KeyboardEvent('keydown', { key: 'Delete' }));
-          await vi.runAllTimersAsync();
-        });
-      };
       const result = await renderCanvas();
       const canvasProps = getCanvasPropsFromVizNodes([result.vizNode], 1);
       await renderWith(result, result.rerender, canvasProps);
-      const stepId = canvasProps.nodes.find(
-        (node) => node.data?.vizNode?.data.path === 'route.from.steps.0.set-header',
-      )!.id;
-      const selected = result.controller.getNodeById(stepId)!.getData().vizNode as IVisualizationNode;
-      const removeChildSpy = vi.spyOn(selected, 'removeChild').mockImplementation(() => {});
-      act(() => {
-        result.controller.fireEvent(SELECTION_EVENT, [stepId]);
-      });
-      await screen.findByTestId('close-side-bar');
+      const { stepId, removeChildSpy } = await selectStep(result, canvasProps);
 
       await renderWith(result, result.rerender, { ...canvasProps, isModelResolving: true });
       await pressDelete();
@@ -451,6 +461,57 @@ describe('Canvas', () => {
         result.controller.fireEvent(SELECTION_EVENT, [stepId]);
       });
       await screen.findByTestId('close-side-bar');
+      await pressDelete();
+      expect(removeChildSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('while blocked', () => {
+    const isInert = (element: Element | null) => element?.closest('[inert]') !== null;
+
+    it('makes the graph, the buttons of its control bar and its side panel inert, but not its children', async () => {
+      const result = await renderCanvas();
+      const canvasProps = getCanvasPropsFromVizNodes([result.vizNode], 1);
+      await renderWith(result, result.rerender, canvasProps);
+      await selectStep(result, canvasProps);
+      const root = result.container.querySelector('#canvas-main');
+      const graph = result.container.querySelector('[data-kind="graph"]');
+      const controlBarButton = result.container.querySelector('.pf-topology-control-bar button');
+      const fromModelSpy = vi.spyOn(result.controller, 'fromModel');
+
+      await renderWith(result, result.rerender, {
+        ...canvasProps,
+        blocked: true,
+        children: <button>Fix the file</button>,
+      });
+
+      expect(isInert(graph)).toBe(true);
+      expect(isInert(controlBarButton)).toBe(true);
+      expect(isInert(screen.getByTestId('close-side-bar'))).toBe(true);
+      expect(isInert(screen.getByRole('button', { name: 'Fix the file' }))).toBe(false);
+      /* The graph stays as it is underneath */
+      expect(result.container.querySelector('#canvas-main')).toBe(root);
+      expect(result.container.querySelector('[data-kind="graph"]')).toBe(graph);
+      expect(fromModelSpy).not.toHaveBeenCalled();
+
+      await renderWith(result, result.rerender, canvasProps);
+
+      expect(isInert(graph)).toBe(false);
+      expect(isInert(controlBarButton)).toBe(false);
+      expect(isInert(screen.getByTestId('close-side-bar'))).toBe(false);
+    });
+
+    it('turns the Delete hotkey off', async () => {
+      const result = await renderCanvas();
+      const canvasProps = getCanvasPropsFromVizNodes([result.vizNode], 1);
+      await renderWith(result, result.rerender, canvasProps);
+      const { removeChildSpy } = await selectStep(result, canvasProps);
+
+      await renderWith(result, result.rerender, { ...canvasProps, blocked: true });
+      await pressDelete();
+      expect(removeChildSpy).not.toHaveBeenCalled();
+
+      await renderWith(result, result.rerender, canvasProps);
       await pressDelete();
       expect(removeChildSpy).toHaveBeenCalledTimes(1);
     });

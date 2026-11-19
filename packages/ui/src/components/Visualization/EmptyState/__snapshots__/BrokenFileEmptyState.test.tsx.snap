@@ -1,0 +1,109 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BrokenFileEmptyState > renders the parsedError message when provided 1`] = `
+<DocumentFragment>
+  <div
+    class="pf-v6-l-bullseye"
+  >
+    <div
+      class="pf-v6-c-card"
+      data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
+      data-ouia-component-type="PF6/Card"
+      data-ouia-safe="true"
+      id=""
+    >
+      <img
+        alt=""
+        class="empty-state-icon"
+        src="data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='80'%20viewBox='0%200%2080%2080'%20role='img'%20aria-hidden='true'%3e%3ctitle%3ebroken%20file%3c/title%3e%3cdefs%3e%3clinearGradient%20id='a'%20x1='29.96'%20y1='45.68'%20x2='53.15'%20y2='85.84'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%23525252'%20stop-opacity='.05'/%3e%3cstop%20offset='1'%20stop-opacity='.1'/%3e%3c/linearGradient%3e%3clinearGradient%20id='b'%20x1='38.9'%20y1='52.59'%20x2='38.9'%20y2='3.3'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%23c6c6c6'/%3e%3cstop%20offset='.78'%20stop-color='%23e0e0e0'/%3e%3c/linearGradient%3e%3clinearGradient%20id='c'%20x1='18.07'%20y1='14.06'%20x2='71.64'%20y2='44.99'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%23e0e0e0'/%3e%3cstop%20offset='.13'%20stop-color='%23f4f4f4'/%3e%3cstop%20offset='.56'%20stop-color='%23e0e0e0'/%3e%3cstop%20offset='.62'%20stop-color='%23d8d8d8'/%3e%3cstop%20offset='.7'%20stop-color='%23c6c6c6'/%3e%3cstop%20offset='.89'%20stop-color='%23a8a8a8'/%3e%3cstop%20offset='1'%20stop-color='%238d8d8d'/%3e%3c/linearGradient%3e%3clinearGradient%20id='d'%20x1='27.94'%20y1='51.19'%20x2='49.87'%20y2='13.21'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='.54'%20stop-color='%23d0d0d0'%20stop-opacity='0'/%3e%3cstop%20offset='.82'%20stop-color='%23f1f1f1'%20stop-opacity='.7'/%3e%3cstop%20offset='.94'%20stop-color='%23fff'/%3e%3c/linearGradient%3e%3clinearGradient%20id='e'%20x1='28.66'%20y1='26.33'%20x2='47.15'%20y2='37'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%23fff'/%3e%3cstop%20offset='.05'%20stop-color='%23fdfdfd'/%3e%3cstop%20offset='.3'%20stop-color='%23f6f6f6'/%3e%3cstop%20offset='1'%20stop-color='%23f4f4f4'/%3e%3c/linearGradient%3e%3c/defs%3e%3cpath%20d='M0%200h80v80H0z'%20fill='none'/%3e%3c!--%20shadow%20--%3e%3cpath%20opacity='.25'%20d='M59.91%2078.34l-43-24.83%204.86-2.81%2043%2024.83-4.86%202.81z'%20fill='url(%23a)'/%3e%3c!--%20body%20fill%20(gradient)%20--%3e%3cpath%20d='M39%206.92c12.15%207%2022%2024%2021.92%2038S51%2064.49%2038.83%2057.48s-22-24-21.92-38S26.83-.09%2039%206.92z'%20fill='url(%23b)'/%3e%3c!--%20right%20edge%20highlight%20--%3e%3cpath%20d='M42.85%204.68C36.74%201.15%2031.2.82%2027.2%203.15l-3.66%202.13C27.52%203.08%2033%203.45%2039%206.92c12.15%207%2022%2024%2021.92%2038%200%206.77-2.35%2011.58-6.13%2013.94h-.07c-.32.2%203.66-2.1%203.66-2.1%204-2.3%206.39-7.18%206.41-14.12C64.81%2028.7%2055%2011.69%2042.85%204.68z'%20fill='url(%23c)'/%3e%3c!--%20outline%20stroke%20path%20--%3e%3cpath%20d='M29.11%203.91v.36a19.59%2019.59%200%20019.68%203c12%206.94%2021.78%2023.84%2021.74%2037.65%200%209.4-4.56%2015.23-11.83%2015.23a19.54%2019.54%200%2001-9.68-3C27%2050.21%2017.24%2033.32%2017.28%2019.5c0-9.39%204.56-15.23%2011.83-15.23v-.36m0%200c-7.21%200-12.17%205.71-12.2%2015.59%200%2014%209.77%2031%2021.92%2038a20.12%2020.12%200%20009.87%203c7.21%200%2012.17-5.71%2012.2-15.6%200-13.95-9.77-30.95-21.92-38a20%2020%200%2000-9.87-3z'%20fill='url(%23d)'/%3e%3c!--%20inner%20sheen%20--%3e%3cpath%20d='M38.93%2024.5a1.5%201.5%200%2000-1.5%201.5v13l1%201%201-1v-13a1.5%201.5%200%2000-1.5-1.5z'%20fill='url(%23e)'/%3e%3c!--%20exclamation%20mark%20body%20--%3e%3cpath%20d='M38.93%2049.79a6.9%206.9%200%2001-2.66-2.51%206.11%206.11%200%2001-.81-3v-1a2.26%202.26%200%2001.81-2c.54-.35%201.43-.17%202.66.54a6.71%206.71%200%20012.61%202.5%206.06%206.06%200%2001.81%203v1a2.24%202.24%200%2001-.81%202.05c-.54.29-1.41.12-2.61-.58zm-1.16-11.63L36%2022.77V13l5.81%203.36v9.73l-1.64%2013.46z'%20fill='%23525252'/%3e%3c/svg%3e"
+      />
+      <div
+        class="pf-v6-c-empty-state"
+        role="status"
+      >
+        <div
+          class="pf-v6-c-empty-state__content"
+        >
+          <div
+            class="pf-v6-c-empty-state__header"
+          >
+            <div
+              class="pf-v6-c-empty-state__title"
+            >
+              <h4
+                class="pf-v6-c-empty-state__title-text"
+              >
+                This file could not be parsed
+              </h4>
+            </div>
+          </div>
+          <div
+            class="pf-v6-c-empty-state__body"
+          >
+            <p>
+              Fix the syntax error in the file. The content is preserved.
+            </p>
+            <code
+              class="broken-file-error"
+              data-testid="broken-file-parse-error"
+            >
+              YAML parse error at line 4
+            </code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`BrokenFileEmptyState > renders the title and body text 1`] = `
+<DocumentFragment>
+  <div
+    class="pf-v6-l-bullseye"
+  >
+    <div
+      class="pf-v6-c-card"
+      data-ouia-component-id="OUIA-Generated-Card-_r_ID_"
+      data-ouia-component-type="PF6/Card"
+      data-ouia-safe="true"
+      id=""
+    >
+      <img
+        alt=""
+        class="empty-state-icon"
+        src="data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20width='80'%20height='80'%20viewBox='0%200%2080%2080'%20role='img'%20aria-hidden='true'%3e%3ctitle%3ebroken%20file%3c/title%3e%3cdefs%3e%3clinearGradient%20id='a'%20x1='29.96'%20y1='45.68'%20x2='53.15'%20y2='85.84'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%23525252'%20stop-opacity='.05'/%3e%3cstop%20offset='1'%20stop-opacity='.1'/%3e%3c/linearGradient%3e%3clinearGradient%20id='b'%20x1='38.9'%20y1='52.59'%20x2='38.9'%20y2='3.3'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%23c6c6c6'/%3e%3cstop%20offset='.78'%20stop-color='%23e0e0e0'/%3e%3c/linearGradient%3e%3clinearGradient%20id='c'%20x1='18.07'%20y1='14.06'%20x2='71.64'%20y2='44.99'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%23e0e0e0'/%3e%3cstop%20offset='.13'%20stop-color='%23f4f4f4'/%3e%3cstop%20offset='.56'%20stop-color='%23e0e0e0'/%3e%3cstop%20offset='.62'%20stop-color='%23d8d8d8'/%3e%3cstop%20offset='.7'%20stop-color='%23c6c6c6'/%3e%3cstop%20offset='.89'%20stop-color='%23a8a8a8'/%3e%3cstop%20offset='1'%20stop-color='%238d8d8d'/%3e%3c/linearGradient%3e%3clinearGradient%20id='d'%20x1='27.94'%20y1='51.19'%20x2='49.87'%20y2='13.21'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='.54'%20stop-color='%23d0d0d0'%20stop-opacity='0'/%3e%3cstop%20offset='.82'%20stop-color='%23f1f1f1'%20stop-opacity='.7'/%3e%3cstop%20offset='.94'%20stop-color='%23fff'/%3e%3c/linearGradient%3e%3clinearGradient%20id='e'%20x1='28.66'%20y1='26.33'%20x2='47.15'%20y2='37'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0'%20stop-color='%23fff'/%3e%3cstop%20offset='.05'%20stop-color='%23fdfdfd'/%3e%3cstop%20offset='.3'%20stop-color='%23f6f6f6'/%3e%3cstop%20offset='1'%20stop-color='%23f4f4f4'/%3e%3c/linearGradient%3e%3c/defs%3e%3cpath%20d='M0%200h80v80H0z'%20fill='none'/%3e%3c!--%20shadow%20--%3e%3cpath%20opacity='.25'%20d='M59.91%2078.34l-43-24.83%204.86-2.81%2043%2024.83-4.86%202.81z'%20fill='url(%23a)'/%3e%3c!--%20body%20fill%20(gradient)%20--%3e%3cpath%20d='M39%206.92c12.15%207%2022%2024%2021.92%2038S51%2064.49%2038.83%2057.48s-22-24-21.92-38S26.83-.09%2039%206.92z'%20fill='url(%23b)'/%3e%3c!--%20right%20edge%20highlight%20--%3e%3cpath%20d='M42.85%204.68C36.74%201.15%2031.2.82%2027.2%203.15l-3.66%202.13C27.52%203.08%2033%203.45%2039%206.92c12.15%207%2022%2024%2021.92%2038%200%206.77-2.35%2011.58-6.13%2013.94h-.07c-.32.2%203.66-2.1%203.66-2.1%204-2.3%206.39-7.18%206.41-14.12C64.81%2028.7%2055%2011.69%2042.85%204.68z'%20fill='url(%23c)'/%3e%3c!--%20outline%20stroke%20path%20--%3e%3cpath%20d='M29.11%203.91v.36a19.59%2019.59%200%20019.68%203c12%206.94%2021.78%2023.84%2021.74%2037.65%200%209.4-4.56%2015.23-11.83%2015.23a19.54%2019.54%200%2001-9.68-3C27%2050.21%2017.24%2033.32%2017.28%2019.5c0-9.39%204.56-15.23%2011.83-15.23v-.36m0%200c-7.21%200-12.17%205.71-12.2%2015.59%200%2014%209.77%2031%2021.92%2038a20.12%2020.12%200%20009.87%203c7.21%200%2012.17-5.71%2012.2-15.6%200-13.95-9.77-30.95-21.92-38a20%2020%200%2000-9.87-3z'%20fill='url(%23d)'/%3e%3c!--%20inner%20sheen%20--%3e%3cpath%20d='M38.93%2024.5a1.5%201.5%200%2000-1.5%201.5v13l1%201%201-1v-13a1.5%201.5%200%2000-1.5-1.5z'%20fill='url(%23e)'/%3e%3c!--%20exclamation%20mark%20body%20--%3e%3cpath%20d='M38.93%2049.79a6.9%206.9%200%2001-2.66-2.51%206.11%206.11%200%2001-.81-3v-1a2.26%202.26%200%2001.81-2c.54-.35%201.43-.17%202.66.54a6.71%206.71%200%20012.61%202.5%206.06%206.06%200%2001.81%203v1a2.24%202.24%200%2001-.81%202.05c-.54.29-1.41.12-2.61-.58zm-1.16-11.63L36%2022.77V13l5.81%203.36v9.73l-1.64%2013.46z'%20fill='%23525252'/%3e%3c/svg%3e"
+      />
+      <div
+        class="pf-v6-c-empty-state"
+        role="status"
+      >
+        <div
+          class="pf-v6-c-empty-state__content"
+        >
+          <div
+            class="pf-v6-c-empty-state__header"
+          >
+            <div
+              class="pf-v6-c-empty-state__title"
+            >
+              <h4
+                class="pf-v6-c-empty-state__title-text"
+              >
+                This file could not be parsed
+              </h4>
+            </div>
+          </div>
+          <div
+            class="pf-v6-c-empty-state__body"
+          >
+            <p>
+              Fix the syntax error in the file. The content is preserved.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

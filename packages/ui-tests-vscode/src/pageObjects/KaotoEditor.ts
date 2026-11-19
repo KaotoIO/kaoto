@@ -50,6 +50,14 @@ export class KaotoEditor extends AbstractElement {
 	}
 
 	/**
+	 * Wait until the broken-file state is visible (the source does not parse) and return the parser message it shows.
+	 */
+	static async waitForBrokenFile(driver: WebDriver, timeout = CANVAS_LOAD_TIMEOUT): Promise<string> {
+		await driver.wait(until.elementLocated(By.xpath(kaotoLocators.KaotoEditor.brokenFile)), timeout, 'The broken-file state was not shown');
+		return driver.findElement(By.xpath(kaotoLocators.KaotoEditor.brokenFileParseError)).getText();
+	}
+
+	/**
 	 * Wait until the topology (route graph) has at least one drawn node.
 	 */
 	static async waitForTopology(driver: WebDriver, timeout = CANVAS_LOAD_TIMEOUT): Promise<void> {
