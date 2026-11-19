@@ -478,7 +478,7 @@ export class JsonSchemaField extends BaseField {
   private createNew(parent: JsonSchemaField) {
     const created = new JsonSchemaField(parent, this.key, this.type);
     this.copyTo(created);
-    created.minOccurs = parent.required.includes(this.key) ? 1 : 0;
+    created.minOccurs = parent.required.includes(this.key) ? 1 : this.minOccurs;
     created.maxOccurs = parent.type === Types.Array ? Number.MAX_SAFE_INTEGER : 1;
     return created;
   }

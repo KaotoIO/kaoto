@@ -813,6 +813,29 @@ describe('JsonSchemaDocumentService', () => {
     expect(field.typeQName?.getLocalPart()).toBe('string');
   });
 
+  it('should keep the required properties of a referenced definition required', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        addr: { $ref: '#/definitions/Address' },
+      },
+      definitions: {
+        Address: {
+          type: 'object',
+          required: ['street'],
+          properties: { street: { type: 'string' }, city: { type: 'string' } },
+        },
+      },
+    };
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const addr = doc.fields[0].fields.find((f) => f.key === 'addr')!;
+
+    DocumentUtilService.resolveTypeFragment(addr);
+
+    expect(addr.fields.find((f) => f.key === 'street')!.minOccurs).toBe(1);
+    expect(addr.fields.find((f) => f.key === 'city')!.minOccurs).toBe(0);
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,

@@ -348,6 +348,7 @@ export class JsonSchemaDocumentService {
     // create a temporary field, get it populated with fragment children
     const field: JsonSchemaField = new JsonSchemaField(parent, '', type);
     field.namedTypeFragmentRefs = schemaMeta.$ref ? [schemaMeta.$ref] : [];
+    field.required = [...(schemaMeta.required ?? [])];
 
     if (type === Types.Array) {
       this.populateArrayItems(field, schemaMeta);
@@ -359,6 +360,7 @@ export class JsonSchemaDocumentService {
 
     return {
       type: updatedField.type,
+      required: updatedField.required,
       fields: updatedField.fields,
       namedTypeFragmentRefs: updatedField.namedTypeFragmentRefs,
     };
