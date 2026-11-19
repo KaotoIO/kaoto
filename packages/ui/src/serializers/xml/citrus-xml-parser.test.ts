@@ -506,4 +506,148 @@ describe('citrus-xml-parser', () => {
       expect(reparsed.actions[0].echo?.message).toBe('hi');
     });
   });
+
+  describe('parse → serialize → parse keeps', () => {
+    const wrap = (body: string) => `<test xmlns="http://citrusframework.org/schema/xml/testcase" name="t">
+${body}
+</test>`;
+    const roundTrip = (xml: string) => {
+      const parsed = parseCitrusXml(xml);
+      return { parsed, reparsed: parseCitrusXml(serializeCitrusXml(parsed)) };
+    };
+
+    it.each([
+      [
+        'a script variable',
+        `<variables>
+  <variable name="id">
+    <value><script type="groovy" file="id.groovy" charset="UTF-8">return 1 &lt; 2</script></value>
+  </variable>
+</variables>`,
+      ],
+      [
+        'an action description',
+        '<actions><echo><description>Say hi</description><message>hi</message></echo></actions>',
+      ],
+      [
+        'create-variables with a variables element',
+        `<actions><create-variables><variables><variable name="a" value="1"/><variable name="b"/></variables></create-variables></actions>`,
+      ],
+      ['an empty create-variables', '<actions><create-variables/></actions>'],
+      [
+        'repeated children of an action',
+        '<actions><purge-endpoint><endpoint name="a"/><endpoint name="b"/></purge-endpoint></actions>',
+      ],
+      [
+        'an XML payload',
+        '<actions><send endpoint="e"><message><body><payload><order id="1"><item>x</item></order></payload></body></message></send></actions>',
+      ],
+      ['a message with attributes and text', '<actions><echo><message name="m">hi</message></echo></actions>'],
+      [
+        'the actions of a container',
+        '<actions><sequential><actions><echo><message>a</message></echo><sleep milliseconds="10"/></actions></sequential></actions>',
+      ],
+      [
+        'a bean without properties',
+        '<configuration><beans><bean name="plain" type="com.example.Plain"/></beans></configuration>',
+      ],
+    ])('%s', (_, body) => {
+      const { parsed, reparsed } = roundTrip(wrap(body));
+
+      expect(reparsed).toEqual(parsed);
+    });
+
+    it('reads a script variable with all its attributes', () => {
+      const { parsed } = roundTrip(
+        wrap(`<variables>
+  <variable name="id">
+    <value><script type="groovy" file="id.groovy" charset="UTF-8">return 1</script></value>
+  </variable>
+</variables>`),
+      );
+
+      expect(parsed.variables).toEqual([
+        { name: 'id', script: { type: 'groovy', content: 'return 1', file: 'id.groovy', charset: 'UTF-8' } },
+      ]);
+    });
+
+    it('reads the variables of a create-variables variables element', () => {
+      const { parsed } = roundTrip(
+        wrap(
+          '<actions><create-variables><variables><variable name="a" value="1"/><variable name="b"/></variables></create-variables></actions>',
+        ),
+      );
+
+      expect(parsed.actions[0].createVariables?.variables).toEqual([{ name: 'a', value: '1' }, { name: 'b' }]);
+    });
+
+    it('reads an empty create-variables as an empty list of variables', () => {
+      const { parsed } = roundTrip(wrap('<actions><create-variables/></actions>'));
+
+      expect(parsed.actions[0]).toEqual({ createVariables: { variables: [] } });
+    });
+
+    it('reads repeated children of an action as a list', () => {
+      const { parsed } = roundTrip(
+        wrap('<actions><purge-endpoint><endpoint name="a"/><endpoint name="b"/></purge-endpoint></actions>'),
+      );
+
+      expect(parsed.actions[0]).toEqual({ purge: { endpoint: [{ name: 'a' }, { name: 'b' }] } });
+    });
+
+    it('keeps an XML payload as raw XML', () => {
+      const { parsed } = roundTrip(
+        wrap(
+          '<actions><send endpoint="e"><message><body><payload><order id="1"><item>x</item></order></payload></body></message></send></actions>',
+        ),
+      );
+
+      const message = (parsed.actions[0].send as unknown as { message: { body: { payload: { '#xml': string } } } })
+        .message;
+      expect(message.body.payload['#xml']).toMatch(/^<order [^>]*id="1"[^>]*><item>x<\/item><\/order>$/);
+    });
+
+    it('reads an action description as text', () => {
+      const { parsed } = roundTrip(wrap('<actions><echo><description>Say hi</description></echo></actions>'));
+
+      expect(parsed.actions[0]).toEqual({ echo: { description: 'Say hi' } });
+    });
+
+    it('skips a bean property without a value', () => {
+      const { parsed } = roundTrip(
+        wrap(
+          `<configuration><beans><bean name="b" type="T"><property name="host"/><property name="port" value="80"/></bean></beans></configuration>`,
+        ),
+      );
+
+      expect(parsed.configuration?.beans).toEqual([{ name: 'b', type: 'T', properties: { port: '80' } }]);
+    });
+  });
+
+  describe('serializeCitrusXml leaves out', () => {
+    it.each([undefined, null])('an action attribute that is %s', (value) => {
+      const test = {
+        name: 't',
+        actions: [{ send: { endpoint: 'e', fork: value } }, { echo: null }],
+      } as unknown as Test;
+
+      const xml = serializeCitrusXml(test);
+
+      expect(xml).toContain('<send endpoint="e"/>');
+      expect(xml).not.toContain('fork');
+      expect(xml).not.toContain('<echo');
+    });
+
+    it.each([undefined, null])('a nested value that is %s', (value) => {
+      const test = {
+        name: 't',
+        actions: [{ send: { endpoint: 'e', message: { body: { data: 'x' }, headers: value } } }],
+      } as unknown as Test;
+
+      const xml = serializeCitrusXml(test);
+
+      expect(xml).not.toContain('headers');
+      expect(xml).toContain('<data>x</data>');
+    });
+  });
 });
