@@ -1,6 +1,7 @@
 import { lazy } from 'react';
 
 import { RouteConfigArray } from '../types/routes';
+import WorkspaceRedirect from './WorkspaceRedirect';
 
 const Dashboard = lazy(() => import('../pages/Dashboard/Dashboard'));
 const NotFound = lazy(() => import('../pages/NotFound/NotFound'));
@@ -11,11 +12,11 @@ const ConfigPage = lazy(() => import('../pages/Config/ConfigPage'));
 export const routes: RouteConfigArray = [
   {
     index: true,
+    element: WorkspaceRedirect,
+  },
+  {
+    path: 'dashboard',
     element: Dashboard,
-    carbon: {
-      label: 'Dashboard',
-      inHeader: true,
-    },
   },
   {
     path: 'config',

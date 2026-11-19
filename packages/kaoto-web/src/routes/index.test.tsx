@@ -1,14 +1,17 @@
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import { resetTestIndexedDB } from '../test/indexed-db';
 import { Router } from './index';
 
+const CurrentLocation = () => <span data-testid="location">{useLocation().pathname}</span>;
+
 const renderRouter = (path: string) =>
   render(
     <MemoryRouter initialEntries={[path]}>
       <Router />
+      <CurrentLocation />
     </MemoryRouter>,
   );
 
@@ -17,8 +20,16 @@ describe('Router', () => {
     resetTestIndexedDB();
   });
 
-  it('renders the dashboard on the index route', async () => {
+  it('starts in the workspace', async () => {
     renderRouter('/');
+
+    expect(await screen.findByTestId('explorer-empty')).toBeInTheDocument();
+    expect(screen.getByTestId('project-toolbar')).toBeInTheDocument();
+    expect(screen.getByTestId('location')).toHaveTextContent('/workspace');
+  });
+
+  it('renders the dashboard', async () => {
+    renderRouter('/dashboard');
 
     expect(await screen.findByText('Copyright IBM', { exact: false })).toBeInTheDocument();
   });
