@@ -272,8 +272,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
-      // Escape inside the overlay belongs to its own controls, like a menu of the empty state
-      if (event.key === 'Escape' && !overlayRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      // Escape inside the overlay or outside the canvas DOM tree (e.g. portaled dropdowns/modals) belongs to its own controls
+      if (event.key === 'Escape' && event.currentTarget.contains(target) && !overlayRef.current?.contains(target)) {
         clearSelection();
       }
     },
