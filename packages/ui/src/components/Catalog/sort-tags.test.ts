@@ -45,4 +45,15 @@ describe('sortTags()', () => {
     expect(t1[0]).toBe('eip');
     expect(i1).toBe(3);
   });
+
+  it.each([[['Messaging', 'messaging']], [['messaging', 'Messaging']]])(
+    'keeps the order of tags that differ only in case: %j',
+    (tags) => {
+      const tiles: ITile[] = [{ type: 'component', name: '1', title: '1', tags, iconUrl: 'test-icon-url' }];
+
+      const { sortedTags } = sortTags(tiles, []);
+
+      expect(sortedTags).toEqual(tags);
+    },
+  );
 });
