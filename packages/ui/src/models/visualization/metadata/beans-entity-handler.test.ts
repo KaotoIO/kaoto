@@ -1,5 +1,5 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
-import { CatalogLibrary } from '@kaoto/camel-catalog/types';
+import { BeanFactory, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { cloneDeep } from 'lodash';
 
 import * as routeStub from '../../../stubs/camel-route';
@@ -67,6 +67,34 @@ describe('BeansEntityHandler', () => {
       expect(beansHandler.getBeansEntity()).toBeUndefined();
       expect(beansHandler.getBeansModel()).toBeUndefined();
     });
+
+    it('should list no beans when the route has no beans entity', () => {
+      const nameAndType = beansHandler.getAllBeansNameAndType();
+
+      expect(nameAndType).toEqual([]);
+    });
+
+    it('should list an empty name and type for a bean that lacks them', () => {
+      beansHandler.setBeansModel([{} as BeanFactory]);
+
+      const nameAndType = beansHandler.getAllBeansNameAndType();
+
+      expect(nameAndType).toEqual([{ name: '', type: '' }]);
+    });
+
+    it('should remove the beans entity when the beans model is set to an empty list', () => {
+      beansHandler.setBeansModel([{ name: 'myBean', type: 'myType' }]);
+
+      beansHandler.setBeansModel([]);
+
+      expect(beansHandler.getBeansEntity()).toBeUndefined();
+    });
+
+    it('should keep a bean name without the reference quote as it is', () => {
+      const beanName = beansHandler.stripReferenceQuote('myBean');
+
+      expect(beanName).toBe('myBean');
+    });
   });
 
   describe('should handle beans in KameletResource', () => {
@@ -99,6 +127,25 @@ describe('BeansEntityHandler', () => {
       expect(beansHandler.getReferenceQuote()).toBe('#bean:{{}}');
       expect(beansHandler.getReferenceFromName('myBean')).toBe('#bean:{{myBean}}');
       expect(beansHandler.stripReferenceQuote('#bean:{{myBean}}')).toBe('myBean');
+    });
+
+    it.each([
+      ['myBean', 'myBean'],
+      ['#bean:{{myBean', 'myBean'],
+      ['myBean}}', 'myBean'],
+    ])('should strip only the reference quote parts present in %s', (inputValue, expected) => {
+      const beanName = beansHandler.stripReferenceQuote(inputValue);
+
+      expect(beanName).toBe(expected);
+    });
+
+    it('should remove the route template beans when the beans model is set to an empty list', () => {
+      beansHandler.setBeansModel([{ name: 'myBean', type: 'myType' }]);
+
+      beansHandler.setBeansModel([]);
+
+      expect(beansHandler.getBeansEntity()).toBeUndefined();
+      expect(model.spec.template.beans).toBeUndefined();
     });
 
     it('create and delete bean entity', () => {
