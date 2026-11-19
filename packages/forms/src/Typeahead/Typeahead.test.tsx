@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 
-import { Typeahead } from './Typeahead';
+import { CREATE_NEW_ITEM, Typeahead } from './Typeahead';
 import { TypeaheadProps } from './Typeahead.types';
 
 const mockItems = [
@@ -303,6 +303,119 @@ describe('Typeahead', () => {
       });
 
       expect(onInputValueChange).toHaveBeenCalledWith('Item 1');
+    });
+  });
+
+  describe('selection', () => {
+    const openMenu = async () => {
+      await act(async () => {
+        fireEvent.click(screen.getByLabelText('Open'));
+      });
+    };
+
+    it('offers all items again after the selected item changed from outside', async () => {
+      const { rerender } = render(<Typeahead {...defaultProps} selectedItem={mockItems[0]} />);
+
+      rerender(<Typeahead {...defaultProps} selectedItem={mockItems[1]} />);
+      await openMenu();
+
+      expect(screen.getByRole('combobox')).toHaveValue('Item 2');
+      expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
+        expect.stringContaining('Item 1'),
+        expect.stringContaining('Item 2'),
+      ]);
+    });
+
+    it('does not report the selected item again when it is picked again', async () => {
+      const onChange = vi.fn();
+      render(<Typeahead {...defaultProps} selectedItem={mockItems[0]} onChange={onChange} />);
+      await openMenu();
+
+      act(() => {
+        fireEvent.click(screen.getAllByText('Item 1').at(-1)!);
+      });
+
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('reports an empty selection when it is cleared and there is no clear handler', async () => {
+      const onChange = vi.fn();
+      render(<Typeahead {...defaultProps} selectedItem={mockItems[0]} onChange={onChange} onCleanInput={undefined} />);
+      await act(async () => {
+        vi.runAllTimers();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /clear selected item/i }));
+
+      expect(onChange).toHaveBeenCalledWith(undefined);
+    });
+
+    it('asks to create an item with the typed name', async () => {
+      const onCreate = vi.fn();
+      render(<Typeahead {...defaultProps} onCreate={onCreate} onCreatePrefix="bean" />);
+      const input = screen.getByPlaceholderText('Select or write an option');
+      await act(async () => {
+        fireEvent.click(input);
+        fireEvent.change(input, { target: { value: 'myBean' } });
+      });
+
+      act(() => {
+        fireEvent.click(screen.getByText("Create new bean 'myBean'"));
+      });
+
+      expect(onCreate).toHaveBeenCalledWith(CREATE_NEW_ITEM, 'myBean');
+    });
+
+    it('names its input after the test id when it has no id', () => {
+      render(<Typeahead {...defaultProps} id={undefined} />);
+
+      expect(screen.getByRole('combobox')).toHaveAttribute('id', 'typeahead-typeahead');
+    });
+  });
+
+  describe('custom input next to the items', () => {
+    const renderCustom = () => {
+      const onChange = vi.fn();
+      render(<Typeahead {...defaultProps} allowCustomInput onChange={onChange} />);
+      return { onChange, input: screen.getByPlaceholderText('Select or write an option') };
+    };
+
+    it('takes an item name typed in full as that item, not as custom input', async () => {
+      const { onChange, input } = renderCustom();
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: 'Item 2' } });
+        fireEvent.blur(input);
+      });
+
+      expect(onChange).not.toHaveBeenCalledWith(expect.objectContaining({ description: '' }));
+    });
+
+    it('leaves Enter on a highlighted item to the menu', async () => {
+      const { onChange, input } = renderCustom();
+      await act(async () => {
+        fireEvent.click(input);
+        fireEvent.change(input, { target: { value: 'Item' } });
+      });
+
+      await act(async () => {
+        fireEvent.keyDown(input, { key: 'ArrowDown' });
+        fireEvent.keyDown(input, { key: 'Enter' });
+      });
+
+      expect(onChange).toHaveBeenCalledWith(mockItems[0]);
+      expect(onChange).not.toHaveBeenCalledWith(expect.objectContaining({ name: 'Item' }));
+    });
+
+    it('keeps a blank input on blur without reporting it', async () => {
+      const { onChange, input } = renderCustom();
+
+      await act(async () => {
+        fireEvent.change(input, { target: { value: '  ' } });
+        fireEvent.blur(input);
+      });
+
+      expect(onChange).not.toHaveBeenCalled();
     });
   });
 });
