@@ -143,4 +143,32 @@ describe('EnumField', () => {
     const input = screen.getByRole('combobox');
     expect(input).toHaveValue('{{custom.value}}');
   });
+
+  it('shows an object value as JSON', () => {
+    render(
+      <ModelContextProvider model={{ mode: 'fast' }} onPropertyChange={vi.fn()}>
+        <SchemaProvider schema={enumSchema}>
+          <EnumField propName={ROOT_PATH} />
+        </SchemaProvider>
+      </ModelContextProvider>,
+    );
+
+    expect(screen.getByRole('combobox')).toHaveValue('{"mode":"fast"}');
+  });
+
+  it('offers no options for a schema without an enum', async () => {
+    render(
+      <ModelContextProvider model={undefined} onPropertyChange={vi.fn()}>
+        <SchemaProvider schema={{ ...enumSchema, enum: undefined }}>
+          <EnumField propName={ROOT_PATH} />
+        </SchemaProvider>
+      </ModelContextProvider>,
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('combobox'));
+    });
+
+    expect(screen.queryAllByRole('option')).toHaveLength(0);
+  });
 });
