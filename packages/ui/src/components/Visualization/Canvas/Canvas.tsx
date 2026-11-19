@@ -29,7 +29,7 @@ import {
 } from 'react';
 
 import { CatalogModalContext } from '../../../dynamic-catalog/catalog-modal.provider';
-import { useLocalStorage, useSelectedNodePanIntoView, useSelectedVizNode } from '../../../hooks';
+import { useKeepCenterOnResize, useLocalStorage, useSelectedNodePanIntoView, useSelectedVizNode } from '../../../hooks';
 import { useArrowKeyNavigation } from '../../../hooks/use-arrow-key-navigation.hook';
 import { LocalStorageKeys } from '../../../models';
 import { CanvasLayoutDirection } from '../../../models/settings/settings.model';
@@ -196,6 +196,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   }, [controller, nodes, edges, isModelResolving, applyCollapseOnUpdate]);
 
   useSelectedNodePanIntoView(selectedIds);
+  useKeepCenterOnResize(selectedIds);
 
   const controlButtons = useMemo(() => {
     const customButtons: TopologyControlButton[] = [];
