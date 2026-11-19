@@ -172,4 +172,26 @@ describe('TextAreaField', () => {
     expect(wrapper.getByRole('menuitem', { name: 'test-suggestion-1' })).toBeInTheDocument();
     expect(wrapper.getByRole('menuitem', { name: 'test-suggestion-2' })).toBeInTheDocument();
   });
+
+  it.each([
+    ['wraps a plain value in RAW()', 'a+b', 'RAW(a+b)'],
+    ['unwraps a RAW() value', 'RAW(a+b)', 'a+b'],
+  ])('%s with the RAW toggle', async (_, model, expected) => {
+    const onPropertyChangeSpy = vi.fn();
+    const wrapper = render(
+      <ModelContextProvider model={model} onPropertyChange={onPropertyChangeSpy}>
+        <TextAreaField propName={ROOT_PATH} />
+      </ModelContextProvider>,
+    );
+    act(() => {
+      fireEvent.click(wrapper.getByTestId(`${ROOT_PATH}__field-actions`));
+    });
+
+    const toggle = await wrapper.findByTestId(`${ROOT_PATH}__toRaw`);
+    act(() => {
+      fireEvent.click(toggle);
+    });
+
+    expect(onPropertyChangeSpy).toHaveBeenCalledWith(ROOT_PATH, expected);
+  });
 });
