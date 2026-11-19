@@ -266,6 +266,13 @@ describe('Pipe', () => {
       expect(pipeVisualEntity.pipe.spec?.source?.properties?.name).toEqual(name);
     });
 
+    it('should rename the pipe when the pipe configuration is updated', () => {
+      pipeVisualEntity.updateModel(PipeVisualEntity.ROOT_PATH, { name: 'renamed-pipe' });
+
+      expect(pipeVisualEntity.id).toBe('renamed-pipe');
+      expect(pipeVisualEntity.pipe.metadata?.name).toBe('renamed-pipe');
+    });
+
     it('should not update the model if the path is not correct', () => {
       const name = 'webhook-source';
 
@@ -823,6 +830,14 @@ describe('Pipe', () => {
           },
         },
       });
+    });
+
+    it('should copy the whole pipe when copying the pipe root', () => {
+      const copiedContent = pipeVisualEntity.getCopiedContent(PipeVisualEntity.ROOT_PATH, {
+        primaryNodeId: { name: 'PipeConfiguration', catalogKind: CatalogKind.Entity },
+      });
+
+      expect(copiedContent).toEqual({ name: 'pipe', definition: pipeCR });
     });
 
     it('should return undefined if the path is undefined', () => {
