@@ -80,14 +80,18 @@
   // Keep the expand chevron close to its folder's icon, so that a subfolder's chevron sits below its parent's icon
   .cds--tree-parent-node__toggle {
     inline-size: $spacing-05;
-    margin-inline-start: 0;
+    margin-inline-start: calc(-1 * #{$spacing-02});
   }
 
-  // Leaf nodes have no expand chevron: start them where a folder's icon starts, so files and folders of one level
-  // line up
+  // Leaf nodes have no expand chevron: start their icon where a folder's icon starts, so files and folders of one
+  // level line up
   .cds--tree-leaf-node,
   .cds--tree-leaf-node.cds--tree-node--with-icon {
-    padding-inline-start: $spacing-05 + $spacing-02;
+    padding-inline-start: $spacing-06;
+  }
+
+  .cds--tree-leaf-node .cds--tree-node__icon {
+    margin-inline-start: 0;
   }
 
   // Folder and file icons take the blue of the Create buttons
