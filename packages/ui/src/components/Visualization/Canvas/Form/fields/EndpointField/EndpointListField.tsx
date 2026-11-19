@@ -25,9 +25,7 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
   const [operation, setOperation] = useState<string>('Create');
   const [editModel, setEditModel] = useState<Record<string, unknown> | undefined>(undefined);
   const [endpointType, setEndpointType] = useState<string | undefined>(undefined);
-  const [items, setItems] = useState<{ name: string; type: string }[]>(
-    endpointsHandler.getDefinedEndpointsNameAndType(),
-  );
+  const [items, setItems] = useState(endpointsHandler.getDefinedEndpointsNameAndType());
   const confirmModalContext = useContext(ActionConfirmationModalContext);
 
   const handleCreateOrEdit = useCallback(
@@ -147,7 +145,7 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
                   label={`Edit ${item.name}`}
                   data-testid={'endpoint-edit-' + index + '-btn'}
                   onClick={() => {
-                    handleEdit(index);
+                    handleEdit(item.index);
                   }}
                 >
                   <Edit />
@@ -156,7 +154,7 @@ export const EndpointListField: FunctionComponent<FieldProps> = ({ propName, req
                   kind="ghost"
                   label={`Delete ${item.name}`}
                   data-testid={'endpoint-delete-' + index + '-btn'}
-                  onClick={() => handleDelete(index)}
+                  onClick={() => handleDelete(item.index)}
                 >
                   <TrashCan />
                 </IconButton>
