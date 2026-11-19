@@ -70,6 +70,26 @@ describe('CitrusTestSchemaService', () => {
       }
     });
 
+    it('should rebuild the kind map when it is cleared while a build is in flight', async () => {
+      CitrusTestSchemaService.clearKindMap();
+      const catalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestAction)!;
+      let resolveOld!: (value: Awaited<ReturnType<typeof catalog.getAll>>) => void;
+      const oldRequest = new Promise<Awaited<ReturnType<typeof catalog.getAll>>>((resolve) => {
+        resolveOld = resolve;
+      });
+      const getAll = vi.spyOn(catalog, 'getAll').mockReturnValueOnce(oldRequest);
+      try {
+        const result = CitrusTestSchemaService.getTestActionName({ http: { sendRequest: {} } });
+        CitrusTestSchemaService.clearKindMap();
+        resolveOld({});
+
+        expect(await result).toBe('http-sendRequest');
+        expect(getAll).toHaveBeenCalledTimes(2);
+      } finally {
+        getAll.mockRestore();
+      }
+    });
+
     it('should share the kind-map build across concurrent action lookups', async () => {
       CitrusTestSchemaService.clearKindMap();
       const catalog = DynamicCatalogRegistry.get().getCatalog(CatalogKind.TestAction)!;
@@ -103,6 +123,13 @@ describe('CitrusTestSchemaService', () => {
       // camel -> camel-jbang -> camel-jbang-run
       const actionModel = { camel: { jbang: { run: { integrationFile: 'foo.yaml' } } } } as unknown as TestActions;
       expect(await CitrusTestSchemaService.getTestActionName(actionModel)).toBe('camel-jbang-run');
+    });
+
+    it.each([
+      [{ myCustomAction: { message: 'hello' } }, 'myCustomAction'],
+      [{ myCustomAction: { message: 'hello' }, print: { message: 'hello' } }, 'print'],
+    ])('should name the action %j as %s', async (action, expectedName) => {
+      expect(await CitrusTestSchemaService.getTestActionName(action as TestActions)).toBe(expectedName);
     });
 
     it('should return unknown for undefined action', async () => {
