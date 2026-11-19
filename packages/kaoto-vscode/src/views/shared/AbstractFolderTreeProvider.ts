@@ -46,9 +46,11 @@ export abstract class AbstractFolderTreeProvider<TFolder extends IFolderTreeItem
 	private refreshDebounceTimer?: NodeJS.Timeout;
 	private readonly DEBOUNCE_MS = 300;
 
-	/** Cached file search results */
-	private cachedFiles: Uri[] | undefined;
-	private cacheInvalidated = true;
+	/** Grows with every invalidation, so that nothing read before an invalidation is cached after it */
+	private cacheGeneration = 0;
+
+	/** File search of a cache generation, shared by every request of that generation */
+	private fileSearch: { generation: number; files: Promise<Uri[]> } | undefined;
 
 	/** Cache for pom.xml existence checks */
 	private readonly pomXmlCache = new Map<string, boolean>();
@@ -72,7 +74,7 @@ export abstract class AbstractFolderTreeProvider<TFolder extends IFolderTreeItem
 	 * Invalidate the cached file search results
 	 */
 	protected invalidateCache(): void {
-		this.cacheInvalidated = true;
+		this.cacheGeneration++;
 		this.pomXmlCache.clear();
 	}
 
@@ -159,13 +161,7 @@ export abstract class AbstractFolderTreeProvider<TFolder extends IFolderTreeItem
 	}
 
 	async getChildren(element?: TreeItem): Promise<TreeItem[]> {
-		// Use cached files if available, otherwise fetch and cache
-		if (this.cacheInvalidated || !this.cachedFiles) {
-			this.cachedFiles = await workspace.findFiles(this.getFilePattern(), this.getExcludePattern());
-			this.cacheInvalidated = false;
-		}
-
-		const files = this.cachedFiles;
+		const files = await this.getFiles();
 
 		if (this.setContext) {
 			this.setContext(files.length > 0);
@@ -178,6 +174,31 @@ export abstract class AbstractFolderTreeProvider<TFolder extends IFolderTreeItem
 			return await this.getFolderChildren(files, element);
 		}
 		return [];
+	}
+
+	/**
+	 * Get the files of the view. One search serves every request until the cache is invalidated, including the
+	 * requests made while it runs. A search that started before an invalidation may miss the change, so the
+	 * requests after the invalidation search again.
+	 * @returns The files found by the search
+	 */
+	private getFiles(): Promise<Uri[]> {
+		let search = this.fileSearch;
+		if (search?.generation !== this.cacheGeneration) {
+			const started = {
+				generation: this.cacheGeneration,
+				files: Promise.resolve(workspace.findFiles(this.getFilePattern(), this.getExcludePattern())),
+			};
+			// A failed search is not shared with later requests: they search again
+			started.files.catch(() => {
+				if (this.fileSearch === started) {
+					this.fileSearch = undefined;
+				}
+			});
+			this.fileSearch = started;
+			search = started;
+		}
+		return search.files;
 	}
 
 	/**
@@ -291,15 +312,20 @@ export abstract class AbstractFolderTreeProvider<TFolder extends IFolderTreeItem
 			return this.pomXmlCache.get(dirPath)!;
 		}
 
+		const generation = this.cacheGeneration;
+		let exists: boolean;
 		try {
 			const pomUri = Uri.file(join(dirPath, 'pom.xml'));
 			await workspace.fs.stat(pomUri);
-			this.pomXmlCache.set(dirPath, true);
-			return true;
+			exists = true;
 		} catch {
-			this.pomXmlCache.set(dirPath, false);
-			return false;
+			exists = false;
 		}
+		// A check that started before an invalidation may miss the change, so it is not cached
+		if (generation === this.cacheGeneration) {
+			this.pomXmlCache.set(dirPath, exists);
+		}
+		return exists;
 	}
 
 	/**
