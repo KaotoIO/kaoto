@@ -30,7 +30,7 @@ suite('AbstractCamelCommand file name validation', () => {
 	});
 
 	test('accepts a new name', async () => {
-		expect(await new CamelFileCommand('YAML').validateCamelFileName('brand-new-route')).to.equal(undefined);
+		expect(await new CamelFileCommand('YAML').validateCamelFileName('brand-new-route')).to.be.undefined;
 	});
 
 	for (const [description, name, message] of [
@@ -63,7 +63,7 @@ suite('AbstractCamelCommand file name validation', () => {
 		expect(await command.validateCamelFileName('nested-route', path.dirname(existing))).to.equal(
 			'The file already exists. Please choose a different file name.',
 		);
-		expect(await command.validateCamelFileName('nested-route')).to.equal(undefined);
+		expect(await command.validateCamelFileName('nested-route')).to.be.undefined;
 	});
 
 	test('asks to open a workspace folder first', async () => {
