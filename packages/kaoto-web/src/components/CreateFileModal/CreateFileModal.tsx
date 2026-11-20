@@ -1,6 +1,6 @@
 import './CreateFileModal.scss';
 
-import { Button, Form, InlineNotification, RadioTile, Stack, TextInput, TileGroup } from '@carbon/react';
+import { Button, Form, InlineNotification, Stack, TextInput } from '@carbon/react';
 import { FunctionComponent, SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -10,6 +10,7 @@ import { buildFilePath } from '../../services/files/file-path';
 import { fetchStarterTemplate, resolveStarterTemplate } from '../../services/templates/starter-templates';
 import { KaotoModal } from '../KaotoModal/KaotoModal';
 import { FILE_KINDS, FileKind } from './file-kinds';
+import { FileKindTiles } from './FileKindTiles';
 
 const FORM_ID = 'cs--create-file-form';
 
@@ -120,41 +121,13 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
         aria-label="Create new file"
       >
         <Stack gap={6}>
-          <TileGroup
-            legend="File type"
-            name="file-type"
-            className="cds--tile-group cs--create-file-modal__types"
+          <FileKindTiles
+            kinds={FILE_KINDS}
+            selected={kind}
             // The file is created with the values from the moment Create was pressed
             disabled={creating}
-            valueSelected={kind.id}
-            onChange={(value) => {
-              // The value is always the id of one of the tiles
-              setKind(FILE_KINDS.find((candidate) => candidate.id === value)!);
-            }}
-          >
-            {FILE_KINDS.map((candidate) => {
-              const Icon = candidate.icon;
-              return (
-                <RadioTile
-                  key={candidate.id}
-                  id={`cs--create-file-kind-${candidate.id}`}
-                  value={candidate.id}
-                  className="cs--create-file-modal__type"
-                >
-                  <span className="cs--create-file-modal__type-content">
-                    <Icon
-                      className={`cs--create-file-modal__type-icon cs--create-file-modal__type-icon--${candidate.id}`}
-                      aria-hidden
-                    />
-                    <span className="cs--create-file-modal__type-text">
-                      <span className="cs--create-file-modal__type-label">{candidate.label}</span>
-                      <span className="cs--create-file-modal__type-description">{candidate.description}</span>
-                    </span>
-                  </span>
-                </RadioTile>
-              );
-            })}
-          </TileGroup>
+            onChange={setKind}
+          />
           <TextInput
             id="cs--create-file-name"
             labelText="File name"
