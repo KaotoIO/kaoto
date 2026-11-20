@@ -533,6 +533,7 @@ export class JsonSchemaField extends BaseField {
     if (this.type !== Types.AnyType && existing.type === Types.AnyType) {
       const index = parent.fields.indexOf(existing);
       const adopted = this.createNew(parent);
+      adopted.addRequired(existing.required);
       parent.fields[index] = adopted;
       return adopted;
     }
@@ -545,8 +546,18 @@ export class JsonSchemaField extends BaseField {
     if (this.selectedMemberIndex !== undefined) existing.selectedMemberIndex = this.selectedMemberIndex;
     if (this.selectedMemberQName !== undefined) existing.selectedMemberQName = this.selectedMemberQName;
     if (this.description !== undefined) existing.description = this.description;
+    existing.addRequired(this.required);
     for (const child of this.fields) child.adopt(existing);
     return existing;
+  }
+
+  /** Adds required properties to the field and applies them to the children it has already */
+  private addRequired(required: string[]): void {
+    const added = required.filter((name) => !this.required.includes(name));
+    this.required.push(...added);
+    for (const child of this.fields) {
+      if (added.includes(child.key)) child.minOccurs = 1;
+    }
   }
 
   /**
@@ -580,6 +591,7 @@ export class JsonSchemaField extends BaseField {
     to.selectedMemberIndex = this.selectedMemberIndex;
     to.selectedMemberQName = this.selectedMemberQName;
     to.description = this.description;
+    to.required = [...this.required];
     to.fields = this.fields.map((child) => child.adopt(to) as JsonSchemaField);
     return to;
   }

@@ -121,6 +121,8 @@ export class DocumentUtilService {
       namedTypeFragmentRefs: [...field.namedTypeFragmentRefs],
       fields: field.fields.length > 0 ? [...field.fields] : undefined,
       isAbstractType: field.isAbstractType,
+      required: field.required && [...field.required],
+      optionalFragmentRefs: field.optionalFragmentRefs && [...field.optionalFragmentRefs],
     };
   }
 
@@ -461,6 +463,9 @@ export class DocumentUtilService {
     field.typeOverride = variant;
     field.isAbstractType = undefined;
     field.fields = [];
+    // what the replaced type required doesn't apply to the new one
+    if (field.required) field.required = [];
+    if (field.optionalFragmentRefs) field.optionalFragmentRefs = [];
 
     if (type === Types.Container) {
       field.namedTypeFragmentRefs = [...namedTypeFragmentRefs];
@@ -495,6 +500,10 @@ export class DocumentUtilService {
       field.namespaceURI = field.originalField.namespaceURI;
       field.namespacePrefix = field.originalField.namespacePrefix;
       field.isAbstractType = field.originalField.isAbstractType;
+      if (field.originalField.required) field.required = [...field.originalField.required];
+      if (field.originalField.optionalFragmentRefs) {
+        field.optionalFragmentRefs = [...field.originalField.optionalFragmentRefs];
+      }
     }
     field.typeOverride = FieldOverrideVariant.NONE;
     field.originalField = undefined;
