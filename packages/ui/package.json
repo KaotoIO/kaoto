@@ -47,7 +47,9 @@
   },
   "sideEffects": [
     "**/*.css",
-    "**/*.scss"
+    "**/*.scss",
+    "./src/components/SourceCode/workers/enable-workers.ts",
+    "./lib/components/SourceCode/workers/enable-workers.js"
   ],
   "files": [
     "lib"
