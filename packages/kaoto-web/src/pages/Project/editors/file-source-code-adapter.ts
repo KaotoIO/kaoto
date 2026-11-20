@@ -24,8 +24,9 @@ export const createFileSourceCodeAdapter = (): FileSourceCodeAdapter => {
   let storedContent: string | undefined;
   let apply: ((document: SourceDocument) => void) | undefined;
 
+  // The latest content of the file: a new subscriber (e.g. after a reload of the editor) must not get it older
   const deliver = () => {
-    if (openFile) apply?.({ code: openFile.content, path: openFile.path });
+    if (openFile) apply?.({ code: storedContent ?? openFile.content, path: openFile.path });
   };
 
   return {
