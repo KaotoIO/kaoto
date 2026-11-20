@@ -1,6 +1,7 @@
 import * as KaotoComponentsModule from '@kaoto/kaoto/components';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { editor } from 'monaco-editor';
 import { FunctionComponent, ReactNode, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { MemoryRouter, NavigateFunction, Route, Routes, useNavigate } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, MockInstance, vi } from 'vitest';
@@ -215,10 +216,65 @@ describe('IntegrationShell', () => {
     expect(screen.queryByText('No preview available')).not.toBeInTheDocument();
   });
 
-  it('shows an empty state for a document', async () => {
-    renderWithContext('schema');
-    expect(await screen.findByText('No preview available')).toBeInTheDocument();
-    expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
+  describe('text editor', () => {
+    let createEditorSpy: MockInstance<typeof editor.create>;
+
+    /** The real Monaco editor of the text editor, once it is mounted */
+    const getEditor = async (): Promise<editor.IStandaloneCodeEditor> => {
+      await waitFor(
+        () => {
+          expect(createEditorSpy).toHaveBeenCalled();
+        },
+        { timeout: 5_000 },
+      );
+      const lastCreated = createEditorSpy.mock.results.at(-1);
+      if (lastCreated?.type !== 'return') throw new Error('The Monaco editor was not created');
+      return lastCreated.value;
+    };
+
+    const storedContent = async (id: string) => (await filesStore.getFiles()).find((file) => file.id === id)?.content;
+
+    beforeEach(() => {
+      createEditorSpy = vi.spyOn(editor, 'create');
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('opens a document in the text editor', async () => {
+      renderWithContext('schema');
+
+      const textEditor = await getEditor();
+
+      expect(textEditor.getValue()).toBe(contentOf('schema'));
+      expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
+    });
+
+    it('stores the edits of a document', async () => {
+      renderWithContext('schema');
+      const textEditor = await getEditor();
+
+      act(() => {
+        textEditor.setValue('{ "edited": true }');
+      });
+
+      await waitFor(async () => {
+        expect(await storedContent('schema')).toBe('{ "edited": true }');
+      });
+    });
+
+    it('reports a failed save of a document', async () => {
+      vi.spyOn(filesStore, 'updateFile').mockRejectedValue(new Error('quota exceeded'));
+      renderWithContext('schema');
+      const textEditor = await getEditor();
+
+      act(() => {
+        textEditor.setValue('{ "edited": true }');
+      });
+
+      expect(await screen.findByTestId('integration-save-error')).toHaveTextContent('quota exceeded');
+    });
   });
 
   it('shows the code of a route file in the code view', async () => {

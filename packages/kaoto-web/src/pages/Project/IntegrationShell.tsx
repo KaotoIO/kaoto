@@ -15,6 +15,7 @@ import { useSafeParams } from '../../hooks/useSafeParams';
 import { getFileType } from '../../services/files/stored-file';
 import { editorKindFor } from './editors/editor-registry';
 import { RouteFileEditor } from './editors/RouteFileEditor';
+import { TextFileEditor } from './editors/TextFileEditor';
 
 const WORKSPACE_PATH = '/workspace';
 
@@ -83,7 +84,7 @@ const IntegrationShell: FunctionComponent = () => {
   } else if (editorKindFor(getFileType(file.path)) === 'route') {
     body = <RouteFileEditor file={file} view={viewMode === 'code' ? 'code' : 'design'} onSave={storeCode} />;
   } else {
-    body = <p className="cs--integration-shell__empty">No preview available</p>;
+    body = <TextFileEditor key={file.id} file={file} onSave={storeCode} />;
   }
 
   return (
