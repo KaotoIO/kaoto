@@ -99,3 +99,31 @@
     color: $text-secondary;
   }
 }
+
+// The file that Create makes, in the middle of the space between the fields and the footer. The space replaces the
+// gap of the stack above it and the bottom space of the modal body, so that the path is centred in it.
+.cs--create-file-modal .cds--modal-content {
+  margin-block-end: 0;
+  padding-block-end: 0;
+}
+
+.cs--create-file-modal__preview-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-block-size: $spacing-11;
+  margin-block-start: -$spacing-06;
+}
+
+.cs--create-file-modal__preview {
+  display: flex;
+  align-items: center;
+  gap: $spacing-03;
+
+  strong {
+    @include type-style('heading-compact-01');
+
+    color: $link-primary;
+    overflow-wrap: anywhere;
+  }
+}

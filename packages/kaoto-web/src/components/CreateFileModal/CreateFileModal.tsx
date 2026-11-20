@@ -53,6 +53,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
   const nameError = name.trim() && 'field' in result && result.field === 'name' ? result.error : undefined;
   const folderError = 'field' in result && result.field === 'folder' ? result.error : undefined;
   const canCreate = !!path && !pathTaken && !creating;
+  const KindIcon = kind.icon;
 
   const create = async () => {
     if (!path || !canCreate) return;
@@ -82,7 +83,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
 
   return (
     <KaotoModal
-      title="Create New File"
+      title="Create new file"
       onClose={close}
       size="sm"
       hasForm
@@ -96,7 +97,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
             Cancel
           </Button>
           <Button kind="primary" type="submit" form={FORM_ID} disabled={!canCreate}>
-            {creating ? 'Creating…' : 'Create File'}
+            {creating ? 'Creating…' : 'Create'}
           </Button>
         </>
       }
@@ -116,14 +117,14 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
             handleSubmit(event);
           }
         }}
-        aria-label="Create New File"
+        aria-label="Create new file"
       >
         <Stack gap={6}>
           <TileGroup
             legend="File type"
             name="file-type"
             className="cds--tile-group cs--create-file-modal__types"
-            // The file is created with the values from the moment Create File was pressed
+            // The file is created with the values from the moment Create was pressed
             disabled={creating}
             valueSelected={kind.id}
             onChange={(value) => {
@@ -164,7 +165,6 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
             }}
             invalid={!!nameError || pathTaken}
             invalidText={pathTaken ? 'A file with this path already exists' : nameError}
-            helperText={path && !pathTaken ? `Creates ${path}` : undefined}
             autoComplete="off"
           />
           <TextInput
@@ -180,6 +180,18 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
             invalidText={folderError}
             autoComplete="off"
           />
+          {/* The file that Create makes, from the name and the folder together; the space stays when there is none */}
+          <div className="cs--create-file-modal__preview-area">
+            {path && !pathTaken && (
+              <p className="cs--create-file-modal__preview" data-testid="create-file-preview">
+                <KindIcon
+                  className={`cs--create-file-modal__type-icon cs--create-file-modal__type-icon--${kind.id}`}
+                  aria-hidden
+                />
+                <strong>{path}</strong>
+              </p>
+            )}
+          </div>
           {failure && (
             <InlineNotification
               kind="error"

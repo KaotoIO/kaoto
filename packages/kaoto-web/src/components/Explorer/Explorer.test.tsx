@@ -191,7 +191,7 @@ describe('Explorer', () => {
     await screen.findByTestId('explorer-empty');
 
     await user.click(screen.getByRole('button', { name: buttonName }));
-    expect(screen.getByRole('heading', { name: 'Create New File' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create new file' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByTestId('create-file-modal')).not.toBeInTheDocument();
@@ -206,7 +206,7 @@ describe('Explorer', () => {
 
     screen.getByRole('button', { name: 'Create a file' }).focus();
     await user.keyboard('{Enter}');
-    expect(screen.getByRole('heading', { name: 'Create New File' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create new file' })).toBeInTheDocument();
 
     await user.keyboard('{Escape}');
     expect(screen.queryByTestId('create-file-modal')).not.toBeInTheDocument();
@@ -238,7 +238,7 @@ describe('Explorer', () => {
       await user.click(screen.getByRole('button', { name: 'Create…' }));
       await user.click(screen.getByRole('radio', { name: /^Camel Route YAML/ }));
       await user.type(screen.getByLabelText('File name'), 'orders');
-      await user.click(screen.getByRole('button', { name: 'Create File' }));
+      await user.click(screen.getByRole('button', { name: 'Create' }));
 
       expect(await screen.findByText('orders.camel.yaml')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Create…' })).not.toBeInTheDocument();
