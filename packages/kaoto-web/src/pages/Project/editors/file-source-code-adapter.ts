@@ -8,6 +8,8 @@ type OpenedFile = Pick<StoredFile, 'id' | 'path' | 'content'>;
 export interface FileSourceCodeAdapter extends SourceCodeAdapter {
   /** Delivers the file to the editor; a later call switches it to another file */
   open(file: OpenedFile): void;
+  /** Where changes are saved to; changes are dropped until it is set */
+  setSave(save: (fileId: string, code: string) => void): void;
 }
 
 /**
@@ -16,7 +18,8 @@ export interface FileSourceCodeAdapter extends SourceCodeAdapter {
  * Changes are saved to the file that is open when they arrive, and content the file already has (the delivered or the
  * last saved content) is not saved again.
  */
-export const createFileSourceCodeAdapter = (save: (fileId: string, code: string) => void): FileSourceCodeAdapter => {
+export const createFileSourceCodeAdapter = (): FileSourceCodeAdapter => {
+  let save: ((fileId: string, code: string) => void) | undefined;
   let openFile: OpenedFile | undefined;
   let storedContent: string | undefined;
   let apply: ((document: SourceDocument) => void) | undefined;
@@ -38,8 +41,11 @@ export const createFileSourceCodeAdapter = (save: (fileId: string, code: string)
         if (apply === applyDocument) apply = undefined;
       };
     },
+    setSave(saveChange) {
+      save = saveChange;
+    },
     onChange(code) {
-      if (!openFile || code === storedContent) return;
+      if (!openFile || !save || code === storedContent) return;
       storedContent = code;
       save(openFile.id, code);
     },
