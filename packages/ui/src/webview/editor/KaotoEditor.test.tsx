@@ -12,6 +12,7 @@ import {
   NodeLabelType,
   NodeToolbarTrigger,
 } from '../../models/settings/settings.model';
+import { serveBundledCatalog } from '../../stubs/serve-bundled-catalog';
 import { isDarkModeEnabled } from '../../utils/color-scheme';
 import { KaotoEditor, type KaotoEditorInit } from './KaotoEditor';
 
@@ -89,6 +90,35 @@ describe('KaotoEditor', () => {
         readonly: false,
       }),
     ).resolves.toEqual(expect.objectContaining({ revision: expect.any(Number) }));
+
+    hostBridge.dispose();
+    editorBridge.dispose();
+  });
+
+  it('renders its content inside the editor once the host sent the document', async () => {
+    await serveBundledCatalog();
+    const { host, editor } = createMemoryTransports();
+    const hostBus = createEventBus({ role: 'host', onError: vi.fn() });
+    const editorBus = createEventBus({ role: 'editor', onError: vi.fn() });
+    const hostBridge = createPostMessageBridge({ bus: hostBus, transport: host });
+    const editorBridge = createPostMessageBridge({ bus: editorBus, transport: editor });
+    await Promise.all([hostBridge.connect(), editorBridge.connect()]);
+    hostBus.on('editor:ready', () => {
+      void hostBus.request('host:document:setContent', {
+        reason: 'init',
+        fileUri: 'file:///route.camel.yaml',
+        content: '- route: {}',
+        readonly: false,
+      });
+    });
+
+    render(
+      <KaotoEditor bus={editorBus} initialSettings={defaultSettings} init={defaultInit}>
+        <p>Editor page</p>
+      </KaotoEditor>,
+    );
+
+    expect(await screen.findByText('Editor page')).toBeInTheDocument();
 
     hostBridge.dispose();
     editorBridge.dispose();
@@ -305,9 +335,15 @@ describe('KaotoEditor', () => {
     await Promise.all([hostBridge.connect(), editorBridge.connect()]);
 
     const reloadMock = vi.fn();
+    const originalLocation = window.location;
+    // jsdom cannot reload; the editor's router still reads the URL of the page, so the stand-in keeps it
+    const { hash, href, pathname, search } = originalLocation;
     Object.defineProperty(window, 'location', {
-      value: { reload: reloadMock },
+      value: { hash, href, pathname, search, reload: reloadMock },
       writable: true,
+    });
+    onTestFinished(() => {
+      Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
     });
 
     let disconnect: ((error: Error) => void) | undefined;

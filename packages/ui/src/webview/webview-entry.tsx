@@ -1,9 +1,11 @@
 import { createRoot, type Root } from 'react-dom/client';
+import { RouterProvider } from 'react-router';
 
 import { createPostMessageBridge } from '../host-bridge/bridge';
 import { MessageTransport } from '../host-bridge/contracts';
 import { createEventBus } from '../host-bridge/event-bus';
 import { KaotoEditor, type KaotoEditorInit } from './editor/KaotoEditor';
+import { createKaotoEditorRouter } from './editor/KaotoEditorRouter';
 
 /**
  * Starts the Kaoto editor inside the host page.
@@ -42,6 +44,7 @@ async function start(container: HTMLElement, createTransport: () => MessageTrans
   }
 
   let root: Root | undefined;
+  let router: ReturnType<typeof createKaotoEditorRouter> | undefined;
   let disposed = false;
 
   const bus = createEventBus({ role: 'editor', onError: report });
@@ -63,6 +66,7 @@ async function start(container: HTMLElement, createTransport: () => MessageTrans
     disposed = true;
     window.removeEventListener('pagehide', dispose);
     root?.unmount();
+    router?.dispose();
     bridge.dispose();
     // bus is disposed by KaotoEditor on unmount
   };
@@ -92,8 +96,14 @@ async function start(container: HTMLElement, createTransport: () => MessageTrans
       },
     };
 
+    // Created only now: a router starts loading the page of its current route as soon as it exists
+    router = createKaotoEditorRouter();
     root = createRoot(container);
-    root.render(<KaotoEditor bus={bus} initialSettings={initialSettings} init={init} />);
+    root.render(
+      <KaotoEditor bus={bus} initialSettings={initialSettings} init={init}>
+        <RouterProvider router={router} />
+      </KaotoEditor>,
+    );
   } catch (error) {
     report(error);
     if (disposed) return;
