@@ -857,6 +857,49 @@ describe('JsonSchemaDocumentService', () => {
     expect(xField.fields).toEqual([]);
   });
 
+  it.each([
+    [
+      'a property',
+      { type: 'object', definitions: { D: { type: 'string' } } } as JSONSchema7,
+      '#/properties/p/definitions/D',
+      'p',
+    ],
+    [
+      'a property whose name contains a slash and a tilde',
+      { type: 'object', definitions: { D: { type: 'string' } } } as JSONSchema7,
+      '#/properties/a~1b~0c/definitions/D',
+      'a/b~c',
+    ],
+    [
+      'array items',
+      { type: 'array', items: { type: 'object', definitions: { D: { type: 'string' } } } } as JSONSchema7,
+      '#/properties/p/items/definitions/D',
+      'p',
+    ],
+    [
+      'tuple array items',
+      {
+        type: 'array',
+        items: [{ type: 'object' }, { type: 'object', definitions: { D: { type: 'string' } } }],
+      } as JSONSchema7,
+      '#/properties/p/items/1/definitions/D',
+      'p',
+    ],
+  ])('should resolve a $ref to a definition declared inside %s', (_desc, holder, ref, holderName) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        [holderName]: holder,
+        x: { $ref: ref },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const xField = doc.fields[0].fields.find((f) => f.key === 'x');
+    expect(xField!.type).toBe(Types.String);
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,
