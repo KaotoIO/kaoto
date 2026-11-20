@@ -65,6 +65,11 @@ $fields: ':is(.cds--text-input__field-outer-wrapper, .cds--text-area__wrapper, .
     .cds--modal-content #{$fields} {
       @include kaoto.field-fill;
     }
+
+    // The actions of the footer read as firmly as the labels above them
+    .cds--modal-footer .cds--btn {
+      font-weight: font-weight('semibold');
+    }
   }
 
   @include kaoto.kaoto-theme-dark {
