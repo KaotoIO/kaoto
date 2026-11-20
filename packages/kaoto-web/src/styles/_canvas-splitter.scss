@@ -1,0 +1,24 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+
+// The splitter between the canvas and the step form looks like the Explorer resizer: no grip at rest, a line over the
+// full height on hover and focus. PatternFly's drawer keeps its 12 px grab area.
+#topology-resize-panel .pf-v6-c-drawer__splitter {
+  .pf-v6-c-drawer__splitter-handle {
+    display: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: $spacing-02;
+    inline-size: $spacing-02;
+    background-color: transparent;
+  }
+
+  &:hover::before,
+  &:focus::before {
+    background-color: $border-interactive;
+  }
+}
