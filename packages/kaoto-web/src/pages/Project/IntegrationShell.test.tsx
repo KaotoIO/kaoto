@@ -24,7 +24,7 @@ const RouteVisualizationStub: typeof KaotoComponentsModule.RouteVisualization = 
 /** The code change callback the canvas got last, as if the user edited the route on the canvas */
 const editOnCanvas = (code: string) => {
   act(() => {
-    routeVisualizationSpy.mock.lastCall![0].codeChange(code);
+    routeVisualizationSpy.mock.lastCall![0].codeChange!(code);
   });
 };
 
