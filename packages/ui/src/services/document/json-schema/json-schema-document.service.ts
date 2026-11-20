@@ -277,12 +277,11 @@ export class JsonSchemaDocumentService {
       path: fullRef,
     };
 
-    // register a placeholder first, so that a circular reference back to this fragment doesn't build it again
-    this.jsonDocument.namedTypeFragments[fullRef] = { fields: [], namedTypeFragmentRefs: [] };
-    this.jsonDocument.namedTypeFragments[fullRef] = this.doCreateFragmentFromJSONSchema(
-      this.jsonDocument,
-      defSchemaMeta,
-    );
+    // register the fragment before building it, so that a circular reference back to it doesn't build it again;
+    // it is filled in place, so whoever picked it up in the meantime sees the built fragment
+    const fragment: JsonSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: [] };
+    this.jsonDocument.namedTypeFragments[fullRef] = fragment;
+    Object.assign(fragment, this.doCreateFragmentFromJSONSchema(this.jsonDocument, defSchemaMeta));
   }
 
   /**
