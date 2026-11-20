@@ -10975,8 +10975,8 @@ __metadata:
   linkType: hard
 
 "cypress@npm:^16.0.0":
-  version: 16.0.0
-  resolution: "cypress@npm:16.0.0"
+  version: 16.3.0
+  resolution: "cypress@npm:16.3.0"
   dependencies:
     "@cypress/request": "npm:^4.0.0"
     "@cypress/xvfb": "npm:^1.2.4"
@@ -11012,14 +11012,14 @@ __metadata:
     proxy-from-env: "npm:1.0.0"
     request-progress: "npm:^3.0.0"
     supports-color: "npm:^8.1.1"
-    systeminformation: "npm:^5.31.1"
+    systeminformation: "npm:^5.33.16"
     tmp: "npm:~0.2.4"
     tree-kill: "npm:1.2.2"
     untildify: "npm:^4.0.0"
     yauzl: "npm:^3.3.1"
   bin:
     cypress: bin/cypress
-  checksum: 10/6d20f74df488647be466d90b21c1d6ed10b91e9ea5a0ab538d9ecd52a6318099720c468234fc4fe48cba1a7807d1d55e108e9f9522886af297ea6671e6b35b52
+  checksum: 10/be428af1981de356329acb4e35f6a9d05561a35e99cfc629d416a79f2085ca3dbfe42b8744a06c33af93ccfc1ae7455e5c3f2d2250cac92eaaea0d7a761185f0
   languageName: node
   linkType: hard
 
@@ -23552,12 +23552,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"systeminformation@npm:^5.31.1":
-  version: 5.33.10
-  resolution: "systeminformation@npm:5.33.10"
+"systeminformation@npm:^5.33.16":
+  version: 5.33.21
+  resolution: "systeminformation@npm:5.33.21"
   bin:
     systeminformation: lib/cli.js
-  checksum: 10/2c3d85d90da2410b362f444919f8e476d2cebfae4c6a371e34f127b7012f75c9d0b2204473cc4c59a1615b1ea415b8ec213a4d3c069bd992f9384a26a5e8aa30
+  checksum: 10/7b5fcef9e87720f52b2b3213d9f8461a462dba1d01aa1df7b5b6ac58d1628e8711effbf971aec146fd4ef93f2a96953aaafa809887caf90dff01a57accad1853
   conditions: (os=darwin | os=linux | os=win32 | os=freebsd | os=openbsd | os=netbsd | os=sunos | os=android)
   languageName: node
   linkType: hard
