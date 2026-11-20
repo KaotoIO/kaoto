@@ -57,6 +57,11 @@ interface CanvasProps {
   blocked?: boolean;
 }
 
+/** The background rectangle of the graph, which takes the right-clicks for the canvas menu */
+export const GRAPH_BACKGROUND = '[data-kind="graph"] > rect';
+/** The visible area of the graph, without the toolbars and the side panel */
+export const GRAPH_CONTENT = '.pf-topology-content';
+
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
 
 interface CanvasState {
@@ -264,7 +269,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     (event: React.MouseEvent) => {
       // Only the graph's own background rectangle counts, not rects inside nodes, groups or toolbars
       const target = event.target;
-      if (target instanceof SVGElement && target.matches('[data-kind="graph"] > rect')) {
+      if (target instanceof SVGElement && target.matches(GRAPH_BACKGROUND)) {
         clearSelection();
       }
     },
@@ -282,6 +287,21 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       // Escape inside the overlay or outside the canvas DOM tree (e.g. portaled dropdowns/modals) belongs to its own controls
       if (event.key === 'Escape' && event.currentTarget.contains(target) && !overlayRef.current?.contains(target)) {
         clearSelection();
+      } else if (
+        ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') &&
+        event.target === event.currentTarget
+      ) {
+        // Open the background menu like a right-click would, near the top-left corner of the visible graph
+        const content = event.currentTarget.querySelector(GRAPH_CONTENT);
+        const background = event.currentTarget.querySelector(GRAPH_BACKGROUND);
+        if (!content || !background) return;
+
+        event.preventDefault();
+        const { left, top } = content.getBoundingClientRect();
+        const inset = CanvasDefaults.KEYBOARD_MENU_INSET;
+        background.dispatchEvent(
+          new MouseEvent('contextmenu', { bubbles: true, clientX: left + inset, clientY: top + inset }),
+        );
       }
     },
     [clearSelection],
