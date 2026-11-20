@@ -76,7 +76,7 @@ describe('CreateFileModal', () => {
   it('offers the file types with a Camel route in YAML chosen, and the name ready to type', async () => {
     renderModal();
 
-    expect(screen.getByRole('heading', { name: 'Create New File' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create new file' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'File type' })).toBeInTheDocument();
     expect(fileType('Camel Route YAML')).toBeChecked();
     for (const type of ['Camel Route XML', 'Kamelet', 'Citrus Test']) {
@@ -88,7 +88,7 @@ describe('CreateFileModal', () => {
     });
     expect(screen.getByLabelText('File name')).toHaveAttribute('placeholder', 'e.g. orders.camel.yaml');
     expect(screen.getByLabelText('Folder path (optional)')).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Create File' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
   });
 
   it('describes each file type on its tile', () => {
@@ -111,8 +111,8 @@ describe('CreateFileModal', () => {
     await user.click(fileType(type));
     await user.type(screen.getByLabelText('File name'), 'orders');
 
-    expect(screen.getByText(`Creates ${path}`)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create File' })).toBeEnabled();
+    expect(screen.getByTestId('create-file-preview')).toHaveTextContent(path);
+    expect(screen.getByRole('button', { name: 'Create' })).toBeEnabled();
   });
 
   it('puts the file into the optional folder', async () => {
@@ -123,8 +123,8 @@ describe('CreateFileModal', () => {
     await user.type(screen.getByLabelText('File name'), 'orders');
     await user.type(screen.getByLabelText('Folder path (optional)'), '/kamelets/');
 
-    expect(screen.getByText('Creates kamelets/orders.kamelet.yaml')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create File' })).toBeEnabled();
+    expect(screen.getByTestId('create-file-preview')).toHaveTextContent('kamelets/orders.kamelet.yaml');
+    expect(screen.getByRole('button', { name: 'Create' })).toBeEnabled();
   });
 
   it('tells what is wrong with the name or the folder', async () => {
@@ -139,7 +139,7 @@ describe('CreateFileModal', () => {
     await user.type(screen.getByLabelText('File name'), 'orders');
     await user.type(screen.getByLabelText('Folder path (optional)'), '../outside');
     expect(screen.getByText('Use a folder path such as routes/orders')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create File' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
   });
 
   it('does not create a file whose path is taken', async () => {
@@ -152,7 +152,7 @@ describe('CreateFileModal', () => {
     await user.type(screen.getByLabelText('File name'), 'main-flow');
 
     expect(await screen.findByText('A file with this path already exists')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create File' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
   });
 
   it('creates the file from the starter template, closes and opens it', async () => {
@@ -162,7 +162,7 @@ describe('CreateFileModal', () => {
     await user.click(fileType('Camel Route YAML'));
     await user.type(screen.getByLabelText('File name'), 'orders');
     await user.type(screen.getByLabelText('Folder path (optional)'), 'routes');
-    await user.click(screen.getByRole('button', { name: 'Create File' }));
+    await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
       expect(onClose).toHaveBeenCalled();
@@ -181,7 +181,7 @@ describe('CreateFileModal', () => {
 
     await user.click(fileType('Camel Route XML'));
     await user.type(screen.getByLabelText('File name'), 'orders');
-    await user.click(screen.getByRole('button', { name: 'Create File' }));
+    await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
       expect(onClose).toHaveBeenCalled();
@@ -197,7 +197,7 @@ describe('CreateFileModal', () => {
 
     await user.click(fileType('Kamelet'));
     await user.type(screen.getByLabelText('File name'), 'my-source');
-    await user.click(screen.getByRole('button', { name: 'Create File' }));
+    await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
       expect(onClose).toHaveBeenCalled();
@@ -214,7 +214,7 @@ describe('CreateFileModal', () => {
     await user.click(fileType('Kamelet'));
     await user.type(screen.getByLabelText('File name'), 'my-source');
     await user.type(screen.getByLabelText('Folder path (optional)'), 'kamelets');
-    await user.click(screen.getByRole('button', { name: 'Create File' }));
+    await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
       expect(onClose).toHaveBeenCalled();
@@ -260,11 +260,11 @@ describe('CreateFileModal', () => {
 
     await user.click(fileType('Camel Route YAML'));
     await user.type(screen.getByLabelText('File name'), 'orders');
-    await user.click(screen.getByRole('button', { name: 'Create File' }));
+    await user.click(screen.getByRole('button', { name: 'Create' }));
 
     expect(await screen.findByText('Could not create the file')).toBeInTheDocument();
     expect(screen.getByText('Could not load /camel-catalog/index.json (500)')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Create File' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Create' })).toBeEnabled();
     expect(onClose).not.toHaveBeenCalled();
     expect(await storedFiles()).toEqual([]);
   });
@@ -305,7 +305,7 @@ describe('CreateFileModal', () => {
 
     await user.click(fileType('Camel Route YAML'));
     await user.type(screen.getByLabelText('File name'), 'orders');
-    await user.click(screen.getByRole('button', { name: 'Create File' }));
+    await user.click(screen.getByRole('button', { name: 'Create' }));
     await screen.findByRole('button', { name: 'Creating…' });
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     await act(async () => {
@@ -331,7 +331,7 @@ describe('CreateFileModal', () => {
 
     await user.click(fileType('Camel Route YAML'));
     await user.type(screen.getByLabelText('File name'), 'orders');
-    await user.click(screen.getByRole('button', { name: 'Create File' }));
+    await user.click(screen.getByRole('button', { name: 'Create' }));
     await screen.findByRole('button', { name: 'Creating…' });
 
     for (const type of ['Camel Route YAML', 'Camel Route XML', 'Kamelet', 'Citrus Test']) {
