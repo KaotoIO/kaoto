@@ -43,11 +43,7 @@ $fields: ':is(.cds--text-input__field-outer-wrapper, .cds--text-area__wrapper, .
     }
 
     .canvas-form__header {
-      @include kaoto.on-accent-ghost-button;
-
-      border-start-start-radius: calc(#{kaoto.$card-radius} - 1px);
-      border-start-end-radius: calc(#{kaoto.$card-radius} - 1px);
-      background-color: var(--cs-accent);
+      @include kaoto.accent-header($rounded-top: true);
     }
 
     .form-header__title {

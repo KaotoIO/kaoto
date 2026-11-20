@@ -38,11 +38,10 @@ $fields: ':is(.cds--text-input__field-outer-wrapper, .cds--text-area__wrapper, .
     }
 
     .cds--modal-header {
-      @include kaoto.on-accent-ghost-button;
+      @include kaoto.accent-header;
 
       margin-block-end: $spacing-05;
       padding-block: $spacing-03;
-      background-color: var(--cs-accent);
     }
 
     .cds--modal-header__heading {
