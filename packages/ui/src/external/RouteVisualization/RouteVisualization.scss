@@ -1,0 +1,16 @@
+// The design view keeps its layout while it is shown and stays mounted while the code view is shown
+.route-visualization-design {
+  display: contents;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+// Takes the place of the canvas, also inside a flex container of the host
+.route-visualization-code {
+  flex: 1;
+  min-inline-size: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}

@@ -1,5 +1,14 @@
 import { Content, ContentVariants } from '@patternfly/react-core';
-import { createContext, FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  FunctionComponent,
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { Loading } from '../components/Loading';
 import { useKaotoResourceContext } from '../hooks/useKaotoResourceContext/useKaotoResourceContext';
@@ -78,6 +87,12 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
 
   const readyResource = ready?.resource;
 
+  /** The resource of the latest document, read after an asynchronous serialization */
+  const currentResourceRef = useRef(kaotoResource);
+  useEffect(() => {
+    currentResourceRef.current = kaotoResource;
+  }, [kaotoResource]);
+
   const updateSourceCodeFromEntities = useCallback(() => {
     // Block writes while the current resource is still initializing, or while it is an empty
     // fallback for a document that did not parse. In both cases the store already holds the
@@ -85,6 +100,9 @@ export const EntitiesProvider: FunctionComponent<PropsWithChildren> = ({ childre
     // resource would overwrite it and corrupt the host's copy of the file.
     if (parseState === ResourceParseState.Error || readyResource !== kaotoResource) return;
     void readyResource.toSourceCode().then((code) => {
+      // A newer document replaced the resource while it was serialized, e.g. the host opened another file: its code
+      // must not overwrite the new document.
+      if (currentResourceRef.current !== readyResource) return;
       eventNotifier.next('entities:updated', code);
     });
   }, [readyResource, kaotoResource, parseState, eventNotifier]);

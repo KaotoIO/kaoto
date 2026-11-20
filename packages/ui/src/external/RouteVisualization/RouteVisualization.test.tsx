@@ -1,9 +1,10 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { useSuggestionRegistry } from '@kaoto/forms';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, RenderResult, screen, waitFor } from '@testing-library/react';
+import { editor } from 'monaco-editor';
 import { FunctionComponent, useContext, useEffect, useState } from 'react';
-import type { Mock } from 'vitest';
+import type { Mock, MockInstance } from 'vitest';
 
 import { Anchors } from '../../components/registers/anchors';
 import { IInteractionType } from '../../components/registers/interactions/node-interaction-addon.model';
@@ -14,12 +15,21 @@ import { IRegisteredValidatedComponent } from '../../components/RenderingAnchor/
 import * as VisualizationModule from '../../components/Visualization';
 import { CatalogModalContext } from '../../dynamic-catalog/catalog-modal.provider';
 import { IVisualizationNode } from '../../models';
+import { KaotoSchemaDefinition } from '../../models';
+import { sourceSchemaConfig } from '../../models/camel';
 import { ActionConfirmationModalContext } from '../../providers/action-confirmation-modal.provider';
+import { EntitiesContext } from '../../providers/entities.provider';
+import { useSourceCodeStore } from '../../store';
 import { camelRouteYaml } from '../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { EventNotifier } from '../../utils';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
-import { RouteVisualization } from './RouteVisualization';
+import {
+  inMemorySourceCodeAdapter,
+  RouteVisualization,
+  RouteVisualizationUndoRedo,
+  SourceCodeAdapter,
+} from './RouteVisualization';
 
 describe('RouteVisualization', () => {
   let fetchResolve: () => void;
@@ -93,13 +103,13 @@ describe('RouteVisualization', () => {
   });
 
   /** Renders the component with DesignerVisualization replaced by `probe` and waits until the probe is mounted */
-  const renderWithProbe = async (probe: () => void) => {
+  const renderWithProbe = async (probe: () => void, renderComponent: () => RenderResult = renderRouteVisualization) => {
     vi.spyOn(VisualizationModule, 'DesignerVisualization').mockImplementation(() => {
       probe();
       return <div data-testid="designer-visualization" />;
     });
 
-    renderRouteVisualization();
+    const result = renderComponent();
 
     for (let i = 0; i < 5 && !screen.queryByTestId('designer-visualization'); i++) {
       await act(async () => {
@@ -108,6 +118,7 @@ describe('RouteVisualization', () => {
     }
 
     expect(screen.getByTestId('designer-visualization')).toBeInTheDocument();
+    return result;
   };
 
   it('provides the suggestion registry that the forms of the side panel require', async () => {
@@ -247,6 +258,164 @@ describe('RouteVisualization', () => {
       });
 
       expect(codeUpdatedSpy).toHaveBeenCalledWith({ code: canvasCode });
+    });
+  });
+
+  describe('with a source code adapter', () => {
+    const adapterVisualization = (adapter: SourceCodeAdapter, view?: 'design' | 'code') => (
+      <RouteVisualization
+        catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+        runtimeCatalogName=""
+        testingCatalogName=""
+        adapter={adapter}
+        view={view}
+      />
+    );
+
+    const renderWithAdapter = (adapter: SourceCodeAdapter, probe: () => void = () => {}, view?: 'design' | 'code') =>
+      renderWithProbe(probe, () => render(adapterVisualization(adapter, view)));
+
+    describe('code view', () => {
+      let createEditorSpy: MockInstance<typeof editor.create>;
+
+      /** The real Monaco editor of the code view, once it is mounted */
+      const getEditor = async (): Promise<editor.IStandaloneCodeEditor> => {
+        await waitFor(
+          () => {
+            expect(createEditorSpy).toHaveBeenCalled();
+          },
+          { timeout: 5_000 },
+        );
+        const lastCreated = createEditorSpy.mock.results.at(-1);
+        if (lastCreated?.type !== 'return') throw new Error('The Monaco editor was not created');
+        return lastCreated.value;
+      };
+
+      let storedSchemas: (KaotoSchemaDefinition | undefined)[];
+
+      beforeEach(() => {
+        createEditorSpy = vi.spyOn(editor, 'create');
+        // Without schemas the editor does not start the YAML language worker, which cannot run in jsdom and would
+        // fail the run with unhandled errors. What the editor shows and writes does not depend on the schema.
+        const sourceSchemas = Object.values(sourceSchemaConfig.config);
+        storedSchemas = sourceSchemas.map((sourceSchema) => sourceSchema.schema);
+        sourceSchemas.forEach((sourceSchema) => {
+          sourceSchema.schema = undefined;
+        });
+        vi.spyOn(sourceSchemaConfig, 'setSchema').mockImplementation(() => {});
+      });
+
+      afterEach(() => {
+        vi.mocked(sourceSchemaConfig.setSchema).mockRestore();
+        Object.values(sourceSchemaConfig.config).forEach((sourceSchema, index) => {
+          sourceSchema.schema = storedSchemas[index];
+        });
+      });
+
+      it('shows the document in the code editor', async () => {
+        await renderWithAdapter(inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml'), undefined, 'code');
+
+        const codeEditor = await getEditor();
+
+        expect(codeEditor.getValue()).toBe(camelRouteYaml);
+      });
+
+      it.each([
+        ['a YAML route', camelRouteYaml, 'route.camel.yaml'],
+        ['an XML route', '<camel><route id="r1"><from uri="timer:tick"/></route></camel>', 'route.camel.xml'],
+      ])('keeps the path of %s when its code is edited', async (_, code, path) => {
+        await renderWithAdapter(inMemorySourceCodeAdapter(code, path), undefined, 'code');
+        const codeEditor = await getEditor();
+
+        act(() => {
+          codeEditor.setValue(`${code}\n`);
+        });
+
+        expect(useSourceCodeStore.getState()).toMatchObject({ sourceCode: `${code}\n`, path });
+      });
+
+      it('keeps the canvas mounted when switching to the code view and back', async () => {
+        const adapter = inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml');
+        const { rerender } = await renderWithAdapter(adapter);
+        const canvas = screen.getByTestId('designer-visualization');
+
+        rerender(adapterVisualization(adapter, 'code'));
+        await getEditor();
+        rerender(adapterVisualization(adapter, 'design'));
+
+        expect(screen.getByTestId('designer-visualization')).toBe(canvas);
+      });
+    });
+
+    it('shows the routes of the document the adapter delivers', async () => {
+      let routeIds: string[] = [];
+
+      await renderWithAdapter(inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml'), () => {
+        routeIds = useContext(EntitiesContext)?.visualEntities.map((entity) => entity.id) ?? [];
+      });
+
+      expect(routeIds).toEqual(['route-8888']);
+    });
+
+    it('passes canvas edits to the adapter', async () => {
+      const onChange = vi.fn();
+      await renderWithAdapter({ ...inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml'), onChange });
+
+      act(() => {
+        EventNotifier.getInstance().next('entities:updated', `${camelRouteYaml}# edited on the canvas\n`);
+      });
+
+      expect(onChange).toHaveBeenCalledWith(`${camelRouteYaml}# edited on the canvas\n`);
+    });
+
+    describe('undo and redo', () => {
+      const renderWithHistory = (
+        adapter: SourceCodeAdapter,
+        onUndoRedoChange: (state: RouteVisualizationUndoRedo) => void,
+      ) =>
+        renderWithProbe(
+          () => {},
+          () =>
+            render(
+              <RouteVisualization
+                catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+                runtimeCatalogName=""
+                testingCatalogName=""
+                adapter={adapter}
+                onUndoRedoChange={onUndoRedoChange}
+              />,
+            ),
+        );
+
+      it('reports that nothing can be undone or redone after the document is loaded', async () => {
+        const onUndoRedoChange = vi.fn();
+
+        await renderWithHistory(inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml'), onUndoRedoChange);
+
+        expect(onUndoRedoChange).toHaveBeenLastCalledWith(expect.objectContaining({ canUndo: false, canRedo: false }));
+      });
+
+      it('reports undo after an edit and restores the previous code with it', async () => {
+        const onChange = vi.fn();
+        let history: RouteVisualizationUndoRedo | undefined;
+        await renderWithHistory(
+          { ...inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml'), onChange },
+          (state) => {
+            history = state;
+          },
+        );
+        act(() => {
+          useSourceCodeStore.getState().setCodeAndNotify(`${camelRouteYaml}# edited\n`, 'route.camel.yaml');
+        });
+        expect(history?.canUndo).toBe(true);
+
+        act(() => {
+          history?.undo();
+        });
+
+        expect(onChange).toHaveBeenLastCalledWith(camelRouteYaml);
+        expect(history?.canRedo).toBe(true);
+      });
     });
   });
 });
