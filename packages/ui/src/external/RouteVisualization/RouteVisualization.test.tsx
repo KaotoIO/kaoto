@@ -15,11 +15,12 @@ import * as VisualizationModule from '../../components/Visualization';
 import { CatalogModalContext } from '../../dynamic-catalog/catalog-modal.provider';
 import { IVisualizationNode } from '../../models';
 import { ActionConfirmationModalContext } from '../../providers/action-confirmation-modal.provider';
+import { EntitiesContext } from '../../providers/entities.provider';
 import { camelRouteYaml } from '../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { EventNotifier } from '../../utils';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
-import { RouteVisualization } from './RouteVisualization';
+import { inMemorySourceCodeAdapter, RouteVisualization, SourceCodeAdapter } from './RouteVisualization';
 
 describe('RouteVisualization', () => {
   let fetchResolve: () => void;
@@ -129,13 +130,13 @@ describe('RouteVisualization', () => {
   });
 
   /** Renders the component with DesignerVisualization replaced by `probe` and waits until the probe is mounted */
-  const renderWithProbe = async (probe: () => void) => {
+  const renderWithProbe = async (probe: () => void, renderComponent = renderRouteVisualization) => {
     vi.spyOn(VisualizationModule, 'DesignerVisualization').mockImplementation(() => {
       probe();
       return <div data-testid="designer-visualization" />;
     });
 
-    renderRouteVisualization();
+    renderComponent();
 
     for (let i = 0; i < 5 && !screen.queryByTestId('designer-visualization'); i++) {
       await act(async () => {
@@ -283,6 +284,41 @@ describe('RouteVisualization', () => {
       });
 
       expect(codeUpdatedSpy).toHaveBeenCalledWith({ code: canvasCode });
+    });
+  });
+
+  describe('with a source code adapter', () => {
+    const renderWithAdapter = (adapter: SourceCodeAdapter, probe: () => void = () => {}) =>
+      renderWithProbe(probe, () =>
+        render(
+          <RouteVisualization
+            catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+            runtimeCatalogName=""
+            testingCatalogName=""
+            adapter={adapter}
+          />,
+        ),
+      );
+
+    it('shows the routes of the document the adapter delivers', async () => {
+      let routeIds: string[] = [];
+
+      await renderWithAdapter(inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml'), () => {
+        routeIds = useContext(EntitiesContext)?.visualEntities.map((entity) => entity.id) ?? [];
+      });
+
+      expect(routeIds).toEqual(['route-8888']);
+    });
+
+    it('passes canvas edits to the adapter', async () => {
+      const onChange = vi.fn();
+      await renderWithAdapter({ ...inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml'), onChange });
+
+      act(() => {
+        EventNotifier.getInstance().next('entities:updated', `${camelRouteYaml}# edited on the canvas\n`);
+      });
+
+      expect(onChange).toHaveBeenCalledWith(`${camelRouteYaml}# edited on the canvas\n`);
     });
   });
 });
