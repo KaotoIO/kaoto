@@ -465,8 +465,8 @@ export class JsonSchemaDocumentService {
    * at this moment. If we want to do something with `not` then it would also need some change here.
    * @param field
    * @param schema
-   * @param isRequiredBinding - whether the `required` reached through `schema` applies to the field; false inside an
-   *   `anyOf` or `oneOf` member, as another member may allow the property to be absent
+   * @param isRequiredBinding - whether the `required` of `schema` and its `allOf` members applies to the field; false
+   *   inside an `anyOf` or `oneOf` member, as another member may allow the property to be absent
    */
   private updateFieldFromComposition(
     field: JsonSchemaField,
@@ -488,16 +488,19 @@ export class JsonSchemaDocumentService {
         this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('oneOf', index), false),
       updated ?? field,
     );
-    updated = schema.allOf?.reduce(
-      (current, compositionSchemaDef, index) =>
-        this.doUpdateWithJSONSchemaDefinition(
-          current,
-          compositionSchemaDef,
-          memberSchema('allOf', index),
-          isRequiredBinding,
-        ),
-      updated ?? field,
-    );
+    updated = schema.allOf?.reduce((current, compositionSchemaDef, index) => {
+      const updatedByMember = this.doUpdateWithJSONSchemaDefinition(
+        current,
+        compositionSchemaDef,
+        memberSchema('allOf', index),
+        isRequiredBinding,
+      );
+      // unlike anyOf and oneOf, every allOf member applies, so a property it requires is required
+      if (isRequiredBinding && typeof compositionSchemaDef !== 'boolean' && compositionSchemaDef.required) {
+        updatedByMember.required.push(...compositionSchemaDef.required);
+      }
+      return updatedByMember;
+    }, updated ?? field);
     return updated ?? field;
   }
 
