@@ -19,6 +19,7 @@ import { ControllerService } from '../../components/Visualization/Canvas/control
 import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
 import { CatalogModalProvider } from '../../dynamic-catalog/catalog-modal.provider';
 import { CatalogTilesProvider } from '../../dynamic-catalog/catalog-tiles.provider';
+import { useUndoRedo } from '../../hooks/undo-redo.hook';
 import {
   EntitiesContext,
   EntitiesProvider,
@@ -63,7 +64,16 @@ const Viz: FunctionComponent<{
   className?: string;
   adapter?: SourceCodeAdapter;
   view?: RouteVisualizationView;
-}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, className = '', adapter, view = 'design' }) => {
+  onUndoRedoChange?: (state: RouteVisualizationUndoRedo) => void;
+}> = ({
+  catalogUrl,
+  runtimeCatalogName,
+  testingCatalogName,
+  className = '',
+  adapter,
+  view = 'design',
+  onUndoRedoChange,
+}) => {
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
@@ -80,6 +90,7 @@ const Viz: FunctionComponent<{
                 <EntitiesProvider>
                   <CatalogTilesProvider>
                     <VisualizationProvider controller={controller}>
+                      {onUndoRedoChange && <UndoRedoReporter onUndoRedoChange={onUndoRedoChange} />}
                       <VisibleFlowsProvider>
                         {/* Renders the auto startup switch of routes and the component mode selector of the forms */}
                         <RenderingProvider>
@@ -129,6 +140,27 @@ const SourceCodeBoundary: FunctionComponent<PropsWithChildren<{ adapter?: Source
 
 export type RouteVisualizationView = 'design' | 'code';
 
+/** The shared undo/redo history of the canvas and the code view, for hosts with their own Undo and Redo buttons */
+export interface RouteVisualizationUndoRedo {
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
+}
+
+/** Reports the history from inside the providers, where undo and redo can reset the graph through the controller */
+const UndoRedoReporter: FunctionComponent<{ onUndoRedoChange: (state: RouteVisualizationUndoRedo) => void }> = ({
+  onUndoRedoChange,
+}) => {
+  const { undo, redo, canUndo, canRedo } = useUndoRedo();
+
+  useEffect(() => {
+    onUndoRedoChange({ undo, redo, canUndo, canRedo });
+  }, [undo, redo, canUndo, canRedo, onUndoRedoChange]);
+
+  return null;
+};
+
 interface RouteVisualizationBaseProps {
   catalogUrl: string;
   runtimeCatalogName: string;
@@ -142,6 +174,7 @@ interface RouteVisualizationCodeProps extends RouteVisualizationBaseProps {
   codeChange: (code: string) => void;
   adapter?: never;
   view?: never;
+  onUndoRedoChange?: never;
 }
 
 /** The host connects its document through a source code adapter */
@@ -149,6 +182,8 @@ interface RouteVisualizationAdapterProps extends RouteVisualizationBaseProps {
   adapter: SourceCodeAdapter;
   /** The canvas or the code of the document; the canvas stays mounted while the code is shown */
   view?: RouteVisualizationView;
+  /** Called with the undo/redo history whenever it changes */
+  onUndoRedoChange?: (state: RouteVisualizationUndoRedo) => void;
   code?: never;
   codeChange?: never;
 }
@@ -167,6 +202,7 @@ export const RouteVisualization: FunctionComponent<RouteVisualizationProps> = (p
       className={props.className}
       adapter={props.adapter}
       view={props.view}
+      onUndoRedoChange={props.onUndoRedoChange}
     />
   ) : (
     <CodeRouteVisualization {...props} />

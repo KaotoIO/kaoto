@@ -24,7 +24,12 @@ import { camelRouteYaml } from '../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { EventNotifier } from '../../utils';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
-import { inMemorySourceCodeAdapter, RouteVisualization, SourceCodeAdapter } from './RouteVisualization';
+import {
+  inMemorySourceCodeAdapter,
+  RouteVisualization,
+  RouteVisualizationUndoRedo,
+  SourceCodeAdapter,
+} from './RouteVisualization';
 
 describe('RouteVisualization', () => {
   let fetchResolve: () => void;
@@ -397,6 +402,56 @@ describe('RouteVisualization', () => {
       });
 
       expect(onChange).toHaveBeenCalledWith(`${camelRouteYaml}# edited on the canvas\n`);
+    });
+
+    describe('undo and redo', () => {
+      const renderWithHistory = (
+        adapter: SourceCodeAdapter,
+        onUndoRedoChange: (state: RouteVisualizationUndoRedo) => void,
+      ) =>
+        renderWithProbe(
+          () => {},
+          () =>
+            render(
+              <RouteVisualization
+                catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+                runtimeCatalogName=""
+                testingCatalogName=""
+                adapter={adapter}
+                onUndoRedoChange={onUndoRedoChange}
+              />,
+            ),
+        );
+
+      it('reports that nothing can be undone or redone after the document is loaded', async () => {
+        const onUndoRedoChange = vi.fn();
+
+        await renderWithHistory(inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml'), onUndoRedoChange);
+
+        expect(onUndoRedoChange).toHaveBeenLastCalledWith(expect.objectContaining({ canUndo: false, canRedo: false }));
+      });
+
+      it('reports undo after an edit and restores the previous code with it', async () => {
+        const onChange = vi.fn();
+        let history: RouteVisualizationUndoRedo | undefined;
+        await renderWithHistory(
+          { ...inMemorySourceCodeAdapter(camelRouteYaml, 'route.camel.yaml'), onChange },
+          (state) => {
+            history = state;
+          },
+        );
+        act(() => {
+          useSourceCodeStore.getState().setCodeAndNotify(`${camelRouteYaml}# edited\n`, 'route.camel.yaml');
+        });
+        expect(history?.canUndo).toBe(true);
+
+        act(() => {
+          history?.undo();
+        });
+
+        expect(onChange).toHaveBeenLastCalledWith(camelRouteYaml);
+        expect(history?.canRedo).toBe(true);
+      });
     });
   });
 });
