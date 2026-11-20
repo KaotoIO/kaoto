@@ -8126,82 +8126,82 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign-alpine-arm64@npm:2.0.6":
-  version: 2.0.6
-  resolution: "@vscode/vsce-sign-alpine-arm64@npm:2.0.6"
+"@vscode/vsce-sign-alpine-arm64@npm:2.0.8":
+  version: 2.0.8
+  resolution: "@vscode/vsce-sign-alpine-arm64@npm:2.0.8"
   conditions: os=alpine & cpu=arm64
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign-alpine-x64@npm:2.0.6":
-  version: 2.0.6
-  resolution: "@vscode/vsce-sign-alpine-x64@npm:2.0.6"
+"@vscode/vsce-sign-alpine-x64@npm:2.0.8":
+  version: 2.0.8
+  resolution: "@vscode/vsce-sign-alpine-x64@npm:2.0.8"
   conditions: os=alpine & cpu=x64
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign-darwin-arm64@npm:2.0.6":
-  version: 2.0.6
-  resolution: "@vscode/vsce-sign-darwin-arm64@npm:2.0.6"
+"@vscode/vsce-sign-darwin-arm64@npm:2.0.8":
+  version: 2.0.8
+  resolution: "@vscode/vsce-sign-darwin-arm64@npm:2.0.8"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign-darwin-x64@npm:2.0.6":
-  version: 2.0.6
-  resolution: "@vscode/vsce-sign-darwin-x64@npm:2.0.6"
+"@vscode/vsce-sign-darwin-x64@npm:2.0.8":
+  version: 2.0.8
+  resolution: "@vscode/vsce-sign-darwin-x64@npm:2.0.8"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign-linux-arm64@npm:2.0.6":
-  version: 2.0.6
-  resolution: "@vscode/vsce-sign-linux-arm64@npm:2.0.6"
+"@vscode/vsce-sign-linux-arm64@npm:2.0.8":
+  version: 2.0.8
+  resolution: "@vscode/vsce-sign-linux-arm64@npm:2.0.8"
   conditions: os=linux & cpu=arm64
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign-linux-arm@npm:2.0.6":
-  version: 2.0.6
-  resolution: "@vscode/vsce-sign-linux-arm@npm:2.0.6"
+"@vscode/vsce-sign-linux-arm@npm:2.0.8":
+  version: 2.0.8
+  resolution: "@vscode/vsce-sign-linux-arm@npm:2.0.8"
   conditions: os=linux & cpu=arm
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign-linux-x64@npm:2.0.6":
-  version: 2.0.6
-  resolution: "@vscode/vsce-sign-linux-x64@npm:2.0.6"
+"@vscode/vsce-sign-linux-x64@npm:2.0.8":
+  version: 2.0.8
+  resolution: "@vscode/vsce-sign-linux-x64@npm:2.0.8"
   conditions: os=linux & cpu=x64
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign-win32-arm64@npm:2.0.6":
-  version: 2.0.6
-  resolution: "@vscode/vsce-sign-win32-arm64@npm:2.0.6"
+"@vscode/vsce-sign-win32-arm64@npm:2.0.8":
+  version: 2.0.8
+  resolution: "@vscode/vsce-sign-win32-arm64@npm:2.0.8"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign-win32-x64@npm:2.0.6":
-  version: 2.0.6
-  resolution: "@vscode/vsce-sign-win32-x64@npm:2.0.6"
+"@vscode/vsce-sign-win32-x64@npm:2.0.8":
+  version: 2.0.8
+  resolution: "@vscode/vsce-sign-win32-x64@npm:2.0.8"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
 
-"@vscode/vsce-sign@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@vscode/vsce-sign@npm:2.1.0"
+"@vscode/vsce-sign@npm:^2.1.1":
+  version: 2.1.1
+  resolution: "@vscode/vsce-sign@npm:2.1.1"
   dependencies:
-    "@vscode/vsce-sign-alpine-arm64": "npm:2.0.6"
-    "@vscode/vsce-sign-alpine-x64": "npm:2.0.6"
-    "@vscode/vsce-sign-darwin-arm64": "npm:2.0.6"
-    "@vscode/vsce-sign-darwin-x64": "npm:2.0.6"
-    "@vscode/vsce-sign-linux-arm": "npm:2.0.6"
-    "@vscode/vsce-sign-linux-arm64": "npm:2.0.6"
-    "@vscode/vsce-sign-linux-x64": "npm:2.0.6"
-    "@vscode/vsce-sign-win32-arm64": "npm:2.0.6"
-    "@vscode/vsce-sign-win32-x64": "npm:2.0.6"
+    "@vscode/vsce-sign-alpine-arm64": "npm:2.0.8"
+    "@vscode/vsce-sign-alpine-x64": "npm:2.0.8"
+    "@vscode/vsce-sign-darwin-arm64": "npm:2.0.8"
+    "@vscode/vsce-sign-darwin-x64": "npm:2.0.8"
+    "@vscode/vsce-sign-linux-arm": "npm:2.0.8"
+    "@vscode/vsce-sign-linux-arm64": "npm:2.0.8"
+    "@vscode/vsce-sign-linux-x64": "npm:2.0.8"
+    "@vscode/vsce-sign-win32-arm64": "npm:2.0.8"
+    "@vscode/vsce-sign-win32-x64": "npm:2.0.8"
   dependenciesMeta:
     "@vscode/vsce-sign-alpine-arm64":
       optional: true
@@ -8221,13 +8221,13 @@ __metadata:
       optional: true
     "@vscode/vsce-sign-win32-x64":
       optional: true
-  checksum: 10/f935dfece48483185e035428eb1cc9ddca865b46a03c6ef7a0530b33388fc774de166028db06359e6e1c283aa193b6d92ebedf7d9efb90dc642d4640516f849c
+  checksum: 10/212285da7d66eb82a21990b2dd4960216a7ebf766b79126347e8a6a2cdb5562f9fc37571e2ff8d3d682a88b20e91912ea9151d0e36c5004d3cbdd6d6ea156f6e
   languageName: node
   linkType: hard
 
-"@vscode/vsce@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "@vscode/vsce@npm:4.0.0"
+"@vscode/vsce@npm:^4.0.0, @vscode/vsce@npm:^4.1.0":
+  version: 4.1.1
+  resolution: "@vscode/vsce@npm:4.1.1"
   dependencies:
     "@azure/identity": "npm:^4.13.2"
     "@napi-rs/keyring": "npm:^1.3.0"
@@ -8236,7 +8236,7 @@ __metadata:
     "@secretlint/secretlint-rule-preset-recommend": "npm:^10.2.2"
     "@secretlint/source-creator": "npm:^10.2.2"
     "@secretlint/types": "npm:^10.2.2"
-    "@vscode/vsce-sign": "npm:^2.1.0"
+    "@vscode/vsce-sign": "npm:^2.1.1"
     azure-devops-node-api: "npm:^12.5.0"
     cockatiel: "npm:^3.2.1"
     commander: "npm:^12.1.0"
@@ -8257,43 +8257,7 @@ __metadata:
     yazl: "npm:^2.5.1"
   bin:
     vsce: vsce
-  checksum: 10/8ad3e311891d50f25155dcf972982a0576e3916d6e1f3872a08b3472c2c8a5ca819fd05a1a930db6a1c9d1177834897e39e025b4e8ba49035de2c1aecc72533f
-  languageName: node
-  linkType: hard
-
-"@vscode/vsce@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "@vscode/vsce@npm:4.1.0"
-  dependencies:
-    "@azure/identity": "npm:^4.13.2"
-    "@napi-rs/keyring": "npm:^1.3.0"
-    "@secretlint/core": "npm:^10.2.2"
-    "@secretlint/secretlint-rule-no-dotenv": "npm:^10.2.2"
-    "@secretlint/secretlint-rule-preset-recommend": "npm:^10.2.2"
-    "@secretlint/source-creator": "npm:^10.2.2"
-    "@secretlint/types": "npm:^10.2.2"
-    "@vscode/vsce-sign": "npm:^2.1.0"
-    azure-devops-node-api: "npm:^12.5.0"
-    cockatiel: "npm:^3.2.1"
-    commander: "npm:^12.1.0"
-    hosted-git-info: "npm:^4.1.0"
-    jsonc-parser: "npm:^3.3.1"
-    marked: "npm:^18.0.11"
-    mime: "npm:^1.6.0"
-    minimatch: "npm:^10.2.6"
-    parse5: "npm:^8.0.1"
-    proper-lockfile: "npm:^4.1.2"
-    read: "npm:^1.0.7"
-    semver: "npm:^7.8.5"
-    tinyglobby: "npm:^0.2.17"
-    typed-rest-client: "npm:^1.8.11"
-    url-join: "npm:^4.0.1"
-    xml2js: "npm:^0.5.0"
-    yauzl: "npm:^3.4.0"
-    yazl: "npm:^2.5.1"
-  bin:
-    vsce: vsce
-  checksum: 10/478e2753ff6962756c8df00934cc0262ff33eca728eb6edfec62a8f94feb431b264d2c229ada7b0fef48042417c1e03e33aeab95a99cb1b4b3593affe581f137
+  checksum: 10/7ebd5ce2d5db3ea5dcf42bad1ba40c89205ae7693b583158bce8c882eb3ea7e6ebf1a00942b5085bd37ac54a00439b4eb227f792e184395255c23a642ab306f0
   languageName: node
   linkType: hard
 
