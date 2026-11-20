@@ -1853,9 +1853,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cyclonedx/cdxgen@npm:12.9.1":
-  version: 12.9.1
-  resolution: "@cyclonedx/cdxgen@npm:12.9.1"
+"@cyclonedx/cdxgen@npm:12.9.2":
+  version: 12.9.2
+  resolution: "@cyclonedx/cdxgen@npm:12.9.2"
   dependencies:
     "@appthreat/atom": "npm:2.5.6"
     "@appthreat/atom-parsetools": "npm:1.3.0"
@@ -1967,7 +1967,7 @@ __metadata:
     saasbom: bin/cdxgen.js
     spdxgen: bin/cdxgen.js
     tracebom: bin/tracebom.js
-  checksum: 10/9c7474907d81c2eea9e4bbc53a550dd493e8343b67627c9c1781bdff45d643a075c35ee65ab098cdea4ceb67f452d637ab1585d2b0cc0129050f847fc13db067
+  checksum: 10/2b8a370c5b4401f3d23b72709b3a81c6cd40dc9bf708463c29b36e4bdfb434235282e70d7a5b90e001d3d8e81afc60fa6875d529838323a6f339170d987b06e2
   languageName: node
   linkType: hard
 
@@ -25160,7 +25160,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "vscode-kaoto@workspace:packages/kaoto-vscode"
   dependencies:
-    "@cyclonedx/cdxgen": "npm:12.9.1"
+    "@cyclonedx/cdxgen": "npm:12.9.2"
     "@eslint/js": "npm:^9.10.0"
     "@kaoto/camel-catalog": "npm:^0.10.10"
     "@kaoto/kaoto": "workspace:*"

@@ -41,7 +41,7 @@
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@cyclonedx/cdxgen": "12.9.1",
+    "@cyclonedx/cdxgen": "12.9.2",
     "@eslint/js": "^9.10.0",
     "@types/chai": "^4.3.20",
     "@types/mocha": "^10.0.10",
