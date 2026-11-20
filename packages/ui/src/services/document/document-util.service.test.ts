@@ -177,6 +177,31 @@ describe('DocumentUtilService', () => {
       expect(() => DocumentUtilService.resolveTypeFragment(refField)).not.toThrow();
       expect(refField.namedTypeFragmentRefs).toEqual(['nonExistentRef']);
     });
+
+    // A guard of the generic adoption: XML type fragments never carry refs, the JSON shape is covered in
+    // json-schema-document.service.test.ts
+    it.each([
+      ['the first of them', ['First']],
+      ['both of them', ['First', 'Second']],
+    ])('should adopt each of two fragments that refer to each other once when a field refers to %s', (_desc, refs) => {
+      const testDoc = TestUtil.createSourceOrderDoc();
+      testDoc.namedTypeFragments['First'] = {
+        fields: [new XmlSchemaField(testDoc, 'firstChild', false)],
+        namedTypeFragmentRefs: ['Second'],
+      };
+      testDoc.namedTypeFragments['Second'] = {
+        fields: [new XmlSchemaField(testDoc, 'secondChild', false)],
+        namedTypeFragmentRefs: ['First'],
+      };
+      const refField = new XmlSchemaField(testDoc.fields[0], 'cyclicRefField', false);
+      refField.namedTypeFragmentRefs = [...refs];
+      testDoc.fields[0].fields.push(refField);
+
+      DocumentUtilService.resolveTypeFragment(refField);
+
+      expect(refField.fields.map((f) => f.name)).toEqual(['firstChild', 'secondChild']);
+      expect(refField.namedTypeFragmentRefs).toEqual([]);
+    });
   });
 
   describe('adoptTypeFragment()', () => {
