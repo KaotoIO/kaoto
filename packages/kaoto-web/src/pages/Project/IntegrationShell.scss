@@ -1,5 +1,6 @@
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
 @use '../../styles/kaoto-theme' as kaoto;
 
 .cs--integration-shell {
@@ -38,4 +39,86 @@
 .cs--integration-shell__empty {
   margin: auto;
   color: $text-secondary;
+}
+
+// The header of the code view (PatternFly's code editor) looks like the header of the Explorer
+.cs--integration-shell__body .pf-v6-c-code-editor__header {
+  @include kaoto.kaoto-theme {
+    background-color: var(--cs-accent);
+
+    // The card of the shell rounds the corners, PatternFly's own rounded outline would leave light corners. Like the
+    // Explorer header it has no bottom line either, which the language tab would cover and look taller.
+    &::before,
+    &::after {
+      content: none;
+    }
+
+    .pf-v6-c-code-editor__header-content,
+    .pf-v6-c-code-editor__tab {
+      align-items: center;
+
+      // As high as the Explorer header: its small buttons plus its padding
+      box-sizing: border-box;
+      block-size: calc(#{$spacing-07} + 2 * #{$spacing-02});
+      padding-block: $spacing-02;
+      border: none;
+      border-radius: 0;
+      background-color: var(--cs-accent);
+      color: var(--cs-on-accent);
+    }
+
+    // Like the heading of the Explorer header, with an icon as bold as its text
+    .pf-v6-c-code-editor__tab-text {
+      font-weight: font-weight('semibold');
+    }
+
+    .pf-v6-c-code-editor__tab-icon svg {
+      stroke: var(--cs-on-accent);
+      stroke-width: 1px;
+    }
+
+    .pf-v6-c-code-editor__tab-icon {
+      color: var(--cs-on-accent);
+    }
+
+    // The buttons look like the small ghost icon buttons of the Explorer header
+    .pf-v6-c-code-editor__controls .pf-v6-c-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      inline-size: $spacing-07;
+      min-inline-size: 0;
+      block-size: $spacing-07;
+      padding: 0;
+      border: 1px solid transparent;
+      border-radius: 0;
+      color: var(--cs-on-accent);
+
+      .pf-v6-c-button__icon {
+        color: var(--cs-on-accent);
+      }
+
+      svg {
+        inline-size: $spacing-05;
+        block-size: $spacing-05;
+        fill: var(--cs-on-accent);
+        stroke: var(--cs-on-accent);
+        stroke-width: 1px;
+      }
+
+      &:hover {
+        background-color: var(--cs-on-accent-hover);
+      }
+
+      &:active {
+        background-color: var(--cs-on-accent-active);
+      }
+
+      &:focus {
+        border-color: var(--cs-on-accent);
+        box-shadow: inset 0 0 0 1px var(--cs-on-accent);
+      }
+    }
+  }
 }
