@@ -305,9 +305,15 @@ describe('KaotoEditor', () => {
     await Promise.all([hostBridge.connect(), editorBridge.connect()]);
 
     const reloadMock = vi.fn();
+    const originalLocation = window.location;
+    // jsdom cannot reload; the editor's router still reads the URL of the page, so the stand-in keeps it
+    const { hash, href, pathname, search } = originalLocation;
     Object.defineProperty(window, 'location', {
-      value: { reload: reloadMock },
+      value: { hash, href, pathname, search, reload: reloadMock },
       writable: true,
+    });
+    onTestFinished(() => {
+      Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
     });
 
     let disconnect: ((error: Error) => void) | undefined;
