@@ -1,19 +1,47 @@
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
 
-.cs--loading-state {
+// Twin of packages/ui/src/components/Loading/Loading.scss, keep both in sync.
+.loading {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: $spacing-05;
   padding: $spacing-07;
   min-block-size: 200px;
 
-  &--overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba($layer, 0.8);
-    z-index: 9999;
+  &__message {
+    margin: 0;
+  }
+
+  &--full-page {
+    box-sizing: border-box;
+    min-block-size: 100vb;
+  }
+
+  &--full-page &__message {
+    @include type-style('heading-03');
+
+    color: $text-primary;
   }
 }
 
-// Made with Bob
+.loading-inline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  // Fits the loader in a tight space, e.g. the icon slot of a button, without growing its host.
+  // Carbon's inline loading otherwise spans the full width and is at least 2rem tall.
+  &--compact {
+    .cds--inline-loading {
+      inline-size: auto;
+      min-block-size: 0;
+    }
+
+    .cds--inline-loading__animation {
+      margin-inline-end: 0;
+    }
+  }
+}

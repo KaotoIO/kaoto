@@ -99,7 +99,11 @@ const IntegrationShell: FunctionComponent = () => {
   } else if (status !== 'loading' && !openFile) {
     body = <p className="cs--integration-shell__empty">The file does not exist</p>;
   } else {
-    body = <LoadingState />;
+    body = (
+      <div className="cs--integration-shell__loading">
+        <LoadingState />
+      </div>
+    );
   }
 
   return (

@@ -145,9 +145,9 @@ describe('IntegrationShell', () => {
 
   it('shows a loading state until the files are loaded', async () => {
     renderWithContext();
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Loading' })).toBeInTheDocument();
     expect(await screen.findByTestId('route-visualization')).toBeInTheDocument();
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: 'Loading' })).not.toBeInTheDocument();
   });
 
   it('publishes full folder path as breadcrumb to context on mount', async () => {
