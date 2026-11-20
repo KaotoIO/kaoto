@@ -115,7 +115,11 @@ const IntegrationShell: FunctionComponent = () => {
 
   let body;
   if (loading) {
-    body = <LoadingState />;
+    body = (
+      <div className="cs--integration-shell__loading">
+        <LoadingState />
+      </div>
+    );
   } else if (!file) {
     body = <p className="cs--integration-shell__empty">The file does not exist</p>;
   } else if (getFileType(file.path) === 'document') {

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { lazy, ReactElement } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
@@ -36,5 +37,22 @@ describe('RootLayout', () => {
   it('renders the Content element with id="main-content" for SkipToContent', () => {
     renderWithRouter('/');
     expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content');
+  });
+
+  it('renders the loader inside the main content while a lazy route loads', async () => {
+    const LazyPage = lazy(() => new Promise<{ default: () => ReactElement }>(() => {}));
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <Routes>
+          <Route element={<RootLayout />}>
+            <Route index element={<LazyPage />} />
+          </Route>
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    const spinner = await screen.findByRole('img', { name: 'Loading' });
+    expect(screen.getByRole('main')).toContainElement(spinner);
+    expect(spinner.closest('.loading')).toBeInTheDocument();
   });
 });
