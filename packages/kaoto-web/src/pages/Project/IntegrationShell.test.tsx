@@ -1,10 +1,13 @@
 import * as KaotoComponentsModule from '@kaoto/kaoto/components';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { FunctionComponent, ReactNode, useEffect } from 'react';
+import { editor } from 'monaco-editor';
+import { FunctionComponent, ReactNode, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { MemoryRouter, NavigateFunction, Route, Routes, useNavigate } from 'react-router';
 import { afterEach, beforeEach, describe, expect, it, MockInstance, vi } from 'vitest';
 
+import { EditorHistoryProvider } from '../../context/EditorHistoryContext';
+import { EditorHistoryContext } from '../../context/EditorHistoryContextDefinition';
 import { IntegrationHeaderContext, ViewMode } from '../../context/IntegrationHeaderContext';
 import { filesStore } from '../../services/files/files.store';
 import { storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
@@ -14,17 +17,26 @@ import IntegrationShell from './IntegrationShell';
 let routeVisualizationSpy: MockInstance<typeof KaotoComponentsModule.RouteVisualization>;
 let routeVisualizationMounts = 0;
 
-const RouteVisualizationStub: typeof KaotoComponentsModule.RouteVisualization = ({ code }) => {
+/** Shows the document its adapter delivers and the view it is asked for */
+const RouteVisualizationStub: typeof KaotoComponentsModule.RouteVisualization = ({ adapter, view }) => {
+  const [code, setCode] = useState<string>();
   useEffect(() => {
     routeVisualizationMounts++;
   }, []);
-  return <div data-testid="route-visualization" data-code={code} />;
+  useLayoutEffect(
+    () =>
+      adapter?.subscribe((document) => {
+        setCode(document.code);
+      }),
+    [adapter],
+  );
+  return <div data-testid="route-visualization" data-code={code} data-view={view ?? 'design'} />;
 };
 
-/** The code change callback the canvas got last, as if the user edited the route on the canvas */
+/** Hands the code to the adapter the canvas got last, as if the user edited the route on the canvas */
 const editOnCanvas = (code: string) => {
   act(() => {
-    routeVisualizationSpy.mock.lastCall![0].codeChange(code);
+    routeVisualizationSpy.mock.lastCall![0].adapter!.onChange!(code);
   });
 };
 
@@ -41,29 +53,31 @@ const mockSetBreadcrumbItems = vi.fn();
 const mockSetCurrent = vi.fn();
 const mockSetViewMode = vi.fn();
 
+const shell = (fileId = 'main-flow', viewMode: ViewMode = 'design', extra?: ReactNode) => (
+  <IntegrationHeaderContext.Provider
+    value={{
+      breadcrumbItems: [],
+      current: '',
+      viewMode,
+      setViewMode: mockSetViewMode,
+      setBreadcrumbItems: mockSetBreadcrumbItems,
+      setCurrent: mockSetCurrent,
+    }}
+  >
+    <MemoryRouter initialEntries={[`/workspace/file/${fileId}`]}>
+      {extra}
+      {withFiles(
+        <Routes>
+          <Route path="/workspace" element={<div data-testid="workspace-page" />} />
+          <Route path="/workspace/file/:fileId" element={<IntegrationShell />} />
+        </Routes>,
+      )}
+    </MemoryRouter>
+  </IntegrationHeaderContext.Provider>
+);
+
 const renderWithContext = (fileId = 'main-flow', viewMode: ViewMode = 'design', extra?: ReactNode) =>
-  render(
-    <IntegrationHeaderContext.Provider
-      value={{
-        breadcrumbItems: [],
-        current: '',
-        viewMode,
-        setViewMode: mockSetViewMode,
-        setBreadcrumbItems: mockSetBreadcrumbItems,
-        setCurrent: mockSetCurrent,
-      }}
-    >
-      <MemoryRouter initialEntries={[`/workspace/file/${fileId}`]}>
-        {extra}
-        {withFiles(
-          <Routes>
-            <Route path="/workspace" element={<div data-testid="workspace-page" />} />
-            <Route path="/workspace/file/:fileId" element={<IntegrationShell />} />
-          </Routes>,
-        )}
-      </MemoryRouter>
-    </IntegrationHeaderContext.Provider>,
-  );
+  render(shell(fileId, viewMode, extra));
 
 /** Rendered inside the router to hand its navigate function to the test */
 const NavCapture: FunctionComponent<{ onNavigate: (navigate: NavigateFunction) => void }> = ({ onNavigate }) => {
@@ -202,18 +216,105 @@ describe('IntegrationShell', () => {
     expect(screen.queryByText('No preview available')).not.toBeInTheDocument();
   });
 
-  it('shows an empty state for a document', async () => {
-    renderWithContext('schema');
-    expect(await screen.findByText('No preview available')).toBeInTheDocument();
-    expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
+  describe('text editor', () => {
+    let createEditorSpy: MockInstance<typeof editor.create>;
+
+    /** The real Monaco editor of the text editor, once it is mounted */
+    const getEditor = async (): Promise<editor.IStandaloneCodeEditor> => {
+      await waitFor(
+        () => {
+          expect(createEditorSpy).toHaveBeenCalled();
+        },
+        { timeout: 5_000 },
+      );
+      const lastCreated = createEditorSpy.mock.results.at(-1);
+      if (lastCreated?.type !== 'return') throw new Error('The Monaco editor was not created');
+      return lastCreated.value;
+    };
+
+    const storedContent = async (id: string) => (await filesStore.getFiles()).find((file) => file.id === id)?.content;
+
+    beforeEach(() => {
+      createEditorSpy = vi.spyOn(editor, 'create');
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('opens a document in the text editor', async () => {
+      renderWithContext('schema');
+
+      const textEditor = await getEditor();
+
+      expect(textEditor.getValue()).toBe(contentOf('schema'));
+      expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
+    });
+
+    it('stores the edits of a document', async () => {
+      renderWithContext('schema');
+      const textEditor = await getEditor();
+
+      act(() => {
+        textEditor.setValue('{ "edited": true }');
+      });
+
+      await waitFor(async () => {
+        expect(await storedContent('schema')).toBe('{ "edited": true }');
+      });
+    });
+
+    it('reports a failed save of a document', async () => {
+      vi.spyOn(filesStore, 'updateFile').mockRejectedValue(new Error('quota exceeded'));
+      renderWithContext('schema');
+      const textEditor = await getEditor();
+
+      act(() => {
+        textEditor.setValue('{ "edited": true }');
+      });
+
+      expect(await screen.findByTestId('integration-save-error')).toHaveTextContent('quota exceeded');
+    });
   });
 
-  it('does not render the canvas outside design mode', async () => {
+  it('shows the code of a route file in the code view', async () => {
     renderWithContext('main-flow', 'code');
-    await waitFor(() => {
-      expect(mockSetCurrent).toHaveBeenLastCalledWith('main-flow.camel.yaml');
+
+    const editor = await screen.findByTestId('route-visualization');
+
+    expect(editor).toHaveAttribute('data-view', 'code');
+    expect(editor).toHaveAttribute('data-code', contentOf('main-flow'));
+  });
+
+  it('keeps the canvas mounted when switching between design and code', async () => {
+    const { rerender } = renderWithContext('main-flow', 'design');
+    await screen.findByTestId('route-visualization');
+
+    rerender(shell('main-flow', 'code'));
+    rerender(shell('main-flow', 'design'));
+
+    expect(screen.getByTestId('route-visualization')).toHaveAttribute('data-view', 'design');
+    expect(routeVisualizationMounts).toBe(1);
+  });
+
+  it('hands the undo and redo of the route editor to the editor history', async () => {
+    const HistoryProbe = () => {
+      const history = useContext(EditorHistoryContext)?.history;
+      return <span data-testid="history-can-undo">{String(history?.canUndo)}</span>;
+    };
+    render(<EditorHistoryProvider>{shell('main-flow', 'design', <HistoryProbe />)}</EditorHistoryProvider>);
+    await screen.findByTestId('route-visualization');
+
+    act(() => {
+      routeVisualizationSpy.mock.lastCall![0].onUndoRedoChange!({
+        undo: vi.fn(),
+        redo: vi.fn(),
+        canUndo: true,
+        canRedo: false,
+      });
     });
-    expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
+
+    expect(screen.getByTestId('history-can-undo')).toHaveTextContent('true');
   });
 
   it('shows the content of the newly selected file when switching', async () => {
@@ -253,7 +354,6 @@ describe('IntegrationShell', () => {
       await waitFor(async () => {
         expect(await storedContent('main-flow')).toBe('- route:\n    id: edited\n');
       });
-      expect(screen.getByTestId('route-visualization')).toHaveAttribute('data-code', '- route:\n    id: edited\n');
     });
 
     it('does not store the code again when the canvas reports the code it was given', async () => {

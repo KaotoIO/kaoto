@@ -561,6 +561,55 @@ describe('EntitiesProvider', () => {
       });
     });
 
+    it('does not emit the code of a resource that was replaced while it was serialized', async () => {
+      const changes: string[] = [];
+      let deliver: (code: string, path: string) => void = () => {};
+      const adapter = {
+        subscribe(apply: (d: { code: string; path?: string }) => void) {
+          deliver = (code, path) => {
+            apply({ code, path });
+          };
+          apply({ code: camelRouteYaml, path: 'a.camel.yaml' });
+          return () => {};
+        },
+        onChange(code: string) {
+          changes.push(code);
+        },
+      };
+      const { result } = renderHook(() => useContext(EntitiesContext), {
+        wrapper: ({ children }: PropsWithChildren) => (
+          <SourceCodeProvider adapter={adapter}>
+            <KaotoResourceProvider>
+              <EntitiesProvider>{children}</EntitiesProvider>
+            </KaotoResourceProvider>
+          </SourceCodeProvider>
+        ),
+      });
+      await waitFor(() => {
+        expect(result.current?.camelResource).toBeTruthy();
+      });
+      const resourceA = result.current!.camelResource;
+      const serializationA = createDeferred<string>();
+      vi.spyOn(resourceA, 'toSourceCode').mockReturnValueOnce(serializationA.promise);
+      act(() => {
+        result.current!.updateSourceCodeFromEntities();
+      });
+      const routeB = camelRouteYaml.replace('route-8888', 'route-b');
+      act(() => {
+        deliver(routeB, 'b.camel.yaml');
+      });
+      await waitFor(() => {
+        expect(result.current?.camelResource).not.toBe(resourceA);
+      });
+
+      await act(async () => {
+        serializationA.resolve('the code of file A');
+      });
+
+      expect(changes).not.toContain('the code of file A');
+      expect(useSourceCodeStore.getState().sourceCode).toBe(routeB);
+    });
+
     it('updateEntitiesFromCamelResource must NOT update or write when parseState is Error', async () => {
       const BROKEN = `- route:\n    id: keep-me\n    from:\n      uri: timer:x\n      steps: [ unclosed\n`;
       const changes: string[] = [];

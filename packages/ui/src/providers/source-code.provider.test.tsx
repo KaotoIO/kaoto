@@ -73,6 +73,40 @@ describe('SourceCodeProvider', () => {
     expect(useSourceCodeStore.temporal.getState().pastStates).toHaveLength(1);
   });
 
+  it('clears the undo/redo history when the adapter delivers a document with another path', () => {
+    const { adapter, deliver } = deferredAdapter();
+    render(<SourceCodeProvider adapter={adapter} />);
+    act(() => {
+      deliver({ code: 'a', path: 'a.camel.yaml' });
+    });
+    act(() => {
+      useSourceCodeStore.getState().setCodeAndNotify('a2', 'a.camel.yaml');
+    });
+
+    act(() => {
+      deliver({ code: 'b', path: 'b.camel.yaml' });
+    });
+
+    expect(useSourceCodeStore.temporal.getState().pastStates).toHaveLength(0);
+  });
+
+  it('keeps the undo/redo history when the adapter delivers the same path again', () => {
+    const { adapter, deliver } = deferredAdapter();
+    render(<SourceCodeProvider adapter={adapter} />);
+    act(() => {
+      deliver({ code: 'a', path: 'a.camel.yaml' });
+    });
+    act(() => {
+      useSourceCodeStore.getState().setCodeAndNotify('a2', 'a.camel.yaml');
+    });
+
+    act(() => {
+      deliver({ code: 'a3', path: 'a.camel.yaml' });
+    });
+
+    expect(useSourceCodeStore.temporal.getState().pastStates.length).toBeGreaterThan(0);
+  });
+
   it('forwards editor changes to the adapter and keeps the store in sync', () => {
     const onChange = vi.fn();
     render(<SourceCodeProvider adapter={{ ...inMemorySourceCodeAdapter('initial'), onChange }} />);
