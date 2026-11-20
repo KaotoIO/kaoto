@@ -51,6 +51,8 @@ export const SourceCodeProvider: FunctionComponent<SourceCodeProviderProps> = ({
   useLayoutEffect(() => {
     const eventNotifier = EventNotifier.getInstance();
     let seeded = false;
+    /** The path of the last applied document; the store's path can be dropped by the editors */
+    let appliedPath: string | undefined;
 
     const apply = ({ code, path }: SourceDocument) => {
       applyingRef.current = true;
@@ -59,10 +61,13 @@ export const SourceCodeProvider: FunctionComponent<SourceCodeProviderProps> = ({
       } finally {
         applyingRef.current = false;
       }
-      if (!seeded) {
+      // The first document and a document of another file start a new history, so undo does not go back into
+      // the previous file; a document of the same file (e.g. a reload) keeps it.
+      if (!seeded || path !== appliedPath) {
         seeded = true;
         useSourceCodeStore.temporal.getState().clear();
       }
+      appliedPath = path;
     };
 
     const unsubscribeFromAdapter = adapter.subscribe(apply);
