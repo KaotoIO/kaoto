@@ -32,6 +32,7 @@ import { Canvas } from './Canvas';
 import { LayoutType } from './canvas.models';
 import { COLLAPSE_STATE } from './collapse-handler-state';
 import { ControllerService } from './controller.service';
+import { EmptyCanvas } from './EmptyCanvas';
 
 function getCanvasPropsFromVizNodes(vizNodes: IVisualizationNode[], entitiesCount: number) {
   const { nodes, edges } = buildDesignerCanvasModel(vizNodes);
@@ -88,6 +89,28 @@ describe('Canvas', () => {
       expect(screen.getByText('Reset View')).toBeInTheDocument();
     });
     expect(result.asFragment()).toMatchSnapshot();
+  });
+
+  it.each([
+    [0, 'There are no routes defined'],
+    [1, 'There are no visible routes'],
+  ])('shows the empty state for %i routes over the canvas and describes the canvas with it', async (count, title) => {
+    const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+    const { Provider } = await TestProvidersWrapper();
+    render(
+      <RuntimeProvider>
+        <Provider>
+          <VisualizationProvider controller={ControllerService.createController()}>
+            <Canvas nodes={[]} edges={[]}>
+              <EmptyCanvas entitiesNumber={count} />
+            </Canvas>
+          </VisualizationProvider>
+        </Provider>
+      </RuntimeProvider>,
+    );
+
+    const canvas = screen.getByRole('generic', { name: 'Route canvas', description: title });
+    expect(within(canvas).getByTestId('visualization-empty-state')).toHaveTextContent(title);
   });
 
   it('should keep the selection listener registered while selection changes rerender the canvas', async () => {
@@ -795,6 +818,19 @@ describe('Canvas', () => {
       expect(result.container.querySelector('[data-kind="graph"]')).toBe(graph);
       expect(fromModelSpy).toHaveBeenCalledTimes(1);
       expect(fromModelSpy).toHaveBeenCalledWith(expect.anything(), true);
+    });
+
+    it('marks the canvas as busy until the new model is drawn', async () => {
+      const result = await renderCanvas();
+      const canvasProps = getCanvasPropsFromVizNodes([result.vizNode], 1);
+      const root = result.container.querySelector('#canvas-main');
+      expect(root).toHaveAttribute('aria-busy', 'false');
+
+      await renderWith(result, result.rerender, { ...canvasProps, isModelResolving: true });
+      expect(root).toHaveAttribute('aria-busy', 'true');
+
+      await renderWith(result, result.rerender, canvasProps);
+      expect(root).toHaveAttribute('aria-busy', 'false');
     });
 
     it('turns the Delete hotkey off, because the selected step belongs to the previous model', async () => {

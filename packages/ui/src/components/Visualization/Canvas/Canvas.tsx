@@ -348,6 +348,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label="Route canvas"
+      aria-busy={isModelResolving}
+      aria-describedby={isGraphEmpty && !isModelResolving && !blocked ? CanvasDefaults.EMPTY_STATE_TITLE_ID : undefined}
     >
       <CanvasOverlayContext.Provider
         value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}

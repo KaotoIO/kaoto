@@ -34,4 +34,6 @@ export class CanvasDefaults {
   static readonly KEYBOARD_MENU_INSET = 12;
 
   static readonly CANVAS_MAIN_ID = 'canvas-main';
+  /** The title of the empty state, which describes the empty canvas */
+  static readonly EMPTY_STATE_TITLE_ID = 'canvas-empty-state-title';
 }

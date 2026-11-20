@@ -3,6 +3,7 @@ import './Canvas.scss';
 import { FunctionComponent, useLayoutEffect } from 'react';
 
 import { VisualizationEmptyState } from '../EmptyState';
+import { CanvasDefaults } from './canvas.defaults';
 import { focusCanvasAfterRender } from './canvas-focus';
 
 const EMPTY_STATE_TEST_ID = 'visualization-empty-state';
@@ -36,6 +37,7 @@ export const EmptyCanvas: FunctionComponent<EmptyCanvasProps> = ({ entitiesNumbe
       className="canvas-empty-state"
       data-testid={EMPTY_STATE_TEST_ID}
       entitiesNumber={entitiesNumber}
+      titleId={CanvasDefaults.EMPTY_STATE_TITLE_ID}
     />
   );
 };
