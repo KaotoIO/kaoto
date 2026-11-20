@@ -527,6 +527,7 @@ export class JsonSchemaField extends BaseField {
     to.selectedMemberIndex = this.selectedMemberIndex;
     to.selectedMemberQName = this.selectedMemberQName;
     to.description = this.description;
+    to.required = [...this.required];
     to.fields = this.fields.map((child) => child.adopt(to) as JsonSchemaField);
     return to;
   }

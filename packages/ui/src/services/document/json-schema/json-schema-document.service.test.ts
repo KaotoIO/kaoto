@@ -15,7 +15,7 @@ import {
   getProductJsonSchema,
 } from '../../../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from '../document-util.service';
-import { JsonSchemaDocument } from './json-schema-document.model';
+import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
 
 function createTestJsonDocument(documentType: DocumentType, documentId: string, content: string): JsonSchemaDocument {
@@ -939,6 +939,33 @@ describe('JsonSchemaDocumentService', () => {
 
     expect(doc.fields[0].fields.find((f) => f.key === 'a')!.minOccurs).toBe(0);
   });
+
+  it.each([
+    [
+      'its type comes from a composition',
+      { required: ['a'], anyOf: [{ type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } }] },
+      (doc: JsonSchemaDocument) => doc.fields[0],
+    ],
+    [
+      'its type comes from a $ref in a composition',
+      {
+        required: ['a'],
+        allOf: [{ $ref: '#/definitions/R' }],
+        definitions: { R: { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } } },
+      },
+      (doc: JsonSchemaDocument) => DocumentUtilService.resolveTypeFragment(doc.fields[0]) as JsonSchemaField,
+    ],
+  ] as [string, JSONSchema7, (doc: JsonSchemaDocument) => JsonSchemaField][])(
+    'should keep the required properties of an object when %s',
+    (_desc, schema, getObjectField) => {
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      const objectField = getObjectField(doc);
+
+      expect(objectField.fields.find((f) => f.key === 'a')!.minOccurs).toBe(1);
+      expect(objectField.fields.find((f) => f.key === 'b')!.minOccurs).toBe(0);
+    },
+  );
 
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
