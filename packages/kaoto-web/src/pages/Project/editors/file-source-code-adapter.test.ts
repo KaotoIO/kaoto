@@ -15,7 +15,7 @@ describe('createFileSourceCodeAdapter', () => {
   };
 
   it('delivers the opened file with its path on subscribe', () => {
-    const adapter = createFileSourceCodeAdapter(vi.fn());
+    const adapter = createFileSourceCodeAdapter();
     adapter.open(routeA);
 
     const delivered = subscribe(adapter);
@@ -24,7 +24,7 @@ describe('createFileSourceCodeAdapter', () => {
   });
 
   it('delivers the next file when another file is opened', () => {
-    const adapter = createFileSourceCodeAdapter(vi.fn());
+    const adapter = createFileSourceCodeAdapter();
     adapter.open(routeA);
     const delivered = subscribe(adapter);
 
@@ -35,7 +35,8 @@ describe('createFileSourceCodeAdapter', () => {
 
   it('saves a change to the file that is open', () => {
     const save = vi.fn();
-    const adapter = createFileSourceCodeAdapter(save);
+    const adapter = createFileSourceCodeAdapter();
+    adapter.setSave(save);
     adapter.open(routeA);
     subscribe(adapter);
 
@@ -46,7 +47,8 @@ describe('createFileSourceCodeAdapter', () => {
 
   it('does not save the content it delivered', () => {
     const save = vi.fn();
-    const adapter = createFileSourceCodeAdapter(save);
+    const adapter = createFileSourceCodeAdapter();
+    adapter.setSave(save);
     adapter.open(routeA);
     subscribe(adapter);
 
@@ -57,7 +59,8 @@ describe('createFileSourceCodeAdapter', () => {
 
   it('does not save the content it saved last again', () => {
     const save = vi.fn();
-    const adapter = createFileSourceCodeAdapter(save);
+    const adapter = createFileSourceCodeAdapter();
+    adapter.setSave(save);
     adapter.open(routeA);
     subscribe(adapter);
     adapter.onChange?.('changed');
@@ -69,7 +72,8 @@ describe('createFileSourceCodeAdapter', () => {
 
   it('saves to the new file after a switch, never to the previous one', () => {
     const save = vi.fn();
-    const adapter = createFileSourceCodeAdapter(save);
+    const adapter = createFileSourceCodeAdapter();
+    adapter.setSave(save);
     adapter.open(routeA);
     subscribe(adapter);
     adapter.open(routeB);
@@ -79,8 +83,21 @@ describe('createFileSourceCodeAdapter', () => {
     expect(save).toHaveBeenCalledExactlyOnceWith('b', 'changed');
   });
 
+  it('does not save before it knows where to', () => {
+    const adapter = createFileSourceCodeAdapter();
+    adapter.open(routeA);
+    subscribe(adapter);
+
+    adapter.onChange?.('changed');
+    const save = vi.fn();
+    adapter.setSave(save);
+    adapter.onChange?.('changed');
+
+    expect(save).toHaveBeenCalledExactlyOnceWith('a', 'changed');
+  });
+
   it('stops delivering after unsubscribing', () => {
-    const adapter = createFileSourceCodeAdapter(vi.fn());
+    const adapter = createFileSourceCodeAdapter();
     adapter.open(routeA);
     const delivered: SourceDocument[] = [];
     const unsubscribe = adapter.subscribe((document) => {
