@@ -111,8 +111,8 @@ describe('Explorer', () => {
 
     renderComponent();
 
-    expect(await screen.findByTestId('explorer-empty')).toHaveTextContent('No files yet');
-    expect(screen.getByRole('button', { name: 'Create…' })).toBeInTheDocument();
+    expect(await screen.findByTestId('explorer-empty')).toHaveTextContent('Create your first file…');
+    expect(screen.getByRole('button', { name: 'Create your first file…' })).toBeInTheDocument();
     expect(screen.queryByRole('tree')).not.toBeInTheDocument();
   });
 
@@ -183,7 +183,7 @@ describe('Explorer', () => {
 
   it.each([
     ['the toolbar', 'Create a file'],
-    ['the empty state', 'Create…'],
+    ['the empty state', 'Create your first file…'],
   ])('opens the Create New File modal from %s and closes it on Cancel', async (_label, buttonName) => {
     resetTestIndexedDB();
     const user = userEvent.setup();
@@ -235,13 +235,13 @@ describe('Explorer', () => {
       renderWithNavigation();
       await screen.findByTestId('explorer-empty');
 
-      await user.click(screen.getByRole('button', { name: 'Create…' }));
+      await user.click(screen.getByRole('button', { name: 'Create your first file…' }));
       await user.click(screen.getByRole('radio', { name: /^Camel Route YAML/ }));
       await user.type(screen.getByLabelText('File name'), 'orders');
       await user.click(screen.getByRole('button', { name: 'Create File' }));
 
       expect(await screen.findByText('orders.camel.yaml')).toBeInTheDocument();
-      expect(screen.queryByRole('button', { name: 'Create…' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Create your first file…' })).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Create a file' })).toHaveFocus();
     } finally {
       vi.unstubAllGlobals();
