@@ -105,7 +105,7 @@ jobs:
           tar -xzf "${{ runner.temp }}/kaoto-ui.tgz" -C packages/ui/dist
 
       - name: '🛰️ Login to Container Registry'
-        uses: docker/login-action@371161bbe7024a29a25c5e19bfcbc0804fe9ad2c # v4.5.2
+        uses: docker/login-action@8aa5831fb8d48d8f76594c7ddde61ae58019f550 # v4.8.0
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
