@@ -20878,12 +20878,12 @@ __metadata:
   linkType: hard
 
 "react-virtuoso@npm:^4.18.1":
-  version: 4.18.21
-  resolution: "react-virtuoso@npm:4.18.21"
+  version: 4.18.22
+  resolution: "react-virtuoso@npm:4.18.22"
   peerDependencies:
     react: ">=16 || >=17 || >= 18 || >= 19"
     react-dom: ">=16 || >=17 || >= 18 || >=19"
-  checksum: 10/59165e2c3f180388120176be9c41885acbaf7875ecec85aaeba0394eacb97aac2fa4a64268d5f6cab38ed913ac369f2aa6505929588d80ab94676f6e257f0091
+  checksum: 10/b285285bde049b89b23bd7e4e5ca0fdcf7d76a9fbb5d87157d6ce913d8810801c89eda870768241d98767e197d61c8991d32b561b5292894fcd8ee6b4d3968c7
   languageName: node
   linkType: hard
 
