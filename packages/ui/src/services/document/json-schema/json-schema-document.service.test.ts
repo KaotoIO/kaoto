@@ -1181,6 +1181,27 @@ describe('JsonSchemaDocumentService', () => {
       expect(aField.fields.find((f) => f.key === 'b')).toBeDefined();
     });
 
+    it('should resolve a local $ref inside an external file against that file', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'localRefInExternal', {
+        'A.json': JSON.stringify({
+          type: 'object',
+          properties: { b: { $ref: './B.json#/definitions/Item' } },
+          definitions: { D: { type: 'string' } },
+        }),
+        'B.json': JSON.stringify({
+          definitions: {
+            Item: { type: 'object', properties: { d: { $ref: '#/definitions/D' } } },
+            D: { type: 'number' },
+          },
+        }),
+      });
+
+      const bField = doc.fields[0].fields.find((f) => f.key === 'b')!;
+      DocumentUtilService.resolveTypeFragment(bField);
+      const dField = bField.fields.find((f) => f.key === 'd')!;
+      expect(dField.type).toBe(Types.Numeric);
+    });
+
     it('should use first schema as document schema', () => {
       const customerFirstDoc = createMultiSchemaDocument(DocumentType.PARAM, 'customerFirst', {
         'Customer.schema.json': getCustomerJsonSchema(),
