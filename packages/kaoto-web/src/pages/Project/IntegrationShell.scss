@@ -29,6 +29,12 @@
   inline-size: 100%;
 }
 
+.cs--integration-shell__text-editor {
+  flex: 1;
+  inline-size: 100%;
+  min-block-size: 0;
+}
+
 .cs--integration-shell__empty {
   margin: auto;
   color: $text-secondary;
