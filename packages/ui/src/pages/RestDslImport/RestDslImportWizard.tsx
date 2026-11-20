@@ -1,7 +1,7 @@
 import './RestDslImportWizard.scss';
 
 import { Button } from '@carbon/react';
-import { FunctionComponent, useCallback, useState } from 'react';
+import { FunctionComponent, useState } from 'react';
 
 import { Wizard, WizardStep } from '../../components/Wizard';
 import { useRestDslImportWizard } from '../../hooks/useRestDslImportWizard';
@@ -32,15 +32,15 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
   const isOperationsStep = activeStep === STEP_OPERATIONS;
   const isResultStep = activeStep === STEP_RESULT;
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     wizard.resetImportWizard();
     onClose();
-  }, [wizard, onClose]);
+  };
 
-  const handleGoToDesigner = useCallback(() => {
+  const handleGoToDesigner = () => {
     wizard.resetImportWizard();
     onGoToDesigner();
-  }, [wizard, onGoToDesigner]);
+  };
 
   /** Validation errors keep the user on Operations; an unexpected exception leads to the failure view */
   const handleImport = () => {
@@ -70,30 +70,30 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
   const importFailed = wizard.importFailed;
   const importSucceeded = wizard.importStatus?.type === 'success';
   const hasSpecification = wizard.openApiSpecText.trim() !== '';
-  const sourceComplete = wizard.isOpenApiParsed;
-  const specificationComplete = wizard.isOpenApiParsed;
+  const specificationParsed = wizard.isOpenApiParsed;
 
   // Progress comes from the wizard state: opening a step does not mean it was completed
   const steps: WizardStep[] = [
     {
       id: 'source',
       label: 'Import source',
-      complete: sourceComplete,
+      complete: specificationParsed,
       content: <ImportSourceStep wizard={wizard} onOpenSettings={onOpenSettings} />,
     },
     {
       id: 'specification',
       label: 'Specification',
-      complete: specificationComplete,
-      // An edited document is no longer parsed, but it must stay reachable so it can be parsed again
-      disabled: !hasSpecification,
+      complete: specificationParsed,
+      // An edited document is no longer parsed, but it must stay reachable so it can be parsed again.
+      // Once imported, Result is the last step: going back would let the same import run twice.
+      disabled: !hasSpecification || importSucceeded,
       content: <ImportSpecificationStep wizard={wizard} />,
     },
     {
       id: 'operations',
       label: 'Operations',
       complete: importSucceeded,
-      disabled: !specificationComplete,
+      disabled: !specificationParsed || importSucceeded,
       invalid: importFailed,
       content: <ImportOperationsStep wizard={wizard} />,
     },
@@ -119,6 +119,9 @@ export const RestDslImportWizard: FunctionComponent<RestDslImportWizardProps> = 
             }}
           >
             Back
+          </Button>
+          <Button kind="secondary" className="rest-dsl-import-footer-button" onClick={handleGoToDesigner}>
+            Go to Designer
           </Button>
           <Button kind="primary" className="rest-dsl-import-footer-button" onClick={handleClose}>
             Go to Rest Editor

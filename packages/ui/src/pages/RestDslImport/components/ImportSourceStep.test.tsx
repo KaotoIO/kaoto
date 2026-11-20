@@ -87,4 +87,23 @@ describe('ImportSourceStep', () => {
 
     expect(wizard.setImportUri).toHaveBeenCalledWith('http://example.com/other.yaml');
   });
+
+  it('tells the user when the specification was edited manually', () => {
+    const wizard = createWizardState({ importSource: 'file', isOpenApiParsed: true, openApiLoadSource: 'manual' });
+    render(<ImportSourceStep wizard={wizard} onOpenSettings={onOpenSettings} />);
+
+    expect(screen.getByText('Specification edited manually')).toBeInTheDocument();
+  });
+
+  it('does not mention a manual edit for a loaded file', () => {
+    const wizard = createWizardState({
+      importSource: 'file',
+      isOpenApiParsed: true,
+      openApiLoadSource: 'file',
+      sourceIdentifier: 'spec.json',
+    });
+    render(<ImportSourceStep wizard={wizard} onOpenSettings={onOpenSettings} />);
+
+    expect(screen.queryByText('Specification edited manually')).not.toBeInTheDocument();
+  });
 });

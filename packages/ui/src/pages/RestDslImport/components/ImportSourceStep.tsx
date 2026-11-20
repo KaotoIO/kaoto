@@ -1,4 +1,4 @@
-import { RadioButton, RadioButtonGroup } from '@carbon/react';
+import { InlineNotification, RadioButton, RadioButtonGroup } from '@carbon/react';
 import { FunctionComponent } from 'react';
 
 import { RestDslImportWizardState } from '../../../hooks/useRestDslImportWizard';
@@ -34,6 +34,15 @@ export const ImportSourceStep: FunctionComponent<ImportSourceStepProps> = ({ wiz
       ))}
     </RadioButtonGroup>
     <div className="rest-dsl-import-source">
+      {wizard.openApiLoadSource === 'manual' && (
+        <InlineNotification
+          kind="info"
+          lowContrast
+          hideCloseButton
+          title="Specification edited manually"
+          subtitle="Load a new specification to replace it."
+        />
+      )}
       {wizard.importSource === 'file' && (
         <FileImportSource
           onSchemaLoaded={wizard.handleSchemaLoaded}
@@ -56,6 +65,7 @@ export const ImportSourceStep: FunctionComponent<ImportSourceStepProps> = ({ wiz
           onSchemaLoaded={wizard.handleSchemaLoaded}
           onCleared={wizard.handleSourceCleared}
           onOpenSettings={onOpenSettings}
+          loadedSourceIdentifier={wizard.openApiLoadSource === 'apicurio' ? wizard.sourceIdentifier : ''}
         />
       )}
     </div>
