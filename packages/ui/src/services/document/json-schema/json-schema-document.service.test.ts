@@ -836,6 +836,27 @@ describe('JsonSchemaDocumentService', () => {
     expect(addr.fields.find((f) => f.key === 'city')!.minOccurs).toBe(0);
   });
 
+  it('should stop at a $ref cycle between definitions without a type', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        x: { $ref: '#/definitions/X' },
+      },
+      definitions: {
+        X: { $ref: '#/definitions/Y' },
+        Y: { $ref: '#/definitions/X' },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const xField = doc.fields[0].fields.find((f) => f.key === 'x')!;
+
+    DocumentUtilService.resolveTypeFragment(xField);
+
+    expect(xField.type).toBe(Types.AnyType);
+    expect(xField.fields).toEqual([]);
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,

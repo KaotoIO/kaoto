@@ -637,12 +637,18 @@ export class JsonSchemaDocumentService {
     return updatedFragment;
   }
 
-  private traverseFieldType(fragment: JsonSchemaField | JsonSchemaTypeFragment): Types {
+  private traverseFieldType(
+    fragment: JsonSchemaField | JsonSchemaTypeFragment,
+    visitedRefs: Set<string> = new Set(),
+  ): Types {
     if (fragment.type && fragment.type !== Types.AnyType) return fragment.type;
 
     for (const ref of fragment.namedTypeFragmentRefs) {
+      // a $ref cycle without any type declaration in it has no type
+      if (visitedRefs.has(ref)) continue;
+      visitedRefs.add(ref);
       const subFragment = this.jsonDocument.namedTypeFragments[ref];
-      const subType = this.traverseFieldType(subFragment);
+      const subType = this.traverseFieldType(subFragment, visitedRefs);
       if (subType !== Types.AnyType) return subType;
     }
 
