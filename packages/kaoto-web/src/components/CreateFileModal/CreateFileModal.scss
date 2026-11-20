@@ -1,6 +1,7 @@
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
 @use '@carbon/react/scss/type' as *;
+@use '../../styles/kaoto-theme' as kaoto;
 
 .cs--create-file-modal {
   // Wide enough for two type tiles side by side with their descriptions on two lines
@@ -28,6 +29,26 @@
   &__type {
     block-size: 100%;
     min-block-size: 0;
+
+    // White cards on the tint of the modal, framed and rounded like the fields; Carbon's hover and selection still
+    // apply
+    @include kaoto.kaoto-theme {
+      --cds-layer: var(--cs-surface);
+
+      border: 1px solid $border-subtle;
+      border-radius: kaoto.$control-radius;
+
+      // The selected tile takes the accent colour of the header, two pixels wide without moving its content
+      &.cds--tile--is-selected {
+        border-color: var(--cs-accent);
+        box-shadow: inset 0 0 0 1px var(--cs-accent);
+
+        // A touch of the accent colour, so that the tile reads as chosen and not as focused
+        --cs-create-file-type-selected: color-mix(in srgb, var(--cs-accent) 10%, var(--cs-surface));
+
+        background-color: var(--cs-create-file-type-selected);
+      }
+    }
   }
 
   &__type-content {

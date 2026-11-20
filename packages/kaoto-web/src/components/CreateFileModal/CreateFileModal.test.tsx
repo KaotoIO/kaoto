@@ -73,18 +73,21 @@ describe('CreateFileModal', () => {
     vi.unstubAllGlobals();
   });
 
-  it('offers the file types without a preselection, and the name only after a type is chosen', () => {
+  it('offers the file types with a Camel route in YAML chosen, and the name ready to type', async () => {
     renderModal();
 
     expect(screen.getByRole('heading', { name: 'Create New File' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'File type' })).toBeInTheDocument();
-    for (const type of ['Camel Route YAML', 'Camel Route XML', 'Kamelet', 'Citrus Test']) {
+    expect(fileType('Camel Route YAML')).toBeChecked();
+    for (const type of ['Camel Route XML', 'Kamelet', 'Citrus Test']) {
       expect(fileType(type)).not.toBeChecked();
     }
     expect(screen.queryByRole('radio', { name: /^Pipe/ })).not.toBeInTheDocument();
-    expect(screen.getByLabelText('File name')).toBeDisabled();
-    expect(screen.getByLabelText('Folder path (optional)')).toBeDisabled();
-    expect(screen.getByLabelText('File name')).toHaveAttribute('placeholder', 'Select a file type first');
+    await waitFor(() => {
+      expect(screen.getByLabelText('File name')).toHaveFocus();
+    });
+    expect(screen.getByLabelText('File name')).toHaveAttribute('placeholder', 'e.g. orders.camel.yaml');
+    expect(screen.getByLabelText('Folder path (optional)')).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Create File' })).toBeDisabled();
   });
 
