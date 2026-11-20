@@ -25,7 +25,8 @@ interface CreateFileModalProps {
 export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClose }) => {
   const { files, createFile } = useFiles();
   const navigate = useNavigate();
-  const [kind, setKind] = useState<FileKind>();
+  // The most common type is chosen up front, so that the name can be typed right away
+  const [kind, setKind] = useState<FileKind>(FILE_KINDS[0]);
   const [name, setName] = useState('');
   const [folder, setFolder] = useState('');
   const [creating, setCreating] = useState(false);
@@ -46,15 +47,15 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
     onClose();
   };
 
-  const result = kind ? buildFilePath(folder, name, kind.extension) : undefined;
-  const path = result && 'path' in result ? result.path : undefined;
+  const result = buildFilePath(folder, name, kind.extension);
+  const path = 'path' in result ? result.path : undefined;
   const pathTaken = !!path && files.some((file) => file.path === path);
-  const nameError = name.trim() && result && 'field' in result && result.field === 'name' ? result.error : undefined;
-  const folderError = result && 'field' in result && result.field === 'folder' ? result.error : undefined;
+  const nameError = name.trim() && 'field' in result && result.field === 'name' ? result.error : undefined;
+  const folderError = 'field' in result && result.field === 'folder' ? result.error : undefined;
   const canCreate = !!path && !pathTaken && !creating;
 
   const create = async () => {
-    if (!kind || !path || !canCreate) return;
+    if (!path || !canCreate) return;
     setCreating(true);
     setFailure(undefined);
     try {
@@ -86,7 +87,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
       size="sm"
       hasForm
       preventCloseOnClickOutside
-      selectorPrimaryFocus={`#cs--create-file-kind-${FILE_KINDS[0].id}`}
+      selectorPrimaryFocus="#cs--create-file-name"
       className="cs--create-file-modal"
       data-testid="create-file-modal"
       footer={
@@ -124,9 +125,9 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
             className="cds--tile-group cs--create-file-modal__types"
             // The file is created with the values from the moment Create File was pressed
             disabled={creating}
-            valueSelected={kind?.id}
+            valueSelected={kind.id}
             onChange={(value) => {
-              setKind(FILE_KINDS.find((candidate) => candidate.id === value));
+              setKind(FILE_KINDS.find((candidate) => candidate.id === value) ?? FILE_KINDS[0]);
             }}
           >
             {FILE_KINDS.map((candidate) => {
@@ -155,8 +156,8 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
           <TextInput
             id="cs--create-file-name"
             labelText="File name"
-            placeholder={kind ? `e.g. orders${kind.extension}` : 'Select a file type first'}
-            disabled={!kind || creating}
+            placeholder={`e.g. orders${kind.extension}`}
+            disabled={creating}
             value={name}
             onChange={(event) => {
               setName(event.target.value);
@@ -170,7 +171,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
             id="cs--create-file-folder"
             labelText="Folder path (optional)"
             placeholder="e.g. routes/subdir/"
-            disabled={!kind || creating}
+            disabled={creating}
             value={folder}
             onChange={(event) => {
               setFolder(event.target.value);
