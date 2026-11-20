@@ -3,7 +3,7 @@ import '../../styles/patternfly-carbon-compat.scss';
 
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
-import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { FunctionComponent, PropsWithChildren, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
 import { NodeInteractionAddonProvider } from '../../components/registers/interactions/node-interaction-addon.provider';
 import {
@@ -25,10 +25,12 @@ import {
   ReloadProvider,
   RuntimeProvider,
   SchemasLoaderProvider,
+  SourceCodeProvider,
   VisibleFlowsContext,
   VisibleFlowsProvider,
 } from '../../providers';
 import { ActionConfirmationModalContextProvider } from '../../providers/action-confirmation-modal.provider';
+import type { SourceCodeAdapter } from '../../providers/source-code.provider';
 import { EventNotifier } from '../../utils';
 
 /**
@@ -57,63 +59,111 @@ const Viz: FunctionComponent<{
   runtimeCatalogName: string;
   testingCatalogName: string;
   className?: string;
-}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, className = '' }) => {
+  adapter?: SourceCodeAdapter;
+}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, className = '', adapter }) => {
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
     <ReloadProvider>
-      <KaotoResourceProvider>
-        <RuntimeProvider
-          catalogUrl={catalogUrl}
-          runtimeCatalogName={runtimeCatalogName}
-          testingCatalogName={testingCatalogName}
-        >
-          <SchemasLoaderProvider>
-            <CatalogLoaderProvider>
-              <EntitiesProvider>
-                <CatalogTilesProvider>
-                  <VisualizationProvider controller={controller}>
-                    <VisibleFlowsProvider>
-                      {/* Renders the auto startup switch of routes and the component mode selector of the forms */}
-                      <RenderingProvider>
-                        <RegisterComponents components={componentsToRegister}>
-                          {/* Step specific handling of copy, duplicate, paste, delete and update, e.g. DataMapper or Citrus waitFor */}
-                          <NodeInteractionAddonProvider>
-                            <RegisterNodeInteractionAddons>
-                              {/* Required by the forms of the side panel to register their suggestion providers */}
-                              <SuggestionRegistryProvider>
-                                {/* Opens the catalog to add, append, prepend or replace a step and checks where a step fits */}
-                                <CatalogModalProvider>
-                                  {/* Asks before deleting a step with children, a route or a group */}
-                                  <ActionConfirmationModalContextProvider>
-                                    <VisibleFlowsVisualization className={className} />
-                                  </ActionConfirmationModalContextProvider>
-                                </CatalogModalProvider>
-                              </SuggestionRegistryProvider>
-                            </RegisterNodeInteractionAddons>
-                          </NodeInteractionAddonProvider>
-                        </RegisterComponents>
-                      </RenderingProvider>
-                    </VisibleFlowsProvider>
-                  </VisualizationProvider>
-                </CatalogTilesProvider>
-              </EntitiesProvider>
-            </CatalogLoaderProvider>
-          </SchemasLoaderProvider>
-        </RuntimeProvider>
-      </KaotoResourceProvider>
+      <SourceCodeBoundary adapter={adapter}>
+        <KaotoResourceProvider>
+          <RuntimeProvider
+            catalogUrl={catalogUrl}
+            runtimeCatalogName={runtimeCatalogName}
+            testingCatalogName={testingCatalogName}
+          >
+            <SchemasLoaderProvider>
+              <CatalogLoaderProvider>
+                <EntitiesProvider>
+                  <CatalogTilesProvider>
+                    <VisualizationProvider controller={controller}>
+                      <VisibleFlowsProvider>
+                        {/* Renders the auto startup switch of routes and the component mode selector of the forms */}
+                        <RenderingProvider>
+                          <RegisterComponents components={componentsToRegister}>
+                            {/* Step specific handling of copy, duplicate, paste, delete and update, e.g. DataMapper or Citrus waitFor */}
+                            <NodeInteractionAddonProvider>
+                              <RegisterNodeInteractionAddons>
+                                {/* Required by the forms of the side panel to register their suggestion providers */}
+                                <SuggestionRegistryProvider>
+                                  {/* Opens the catalog to add, append, prepend or replace a step and checks where a step fits */}
+                                  <CatalogModalProvider>
+                                    {/* Asks before deleting a step with children, a route or a group */}
+                                    <ActionConfirmationModalContextProvider>
+                                      <VisibleFlowsVisualization className={className} />
+                                    </ActionConfirmationModalContextProvider>
+                                  </CatalogModalProvider>
+                                </SuggestionRegistryProvider>
+                              </RegisterNodeInteractionAddons>
+                            </NodeInteractionAddonProvider>
+                          </RegisterComponents>
+                        </RenderingProvider>
+                      </VisibleFlowsProvider>
+                    </VisualizationProvider>
+                  </CatalogTilesProvider>
+                </EntitiesProvider>
+              </CatalogLoaderProvider>
+            </SchemasLoaderProvider>
+          </RuntimeProvider>
+        </KaotoResourceProvider>
+      </SourceCodeBoundary>
     </ReloadProvider>
   );
 };
 
-export const RouteVisualization: FunctionComponent<{
+/** Inside the reload boundary, so a reload asks the adapter for the document again */
+const SourceCodeBoundary: FunctionComponent<PropsWithChildren<{ adapter?: SourceCodeAdapter }>> = ({
+  adapter,
+  children,
+}) => (adapter ? <SourceCodeProvider adapter={adapter}>{children}</SourceCodeProvider> : children);
+
+interface RouteVisualizationBaseProps {
   catalogUrl: string;
   runtimeCatalogName: string;
   testingCatalogName: string;
+  className?: string;
+}
+
+/** The host owns the code and feeds it back after every change, like a controlled input */
+interface RouteVisualizationCodeProps extends RouteVisualizationBaseProps {
   code: string;
   codeChange: (code: string) => void;
-  className?: string;
-}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, code, codeChange, className }) => {
+  adapter?: never;
+}
+
+/** The host connects its document through a source code adapter */
+interface RouteVisualizationAdapterProps extends RouteVisualizationBaseProps {
+  adapter: SourceCodeAdapter;
+  code?: never;
+  codeChange?: never;
+}
+
+export type RouteVisualizationProps = RouteVisualizationCodeProps | RouteVisualizationAdapterProps;
+
+export type { SourceCodeAdapter, SourceDocument } from '../../providers/source-code.provider';
+export { inMemorySourceCodeAdapter } from '../../providers/source-code.provider';
+
+export const RouteVisualization: FunctionComponent<RouteVisualizationProps> = (props) =>
+  props.adapter ? (
+    <Viz
+      catalogUrl={props.catalogUrl}
+      runtimeCatalogName={props.runtimeCatalogName}
+      testingCatalogName={props.testingCatalogName}
+      className={props.className}
+      adapter={props.adapter}
+    />
+  ) : (
+    <CodeRouteVisualization {...props} />
+  );
+
+const CodeRouteVisualization: FunctionComponent<RouteVisualizationCodeProps> = ({
+  catalogUrl,
+  runtimeCatalogName,
+  testingCatalogName,
+  code,
+  codeChange,
+  className,
+}) => {
   const eventNotifier = EventNotifier.getInstance();
   /** The code the entities currently represent, either parsed from `code` or serialized from a canvas edit */
   const entitiesCodeRef = useRef<string | undefined>(undefined);
