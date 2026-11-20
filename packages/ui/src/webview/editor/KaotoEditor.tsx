@@ -3,7 +3,6 @@ import '@patternfly/react-core/dist/styles/base.css'; // This import needs to be
 import { Suggestion, SuggestionRequestContext } from '@kaoto/forms';
 import { Button } from '@patternfly/react-core';
 import { PropsWithChildren, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { RouterProvider } from 'react-router';
 
 import { CatalogLoaderProvider } from '../../dynamic-catalog/catalog.provider';
 import { useKaotoResourceContext } from '../../hooks/useKaotoResourceContext/useKaotoResourceContext';
@@ -29,7 +28,6 @@ import { SourceCodeProvider } from '../../providers/source-code.provider';
 import { setColorScheme } from '../../utils/color-scheme';
 import { bindEditorDocument, type EditorDocumentState } from './Bridge/editor-document';
 import { KaotoBridge } from './Bridge/KaotoBridge';
-import { kaotoEditorRouter } from './KaotoEditorRouter';
 
 export interface KaotoEditorInit {
   fileExtension: string;
@@ -90,7 +88,11 @@ interface Props {
   init: KaotoEditorInit;
 }
 
-export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
+/**
+ * Connects the editor to its host and provides the document, the settings and the catalog to its children, the pages
+ * of the editor.
+ */
+export const KaotoEditor = ({ bus, initialSettings, init, children }: PropsWithChildren<Props>) => {
   // Settings state: start from initialSettings, updated by bus events
   const [settingsAdapter, setSettingsAdapter] = useState(() => new DefaultSettingsAdapter(initialSettings.settings));
   const settingsVersionRef = useRef(initialSettings.settingsVersion);
@@ -340,7 +342,7 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
                           shouldSaveSchema={false}
                           onStepUpdated={onStepUpdated}
                         >
-                          <RouterProvider router={kaotoEditorRouter} />
+                          {children}
                         </KaotoBridge>
                       </EntitiesProvider>
                     </CatalogLoaderProvider>
