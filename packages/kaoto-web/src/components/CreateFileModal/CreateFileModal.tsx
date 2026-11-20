@@ -128,7 +128,8 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
             disabled={creating}
             valueSelected={kind.id}
             onChange={(value) => {
-              setKind(FILE_KINDS.find((candidate) => candidate.id === value) ?? FILE_KINDS[0]);
+              // The value is always the id of one of the tiles
+              setKind(FILE_KINDS.find((candidate) => candidate.id === value)!);
             }}
           >
             {FILE_KINDS.map((candidate) => {
