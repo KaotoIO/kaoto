@@ -900,6 +900,46 @@ describe('JsonSchemaDocumentService', () => {
     expect(xField!.type).toBe(Types.String);
   });
 
+  it.each([
+    [
+      'only required',
+      { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } }, allOf: [{ required: ['a'] }] },
+    ],
+    [
+      'properties and required',
+      {
+        type: 'object',
+        properties: { b: { type: 'string' } },
+        allOf: [{ properties: { a: { type: 'string' } }, required: ['a'] }],
+      },
+    ],
+    [
+      'required after another member with required',
+      {
+        type: 'object',
+        properties: { a: { type: 'string' }, b: { type: 'string' }, c: { type: 'string' } },
+        allOf: [{ required: ['c'] }, { required: ['a'] }],
+      },
+    ],
+  ] as [string, JSONSchema7][])('should make a property required by an allOf member with %s', (_desc, schema) => {
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    expect(doc.fields[0].fields.find((f) => f.key === 'a')!.minOccurs).toBe(1);
+    expect(doc.fields[0].fields.find((f) => f.key === 'b')!.minOccurs).toBe(0);
+  });
+
+  it.each(['anyOf', 'oneOf'] as const)('should not make a property required by a %s member', (composition) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: { a: { type: 'string' } },
+      [composition]: [{ required: ['a'] }],
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    expect(doc.fields[0].fields.find((f) => f.key === 'a')!.minOccurs).toBe(0);
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,

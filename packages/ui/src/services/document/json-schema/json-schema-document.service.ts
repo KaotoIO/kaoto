@@ -476,11 +476,18 @@ export class JsonSchemaDocumentService {
         this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('oneOf', index)),
       updated ?? field,
     );
-    updated = schema.allOf?.reduce(
-      (current, compositionSchemaDef, index) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('allOf', index)),
-      updated ?? field,
-    );
+    updated = schema.allOf?.reduce((current, compositionSchemaDef, index) => {
+      const updatedByMember = this.doUpdateWithJSONSchemaDefinition(
+        current,
+        compositionSchemaDef,
+        memberSchema('allOf', index),
+      );
+      // unlike anyOf and oneOf, every allOf member applies, so a property it requires is required
+      if (typeof compositionSchemaDef !== 'boolean' && compositionSchemaDef.required) {
+        updatedByMember.required.push(...compositionSchemaDef.required);
+      }
+      return updatedByMember;
+    }, updated ?? field);
     return updated ?? field;
   }
 
