@@ -40,6 +40,19 @@ $control-radius: 4px;
   color: $text-primary;
 }
 
+/// A header in the accent colour, with ghost icon buttons made for it. A header at the top of a floating card
+/// rounds its top corners itself: the card radius minus the border of the card.
+@mixin accent-header($rounded-top: false) {
+  @include on-accent-ghost-button;
+
+  background-color: var(--cs-accent);
+
+  @if $rounded-top {
+    border-start-start-radius: calc(#{$card-radius} - 1px);
+    border-start-end-radius: calc(#{$card-radius} - 1px);
+  }
+}
+
 /// Ghost icon buttons on the accent colour: white icons, translucent white for the states
 @mixin on-accent-ghost-button {
   .cds--btn--ghost {

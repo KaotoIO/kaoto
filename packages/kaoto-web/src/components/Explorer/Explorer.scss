@@ -37,13 +37,9 @@
   border-block-end: 1px solid $border-subtle-01;
 
   @include kaoto.kaoto-theme {
-    @include kaoto.on-accent-ghost-button;
+    @include kaoto.accent-header($rounded-top: true);
 
-    // The card radius minus its border
-    border-start-start-radius: calc(#{kaoto.$card-radius} - 1px);
-    border-start-end-radius: calc(#{kaoto.$card-radius} - 1px);
     border-block-end: none;
-    background-color: var(--cs-accent);
 
     // Slightly bolder lines for the icons
     .cds--btn--ghost svg {
