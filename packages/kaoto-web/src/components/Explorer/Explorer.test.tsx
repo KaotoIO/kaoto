@@ -240,7 +240,7 @@ describe('Explorer', () => {
       await user.type(screen.getByLabelText('File name'), 'orders');
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
-      expect(await screen.findByText('orders.camel.yaml')).toBeInTheDocument();
+      expect(await screen.findByRole('treeitem', { name: /orders\.camel\.yaml/ })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Create your first file…' })).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Create a file' })).toHaveFocus();
     } finally {
