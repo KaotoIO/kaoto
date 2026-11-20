@@ -213,7 +213,8 @@ export const Explorer: FunctionComponent = () => {
   const [searchText, setSearchText] = useState('');
   const query = searchText.toLowerCase();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [nodeToDelete, setNodeToDelete] = useState<ExplorerFile>();
+  /** The entry the delete confirmation asks about, with its path taken when it was asked for */
+  const [toDelete, setToDelete] = useState<{ node: ExplorerFile; path: string }>();
   const [renamingId, setRenamingId] = useState<string>();
   const treeRef = useRef<HTMLDivElement>(null);
   const addButtonRef = useRef<HTMLButtonElement>(null);
@@ -361,9 +362,15 @@ export const Explorer: FunctionComponent = () => {
     (opener?.isConnected ? opener : addButtonRef.current)?.focus();
   }, [focusAfterCreate]);
 
-  /** The full path of a node, so that the user can tell entries of the same name in different folders apart */
-  const pathOf = (node: ExplorerFile): string =>
-    node.children ? toFolderPath(node.id) : (files.find((file) => file.id === node.id)?.path ?? node.name);
+  /**
+   * Asks to delete a node. The confirmation names its full path, so that the user can tell entries of the same name
+   * in different folders apart. The path is taken now: a file of the tree is one of the files, while during the
+   * deletion it may already be gone from them.
+   */
+  const requestDelete = (node: ExplorerFile) => {
+    const path = node.children ? toFolderPath(node.id) : files.find((file) => file.id === node.id)!.path;
+    setToDelete({ node, path });
+  };
 
   const deleteNode = async (node: ExplorerFile) => {
     const openPath = files.find((file) => file.id === selectedId)?.path;
@@ -496,7 +503,7 @@ export const Explorer: FunctionComponent = () => {
                 expandedFolders,
                 handleToggle,
                 openIntegration,
-                requestDelete: setNodeToDelete,
+                requestDelete,
                 requestRename: setRenamingId,
                 renaming,
                 renamingFolder,
@@ -517,22 +524,22 @@ export const Explorer: FunctionComponent = () => {
           }}
         />
       )}
-      {nodeToDelete && (
+      {toDelete && (
         <DeleteConfirmModal
-          heading={nodeToDelete.children ? 'Delete folder?' : 'Delete file?'}
-          onDelete={() => deleteNode(nodeToDelete)}
+          heading={toDelete.node.children ? 'Delete folder?' : 'Delete file?'}
+          onDelete={() => deleteNode(toDelete.node)}
           onClose={() => {
-            setNodeToDelete(undefined);
-            setFocusNode({ nodeId: nodeToDelete.id });
+            setToDelete(undefined);
+            setFocusNode({ nodeId: toDelete.node.id });
           }}
         >
-          {nodeToDelete.children ? (
+          {toDelete.node.children ? (
             <>
-              Are you sure you want to delete the folder <strong>{pathOf(nodeToDelete)}</strong> and all its contents?
+              Are you sure you want to delete the folder <strong>{toDelete.path}</strong> and all its contents?
             </>
           ) : (
             <>
-              Are you sure you want to delete <strong>{pathOf(nodeToDelete)}</strong>?
+              Are you sure you want to delete <strong>{toDelete.path}</strong>?
             </>
           )}
         </DeleteConfirmModal>
