@@ -361,6 +361,10 @@ export const Explorer: FunctionComponent = () => {
     (opener?.isConnected ? opener : addButtonRef.current)?.focus();
   }, [focusAfterCreate]);
 
+  /** The full path of a node, so that the user can tell entries of the same name in different folders apart */
+  const pathOf = (node: ExplorerFile): string =>
+    node.children ? toFolderPath(node.id) : (files.find((file) => file.id === node.id)?.path ?? node.name);
+
   const deleteNode = async (node: ExplorerFile) => {
     const openPath = files.find((file) => file.id === selectedId)?.path;
     let deletesOpenFile;
@@ -524,11 +528,11 @@ export const Explorer: FunctionComponent = () => {
         >
           {nodeToDelete.children ? (
             <>
-              Are you sure you want to delete the folder <strong>{nodeToDelete.name}</strong> and all its contents?
+              Are you sure you want to delete the folder <strong>{pathOf(nodeToDelete)}</strong> and all its contents?
             </>
           ) : (
             <>
-              Are you sure you want to delete <strong>{nodeToDelete.name}</strong>?
+              Are you sure you want to delete <strong>{pathOf(nodeToDelete)}</strong>?
             </>
           )}
         </DeleteConfirmModal>

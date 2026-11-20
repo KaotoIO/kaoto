@@ -1,0 +1,73 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../styles/kaoto-theme' as kaoto;
+
+.cs--delete-confirm-modal {
+  // The body is laid out here: a column with the warning sign over its full height, then the question
+  .cds--modal-content {
+    margin-block-end: 0;
+    padding: 0;
+  }
+
+  // The column reaches up to the header
+  &.cs--kaoto-modal .cds--modal-header {
+    margin-block-end: 0;
+
+    @include kaoto.kaoto-theme {
+      margin-block-end: 0;
+    }
+  }
+
+  &__layout {
+    display: flex;
+    min-block-size: 100%;
+  }
+
+  // The warning sign in the colour of the Delete button: the deletion cannot be undone
+  &__sign {
+    display: flex;
+    flex: none;
+    align-items: center;
+    padding-inline: $spacing-05;
+  }
+
+  &__icon {
+    fill: $support-error;
+  }
+
+  // Centred next to the warning sign, with the same space above and below
+  &__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: $spacing-06;
+    padding-inline: $spacing-05;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-02;
+  }
+
+  // Nested, as Carbon styles the paragraphs of the modal body: what the user is about to do comes first …
+  &__text &__intent {
+    @include type-style('heading-compact-01');
+
+    color: $text-primary;
+
+    // The path of what is deleted stands out, in the colour of the paths in the breadcrumb
+    strong {
+      color: $link-primary;
+    }
+  }
+
+  // … and what it leads to below it, in the colour of the warning sign
+  &__text &__consequence {
+    @include type-style('heading-compact-01');
+
+    color: $text-error;
+  }
+}

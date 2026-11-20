@@ -1,3 +1,6 @@
+import './DeleteConfirmModal.scss';
+
+import { WarningFilled } from '@carbon/icons-react';
 import { Button, InlineNotification, Stack } from '@carbon/react';
 import { FunctionComponent, ReactNode, useState } from 'react';
 
@@ -67,12 +70,20 @@ export const DeleteConfirmModal: FunctionComponent<DeleteConfirmModalProps> = ({
         </>
       }
     >
-      <Stack gap={5}>
-        <p>{children} This action cannot be undone.</p>
-        {failure && (
-          <InlineNotification kind="error" lowContrast hideCloseButton title="Could not delete" subtitle={failure} />
-        )}
-      </Stack>
+      <div className="cs--delete-confirm-modal__layout">
+        <div className="cs--delete-confirm-modal__sign">
+          <WarningFilled size={48} className="cs--delete-confirm-modal__icon" aria-hidden />
+        </div>
+        <Stack gap={5} className="cs--delete-confirm-modal__content">
+          <div className="cs--delete-confirm-modal__text">
+            <p className="cs--delete-confirm-modal__intent">{children}</p>
+            <p className="cs--delete-confirm-modal__consequence">This action cannot be undone.</p>
+          </div>
+          {failure && (
+            <InlineNotification kind="error" lowContrast hideCloseButton title="Could not delete" subtitle={failure} />
+          )}
+        </Stack>
+      </div>
     </KaotoModal>
   );
 };
