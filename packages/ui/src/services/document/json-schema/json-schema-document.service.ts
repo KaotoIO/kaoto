@@ -393,12 +393,14 @@ export class JsonSchemaDocumentService {
   private populateArrayItems(field: JsonSchemaField, schema: JsonSchemaMetadata) {
     if (!schema.items) return;
 
-    const itemsSchema: JsonSchemaMetadata = {
-      ...schema,
-      path: schema.path + '/items',
-    };
-    const arrayItems = Array.isArray(schema.items) ? schema.items : [schema.items];
-    arrayItems.forEach((item) => this.populateFieldFromJSONSchemaDefinition(field, itemsSchema, '', item));
+    const itemsPath = schema.path + '/items';
+    if (Array.isArray(schema.items)) {
+      schema.items.forEach((item, index) =>
+        this.populateFieldFromJSONSchemaDefinition(field, { ...schema, path: `${itemsPath}/${index}` }, '', item),
+      );
+    } else {
+      this.populateFieldFromJSONSchemaDefinition(field, { ...schema, path: itemsPath }, '', schema.items);
+    }
 
     field.fields.forEach((field) => {
       // could an array item be required?
@@ -444,13 +446,12 @@ export class JsonSchemaDocumentService {
   private populateObjectProperties(field: JsonSchemaField, schema: JsonSchemaMetadata) {
     if (!schema.properties) return;
 
-    const propertiesSchema: JsonSchemaMetadata = {
-      ...schema,
-      path: schema.path + '/properties',
-    };
-    Object.entries(schema.properties).forEach(([childName, propSchemaDef]) =>
-      this.populateFieldFromJSONSchemaDefinition(field, propertiesSchema, childName, propSchemaDef),
-    );
+    Object.entries(schema.properties).forEach(([childName, propSchemaDef]) => {
+      // escape the property name as a JSON pointer token, so that a $ref to a definition inside it matches the path
+      const pointerToken = childName.replace(/~/g, '~0').replace(/\//g, '~1');
+      const propertySchema: JsonSchemaMetadata = { ...schema, path: `${schema.path}/properties/${pointerToken}` };
+      this.populateFieldFromJSONSchemaDefinition(field, propertySchema, childName, propSchemaDef);
+    });
 
     field.fields.forEach((subField) => {
       subField.minOccurs = schema.required?.includes(subField.key) ? 1 : 0;
