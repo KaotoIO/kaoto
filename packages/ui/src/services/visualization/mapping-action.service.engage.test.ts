@@ -409,6 +409,75 @@ describe('MappingActionService — mapping engagement', () => {
       });
     });
 
+    describe('container with an inline value-of', () => {
+      let sourceName: FieldNodeData;
+      let tree: MappingTree;
+      let targetDocNode: TargetDocumentNodeData;
+
+      const findTargetName = () => {
+        const [product] = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        return VisualizationService.generateNonDocumentNodeDataChildren(product).find(
+          (child) => child.title === 'name',
+        ) as TargetFieldNodeData;
+      };
+
+      const getNameFieldItem = () => {
+        const product = tree.children[0] as FieldItem;
+        return product.children.find((c) => c instanceof FieldItem) as FieldItem;
+      };
+
+      beforeEach(() => {
+        const files = { 'ExtensionSimple.xsd': getExtensionSimpleXsd() };
+        const sourceDefinition = new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          files,
+        );
+        const targetDefinition = new DocumentDefinition(
+          DocumentType.TARGET_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          files,
+        );
+        const sourceDoc = XmlSchemaDocumentService.createXmlSchemaDocument(sourceDefinition).document!;
+        const targetDoc = XmlSchemaDocumentService.createXmlSchemaDocument(targetDefinition).document!;
+        tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+        targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+
+        const [sourceProduct] = VisualizationService.generateStructuredDocumentChildren(
+          new DocumentNodeData(sourceDoc),
+        );
+        sourceName = VisualizationService.generateNonDocumentNodeDataChildren(sourceProduct).find(
+          (child) => child.title === 'name',
+        ) as FieldNodeData;
+
+        MappingActionService.applyValueOfSelector(findTargetName());
+      });
+
+      it('should fill the existing value-of instead of adding a copy-of when a container is dropped on it', () => {
+        const structural = MappingActionService.engageMapping(tree, sourceName, findTargetName());
+
+        const nameItem = getNameFieldItem();
+        expect(nameItem.children).toHaveLength(1);
+        expect(nameItem.children[0]).toBeInstanceOf(ValueOfSelector);
+        expect((nameItem.children[0] as ValueOfSelector).expression).toBe('/ns0:Product/ns0:name');
+        expect(structural).toBe(false);
+      });
+
+      it('should append further dropped containers to the same value-of', () => {
+        MappingActionService.engageMapping(tree, sourceName, findTargetName());
+        MappingActionService.engageMapping(tree, sourceName, findTargetName());
+
+        const nameItem = getNameFieldItem();
+        expect(nameItem.children).toHaveLength(1);
+        expect(nameItem.children.some((c) => c instanceof CopyOfSelector)).toBe(false);
+        expect((nameItem.children[0] as ValueOfSelector).expression).toBe(
+          '/ns0:Product/ns0:name, /ns0:Product/ns0:name',
+        );
+      });
+    });
+
     describe('container auto-mapping', () => {
       it('should place ForEachItem with copy-of in parent when both collections share name and namespace', () => {
         const sourceDocChildren = VisualizationService.generateStructuredDocumentChildren(sourceDocNode);

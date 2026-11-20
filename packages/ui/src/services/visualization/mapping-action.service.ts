@@ -17,6 +17,7 @@ import {
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { XPathCommitResult } from '../../models/datamapper/mapping-action';
+import { MappingItemClass } from '../../models/datamapper/serialization';
 import { Types } from '../../models/datamapper/types';
 import {
   AddMappingNodeData,
@@ -64,11 +65,23 @@ export class MappingActionService {
    * @param nodeData - The target node to inspect.
    */
   static hasValueSelector(nodeData: TargetNodeData) {
-    return nodeData.mapping?.children.some((c) => c instanceof ValueSelector) ?? false;
+    return MappingActionService.hasChildOfType(nodeData.mapping, ValueSelector);
   }
 
   static hasValueOfSelector(nodeData: TargetNodeData) {
-    return nodeData.mapping?.children.some((c) => c instanceof ValueOfSelector) ?? false;
+    return MappingActionService.hasChildOfType(nodeData.mapping, ValueOfSelector);
+  }
+
+  static hasCopyOfSelector(nodeData: TargetNodeData) {
+    return MappingActionService.hasChildOfType(nodeData.mapping, CopyOfSelector);
+  }
+
+  private static findChildOfType(mapping: MappingParentType | undefined, type: MappingItemClass) {
+    return mapping?.children.find((c) => c instanceof type);
+  }
+
+  private static hasChildOfType(mapping: MappingParentType | undefined, type: MappingItemClass): boolean {
+    return MappingActionService.findChildOfType(mapping, type) !== undefined;
   }
 
   /**
@@ -456,16 +469,14 @@ export class MappingActionService {
         ? MappingActionService.getOrCreateFieldItem(nodeData)
         : nodeData.mapping;
     if (!mapping) return;
-    if (mapping.children.some((c: MappingItem) => c instanceof ValueOfSelector)) return;
-    const valueSelector = MappingService.createValueOfSelector(mapping);
-    mapping.children.push(valueSelector);
-    MappingActionService.requestValueOfSelectorFocus(mapping, valueSelector);
-  }
-
-  private static requestValueOfSelectorFocus(mapping: MappingParentType, valueSelector: ValueOfSelector) {
-    const focusTarget =
-      mapping instanceof FieldItem && DocumentService.hasChildren(mapping.field) ? valueSelector : mapping;
-    useDocumentTreeStore.getState().requestXPathInputFocus(focusTarget.nodePath.toString());
+    if (
+      MappingActionService.hasChildOfType(mapping, ValueOfSelector) ||
+      MappingActionService.hasChildOfType(mapping, CopyOfSelector)
+    ) {
+      return;
+    }
+    mapping.children.push(MappingService.createValueOfSelector(mapping));
+    useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
   }
 
   static applyCopyOfSelector(nodeData: TargetNodeData) {
@@ -673,6 +684,14 @@ export class MappingActionService {
 
     if (!sourceHasChildren || !targetHasChildren) {
       return { handled: false, structural: false };
+    }
+
+    // A container that already has a value-of is a text mapping, so a drop fills that value-of, which
+    // appends when it is not empty, rather than turning the field into a copy-of next to it.
+    const valueOf = MappingActionService.findChildOfType(targetNode.mapping, ValueOfSelector);
+    if (valueOf) {
+      MappingService.mapToCondition(valueOf, sourceFieldFromNode);
+      return { handled: true, structural: false };
     }
 
     const item = MappingActionService.getOrCreateFieldItem(targetNode);

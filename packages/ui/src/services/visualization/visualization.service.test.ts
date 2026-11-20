@@ -22,6 +22,7 @@ import {
 import {
   AddMappingNodeData,
   ChoiceFieldNodeData,
+  CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -42,8 +43,10 @@ import {
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { expectLinksOnRenderedRows } from '../../stubs/datamapper/target-render-test-helpers';
+import { DocumentService } from '../document/document.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { MappingLinksService } from './mapping-links.service';
 import { TargetRenderService } from './target-render.service';
@@ -740,19 +743,36 @@ describe('VisualizationService', () => {
       const leafField = targetDoc.fields[0].fields[0]; // e.g. OrderId — a leaf field
       const leafFI = new FieldItem(shipOrderFI, leafField);
       const vs = new ValueOfSelector(leafFI, ValueOfType.VALUE);
+      leafFI.children.push(vs);
       expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(true);
     });
 
-    it('should return false for VALUE ValueOfSelector on an expandable field (has children)', () => {
-      // ShipOrder has child fields, so value-of on it renders as an explicit tree node
+    it('should return true for VALUE ValueOfSelector on an expandable field (has children)', () => {
+      // ShipOrder has child fields, but its value-of is still edited inline on the field row
       const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new ValueOfSelector(shipOrderFI, ValueOfType.VALUE);
-      expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(false);
+      shipOrderFI.children.push(vs);
+      expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(true);
+    });
+
+    it('should expose the inline value-of of a container field row for the value badge, and nothing for a leaf', () => {
+      const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
+      const vs = new ValueOfSelector(shipOrderFI, ValueOfType.VALUE);
+      shipOrderFI.children.push(vs);
+      const docNode = new TargetDocumentNodeData(targetDoc, tree);
+      expect(VisualizationUtilService.getInlineContainerValueOf(new FieldItemNodeData(docNode, shipOrderFI))).toBe(vs);
+
+      const leafFI = new FieldItem(shipOrderFI, targetDoc.fields[0].fields[0]);
+      leafFI.children.push(new ValueOfSelector(leafFI, ValueOfType.VALUE));
+      expect(
+        VisualizationUtilService.getInlineContainerValueOf(new FieldItemNodeData(docNode, leafFI)),
+      ).toBeUndefined();
     });
 
     it('should return true for ATTRIBUTE ValueOfSelector', () => {
       const fieldItem = new FieldItem(tree, targetDoc.fields[0]);
       const vs = new ValueOfSelector(fieldItem, ValueOfType.ATTRIBUTE);
+      fieldItem.children.push(vs);
       expect(VisualizationUtilService.isInlineValueSelector(vs)).toBe(true);
     });
 
@@ -792,6 +812,123 @@ describe('VisualizationService', () => {
       const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
       const orderPersonNode = shipOrderChildren.find((c) => c.title === orderPersonField.name) as FieldItemNodeData;
       expect(VisualizationService.hasChildren(orderPersonNode)).toBe(false);
+    });
+
+    describe('collection field with attributes and text', () => {
+      const collectionXsd = `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:element name="Root">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Tag" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                      <xs:attribute name="lang" type="xs:string"/>
+                    </xs:extension>
+                  </xs:simpleContent>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:schema>`;
+
+      const createCollectionSetup = () => {
+        const definition = new DocumentDefinition(
+          DocumentType.TARGET_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          { 'collection.xsd': collectionXsd },
+        );
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+        expect(result.validationStatus).toBe('success');
+        const doc = result.document!;
+        const collectionTree = new MappingTree(doc.documentType, doc.documentId, DocumentDefinitionType.XML_SCHEMA);
+        const rootFI = new FieldItem(collectionTree, doc.fields[0]);
+        collectionTree.children.push(rootFI);
+        const tagField = doc.fields[0].fields.find((f) => f.name === 'Tag')!;
+        expect(DocumentService.isCollectionField(tagField)).toBe(true);
+        expect(DocumentService.hasChildren(tagField)).toBe(true);
+        expect(DocumentService.hasElementChildren(tagField)).toBe(false);
+        const renderRows = () => {
+          const docNode = new TargetDocumentNodeData(doc, collectionTree);
+          const rootRow = VisualizationService.generateStructuredDocumentChildren(docNode)[0];
+          return VisualizationService.generateNonDocumentNodeDataChildren(rootRow).filter((c) => c.title === 'Tag');
+        };
+        return { rootFI, tagField, renderRows };
+      };
+
+      it('should render one row per value-of mapping, each with its own inline value and no extra value row', () => {
+        const { rootFI, tagField, renderRows } = createCollectionSetup();
+        const valueOfs: ValueOfSelector[] = [];
+        for (let i = 0; i < 2; i++) {
+          const tagFI = new FieldItem(rootFI, tagField);
+          const valueOf = new ValueOfSelector(tagFI, ValueOfType.VALUE);
+          tagFI.children.push(valueOf);
+          rootFI.children.push(tagFI);
+          valueOfs.push(valueOf);
+        }
+
+        const rows = renderRows().filter((c) => c instanceof FieldItemNodeData);
+        expect(rows).toHaveLength(2);
+        expect(rows.map((r) => VisualizationService.getExpressionItemForNode(r as FieldItemNodeData))).toEqual(
+          valueOfs,
+        );
+        for (const row of rows) {
+          expect(VisualizationUtilService.getInlineContainerValueOf(row)).toBeDefined();
+          const children = VisualizationService.generateNonDocumentNodeDataChildren(row);
+          expect(children.some((c) => c instanceof MappingNodeData)).toBe(false);
+        }
+      });
+
+      it('should render a value-of mapping and a copy-of mapping as separate rows, never two inputs on one row', () => {
+        const { rootFI, tagField, renderRows } = createCollectionSetup();
+        const valueFI = new FieldItem(rootFI, tagField);
+        const valueOf = new ValueOfSelector(valueFI, ValueOfType.VALUE);
+        valueFI.children.push(valueOf);
+        rootFI.children.push(valueFI);
+        const copyOf = new CopyOfSelector(rootFI);
+        copyOf.expression = '/Root/Tag';
+        rootFI.children.push(copyOf);
+
+        const rows = renderRows();
+        const valueRows = rows.filter((c) => c instanceof FieldItemNodeData);
+        const copyRows = rows.filter((c) => c instanceof CopyOfFieldNodeData);
+        expect(valueRows).toHaveLength(1);
+        expect(copyRows).toHaveLength(1);
+        expect(VisualizationService.getExpressionItemForNode(valueRows[0] as FieldItemNodeData)).toBe(valueOf);
+        expect(VisualizationService.getExpressionItemForNode(copyRows[0] as CopyOfFieldNodeData)).toBe(copyOf);
+      });
+    });
+
+    it('should render field A twice when a copy-of selects field A that already has a value-of', () => {
+      tree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const shipOrderFI = new FieldItem(tree, targetDoc.fields[0]);
+      tree.children.push(shipOrderFI);
+      const orderPersonField = targetDoc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      const orderPersonFI = new FieldItem(shipOrderFI, orderPersonField);
+      shipOrderFI.children.push(orderPersonFI);
+      const valueOf = new ValueOfSelector(orderPersonFI, ValueOfType.VALUE);
+      valueOf.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      orderPersonFI.children.push(valueOf);
+      const copyOf = new CopyOfSelector(shipOrderFI);
+      copyOf.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      shipOrderFI.children.push(copyOf);
+      expect(CopyOfPlacementService.getInlineField(copyOf)).toBe(orderPersonField);
+
+      targetDocNode = new TargetDocumentNodeData(targetDoc, tree);
+      const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+      const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
+
+      const orderPersonRows = shipOrderChildren.filter((c) => c.title === orderPersonField.name);
+      expect(orderPersonRows).toHaveLength(2);
+      const valueRow = orderPersonRows.find((c) => c instanceof FieldItemNodeData) as FieldItemNodeData;
+      const copyRow = orderPersonRows.find((c) => c instanceof CopyOfFieldNodeData) as CopyOfFieldNodeData;
+      expect(valueRow.mapping).toBe(orderPersonFI);
+      expect(VisualizationService.getExpressionItemForNode(valueRow)).toBe(valueOf);
+      expect(copyRow.mapping).toBe(copyOf);
+      // The value-of stays inline on its own row; no extra value row is created.
+      expect(shipOrderChildren.some((c) => c instanceof MappingNodeData && c.mapping === valueOf)).toBe(false);
     });
 
     it('should show a standalone copy-of as tree node in primitive document children', () => {

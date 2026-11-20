@@ -13,7 +13,14 @@ import {
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { FieldItem, IfItem, MappingItem, MappingTree, VariableItem } from '../../models/datamapper/mapping';
+import {
+  CopyOfSelector,
+  FieldItem,
+  IfItem,
+  MappingItem,
+  MappingTree,
+  VariableItem,
+} from '../../models/datamapper/mapping';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import {
   AddMappingNodeData,
@@ -891,6 +898,32 @@ describe('TargetDocumentNode', () => {
           mappingTree,
           new Map<string, IDocument>(),
         );
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const orderPersonNode = findTreeNode(tree.root, byTitle('OrderPerson'));
+        const orderPersonNodeData = orderPersonNode.nodeData as TargetNodeData;
+        expect(orderPersonNodeData).toBeInstanceOf(FieldItemNodeData);
+        const valueSelectorItem = MappingActionRegistryService.getMappingContextMenuItems(orderPersonNodeData).find(
+          (item) => item.key === MappingActionKind.ValueSelector,
+        );
+        expect(valueSelectorItem?.isDisabled?.(orderPersonNodeData)).toBe(true);
+        const orderPerson = renderRow(orderPersonNode, documentNodeData);
+
+        fireEvent.doubleClick(within(orderPerson.row).getByText('OrderPerson'));
+
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+        expect(orderPerson.context.refreshMappingTree).not.toHaveBeenCalled();
+      });
+
+      it('should not add a value-of on a row that already holds a copy-of', () => {
+        const { document, mappingTree } = createShipOrderTree();
+        const shipOrderFieldItem = new FieldItem(mappingTree, document.fields[0]);
+        mappingTree.children.push(shipOrderFieldItem);
+        const orderPersonFieldItem = new FieldItem(
+          shipOrderFieldItem,
+          document.fields[0].fields.find((f) => f.name === 'OrderPerson')!,
+        );
+        shipOrderFieldItem.children.push(orderPersonFieldItem);
+        orderPersonFieldItem.children.push(new CopyOfSelector(orderPersonFieldItem));
         const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
         const orderPersonNode = findTreeNode(tree.root, byTitle('OrderPerson'));
         const orderPersonNodeData = orderPersonNode.nodeData as TargetNodeData;

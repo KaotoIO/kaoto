@@ -5,7 +5,6 @@ import {
   FieldItem,
   MappingItem,
   ValueOfSelector,
-  ValueOfType,
   ValueSelector,
 } from '../../models/datamapper/mapping';
 import {
@@ -290,17 +289,27 @@ export class VisualizationUtilService {
   }
 
   /**
+   * Returns the inline {@link ValueOfSelector} for a {@link FieldItemNodeData} whose mapping is a
+   * {@link FieldItem} with child fields, or `undefined` if there is none. Used by {@link FieldNodeTitle}
+   * to render the "value" badge on container fields, to tell it apart from the inline "copy" badge.
+   */
+  static getInlineContainerValueOf(nodeData: NodeData): ValueOfSelector | undefined {
+    if (!(nodeData instanceof FieldItemNodeData) || !(nodeData.mapping instanceof FieldItem)) return undefined;
+    if (!DocumentService.hasChildren(nodeData.mapping.field)) return undefined;
+    return nodeData.mapping.children.find((c): c is ValueOfSelector => c instanceof ValueOfSelector);
+  }
+
+  /**
    * Whether `item` is a selector edited inline in its parent's row rather than rendered as a row of
-   * its own. A value-of on a field with child fields and every copy-of get their own row.
+   * its own. Every value-of is inline, while every copy-of gets its own row. A field never has both a
+   * value-of and a copy-of in a valid mapping, so the row never needs two inputs.
    * Lives here rather than in {@link VisualizationService} so that services which must not depend on
    * the tree builder, such as {@link TargetRenderService}, can ask the same question.
    * @param item - the mapping item to test
    */
   static isInlineValueSelector(item: MappingItem): item is ValueSelector {
     if (item instanceof CopyOfSelector) return false;
-    if (!(item instanceof ValueOfSelector)) return false;
-    if (item.valueType === ValueOfType.ATTRIBUTE) return true;
-    return !(item.parent instanceof FieldItem && DocumentService.hasChildren(item.parent.field));
+    return item instanceof ValueOfSelector;
   }
 
   /**

@@ -130,7 +130,7 @@ describe('MappingActionService', () => {
         expect(targetDocChildren).toHaveLength(0);
       });
 
-      it('should apply value-of when copy-of already exists', () => {
+      it('should not apply value-of when copy-of already exists', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         MappingActionService.applyCopyOfSelector(docChildren[0] as TargetNodeData);
 
@@ -140,11 +140,7 @@ describe('MappingActionService', () => {
 
         const shipOrderFieldItem = tree.children[0] as FieldItem;
         expect(shipOrderFieldItem.children.filter((child) => child instanceof CopyOfSelector)).toHaveLength(1);
-        expect(shipOrderFieldItem.children.filter((child) => child instanceof ValueOfSelector)).toHaveLength(1);
-        const valueOfSelector = shipOrderFieldItem.children.find(
-          (child) => child instanceof ValueOfSelector,
-        ) as ValueOfSelector;
-        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(valueOfSelector.nodePath.toString());
+        expect(shipOrderFieldItem.children.filter((child) => child instanceof ValueOfSelector)).toHaveLength(0);
       });
 
       it('should create VALUE ValueSelector for element field', () => {
@@ -314,7 +310,7 @@ describe('MappingActionService', () => {
         expect(copyOfAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(true);
       });
 
-      it('should NOT disable ValueSelector when only copy-of exists', () => {
+      it('should disable ValueSelector when copy-of exists', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         MappingActionService.applyCopyOfSelector(shipOrderChildren[0] as TargetNodeData);
@@ -327,7 +323,7 @@ describe('MappingActionService', () => {
           updatedShipOrderChildren[0] as TargetNodeData,
         );
         const valueSelectorAction = menuItems.find((item) => item.key === MappingActionKind.ValueSelector);
-        expect(valueSelectorAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(false);
+        expect(valueSelectorAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(true);
       });
 
       it('should not disable CopyOfSelector for a container field', () => {
@@ -574,14 +570,14 @@ describe('MappingActionService', () => {
         expectValueSelectorAllowed(findJsonRow(shipOrderJsonRows, 'Item'), false);
       });
 
-      it('should not offer a second value-of on a container that already holds one, and keep the existing one deletable', () => {
+      it('should not offer a second value-of on a container that already holds one, and keep the field deletable', () => {
         MappingSerializerService.deserialize(getShipOrderValueOfInContainerXslt(), targetDoc, tree, paramsMap);
         const shipToRow = childrenOf(rootRows(targetDoc, tree)[0]).find((r) => r.title === 'ShipTo');
         if (!(shipToRow instanceof FieldItemNodeData)) throw new Error('Mapped ShipTo row not found');
 
         expectValueSelectorAllowed(shipToRow, false);
-        const valueOfRow = findMappingRow(childrenOf(shipToRow), ValueOfSelector);
-        expect(MappingActionRegistryService.getAllowedActions(valueOfRow)).toContain(MappingActionKind.Delete);
+        expect(MappingActionService.hasValueOfSelector(shipToRow)).toBe(true);
+        expect(MappingActionRegistryService.getAllowedActions(shipToRow)).toContain(MappingActionKind.Delete);
       });
 
       describe('condition rows', () => {
@@ -2226,16 +2222,18 @@ describe('MappingActionService', () => {
         expect(adt.adtTree.children).toEqual([]);
       });
 
-      it('should remove the guard together with the emptied field when deleting the value-of row of a guarded field', () => {
+      it('should remove the guard together with the field when deleting a guarded field with an inline value-of', () => {
         const adt = setUpAdtIn();
         const { ifItem, pidFieldItem } = addGuardedPid(adt.hl7Item);
         const valueOf = new ValueOfSelector(pidFieldItem);
         valueOf.expression = '/HL7/PID';
         pidFieldItem.children.push(valueOf);
-        const { pidNode, selectorNode } = renderPidSelectorNode(adt.renderHl7Children(), valueOf);
+        const pidNode = adt
+          .renderHl7Children()
+          .find((node) => node instanceof FieldItemNodeData && node.field.name === 'PID') as FieldItemNodeData;
         expect(pidNode.autoOptionalIfItem).toBe(ifItem);
 
-        MappingActionService.deleteMappingItem(selectorNode);
+        MappingActionService.deleteMappingItem(pidNode);
 
         expect(adt.adtTree.children).toEqual([]);
       });
