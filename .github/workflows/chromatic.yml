@@ -36,8 +36,7 @@ jobs:
         uses: chromaui/action@86505fc3fa3b2ed5f39eda89f34f4051ea8ff0c8 # v18.14.6
         # Chromatic GitHub Action options
         with:
-          # This token needs to be specified directly here so forks of the repository can push their changes to the chromatic UI
-          projectToken: chpt_7d9db951361ed23
+          projectToken: ${{ secrets.KAOTO_CHROMATIC_TOKEN }}
           buildScriptName: build:storybook
           workingDir: packages/ui-tests
           onlyChanged: true

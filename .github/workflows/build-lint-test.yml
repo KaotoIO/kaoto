@@ -38,6 +38,8 @@ jobs:
       # JSON arrays of workspace names: those that hold a changed file, and those plus their dependents.
       changed: ${{ steps.select.outputs.changed }}
       affected: ${{ steps.select.outputs.affected }}
+      # A job-level if can't read secrets, so the Chromatic job checks this instead. Fork PRs don't get the token.
+      has-chromatic-token: ${{ secrets.KAOTO_CHROMATIC_TOKEN != '' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -199,8 +201,10 @@ jobs:
     needs: changes
     if: >-
       contains(fromJSON(needs.changes.outputs.affected), '@kaoto/kaoto-tests') &&
-      (github.event_name != 'pull_request' || github.base_ref == 'main')
+      (github.event_name != 'pull_request' || github.base_ref == 'main') &&
+      needs.changes.outputs.has-chromatic-token == 'true'
     uses: ./.github/workflows/chromatic.yml
+    secrets: inherit
 
   # Main's runs save new entries whenever a key changes, and no run reads the entries they replace again. Those stay
   # until 7 days pass or the repository's caches go over 10 GB, when GitHub evicts the least recently read entries,
