@@ -1,0 +1,75 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use '../../styles/kaoto-theme' as kaoto;
+
+// The wrappers of the Carbon fields a modal can hold; the label above a field stays outside of them
+$fields: ':is(.cds--text-input__field-outer-wrapper, .cds--text-area__wrapper, .cds--number__input-wrapper, .cds--list-box__wrapper, .cds--search)';
+
+.cs--kaoto-modal {
+  .cds--modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-03;
+
+    // The close button brings its own space
+    padding-inline-end: $spacing-03;
+  }
+
+  .cds--modal-header__heading {
+    // Carbon keeps room for its own close button in the corner
+    padding-inline-end: 0;
+  }
+
+  &__close {
+    flex-shrink: 0;
+  }
+
+  // The header carries the accent colour, like the header of the Explorer
+  @include kaoto.kaoto-theme {
+    // Rounded like the floating cards; header and footer are clipped to the corners
+    .cds--modal-container {
+      overflow: hidden;
+      border-radius: kaoto.$card-radius;
+
+      // The tint of the floating cards, like the Explorer
+      background-color: var(--cs-tint);
+    }
+
+    .cds--modal-header {
+      @include kaoto.on-accent-ghost-button;
+
+      margin-block-end: $spacing-05;
+      padding-block: $spacing-03;
+      background-color: var(--cs-accent);
+    }
+
+    .cds--modal-header__heading {
+      color: var(--cs-on-accent);
+    }
+
+    // Carbon lifts the modal to the next layer, which lightens the frames; on the tint they keep the frame of the
+    // fields in the Explorer
+    .cds--modal-content {
+      --cds-border-subtle: var(--cds-border-subtle-00);
+    }
+
+    // The labels of the fields hold their own next to the headings and tiles of the body
+    .cds--modal-content .cds--label {
+      color: $text-primary;
+      font-weight: font-weight('semibold');
+    }
+
+    // The fields stand out from the tint like the search field of the Explorer
+    .cds--modal-content #{$fields} {
+      @include kaoto.field-fill;
+    }
+  }
+
+  @include kaoto.kaoto-theme-dark {
+    .cds--modal-content #{$fields} {
+      @include kaoto.light-field-zone;
+    }
+  }
+}
