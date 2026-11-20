@@ -1,5 +1,6 @@
 // Hosts of this component do not load carbon-overrides.scss, which carries these PatternFly adjustments
 import '../../styles/patternfly-carbon-compat.scss';
+import './RouteVisualization.scss';
 
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
@@ -32,6 +33,7 @@ import {
 import { ActionConfirmationModalContextProvider } from '../../providers/action-confirmation-modal.provider';
 import type { SourceCodeAdapter } from '../../providers/source-code.provider';
 import { EventNotifier } from '../../utils';
+import { RouteSourceCode } from './RouteSourceCode';
 
 /**
  * The DataMapper launcher is left out: it navigates to the DataMapper page of the Kaoto web app, which the hosts of
@@ -60,7 +62,8 @@ const Viz: FunctionComponent<{
   testingCatalogName: string;
   className?: string;
   adapter?: SourceCodeAdapter;
-}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, className = '', adapter }) => {
+  view?: RouteVisualizationView;
+}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, className = '', adapter, view = 'design' }) => {
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
@@ -90,7 +93,14 @@ const Viz: FunctionComponent<{
                                   <CatalogModalProvider>
                                     {/* Asks before deleting a step with children, a route or a group */}
                                     <ActionConfirmationModalContextProvider>
-                                      <VisibleFlowsVisualization className={className} />
+                                      <div className="route-visualization-design" hidden={view === 'code'}>
+                                        <VisibleFlowsVisualization className={className} />
+                                      </div>
+                                      {view === 'code' && (
+                                        <div className="route-visualization-code">
+                                          <RouteSourceCode />
+                                        </div>
+                                      )}
                                     </ActionConfirmationModalContextProvider>
                                   </CatalogModalProvider>
                                 </SuggestionRegistryProvider>
@@ -117,6 +127,8 @@ const SourceCodeBoundary: FunctionComponent<PropsWithChildren<{ adapter?: Source
   children,
 }) => (adapter ? <SourceCodeProvider adapter={adapter}>{children}</SourceCodeProvider> : children);
 
+export type RouteVisualizationView = 'design' | 'code';
+
 interface RouteVisualizationBaseProps {
   catalogUrl: string;
   runtimeCatalogName: string;
@@ -129,11 +141,14 @@ interface RouteVisualizationCodeProps extends RouteVisualizationBaseProps {
   code: string;
   codeChange: (code: string) => void;
   adapter?: never;
+  view?: never;
 }
 
 /** The host connects its document through a source code adapter */
 interface RouteVisualizationAdapterProps extends RouteVisualizationBaseProps {
   adapter: SourceCodeAdapter;
+  /** The canvas or the code of the document; the canvas stays mounted while the code is shown */
+  view?: RouteVisualizationView;
   code?: never;
   codeChange?: never;
 }
@@ -151,6 +166,7 @@ export const RouteVisualization: FunctionComponent<RouteVisualizationProps> = (p
       testingCatalogName={props.testingCatalogName}
       className={props.className}
       adapter={props.adapter}
+      view={props.view}
     />
   ) : (
     <CodeRouteVisualization {...props} />
