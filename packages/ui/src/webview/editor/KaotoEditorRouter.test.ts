@@ -1,3 +1,4 @@
+import { Links } from '../../router/links.models';
 import { createKaotoEditorRouter } from './KaotoEditorRouter';
 
 describe('createKaotoEditorRouter', () => {
@@ -30,6 +31,28 @@ describe('createKaotoEditorRouter', () => {
     expect(router.state.initialized).toBe(true);
     // The lazy route has resolved into the element of the Design page
     expect(router.state.matches.at(-1)?.route.element).toBeDefined();
+    router.dispose();
+  });
+
+  it.each([
+    Links.Beans,
+    Links.RestEditor,
+    Links.Metadata,
+    Links.PipeErrorHandler,
+    Links.DataMapper,
+    Links.About,
+    `${Links.DataMapper}/datamapper-id`,
+  ])('loads the page of %s', async (path) => {
+    const router = createKaotoEditorRouter();
+    await vi.dynamicImportSettled();
+
+    await router.navigate(path);
+    await vi.dynamicImportSettled();
+
+    const route = router.state.matches.at(-1)?.route;
+    expect(router.state.location.pathname).toBe(path);
+    expect(route?.path).toBeDefined();
+    expect(route?.element).toBeDefined();
     router.dispose();
   });
 });
