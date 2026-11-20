@@ -1,0 +1,12 @@
+// The design view keeps its layout while it is shown and stays mounted while the code view is shown
+.route-visualization-design {
+  display: contents;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.route-visualization-code {
+  height: 100%;
+}
