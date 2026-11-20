@@ -81,7 +81,6 @@
   you should manage scrolling withing the component/canvas.
   */
   overflow: hidden auto; /* no horizontal scroll, vertical only unless manged elsewhere */
-  scrollbar-color: $background-active $layer;
 }
 
 .cs--page-layout :has(.cs--page-layout__content-header) {

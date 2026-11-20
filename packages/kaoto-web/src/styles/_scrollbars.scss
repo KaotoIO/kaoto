@@ -1,0 +1,26 @@
+@use '@carbon/react/scss/theme' as *;
+
+// One scrollbar look for the whole app: a thumb on a transparent track, which takes the colour of the surface below.
+// The Carbon style has no accent surfaces and keeps a neutral thumb; the Kaoto style tints it with the accent.
+:root {
+  --cs-scrollbar-thumb: #{$border-strong};
+  --cs-scrollbar-thumb-hover: #{$text-secondary};
+}
+
+:root[data-theme-style='kaoto'] {
+  --cs-scrollbar-thumb: color-mix(in srgb, var(--cs-accent) 50%, transparent);
+  --cs-scrollbar-thumb-hover: color-mix(in srgb, var(--cs-accent) 70%, transparent);
+}
+
+* {
+  scrollbar-color: var(--cs-scrollbar-thumb) transparent;
+}
+
+// The Monaco editors draw their own scrollbars; their colours come from these variables
+.monaco-editor {
+  /* stylelint-disable custom-property-pattern -- Monaco's theme variables */
+  --vscode-scrollbarSlider-background: var(--cs-scrollbar-thumb);
+  --vscode-scrollbarSlider-hoverBackground: var(--cs-scrollbar-thumb-hover);
+  --vscode-scrollbarSlider-activeBackground: var(--cs-scrollbar-thumb-hover);
+  /* stylelint-enable custom-property-pattern */
+}

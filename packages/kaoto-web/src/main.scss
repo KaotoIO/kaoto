@@ -26,6 +26,7 @@
 @use 'components/Footer/Footer';
 @use 'styles/kaoto-theme-carbon';
 @use 'styles/kaoto-theme-designer';
+@use 'styles/scrollbars';
 
 @mixin light-brand {
   --light: 'true';
