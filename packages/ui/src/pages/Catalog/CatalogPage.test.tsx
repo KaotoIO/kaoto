@@ -17,6 +17,12 @@ describe('CatalogPage', () => {
     reloadPage = vi.fn();
     settingsAdapter = new DefaultSettingsAdapter();
   });
+
+  afterEach(() => {
+    // Restores the real timers even when a test fails, so that it does not time out the tests after it
+    vi.useRealTimers();
+  });
+
   const mockTiles: ITile[] = [
     {
       type: 'component',
@@ -57,7 +63,7 @@ describe('CatalogPage', () => {
       { wrapper: VirtuosoWrapper },
     );
 
-    expect(screen.getByText('Fetching catalogs', { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText('Fetching catalogs', { selector: '.loading__message' })).toBeInTheDocument();
     expect(screen.getByLabelText('Fetching catalogs')).toBeInTheDocument();
     expect(fetchTiles).toHaveBeenCalledTimes(1);
 
@@ -66,7 +72,6 @@ describe('CatalogPage', () => {
     });
 
     expect(screen.queryByText('Fetching catalogs')).not.toBeInTheDocument();
-    vi.useRealTimers();
   });
 
   describe('Success state', () => {
