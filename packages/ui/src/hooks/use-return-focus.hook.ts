@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from 'react';
+import { RefObject, useLayoutEffect, useRef } from 'react';
 
 import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
 
@@ -10,13 +10,20 @@ import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaul
  * has it on the next animation frame.
  *
  * @param isOpen Whether the modal is open
+ * @param openerRef The element to return the focus to, when the caller took it before the modal opened; the focused
+ * element at that time otherwise
  */
-export const useReturnFocus = (isOpen: boolean) => {
+export const useReturnFocus = (isOpen: boolean, openerRef?: RefObject<HTMLElement | SVGElement | null>) => {
   const origin = useRef<HTMLElement | SVGElement | null>(null);
 
   /* A layout effect runs before the modal's focus trap, a passive effect, moves the focus into the modal */
   useLayoutEffect(() => {
     if (isOpen) {
+      if (openerRef?.current) {
+        origin.current = openerRef.current;
+        openerRef.current = null;
+        return;
+      }
       const active = document.activeElement;
       const isElement = active instanceof HTMLElement || active instanceof SVGElement;
       origin.current = isElement && active !== document.body ? active : null;
@@ -32,5 +39,5 @@ export const useReturnFocus = (isOpen: boolean) => {
         document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.focus({ preventScroll: true });
       }
     });
-  }, [isOpen]);
+  }, [isOpen, openerRef]);
 };

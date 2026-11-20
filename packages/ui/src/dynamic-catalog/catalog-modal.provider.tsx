@@ -46,7 +46,9 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
   const { fetchTiles, getTiles } = useCatalogTiles();
   const [filteredTiles, setFilteredTiles] = useState<ITile[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  useReturnFocus(isModalOpen);
+  /** The element that asked for the catalog, taken before the tiles load: the focus can move in the meantime */
+  const openerRef = useRef<HTMLElement | SVGElement | null>(null);
+  useReturnFocus(isModalOpen, openerRef);
 
   const componentSelectionRef = useRef<{
     resolve: (component: DefinedComponent | undefined) => void;
@@ -78,6 +80,9 @@ export const CatalogModalProvider: FunctionComponent<PropsWithChildren> = (props
 
   const getNewComponent = useCallback(
     async (catalogFilter?: TileFilter): Promise<DefinedComponent | undefined> => {
+      const active = document.activeElement;
+      openerRef.current =
+        (active instanceof HTMLElement || active instanceof SVGElement) && active !== document.body ? active : null;
       let tiles: ITile[];
       try {
         tiles = await fetchTiles();
