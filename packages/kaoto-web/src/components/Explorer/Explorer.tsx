@@ -13,7 +13,7 @@ import {
   FolderOpen,
   TestTool,
 } from '@carbon/icons-react';
-import { Button, FeatureFlags, IconButton, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
+import { FeatureFlags, IconButton, Link, Search, SkeletonText, TreeNode, TreeView } from '@carbon/react';
 import {
   ChangeEvent,
   ComponentProps,
@@ -474,10 +474,10 @@ export const Explorer: FunctionComponent = () => {
         )}
         {!loading && !error && tree.length === 0 && !newEntry && (
           <div className="cs--explorer__empty" data-testid="explorer-empty">
-            <p>No files yet</p>
-            <Button kind="tertiary" size="sm" onClick={openCreateModal}>
-              Create…
-            </Button>
+            {/* A link to the eye, but it opens the Create new file modal rather than going anywhere */}
+            <Link as="button" type="button" className="cs--explorer__create-first" onClick={openCreateModal}>
+              Create your first file…
+            </Link>
           </div>
         )}
         {!loading && !error && (tree.length > 0 || newEntry) && (

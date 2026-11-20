@@ -198,6 +198,12 @@
   color: $text-secondary;
 }
 
+// A Carbon link rendered as a button: without the background of a button
+.cs--explorer__create-first {
+  background: none;
+  cursor: pointer;
+}
+
 .cs--explorer__resizer {
   position: absolute;
   inset-inline-end: 0;
