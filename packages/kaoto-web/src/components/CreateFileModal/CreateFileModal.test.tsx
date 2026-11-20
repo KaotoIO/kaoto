@@ -319,6 +319,34 @@ describe('CreateFileModal', () => {
     expect(screen.getByTestId('location')).toHaveTextContent('/workspace');
   });
 
+  it('shows no error when the template fails to load after it was cancelled', async () => {
+    const realFetch = vi.mocked(fetch).getMockImplementation()!;
+    let failTemplate: () => void = () => {};
+    vi.mocked(fetch).mockImplementation((url) => {
+      if (!/\/starter-templates\/.+-hash\.yaml$/.test((url as URL).pathname)) return realFetch(url);
+      return new Promise((_resolve, reject) => {
+        failTemplate = () => {
+          reject(new Error('The network is down'));
+        };
+      });
+    });
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.type(screen.getByLabelText('File name'), 'orders');
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+    await screen.findByRole('button', { name: 'Creating…' });
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await act(async () => {
+      failTemplate();
+      await Promise.resolve();
+    });
+
+    expect(screen.queryByText('Could not create the file')).not.toBeInTheDocument();
+    expect(await storedFiles()).toEqual([]);
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
   it('locks the form while the file is created, but not Cancel', async () => {
     const realFetch = vi.mocked(fetch).getMockImplementation()!;
     let finishTemplate: () => Promise<unknown> = () => Promise.resolve();

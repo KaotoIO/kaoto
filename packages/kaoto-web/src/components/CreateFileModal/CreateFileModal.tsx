@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router';
 import { CATALOG_URL } from '../../catalog-url';
 import { useFiles } from '../../hooks/useFiles';
 import { buildFilePath } from '../../services/files/file-path';
-import { fetchStarterTemplate, resolveStarterTemplate } from '../../services/templates/starter-templates';
+import { createFileFromTemplate } from '../../services/templates/create-file-from-template';
 import { KaotoModal } from '../KaotoModal/KaotoModal';
 import { FILE_KINDS, FileKind } from './file-kinds';
 
@@ -31,19 +31,20 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
   const [folder, setFolder] = useState('');
   const [creating, setCreating] = useState(false);
   const [failure, setFailure] = useState<string>();
-  /** Set once the modal is closed or unmounted, so that a creation still in progress stops */
-  const closedRef = useRef(false);
+  /** Aborted once the modal is closed or unmounted, so that a creation still in progress stops */
+  const abortRef = useRef<AbortController>(undefined);
 
   useEffect(() => {
-    // StrictMode runs the effect, its cleanup and the effect again, so the flag is reset on every run
-    closedRef.current = false;
+    // StrictMode runs the effect, its cleanup and the effect again, so every run starts with a new controller
+    const controller = new AbortController();
+    abortRef.current = controller;
     return () => {
-      closedRef.current = true;
+      controller.abort();
     };
   }, []);
 
   const close = () => {
-    closedRef.current = true;
+    abortRef.current?.abort();
     onClose();
   };
 
@@ -59,18 +60,22 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
     if (!path || !canCreate) return;
     setCreating(true);
     setFailure(undefined);
+    const closed = abortRef.current?.signal;
     try {
-      const template = await fetchStarterTemplate(CATALOG_URL, kind.template);
-      // Cancelled while the template was loading: create nothing
-      if (closedRef.current) return;
-      const fileName = path.split('/').pop()!;
-      const created = await createFile({ path, content: resolveStarterTemplate(template, fileName) });
+      // Cancelled while the template is loading: nothing is created
+      const created = await createFileFromTemplate({
+        catalogUrl: CATALOG_URL,
+        template: kind.template,
+        path,
+        createFile,
+        signal: closed,
+      });
       // Cancelled while storing: the file is kept, it is already in the store and shows in the Explorer
-      if (closedRef.current) return;
+      if (!created || closed?.aborted) return;
       close();
       void navigate(`/workspace/file/${created.id}`);
     } catch (error) {
-      if (closedRef.current) return;
+      if (closed?.aborted) return;
       setFailure(error instanceof Error ? error.message : String(error));
       setCreating(false);
     }
