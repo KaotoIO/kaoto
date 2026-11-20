@@ -161,8 +161,13 @@ const webpack = (env) => {
           patterns: [
             { from: webviewDist, to: 'webview', info: { minimized: true }, noErrorOnMissing: Boolean(env.dev) },
             { from: path.resolve(__dirname, 'assets/kaoto-host-shim.js'), to: 'webview/kaoto-host-shim.js' },
-            // The page template of the editor, shared with the Vite dev server
-            { from: path.resolve(__dirname, '../ui/webview.html'), to: 'webview/kaoto-editor.html' },
+            // The page template of the editor, shared with the Vite dev server. It stays as it is: since webpack
+            // 5.112 the minimizer also rewrites HTML, which drops the quotes that WebviewHtml.ts looks for
+            {
+              from: path.resolve(__dirname, '../ui/webview.html'),
+              to: 'webview/kaoto-editor.html',
+              info: { minimized: true },
+            },
           ],
         }),
       ],
