@@ -99,7 +99,7 @@ export class JsonSchemaDocumentService {
       JsonSchemaDocumentService.registerSchemaWithAliases(jsonDocument.schemaCollection, schema);
     }
 
-    const jsonService = new JsonSchemaDocumentService(jsonDocument);
+    const jsonService = new JsonSchemaDocumentService(jsonDocument, primarySchema.identifier);
     jsonService.populateFieldFromSchema(jsonDocument, '', primarySchema);
     jsonService.updateFieldTypes();
 
@@ -255,7 +255,10 @@ export class JsonSchemaDocumentService {
     }
   }
 
-  constructor(private readonly jsonDocument: JsonSchemaDocument) {}
+  constructor(
+    private readonly jsonDocument: JsonSchemaDocument,
+    private readonly primarySchemaIdentifier: string,
+  ) {}
 
   private populateExternalTypeFragment(ref: JsonSchemaReference): void {
     const fullRef = ref.getFullReference();
@@ -512,17 +515,21 @@ export class JsonSchemaDocumentService {
   }
 
   private handleSchemaRef(field: JsonSchemaField, ref: string, schemaContext: JsonSchemaMetadata): void {
+    // a local ref points into the root of the file it's declared in, not into the subschema it's declared in
+    const fileSchema = this.jsonDocument.schemaCollection.getJsonSchema(schemaContext.identifier) ?? schemaContext;
     const resolved = JsonSchemaDocumentUtilService.createJsonSchemaReference(
       ref,
-      schemaContext,
+      fileSchema,
       this.jsonDocument.schemaCollection,
     );
 
     if (resolved) {
-      const fullRef = resolved.isExternal() ? resolved.getFullReference() : ref;
+      // only the local refs of the primary schema are registered as they are, any other under its full reference
+      const isPrimaryLocal = !resolved.isExternal() && schemaContext.identifier === this.primarySchemaIdentifier;
+      const fullRef = isPrimaryLocal ? ref : resolved.getFullReference();
       field.namedTypeFragmentRefs.push(fullRef);
 
-      if (resolved.isExternal() && !this.jsonDocument.namedTypeFragments[fullRef]) {
+      if (!isPrimaryLocal && !this.jsonDocument.namedTypeFragments[fullRef]) {
         this.populateExternalTypeFragment(resolved);
       }
     }
