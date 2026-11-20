@@ -61,6 +61,9 @@ interface CanvasProps {
 export const GRAPH_BACKGROUND = '[data-kind="graph"] > rect';
 /** The visible area of the graph, without the toolbars and the side panel */
 export const GRAPH_CONTENT = '.pf-topology-content';
+/** The PatternFly element that holds the graph */
+const GRAPH_SURFACE = '[data-test-id="topology"]';
+const STALE_GRAPH_INPUT_EVENTS = ['mousedown', 'pointerdown', 'click', 'dblclick', 'contextmenu', 'keydown'] as const;
 
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
 
@@ -150,6 +153,24 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const selectedVizNode = useSelectedVizNode(selectedIds);
   // While a model resolves, the canvas still shows the previous one, where the selected step's path may name another step
   useDeleteHotkey(isModelResolving || blocked ? undefined : selectedVizNode, clearSelection);
+
+  /**
+   * While the model resolves, the previous graph stays mounted, so the focus stays on its step. Its nodes still act
+   * on the previous model, so mouse and keyboard input on them is dropped until the new graph is drawn.
+   */
+  useEffect(() => {
+    if (!isModelResolving) return;
+    const surface = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.querySelector(GRAPH_SURFACE);
+    if (!surface) return;
+
+    const dropInput = (event: Event) => {
+      event.stopPropagation();
+    };
+    for (const type of STALE_GRAPH_INPUT_EVENTS) surface.addEventListener(type, dropInput, true);
+    return () => {
+      for (const type of STALE_GRAPH_INPUT_EVENTS) surface.removeEventListener(type, dropInput, true);
+    };
+  }, [isModelResolving]);
 
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {

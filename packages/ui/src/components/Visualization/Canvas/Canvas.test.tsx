@@ -435,6 +435,42 @@ describe('Canvas', () => {
         return { ...rendered, secondLog, menu, items: within(menu).getAllByRole('menuitem') };
       }
 
+      it('ignores input on the previous graph while the model resolves, keeping the focus on its step', async () => {
+        const { user, focusStep, flushFrames, setModelResolving } = await renderTwoRoutes();
+        const secondLog = focusStep('route-second', 'route.from.steps.0.log');
+
+        await setModelResolving(true);
+        await user.keyboard(SHIFT_F10);
+        fireEvent.contextMenu(secondLog);
+        await flushFrames();
+
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+        expect(secondLog).toHaveFocus();
+
+        await setModelResolving(false);
+        await user.keyboard(SHIFT_F10);
+        await flushFrames();
+
+        expect(screen.getByRole('menu', { name: 'Context menu' })).toBeInTheDocument();
+      });
+
+      it('does not open the canvas menu with Shift+F10 on the canvas while the model resolves', async () => {
+        const { user, flushFrames, container, setModelResolving } = await renderTwoRoutes();
+        await user.tab();
+        const canvas = container.querySelector('#canvas-main');
+        expect(canvas).toHaveFocus();
+
+        await setModelResolving(true);
+        await user.keyboard(SHIFT_F10);
+        await flushFrames();
+
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+        expect(canvas).toHaveAttribute('aria-busy', 'true');
+
+        await setModelResolving(false);
+        expect(canvas).toHaveAttribute('aria-busy', 'false');
+      });
+
       it.each([SHIFT_F10, '{ContextMenu}'])(
         'opens the step menu with %s and focuses its first enabled action',
         async (key) => {
