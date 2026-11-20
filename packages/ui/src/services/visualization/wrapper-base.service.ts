@@ -1,12 +1,13 @@
 import { IField } from '../../models/datamapper/document';
+import { IWrapperCandidate, IWrapperCandidateChild } from '../../models/datamapper/field-action';
 import { FieldItem, InstructionItem } from '../../models/datamapper/mapping';
 import { IFieldSubstituteInfo } from '../../models/datamapper/types';
 import { TargetFieldNodeData, TargetNodeData } from '../../models/datamapper/visualization';
+import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { MappingService } from '../mapping/mapping.service';
+import { formatQNameWithPrefix } from '../namespace-util';
 import { MappingActionService } from './mapping-action.service';
-
-const MAX_CHILDREN_PREVIEW = 3;
 
 /**
  * Shared base for {@link AbstractFieldService}, {@link ChoiceFieldService},
@@ -18,10 +19,54 @@ export class WrapperBaseService {
   protected static readonly INLINE_SUBSTITUTION_LIMIT = 10;
   protected static readonly INLINE_CHOICE_LIMIT = 10;
 
-  protected static formatChildrenPreview(field: IField): string[] | undefined {
-    const children = field.fields;
-    if (!children || children.length === 0) return undefined;
-    return children.slice(0, MAX_CHILDREN_PREVIEW).map((c) => c.displayName || c.name);
+  /**
+   * Builds the details the selection modal shows for a candidate: qualified type name, description and direct children.
+   * Members with a named type or a global element ref have no `fields` until their tree node is expanded, so the
+   * children behind `namedTypeFragmentRefs` are read through {@link DocumentUtilService.collectTypeFragments}, which
+   * does not change the field or the document.
+   */
+  protected static buildCandidateDetails(
+    field: IField,
+    namespaceMap: Record<string, string>,
+  ): Pick<IWrapperCandidate, 'typeLabel' | 'description' | 'children'> {
+    return {
+      typeLabel: this.formatTypeLabel(field, namespaceMap),
+      description: field.description,
+      children: this.formatChildren(field, namespaceMap),
+    };
+  }
+
+  /**
+   * Details for a substitution candidate of an abstract wrapper. The wrapper holds the concrete substitutes as child
+   * fields, so the matching child provides the details; when it is missing, only the type from `info` is known.
+   */
+  protected static buildSubstituteDetails(
+    wrapperField: IField,
+    qname: string,
+    info: IFieldSubstituteInfo,
+    candidates: Record<string, IFieldSubstituteInfo>,
+    namespaceMap: Record<string, string>,
+  ): Pick<IWrapperCandidate, 'typeLabel' | 'description' | 'children'> {
+    const substitute = this.resolveCandidateField(wrapperField, qname, candidates, wrapperField, namespaceMap);
+    if (substitute) return this.buildCandidateDetails(substitute, namespaceMap);
+    return { typeLabel: formatQNameWithPrefix(info.typeQName, namespaceMap, info.type) };
+  }
+
+  private static formatTypeLabel(field: IField, namespaceMap: Record<string, string>): string {
+    return formatQNameWithPrefix(field.typeQName, namespaceMap, field.type);
+  }
+
+  private static formatChildren(
+    field: IField,
+    namespaceMap: Record<string, string>,
+  ): IWrapperCandidateChild[] | undefined {
+    const unresolvedChildren =
+      field.namedTypeFragmentRefs.length > 0
+        ? DocumentUtilService.collectTypeFragments(field).fragments.flatMap((fragment) => fragment.fields)
+        : [];
+    const children = [...field.fields, ...unresolvedChildren];
+    if (children.length === 0) return undefined;
+    return children.map((c) => ({ name: c.displayName || c.name, typeLabel: this.formatTypeLabel(c, namespaceMap) }));
   }
 
   /** Matches by localPart + namespaceURI, not by field identity — substitution candidates are separate field instances. */

@@ -106,14 +106,19 @@ export class ChoiceFieldService extends WrapperBaseService {
   }
 
   /** Converts a schema field into an {@link IWrapperCandidate} for inline menus and the selection modal. */
-  static fieldToCandidate(field: IField, key: string, memberIndex: number): IWrapperCandidate {
+  static fieldToCandidate(
+    field: IField,
+    key: string,
+    memberIndex: number,
+    namespaceMap: Record<string, string> = {},
+    withDetails = false,
+  ): IWrapperCandidate {
     const label = ChoiceFieldService.getChoiceFieldDisplayName(field);
     return {
       key,
       label,
       typeBadge: field.type,
-      description: field.description,
-      childrenPreview: this.formatChildrenPreview(field),
+      ...(withDetails ? this.buildCandidateDetails(field, namespaceMap) : {}),
       selection: { memberIndex },
     };
   }
@@ -126,7 +131,11 @@ export class ChoiceFieldService extends WrapperBaseService {
    * without navigating through the intermediate abstract element. On confirm,
    * both `selectedMemberIndex` and `selectedMemberQName` are set in one action.
    */
-  static dissolveChoiceMembers(members: IField[], namespaceMap: Record<string, string>): IWrapperCandidate[] {
+  static dissolveChoiceMembers(
+    members: IField[],
+    namespaceMap: Record<string, string>,
+    withDetails = false,
+  ): IWrapperCandidate[] {
     return members.flatMap((member, index) => {
       if (member.wrapperKind === 'abstract') {
         const candidates = FieldOverrideService.getFieldSubstitutionCandidates(member, namespaceMap);
@@ -134,13 +143,19 @@ export class ChoiceFieldService extends WrapperBaseService {
           key: `${index}:${qname}`,
           label: info.displayName,
           typeBadge: info.type,
+          ...(withDetails ? this.buildSubstituteDetails(member, qname, info, candidates, namespaceMap) : {}),
           selection: { memberIndex: index, substituteQName: qname },
         }));
       }
       // Plain elements and xs:sequence branches both map to a single candidate; fieldToCandidate
       // derives a dissolved "(child | child)" label for the sequence from its children.
-      return [this.fieldToCandidate(member, String(index), index)];
+      return [this.fieldToCandidate(member, String(index), index, namespaceMap, withDetails)];
     });
+  }
+
+  /** Builds {@link IWrapperCandidate} entries with full schema details for the choice selection modal. */
+  static buildChoiceCandidates(members: IField[], namespaceMap: Record<string, string>): IWrapperCandidate[] {
+    return this.dissolveChoiceMembers(members, namespaceMap, true);
   }
 
   static resolveChoiceWrapper(
