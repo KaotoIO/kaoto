@@ -53,6 +53,20 @@ describe('useDebouncedSave', () => {
     expect(save).toHaveBeenCalledExactlyOnceWith('a', 'content of a');
   });
 
+  it('saves the pending content when the page is left', () => {
+    const save = vi.fn();
+    const { result } = renderHook(() => useDebouncedSave(save, 300));
+    act(() => {
+      result.current.schedule('a', 'pending');
+    });
+
+    act(() => {
+      globalThis.dispatchEvent(new Event('pagehide'));
+    });
+
+    expect(save).toHaveBeenCalledExactlyOnceWith('a', 'pending');
+  });
+
   it('does not save anything when nothing is pending', () => {
     const save = vi.fn();
     const { result, unmount } = renderHook(() => useDebouncedSave(save, 300));

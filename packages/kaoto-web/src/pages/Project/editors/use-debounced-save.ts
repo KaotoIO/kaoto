@@ -3,8 +3,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
 /**
  * Saves edits once typing pauses instead of on every key.
  *
- * Pending content is saved right away when content of another file is scheduled and when the component unmounts, so
- * no edit is lost and none lands in another file.
+ * Pending content is saved right away when content of another file is scheduled, when the component unmounts and when
+ * the page is left, so no edit is lost and none lands in another file.
  */
 export const useDebouncedSave = (save: (fileId: string, content: string) => void, delayMs = 300) => {
   const saveRef = useRef(save);
@@ -35,6 +35,14 @@ export const useDebouncedSave = (save: (fileId: string, content: string) => void
   );
 
   useEffect(() => flush, [flush]);
+
+  // Leaving the page doesn't unmount the editor, so the pending content is saved then as well
+  useEffect(() => {
+    globalThis.addEventListener('pagehide', flush);
+    return () => {
+      globalThis.removeEventListener('pagehide', flush);
+    };
+  }, [flush]);
 
   return useMemo(() => ({ schedule, flush }), [schedule, flush]);
 };

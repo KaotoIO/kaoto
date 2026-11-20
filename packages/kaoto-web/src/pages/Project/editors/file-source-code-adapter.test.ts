@@ -96,6 +96,18 @@ describe('createFileSourceCodeAdapter', () => {
     expect(save).toHaveBeenCalledExactlyOnceWith('a', 'changed');
   });
 
+  it('delivers the last saved content to a new subscriber, not the content the file was opened with', () => {
+    const adapter = createFileSourceCodeAdapter();
+    adapter.setSave(vi.fn());
+    adapter.open(routeA);
+    subscribe(adapter);
+    adapter.onChange?.('changed');
+
+    const delivered = subscribe(adapter);
+
+    expect(delivered).toEqual([{ code: 'changed', path: routeA.path }]);
+  });
+
   it('stops delivering after unsubscribing', () => {
     const adapter = createFileSourceCodeAdapter();
     adapter.open(routeA);
