@@ -52,6 +52,13 @@
   inline-size: 100%;
 }
 
+// The body is a flex row, which would shrink the loader to the size of its spinner. A grid cell makes the loader
+// fill the body, so that its spinner is centered both ways.
+.cs--integration-shell__loading {
+  display: grid;
+  flex: 1;
+}
+
 .cs--integration-shell__empty {
   margin: auto;
   color: $text-secondary;
