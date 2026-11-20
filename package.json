@@ -16,7 +16,7 @@
     "@patternfly/react-icons": "^6.7.0",
     "@patternfly/react-table": "6.7.0",
     "@patternfly/react-topology": "^6.7.0",
-    "dompurify": "3.3.2",
+    "dompurify": "3.4.17",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "prettier": "3.7.4"
