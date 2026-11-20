@@ -63,7 +63,8 @@ yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:deploy     # src/deploy/*.tes
 ```
 
 CI also sets `CODE_VERSION=max` (latest VS Code that ExTester supports), `TEST_RESOURCES` (ExTester storage, uploaded
-on failure) and `KAOTO_DISABLE_WHATS_NEW=true`.
+on failure) and `KAOTO_DISABLE_WHATS_NEW=true`. It restores VS Code and ChromeDriver into `TEST_RESOURCES` from
+GitHub's cache, so ExTester downloads them only after its own version changes, and in the nightly's scheduled run.
 
 ### Test groups in CI
 

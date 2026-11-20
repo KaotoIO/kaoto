@@ -34,6 +34,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     # A deploy job takes about 13 minutes, so a hung one ends after 40, with its logs uploaded below.
     timeout-minutes: ${{ matrix.group == 'deploy' && 40 || 60 }}
+    env:
+      CODE_VERSION: max # Latest stable VS Code version supported by ExTester UI testing framework
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(inputs.matrix) }}
@@ -61,6 +63,23 @@ jobs:
             ~/.m2/repository
             ~/.jbang/cache
           key: ui-tests-maven-${{ runner.os }}-${{ runner.arch }}-${{ matrix.group }}-${{ hashFiles('node_modules/@kaoto/camel-catalog/package.json', 'packages/ui-tests-vscode/test Fixture with speci@l chars/**/pom.xml') }}
+      # Before the tests ExTester downloads VS Code (about 410 MB) and ChromeDriver into the test folder and unpacks them,
+      # unless the unpacked folders are already there in the versions it asks for. With CODE_VERSION max, its own version
+      # decides those, so each OS keeps the two folders under a key made of ExTester's package.json. The VSIX under test,
+      # VS Code's settings and the screenshots live in other folders, so every run still installs the freshly built VSIX,
+      # and the nightly's scheduled run downloads VS Code and ChromeDriver again.
+      - name: Restore VS Code and ChromeDriver
+        id: vscode
+        if: github.event_name != 'schedule'
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/kaoto-tests/VSCode-*
+            ${{ runner.temp }}/kaoto-tests/chromedriver-*
+          key: >-
+            vscode-${{ runner.os }}-${{ runner.arch }}-${{ env.CODE_VERSION }}-${{
+            hashFiles('node_modules/vscode-extension-tester/package.json',
+            'packages/ui-tests-vscode/node_modules/vscode-extension-tester/package.json') }}
       - if: matrix.group == 'deploy'
         uses: ./.github/actions/kaoto-vscode-setup-minikube
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
@@ -76,7 +95,6 @@ jobs:
         env:
           KAOTO_DISABLE_WHATS_NEW: 'true'
           TEST_RESOURCES: ${{ runner.temp }}/kaoto-tests
-          CODE_VERSION: max # Latest stable VS Code version supported by ExTester UI testing framework
           VSIX_FILE: ${{ inputs.vsix-file }}
           TEST_GROUP: ${{ matrix.group }}
         run: |
@@ -100,6 +118,14 @@ jobs:
             ~/.m2/repository
             ~/.jbang/cache
           key: ${{ steps.downloads.outputs.cache-primary-key }}
+      - name: Save VS Code and ChromeDriver
+        if: steps.vscode.outputs.cache-hit != 'true' && github.event_name == 'push'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ${{ runner.temp }}/kaoto-tests/VSCode-*
+            ${{ runner.temp }}/kaoto-tests/chromedriver-*
+          key: ${{ steps.vscode.outputs.cache-primary-key }}
       # Also when the job is cancelled, as it is at its timeout, so that a hung job leaves its logs.
       - name: Upload test artifacts
         if: failure() || cancelled()
