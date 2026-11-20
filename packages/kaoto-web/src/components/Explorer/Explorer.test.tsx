@@ -436,7 +436,7 @@ describe('Explorer', () => {
       expect(screen.getByTestId('location')).toHaveTextContent(/^\/workspace$/);
       expect(screen.getByRole('heading', { name: 'Delete file?' })).toBeInTheDocument();
       expect(screen.getByTestId('delete-confirm-modal')).toHaveTextContent(
-        'Are you sure you want to delete main-flow.camel.yaml? This action cannot be undone.',
+        'Are you sure you want to delete integrations/main-flow.camel.yaml?',
       );
 
       await user.click(screen.getByRole('button', { name: 'Delete' }));
@@ -461,7 +461,7 @@ describe('Explorer', () => {
       expect(routes).toHaveAttribute('aria-expanded', 'true');
       expect(screen.getByRole('heading', { name: 'Delete folder?' })).toBeInTheDocument();
       expect(screen.getByTestId('delete-confirm-modal')).toHaveTextContent(
-        'Are you sure you want to delete the folder routes and all its contents? This action cannot be undone.',
+        'Are you sure you want to delete the folder integrations/routes and all its contents?',
       );
 
       await user.click(screen.getByRole('button', { name: 'Delete' }));

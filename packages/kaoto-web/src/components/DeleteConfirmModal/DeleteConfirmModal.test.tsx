@@ -24,7 +24,8 @@ describe('DeleteConfirmModal', () => {
     const dialog = screen.getByRole('dialog', { name: 'Delete file?' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
     expect(screen.getByRole('heading', { name: 'Delete file?' })).toBeInTheDocument();
-    expect(dialog).toHaveTextContent('Are you sure you want to delete a.camel.yaml? This action cannot be undone.');
+    expect(dialog).toHaveTextContent('Are you sure you want to delete a.camel.yaml?');
+    expect(dialog).toHaveTextContent('This action cannot be undone.');
     expect(screen.getByText('a.camel.yaml').tagName).toBe('STRONG');
   });
 
