@@ -987,6 +987,33 @@ describe('JsonSchemaDocumentService', () => {
       expect(dField.type).toBe(Types.Numeric);
     });
 
+    it('should resolve a definition that only refers to another file', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'refOnlyDefinition', {
+        'A.json': JSON.stringify({
+          type: 'object',
+          properties: { x: { $ref: '#/definitions/Ext' } },
+          definitions: { Ext: { $ref: './B.json#/definitions/Item' } },
+        }),
+        'B.json': JSON.stringify({
+          definitions: { Item: { type: 'object', properties: { n: { type: 'number' } } } },
+        }),
+      });
+
+      const xField = doc.fields[0].fields.find((f) => f.key === 'x')!;
+      DocumentUtilService.resolveTypeFragment(xField);
+      expect(xField.type).toBe(Types.Container);
+      expect(xField.fields.find((f) => f.key === 'n')!.type).toBe(Types.Numeric);
+    });
+
+    it('should create the document for files that only refer to each other', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'refOnlyCircular', {
+        'A.json': JSON.stringify({ $ref: './B.json' }),
+        'B.json': JSON.stringify({ $ref: './A.json' }),
+      });
+
+      expect(doc.fields[0].type).toBe(Types.AnyType);
+    });
+
     it('should use first schema as document schema', () => {
       const customerFirstDoc = createMultiSchemaDocument(DocumentType.PARAM, 'customerFirst', {
         'Customer.schema.json': getCustomerJsonSchema(),
