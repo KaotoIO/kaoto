@@ -1,4 +1,7 @@
-import { ComposedModal, ModalBody, ModalFooter, ModalHeader } from '@carbon/react';
+import './KaotoModal.scss';
+
+import { CloseFilled } from '@carbon/icons-react';
+import { ComposedModal, IconButton, ModalBody, ModalFooter } from '@carbon/react';
 import { FunctionComponent, PropsWithChildren, ReactNode, useCallback, useLayoutEffect, useRef } from 'react';
 
 interface KaotoModalProps {
@@ -64,10 +67,23 @@ export const KaotoModal: FunctionComponent<PropsWithChildren<KaotoModalProps>> =
       preventCloseOnClickOutside={preventCloseOnClickOutside}
       selectorPrimaryFocus={selectorPrimaryFocus}
       aria-label={title}
-      className={className}
+      className={className ? `cs--kaoto-modal ${className}` : 'cs--kaoto-modal'}
       data-testid={dataTestId}
     >
-      <ModalHeader title={title} />
+      {/* Carbon's ModalHeader has a fixed close icon; the header is built here to use the filled one of the forms */}
+      <div className="cds--modal-header">
+        <h2 className="cds--modal-header__heading">{title}</h2>
+        <IconButton
+          kind="ghost"
+          size="md"
+          label="Close"
+          align="left"
+          className="cs--kaoto-modal__close"
+          onClick={handleClose}
+        >
+          <CloseFilled size={24} />
+        </IconButton>
+      </div>
       <ModalBody hasForm={hasForm}>{children}</ModalBody>
       {footer && <ModalFooter>{footer}</ModalFooter>}
     </ComposedModal>
