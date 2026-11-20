@@ -7,6 +7,10 @@
   }
 }
 
+// Takes the place of the canvas, also inside a flex container of the host
 .route-visualization-code {
-  height: 100%;
+  flex: 1;
+  min-inline-size: 0;
+  inline-size: 100%;
+  block-size: 100%;
 }
