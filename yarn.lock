@@ -3599,7 +3599,7 @@ __metadata:
     "@testing-library/react": "npm:^16.3.2"
     "@testing-library/user-event": "npm:^14.6.1"
     "@types/eslint-plugin-jsx-a11y": "npm:^6.10.1"
-    "@types/jsdom": "npm:^21.1.7"
+    "@types/jsdom": "npm:^30.0.0"
     "@types/json-schema": "npm:^7.0.15"
     "@types/lodash": "npm:^4"
     "@types/node": "npm:^22.0.0"
@@ -7186,14 +7186,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsdom@npm:^21.1.7":
-  version: 21.1.7
-  resolution: "@types/jsdom@npm:21.1.7"
+"@types/jsdom@npm:^30.0.0":
+  version: 30.0.0
+  resolution: "@types/jsdom@npm:30.0.0"
   dependencies:
     "@types/node": "npm:*"
     "@types/tough-cookie": "npm:*"
-    parse5: "npm:^7.0.0"
-  checksum: 10/a5ee54aec813ac928ef783f69828213af4d81325f584e1fe7573a9ae139924c40768d1d5249237e62d51b9a34ed06bde059c86c6b0248d627457ec5e5d532dfa
+    parse5: "npm:^8.0.0"
+    undici-types: "npm:^8.9.0"
+  checksum: 10/f430fe309267733e6df8fecdc9724ffd035cee2da21f504e21cf6e879fb91796b56b96794bdec5e134cdb025be63292e258dca25fe7059861b60542b220a86f5
   languageName: node
   linkType: hard
 
@@ -12270,6 +12271,13 @@ __metadata:
   version: 8.1.0
   resolution: "entities@npm:8.1.0"
   checksum: 10/bd2fadbcabcf2cbd5de6b8155289acec9394d004fc095b9c7b3fdb4135468d8823a6de12275b07085e5dc077a142ede24e71098ffeb064000312d2a6960330a2
+  languageName: node
+  linkType: hard
+
+"entities@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "entities@npm:9.0.0"
+  checksum: 10/bbb55a5c7e701f484fd0fbf6d9ffc9748b6eac9d27cdf73d18a1917e18efc0d8cf747bbd363018921fd0c3fa7f8fc6d2940bfa751363a2194c90840acc9dc716
   languageName: node
   linkType: hard
 
@@ -19852,6 +19860,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"parse5@npm:^8.0.0":
+  version: 8.1.1
+  resolution: "parse5@npm:8.1.1"
+  dependencies:
+    entities: "npm:^9.0.0"
+  checksum: 10/715d98bbd618d25f28316642060b26fde79a619dc342f07f5ad7243327e378ee949a4029d0aae025ffe4b5eed801f5c8badb852ce29c96fe62c8e48b410113ba
+  languageName: node
+  linkType: hard
+
 "parse5@npm:^8.0.1":
   version: 8.0.1
   resolution: "parse5@npm:8.0.1"
@@ -24394,6 +24411,13 @@ __metadata:
   version: 1.13.8
   resolution: "underscore@npm:1.13.8"
   checksum: 10/b50ac5806d059cc180b1bd9adea6f7ed500021f4dc782dfc75d66a90337f6f0506623c1b37863f4a9bf64ffbeb5769b638a54b7f2f5966816189955815953139
+  languageName: node
+  linkType: hard
+
+"undici-types@npm:^8.9.0":
+  version: 8.12.4
+  resolution: "undici-types@npm:8.12.4"
+  checksum: 10/f8976facdd9b41217ba9be1c499d9363ec6954cb99b282f9b1479db6128a1833e601e3e744219f9a6bd142673e70c38f3ad9d96465f1af96c4d2ad664a96e098
   languageName: node
   linkType: hard
 
