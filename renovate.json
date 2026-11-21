@@ -2,6 +2,21 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>KaotoIO/renovate-config"],
   "internalChecksFilter": "strict",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "The composite actions set the Node.js version as an input default, which the github-actions manager doesn't read; look it up from the same source as setup-node in the workflows, so both move in one PR",
+      "managerFilePatterns": ["/^\\.github/actions/[^/]+/action\\.ya?ml$/"],
+      "matchStrings": [
+        "node-version:\\s*\\n(?:[ \\t]+[a-z-]+:.*\\n)*?[ \\t]+default:\\s*['\"]?(?<currentValue>[^'\"\\s]+)['\"]?"
+      ],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "github-releases",
+      "versioningTemplate": "node",
+      "packageNameTemplate": "actions/node-versions",
+      "extractVersionTemplate": "^(?<version>\\d+\\.\\d+\\.\\d+)(-\\d+)?$"
+    }
+  ],
   "packageRules": [
     {
       "description": "The Maven modules of Kompanion are built and used locally and never published, so there is nothing to look up",
