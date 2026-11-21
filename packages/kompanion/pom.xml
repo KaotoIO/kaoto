@@ -15,7 +15,7 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.version>3.38.2</quarkus.platform.version>
-        <camel.version>4.10.3</camel.version>
+        <camel.version>4.23.0</camel.version>
         <!-- Camel used by the camel-cli-connector e2e fixtures (-Pcamel-snapshot): needs the WebSocket transport.
              Separate from camel.version so the bridge modules keep their own Camel line. -->
         <connector-it.camel.version>4.23.0-SNAPSHOT</connector-it.camel.version>
