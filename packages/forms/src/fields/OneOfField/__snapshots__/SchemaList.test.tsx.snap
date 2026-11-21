@@ -6,7 +6,7 @@ exports[`SchemaList > should render correctly with basic props when no schema is
     class="cds--stack-vertical cds--stack-scale-3"
   >
     <fieldset
-      style="margin: 0px; padding: 0px;"
+      style="border: medium; margin: 0px; padding: 0px;"
     >
       <div
         class="cds--content-switcher cds--content-switcher--md cds--layout--size-md cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
@@ -52,7 +52,7 @@ exports[`SchemaList > should render correctly with basic props when schema is se
     class="cds--stack-vertical cds--stack-scale-3"
   >
     <fieldset
-      style="margin: 0px; padding: 0px;"
+      style="border: medium; margin: 0px; padding: 0px;"
     >
       <div
         class="cds--content-switcher cds--content-switcher--md cds--layout--size-md cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
@@ -98,7 +98,7 @@ exports[`SchemaList > should use Typeahead when items > 5, none selected 1`] = `
     class="cds--stack-vertical cds--stack-scale-3"
   >
     <fieldset
-      style="margin: 0px; padding: 0px;"
+      style="border: medium; margin: 0px; padding: 0px;"
     >
       <div
         class="kaoto-typeahead"
@@ -175,7 +175,7 @@ exports[`SchemaList > should use Typeahead when items > 5, one selected 1`] = `
     class="cds--stack-vertical cds--stack-scale-3"
   >
     <fieldset
-      style="margin: 0px; padding: 0px;"
+      style="border: medium; margin: 0px; padding: 0px;"
     >
       <div
         class="kaoto-typeahead"

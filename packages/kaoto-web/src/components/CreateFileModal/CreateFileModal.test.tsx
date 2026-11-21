@@ -94,8 +94,10 @@ describe('CreateFileModal', () => {
   it('describes each file type on its tile', () => {
     renderModal();
 
+    // Without the stylesheet (css: false) label and description are inline spans, so jsdom joins them without a
+    // space; in the browser they are flex items and get one.
     expect(fileType('Kamelet')).toHaveAccessibleName(
-      'Kamelet Reusable Camel route template with a well-defined interface',
+      /^Kamelet\s*Reusable Camel route template with a well-defined interface$/,
     );
   });
 

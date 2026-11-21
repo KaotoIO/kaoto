@@ -149,7 +149,7 @@ exports[`PipeErrorHandlerPage > renders the KaotoForm when the resource type is 
               class="cds--stack-vertical cds--stack-scale-3"
             >
               <fieldset
-                style="margin: 0px; padding: 0px;"
+                style="border: medium; margin: 0px; padding: 0px;"
               >
                 <div
                   class="cds--content-switcher cds--content-switcher--md cds--layout--size-md cds--layout-constraint--size__default-md cds--layout-constraint--size__min-sm cds--layout-constraint--size__max-lg"
