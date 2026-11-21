@@ -1,4 +1,7 @@
 {
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
   "extesterRunner.testFileGlob": "packages/ui-tests-vscode/src/**/*.test.ts",
   "extesterRunner.rootFolder": "packages/ui-tests-vscode/src",
   "extesterRunner.ignorePathPart": "packages/ui-tests-vscode/",

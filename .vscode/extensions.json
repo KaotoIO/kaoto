@@ -1,7 +1,6 @@
 {
   "recommendations": [
     "redhat.extester-runner",
-    "esbenp.prettier-vscode",
     "dbaeumer.vscode-eslint",
     "streetsidesoftware.code-spell-checker",
     "SonarSource.sonarlint-vscode"
