@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
 
     container:
-      image: cypress/browsers:node-24.17.0-chrome-149.0.7827.155-1-ff-152.0-edge-149.0.4022.69-1
+      image: cypress/browsers:node-24.22.1-chrome-156.0.8078.73-1-ff-159.0-edge-156.0.4314.50-1
       options: --user 1001
 
     steps:
@@ -50,7 +50,7 @@ jobs:
     if: ${{ inputs.full-matrix }}
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node-24.17.0-chrome-149.0.7827.155-1-ff-152.0-edge-149.0.4022.69-1
+      image: cypress/browsers:node-24.22.1-chrome-156.0.8078.73-1-ff-159.0-edge-156.0.4314.50-1
       options: --user 1001
     strategy:
       fail-fast: false
@@ -111,7 +111,7 @@ jobs:
     needs: install
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node-24.17.0-chrome-149.0.7827.155-1-ff-152.0-edge-149.0.4022.69-1
+      image: cypress/browsers:node-24.22.1-chrome-156.0.8078.73-1-ff-159.0-edge-156.0.4314.50-1
       options: --user 1001
     strategy:
       fail-fast: false
@@ -174,7 +174,7 @@ jobs:
     if: ${{ inputs.full-matrix }}
     runs-on: ubuntu-latest
     container:
-      image: cypress/browsers:node-24.17.0-chrome-149.0.7827.155-1-ff-152.0-edge-149.0.4022.69-1
+      image: cypress/browsers:node-24.22.1-chrome-156.0.8078.73-1-ff-159.0-edge-156.0.4314.50-1
       options: --user 1001
     strategy:
       fail-fast: false
