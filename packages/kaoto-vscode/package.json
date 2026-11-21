@@ -43,7 +43,7 @@
   "devDependencies": {
     "@cyclonedx/cdxgen": "12.9.2",
     "@eslint/js": "^9.10.0",
-    "@types/chai": "^4.3.20",
+    "@types/chai": "^5.0.0",
     "@types/mocha": "^10.0.10",
     "@types/openapi-v3": "^3.0.0",
     "@types/vscode": "^1.100.0",
