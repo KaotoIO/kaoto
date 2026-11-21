@@ -21,9 +21,16 @@ describe('ExportDocumentPreviewModal', () => {
   /** The controller of the canvas hosting the modal, where the hidden canvas listens for the layout end */
   let controller: Visualization;
 
-  /** Notifies the end of the graph layout, so the hidden canvas generates the image */
-  const fireLayoutEnd = () => {
-    controller.fireEvent(GRAPH_LAYOUT_END_EVENT, { graph: controller.getGraph() });
+  /**
+   * Notifies the end of the graph layout, so the hidden canvas generates the image. The modal mounts the hidden canvas
+   * only once the route's nodes are resolved, so wait for it first: an event fired before it listens is lost, and the
+   * image then only comes from the canvas' 1 s fallback timer, which races the 1 s timeout of `waitFor`.
+   */
+  const fireLayoutEnd = async () => {
+    await screen.findByTestId('hidden-canvas');
+    act(() => {
+      controller.fireEvent(GRAPH_LAYOUT_END_EVENT, { graph: controller.getGraph() });
+    });
   };
 
   beforeAll(async () => {
@@ -112,9 +119,7 @@ describe('ExportDocumentPreviewModal', () => {
     render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
 
     // Trigger the GRAPH_LAYOUT_END_EVENT to simulate canvas layout completion
-    act(() => {
-      fireLayoutEnd();
-    });
+    await fireLayoutEnd();
 
     await waitFor(() => {
       expect(vi.mocked(URL.createObjectURL)).toHaveBeenCalled();
@@ -129,9 +134,7 @@ describe('ExportDocumentPreviewModal', () => {
     expect(screen.getByLabelText('Loading markdown preview')).toBeInTheDocument();
 
     // Trigger the GRAPH_LAYOUT_END_EVENT to simulate canvas layout completion
-    act(() => {
-      fireLayoutEnd();
-    });
+    await fireLayoutEnd();
 
     // Wait for loading spinner to be removed
     await waitFor(() => {
@@ -147,9 +150,7 @@ describe('ExportDocumentPreviewModal', () => {
     render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
 
     // Trigger blob generation
-    act(() => {
-      fireLayoutEnd();
-    });
+    await fireLayoutEnd();
 
     // Wait for blob to be generated
     await waitFor(() => {
@@ -182,9 +183,7 @@ describe('ExportDocumentPreviewModal', () => {
 
     render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
 
-    act(() => {
-      fireLayoutEnd();
-    });
+    await fireLayoutEnd();
     await waitFor(() => {
       expect(screen.queryByLabelText('Loading markdown preview')).not.toBeInTheDocument();
     });
@@ -214,9 +213,7 @@ describe('ExportDocumentPreviewModal', () => {
 
     render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
 
-    act(() => {
-      fireLayoutEnd();
-    });
+    await fireLayoutEnd();
 
     await waitFor(() => {
       expect(generateMarkdownSpy).toHaveBeenCalledWith(expect.any(Array), 'blob:mock-url');
@@ -241,9 +238,7 @@ describe('ExportDocumentPreviewModal', () => {
     await user.type(input, 'my-custom-export.zip');
 
     // Trigger blob generation
-    act(() => {
-      fireLayoutEnd();
-    });
+    await fireLayoutEnd();
 
     await waitFor(() => {
       expect(screen.queryByLabelText('Loading markdown preview')).not.toBeInTheDocument();
@@ -269,9 +264,7 @@ describe('ExportDocumentPreviewModal', () => {
     render(<ExportDocumentPreviewModal onClose={onCloseSpy} />, { wrapper });
 
     // Trigger blob generation
-    act(() => {
-      fireLayoutEnd();
-    });
+    await fireLayoutEnd();
 
     await waitFor(() => {
       expect(screen.queryByLabelText('Loading markdown preview')).not.toBeInTheDocument();
