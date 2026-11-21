@@ -3632,7 +3632,7 @@ __metadata:
     jszip: "npm:^3.10.1"
     lodash: "npm:^4.17.21"
     mobx: "npm:^6.9.0"
-    monaco-editor: "npm:^0.55.1"
+    monaco-editor: "npm:^0.57.0"
     monaco-yaml: "npm:^5.5.1"
     postcss: "npm:^8.4.45"
     prettier: "npm:^3.0.0"
@@ -18513,13 +18513,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"monaco-editor@npm:^0.55.1":
-  version: 0.55.1
-  resolution: "monaco-editor@npm:0.55.1"
+"monaco-editor@npm:^0.57.0":
+  version: 0.57.0
+  resolution: "monaco-editor@npm:0.57.0"
   dependencies:
-    dompurify: "npm:3.2.7"
+    dompurify: "npm:3.4.15"
     marked: "npm:14.0.0"
-  checksum: 10/73836b612a923342001b8cbb459aad0de486c94672fb7cf9d28bdafed9f3b7523d5aba510d9f8e7d24476a5aacf0d3a5c0cdc520ed4764f6f89f8cf5ba8d9329
+  checksum: 10/190a681cb01c8b862875803ca4fedcd6a945c90c09dad3c8c8932d37b9510ccb82991cab0177b8c98be7deb74d49e4727fb6d43c2fc6ed94f712beb9fb1ccec3
   languageName: node
   linkType: hard
 
