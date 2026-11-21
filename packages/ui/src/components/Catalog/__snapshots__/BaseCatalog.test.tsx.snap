@@ -611,6 +611,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
           style="overflow-anchor: none;"
         >
           <li
+            aria-label="ActiveMQ 5.x"
             class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
             data-testid="tile-activemq"
             id="activemq-component"
@@ -719,6 +720,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
           style="overflow-anchor: none;"
         >
           <li
+            aria-label="ActiveMQ 6.x"
             class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
             data-testid="tile-activemq6"
             id="activemq6-component"
@@ -827,6 +829,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
           style="overflow-anchor: none;"
         >
           <li
+            aria-label="AMQP"
             class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
             data-testid="tile-amqp"
             id="amqp-component"
@@ -935,6 +938,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
           style="overflow-anchor: none;"
         >
           <li
+            aria-label="ArangoDb"
             class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
             data-testid="tile-arangodb"
             id="arangodb-component"
@@ -1043,6 +1047,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
           style="overflow-anchor: none;"
         >
           <li
+            aria-label="AS2"
             class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
             data-testid="tile-as2"
             id="as2-component"

@@ -27,10 +27,9 @@ describe('DataListItem', () => {
     const { container } = render(<CatalogDataListItem tile={tile} onClick={vi.fn()} onTagClick={vi.fn()} />);
 
     const item = container.querySelector('li')!;
-    const labelId = item.getAttribute('aria-labelledby')!;
 
     expect(item.id).toBe('tile-name-component');
-    expect(container.querySelector(`[id="${labelId}"]`)).toHaveTextContent('tile-title');
+    expect(item).toHaveAccessibleName('tile-title');
   });
 
   it('exposes the same tile test id as the Gallery Tile', () => {
