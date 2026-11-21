@@ -146,7 +146,7 @@
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "eslint-plugin-testing-library": "^7.16.2",
     "globals": "^17.0.0",
-    "jsdom": "^25.0.0",
+    "jsdom": "^31.0.0",
     "monaco-yaml": "^5.5.1",
     "postcss": "^8.4.45",
     "prettier": "^3.0.0",
