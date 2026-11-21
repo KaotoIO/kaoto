@@ -85,11 +85,12 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                               >
                                 <rect
                                   aria-hidden="true"
-                                  class="custom-group__focus-ring"
-                                  height="1357"
-                                  width="732"
-                                  x="31.5"
-                                  y="31.5"
+                                  class="custom-group__indicator"
+                                  height="1362"
+                                  rx="14"
+                                  width="737"
+                                  x="29"
+                                  y="29"
                                 />
                                 <rect
                                   aria-hidden="true"
@@ -161,11 +162,12 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                               >
                                 <rect
                                   aria-hidden="true"
-                                  class="custom-group__focus-ring"
-                                  height="687"
-                                  width="652"
-                                  x="71.5"
-                                  y="376.5"
+                                  class="custom-group__indicator"
+                                  height="692"
+                                  rx="14"
+                                  width="657"
+                                  x="69"
+                                  y="374"
                                 />
                                 <rect
                                   aria-hidden="true"
@@ -237,11 +239,12 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
                               >
                                 <rect
                                   aria-hidden="true"
-                                  class="custom-group__focus-ring"
-                                  height="297"
-                                  width="177"
-                                  x="256.5"
-                                  y="571.5"
+                                  class="custom-group__indicator"
+                                  height="302"
+                                  rx="14"
+                                  width="182"
+                                  x="254"
+                                  y="569"
                                 />
                                 <rect
                                   aria-hidden="true"
@@ -1170,11 +1173,12 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                               >
                                 <rect
                                   aria-hidden="true"
-                                  class="custom-group__focus-ring"
-                                  height="1357"
-                                  width="732"
-                                  x="31.5"
-                                  y="31.5"
+                                  class="custom-group__indicator"
+                                  height="1362"
+                                  rx="14"
+                                  width="737"
+                                  x="29"
+                                  y="29"
                                 />
                                 <rect
                                   aria-hidden="true"
@@ -1246,11 +1250,12 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                               >
                                 <rect
                                   aria-hidden="true"
-                                  class="custom-group__focus-ring"
-                                  height="687"
-                                  width="652"
-                                  x="71.5"
-                                  y="376.5"
+                                  class="custom-group__indicator"
+                                  height="692"
+                                  rx="14"
+                                  width="657"
+                                  x="69"
+                                  y="374"
                                 />
                                 <rect
                                   aria-hidden="true"
@@ -1322,11 +1327,12 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
                               >
                                 <rect
                                   aria-hidden="true"
-                                  class="custom-group__focus-ring"
-                                  height="297"
-                                  width="177"
-                                  x="256.5"
-                                  y="571.5"
+                                  class="custom-group__indicator"
+                                  height="302"
+                                  rx="14"
+                                  width="182"
+                                  x="254"
+                                  y="569"
                                 />
                                 <rect
                                   aria-hidden="true"
@@ -2304,11 +2310,12 @@ exports[`Canvas > should render correctly 1`] = `
                               >
                                 <rect
                                   aria-hidden="true"
-                                  class="custom-group__focus-ring"
-                                  height="1357"
-                                  width="732"
-                                  x="31.5"
-                                  y="31.5"
+                                  class="custom-group__indicator"
+                                  height="1362"
+                                  rx="14"
+                                  width="737"
+                                  x="29"
+                                  y="29"
                                 />
                                 <rect
                                   aria-hidden="true"
@@ -2380,11 +2387,12 @@ exports[`Canvas > should render correctly 1`] = `
                               >
                                 <rect
                                   aria-hidden="true"
-                                  class="custom-group__focus-ring"
-                                  height="687"
-                                  width="652"
-                                  x="71.5"
-                                  y="376.5"
+                                  class="custom-group__indicator"
+                                  height="692"
+                                  rx="14"
+                                  width="657"
+                                  x="69"
+                                  y="374"
                                 />
                                 <rect
                                   aria-hidden="true"
@@ -2456,11 +2464,12 @@ exports[`Canvas > should render correctly 1`] = `
                               >
                                 <rect
                                   aria-hidden="true"
-                                  class="custom-group__focus-ring"
-                                  height="297"
-                                  width="177"
-                                  x="256.5"
-                                  y="571.5"
+                                  class="custom-group__indicator"
+                                  height="302"
+                                  rx="14"
+                                  width="182"
+                                  x="254"
+                                  y="569"
                                 />
                                 <rect
                                   aria-hidden="true"
