@@ -1,5 +1,6 @@
 import { IField, IParentType, PrimitiveDocument } from '../../models/datamapper/document';
 import {
+  AttributeOutputBucket,
   ChooseItem,
   CopyOfSelector,
   FieldItem,
@@ -7,6 +8,7 @@ import {
   ForEachItem,
   InstructionItem,
   MappingItem,
+  MappingItemOrderBucket,
   MappingParentType,
   MappingTree,
   OtherwiseItem,
@@ -28,7 +30,9 @@ import { MappingService } from './mapping.service';
  * - `child`: 1-to-1 with one child element of the field, so the copy-of lives inline on that child
  *   and is positioned by the child's `xs:sequence` position.
  * - `other`: anything else (wildcard, `node()`, union, variable, function, attribute step,
- *   unmatched path), a separate node placed last.
+ *   unmatched path), a separate node. The serializer places it by what it writes: with the attributes
+ *   when it returns attributes ({@link CopyOfPlacementService.getAttributeOutputBucket}), otherwise by its
+ *   anchor fields, or last when it has none.
  */
 export type CopyOfClassification = { kind: 'empty' } | { kind: 'other' } | { kind: 'child'; field: IField };
 
@@ -36,9 +40,11 @@ const EMPTY: CopyOfClassification = { kind: 'empty' };
 const OTHER: CopyOfClassification = { kind: 'other' };
 
 /**
- * Single source of truth for where a `xsl:copy-of` goes. The canvas, the serializer and the
- * deserializer all call it, and its result depends only on the expression, the namespaces and the
- * target schema, so the three always agree.
+ * Single source of truth for where a `xsl:copy-of` goes, and what any mapping item writes. The canvas, the
+ * serializer and the deserializer all place a copy-of through it, and that placement depends only on the
+ * expression, the namespaces and the target schema, so the three always agree. What an item writes
+ * ({@link CopyOfPlacementService.getOutputKind}, {@link CopyOfPlacementService.getAttributeOutputBucket}) also
+ * depends on the item's children and its enclosing loops.
  */
 export class CopyOfPlacementService {
   /**
@@ -124,6 +130,20 @@ export class CopyOfPlacementService {
     }
     if (item instanceof InstructionItem) return CopyOfPlacementService.combineItemOutputKinds(item.children);
     return XPathOutputKind.CHILDREN;
+  }
+
+  /**
+   * The attribute bucket of `item`, from its {@link getOutputKind}:
+   * - {@link MappingItemOrderBucket.ATTRIBUTE} when it writes only attributes, through `xsl:attribute`
+   *   fields or copied from the source;
+   * - {@link MappingItemOrderBucket.ATTRIBUTES_AND_CHILDREN} when it can write both;
+   * - `undefined` when it writes nothing ({@link XPathOutputKind.EMPTY}) or only children.
+   * @param item - the mapping item to classify
+   */
+  static getAttributeOutputBucket(item: MappingItem): AttributeOutputBucket | undefined {
+    const kind = CopyOfPlacementService.getOutputKind(item);
+    if (kind === XPathOutputKind.ATTRIBUTES_AND_CHILDREN) return MappingItemOrderBucket.ATTRIBUTES_AND_CHILDREN;
+    return kind === XPathOutputKind.ATTRIBUTES ? MappingItemOrderBucket.ATTRIBUTE : undefined;
   }
 
   private static combineItemOutputKinds(items: MappingItem[]): XPathOutputKind {

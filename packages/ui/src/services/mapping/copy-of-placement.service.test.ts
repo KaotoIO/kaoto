@@ -13,6 +13,7 @@ import {
   ForEachItem,
   IfItem,
   MappingItem,
+  MappingItemOrderBucket,
   MappingTree,
   OtherwiseItem,
   UnknownMappingItem,
@@ -357,5 +358,110 @@ describe('CopyOfPlacementService.getOutputKind', () => {
         addCopyOf(root, 'if (c) then some $x in X satisfies $x else /ns0:ShipOrder/@OrderId'),
       ),
     ).toBe(XPathOutputKind.ATTRIBUTES_AND_CHILDREN);
+  });
+});
+
+describe('CopyOfPlacementService.getAttributeOutputBucket', () => {
+  const ALL_ATTRIBUTES = '/ns0:ShipOrder/@*';
+
+  const newShipOrder = () => {
+    const doc = TestUtil.createTargetOrderDoc();
+    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    tree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+    tree.targetDocument = doc;
+    const root = new FieldItem(tree, doc.fields[0]);
+    tree.children.push(root);
+    return root;
+  };
+
+  const addField = (parent: MappingItem, name: string) => {
+    const shipOrder = parent instanceof FieldItem ? parent.field : (parent.parent as FieldItem).field;
+    const field = shipOrder.fields.find((f) => f.name === name);
+    if (!field) throw new Error(`field "${name}" not found`);
+    const fieldItem = new FieldItem(parent, field);
+    parent.children.push(fieldItem);
+    return fieldItem;
+  };
+
+  const addCopyOf = (parent: MappingItem, select: string) => {
+    const copyOf = new CopyOfSelector(parent);
+    copyOf.expression = select;
+    parent.children.push(copyOf);
+    return copyOf;
+  };
+
+  const addIf = (parent: MappingItem, ...fill: Array<(ifItem: IfItem) => void>) => {
+    const ifItem = new IfItem(parent);
+    ifItem.expression = 'true()';
+    parent.children.push(ifItem);
+    for (const add of fill) add(ifItem);
+    return ifItem;
+  };
+
+  it.each<[string, (root: FieldItem) => MappingItem, MappingItemOrderBucket | undefined]>([
+    ['an attribute field item', (root) => addField(root, 'OrderId'), MappingItemOrderBucket.ATTRIBUTE],
+    ['an element field item', (root) => addField(root, 'OrderPerson'), undefined],
+    ['a copy-of of every attribute', (root) => addCopyOf(root, ALL_ATTRIBUTES), MappingItemOrderBucket.ATTRIBUTE],
+    [
+      'a copy-of of one attribute',
+      (root) => addCopyOf(root, '/ns0:ShipOrder/@OrderId'),
+      MappingItemOrderBucket.ATTRIBUTE,
+    ],
+    [
+      'a copy-of of attributes and nodes',
+      (root) => addCopyOf(root, '/ns0:ShipOrder/@* | /ns0:ShipOrder/node()'),
+      MappingItemOrderBucket.ATTRIBUTES_AND_CHILDREN,
+    ],
+    [
+      'an xsl:if with an attribute field and an attribute copy',
+      (root) =>
+        addIf(
+          root,
+          (ifItem) => addField(ifItem, 'OrderId'),
+          (ifItem) => addCopyOf(ifItem, ALL_ATTRIBUTES),
+        ),
+      MappingItemOrderBucket.ATTRIBUTE,
+    ],
+    [
+      'an xsl:if with an attribute copy only',
+      (root) => addIf(root, (ifItem) => addCopyOf(ifItem, ALL_ATTRIBUTES)),
+      MappingItemOrderBucket.ATTRIBUTE,
+    ],
+    [
+      'an xsl:if with an attribute field and an element field',
+      (root) =>
+        addIf(
+          root,
+          (ifItem) => addField(ifItem, 'OrderId'),
+          (ifItem) => addField(ifItem, 'OrderPerson'),
+        ),
+      MappingItemOrderBucket.ATTRIBUTES_AND_CHILDREN,
+    ],
+    [
+      'a field-less for-each over the attributes',
+      (root) => {
+        const forEach = new ForEachItem(root);
+        forEach.expression = ALL_ATTRIBUTES;
+        root.children.push(forEach);
+        addCopyOf(forEach, '.');
+        return forEach;
+      },
+      MappingItemOrderBucket.ATTRIBUTE,
+    ],
+    [
+      'a variable',
+      (root) => {
+        const variable = new VariableItem(root, 'v');
+        root.children.push(variable);
+        return variable;
+      },
+      undefined,
+    ],
+    ['a blank copy-of', (root) => addCopyOf(root, ''), undefined],
+    ['a copy-of of the empty sequence', (root) => addCopyOf(root, '()'), undefined],
+  ])('should classify %s', (_name, create, expected) => {
+    const item = create(newShipOrder());
+
+    expect(CopyOfPlacementService.getAttributeOutputBucket(item)).toBe(expected);
   });
 });

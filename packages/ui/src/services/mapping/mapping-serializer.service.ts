@@ -12,6 +12,7 @@ import {
 } from '../../models/datamapper/document';
 import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import {
+  AttributeOutputBucket,
   CopyOfSelector,
   FieldItem,
   InstructionItem,
@@ -77,6 +78,7 @@ const ORDER_BUCKET_RANK: MappingItemOrderBucket[] = [
   MappingItemOrderBucket.LEADING_COPY_OF,
   MappingItemOrderBucket.FOLLOWER_FLOOR,
   MappingItemOrderBucket.ATTRIBUTE,
+  MappingItemOrderBucket.ATTRIBUTES_AND_CHILDREN,
   MappingItemOrderBucket.CONTENT_FOLLOWER,
   MappingItemOrderBucket.ELEMENT,
   MappingItemOrderBucket.NO_FIELD,
@@ -109,10 +111,6 @@ export class MappingSerializerService {
     return [];
   }
 
-  private static hasAttributeField(fields: IField[]): boolean {
-    return fields.some((f) => f.isAttribute);
-  }
-
   /**
    * Sorts `children` for serialization so the result is a total preorder by construction: every item
    * gets a {@link SerializationKey} from {@link computeSerializationData}, the array is stable-sorted
@@ -140,68 +138,146 @@ export class MappingSerializerService {
    * a follower nor a {@link VariableItem} — variables are hoisted to the front, so anchoring to one
    * would drag the follower ahead of its authored predecessors. The follower shares that key object by
    * reference, not a copy: {@link moveAnchoredCopyOfsBeforeTheirField} relies on this identity to move
-   * a copy-of together with its followers. See {@link getFollowerKey} for the exceptions. A follower
-   * given {@link MappingItemOrderBucket.CONTENT_FOLLOWER} becomes the anchor for the followers after it,
-   * which would otherwise take the earlier, lower-ranked anchor and sort ahead of it.
+   * a copy-of together with its followers. An instruction follower skips the siblings in an attribute
+   * bucket, which are moved ahead of the content, and anchors on the nearest content sibling instead, so
+   * it stays after the element it was authored after. See {@link getFollowerKey} for the exceptions. An
+   * instruction follower becomes the anchor for the followers after it, which would otherwise take an
+   * earlier anchor, such as an attribute it skipped, and sort ahead of it. The pass
+   * also tracks the highest-ranked attribute bucket among the non-follower siblings so far, which
+   * {@link getFollowerKey} needs to keep an unknown item after every earlier item that writes attributes.
    */
   private static computeSerializationData(children: MappingItem[]): Map<MappingItem, SerializationData> {
     const data = new Map<MappingItem, SerializationData>();
     let lastAnchorKey: SerializationKey | undefined;
+    let lastContentAnchorKey: SerializationKey | undefined;
+    let highestAttributeBucket: AttributeOutputBucket | undefined;
     for (const item of children) {
       // A model-declared orderBucket (VariableItem/WhenItem/OtherwiseItem) fixes the key regardless of
       // resolved fields — skip resolving them at all, since for WhenItem/OtherwiseItem that would
       // otherwise trigger a real, unused recursive MappingService.getInstructionAnchorFields walk.
       const fields = item.orderBucket ? [] : MappingSerializerService.getMappingItemFields(item);
-      const follower = MappingSerializerService.isFollower(item, fields);
+      const attributeBucket = MappingSerializerService.getItemAttributeOutputBucket(item);
+      const follower = MappingSerializerService.isFollower(item, fields, attributeBucket);
       const key: SerializationKey = follower
-        ? MappingSerializerService.getFollowerKey(item, lastAnchorKey)
-        : MappingSerializerService.computeSerializationKey(item, fields);
+        ? MappingSerializerService.getFollowerKey(item, lastAnchorKey, lastContentAnchorKey, highestAttributeBucket)
+        : MappingSerializerService.computeSerializationKey(item, fields, attributeBucket);
       data.set(item, { key, fields });
-      const anchorsLaterFollowers = !follower || key.bucket === MappingItemOrderBucket.CONTENT_FOLLOWER;
+      const anchorsLaterFollowers = !follower || item instanceof InstructionItem;
       if (anchorsLaterFollowers && !(item instanceof VariableItem)) {
         lastAnchorKey = key;
+        if (!attributeBucket) lastContentAnchorKey = key;
+      }
+      if (!follower) {
+        highestAttributeBucket = MappingSerializerService.higherAttributeOutputBucket(
+          highestAttributeBucket,
+          attributeBucket,
+        );
       }
     }
     return data;
   }
 
+  private static getItemAttributeOutputBucket(item: MappingItem): AttributeOutputBucket | undefined {
+    if (item.orderBucket) return undefined;
+    return CopyOfPlacementService.getAttributeOutputBucket(item);
+  }
+
+  private static higherAttributeOutputBucket(
+    left: AttributeOutputBucket | undefined,
+    right: AttributeOutputBucket | undefined,
+  ): AttributeOutputBucket | undefined {
+    if (!left) return right;
+    if (!right) return left;
+    return MappingSerializerService.rankOf(right) > MappingSerializerService.rankOf(left) ? right : left;
+  }
+
+  private static rankOf(bucket: MappingItemOrderBucket): number {
+    return ORDER_BUCKET_RANK.indexOf(bucket);
+  }
+
   /**
    * Whether `item` is a follower: an {@link UnknownMappingItem}, or an instruction that resolves no
-   * field (a `for-each` whose body is only `copy-of`/`value-of`, an empty placeholder loop, an
-   * `xsl:if` holding only a `value-of`). `WhenItem`/`OtherwiseItem` and a leading copy-of instruction
-   * are never followers — they have their own buckets regardless of resolved fields.
+   * field and writes no attributes (a `for-each` whose body is only `value-of` or a children-only
+   * `copy-of`, an empty placeholder loop, an `xsl:if` holding only a `value-of`). `WhenItem`/`OtherwiseItem`,
+   * a leading copy-of instruction and an instruction with an attribute bucket (such as a `for-each` over
+   * `@*` around `copy-of select="."`) are never followers — they have their own buckets regardless of
+   * resolved fields.
    */
-  private static isFollower(item: MappingItem, fields: IField[]): boolean {
+  private static isFollower(
+    item: MappingItem,
+    fields: IField[],
+    attributeBucket: AttributeOutputBucket | undefined,
+  ): boolean {
     if (item.orderBucket) return false;
     if (item instanceof UnknownMappingItem) return true;
     if (!(item instanceof InstructionItem)) return false;
+    if (attributeBucket) return false;
     if (CopyOfPlacementService.isLeadingCopyOf(item)) return false;
     return fields.length === 0;
   }
 
   /**
+   * The key of a follower, from `anchorKey` (the nearest preceding anchor), `contentAnchorKey` (the nearest
+   * preceding anchor outside the attribute buckets) and `highestAttributeBucket` (the highest-ranked
+   * attribute bucket among the preceding non-follower siblings).
+   *
+   * An instruction follower anchors on `contentAnchorKey`: the siblings in an attribute bucket are moved
+   * ahead of the content, so anchoring on one would pull the follower ahead of the element it was authored
+   * after. It writes no attributes, and placing it before an item that can write attributes would let that
+   * item's attributes be written after its content and fail the transform with XTDE0410, so it takes
+   * {@link MappingItemOrderBucket.CONTENT_FOLLOWER} when it has no content anchor or that anchor sorts before
+   * the content: after every item that can write attributes and before every element and other content.
+   *
    * An {@link UnknownMappingItem} can output anything, attributes included, so it keeps its authored
-   * position: it shares `anchorKey`, or takes {@link MappingItemOrderBucket.FOLLOWER_FLOOR} (after
-   * variables, before attributes) when there is no anchor yet. An instruction follower resolves no field,
-   * so none of the attributes it may write is known here. Placing it at or before the attributes would
-   * let an attribute field be written after its content and fail the transform with XTDE0410, so it takes
-   * {@link MappingItemOrderBucket.CONTENT_FOLLOWER} instead whenever its anchor sorts there: after every
-   * attribute and before every element and other content. An instruction that does write attributes,
-   * for example through an attribute-returning copy-of, is not classified here (#4285).
+   * position next to `anchorKey`, attribute items included: it shares that key, or takes
+   * {@link MappingItemOrderBucket.FOLLOWER_FLOOR} (after variables, before attributes) when there is no
+   * anchor yet. The exception is an anchor that sorts before an earlier item that writes attributes, for
+   * example `[copy-of @* | node(), xsl:attribute OrderId, xsl:apply-templates]`: sharing the anchor's key
+   * would move that item after the unknown one. It gets a fresh key in `highestAttributeBucket` instead, so
+   * it stays after every earlier item that can write attributes. A fresh key is never an anchor for later
+   * followers.
    */
-  private static getFollowerKey(item: MappingItem, anchorKey: SerializationKey | undefined): SerializationKey {
-    if (item instanceof InstructionItem && MappingSerializerService.sortsAtOrBeforeAttributes(anchorKey)) {
-      return { bucket: MappingItemOrderBucket.CONTENT_FOLLOWER, path: [] };
+  private static getFollowerKey(
+    item: MappingItem,
+    anchorKey: SerializationKey | undefined,
+    contentAnchorKey: SerializationKey | undefined,
+    highestAttributeBucket: AttributeOutputBucket | undefined,
+  ): SerializationKey {
+    if (item instanceof InstructionItem) {
+      return contentAnchorKey && MappingSerializerService.sortsWithContent(contentAnchorKey)
+        ? contentAnchorKey
+        : { bucket: MappingItemOrderBucket.CONTENT_FOLLOWER, path: [] };
+    }
+    if (MappingSerializerService.sortsBeforeHighestAttributeBucket(anchorKey, highestAttributeBucket)) {
+      return { bucket: highestAttributeBucket, path: [] };
     }
     return anchorKey ?? { bucket: MappingItemOrderBucket.FOLLOWER_FLOOR, path: [] };
   }
 
-  private static sortsAtOrBeforeAttributes(key: SerializationKey | undefined): boolean {
-    return !key || ORDER_BUCKET_RANK.indexOf(key.bucket) <= ORDER_BUCKET_RANK.indexOf(MappingItemOrderBucket.ATTRIBUTE);
+  /** Whether `key` ranks at or after `CONTENT_FOLLOWER`, so after every bucket that can write attributes. */
+  private static sortsWithContent(key: SerializationKey): boolean {
+    return (
+      MappingSerializerService.rankOf(key.bucket) >=
+      MappingSerializerService.rankOf(MappingItemOrderBucket.CONTENT_FOLLOWER)
+    );
   }
 
-  private static computeSerializationKey(item: MappingItem, fields: IField[]): SerializationKey {
-    const bucket = MappingSerializerService.getMappingItemOrderBucket(item, fields);
+  /** Whether `anchorKey` (or its absence) ranks before `highestAttributeBucket`. */
+  private static sortsBeforeHighestAttributeBucket(
+    anchorKey: SerializationKey | undefined,
+    highestAttributeBucket: AttributeOutputBucket | undefined,
+  ): highestAttributeBucket is AttributeOutputBucket {
+    if (!highestAttributeBucket) return false;
+    const anchorRank = MappingSerializerService.rankOf(anchorKey?.bucket ?? MappingItemOrderBucket.FOLLOWER_FLOOR);
+    return anchorRank < MappingSerializerService.rankOf(highestAttributeBucket);
+  }
+
+  private static computeSerializationKey(
+    item: MappingItem,
+    fields: IField[],
+    attributeBucket: AttributeOutputBucket | undefined,
+  ): SerializationKey {
+    const bucket = MappingSerializerService.getMappingItemOrderBucket(item, fields, attributeBucket);
     const path = bucket === MappingItemOrderBucket.ELEMENT ? MappingSerializerService.getElementOrderPath(fields) : [];
     return { bucket, path };
   }
@@ -213,12 +289,19 @@ export class MappingSerializerService {
    * `WhenItem`/`OtherwiseItem` are {@link InstructionItem}s and resolve fields like any other
    * instruction. `isLeadingCopyOf` is tested right after because it outranks even the attribute rule:
    * an empty copy-of (or an instruction wrapping only empty copy-ofs) leads its field's content,
-   * calling {@link CopyOfPlacementService} directly rather than re-deriving the rule.
+   * calling {@link CopyOfPlacementService} directly rather than re-deriving the rule. Attribute detection
+   * lives in {@link CopyOfPlacementService.getAttributeOutputBucket}, computed once per item by
+   * {@link computeSerializationData} and passed in as `attributeBucket`; an item that writes nothing or
+   * only children falls through to `ELEMENT` or `NO_FIELD`.
    */
-  private static getMappingItemOrderBucket(item: MappingItem, fields: IField[]): MappingItemOrderBucket {
+  private static getMappingItemOrderBucket(
+    item: MappingItem,
+    fields: IField[],
+    attributeBucket: AttributeOutputBucket | undefined,
+  ): MappingItemOrderBucket {
     if (item.orderBucket) return item.orderBucket;
     if (CopyOfPlacementService.isLeadingCopyOf(item)) return MappingItemOrderBucket.LEADING_COPY_OF;
-    if (MappingSerializerService.hasAttributeField(fields)) return MappingItemOrderBucket.ATTRIBUTE;
+    if (attributeBucket) return attributeBucket;
     if (fields.length > 0) return MappingItemOrderBucket.ELEMENT;
     return MappingItemOrderBucket.NO_FIELD;
   }
@@ -293,7 +376,7 @@ export class MappingSerializerService {
    */
   private static compareSerializationKeys(leftKey: SerializationKey, rightKey: SerializationKey): number {
     if (leftKey.bucket !== rightKey.bucket) {
-      return ORDER_BUCKET_RANK.indexOf(leftKey.bucket) - ORDER_BUCKET_RANK.indexOf(rightKey.bucket);
+      return MappingSerializerService.rankOf(leftKey.bucket) - MappingSerializerService.rankOf(rightKey.bucket);
     }
     if (leftKey.bucket !== MappingItemOrderBucket.ELEMENT) return 0;
     return FieldOrderService.compareOrderPaths(leftKey.path, rightKey.path);
@@ -309,7 +392,9 @@ export class MappingSerializerService {
    * anchor `FieldItem`, never reordering two `FieldItem`s relative to each other, so it cannot
    * introduce the inconsistency a pairwise comparator tie-break could. Followers anchored on the
    * copy-of (they share its key object, see {@link computeSerializationData}) move with it as one
-   * block, so none of them ends up ahead of the copy-of it was authored after.
+   * block, so none of them ends up ahead of the copy-of it was authored after. Only a copy-of in the
+   * `ELEMENT` bucket moves: one that also returns attributes, such as `@* | ShipTo`, is written with the
+   * attributes and stays there.
    */
   private static moveAnchoredCopyOfsBeforeTheirField(
     sorted: MappingItem[],
@@ -323,7 +408,7 @@ export class MappingSerializerService {
         (candidate): candidate is FieldItem => candidate instanceof FieldItem && candidate.field === earliestAnchor,
       );
       const itemKey = data.get(item)?.key;
-      if (!target || !itemKey) continue;
+      if (!target || itemKey?.bucket !== MappingItemOrderBucket.ELEMENT) continue;
       const itemIndex = result.indexOf(item);
       let blockEnd = itemIndex + 1;
       while (blockEnd < result.length && data.get(result[blockEnd])?.key === itemKey) blockEnd++;
