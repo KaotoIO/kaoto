@@ -37,17 +37,19 @@ export class MappingTree {
 
 /**
  * Sort buckets for {@link MappingSerializerService.sortForSerialization}, in output order. Most
- * {@link MappingItem} subclasses leave {@link MappingItem.orderBucket} unset: their bucket
- * depends on resolved fields at serialize time (attribute vs. element vs. no field), computed by
- * {@link MappingSerializerService}. Only a subclass whose position is constant regardless of content
- * — {@link VariableItem}, {@link WhenItem}, {@link OtherwiseItem} — declares one directly, so a
- * future instruction type with the same "always keep this position" requirement has an obvious,
- * co-located place to declare it instead of a sort-side `instanceof` check being the only guard.
- * A follower (an {@link UnknownMappingItem}, or an instruction with no resolvable field and no fixed
- * bucket) is not itself a bucket — it inherits the nearest preceding non-follower, non-{@link VariableItem}
- * sibling's bucket and path instead, so it keeps its authored position without a model change. The
- * exception is {@link MappingItemOrderBucket.CONTENT_FOLLOWER}, which keeps an instruction's content
- * from being written ahead of an attribute.
+ * {@link MappingItem} subclasses leave {@link MappingItem.orderBucket} unset: their bucket is computed
+ * by {@link MappingSerializerService} at serialize time, from what the item writes
+ * ({@link CopyOfPlacementService.getAttributeOutputBucket}) and the fields it resolves. Only a subclass
+ * whose position is constant regardless of content — {@link VariableItem}, {@link WhenItem},
+ * {@link OtherwiseItem} — declares one directly, so a future instruction type with the same "always keep
+ * this position" requirement has an obvious, co-located place to declare it instead of a sort-side
+ * `instanceof` check being the only guard. A follower (an {@link UnknownMappingItem}, or an instruction
+ * that resolves no field, writes no attributes and has no fixed bucket) is not itself a bucket — it
+ * inherits the nearest preceding non-follower, non-{@link VariableItem} sibling's bucket and path
+ * instead, so it keeps its authored position without a model change. The exceptions, which keep a
+ * follower's content from being written ahead of an attribute, are
+ * {@link MappingItemOrderBucket.CONTENT_FOLLOWER} and a fresh key for an unknown item authored after an
+ * attribute copy (see {@link MappingSerializerService.getFollowerKey}).
  */
 export enum MappingItemOrderBucket {
   /** {@link VariableItem}s, hoisted before all content. */
@@ -56,22 +58,53 @@ export enum MappingItemOrderBucket {
   LEADING_COPY_OF = 'leadingCopyOf',
   /** An {@link UnknownMappingItem} follower with no preceding anchor sibling. */
   FOLLOWER_FLOOR = 'followerFloor',
-  /** A field or instruction resolving an attribute (XTDE0410: attributes must precede content). */
+  /**
+   * A field or instruction that writes only attributes, at least one through an `xsl:attribute` field
+   * (XTDE0410: attributes must precede children).
+   */
   ATTRIBUTE = 'attribute',
   /**
-   * An instruction follower whose anchor sorts at or before the attributes, or that has no anchor. It
-   * resolves no field, so it goes after every attribute field and before any element content (XTDE0410).
+   * An item that writes only attributes it copies from the source rather than through an `xsl:attribute`
+   * field: an attributes-only copy-of such as `/ns0:ShipOrder/@*` or `/ns0:ShipOrder/@OrderId`, or an
+   * instruction whose attributes come only from such copy-ofs. It follows {@link ATTRIBUTE}, so when both
+   * write an attribute of the same name, the copied one wins, since the later attribute wins in XSLT.
+   */
+  ATTRIBUTE_COPY = 'attributeCopy',
+  /**
+   * An item that can write both attributes and children (child elements, text nodes, comments and
+   * processing instructions), such as `copy-of select="@* | node()"` or an `xsl:if` holding an attribute
+   * field and an element field. It goes before every item that writes only children, because an attribute
+   * written after a child fails the transform with XTDE0410. Two siblings in this bucket can't both be
+   * valid in any order, so they keep authored order. See {@link XPathOutputKind.ATTRIBUTES_AND_CHILDREN}.
+   */
+  ATTRIBUTES_AND_CHILDREN = 'attributesAndChildren',
+  /**
+   * An instruction follower whose anchor sorts at or before the items that can write attributes, or that
+   * has no anchor. It resolves no field, so it goes after every item that can write attributes and before
+   * any element content (XTDE0410).
    */
   CONTENT_FOLLOWER = 'contentFollower',
-  /** A field or instruction resolving an element, ordered by schema position. */
+  /** A field or instruction resolving an element and writing no attributes, ordered by schema position. */
   ELEMENT = 'element',
-  /** A bare `xsl:value-of`, or a bare copy-of with no resolvable anchor. */
+  /**
+   * A bare `xsl:value-of`, or a bare copy-of that writes no attributes and has no resolvable anchor. An
+   * attributes-only copy-of goes to {@link ATTRIBUTE_COPY} instead.
+   */
   NO_FIELD = 'noField',
   /** An `xsl:when` branch, kept in authored order. */
   WHEN = 'when',
   /** `xsl:otherwise`, always last. */
   OTHERWISE = 'otherwise',
 }
+
+/**
+ * The {@link MappingItemOrderBucket}s of items that write attributes, in output order (see
+ * {@link CopyOfPlacementService.getAttributeOutputBucket}). Unrelated to XSD attribute groups.
+ */
+export type AttributeOutputBucket =
+  | MappingItemOrderBucket.ATTRIBUTE
+  | MappingItemOrderBucket.ATTRIBUTE_COPY
+  | MappingItemOrderBucket.ATTRIBUTES_AND_CHILDREN;
 
 /**
  * Abstract base for every node in the mapping tree.

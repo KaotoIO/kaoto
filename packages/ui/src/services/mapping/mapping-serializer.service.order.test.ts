@@ -3,6 +3,7 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  IDocument,
   IField,
 } from '../../models/datamapper/document';
 import {
@@ -21,10 +22,13 @@ import {
 } from '../../models/datamapper/mapping';
 import { NS_XSL } from '../../models/datamapper/standard-namespaces';
 import {
+  getAnnotatedFieldsXsd,
   getCopyOfSequenceOrderXsd,
+  getShipOrderAttributeCopyOfXslt,
   getShipOrderInstructionOrderXslt,
   getShipOrderLeapfrogOrderXslt,
   getTestDocumentXsd,
+  getUnknownApplyTemplateAfterAttributeCopyOfXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from '../document/document-util.service';
@@ -968,6 +972,8 @@ ${orderContent}
       { bucket: MappingItemOrderBucket.LEADING_COPY_OF, path: [] },
       { bucket: MappingItemOrderBucket.FOLLOWER_FLOOR, path: [] },
       { bucket: MappingItemOrderBucket.ATTRIBUTE, path: [] },
+      { bucket: MappingItemOrderBucket.ATTRIBUTE_COPY, path: [] },
+      { bucket: MappingItemOrderBucket.ATTRIBUTES_AND_CHILDREN, path: [] },
       { bucket: MappingItemOrderBucket.CONTENT_FOLLOWER, path: [] },
       { bucket: MappingItemOrderBucket.ELEMENT, path: [0] },
       { bucket: MappingItemOrderBucket.ELEMENT, path: [1] },
@@ -1010,6 +1016,283 @@ ${orderContent}
           }
         }
       }
+    });
+  });
+});
+
+describe('MappingSerializerService — attribute-writing items', () => {
+  const SHIP_ORDER_NS = 'io.kaoto.datamapper.poc.test';
+  const SIMPLE_NS = 'http://www.example.com/SIMPLE';
+  const ANNOTATED_NS = 'http://www.example.com/annotated';
+
+  const wrap = (root: string, namespace: string, body: string) => `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0" xmlns:xsl="${NS_XSL}" xmlns:ns0="${namespace}">
+    <xsl:output method="xml" indent="yes"/>
+    <xsl:template match="/">
+        <${root} xmlns="${namespace}">${body}</${root}>
+    </xsl:template>
+</xsl:stylesheet>`;
+  const wrapShipOrder = (body: string) => wrap('ShipOrder', SHIP_ORDER_NS, body);
+  const wrapCustomer = (body: string) => wrap('Customer', ANNOTATED_NS, body);
+
+  const orderPerson = '<OrderPerson><xsl:value-of select="/ns0:ShipOrder/ns0:OrderPerson"/></OrderPerson>';
+  const orderId = '<xsl:attribute name="OrderId"><xsl:value-of select="/ns0:ShipOrder/@OrderId"/></xsl:attribute>';
+  const shipTo = '<ShipTo xmlns=""><Name><xsl:value-of select="/ns0:ShipOrder/ShipTo/Name"/></Name></ShipTo>';
+  const item = '<Item xmlns=""><Title><xsl:value-of select="/ns0:ShipOrder/Item/Title"/></Title></Item>';
+  const copyOf = (select: string) => `<xsl:copy-of select="${select}"/>`;
+  const copyOfMarker = (select: string) => `copy-of select="${select}"`;
+  const applyTemplates = '<xsl:apply-templates select="/ns0:ShipOrder/Item"/>';
+  const customerAttribute = (name: string) =>
+    `<xsl:attribute name="${name}"><xsl:value-of select="'${name}-value'"/></xsl:attribute>`;
+
+  const ALL_ATTRIBUTES = '/ns0:ShipOrder/@*';
+  const ATTRIBUTES_AND_NODES = '/ns0:ShipOrder/@* | /ns0:ShipOrder/node()';
+
+  const createCustomerDoc = () =>
+    XmlSchemaDocumentService.createXmlSchemaDocument(
+      new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+        'AnnotatedFields.xsd': getAnnotatedFieldsXsd(),
+      }),
+    ).document!;
+
+  /** Deserializes `xslt`, serializes it, and checks that a reload serializes to the same text. */
+  function serializeRoundTrip(
+    xslt: string,
+    createDoc: () => IDocument = () => TestUtil.createTargetOrderDoc(),
+  ): string {
+    const load = (text: string) => {
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      return MappingSerializerService.deserialize(text, createDoc(), tree, new Map()).mappingTree;
+    };
+    const first = MappingSerializerService.serialize(load(xslt), new Map());
+    expect(MappingSerializerService.serialize(load(first), new Map())).toEqual(first);
+    return first;
+  }
+
+  function expectInOrder(text: string, ...markers: string[]): void {
+    const positions = markers.map((marker) => {
+      const position = text.indexOf(marker);
+      expect(position, `"${marker}" not found`).toBeGreaterThan(-1);
+      return position;
+    });
+    expect(positions).toEqual([...positions].sort((a, b) => a - b));
+  }
+
+  describe('attribute copies', () => {
+    it.each([
+      ['@*', ALL_ATTRIBUTES],
+      ['@* | node()', ATTRIBUTES_AND_NODES],
+      ['attribute::*', '/ns0:ShipOrder/attribute::*'],
+      ['@OrderId', '/ns0:ShipOrder/@OrderId'],
+    ])('writes a copy-of selecting %s after xsl:attribute and before the elements', (_name, select) => {
+      const out = serializeRoundTrip(wrapShipOrder(orderPerson + copyOf(select) + orderId));
+      expectInOrder(out, 'name="OrderId"', copyOfMarker(select), '<OrderPerson');
+    });
+
+    it('moves the attribute copy of an imported stylesheet before the element it was authored after', () => {
+      const out = serializeRoundTrip(getShipOrderAttributeCopyOfXslt());
+      expectInOrder(out, copyOfMarker(ALL_ATTRIBUTES), '<OrderPerson');
+    });
+
+    it('writes a copy-of of the attributes of a simple-content element before its value', () => {
+      const out = serializeRoundTrip(
+        wrap(
+          'Product',
+          SIMPLE_NS,
+          '<name><xsl:value-of select="/ns0:Product/ns0:name"/><xsl:copy-of select="/ns0:Product/ns0:name/@*"/></name>',
+        ),
+        () => TestUtil.createExtensionSimpleDoc(),
+      );
+      expectInOrder(out, 'copy-of select="/ns0:Product/ns0:name/@*"', 'value-of select="/ns0:Product/ns0:name"');
+    });
+
+    it('writes a copy-of that also returns an element with the attributes, not in front of that element', () => {
+      const select = '/ns0:ShipOrder/@* | /ns0:ShipOrder/ShipTo';
+      const out = serializeRoundTrip(wrapShipOrder(orderPerson + shipTo + copyOf(select)));
+      expectInOrder(out, copyOfMarker(select), '<OrderPerson', '<ShipTo');
+    });
+
+    it('keeps two items that each write attributes and children in authored order, after an attributes-only item', () => {
+      const first = ATTRIBUTES_AND_NODES;
+      const second = '/ns0:ShipOrder/attribute::* | /ns0:ShipOrder/Item';
+      const attributeOnly = '/ns0:ShipOrder/@OrderId';
+      const out = serializeRoundTrip(
+        wrapShipOrder(orderPerson + copyOf(first) + copyOf(second) + copyOf(attributeOnly)),
+      );
+      expectInOrder(out, copyOfMarker(attributeOnly), copyOfMarker(first), copyOfMarker(second), '<OrderPerson');
+    });
+  });
+
+  describe('attribute copies among several xsl:attribute fields', () => {
+    it.each([
+      ['directly under the element', (content: string) => content],
+      ['inside an xsl:if', (content: string) => `<xsl:if test="true()">${content}</xsl:if>`],
+    ])('writes an attribute copy %s after every xsl:attribute field', (_name, wrapContent) => {
+      const select = '/ns0:Customer/@*';
+      const out = serializeRoundTrip(
+        wrapCustomer(
+          wrapContent(
+            `<name><xsl:value-of select="'n'"/></name>` +
+              customerAttribute('id') +
+              `<xsl:copy-of select="${select}"/>` +
+              customerAttribute('status'),
+          ),
+        ),
+        createCustomerDoc,
+      );
+      expectInOrder(out, 'name="id"', 'name="status"', copyOfMarker(select), '<name');
+    });
+  });
+
+  describe('instructions that write attributes', () => {
+    it('writes an attribute authored after an xsl:if that writes an attribute and an element before the xsl:if', () => {
+      const out = serializeRoundTrip(
+        wrapCustomer(
+          `<xsl:if test="true()">${customerAttribute('id')}<name><xsl:value-of select="'n'"/></name></xsl:if>` +
+            customerAttribute('status'),
+        ),
+        createCustomerDoc,
+      );
+      expectInOrder(out, 'name="status"', '<xsl:if', 'name="id"', '<name');
+    });
+
+    it('orders an xsl:if body: the attribute copy goes before the element', () => {
+      const out = serializeRoundTrip(
+        wrapShipOrder(`<xsl:if test="true()">${shipTo}${copyOf(ALL_ATTRIBUTES)}</xsl:if>`),
+      );
+      expectInOrder(out, '<xsl:if', copyOfMarker(ALL_ATTRIBUTES), '<ShipTo');
+    });
+
+    it('orders an xsl:when body: the attribute copy goes before the element', () => {
+      const out = serializeRoundTrip(
+        wrapShipOrder(`<xsl:choose><xsl:when test="true()">${shipTo}${copyOf(ALL_ATTRIBUTES)}</xsl:when></xsl:choose>`),
+      );
+      expectInOrder(out, '<xsl:when', copyOfMarker(ALL_ATTRIBUTES), '<ShipTo');
+    });
+
+    it('writes a for-each over the attributes before the element it was authored after', () => {
+      const out = serializeRoundTrip(
+        wrapShipOrder(
+          `${orderPerson}<xsl:for-each select="${ALL_ATTRIBUTES}"><xsl:copy-of select="."/></xsl:for-each>`,
+        ),
+      );
+      expectInOrder(out, 'xsl:for-each', '<OrderPerson');
+    });
+
+    it('writes a copy-of of the loop item inside an element under a for-each over the attributes before its child', () => {
+      const out = serializeRoundTrip(
+        wrapShipOrder(
+          `<xsl:for-each select="${ALL_ATTRIBUTES}"><Item xmlns=""><Title><xsl:value-of select="'t'"/></Title>` +
+            '<xsl:copy-of select="."/></Item></xsl:for-each>',
+        ),
+      );
+      expectInOrder(out, 'copy-of select="."', '<Title');
+    });
+
+    it('writes a copy-of of the attributes inside a looped element before its child', () => {
+      const out = serializeRoundTrip(
+        wrapShipOrder(
+          '<xsl:for-each select="/ns0:ShipOrder/Item"><Item xmlns=""><Title><xsl:value-of select="Title"/></Title>' +
+            '<xsl:copy-of select="@*"/></Item></xsl:for-each>',
+        ),
+      );
+      expectInOrder(out, 'copy-of select="@*"', '<Title');
+    });
+  });
+
+  describe('followers', () => {
+    it('writes a field-less instruction between two attribute copies after both of them', () => {
+      const attributeOnly = '/ns0:ShipOrder/@OrderId';
+      const out = serializeRoundTrip(
+        wrapShipOrder(
+          orderPerson +
+            copyOf(ALL_ATTRIBUTES) +
+            `<xsl:if test="true()"><xsl:value-of select="'x'"/></xsl:if>` +
+            copyOf(attributeOnly),
+        ),
+      );
+      expectInOrder(out, copyOfMarker(ALL_ATTRIBUTES), copyOfMarker(attributeOnly), '<xsl:if', '<OrderPerson');
+    });
+
+    it('keeps two field-less instructions around an xsl:if writing an attribute and an element in authored order', () => {
+      const out = serializeRoundTrip(
+        wrapShipOrder(
+          `<xsl:if test="true()"><xsl:value-of select="'a'"/></xsl:if>` +
+            `<xsl:if test="true()">${orderId}${orderPerson}</xsl:if>` +
+            `<xsl:if test="true()"><xsl:value-of select="'b'"/></xsl:if>`,
+        ),
+      );
+      expectInOrder(out, 'name="OrderId"', `select="'a'"`, `select="'b'"`);
+    });
+
+    it('keeps the attribute copy of an imported stylesheet before an unknown element', () => {
+      const out = serializeRoundTrip(getUnknownApplyTemplateAfterAttributeCopyOfXslt());
+      expectInOrder(out, 'name="OrderId"', copyOfMarker(ALL_ATTRIBUTES), 'xsl:apply-templates');
+    });
+
+    it.each([
+      {
+        name: 'a chain of unknown elements anchored on an attribute after an attribute copy',
+        body: copyOf(ALL_ATTRIBUTES) + orderId + applyTemplates + `<xsl:message select="'m'"/>`,
+        expected: ['name="OrderId"', copyOfMarker(ALL_ATTRIBUTES), 'xsl:apply-templates', 'xsl:message'],
+      },
+      {
+        name: 'an unknown element anchored on an attribute after a mixed copy-of',
+        body: copyOf(ATTRIBUTES_AND_NODES) + orderId + applyTemplates,
+        expected: ['name="OrderId"', copyOfMarker(ATTRIBUTES_AND_NODES), 'xsl:apply-templates'],
+      },
+      {
+        name: 'an unknown element anchored on a blank copy-of after an attribute copy',
+        body: copyOf(ALL_ATTRIBUTES) + copyOf('') + applyTemplates,
+        expected: [copyOfMarker(''), copyOfMarker(ALL_ATTRIBUTES), 'xsl:apply-templates'],
+      },
+      {
+        name: 'an unknown element anchored on an attribute copy after a mixed copy-of',
+        body: copyOf(ATTRIBUTES_AND_NODES) + copyOf(ALL_ATTRIBUTES) + applyTemplates,
+        expected: [copyOfMarker(ALL_ATTRIBUTES), copyOfMarker(ATTRIBUTES_AND_NODES), 'xsl:apply-templates'],
+      },
+    ])('keeps $name after every earlier attribute writer', ({ body, expected }) => {
+      const out = serializeRoundTrip(wrapShipOrder(body));
+      expectInOrder(out, ...expected);
+    });
+
+    it('keeps an unknown element between two attributes in authored order without an attribute copy', () => {
+      const out = serializeRoundTrip(
+        wrapCustomer(customerAttribute('id') + '<xsl:call-template name="extra"/>' + customerAttribute('status')),
+        createCustomerDoc,
+      );
+      expectInOrder(out, 'name="id"', 'xsl:call-template', 'name="status"');
+    });
+  });
+
+  describe('items that write no attributes keep their placement', () => {
+    it('keeps a blank copy-of first', () => {
+      const out = serializeRoundTrip(wrapShipOrder(orderId + copyOf('')));
+      expectInOrder(out, copyOfMarker(''), 'name="OrderId"');
+    });
+
+    it('keeps an empty-sequence copy-of last', () => {
+      const out = serializeRoundTrip(wrapShipOrder(copyOf('()') + orderPerson));
+      expectInOrder(out, '<OrderPerson', copyOfMarker('()'));
+    });
+
+    it('keeps an xsl:if holding only a variable behind its predecessor', () => {
+      const out = serializeRoundTrip(
+        wrapShipOrder(`${shipTo}<xsl:if test="true()"><xsl:variable name="v" select="1"/></xsl:if>${item}`),
+      );
+      expectInOrder(out, '<ShipTo', '<xsl:if', '<Item');
+    });
+
+    it('keeps a copy-of whose predicate reads an attribute with the element it selects', () => {
+      const select = "/ns0:ShipOrder/Item[@type = 'a']";
+      const out = serializeRoundTrip(wrapShipOrder(item + copyOf(select) + orderPerson));
+      expectInOrder(out, '<OrderPerson', copyOfMarker(select), '<Item');
+    });
+
+    it('keeps a copy-of of an attribute string value after every element', () => {
+      const select = 'string(/ns0:ShipOrder/@OrderId)';
+      const out = serializeRoundTrip(wrapShipOrder(copyOf(select) + orderPerson));
+      expectInOrder(out, '<OrderPerson', copyOfMarker(select));
     });
   });
 });

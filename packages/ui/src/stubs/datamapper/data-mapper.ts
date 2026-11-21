@@ -112,6 +112,9 @@ export function getShipOrderToShipOrderXslt(): string {
 export function getShipOrderInstructionOrderXslt(): string {
   return readStubFile('./xml/ShipOrderInstructionOrder.xsl');
 }
+export function getShipOrderAttributeCopyOfXslt(): string {
+  return readStubFile('./xml/ShipOrderAttributeCopyOf.xsl');
+}
 export function getShipOrderLeapfrogOrderXslt(): string {
   return readStubFile('./xml/ShipOrderLeapfrogOrder.xsl');
 }
@@ -339,6 +342,9 @@ export function getUnknownApplyTemplateXslt(): string {
 }
 export function getUnknownApplyTemplateAfterFieldXslt(): string {
   return readStubFile('./xml/UnknownApplyTemplateAfterField.xsl');
+}
+export function getUnknownApplyTemplateAfterAttributeCopyOfXslt(): string {
+  return readStubFile('./xml/UnknownApplyTemplateAfterAttributeCopyOf.xsl');
 }
 export function getUnknownApplyTemplateBeforeFieldXslt(): string {
   return readStubFile('./xml/UnknownApplyTemplateBeforeField.xsl');
