@@ -8,7 +8,7 @@
 
   // The parent <Content> has no explicit height, so `100%` collapses to the content height.
   // Fill the viewport below the Nav header instead (same approach as PageLayout).
-  block-size: calc(100vh - #{$spacing-09});
+  block-size: calc(100vb - #{$spacing-09});
 }
 
 .cs--project-layout__body {
