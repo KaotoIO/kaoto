@@ -10,7 +10,7 @@
 
     <properties>
         <project.build.outputTimestamp>2025-06-26T16:22:08Z</project.build.outputTimestamp>
-        <compiler-plugin.version>3.14.0</compiler-plugin.version>
+        <compiler-plugin.version>3.16.0</compiler-plugin.version>
         <failsafe.useModulePath>false</failsafe.useModulePath>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
