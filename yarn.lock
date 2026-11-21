@@ -3491,7 +3491,7 @@ __metadata:
     react-router: "npm:^8.0.0"
     start-server-and-test: "npm:^2.0.0"
     storybook: "npm:^10.6.1"
-    storybook-addon-remix-react-router: "npm:^6.0.0"
+    storybook-addon-remix-react-router: "npm:^7.0.0"
     storybook-fixtures: "npm:0.12.0"
     typescript: "npm:^6.0.0"
     typescript-eslint: "npm:^8.71.0"
@@ -22581,9 +22581,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook-addon-remix-react-router@npm:^6.0.0":
-  version: 6.1.0
-  resolution: "storybook-addon-remix-react-router@npm:6.1.0"
+"storybook-addon-remix-react-router@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "storybook-addon-remix-react-router@npm:7.0.0"
   dependencies:
     "@mjackson/form-data-parser": "npm:^0.4.0"
     compare-versions: "npm:^6.0.0"
@@ -22591,14 +22591,14 @@ __metadata:
   peerDependencies:
     react: ">=18.0.0"
     react-dom: ">=18.0.0"
-    react-router: ^7.0.2
+    react-router: ^7.0.2 || ^8.0.0
     storybook: ^10.0.0
   peerDependenciesMeta:
     react:
       optional: true
     react-dom:
       optional: true
-  checksum: 10/b4feb7b3b1b5a483a5d371a6bdbd33ea2062a10365e93e36452dd358a937780c73549f964a1410eed4e1433d995502f3d8b6f02e717fa19b5f0a38f1eae81e56
+  checksum: 10/5b1565a835e443db62485e970ea4ef09777436fa91564c37cb1b106432cb7a9752f95a9235250d163a82b974fa7e67ee30d233c37629a6937791193ee52c7fb1
   languageName: node
   linkType: hard
 
