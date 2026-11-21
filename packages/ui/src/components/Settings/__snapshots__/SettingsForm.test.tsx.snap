@@ -417,7 +417,7 @@ exports[`SettingsForm > should render 1`] = `
             id="downshift-_r_ID_-toggle-button"
             role="combobox"
             tabindex="0"
-            title="Citrus 5.1.0"
+            title="Citrus 5.2.0"
             type="button"
           >
             <span
@@ -432,7 +432,7 @@ exports[`SettingsForm > should render 1`] = `
                   src="/src/assets/citrus-logo.png"
                 />
                 <span>
-                  Citrus 5.1.0
+                  Citrus 5.2.0
                 </span>
               </span>
             </span>
