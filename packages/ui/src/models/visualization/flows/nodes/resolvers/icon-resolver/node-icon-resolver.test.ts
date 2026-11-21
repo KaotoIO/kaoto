@@ -1,7 +1,9 @@
 import icon_citrus_logo from '../../../../../../assets/citrus-logo.png';
 import icon_component_aws2_s3 from '../../../../../../assets/components/aws2-s3.svg';
+import icon_component_bot from '../../../../../../assets/components/bot.svg';
 import icon_component_generic from '../../../../../../assets/components/generic-component.png';
 import icon_component_kafka from '../../../../../../assets/components/kafka.svg';
+import icon_component_tools from '../../../../../../assets/components/tools.svg';
 import icon_eip_choice from '../../../../../../assets/eip/choice.png';
 import icon_eip_transform from '../../../../../../assets/eip/transform.png';
 import expandIcon from '../../../../../../assets/expand.svg';
@@ -18,6 +20,8 @@ describe('NodeIconResolver', () => {
     it.each([
       ['kafka', icon_component_kafka],
       ['aws2-s3', icon_component_aws2_s3],
+      ['openai', icon_component_bot],
+      ['ai-tool', icon_component_tools],
       ['marshal', icon_eip_transform],
       ['zookeeper', icon_component_generic],
     ])('should resolve the %s component icon', async (elementName, expectedIcon) => {
