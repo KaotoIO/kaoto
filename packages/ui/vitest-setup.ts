@@ -15,7 +15,12 @@ afterEach(() => {
   cleanup();
 });
 
-afterAll(() => {
+afterAll(async () => {
+  // Wait for the dynamic imports a test file started but did not wait for, such as a lazy page or component: once the
+  // file is done, Vitest tears its environment down, and an import still running then fails with an
+  // EnvironmentTeardownError in an unrelated module
+  await vi.dynamicImportSettled();
+
   // Restore vi.spyOn() spies and vi.stubGlobal()/vi.stubEnv() stubs at the end of every file so they don't leak into
   // the next file of the worker, and reset the vi.fn() mocks of the global mocks to their default implementation
   vi.restoreAllMocks();

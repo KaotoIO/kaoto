@@ -29,7 +29,7 @@ import { SourceCodeProvider } from '../../providers/source-code.provider';
 import { setColorScheme } from '../../utils/color-scheme';
 import { bindEditorDocument, type EditorDocumentState } from './Bridge/editor-document';
 import { KaotoBridge } from './Bridge/KaotoBridge';
-import { kaotoEditorRouter } from './KaotoEditorRouter';
+import { createKaotoEditorRouter } from './KaotoEditorRouter';
 
 export interface KaotoEditorInit {
   fileExtension: string;
@@ -97,6 +97,7 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
 
   // Document state via useSyncExternalStore
   const [editorDocument] = useState(() => bindEditorDocument(bus));
+  const [router] = useState(createKaotoEditorRouter);
   const documentState: EditorDocumentState = useSyncExternalStore(editorDocument.subscribe, editorDocument.getState);
 
   // The host resolves Auto against the VS Code theme and sends new settings when that theme changes
@@ -340,7 +341,7 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
                           shouldSaveSchema={false}
                           onStepUpdated={onStepUpdated}
                         >
-                          <RouterProvider router={kaotoEditorRouter} />
+                          <RouterProvider router={router} />
                         </KaotoBridge>
                       </EntitiesProvider>
                     </CatalogLoaderProvider>
