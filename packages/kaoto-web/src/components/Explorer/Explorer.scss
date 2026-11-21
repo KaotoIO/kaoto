@@ -267,7 +267,7 @@
   padding-inline-end: $spacing-07;
 
   // Explicit parent selector: a bare & in a mixin has no scoping root for Sonar (css:S8776)
-  @at-root #{selector.append(&, ':has(.cs--explorer__node-action + .cs--explorer__node-action)')} {
+  @at-root #{selector.append(&, ':has(.cs--explorer__node-actions > :nth-child(2))')} {
     padding-inline-end: $spacing-10;
   }
 

@@ -1,4 +1,5 @@
 import { TrashCan } from '@carbon/icons-react';
+import { IconButton } from '@carbon/react';
 import { FunctionComponent, MouseEvent as ReactMouseEvent } from 'react';
 
 interface EntryActionButtonProps {
@@ -15,10 +16,12 @@ export const EntryActionButton: FunctionComponent<EntryActionButtonProps> = ({
   icon: Icon,
   onClick,
 }) => (
-  <button
-    type="button"
+  <IconButton
+    label={label}
+    kind="ghost"
+    size="sm"
+    align="bottom"
     className="cs--explorer__node-action"
-    title={label}
     tabIndex={-1}
     data-testid={testId}
     onClick={(event: ReactMouseEvent) => {
@@ -28,5 +31,5 @@ export const EntryActionButton: FunctionComponent<EntryActionButtonProps> = ({
     }}
   >
     <Icon />
-  </button>
+  </IconButton>
 );
