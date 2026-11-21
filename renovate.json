@@ -42,10 +42,12 @@
       "minimumReleaseAge": null
     },
     {
-      "description": "The tags of cypress/browsers carry the Node.js and browser versions (node-<node>-chrome-<chrome>-ff-<firefox>-edge-<edge>), which the docker versioning can't read. Order them by Node.js version, then Chrome major and build; stay on the Node.js major the CI uses",
+      "description": "The tags of cypress/browsers carry the Node.js and browser versions (node-<node>-chrome-<chrome>-ff-<firefox>-edge-<edge>), which the docker versioning can't read. Order them by Node.js version, then Chrome major and build; stay on the Node.js major the CI uses. The tag doesn't fit into a 100-character commit header, so leave it out of the commit message; the PR body still shows it",
       "matchPackageNames": ["cypress/browsers"],
       "versioning": "regex:^node-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-chrome-(?<build>\\d+)\\.\\d+\\.\\d+\\.(?<revision>\\d+)-\\d+-ff-[\\d.]+-edge-[\\d.]+-\\d+$",
-      "allowedVersions": "/^node-24\\./"
+      "allowedVersions": "/^node-24\\./",
+      "commitMessageTopic": "browsers of the Cypress image",
+      "commitMessageExtra": ""
     },
     {
       "description": "Stylelint configs and plugins depend on the stylelint major through peer dependencies, so they have to move together, majors and minors in one PR",
