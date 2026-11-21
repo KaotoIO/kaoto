@@ -3439,7 +3439,7 @@ __metadata:
     "@testing-library/user-event": "npm:^14.6.1"
     "@types/json-schema": "npm:^7.0.15"
     "@types/lodash": "npm:^4"
-    "@types/node": "npm:^22.0.0"
+    "@types/node": "npm:^26.0.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@vitejs/plugin-react": "npm:^6.1.1"
@@ -3559,7 +3559,7 @@ __metadata:
     "@testing-library/react": "npm:^16.3.2"
     "@testing-library/user-event": "npm:^14.6.1"
     "@types/eslint-plugin-jsx-a11y": "npm:^6.10.1"
-    "@types/node": "npm:^22.0.0"
+    "@types/node": "npm:^26.0.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
     "@vitejs/plugin-react": "npm:^6.1.1"
@@ -3634,7 +3634,7 @@ __metadata:
     "@types/jsdom": "npm:^30.0.0"
     "@types/json-schema": "npm:^7.0.15"
     "@types/lodash": "npm:^4"
-    "@types/node": "npm:^22.0.0"
+    "@types/node": "npm:^26.0.0"
     "@types/openapi-v3": "npm:^3.0.0"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^19.2.3"
@@ -7252,21 +7252,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*":
+"@types/node@npm:*, @types/node@npm:^26.0.0":
   version: 26.6.6
   resolution: "@types/node@npm:26.6.6"
   dependencies:
     undici-types: "npm:~8.9.0"
   checksum: 10/07c6c6fc1f5cc89c700ac9ebcebd42b000fef234bf0b80e9461a8f077105f15faf16df95b83745e0c0e37338d1fbc28cb402ef27b5787fd7a57b492c926ff7ae
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:^22.0.0":
-  version: 22.20.5
-  resolution: "@types/node@npm:22.20.5"
-  dependencies:
-    undici-types: "npm:~6.21.0"
-  checksum: 10/a223a73e00e948b751b00144523674ecc73e7a3f14f48a0f3a6fca40745ff548a8b0ff5baca090d45ae8b61481cc56c1158db4df312970baeb6fc1b81fc511a1
   languageName: node
   linkType: hard
 
@@ -24035,13 +24026,6 @@ __metadata:
   version: 8.12.4
   resolution: "undici-types@npm:8.12.4"
   checksum: 10/f8976facdd9b41217ba9be1c499d9363ec6954cb99b282f9b1479db6128a1833e601e3e744219f9a6bd142673e70c38f3ad9d96465f1af96c4d2ad664a96e098
-  languageName: node
-  linkType: hard
-
-"undici-types@npm:~6.21.0":
-  version: 6.21.0
-  resolution: "undici-types@npm:6.21.0"
-  checksum: 10/ec8f41aa4359d50f9b59fa61fe3efce3477cc681908c8f84354d8567bb3701fafdddf36ef6bff307024d3feb42c837cf6f670314ba37fc8145e219560e473d14
   languageName: node
   linkType: hard
 
