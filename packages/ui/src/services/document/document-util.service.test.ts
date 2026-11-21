@@ -23,6 +23,7 @@ import { VisualizationUtilService } from '../visualization/visualization-util.se
 import { DocumentUtilService } from './document-util.service';
 import { XmlSchemaField, XmlSchemaTypeFragment } from './xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema/xml-schema-document.service';
+import { XmlSchemaDocumentUtilService } from './xml-schema/xml-schema-document-util.service';
 import { XmlSchemaTypesService } from './xml-schema/xml-schema-types.service';
 
 describe('DocumentUtilService', () => {
@@ -1621,6 +1622,43 @@ describe('DocumentUtilService', () => {
       expect(field.typeOverride).toBe(FieldOverrideVariant.NONE);
       expect(field.originalField).toBeUndefined();
     });
+
+    it('should generate scoped fragment key when restoring container field without captured child fields', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'LazyLoadingTest.xsd': getLazyLoadingTestXsd() },
+        { namespaceUri: 'http://www.example.com/LAZYTEST', name: 'Root' },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      const doc = result.document!;
+      const personField = doc.fields[0].fields.find((f) => f.name === 'Person')!;
+      expect(personField).toBeDefined();
+      DocumentUtilService.resolveTypeFragment(personField);
+
+      const field = personField.fields.find((f) => f.name === 'Address')!;
+      expect(field).toBeDefined();
+
+      const typeQName = new QName('http://www.example.com/LAZYTEST', 'AddressType');
+      field.originalField = {
+        name: 'Address',
+        displayName: 'Address',
+        namespaceURI: 'http://www.example.com/LAZYTEST',
+        namespacePrefix: 'tns',
+        type: Types.Container,
+        typeQName,
+        namedTypeFragmentRefs: undefined as never,
+        fields: undefined,
+        isAbstractType: false,
+      };
+
+      DocumentUtilService.restoreOriginalField(field);
+
+      expect(field.type).toBe(Types.Container);
+      expect(field.typeQName).toEqual(typeQName);
+      expect(field.fields.length).toBeGreaterThan(0);
+    });
   });
 
   describe('processFieldSubstitution()', () => {
@@ -1837,7 +1875,10 @@ describe('DocumentUtilService', () => {
       });
 
       // Verify the fragment exists and has fields
-      const fragmentKey = `{${NS}}DetailedAddressType`;
+      const fragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'LazyLoadingTestExtensions.xsd',
+        new QName(NS, 'DetailedAddressType'),
+      );
       const fragment = doc.namedTypeFragments[fragmentKey];
       expect(fragment).toBeDefined();
       expect(fragment.fields.length).toBeGreaterThan(0);
@@ -1964,6 +2005,34 @@ describe('DocumentUtilService', () => {
       // Also verify the field type
       const newAddressField = VisualizationUtilService.getField(newAddressTreeNode!.nodeData);
       expect(newAddressField?.type).toBe(Types.Container);
+    });
+
+    it('should fallback to typeQName.toString() for non-XML documents in resolveFragmentKeyForOverride', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const orderPerson = doc.fields[0].fields.find((f) => f.name === 'OrderPerson')!;
+      const qName = new QName('http://example.com', 'CustomType');
+      const childField = new XmlSchemaField(doc, 'child', false);
+      childField.type = Types.String;
+
+      doc.namedTypeFragments[qName.toString()] = {
+        fields: [childField],
+        namedTypeFragmentRefs: [],
+      };
+      delete (doc as Partial<XmlSchemaDocument>).xmlSchemaCollection;
+
+      const overrides: IFieldTypeOverride[] = [
+        {
+          schemaPath: '/ns0:ShipOrder/ns0:OrderPerson',
+          type: 'CustomType',
+          variant: FieldOverrideVariant.SAFE,
+        },
+      ];
+      DocumentUtilService.processTypeOverrides(doc, overrides, { ns0: 'io.kaoto.datamapper.poc.test' }, () => ({
+        type: Types.Container,
+        typeQName: qName,
+      }));
+
+      expect(orderPerson.fields.map((f) => f.name)).toEqual(['child']);
     });
   });
 });

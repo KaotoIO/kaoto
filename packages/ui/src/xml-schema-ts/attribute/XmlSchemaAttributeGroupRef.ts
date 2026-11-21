@@ -34,6 +34,10 @@ export class XmlSchemaAttributeGroupRef
     return this.ref;
   }
 
+  clearRefCache(): void {
+    this.ref.clearTarget();
+  }
+
   isRef() {
     return this.ref.getTargetQName() != null;
   }

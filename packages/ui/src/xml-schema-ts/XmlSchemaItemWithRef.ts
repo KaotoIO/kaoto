@@ -4,4 +4,5 @@ import { XmlSchemaItemWithRefBase } from './XmlSchemaItemWithRefBase';
 
 export interface XmlSchemaItemWithRef<T extends XmlSchemaNamed> extends XmlSchemaItemWithRefBase {
   getRef(): XmlSchemaRef<T>;
+  clearRefCache?(): void;
 }

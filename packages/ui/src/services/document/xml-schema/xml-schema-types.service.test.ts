@@ -1184,7 +1184,9 @@ describe('XmlSchemaTypesService', () => {
       expect(result!.qname.getLocalPart()).toBe('Cat');
       expect(result!.qname.getNamespaceURI()).toBe(NS_SUBSTITUTION);
       expect(result!.type).toBe(Types.Container);
-      expect(result!.namedTypeFragmentRefs.length).toBeGreaterThan(0);
+      expect(result!.namedTypeFragmentRefs).toEqual([
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey('FieldSubstitution.xsd', new QName(NS_SUBSTITUTION, 'Cat_t')),
+      ]);
     });
 
     it('should resolve Dog substitute element with Container type', () => {

@@ -418,6 +418,19 @@ export class XmlSchemaDocumentUtilService {
   }
 
   /**
+   * Builds the key used to store a named type fragment in {@link IDocument.namedTypeFragments}.
+   * When `sourceURI` is provided, scopes the key as `<sourceURI>#<typeQName>`.
+   *
+   * @param sourceURI - The source URI / file path of the declaring schema, if available
+   * @param typeQName - The qualified name of the type
+   * @returns Fragment key string
+   */
+  static buildTypeFragmentKey(sourceURI: string | null | undefined, typeQName: QName): string {
+    const qNameStr = typeQName.toString();
+    return sourceURI ? `${sourceURI}#${qNameStr}` : qNameStr;
+  }
+
+  /**
    * Checks if a namespace is a standard XML/XSD namespace that doesn't require
    * type fragment resolution.
    * @param namespace - The namespace URI to check

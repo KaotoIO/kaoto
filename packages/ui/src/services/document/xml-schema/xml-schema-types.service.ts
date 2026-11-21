@@ -835,7 +835,8 @@ export class XmlSchemaTypesService {
       const tqname = schemaType.getQName();
       if (tqname) {
         typeQName = tqname;
-        namedTypeFragmentRefs = [tqname.toString()];
+        const sourceURI = schemaType.getParent()?.getSourceURI();
+        namedTypeFragmentRefs = [XmlSchemaDocumentUtilService.buildTypeFragmentKey(sourceURI, tqname)];
       } else {
         const wireName = element.getWireName()!;
         namedTypeFragmentRefs = [

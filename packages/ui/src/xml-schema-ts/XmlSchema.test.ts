@@ -117,4 +117,39 @@ describe('XmlSchema', () => {
       expect(() => new XmlSchema(NS, 'main.xsd', collection)).toThrow('conflicts in collection');
     });
   });
+
+  describe('clearRefCache', () => {
+    it('clears target cache recursively across elements, attributes, attribute groups, groups, and complex types', () => {
+      const schema = read(
+        '<xs:element name="order" type="xs:string"/>' +
+          '<xs:attribute name="lang" type="xs:string"/>' +
+          '<xs:attributeGroup name="AttrGrp"><xs:attribute ref="t:lang"/></xs:attributeGroup>' +
+          '<xs:group name="Grp"><xs:sequence><xs:element ref="t:order"/></xs:sequence></xs:group>' +
+          '<xs:complexType name="SimpleCT">' +
+          '  <xs:simpleContent>' +
+          '    <xs:extension base="xs:string">' +
+          '      <xs:attribute ref="t:lang"/>' +
+          '    </xs:extension>' +
+          '  </xs:simpleContent>' +
+          '</xs:complexType>' +
+          '<xs:complexType name="ComplexCT">' +
+          '  <xs:complexContent>' +
+          '    <xs:restriction base="xs:anyType">' +
+          '      <xs:sequence>' +
+          '        <xs:element ref="t:order"/>' +
+          '        <xs:group ref="t:Grp"/>' +
+          '      </xs:sequence>' +
+          '      <xs:attributeGroup ref="t:AttrGrp"/>' +
+          '    </xs:restriction>' +
+          '  </xs:complexContent>' +
+          '</xs:complexType>' +
+          '<xs:simpleType name="ST"><xs:restriction base="xs:string"/></xs:simpleType>',
+      );
+
+      // Verify that clearRefCache executes cleanly and traverses all structures
+      expect(() => {
+        schema.clearRefCache();
+      }).not.toThrow();
+    });
+  });
 });

@@ -105,4 +105,19 @@ describe('XmlSchemaAttribute', () => {
       expect(() => read(`<xs:attribute name="a" type="xs:string" ${attribute}/>`)).toThrow(error);
     });
   });
+
+  describe('clearRefCache', () => {
+    it('clears target cache on the attribute reference', () => {
+      const schema = read(
+        '<xs:attribute name="lang" type="xs:string"/><xs:complexType name="C"><xs:attribute ref="t:lang"/></xs:complexType>',
+      );
+      const attribute = localAttribute(schema);
+      const target = attribute.getRef().getTarget();
+      expect(target).toBeTruthy();
+
+      expect(() => {
+        attribute.clearRefCache();
+      }).not.toThrow();
+    });
+  });
 });

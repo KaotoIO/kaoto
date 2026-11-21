@@ -33,6 +33,7 @@ import {
   getSimpleTypeInheritanceXsd,
   getTestDocumentXsd,
 } from '../../../stubs/datamapper/data-mapper';
+import { QName } from '../../../xml-schema-ts/QName';
 import { DocumentUtilService } from '../document-util.service';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
@@ -261,24 +262,46 @@ describe('XmlSchemaDocumentService', () => {
     const aggregate = document.fields[0];
     expect(aggregate.fields).toHaveLength(0);
     expect(aggregate.namedTypeFragmentRefs).toHaveLength(1);
-    expect(aggregate.namedTypeFragmentRefs[0]).toBe('{http://camel.apache.org/schema/spring}aggregateDefinition');
+    expect(aggregate.namedTypeFragmentRefs[0]).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'camel-spring.xsd',
+        new QName('http://camel.apache.org/schema/spring', 'aggregateDefinition'),
+      ),
+    );
     const aggregateDef = document.namedTypeFragments[aggregate.namedTypeFragmentRefs[0]];
 
     // Many fields; fewer direct children now that xs:choice compositors are wrapped
     expect(aggregateDef.fields.length).toBeGreaterThanOrEqual(30);
 
-    const outputDef = document.namedTypeFragments['{http://camel.apache.org/schema/spring}output'];
+    const outputDef =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'camel-spring.xsd',
+          new QName('http://camel.apache.org/schema/spring', 'output'),
+        )
+      ];
     expect(outputDef).toBeDefined();
 
     expect(outputDef.fields.length).toBeGreaterThanOrEqual(2);
 
-    const processorDef = document.namedTypeFragments['{http://camel.apache.org/schema/spring}processorDefinition'];
+    const processorDef =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'camel-spring.xsd',
+          new QName('http://camel.apache.org/schema/spring', 'processorDefinition'),
+        )
+      ];
     expect(processorDef).toBeDefined();
 
     expect(processorDef.fields.length).toBeGreaterThanOrEqual(2);
 
     const optionalIdentifiedDef =
-      document.namedTypeFragments['{http://camel.apache.org/schema/spring}optionalIdentifiedDefinition'];
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'camel-spring.xsd',
+          new QName('http://camel.apache.org/schema/spring', 'optionalIdentifiedDefinition'),
+        )
+      ];
     expect(optionalIdentifiedDef).toBeDefined();
     expect(optionalIdentifiedDef.fields).toHaveLength(3);
   });
@@ -317,7 +340,12 @@ describe('XmlSchemaDocumentService', () => {
     expect(priceField.namedTypeFragmentRefs).toHaveLength(1);
 
     const priceTypeRef = priceField.namedTypeFragmentRefs[0];
-    expect(priceTypeRef).toBe('{http://www.example.com/SIMPLE}PriceType');
+    expect(priceTypeRef).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'extensionSimple.xsd',
+        new QName('http://www.example.com/SIMPLE', 'PriceType'),
+      ),
+    );
     const priceType = document.namedTypeFragments[priceTypeRef];
     expect(priceType.fields).toHaveLength(3);
     expect(priceType.fields[0].name).toBe('currency');
@@ -328,14 +356,25 @@ describe('XmlSchemaDocumentService', () => {
     expect(priceType.fields[2].isAttribute).toBeTruthy();
     expect(priceType.namedTypeFragmentRefs).toHaveLength(0);
 
-    const basePrice = document.namedTypeFragments['{http://www.example.com/SIMPLE}BasePrice'];
+    const basePrice =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'extensionSimple.xsd',
+          new QName('http://www.example.com/SIMPLE', 'BasePrice'),
+        )
+      ];
     expect(basePrice).toBeDefined();
     expect(basePrice.fields).toHaveLength(2);
     expect(basePrice.fields[0].name).toBe('currency');
     expect(basePrice.fields[0].namedTypeFragmentRefs).toHaveLength(1);
 
     const currencyTypeRef = basePrice.fields[0].namedTypeFragmentRefs[0];
-    expect(currencyTypeRef).toBe('{http://www.example.com/SIMPLE}CurrencyType');
+    expect(currencyTypeRef).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'extensionSimple.xsd',
+        new QName('http://www.example.com/SIMPLE', 'CurrencyType'),
+      ),
+    );
     const currencyType = document.namedTypeFragments[currencyTypeRef];
     expect(currencyType.type).toEqual(Types.Decimal);
 
@@ -365,13 +404,25 @@ describe('XmlSchemaDocumentService', () => {
     expect(request.fields[1].name).toBe('user'); // from BaseRequest
     expect(request.fields[2].name).toBe('name'); // from Request
 
-    const baseRequestFragment = document.namedTypeFragments['{http://www.example.com/TEST}BaseRequest'];
+    const baseRequestFragment =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'extensionComplex.xsd',
+          new QName('http://www.example.com/TEST', 'BaseRequest'),
+        )
+      ];
     expect(baseRequestFragment).toBeDefined();
     expect(baseRequestFragment.fields).toHaveLength(2);
     expect(baseRequestFragment.fields[0].name).toBe('timestamp'); // from Message
     expect(baseRequestFragment.fields[1].name).toBe('user'); // from BaseRequest
 
-    const messageFragment = document.namedTypeFragments['{http://www.example.com/TEST}Message'];
+    const messageFragment =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'extensionComplex.xsd',
+          new QName('http://www.example.com/TEST', 'Message'),
+        )
+      ];
     expect(messageFragment).toBeDefined();
     expect(messageFragment.fields).toHaveLength(1);
     expect(messageFragment.fields[0].name).toBe('timestamp');
@@ -400,7 +451,12 @@ describe('XmlSchemaDocumentService', () => {
     expect(route).toBeDefined();
 
     const baseTypeDef =
-      document.namedTypeFragments['{http://camel.apache.org/schema/spring}optionalIdentifiedDefinition'];
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'camel-spring.xsd',
+          new QName('http://camel.apache.org/schema/spring', 'optionalIdentifiedDefinition'),
+        )
+      ];
     expect(baseTypeDef).toBeDefined();
     expect(baseTypeDef.fields).toHaveLength(3);
   });
@@ -457,7 +513,12 @@ describe('XmlSchemaDocumentService', () => {
     const person = root.fields[0];
     expect(person.name).toBe('person');
     expect(person.namedTypeFragmentRefs).toHaveLength(1);
-    expect(person.namedTypeFragmentRefs[0]).toBe('{http://www.example.com/test}PersonType');
+    expect(person.namedTypeFragmentRefs[0]).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'schemaTest.xsd',
+        new QName('http://www.example.com/test', 'PersonType'),
+      ),
+    );
 
     const personType = document.namedTypeFragments[person.namedTypeFragmentRefs[0]];
     expect(personType).toBeDefined();
@@ -608,7 +669,12 @@ describe('XmlSchemaDocumentService', () => {
     expect(priceField.namedTypeFragmentRefs).toHaveLength(1);
 
     const euroPriceRef = priceField.namedTypeFragmentRefs[0];
-    expect(euroPriceRef).toBe('{http://www.example.com/RESTRICT}EuroPrice');
+    expect(euroPriceRef).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'restrictionSimple.xsd',
+        new QName('http://www.example.com/RESTRICT', 'EuroPrice'),
+      ),
+    );
     const euroPriceType = document.namedTypeFragments[euroPriceRef];
     expect(euroPriceType).toBeDefined();
     expect(euroPriceType.fields).toHaveLength(2);
@@ -621,7 +687,13 @@ describe('XmlSchemaDocumentService', () => {
 
     expect(euroPriceType.namedTypeFragmentRefs).toHaveLength(0);
 
-    const basePriceType = document.namedTypeFragments['{http://www.example.com/RESTRICT}BasePrice'];
+    const basePriceType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'restrictionSimple.xsd',
+          new QName('http://www.example.com/RESTRICT', 'BasePrice'),
+        )
+      ];
     expect(basePriceType).toBeDefined();
     expect(basePriceType.fields).toHaveLength(2);
     expect(basePriceType.fields[0].name).toBe('currency');
@@ -650,7 +722,12 @@ describe('XmlSchemaDocumentService', () => {
     expect(addressField.namedTypeFragmentRefs).toHaveLength(1);
 
     const simpleAddressRef = addressField.namedTypeFragmentRefs[0];
-    expect(simpleAddressRef).toBe('{http://www.example.com/RESTRICT}SimpleAddress');
+    expect(simpleAddressRef).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'restrictionComplex.xsd',
+        new QName('http://www.example.com/RESTRICT', 'SimpleAddress'),
+      ),
+    );
     const simpleAddressType = document.namedTypeFragments[simpleAddressRef];
     expect(simpleAddressType).toBeDefined();
     expect(simpleAddressType.fields).toHaveLength(6);
@@ -671,7 +748,13 @@ describe('XmlSchemaDocumentService', () => {
 
     expect(simpleAddressType.namedTypeFragmentRefs).toHaveLength(0);
 
-    const baseAddressType = document.namedTypeFragments['{http://www.example.com/RESTRICT}BaseAddress'];
+    const baseAddressType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'restrictionComplex.xsd',
+          new QName('http://www.example.com/RESTRICT', 'BaseAddress'),
+        )
+      ];
     expect(baseAddressType).toBeDefined();
     expect(baseAddressType.fields).toHaveLength(6);
     expect(baseAddressType.fields[0].name).toBe('id');
@@ -709,7 +792,12 @@ describe('XmlSchemaDocumentService', () => {
     expect(dataField.namedTypeFragmentRefs).toHaveLength(1);
 
     const restrictedTypeRef = dataField.namedTypeFragmentRefs[0];
-    expect(restrictedTypeRef).toBe('{http://www.example.com/INHERIT}RestrictedType');
+    expect(restrictedTypeRef).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'restrictionInheritance.xsd',
+        new QName('http://www.example.com/INHERIT', 'RestrictedType'),
+      ),
+    );
     const restrictedType = document.namedTypeFragments[restrictedTypeRef];
     expect(restrictedType).toBeDefined();
 
@@ -725,7 +813,13 @@ describe('XmlSchemaDocumentService', () => {
     expect(restrictedType.fields[4].name).toBe('optional');
     expect(restrictedType.fields[4].isAttribute).toBeFalsy();
 
-    const baseType = document.namedTypeFragments['{http://www.example.com/INHERIT}BaseType'];
+    const baseType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'restrictionInheritance.xsd',
+          new QName('http://www.example.com/INHERIT', 'BaseType'),
+        )
+      ];
     expect(baseType).toBeDefined();
     expect(baseType.fields).toHaveLength(5);
     expect(baseType.fields[0].name).toBe('version');
@@ -739,7 +833,13 @@ describe('XmlSchemaDocumentService', () => {
     expect(baseType.fields[4].name).toBe('optional');
     expect(baseType.fields[4].isAttribute).toBeFalsy();
 
-    const grandparentType = document.namedTypeFragments['{http://www.example.com/INHERIT}GrandparentType'];
+    const grandparentType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'restrictionInheritance.xsd',
+          new QName('http://www.example.com/INHERIT', 'GrandparentType'),
+        )
+      ];
     expect(grandparentType).toBeDefined();
     expect(grandparentType.fields).toHaveLength(2);
     expect(grandparentType.fields[0].name).toBe('version');
@@ -768,7 +868,12 @@ describe('XmlSchemaDocumentService', () => {
     expect(dataField.namedTypeFragmentRefs).toHaveLength(1);
 
     const childTypeRef = dataField.namedTypeFragmentRefs[0];
-    expect(childTypeRef).toBe('{http://www.example.com/MULTI}ChildType');
+    expect(childTypeRef).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'multiLevelExtension.xsd',
+        new QName('http://www.example.com/MULTI', 'ChildType'),
+      ),
+    );
     const childType = document.namedTypeFragments[childTypeRef];
     expect(childType).toBeDefined();
 
@@ -786,7 +891,13 @@ describe('XmlSchemaDocumentService', () => {
     expect(childType.fields[5].name).toBe('childField');
     expect(childType.fields[5].isAttribute).toBeFalsy();
 
-    const parentType = document.namedTypeFragments['{http://www.example.com/MULTI}ParentType'];
+    const parentType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'multiLevelExtension.xsd',
+          new QName('http://www.example.com/MULTI', 'ParentType'),
+        )
+      ];
     expect(parentType).toBeDefined();
     expect(parentType.fields).toHaveLength(4);
     expect(parentType.fields[0].name).toBe('grandparentAttr');
@@ -794,7 +905,13 @@ describe('XmlSchemaDocumentService', () => {
     expect(parentType.fields[2].name).toBe('grandparentField');
     expect(parentType.fields[3].name).toBe('parentField');
 
-    const grandparentType = document.namedTypeFragments['{http://www.example.com/MULTI}GrandparentType'];
+    const grandparentType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'multiLevelExtension.xsd',
+          new QName('http://www.example.com/MULTI', 'GrandparentType'),
+        )
+      ];
     expect(grandparentType).toBeDefined();
     expect(grandparentType.fields).toHaveLength(2);
     expect(grandparentType.fields[0].name).toBe('grandparentAttr');
@@ -821,7 +938,12 @@ describe('XmlSchemaDocumentService', () => {
     expect(dataField.namedTypeFragmentRefs).toHaveLength(1);
 
     const strictEuroPriceRef = dataField.namedTypeFragmentRefs[0];
-    expect(strictEuroPriceRef).toBe('{http://www.example.com/MULTIRESTRICT}StrictEuroPrice');
+    expect(strictEuroPriceRef).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'multiLevelRestriction.xsd',
+        new QName('http://www.example.com/MULTIRESTRICT', 'StrictEuroPrice'),
+      ),
+    );
     const strictEuroPriceType = document.namedTypeFragments[strictEuroPriceRef];
     expect(strictEuroPriceType).toBeDefined();
 
@@ -833,7 +955,13 @@ describe('XmlSchemaDocumentService', () => {
     expect(strictEuroPriceType.fields[1].isAttribute).toBeTruthy();
     expect(strictEuroPriceType.fields[1].defaultValue).toBe('true');
 
-    const euroPriceType = document.namedTypeFragments['{http://www.example.com/MULTIRESTRICT}EuroPrice'];
+    const euroPriceType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'multiLevelRestriction.xsd',
+          new QName('http://www.example.com/MULTIRESTRICT', 'EuroPrice'),
+        )
+      ];
     expect(euroPriceType).toBeDefined();
     expect(euroPriceType.fields).toHaveLength(2);
     expect(euroPriceType.fields[0].name).toBe('currency');
@@ -842,7 +970,13 @@ describe('XmlSchemaDocumentService', () => {
     expect(euroPriceType.fields[1].name).toBe('taxIncluded');
     expect(euroPriceType.fields[1].isAttribute).toBeTruthy();
 
-    const basePriceType = document.namedTypeFragments['{http://www.example.com/MULTIRESTRICT}BasePrice'];
+    const basePriceType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'multiLevelRestriction.xsd',
+          new QName('http://www.example.com/MULTIRESTRICT', 'BasePrice'),
+        )
+      ];
     expect(basePriceType).toBeDefined();
     expect(basePriceType.fields).toHaveLength(2);
     expect(basePriceType.fields[0].name).toBe('currency');
@@ -896,7 +1030,10 @@ describe('XmlSchemaDocumentService', () => {
     const document = result.document as XmlSchemaDocument;
     expect(document).toBeDefined();
 
-    const euroPriceRef = '{http://www.example.com/RESTRICT}EuroPrice';
+    const euroPriceRef = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+      'restrictionSimple.xsd',
+      new QName('http://www.example.com/RESTRICT', 'EuroPrice'),
+    );
     const euroPriceType = document.namedTypeFragments[euroPriceRef];
     expect(euroPriceType).toBeDefined();
 
@@ -962,7 +1099,12 @@ describe('XmlSchemaDocumentService', () => {
     expect(productField.name).toBe('Product');
 
     const extendedProductRef = productField.namedTypeFragmentRefs[0];
-    expect(extendedProductRef).toBe('{http://www.example.com/CONFLICT}ExtendedProduct');
+    expect(extendedProductRef).toBe(
+      XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'invalidComplexExtension.xsd',
+        new QName('http://www.example.com/CONFLICT', 'ExtendedProduct'),
+      ),
+    );
     const extendedProduct = document.namedTypeFragments[extendedProductRef];
     expect(extendedProduct).toBeDefined();
 
@@ -984,7 +1126,13 @@ describe('XmlSchemaDocumentService', () => {
     expect(fields[2].isAttribute).toBeFalsy();
     expect(fields[2].minOccurs).toBe(0);
 
-    const baseProduct = document.namedTypeFragments['{http://www.example.com/CONFLICT}BaseProduct'];
+    const baseProduct =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'invalidComplexExtension.xsd',
+          new QName('http://www.example.com/CONFLICT', 'BaseProduct'),
+        )
+      ];
     expect(baseProduct).toBeDefined();
     expect(baseProduct.fields).toHaveLength(2);
     expect(baseProduct.fields[0].name).toBe('name');
@@ -1010,13 +1158,28 @@ describe('XmlSchemaDocumentService', () => {
     const document = result.document as XmlSchemaDocument;
     expect(document).toBeDefined();
 
-    const baseStringType = document.namedTypeFragments['{http://www.example.com/SIMPLEINHERIT}BaseStringType'];
+    const baseStringType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'simpleTypeInheritance.xsd',
+          new QName('http://www.example.com/SIMPLEINHERIT', 'BaseStringType'),
+        )
+      ];
     expect(baseStringType).toBeDefined();
 
-    const derivedStringType = document.namedTypeFragments['{http://www.example.com/SIMPLEINHERIT}DerivedStringType'];
+    const derivedStringType =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'simpleTypeInheritance.xsd',
+          new QName('http://www.example.com/SIMPLEINHERIT', 'DerivedStringType'),
+        )
+      ];
     expect(derivedStringType).toBeDefined();
 
-    const extendedValueTypeRef = '{http://www.example.com/SIMPLEINHERIT}ExtendedValueType';
+    const extendedValueTypeRef = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+      'simpleTypeInheritance.xsd',
+      new QName('http://www.example.com/SIMPLEINHERIT', 'ExtendedValueType'),
+    );
     const extendedValueType = document.namedTypeFragments[extendedValueTypeRef];
     expect(extendedValueType).toBeDefined();
     expect(extendedValueType.fields).toHaveLength(2);
@@ -1025,7 +1188,10 @@ describe('XmlSchemaDocumentService', () => {
     expect(extendedValueType.fields[1].name).toBe('format');
     expect(extendedValueType.fields[1].isAttribute).toBeTruthy();
 
-    const restrictedValueTypeRef = '{http://www.example.com/SIMPLEINHERIT}RestrictedValueType';
+    const restrictedValueTypeRef = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+      'simpleTypeInheritance.xsd',
+      new QName('http://www.example.com/SIMPLEINHERIT', 'RestrictedValueType'),
+    );
     const restrictedValueType = document.namedTypeFragments[restrictedValueTypeRef];
     expect(restrictedValueType).toBeDefined();
     expect(restrictedValueType.fields).toHaveLength(1);
@@ -1274,7 +1440,13 @@ describe('XmlSchemaDocumentService', () => {
       expect(document.namedTypeFragments[XmlSchemaDocumentUtilService.buildElementFragmentKey('', name)]).toBeDefined();
     }
 
-    const bigContainerFragment = document.namedTypeFragments['BigContainer'];
+    const bigContainerFragment =
+      document.namedTypeFragments[
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+          'AnonymousGlobalElementRefLarge.xsd',
+          new QName('', 'BigContainer'),
+        )
+      ];
     expect(bigContainerFragment).toBeDefined();
     // BigContainer has xs:choice wrapping all TypeA elements
     const choiceWrapper = bigContainerFragment.fields.find((f) => f.wrapperKind === 'choice');
@@ -1414,7 +1586,10 @@ describe('XmlSchemaDocumentService', () => {
 
       // Check that the AddressType fragment has descriptions
       // QName.toString() format is {namespace}localPart
-      const addressTypeFragmentKey = '{http://www.example.com/annotated}AddressType';
+      const addressTypeFragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'AnnotatedFields.xsd',
+        new QName('http://www.example.com/annotated', 'AddressType'),
+      );
       const addressTypeFragment = document.namedTypeFragments[addressTypeFragmentKey];
       expect(addressTypeFragment).toBeDefined();
 
@@ -1495,7 +1670,10 @@ describe('XmlSchemaDocumentService', () => {
       expect(res1.validationStatus).toBe('success');
       const doc1 = res1.document as XmlSchemaDocument;
 
-      const orderFragmentKey = '{http://example.com/ns}OrderType';
+      const orderFragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'MainTypes.xsd',
+        new QName('http://example.com/ns', 'OrderType'),
+      );
       const fragment1 = doc1.namedTypeFragments[orderFragmentKey];
       expect(fragment1).toBeDefined();
       expect(fragment1.fields.map((f) => f.name)).toEqual(['ObjectId', 'OrderItem', 'Quantity', 'Price']);
@@ -1946,12 +2124,13 @@ describe('XmlSchemaDocumentService', () => {
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
       expect(result.validationStatus).toBe('success');
       expect(result.document).toBeDefined();
-      expect(result.document?.namedTypeFragments['{urn:ns-a}ChamType']).toBeDefined();
-      expect(result.document?.namedTypeFragments['{urn:ns-a}ChamType'].fields[0]?.name).toBe('Field');
+      const chamKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey('Cham.xsd', new QName('urn:ns-a', 'ChamType'));
+      expect(result.document?.namedTypeFragments[chamKey]).toBeDefined();
+      expect(result.document?.namedTypeFragments[chamKey].fields[0]?.name).toBe('Field');
       // RootA field should reference the urn:ns-a fragment
       const rootField = result.document?.fields[0];
       expect(rootField?.name).toBe('RootA');
-      expect(rootField?.namedTypeFragmentRefs).toContain('{urn:ns-a}ChamType');
+      expect(rootField?.namedTypeFragmentRefs).toContain(chamKey);
     });
 
     describe('stale rootElementChoice.entrySchemaFile', () => {
@@ -2028,6 +2207,85 @@ describe('XmlSchemaDocumentService', () => {
 
       expect(result.document?.fields[0].name).toBe('Root');
       expect(result.document?.fields[0].type).toBe(Types.String);
+    });
+
+    it('should resolve child element and group references in secondary schema fragments against the declaring schema', () => {
+      const entryXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/ns"
+           xmlns:tns="http://example.com/ns">
+  <xs:import namespace="http://example.com/ns" schemaLocation="Secondary.xsd"/>
+  <xs:simpleType name="CustomType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:group name="CommonGroup">
+    <xs:sequence>
+      <xs:element name="EntryGroupElem" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="item" type="tns:CustomType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>`;
+
+      const secondaryXsd = `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://example.com/ns"
+           xmlns:tns="http://example.com/ns">
+  <xs:simpleType name="CustomType">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  <xs:group name="CommonGroup">
+    <xs:sequence>
+      <xs:element name="SecondaryGroupElem" type="xs:boolean"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="SecondaryType">
+    <xs:sequence>
+      <xs:element name="scopedChild" type="tns:CustomType"/>
+      <xs:group ref="tns:CommonGroup"/>
+    </xs:sequence>
+    <xs:attribute name="scopedAttr" type="tns:CustomType"/>
+  </xs:complexType>
+</xs:schema>`;
+
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'doc',
+        { 'Entry.xsd': entryXsd, 'Secondary.xsd': secondaryXsd },
+        { namespaceUri: 'http://example.com/ns', name: 'Root' },
+        undefined,
+        undefined,
+        undefined,
+        'Entry.xsd',
+      );
+
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.document).toBeDefined();
+
+      const secondaryFragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
+        'Secondary.xsd',
+        new QName('http://example.com/ns', 'SecondaryType'),
+      );
+      const secondaryFragment = result.document!.namedTypeFragments[secondaryFragmentKey];
+      expect(secondaryFragment).toBeDefined();
+
+      const scopedChild = secondaryFragment.fields.find((f) => f.name === 'scopedChild');
+      expect(scopedChild).toBeDefined();
+      expect(scopedChild!.type).toBe(Types.Integer);
+
+      const scopedAttr = secondaryFragment.fields.find((f) => f.name === 'scopedAttr' && f.isAttribute);
+      expect(scopedAttr).toBeDefined();
+      expect(scopedAttr!.type).toBe(Types.Integer);
+
+      const groupElem = secondaryFragment.fields.find((f) => f.name === 'SecondaryGroupElem');
+      expect(groupElem).toBeDefined();
+      expect(groupElem!.type).toBe(Types.Boolean);
     });
   });
 });

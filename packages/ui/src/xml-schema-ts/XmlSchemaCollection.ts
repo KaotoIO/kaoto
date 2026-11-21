@@ -128,6 +128,12 @@ export class XmlSchemaCollection {
     return Array.from(this.schemas.values());
   }
 
+  clearRefCache(): void {
+    for (const schema of this.schemas.values()) {
+      schema.clearRefCache();
+    }
+  }
+
   getUserSchemas(): XmlSchema[] {
     const standardNamespaces = new Set(['http://www.w3.org/2001/XMLSchema', 'http://www.w3.org/XML/1998/namespace']);
 

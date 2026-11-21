@@ -22,6 +22,7 @@ import { ensureNamespaceRegistered } from '../../namespace-util';
 import { FieldOverrideService } from '../field-override.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 
 describe('XmlSchemaDocumentService / schema file management', () => {
   describe('addSchemaFiles', () => {
@@ -348,10 +349,16 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       const productTypeQName = new QName(NS, 'ProductType');
       expect(document.xmlSchemaCollection.getTypeByQName(productTypeQName)).toBeDefined();
 
-      const orderFragment = document.namedTypeFragments[orderTypeQName.toString()];
+      const orderFragment =
+        document.namedTypeFragments[
+          XmlSchemaDocumentUtilService.buildTypeFragmentKey('CircularIncludeA.xsd', orderTypeQName)
+        ];
       expect(orderFragment).toBeDefined();
       expect(orderFragment.fields.some((f) => f.name === 'product')).toBe(true);
-      const productFragment = document.namedTypeFragments[productTypeQName.toString()];
+      const productFragment =
+        document.namedTypeFragments[
+          XmlSchemaDocumentUtilService.buildTypeFragmentKey('CircularIncludeB.xsd', productTypeQName)
+        ];
       expect(productFragment).toBeDefined();
       expect(productFragment.fields.some((f) => f.name === 'productName')).toBe(true);
     });

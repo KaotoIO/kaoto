@@ -576,6 +576,64 @@ public void write(Writer writer, Map<String, String> options) {
     return null;
   }
 
+  clearRefCache(): void {
+    const visited = new Set<unknown>();
+    const clear = (obj: unknown) => {
+      if (!obj || typeof obj !== 'object' || visited.has(obj)) return;
+      visited.add(obj);
+      this.clearObjectRef(obj);
+      for (const child of this.getObjectChildren(obj)) {
+        clear(child);
+      }
+    };
+
+    const rootEntries = [
+      ...this.items,
+      ...this.elements.values(),
+      ...this.attributes.values(),
+      ...this.attributeGroups.values(),
+      ...this.groups.values(),
+      ...this.schemaTypes.values(),
+    ];
+    for (const entry of rootEntries) {
+      clear(entry);
+    }
+  }
+
+  private clearObjectRef(obj: object): void {
+    if ('clearRefCache' in obj && typeof (obj as { clearRefCache?: () => void }).clearRefCache === 'function') {
+      (obj as { clearRefCache: () => void }).clearRefCache();
+    }
+    if ('clearTarget' in obj && typeof (obj as { clearTarget?: () => void }).clearTarget === 'function') {
+      (obj as { clearTarget: () => void }).clearTarget();
+    }
+  }
+
+  private getObjectChildren(obj: object): unknown[] {
+    const children: unknown[] = [];
+    if ('getAttributes' in obj && typeof (obj as { getAttributes?: () => unknown[] }).getAttributes === 'function') {
+      const attrs = (obj as { getAttributes: () => unknown[] }).getAttributes();
+      if (Array.isArray(attrs)) children.push(...attrs);
+    }
+    if ('getParticle' in obj && typeof (obj as { getParticle?: () => unknown }).getParticle === 'function') {
+      children.push((obj as { getParticle: () => unknown }).getParticle());
+    }
+    if ('getItems' in obj && typeof (obj as { getItems?: () => unknown[] }).getItems === 'function') {
+      const items = (obj as { getItems: () => unknown[] }).getItems();
+      if (Array.isArray(items)) children.push(...items);
+    }
+    if (
+      'getContentModel' in obj &&
+      typeof (obj as { getContentModel?: () => unknown }).getContentModel === 'function'
+    ) {
+      children.push((obj as { getContentModel: () => unknown }).getContentModel());
+    }
+    if ('getContent' in obj && typeof (obj as { getContent?: () => unknown }).getContent === 'function') {
+      children.push((obj as { getContent: () => unknown }).getContent());
+    }
+    return children;
+  }
+
   /**
    * Get a schema from an import
    *

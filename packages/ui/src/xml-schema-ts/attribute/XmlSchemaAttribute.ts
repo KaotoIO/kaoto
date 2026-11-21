@@ -60,6 +60,10 @@ export class XmlSchemaAttribute
     return this.ref;
   }
 
+  clearRefCache(): void {
+    this.ref.clearTarget();
+  }
+
   getSchemaType() {
     return this.schemaType;
   }

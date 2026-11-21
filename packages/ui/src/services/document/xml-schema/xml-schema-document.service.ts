@@ -203,7 +203,7 @@ export class XmlSchemaDocumentService {
    */
   static loadSchemaFiles(
     collection: XmlSchemaCollection,
-    analysis: { loadOrder: string[]; edges: Array<{ directive: { type: string }; to: string; from: string }> },
+    analysis: { loadOrder: string[]; edges: DependencyEdge[] },
     definitionFiles: Record<string, string>,
     selectedEntry?: string,
   ): { error?: { message: string; filePath?: string } } {
@@ -233,10 +233,7 @@ export class XmlSchemaDocumentService {
    * direct loading so the SchemaBuilder can process the cycle via its built-in
    * `collection.check(key)` guard.
    */
-  private static computeIncludeTargetsToSkip(
-    loadOrder: string[],
-    edges: Array<{ directive: { type: string }; to: string; from: string }>,
-  ): Set<string> {
+  private static computeIncludeTargetsToSkip(loadOrder: string[], edges: DependencyEdge[]): Set<string> {
     const includeEdges = edges.filter((e) => e.directive.type === 'include');
     const includeTargets = new Set(includeEdges.map((e) => e.to));
     const adjacencyMap = XmlSchemaDocumentService.buildIncludeAdjacency(includeEdges);
@@ -528,6 +525,7 @@ export class XmlSchemaDocumentService {
    * @throws Error if the specified root element is not found in the schema collection
    */
   static updateRootElement(document: XmlSchemaDocument, rootElementOption: RootElementOption): XmlSchemaDocument {
+    document.xmlSchemaCollection.clearRefCache();
     const entrySchemaFile = rootElementOption.entrySchemaFile ?? document.definition.entrySchemaFile;
     const newRootQName = new QName(rootElementOption.namespaceUri, rootElementOption.name);
     const newRootElement = XmlSchemaDocumentUtilService.lookupSchemaElement(
@@ -563,15 +561,16 @@ export class XmlSchemaDocumentService {
     typeQName: QName,
     schemaType: XmlSchemaSimpleType,
   ) {
-    const typeFragmentName = typeQName.toString();
+    const sourceURI = schemaType.getParent()?.getSourceURI();
+    const scopedKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(sourceURI, typeQName);
 
-    if (document.namedTypeFragments[typeFragmentName]) {
+    if (document.namedTypeFragments[scopedKey]) {
       return;
     }
 
     const fields: XmlSchemaField[] = [];
     const typeFragment: XmlSchemaTypeFragment = { fields, namedTypeFragmentRefs: [] };
-    document.namedTypeFragments[typeFragmentName] = typeFragment;
+    document.namedTypeFragments[scopedKey] = typeFragment;
 
     const simpleContent = schemaType.getContent();
     simpleContent && XmlSchemaDocumentService.populateSimpleTypeContent(document, typeFragment, simpleContent);
@@ -582,15 +581,16 @@ export class XmlSchemaDocumentService {
     typeQName: QName,
     schemaType: XmlSchemaComplexType,
   ) {
-    const typeFragmentName = typeQName.toString();
+    const sourceURI = schemaType.getParent()?.getSourceURI();
+    const scopedKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(sourceURI, typeQName);
 
-    if (document.namedTypeFragments[typeFragmentName]) {
+    if (document.namedTypeFragments[scopedKey]) {
       return;
     }
 
     const fields: XmlSchemaField[] = [];
     const typeFragment: XmlSchemaTypeFragment = { type: Types.Container, fields, namedTypeFragmentRefs: [] };
-    document.namedTypeFragments[typeFragmentName] = typeFragment;
+    document.namedTypeFragments[scopedKey] = typeFragment;
 
     XmlSchemaDocumentService.populateContentModel(document, typeFragment, schemaType.getContentModel());
     const attributes = schemaType.getAttributes();
@@ -643,7 +643,7 @@ export class XmlSchemaDocumentService {
    * Prioritizes schemas in the reachable assembly of entrySchemaFile so that active type definitions take precedence
    * over unrelated attached schemas.
    *
-   * When two reachable schemas declare the same QName, the first registered wins.
+   * Type definitions are keyed by their scoped key (`${sourceURI}#${typeQName}`).
    *
    * @param document - The document whose schema collection will be traversed and whose namedTypeFragments will be populated.
    *   Its `dependencyEdges` are used when present, otherwise they are derived from `definitionFiles`.
@@ -732,7 +732,12 @@ export class XmlSchemaDocumentService {
 
     ownerDoc.totalFieldCount++;
 
-    const schemaType = resolvedElement.getSchemaType();
+    const schemaTypeName = resolvedElement.getSchemaTypeName();
+    const scopeFile = resolvedElement.getParent()?.getSourceURI() ?? ownerDoc.definition?.entrySchemaFile;
+    const schemaType = schemaTypeName
+      ? (XmlSchemaDocumentUtilService.lookupSchemaType(ownerDoc.xmlSchemaCollection, schemaTypeName, scopeFile) ??
+        resolvedElement.getSchemaType())
+      : resolvedElement.getSchemaType();
     if (refTarget !== null && schemaType instanceof XmlSchemaComplexType && !schemaType.getQName()) {
       XmlSchemaDocumentService.populateGlobalElementFragment(ownerDoc, resolvedElement, schemaType, field);
     } else {
@@ -801,10 +806,11 @@ export class XmlSchemaDocumentService {
   ) {
     if (!schemaType) return;
     if (schemaType instanceof XmlSchemaSimpleType) {
+      const scopeFile = schemaType.getParent()?.getSourceURI() ?? ownerDocument.definition?.entrySchemaFile;
       const newType = XmlSchemaTypesService.resolveSimpleTypeToEnum(
         schemaType,
         ownerDocument.xmlSchemaCollection,
-        ownerDocument.definition?.entrySchemaFile,
+        scopeFile,
       );
       if (!field.type || field.type === Types.AnyType) {
         field.type = newType;
@@ -827,8 +833,10 @@ export class XmlSchemaDocumentService {
       field.typeQName = typeQName;
       const namespace = typeQName.getNamespaceURI();
       if (!XmlSchemaDocumentUtilService.isStandardXmlNamespace(namespace)) {
-        if (!field.namedTypeFragmentRefs.includes(typeQName.toString())) {
-          field.namedTypeFragmentRefs.push(typeQName.toString());
+        const sourceURI = schemaType.getParent()?.getSourceURI();
+        const fragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(sourceURI, typeQName);
+        if (!field.namedTypeFragmentRefs.includes(fragmentKey)) {
+          field.namedTypeFragmentRefs.push(fragmentKey);
         }
       }
       return;
@@ -934,20 +942,13 @@ export class XmlSchemaDocumentService {
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
     const attrSchemaTypeQName = attr.getSchemaTypeName();
+    const scopeFile = attr.getParent()?.getSourceURI() ?? ownerDoc.definition?.entrySchemaFile;
     const attrSchemaType =
       attrSchemaTypeQName &&
-      XmlSchemaDocumentUtilService.lookupSchemaType(
-        ownerDoc.xmlSchemaCollection,
-        attrSchemaTypeQName,
-        ownerDoc.definition?.entrySchemaFile,
-      );
+      XmlSchemaDocumentUtilService.lookupSchemaType(ownerDoc.xmlSchemaCollection, attrSchemaTypeQName, scopeFile);
     field.type =
       attrSchemaType instanceof XmlSchemaSimpleType
-        ? XmlSchemaTypesService.resolveSimpleTypeToEnum(
-            attrSchemaType,
-            ownerDoc.xmlSchemaCollection,
-            ownerDoc.definition?.entrySchemaFile,
-          )
+        ? XmlSchemaTypesService.resolveSimpleTypeToEnum(attrSchemaType, ownerDoc.xmlSchemaCollection, scopeFile)
         : XmlSchemaDocumentUtilService.getFieldTypeFromName(
             attrSchemaTypeQName?.getLocalPart() || null,
             attrSchemaTypeQName?.getNamespaceURI() || null,
@@ -960,8 +961,12 @@ export class XmlSchemaDocumentService {
     if (attrSchemaTypeQName) {
       field.typeQName = attrSchemaTypeQName;
     }
-    if (attrSchemaType) {
-      field.namedTypeFragmentRefs.push(attrSchemaTypeQName.toString());
+    if (attrSchemaType && attrSchemaTypeQName) {
+      const sourceURI = attrSchemaType.getParent()?.getSourceURI();
+      const fragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(sourceURI, attrSchemaTypeQName);
+      if (!field.namedTypeFragmentRefs.includes(fragmentKey)) {
+        field.namedTypeFragmentRefs.push(fragmentKey);
+      }
     }
 
     const use = attr.getUse();
@@ -1192,11 +1197,9 @@ export class XmlSchemaDocumentService {
     visitedGroupRefs.add(key);
 
     const doc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
-    const group = XmlSchemaDocumentUtilService.lookupSchemaGroup(
-      doc.xmlSchemaCollection,
-      groupRefQName,
-      doc.definition?.entrySchemaFile,
-    );
+    const scopeFile =
+      groupRef.getParent()?.getSourceURI() ?? groupRef.getSourceURI() ?? doc.definition?.entrySchemaFile;
+    const group = XmlSchemaDocumentUtilService.lookupSchemaGroup(doc.xmlSchemaCollection, groupRefQName, scopeFile);
     if (group) {
       XmlSchemaDocumentService.populateGroup(parent, fields, group, visitedGroupRefs);
     }

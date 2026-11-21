@@ -490,4 +490,66 @@ ${elements}
       expect(nsErrors.some((e) => e.message.includes('xs:import'))).toBe(true);
     });
   });
+
+  describe('xs:redefine and xs:override directive parsing', () => {
+    it('should parse xs:redefine and create redefine DependencyEdge', () => {
+      const files = {
+        'impl.xsd': `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:redefine schemaLocation="base.xsd">
+    <xs:complexType name="AddressType">
+      <xs:complexContent>
+        <xs:extension base="AddressType"/>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:redefine>
+</xs:schema>`,
+        'base.xsd': makeSchema(),
+      };
+
+      const result = XmlSchemaAnalysisService.analyze(files);
+      expect(result.errors).toHaveLength(0);
+      expect(result.edges).toHaveLength(1);
+      expect(result.edges[0]).toEqual({
+        from: 'impl.xsd',
+        to: 'base.xsd',
+        directive: {
+          type: 'redefine',
+          schemaLocation: 'base.xsd',
+          namespace: null,
+        },
+      });
+      const implIndex = result.loadOrder.indexOf('impl.xsd');
+      const baseIndex = result.loadOrder.indexOf('base.xsd');
+      expect(baseIndex).toBeLessThan(implIndex);
+    });
+
+    it('should parse xs:override and create override DependencyEdge', () => {
+      const files = {
+        'impl.xsd': `<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:override schemaLocation="base.xsd">
+    <xs:complexType name="AddressType"/>
+  </xs:override>
+</xs:schema>`,
+        'base.xsd': makeSchema(),
+      };
+
+      const result = XmlSchemaAnalysisService.analyze(files);
+      expect(result.errors).toHaveLength(0);
+      expect(result.edges).toHaveLength(1);
+      expect(result.edges[0]).toEqual({
+        from: 'impl.xsd',
+        to: 'base.xsd',
+        directive: {
+          type: 'override',
+          schemaLocation: 'base.xsd',
+          namespace: null,
+        },
+      });
+      const implIndex = result.loadOrder.indexOf('impl.xsd');
+      const baseIndex = result.loadOrder.indexOf('base.xsd');
+      expect(baseIndex).toBeLessThan(implIndex);
+    });
+  });
 });
