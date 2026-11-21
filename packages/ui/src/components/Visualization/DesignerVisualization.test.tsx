@@ -1,13 +1,17 @@
 import { isNode, Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
-import { render, screen, waitFor } from '@testing-library/react';
-import type { ReactElement } from 'react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { type ReactElement, useContext } from 'react';
 import type { MockInstance } from 'vitest';
 
 import { CamelRouteResource } from '../../models/camel';
 import { IVisualizationNode } from '../../models/visualization/base-visual-entity';
 import { CamelRouteVisualEntity } from '../../models/visualization/flows';
 import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-visibility';
+import { EntitiesContext, EntitiesProvider } from '../../providers/entities.provider';
 import { KaotoResourceContext, ResourceParseState } from '../../providers/kaoto-resource.provider';
+import { VisibleFlowsProvider } from '../../providers/visible-flows.provider';
+import { useSourceCodeStore } from '../../store';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../stubs';
 import { camelRouteJson } from '../../stubs/camel-route';
 import { COLLAPSE_STATE } from './Canvas/collapse-handler-state';
@@ -288,6 +292,141 @@ describe('DesignerVisualization', () => {
 
       expect(await screen.findByTestId('broken-file-empty-state')).toBeInTheDocument();
       expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('switching between the empty and the populated view', () => {
+    /** Renders the designer like the Design page does, with the real entities and visible flows providers */
+    async function renderDesigner(camelResource: CamelRouteResource) {
+      // jsdom has no viewport dimensions; keep the real node renderers mounted
+      controller.setRenderConstraint(false);
+      const RuntimeProvider = TestRuntimeProviderWrapper().Provider;
+      const kaotoResourceContext = { kaotoResource: camelResource, parseState: ResourceParseState.Valid };
+      const DesignView = () => <DesignerVisualization entities={useContext(EntitiesContext)!.visualEntities} />;
+
+      const result = render(
+        <RuntimeProvider>
+          <KaotoResourceContext.Provider value={kaotoResourceContext}>
+            <EntitiesProvider>
+              <VisibleFlowsProvider>
+                <VisualizationProvider controller={controller}>
+                  <DesignView />
+                </VisualizationProvider>
+              </VisibleFlowsProvider>
+            </EntitiesProvider>
+          </KaotoResourceContext.Provider>
+        </RuntimeProvider>,
+      );
+      // Let the entities provider finish initializing the resource, so the rendered view is settled
+      await act(() => new Promise((resolve) => setTimeout(resolve)));
+
+      const getCanvas = () => result.container.querySelector<HTMLElement>('#canvas-main');
+      // user.click() cannot be used on the graph: the d3 pan/drag handlers fail on mousedown in jsdom
+      const hideAllRoutes = async () => {
+        fireEvent.contextMenu(result.container.querySelector('[data-kind="graph"] > rect')!);
+        fireEvent.click(await screen.findByRole('menuitem', { name: 'Hide all' }));
+      };
+
+      return { ...result, getCanvas, hideAllRoutes };
+    }
+
+    it('keeps the canvas menu reachable after hiding all routes', async () => {
+      const user = userEvent.setup();
+      const { container, getCanvas } = await renderDesigner(
+        new CamelRouteResource([{ route: { id: 'route-1', from: { uri: 'timer:one', steps: [] } } }]),
+      );
+      await waitFor(() => {
+        expect(container.querySelector('[data-kind="node"]')).toBeInTheDocument();
+      });
+      await user.tab();
+      expect(getCanvas()).toHaveFocus();
+
+      await user.keyboard('{Shift>}{F10}{/Shift}');
+      let menu = await screen.findByRole('menu', { name: 'Canvas actions' });
+      await waitFor(() => {
+        expect(within(menu).getByRole('menuitem', { name: 'Show all' })).toHaveFocus();
+      });
+      await user.keyboard('{ArrowDown}');
+      expect(within(menu).getByRole('menuitem', { name: 'Hide all' })).toHaveFocus();
+      await user.keyboard('{Enter}');
+
+      expect(await screen.findByTestId('visualization-empty-state')).toBeInTheDocument();
+      expect(menu).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(getCanvas()).toHaveFocus();
+      });
+
+      await user.keyboard('{Shift>}{F10}{/Shift}');
+      menu = await screen.findByRole('menu', { name: 'Canvas actions' });
+      await waitFor(() => {
+        expect(within(menu).getByRole('menuitem', { name: 'Show all' })).toHaveFocus();
+      });
+      await user.keyboard('{Enter}');
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-kind="node"]')).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId('visualization-empty-state')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(getCanvas()).toHaveFocus();
+      });
+    });
+
+    it('opens the canvas menu on right-click, also on the empty canvas', async () => {
+      const { container } = await renderDesigner(new CamelRouteResource([]));
+      expect(screen.getByTestId('visualization-empty-state')).toBeInTheDocument();
+
+      fireEvent.contextMenu(container.querySelector('[data-kind="graph"] > rect')!);
+
+      const menu = await screen.findByRole('menu', { name: 'Canvas actions' });
+      expect(within(menu).getByRole('menuitem', { name: 'Show all' })).toBeInTheDocument();
+    });
+
+    it('focuses the canvas after creating the first route from the empty state', async () => {
+      const user = userEvent.setup();
+      const { container, getCanvas } = await renderDesigner(new CamelRouteResource([]));
+
+      await user.click(screen.getByTestId('dsl-list-btn'));
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-kind="node"]')).toBeInTheDocument();
+      });
+      await waitFor(() => {
+        expect(getCanvas()).toHaveFocus();
+      });
+    });
+
+    it('focuses the canvas after changing the integration type from the empty state', async () => {
+      onTestFinished(() => {
+        useSourceCodeStore.setState({ sourceCode: '', path: '' });
+      });
+      const user = userEvent.setup();
+      const { getCanvas } = await renderDesigner(new CamelRouteResource([]));
+
+      await user.click(screen.getByTestId('viz-dsl-list-dropdown'));
+      await user.click(screen.getByText('Pipe'));
+      await user.click(await screen.findByTestId('confirmation-modal-confirm'));
+
+      await waitFor(() => {
+        expect(getCanvas()).toHaveFocus();
+      });
+    });
+
+    it('focuses the canvas after showing all routes from the empty state', async () => {
+      const user = userEvent.setup();
+      const { container, getCanvas, hideAllRoutes } = await renderDesigner(
+        new CamelRouteResource([{ route: { id: 'route-1', from: { uri: 'timer:one', steps: [] } } }]),
+      );
+      await waitFor(() => {
+        expect(container.querySelector('[data-kind="node"]')).toBeInTheDocument();
+      });
+      await hideAllRoutes();
+
+      await user.click(await screen.findByTestId('show-all-routes-button'));
+
+      await waitFor(() => {
+        expect(getCanvas()).toHaveFocus();
+      });
     });
   });
 });

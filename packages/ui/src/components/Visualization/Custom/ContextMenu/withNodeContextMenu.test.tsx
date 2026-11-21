@@ -6,6 +6,7 @@ import type { Mock } from 'vitest';
 
 import { TopologyElementWrapper } from '../../../../stubs/topology-element-wrapper';
 import { ControllerService } from '../../Canvas/controller.service';
+import { CanvasContextSubMenuItem } from './CanvasContextSubMenuItem';
 import { withNodeContextMenu } from './withNodeContextMenu';
 
 describe('withNodeContextMenu', () => {
@@ -149,6 +150,195 @@ describe('withNodeContextMenu', () => {
 
     expect(screen.queryByTestId('item-a')).not.toBeInTheDocument();
     expect(target).toHaveAttribute('data-menu-open', 'false');
+  });
+
+  it('focuses the first enabled action and skips disabled ones with the arrow keys, Home and End', async () => {
+    const createDisabledItem = (id: string, label: string) => (
+      <ContextMenuItem key={id} data-testid={id} isDisabled>
+        {label}
+      </ContextMenuItem>
+    );
+    const actions = vi
+      .fn()
+      .mockReturnValue([
+        createDisabledItem('disabled-first', 'Disabled first'),
+        itemA,
+        createDisabledItem('disabled-middle', 'Disabled middle'),
+        itemB,
+        createDisabledItem('disabled-last', 'Disabled last'),
+      ]);
+    const { target } = renderWithMenu(actions);
+    const user = userEvent.setup();
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    await settle();
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    const itemAButton = within(menu).getByRole('menuitem', { name: 'Item A' });
+    const itemBButton = within(menu).getByRole('menuitem', { name: 'Item B' });
+    expect(itemAButton).toHaveFocus();
+
+    await user.keyboard('{ArrowDown}');
+    expect(itemBButton).toHaveFocus();
+    await user.keyboard('{ArrowUp}');
+    expect(itemAButton).toHaveFocus();
+    await user.keyboard('{End}');
+    expect(itemBButton).toHaveFocus();
+    await user.keyboard('{Home}');
+    expect(itemAButton).toHaveFocus();
+  });
+
+  it('moves to the first and last action on Home and End pressed outside of the menu list', async () => {
+    const actions = vi.fn().mockReturnValue([itemA, itemB]);
+    const { target } = renderWithMenu(actions);
+
+    fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+    await settle();
+    const menu = screen.getByRole('menu', { name: 'Context menu' });
+    const wrapper = menu.parentElement!;
+    expect(wrapper.closest('[role="menu"]')).toBeNull();
+
+    fireEvent.keyDown(wrapper, { key: 'End' });
+    expect(within(menu).getByRole('menuitem', { name: 'Item B' })).toHaveFocus();
+    fireEvent.keyDown(wrapper, { key: 'Home' });
+    expect(within(menu).getByRole('menuitem', { name: 'Item A' })).toHaveFocus();
+  });
+
+  it('names the menu with the given label', async () => {
+    const actions = vi.fn().mockReturnValue([itemA]);
+    const controller = ControllerService.createController();
+    controller.fromModel({ graph: { id: 'g1', type: 'graph' }, nodes: [{ id: 'node-1', type: 'node' }] }, false);
+    const WithMenu = withNodeContextMenu(actions, { label: 'Route actions' })(Target);
+    render(
+      <TopologyElementWrapper controller={controller} element={controller.getNodeById('node-1')!}>
+        <WithMenu />
+      </TopologyElementWrapper>,
+    );
+
+    fireEvent.contextMenu(screen.getByTestId('target'), { clientX: 10, clientY: 20 });
+    await screen.findByTestId('item-a');
+
+    expect(screen.getByRole('menu', { name: 'Route actions' })).toBeInTheDocument();
+  });
+
+  it('does not move the focus once a menu that was asked to close from a submenu is gone', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      const actions = vi.fn().mockReturnValue([
+        <CanvasContextSubMenuItem key="sub" label="Sub" data-testid="sub">
+          {itemA}
+        </CanvasContextSubMenuItem>,
+      ]);
+      const { element, target } = renderWithMenu(actions);
+      act(() => {
+        element.setData({ vizNode: { id: 'previous' } });
+        target.focus();
+      });
+      fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+      await settle();
+      const sub = within(screen.getByRole('menu', { name: 'Context menu' })).getByRole('menuitem', { name: 'Sub' });
+      expect(sub).toHaveFocus();
+      fireEvent.keyDown(sub, { key: 'ArrowRight' });
+      expect(within(screen.getByRole('menu', { name: 'Sub' })).getByRole('menuitem')).toHaveFocus();
+
+      /* A click outside while the focus is in the submenu defers the close to a timer */
+      fireEvent.mouseDown(document.body);
+      act(() => {
+        element.setData({ vizNode: { id: 'next' } });
+      });
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      const elsewhere = document.createElement('button');
+      document.body.appendChild(elsewhere);
+      elsewhere.focus();
+
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(elsewhere).toHaveFocus();
+      elsewhere.remove();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  describe('with the focus in a submenu', () => {
+    const subMenuActions = () =>
+      vi.fn().mockReturnValue([
+        <CanvasContextSubMenuItem key="sub" label="Sub" data-testid="sub">
+          {itemA}
+        </CanvasContextSubMenuItem>,
+      ]);
+
+    /** Opens the menu from the focused target and moves the focus into the submenu with ArrowRight */
+    const openSubMenuWithKeyboard = async (target: HTMLElement) => {
+      act(() => {
+        target.focus();
+      });
+      fireEvent.contextMenu(target, { clientX: 10, clientY: 20 });
+      await settle();
+      const entry = within(screen.getByRole('menu', { name: 'Context menu' })).getByRole('menuitem', { name: 'Sub' });
+      fireEvent.keyDown(entry, { key: 'ArrowRight' });
+      expect(within(screen.getByRole('menu', { name: 'Sub' })).getByRole('menuitem')).toHaveFocus();
+      return entry;
+    };
+
+    beforeEach(() => {
+      vi.useFakeTimers({ shouldAdvanceTime: true });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('focuses the submenu entry again when the pointer leaves the entry and its submenu', async () => {
+      const { target } = renderWithMenu(subMenuActions());
+      const entry = await openSubMenuWithKeyboard(target);
+      const subMenuItem = within(screen.getByRole('menu', { name: 'Sub' })).getByRole('menuitem');
+
+      // The pointer moves from the submenu onto the step; user-event would move it without a related target
+      fireEvent.mouseLeave(subMenuItem, { relatedTarget: target });
+
+      expect(screen.queryByRole('menu', { name: 'Sub' })).not.toBeInTheDocument();
+      expect(screen.getByRole('menu', { name: 'Context menu' })).toBeInTheDocument();
+      expect(entry).toHaveFocus();
+    });
+
+    it('leaves the focus on a control outside the menu that a click focused', async () => {
+      const { target } = renderWithMenu(subMenuActions());
+      await openSubMenuWithKeyboard(target);
+      const outside = document.createElement('button');
+      document.body.appendChild(outside);
+
+      try {
+        /* The browser focuses the clicked control after the mousedown listeners, before the deferred close runs */
+        fireEvent.mouseDown(outside);
+        outside.focus();
+        await act(async () => {
+          await vi.runAllTimersAsync();
+        });
+
+        expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+        expect(target).toHaveAttribute('data-menu-open', 'false');
+        expect(outside).toHaveFocus();
+      } finally {
+        outside.remove();
+      }
+    });
+
+    it('returns the focus to where it was on a click outside that focuses nothing', async () => {
+      const { target } = renderWithMenu(subMenuActions());
+      await openSubMenuWithKeyboard(target);
+
+      fireEvent.mouseDown(document.body);
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+      expect(target).toHaveFocus();
+    });
   });
 
   describe('keyboard navigation', () => {

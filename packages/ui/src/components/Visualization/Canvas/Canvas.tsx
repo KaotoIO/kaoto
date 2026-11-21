@@ -57,6 +57,14 @@ interface CanvasProps {
   blocked?: boolean;
 }
 
+/** The background rectangle of the graph, which takes the right-clicks for the canvas menu */
+export const GRAPH_BACKGROUND = '[data-kind="graph"] > rect';
+/** The visible area of the graph, without the toolbars and the side panel */
+export const GRAPH_CONTENT = '.pf-topology-content';
+/** The PatternFly element that holds the graph */
+const GRAPH_SURFACE = '[data-test-id="topology"]';
+const STALE_GRAPH_INPUT_EVENTS = ['mousedown', 'pointerdown', 'click', 'dblclick', 'contextmenu', 'keydown'] as const;
+
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
 
 interface CanvasState {
@@ -145,6 +153,24 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   const selectedVizNode = useSelectedVizNode(selectedIds);
   // While a model resolves, the canvas still shows the previous one, where the selected step's path may name another step
   useDeleteHotkey(isModelResolving || blocked ? undefined : selectedVizNode, clearSelection);
+
+  /**
+   * While the model resolves, the previous graph stays mounted, so the focus stays on its step. Its nodes still act
+   * on the previous model, so mouse and keyboard input on them is dropped until the new graph is drawn.
+   */
+  useEffect(() => {
+    if (!isModelResolving) return;
+    const surface = document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)?.querySelector(GRAPH_SURFACE);
+    if (!surface) return;
+
+    const dropInput = (event: Event) => {
+      event.stopPropagation();
+    };
+    for (const type of STALE_GRAPH_INPUT_EVENTS) surface.addEventListener(type, dropInput, true);
+    return () => {
+      for (const type of STALE_GRAPH_INPUT_EVENTS) surface.removeEventListener(type, dropInput, true);
+    };
+  }, [isModelResolving]);
 
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {
@@ -264,7 +290,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
     (event: React.MouseEvent) => {
       // Only the graph's own background rectangle counts, not rects inside nodes, groups or toolbars
       const target = event.target;
-      if (target instanceof SVGElement && target.matches('[data-kind="graph"] > rect')) {
+      if (target instanceof SVGElement && target.matches(GRAPH_BACKGROUND)) {
         clearSelection();
       }
     },
@@ -282,6 +308,21 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       // Escape inside the overlay or outside the canvas DOM tree (e.g. portaled dropdowns/modals) belongs to its own controls
       if (event.key === 'Escape' && event.currentTarget.contains(target) && !overlayRef.current?.contains(target)) {
         clearSelection();
+      } else if (
+        ((event.key === 'F10' && event.shiftKey) || event.key === 'ContextMenu') &&
+        event.target === event.currentTarget
+      ) {
+        // Open the background menu like a right-click would, near the top-left corner of the visible graph
+        const content = event.currentTarget.querySelector(GRAPH_CONTENT);
+        const background = event.currentTarget.querySelector(GRAPH_BACKGROUND);
+        if (!content || !background) return;
+
+        event.preventDefault();
+        const { left, top } = content.getBoundingClientRect();
+        const inset = CanvasDefaults.KEYBOARD_MENU_INSET;
+        background.dispatchEvent(
+          new MouseEvent('contextmenu', { bubbles: true, clientX: left + inset, clientY: top + inset }),
+        );
       }
     },
     [clearSelection],
@@ -328,6 +369,8 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label="Route canvas"
+      aria-busy={isModelResolving}
+      aria-describedby={isGraphEmpty && !isModelResolving && !blocked ? CanvasDefaults.EMPTY_STATE_TITLE_ID : undefined}
     >
       <CanvasOverlayContext.Provider
         value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}

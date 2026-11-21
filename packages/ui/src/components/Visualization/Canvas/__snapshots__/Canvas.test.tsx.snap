@@ -3,6 +3,7 @@
 exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContext\` is NOT provided 1`] = `
 <DocumentFragment>
   <div
+    aria-busy="false"
     aria-label="Route canvas"
     class="pf-v6-l-stack"
     id="canvas-main"
@@ -1088,6 +1089,7 @@ exports[`Canvas > Catalog button > should NOT be present if \`CatalogModalContex
 exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` is provided 1`] = `
 <DocumentFragment>
   <div
+    aria-busy="false"
     aria-label="Route canvas"
     class="pf-v6-l-stack"
     id="canvas-main"
@@ -2222,6 +2224,7 @@ exports[`Canvas > Catalog button > should be present if \`CatalogModalContext\` 
 exports[`Canvas > should render correctly 1`] = `
 <DocumentFragment>
   <div
+    aria-busy="false"
     aria-label="Route canvas"
     class="pf-v6-l-stack"
     id="canvas-main"

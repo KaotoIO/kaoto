@@ -1,11 +1,13 @@
 import { Add, View, ViewOff } from '@carbon/icons-react';
 import { Divider } from '@patternfly/react-core';
-import { ContextSubMenuItem, ElementContext, GraphComponent, withContextMenu } from '@patternfly/react-topology';
+import { ElementContext, GraphComponent } from '@patternfly/react-topology';
 import { createContext, FunctionComponent, PropsWithChildren, ReactElement, useContext, useMemo } from 'react';
 
 import { IDataTestID } from '../../../../models';
 import { CanvasToolbarProvider } from '../../../../providers/canvas-toolbar.provider';
 import { CanvasToolbar } from '../../Canvas/CanvasToolbar/CanvasToolbar';
+import { CanvasContextSubMenuItem } from '../ContextMenu/CanvasContextSubMenuItem';
+import { withNodeContextMenu } from '../ContextMenu/withNodeContextMenu';
 import { withCustomPanZoom } from './customUsePanZoom';
 import { ItemPasteEntity } from './ItemPasteEntity';
 import { ShowOrHideAllFlows } from './ShowOrHideAllFlows';
@@ -34,8 +36,8 @@ export const GraphContextMenuFn = ({
 
   if (entities.length > 0) {
     items.push(
-      <Divider key="new-entity-divider" />,
-      <ContextSubMenuItem
+      <Divider key="new-entity-divider" component="li" />,
+      <CanvasContextSubMenuItem
         key="new-entity"
         data-testid="context-menu-item-new-entity"
         label={
@@ -46,7 +48,7 @@ export const GraphContextMenuFn = ({
         }
       >
         {entities}
-      </ContextSubMenuItem>,
+      </CanvasContextSubMenuItem>,
     );
   }
 
@@ -60,7 +62,9 @@ const GraphContextMenu: FunctionComponent = () => {
   const options = useContext(GraphMenuContext);
   return <>{GraphContextMenuFn(options)}</>;
 };
-const EnhancedGraphComponent = withContextMenu(() => [<GraphContextMenu key="graph-menu" />])(PanZoomGraphComponent);
+const EnhancedGraphComponent = withNodeContextMenu(() => [<GraphContextMenu key="graph-menu" />], {
+  label: 'Canvas actions',
+})(PanZoomGraphComponent);
 
 const BaseCustomGraph: FunctionComponent<WithEntityContextMenuProps> = ({ entityContextMenuFn, ...rest }) => {
   const element = useContext(ElementContext);

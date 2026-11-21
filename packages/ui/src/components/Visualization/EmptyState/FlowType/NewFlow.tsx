@@ -4,6 +4,7 @@ import { FunctionComponent, PropsWithChildren, useCallback, useContext, useState
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
 import { ISourceSchema, sourceSchemaConfig, SourceSchemaType } from '../../../../models/camel';
 import { VisibleFlowsContext } from '../../../../providers/visible-flows.provider';
+import { focusCanvasAfterRender } from '../../Canvas/canvas-focus';
 import { ConfirmIntegrationTypeChangeModal } from '../../ConfirmIntegrationTypeChangeModal/ConfirmIntegrationTypeChangeModal';
 import { FlowTypeSelector } from './FlowTypeSelector';
 
@@ -56,6 +57,8 @@ export const NewFlow: FunctionComponent<PropsWithChildren> = () => {
         proposedFlowType={proposedFlowType}
         onClose={() => {
           setProposedFlowType(undefined);
+          // The option the modal was opened from is gone; without anything else to return to, focus the canvas
+          focusCanvasAfterRender();
         }}
       />
     </>
