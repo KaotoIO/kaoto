@@ -15,15 +15,15 @@
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.version>3.38.2</quarkus.platform.version>
-        <camel.version>4.10.3</camel.version>
+        <camel.version>4.23.0</camel.version>
         <!-- Camel used by the camel-cli-connector e2e fixtures (-Pcamel-snapshot): needs the WebSocket transport.
              Separate from camel.version so the bridge modules keep their own Camel line. -->
-        <connector-it.camel.version>4.23.0-SNAPSHOT</connector-it.camel.version>
+        <connector-it.camel.version>4.23.0</connector-it.camel.version>
         <!-- Camel of the file transport e2e (FileTransportE2EIT, -Pfile-transport): a release, e.g. 4.18.4 or 4.22.1 -->
-        <file-it.camel.version>4.22.1</file-it.camel.version>
+        <file-it.camel.version>4.23.0</file-it.camel.version>
         <!-- ContextServicePlugin exists from Camel 4.15; the adapter module compiles against the first LTS that has it.
              Fixed on purpose: it must NOT follow camel.version. -->
-        <camel.plugin-api.version>4.18.4</camel.plugin-api.version>
+        <camel.plugin-api.version>4.23.0</camel.plugin-api.version>
         <jackson.version>2.23.0</jackson.version>
         <!-- Spring Boot line matching camel-spring-boot ${camel.version}; overridden by the camel-4.x profiles -->
         <spring-boot.version>3.4.13</spring-boot.version>

@@ -20,7 +20,7 @@
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-bom</artifactId>
-                <version>4.13.0</version>
+                <version>4.23.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -94,7 +94,7 @@
             <plugin>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-maven-plugin</artifactId>
-                <version>4.13.0</version>
+                <version>4.23.0</version>
                 <configuration>
                     <mainClass>org.example.project.mycamelmainroute.CamelApplication</mainClass>
                 </configuration>
