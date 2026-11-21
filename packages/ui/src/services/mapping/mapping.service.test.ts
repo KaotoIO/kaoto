@@ -1497,6 +1497,21 @@ describe('MappingService', () => {
       expect(variable.expression).toBe('newExpr');
       expect(variable.rawElement).toBeUndefined();
     });
+
+    it('should drop the select of rawElement and keep its other attributes when the expression is cleared', () => {
+      const parent = tree.children[0];
+      const variable = MappingService.addVariable(parent, 'globalTax', '0.08');
+      variable.rawElement = new DOMParser().parseFromString(
+        '<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="globalTax" select="0.08" as="xs:decimal"/>',
+        'text/xml',
+      ).documentElement;
+
+      MappingService.updateVariable(variable, 'globalTax', '');
+
+      expect(variable.expression).toBe('');
+      expect(variable.rawElement?.hasAttribute('select')).toBe(false);
+      expect(variable.rawElement?.getAttribute('as')).toBe('xs:decimal');
+    });
   });
 
   describe('findOutputParent()', () => {

@@ -90,7 +90,8 @@ export const VariableRow: FunctionComponent<VariableRowProps> = ({
   );
 
   const handleExpressionUpdate = useCallback(() => {
-    const isStructural = !!(variable.rawElement && variable.expression);
+    // The preserved XSLT element has to follow the expression, also when it is cleared
+    const isStructural = variable.rawElement !== undefined;
     if (isStructural) {
       MappingService.updateVariable(variable, variable.name, variable.expression);
     }

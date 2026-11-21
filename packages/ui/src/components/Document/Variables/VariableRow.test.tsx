@@ -142,6 +142,20 @@ describe('VariableRow', () => {
 
       expect(variable.rawElement).toBeUndefined();
     });
+
+    it('removes the expression from the preserved XSLT of a variable when the expression is cleared', () => {
+      const variable = MappingService.addVariable(mappingTree, 'globalTax', '0.08', 'stylesheet');
+      variable.rawElement = new DOMParser().parseFromString(
+        '<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="globalTax" select="0.08" as="xs:decimal"/>',
+        'application/xml',
+      ).documentElement;
+      renderRow(variable);
+
+      fireEvent.change(screen.getByTestId('transformation-xpath-input'), { target: { value: '' } });
+
+      expect(variable.expression).toBe('');
+      expect(variable.rawElement?.hasAttribute('select')).toBe(false);
+    });
   });
 
   describe('rename', () => {

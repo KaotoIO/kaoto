@@ -1298,6 +1298,7 @@ export class MappingService {
         variable.rawElement = undefined;
       } else {
         variable.rawElement.setAttribute('name', name);
+        variable.rawElement.removeAttribute('select');
       }
     }
   }
