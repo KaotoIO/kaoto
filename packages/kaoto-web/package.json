@@ -74,7 +74,7 @@
     "eslint-plugin-simple-import-sort": "^14.0.0",
     "eslint-plugin-testing-library": "^7.16.2",
     "fake-indexeddb": "^6.2.7",
-    "globals": "^15.9.0",
+    "globals": "^17.0.0",
     "msw": "^3.0.0",
     "postcss": "^8.4.45",
     "prettier": "^3.0.0",

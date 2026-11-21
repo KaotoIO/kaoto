@@ -3421,7 +3421,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.5.6"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^7.1.1"
-    globals: "npm:^15.9.0"
+    globals: "npm:^17.0.0"
     jsdom: "npm:^25.0.0"
     lodash: "npm:^4.17.21"
     prettier: "npm:^3.0.0"
@@ -3546,7 +3546,7 @@ __metadata:
     eslint-plugin-simple-import-sort: "npm:^14.0.0"
     eslint-plugin-testing-library: "npm:^7.16.2"
     fake-indexeddb: "npm:^6.2.7"
-    globals: "npm:^15.9.0"
+    globals: "npm:^17.0.0"
     idb: "npm:^8.0.4"
     msw: "npm:^3.0.0"
     postcss: "npm:^8.4.45"
@@ -3625,7 +3625,7 @@ __metadata:
     eslint-plugin-react-refresh: "npm:^0.5.7"
     eslint-plugin-simple-import-sort: "npm:^14.0.0"
     eslint-plugin-testing-library: "npm:^7.16.2"
-    globals: "npm:^15.9.0"
+    globals: "npm:^17.0.0"
     hotkeys-js: "npm:^3.13.15"
     html-to-image: "npm:1.11.13"
     jsdom: "npm:^25.0.0"
@@ -14471,13 +14471,6 @@ __metadata:
   version: 14.0.0
   resolution: "globals@npm:14.0.0"
   checksum: 10/03939c8af95c6df5014b137cac83aa909090c3a3985caef06ee9a5a669790877af8698ab38007e4c0186873adc14c0b13764acc754b16a754c216cc56aa5f021
-  languageName: node
-  linkType: hard
-
-"globals@npm:^15.9.0":
-  version: 15.15.0
-  resolution: "globals@npm:15.15.0"
-  checksum: 10/7f561c87b2fd381b27fc2db7df8a4ea7a9bb378667b8a7193e61fd2ca3a876479174e2a303a74345fbea6e1242e16db48915c1fd3bf35adcf4060a795b425e18
   languageName: node
   linkType: hard
 
