@@ -7399,9 +7399,9 @@ __metadata:
   linkType: hard
 
 "@types/vscode@npm:^1.100.0":
-  version: 1.145.0
-  resolution: "@types/vscode@npm:1.145.0"
-  checksum: 10/c4a89f77e670f1022342a94b7dedfd4ff6fda7b8d3a2e028d6433bc317c78376323f77439704f4d4267672510222e773650da02680f958be80e06965e40f5a42
+  version: 1.146.0
+  resolution: "@types/vscode@npm:1.146.0"
+  checksum: 10/d5ab2093fe73809d17bc09d9ace40e4420fd1b4972ad98a23a405df6be179f4bcba7adca86b369425baf6653ad41c296d537551fcbba4e0835196b4ab4a395f7
   languageName: node
   linkType: hard
 
