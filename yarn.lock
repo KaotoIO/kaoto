@@ -3701,7 +3701,7 @@ __metadata:
     eslint-plugin-chai-friendly: "npm:^1.2.1"
     eslint-plugin-prettier: "npm:^5.5.6"
     fs-extra: "npm:^11.4.0"
-    mocha: "npm:^11.8.0"
+    mocha: "npm:^12.0.0"
     prettier: "npm:3.7.4"
     rimraf: "npm:^6.1.3"
     tsx: "npm:^4.23.15"
@@ -11901,6 +11901,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"diff@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "diff@npm:9.0.0"
+  checksum: 10/f8b5e38a6a7ec73d1850ccb7ff19cda1d02502dc0f2c562ada0f40d7211bfb3075c2f3742104619a1f8f47ae333d48a6c77bffb080a2df900db36935080ea4fb
+  languageName: node
+  linkType: hard
+
 "dir-glob@npm:^3.0.1":
   version: 3.0.1
   resolution: "dir-glob@npm:3.0.1"
@@ -13728,6 +13735,13 @@ __metadata:
     print-tests: bin/print-tests.js
     update-test-count: bin/update-test-count.js
   checksum: 10/da5545517d103a99bf37f9f45912880c172a95142e4d7c979dc521f167b33c57d7095aa1bd7fea03c6c7afb0ec05592752889ea5a4e5bc40a73ef794160e88e6
+  languageName: node
+  linkType: hard
+
+"find-up-simple@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "find-up-simple@npm:1.0.1"
+  checksum: 10/6e374bffda9f8425314eab47ef79752b6e77dcc95c0ad17d257aef48c32fe07bbc41bcafbd22941c25bb94fffaaaa8e178d928867d844c58100c7fe19ec82f72
   languageName: node
   linkType: hard
 
@@ -16280,7 +16294,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:^5.5.0":
+"js-yaml@npm:^5.0.0, js-yaml@npm:^5.5.0":
   version: 5.5.0
   resolution: "js-yaml@npm:5.5.0"
   dependencies:
@@ -18411,7 +18425,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mocha@npm:^11.7.6, mocha@npm:^11.8.0":
+"mocha@npm:^11.7.6":
   version: 11.8.0
   resolution: "mocha@npm:11.8.0"
   dependencies:
@@ -18440,6 +18454,32 @@ __metadata:
     _mocha: bin/_mocha
     mocha: bin/mocha.js
   checksum: 10/4387620673d47c1249a5aac8d2becc6f54db004d96cf189cf4bd878e7333871228a9911dfd62fa0b71ef61a4b147a9032820c6401fcef77ec46ebcf17fc977c2
+  languageName: node
+  linkType: hard
+
+"mocha@npm:^12.0.0":
+  version: 12.0.3
+  resolution: "mocha@npm:12.0.3"
+  dependencies:
+    browser-stdout: "npm:^1.3.1"
+    chokidar: "npm:^5.0.0"
+    debug: "npm:^4.3.5"
+    diff: "npm:^9.0.0"
+    find-up-simple: "npm:^1.0.1"
+    glob: "npm:^13.0.0"
+    is-path-inside: "npm:^4.0.0"
+    is-unicode-supported: "npm:^0.1.0"
+    js-yaml: "npm:^5.0.0"
+    minimatch: "npm:^10.2.2"
+    ms: "npm:^2.1.3"
+    picocolors: "npm:^1.1.1"
+    serialize-javascript: "npm:^7.1.1"
+    strip-json-comments: "npm:^5.0.3"
+    supports-color: "npm:^8.1.1"
+    workerpool: "npm:^10.0.0"
+  bin:
+    mocha: bin/mocha.js
+  checksum: 10/96b447df798bf199a32826b088c27de8a4d45af5760407e30de7d5e3e58bf9713ca6eada94e91abddca300b0d4a1ca083df8b18a8c6dd328c1212aeaa2d481f9
   languageName: node
   linkType: hard
 
@@ -22092,6 +22132,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"serialize-javascript@npm:^7.1.1":
+  version: 7.1.4
+  resolution: "serialize-javascript@npm:7.1.4"
+  checksum: 10/d6f5963177cdf6c8684197bd996130c3296c77a5b1d49647f8e96b02d93b9f6fd15f2c4ff8bdc5890cb8c7f731b0c792e34ec512b72b4af2a459b1b6da3e40af
+  languageName: node
+  linkType: hard
+
 "set-cookie-parser@npm:^2.6.0":
   version: 2.7.2
   resolution: "set-cookie-parser@npm:2.7.2"
@@ -23127,6 +23174,13 @@ __metadata:
   version: 3.1.1
   resolution: "strip-json-comments@npm:3.1.1"
   checksum: 10/492f73e27268f9b1c122733f28ecb0e7e8d8a531a6662efbd08e22cccb3f9475e90a1b82cab06a392f6afae6d2de636f977e231296400d0ec5304ba70f166443
+  languageName: node
+  linkType: hard
+
+"strip-json-comments@npm:^5.0.3":
+  version: 5.1.0
+  resolution: "strip-json-comments@npm:5.1.0"
+  checksum: 10/a02e5f6ec015a34d9d177c68641ef68b7c7caa7fb516bc2443a488864cb8703dbb204e2e867d489d9080d9a937910c17110167469d280fe3cabaf031cac7e560
   languageName: node
   linkType: hard
 
@@ -25114,7 +25168,7 @@ __metadata:
     eslint-plugin-prettier: "npm:^5.5.6"
     eslint-plugin-simple-import-sort: "npm:^14.0.0"
     get-port-please: "npm:^3.2.0"
-    mocha: "npm:^11.8.0"
+    mocha: "npm:^12.0.0"
     os-browserify: "npm:^0.3.0"
     ovsx: "npm:^1.2.0"
     path-browserify: "npm:^1.0.1"
@@ -25595,6 +25649,13 @@ __metadata:
   version: 1.0.0
   resolution: "wordwrap@npm:1.0.0"
   checksum: 10/497d40beb2bdb08e6d38754faa17ce20b0bf1306327f80cb777927edb23f461ee1f6bc659b3c3c93f26b08e1cf4b46acc5bae8fda1f0be3b5ab9a1a0211034cd
+  languageName: node
+  linkType: hard
+
+"workerpool@npm:^10.0.0":
+  version: 10.0.3
+  resolution: "workerpool@npm:10.0.3"
+  checksum: 10/72e7e2f2685eabc0f6333098c05e0ae9c933b339db5caee4f082b8347a751cdecf3b231e5926bbb1bae2ec1818b5ddb2f78b26e4ba477519a3ca71c72c2b39b4
   languageName: node
   linkType: hard
 
