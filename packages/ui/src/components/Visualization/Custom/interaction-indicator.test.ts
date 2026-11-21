@@ -1,4 +1,9 @@
-import { getNodeIndicatorBounds, getPlaceholderIndicatorBounds, INDICATOR_CLEARANCE } from './interaction-indicator';
+import {
+  getGroupIndicatorBounds,
+  getNodeIndicatorBounds,
+  getPlaceholderIndicatorBounds,
+  INDICATOR_CLEARANCE,
+} from './interaction-indicator';
 
 describe('interaction-indicator', () => {
   const box = { width: 90, height: 75 };
@@ -42,5 +47,16 @@ describe('interaction-indicator', () => {
     expect(bounds.y + bounds.height).toBe(tile.bottom + INDICATOR_CLEARANCE);
     expect(bounds.y - strokeOutset).toBeGreaterThanOrEqual(1);
     expect(bounds.y + bounds.height + strokeOutset).toBeLessThanOrEqual(placeholderBox.height - 1);
+  });
+
+  it('grows the group body by the clearance on every side', () => {
+    const body = { x: 40, y: 60, width: 200, height: 100 };
+
+    expect(getGroupIndicatorBounds(body)).toEqual({
+      x: body.x - INDICATOR_CLEARANCE,
+      y: body.y - INDICATOR_CLEARANCE,
+      width: body.width + 2 * INDICATOR_CLEARANCE,
+      height: body.height + 2 * INDICATOR_CLEARANCE,
+    });
   });
 });

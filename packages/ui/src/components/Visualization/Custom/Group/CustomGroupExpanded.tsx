@@ -25,7 +25,7 @@ import {
   useDragNode,
 } from '@patternfly/react-topology';
 import clsx from 'clsx';
-import { FunctionComponent, useCallback, useContext, useMemo, useRef } from 'react';
+import { FunctionComponent, useCallback, useContext, useId, useMemo, useRef } from 'react';
 
 import { CatalogModalContext } from '../../../../dynamic-catalog/catalog-modal.provider';
 import { useEntityContext } from '../../../../hooks/useEntityContext/useEntityContext';
@@ -47,6 +47,7 @@ import {
 } from '../customComponentUtils';
 import { FloatingCircle } from '../FloatingCircle/FloatingCircle';
 import { useNodeValidationText } from '../hooks/use-node-validation-text.hook';
+import { getGroupIndicatorBounds, INDICATOR_RADIUS } from '../interaction-indicator';
 import { CustomNodeContainer } from '../Node/CustomNodeContainer';
 import {
   checkNodeDropCompatibility,
@@ -57,10 +58,14 @@ import {
 import { TargetAnchor } from '../target-anchor';
 import { CustomGroupProps } from './Group.models';
 
-// The 3px stroke is centered 2px outside the group, matching the former HTML outline.
-const FOCUS_RING_OFFSET = 3.5;
-// Keep shadows inside a clipped foreignObject so WebKit repaints their old bounds.
+// Spare room around the body inside the clipped foreignObject so WebKit repaints its old bounds when it moves.
 const GROUP_PAINT_PADDING = 24;
+/** How far the warning badge sticks out of the top left corner of the body */
+const WARNING_BADGE_OFFSET = 7;
+/** Size of the round warning badge */
+const WARNING_BADGE_SIZE = 25;
+/** Margin of the mask around the indicator, wider than the indicator stroke */
+const INDICATOR_MASK_MARGIN = 4;
 
 interface CustomGroupExpandedInnerProps extends CustomGroupProps {
   vizNode: IVisualizationNode;
@@ -189,6 +194,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
       draggedVizNode?.getId() === groupVizNode.getId() &&
       isDefined(draggedVizNodePath) &&
       (groupVizNode.data.path?.startsWith(draggedVizNodePath + '.') ?? false);
+    const isDragged = isDraggingGroup || refreshGroup;
 
     const dropDirection: 'forward' | 'backward' | null =
       dndDropProps.droppable && dndDropProps.canDrop && draggedVizNode
@@ -196,7 +202,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
         : null;
 
     const mainContainerClassNames = {
-      [`custom-group__container__draggedGroup`]: isDraggingGroup || refreshGroup,
+      [`custom-group__container__draggedGroup`]: isDragged,
       ...getDropTargetContainerClassNames('custom-group__container', dropDirection, dndDropProps.hover),
     };
 
@@ -204,6 +210,21 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
     if (!dndDropProps.droppable || !boxRef.current) {
       boxRef.current = box;
     }
+
+    const indicatorBounds = getGroupIndicatorBounds(boxRef.current);
+    const badgeX = boxRef.current.x - WARNING_BADGE_OFFSET;
+    const badgeY = boxRef.current.y - WARNING_BADGE_OFFSET;
+    // The dimmed badge lets the indicator below show through, so the indicator leaves out the badge while dragging
+    const maskBadge = isDragged && doesHaveWarnings;
+    const reactId = useId();
+    const badgeMaskId = `custom-group-badge-mask-${reactId.replace(/[^\w-]/g, '')}`;
+    // Room for the indicator stroke, which is centred on the edge of the indicator
+    const maskBounds = {
+      x: indicatorBounds.x - INDICATOR_MASK_MARGIN,
+      y: indicatorBounds.y - INDICATOR_MASK_MARGIN,
+      width: indicatorBounds.width + 2 * INDICATOR_MASK_MARGIN,
+      height: indicatorBounds.height + 2 * INDICATOR_MASK_MARGIN,
+    };
 
     const toolbar = useCanvasToolbarTarget(
       element,
@@ -226,6 +247,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           data-disabled={isDisabled}
           data-toolbar-open={toolbar.isOpen}
           data-warnings={doesHaveWarnings}
+          data-dragging={isDragged}
           tabIndex={selected ? 0 : -1}
           role="button"
           aria-label={label ?? groupVizNode.id}
@@ -234,15 +256,26 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           onKeyDown={handleKeyDown}
           onContextMenu={onContextMenu}
         >
-          <CanvasNodeOverlays overlays={overlays} bounds={boxRef.current} />
+          {/* Hover, selection and focus are drawn in SVG behind the body, so the body keeps its look */}
+          {maskBadge && (
+            <mask id={badgeMaskId} maskUnits="userSpaceOnUse" {...maskBounds}>
+              <rect fill="white" {...maskBounds} />
+              <circle
+                fill="black"
+                cx={badgeX + WARNING_BADGE_SIZE / 2}
+                cy={badgeY + WARNING_BADGE_SIZE / 2}
+                r={WARNING_BADGE_SIZE / 2}
+              />
+            </mask>
+          )}
           <rect
-            className="custom-group__focus-ring"
+            className="custom-group__indicator"
             aria-hidden="true"
-            x={boxRef.current.x - FOCUS_RING_OFFSET}
-            y={boxRef.current.y - FOCUS_RING_OFFSET}
-            width={boxRef.current.width + 2 * FOCUS_RING_OFFSET}
-            height={boxRef.current.height + 2 * FOCUS_RING_OFFSET}
+            rx={INDICATOR_RADIUS}
+            mask={maskBadge ? `url(#${badgeMaskId})` : undefined}
+            {...indicatorBounds}
           />
+          <CanvasNodeOverlays overlays={overlays} bounds={boxRef.current} />
           <rect
             ref={dndDropRef}
             className="custom-group__drop-area"
@@ -256,7 +289,7 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
           />
           {/** This node appears when nothing is dragging and acts as the dummy node when container is dragged*/}
           {/** WebKit can omit foreignObject backgrounds with direct opacity; composite its SVG wrapper instead. */}
-          <g opacity={isDraggingGroup || refreshGroup ? 0.5 : undefined}>
+          <g opacity={isDragged ? 0.5 : undefined}>
             <foreignObject
               className="custom-group__body"
               data-nodelabel={label}
@@ -304,6 +337,22 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                 </div>
               </div>
             </foreignObject>
+            {/* Inside the dimmed wrapper, so the badge fades with the body while the group is dragged */}
+            {doesHaveWarnings && (
+              <foreignObject
+                className="custom-group__warning-icon--floating"
+                x={badgeX}
+                y={badgeY}
+                width={WARNING_BADGE_SIZE}
+                height={WARNING_BADGE_SIZE}
+              >
+                <FloatingCircle>
+                  <WarningFilled className="custom-group__warning-icon">
+                    {validationText && <title>{validationText}</title>}
+                  </WarningFilled>
+                </FloatingCircle>
+              </foreignObject>
+            )}
           </g>
 
           {/** This is the dragged node which is being moved */}
@@ -329,22 +378,6 @@ export const CustomGroupExpandedInner: FunctionComponent<CustomGroupExpandedInne
                 isDragging
               />
             </Layer>
-          )}
-
-          {doesHaveWarnings && !isDisabled && (
-            <foreignObject
-              className="custom-group__warning-icon--floating"
-              x={boxRef.current.x - 7}
-              y={boxRef.current.y - 7}
-              width={25}
-              height={25}
-            >
-              <FloatingCircle>
-                <WarningFilled className="custom-group__warning-icon">
-                  {validationText && <title>{validationText}</title>}
-                </WarningFilled>
-              </FloatingCircle>
-            </foreignObject>
           )}
         </g>
       </Layer>

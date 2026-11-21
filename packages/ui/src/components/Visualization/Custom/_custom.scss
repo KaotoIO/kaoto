@@ -86,6 +86,11 @@
     }
   }
 
+  // The dragged source is dimmed: keep only the outline so the tint does not show through the tile and badges.
+  &[data-dragging='true'] > #{$indicator} {
+    fill: none;
+  }
+
   @media (forced-colors: active) {
     &:hover > #{$indicator},
     &[data-toolbar-open='true'] > #{$indicator} {
@@ -104,10 +109,6 @@
       }
     }
   }
-}
-
-@mixin selected {
-  border: 2px solid var(--custom-node-BorderColor);
 }
 
 @mixin disabled {
