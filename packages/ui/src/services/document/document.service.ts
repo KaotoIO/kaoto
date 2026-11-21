@@ -589,8 +589,8 @@ export class DocumentService {
    * are transparent compositors (not XML elements): when one repeats, the fields nested inside it
    * repeat with it across instances. A real element is opaque and stops the walk — a scalar under a
    * repeating element is not itself a collection (that repeat is handled at the element's own mapping
-   * level). This is the single source of truth for both {@link isFieldInsideCollectionChoiceWrapper}
-   * (does it repeat at all?) and the popover's effective-maxOccurs display (what is the repeat count?).
+   * level). It backs {@link isFieldInsideCollectionChoiceWrapper} and so the schema-level
+   * {@link isCollectionField}.
    *
    * An abstract wrapper also stops this walk, so it never sees a repeating compositor or abstract wrapper
    * above one. {@link getOutermostRepeatingWrapper} is the walk that passes through every wrapper kind

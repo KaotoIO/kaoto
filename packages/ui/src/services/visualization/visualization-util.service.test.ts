@@ -9,8 +9,6 @@ import {
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
-  MappingNodeData,
-  NodeData,
   SequenceFieldNodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
@@ -22,9 +20,16 @@ import {
   descendantRow,
   documentRows,
   findField,
+  forEachRow,
+  NOTIFICATION,
+  NS_CHOICE_ABSTRACT,
+  NS_POC,
+  NS_SUBSTITUTION,
   parseXsdDocument,
+  repeatingChoiceOf,
   rowNamed,
   rowWhere,
+  selectFirstChoiceMember,
 } from '../../stubs/datamapper/cardinality-test-helpers';
 import {
   getChoiceRepeatingAbstractCatXslt,
@@ -40,15 +45,8 @@ import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
-import { ChoiceFieldService } from './choice-field.service';
 import { MappingActionService } from './mapping-action.service';
 import { VisualizationUtilService } from './visualization-util.service';
-
-const NS_POC = 'io.kaoto.datamapper.poc.test';
-const NS_P = 'urn:p';
-const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
-const NS_CHOICE_ABSTRACT = 'http://www.example.com/CHOICE_ABSTRACT';
-const NOTIFICATION = { namespaceUri: NS_CHOICE_ABSTRACT, name: 'Notification' };
 
 function createMockField(baseField: IField, overrides: Partial<IField> = {}): IField {
   return { ...baseField, ...overrides };
@@ -249,28 +247,9 @@ describe('VisualizationUtilService', () => {
     const abstractDoc = (documentType: DocumentType) =>
       parseXsdDocument(documentType, 'ChoiceRepeatingAbstract.xsd', getChoiceRepeatingAbstractXsd());
 
-    const repeatingChoiceOf = (parent: IField): IField => {
-      const choice = parent.fields.find((field) => field.wrapperKind === 'choice' && field.maxOccurs === 'unbounded');
-      if (!choice) throw new Error(`No repeating choice under ${parent.name}`);
-      return choice;
-    };
-
-    const forEachRow = (parent: NodeData): NodeData =>
-      rowWhere(parent, (row) => row instanceof MappingNodeData && row.mapping instanceof ForEachItem, 'for-each');
-
     describe('a repeating member of a non-repeating choice', () => {
-      const selectItem = (xsdName: string, xsd: string) => {
-        const doc = parseXsdDocument(DocumentType.TARGET_BODY, xsdName, xsd);
-        const tree = createTargetTree(doc, { ns0: NS_P });
-        const rootRow = documentRows(doc, tree)[0];
-        const choiceRow = rowWhere(rootRow, (row) => row instanceof TargetChoiceFieldNodeData, 'for the choice');
-        const choice = findField(doc, '__choice__');
-        ChoiceFieldService.dispatchChoiceSelection(choiceRow, choice, { memberIndex: 0 }, tree.namespaceMap, true);
-        return { doc, tree };
-      };
-
       it('should read the selected member as a collection', () => {
-        const { doc, tree } = selectItem('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
+        const { doc, tree } = selectFirstChoiceMember('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
         const itemRow = rowNamed(documentRows(doc, tree)[0], 'Item');
 
         expect(VisualizationUtilService.isCollectionField(itemRow)).toBe(true);
@@ -278,7 +257,7 @@ describe('VisualizationUtilService', () => {
       });
 
       it('should still read the member as a collection after "Wrap with for-each"', () => {
-        const { doc, tree } = selectItem('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
+        const { doc, tree } = selectFirstChoiceMember('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
         MappingActionService.applyForEach(rowNamed(documentRows(doc, tree)[0], 'Item') as TargetFieldNodeData);
 
         const wrappedItemRow = rowNamed(forEachRow(documentRows(doc, tree)[0]), 'Item');
@@ -287,7 +266,10 @@ describe('VisualizationUtilService', () => {
       });
 
       it('should not read a child of the selected member as a collection', () => {
-        const { doc, tree } = selectItem('ChoiceRepeatingContainerMember.xsd', getChoiceRepeatingContainerMemberXsd());
+        const { doc, tree } = selectFirstChoiceMember(
+          'ChoiceRepeatingContainerMember.xsd',
+          getChoiceRepeatingContainerMemberXsd(),
+        );
         const nameRow = rowNamed(rowNamed(documentRows(doc, tree)[0], 'Item'), 'Name');
 
         expect(VisualizationUtilService.isCollectionField(nameRow)).toBe(false);
