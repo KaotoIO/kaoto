@@ -1003,10 +1003,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@carbon-labs/vscode-snippets@npm:^0.2.0":
-  version: 0.2.0
-  resolution: "@carbon-labs/vscode-snippets@npm:0.2.0"
-  checksum: 10/c833c2ce62d53bd70ec0d96b9eb5a5c38231fd499c21115b5dd5e238285bac53b12893b2abf7739419708d9f49bef237e4cbc581b7a926f6dbd2768323e14ae4
+"@carbon-labs/vscode-snippets@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@carbon-labs/vscode-snippets@npm:0.5.0"
+  checksum: 10/8db4374334f14db1cc2946290a0877b3ffec68be65c435cf255622bfbf697fb40bcead93e64849a5b6e010f1ee386d063f80a636b9c93a68825d97b2be126911
   languageName: node
   linkType: hard
 
@@ -3507,7 +3507,7 @@ __metadata:
   dependencies:
     "@carbon-labs/react-theme-settings": "npm:^0.30.0"
     "@carbon-labs/utilities": "npm:^0.28.0"
-    "@carbon-labs/vscode-snippets": "npm:^0.2.0"
+    "@carbon-labs/vscode-snippets": "npm:^0.5.0"
     "@carbon/grid": "npm:^11.0.0"
     "@carbon/ibm-products": "npm:^2.74.0"
     "@carbon/icons-react": "npm:^11.89.0"
