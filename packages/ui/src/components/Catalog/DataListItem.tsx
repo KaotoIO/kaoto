@@ -55,7 +55,8 @@ export const CatalogDataListItem: FunctionComponent<ICatalogDataListItemProps> =
 
     return (
       <DataListItem
-        aria-labelledby={`${tileKey}-title`}
+        // PatternFly's DataListItem doesn't put `aria-labelledby` on the <li> (it only labels the selectable input with it)
+        aria-label={tile.title}
         id={tileKey}
         data-testid={'tile-' + tile.name}
         className="catalog-data-list-item pf-m-clickable"
