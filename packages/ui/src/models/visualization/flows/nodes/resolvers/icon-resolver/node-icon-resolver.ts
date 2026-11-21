@@ -66,6 +66,7 @@ import icon_component_azure_storage_blob from '../../../../../../assets/componen
 import icon_component_azure_datalake from '../../../../../../assets/components/azure-storage-datalake.svg';
 import icon_component_azure_storage_queue from '../../../../../../assets/components/azure-storage-queue.svg';
 import icon_component_bean_component from '../../../../../../assets/components/bean.svg';
+import icon_component_bot from '../../../../../../assets/components/bot.svg';
 import icon_component_box from '../../../../../../assets/components/box.svg';
 import icon_component_brain from '../../../../../../assets/components/brain.svg';
 import icon_component_braintree from '../../../../../../assets/components/braintree.svg';
@@ -196,6 +197,7 @@ import icon_component_template from '../../../../../../assets/components/templat
 import icon_component_tensorflow from '../../../../../../assets/components/tensorflow.svg';
 import icon_component_thymeleaf from '../../../../../../assets/components/thymeleaf.svg';
 import icon_component_timer from '../../../../../../assets/components/timer.svg';
+import icon_component_tools from '../../../../../../assets/components/tools.svg';
 import icon_component_twilio from '../../../../../../assets/components/twilio.svg';
 import icon_component_twitter from '../../../../../../assets/components/twitter.svg';
 import icon_component_velocity from '../../../../../../assets/components/velocity.png';
@@ -384,6 +386,7 @@ export class NodeIconResolver {
     Object.entries({
       activemq: icon_component_activemq,
       activemq6: icon_component_activemq,
+      'ai-tool': icon_component_tools,
       amqp: icon_component_amqp,
       arangodb: icon_component_arangodb,
       atom: icon_component_rss,
@@ -630,6 +633,7 @@ export class NodeIconResolver {
       oaipmh: icon_component_generic,
       olingo2: icon_component_odata,
       olingo4: icon_component_odata,
+      openai: icon_component_bot,
       opensearch: icon_component_opensearch,
       'openshift-build-configs': icon_component_openshift,
       'openshift-builds': icon_component_openshift,
