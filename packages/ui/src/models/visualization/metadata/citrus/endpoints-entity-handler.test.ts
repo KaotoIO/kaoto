@@ -61,8 +61,16 @@ describe('EndpointsEntityHandler', () => {
 
       const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
       expect(definedEndpoints).toHaveLength(2);
-      expect(definedEndpoints[0]).toEqual({ name: 'httpClient', type: 'http.client' });
-      expect(definedEndpoints[1]).toEqual({ name: 'jmsQueue', type: 'jms.asynchronous' });
+      expect(definedEndpoints[0]).toEqual({ name: 'httpClient', type: 'http.client', index: 0 });
+      expect(definedEndpoints[1]).toEqual({ name: 'jmsQueue', type: 'jms.asynchronous', index: 1 });
+    });
+
+    it('should keep the index of each defined endpoint in the list of all endpoints', () => {
+      testModel.endpoints = [{ name: 'withoutType' }, { http: { client: { name: 'httpClient' } } }];
+
+      const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
+
+      expect(definedEndpoints).toEqual([{ name: 'httpClient', type: 'http.client', index: 1 }]);
     });
 
     it('should get all endpoints including createEndpoint actions', () => {
@@ -281,7 +289,7 @@ describe('EndpointsEntityHandler', () => {
       ];
 
       const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
-      expect(definedEndpoints[0]).toEqual({ name: 'explicitEndpoint', type: 'custom.type' });
+      expect(definedEndpoints[0]).toEqual({ name: 'explicitEndpoint', type: 'custom.type', index: 0 });
     });
 
     it('should handle endpoints with empty type', () => {
@@ -293,7 +301,7 @@ describe('EndpointsEntityHandler', () => {
       ];
 
       const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
-      expect(definedEndpoints[0]).toEqual({ name: 'emptyTypeEndpoint', type: '' });
+      expect(definedEndpoints[0]).toEqual({ name: 'emptyTypeEndpoint', type: '', index: 0 });
     });
 
     it('should list a typed endpoint without a name with an empty name', () => {
@@ -301,7 +309,7 @@ describe('EndpointsEntityHandler', () => {
 
       const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
 
-      expect(definedEndpoints).toEqual([{ name: '', type: 'http' }]);
+      expect(definedEndpoints).toEqual([{ name: '', type: 'http', index: 0 }]);
     });
 
     it('should take the name from the endpoint root when it precedes the endpoint type', () => {
@@ -309,7 +317,7 @@ describe('EndpointsEntityHandler', () => {
 
       const definedEndpoints = endpointsHandler.getDefinedEndpointsNameAndType();
 
-      expect(definedEndpoints).toEqual([{ name: 'rootName', type: 'http.client' }]);
+      expect(definedEndpoints).toEqual([{ name: 'rootName', type: 'http.client', index: 0 }]);
     });
 
     it.each([

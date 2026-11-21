@@ -615,6 +615,38 @@ describe('EndpointListField', () => {
     });
   });
 
+  describe('with an endpoint that is not listed before a listed one', () => {
+    const unlistedEndpoint = { name: 'unlisted' };
+    const httpEndpoint = { http: { client: { name: 'httpClient', requestUrl: 'http://localhost:8080' } } };
+    const testModel = (): Test => ({
+      name: 'test',
+      actions: [],
+      endpoints: [{ ...unlistedEndpoint }, structuredClone(httpEndpoint)],
+    });
+
+    it('deletes the endpoint of the clicked row', async () => {
+      mockActionConfirmationModalContext.actionConfirmation.mockResolvedValue(ACTION_ID_CONFIRM);
+      const onPropertyChange = vi.fn();
+      const model = testModel();
+      await renderField({ endpoints: model.endpoints }, model, onPropertyChange);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Delete httpClient' }));
+
+      await waitFor(() => {
+        expect(onPropertyChange).toHaveBeenCalledWith(PROP_NAME, [unlistedEndpoint]);
+      });
+    });
+
+    it('edits the endpoint of the clicked row', async () => {
+      const model = testModel();
+      await renderField({ endpoints: model.endpoints }, model);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Edit httpClient' }));
+
+      expect(await screen.findByText('Update endpoint')).toBeInTheDocument();
+    });
+  });
+
   describe('endpoint types', () => {
     it('should display complex endpoint types correctly', async () => {
       const testModel: Test = {
