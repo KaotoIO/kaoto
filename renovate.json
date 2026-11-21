@@ -25,9 +25,9 @@
       "enabled": false
     },
     {
-      "description": "Match npmMinimalAgeGate in .yarnrc.yml: Yarn refuses npm versions younger than a week, so proposing them only yields branches without changes",
+      "description": "Wait two weeks before proposing an npm release, so broken or compromised releases are usually withdrawn by then. Yarn's npmMinimalAgeGate in .yarnrc.yml stays at one week: it also applies to security fixes and to packages added by hand, and must never be stricter than this, or Renovate would propose versions Yarn refuses",
       "matchDatasources": ["npm"],
-      "minimumReleaseAge": "7 days"
+      "minimumReleaseAge": "14 days"
     },
     {
       "description": "Match npmPreapprovedPackages in .yarnrc.yml, which Yarn exempts from the age gate",
