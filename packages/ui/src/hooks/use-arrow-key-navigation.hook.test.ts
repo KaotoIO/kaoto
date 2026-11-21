@@ -68,11 +68,14 @@ describe('useArrowKeyNavigation', () => {
       const handler = handlers[key.toLowerCase()] ?? handlers[key];
       handler?.(new KeyboardEvent('keydown', { key }), {
         key,
-        keys: [],
+        keyup: false,
+        keydown: true,
         method: handler,
         mods: [],
         scope: 'all',
         shortcut: key,
+        splitKey: '+',
+        element: document,
       });
     };
   }
