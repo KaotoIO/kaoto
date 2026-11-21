@@ -728,13 +728,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.23.2":
-  version: 7.28.2
-  resolution: "@babel/runtime@npm:7.28.2"
-  checksum: 10/a0965fbdd6aaa40709290923bbe05e1c4314021f0cef608eb1d69f04f717c41829e50a53d79c4a0f461512b4be9b3c0190dc19387b219bcdaacdd793b2fe1b8a
-  languageName: node
-  linkType: hard
-
 "@babel/runtime@npm:^8.0.0":
   version: 8.0.5
   resolution: "@babel/runtime@npm:8.0.5"
@@ -3593,7 +3586,7 @@ __metadata:
     "@patternfly/react-drag-drop": "npm:^6.7.0"
     "@patternfly/react-table": "npm:6.7.0"
     "@patternfly/react-topology": "npm:^6.7.0"
-    "@redux-devtools/extension": "npm:^3.3.0"
+    "@redux-devtools/extension": "npm:^4.0.0"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^7.0.0"
     "@testing-library/react": "npm:^16.3.2"
@@ -5513,15 +5506,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@redux-devtools/extension@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "@redux-devtools/extension@npm:3.3.0"
-  dependencies:
-    "@babel/runtime": "npm:^7.23.2"
-    immutable: "npm:^4.3.4"
+"@redux-devtools/extension@npm:^4.0.0":
+  version: 4.0.1
+  resolution: "@redux-devtools/extension@npm:4.0.1"
   peerDependencies:
     redux: ^3.1.0 || ^4.0.0 || ^5.0.0
-  checksum: 10/07c2bb6f786900f29509f1e414ae0af845cb276a471e1e0e961d3a6a7dc16485ffe620bf01a1e0a545181d550058d197525760bbddb2c172acac25ddbe9dbd0d
+  checksum: 10/5c182e60468a9cdfe624b9aedec7bfa907c7715ea5af425b8478bad41d3c3b8a4f28b8e4807c5d8d030b86d7fd1cf6fdc8f4eb498809928878ff0fa33c66fc56
   languageName: node
   linkType: hard
 
@@ -15195,13 +15185,6 @@ __metadata:
   version: 3.0.6
   resolution: "immediate@npm:3.0.6"
   checksum: 10/f9b3486477555997657f70318cc8d3416159f208bec4cca3ff3442fd266bc23f50f0c9bd8547e1371a6b5e82b821ec9a7044a4f7b944798b25aa3cc6d5e63e62
-  languageName: node
-  linkType: hard
-
-"immutable@npm:^4.3.4":
-  version: 4.3.7
-  resolution: "immutable@npm:4.3.7"
-  checksum: 10/37d963c5050f03ae5f3714ba7a43d469aa482051087f4c65d673d1501c309ea231d87480c792e19fa85e2eaf965f76af5d0aa92726505f3cfe4af91619dfb80b
   languageName: node
   linkType: hard
 
