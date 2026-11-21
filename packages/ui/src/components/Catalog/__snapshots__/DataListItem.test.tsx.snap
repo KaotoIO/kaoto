@@ -2,6 +2,7 @@
 
 exports[`DataListItem > renders correctly 1`] = `
 <li
+  aria-label="tile-title"
   class="pf-v6-c-data-list__item catalog-data-list-item pf-m-clickable"
   data-testid="tile-tile-name"
   id="tile-name-component"
