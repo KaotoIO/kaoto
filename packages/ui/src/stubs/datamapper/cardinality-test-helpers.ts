@@ -6,18 +6,27 @@ import {
   IField,
   RootElementOption,
 } from '../../models/datamapper/document';
-import { MappingTree } from '../../models/datamapper/mapping';
+import { ForEachItem, MappingTree } from '../../models/datamapper/mapping';
 import {
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
+  MappingNodeData,
   NodeData,
+  TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
 } from '../../models/datamapper/visualization';
 import { DocumentUtilService } from '../../services/document/document-util.service';
 import { XmlSchemaDocument } from '../../services/document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../../services/document/xml-schema/xml-schema-document.service';
+import { ChoiceFieldService } from '../../services/visualization/choice-field.service';
 import { VisualizationService } from '../../services/visualization/visualization.service';
+
+export const NS_POC = 'io.kaoto.datamapper.poc.test';
+const NS_P = 'urn:p';
+export const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
+export const NS_CHOICE_ABSTRACT = 'http://www.example.com/CHOICE_ABSTRACT';
+export const NOTIFICATION = { namespaceUri: NS_CHOICE_ABSTRACT, name: 'Notification' };
 
 export const parseXsdDocument = (
   documentType: DocumentType,
@@ -83,4 +92,38 @@ export const findField = (parent: IField | XmlSchemaDocument, name: string): IFi
     queue.push(...field.fields);
   }
   throw new Error(`No field named ${name}`);
+};
+
+export const repeatingChoiceOf = (parent: IField): IField => {
+  const choice = parent.fields.find((field) => field.wrapperKind === 'choice' && field.maxOccurs === 'unbounded');
+  if (!choice) throw new Error(`No repeating choice under ${parent.name}`);
+  return choice;
+};
+
+export const forEachRow = (parent: NodeData): NodeData =>
+  rowWhere(parent, (row) => row instanceof MappingNodeData && row.mapping instanceof ForEachItem, 'for-each');
+
+/**
+ * Parses a target schema whose root holds a non-repeating `xs:choice` and selects its first member, as the
+ * Field Context Menu does. Used with `ChoiceRepeatingMember.xsd` and `ChoiceRepeatingContainerMember.xsd`.
+ */
+export const selectFirstChoiceMember = (
+  xsdName: string,
+  xsd: string,
+): { doc: XmlSchemaDocument; tree: MappingTree } => {
+  const doc = parseXsdDocument(DocumentType.TARGET_BODY, xsdName, xsd);
+  const tree = createTargetTree(doc, { ns0: NS_P });
+  const choiceRow = rowWhere(
+    documentRows(doc, tree)[0],
+    (row) => row instanceof TargetChoiceFieldNodeData,
+    'for the choice',
+  );
+  ChoiceFieldService.dispatchChoiceSelection(
+    choiceRow,
+    findField(doc, '__choice__'),
+    { memberIndex: 0 },
+    tree.namespaceMap,
+    true,
+  );
+  return { doc, tree };
 };

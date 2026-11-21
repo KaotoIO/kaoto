@@ -50,9 +50,16 @@ import {
   descendantRow,
   documentRows,
   findField,
+  forEachRow,
+  NOTIFICATION,
+  NS_CHOICE_ABSTRACT,
+  NS_POC,
+  NS_SUBSTITUTION,
   parseXsdDocument,
+  repeatingChoiceOf,
   rowNamed,
   rowWhere,
+  selectFirstChoiceMember,
 } from '../../stubs/datamapper/cardinality-test-helpers';
 import {
   getAdtInXsd,
@@ -75,7 +82,6 @@ import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-sc
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
-import { ChoiceFieldService } from './choice-field.service';
 import { MappingActionService } from './mapping-action.service';
 import { MappingActionRegistryService } from './mapping-action-registry.service';
 import { TargetRenderService } from './target-render.service';
@@ -608,8 +614,8 @@ describe('MappingActionService', () => {
 
         it('should judge an "if" inside a loop by the field the loop writes into', () => {
           MappingActionService.applyForEach(findFieldRow(shipOrderRows(), 'Item'));
-          const forEachRow = findMappingRow(shipOrderRows(), ForEachItem);
-          MappingActionService.applyIf(findRow(childrenOf(forEachRow), 'Item'));
+          const forEachMappingRow = findMappingRow(shipOrderRows(), ForEachItem);
+          MappingActionService.applyIf(findRow(childrenOf(forEachMappingRow), 'Item'));
 
           const ifRow = findMappingRow(childrenOf(findMappingRow(shipOrderRows(), ForEachItem)), IfItem);
           expectValueSelectorAllowed(ifRow, false);
@@ -2527,33 +2533,14 @@ describe('MappingActionService', () => {
   });
 
   describe('a repeating member of a non-repeating choice', () => {
-    const NS_P = 'urn:p';
-    const NS_POC = 'io.kaoto.datamapper.poc.test';
-
     const collectItems = <T extends MappingItem>(
       root: MappingTree | MappingItem,
       type: new (...args: never[]) => T,
     ): T[] =>
       root.children.flatMap((child) => [...(child instanceof type ? [child] : []), ...collectItems(child, type)]);
 
-    const forEachRow = (parent: NodeData): NodeData =>
-      rowWhere(parent, (row) => row instanceof MappingNodeData && row.mapping instanceof ForEachItem, 'for-each');
-
     const selectItem = (xsdName: string, xsd: string) => {
-      const doc = parseXsdDocument(DocumentType.TARGET_BODY, xsdName, xsd);
-      const localTree = createTargetTree(doc, { ns0: NS_P });
-      const choiceRow = rowWhere(
-        documentRows(doc, localTree)[0],
-        (row) => row instanceof TargetChoiceFieldNodeData,
-        'for the choice',
-      );
-      ChoiceFieldService.dispatchChoiceSelection(
-        choiceRow,
-        findField(doc, '__choice__'),
-        { memberIndex: 0 },
-        localTree.namespaceMap,
-        true,
-      );
+      const { doc, tree: localTree } = selectFirstChoiceMember(xsdName, xsd);
       const itemRow = () => rowNamed(documentRows(doc, localTree)[0], 'Item') as TargetNodeData;
       const wrapItem = () => {
         MappingActionService.applyForEach(itemRow() as TargetFieldNodeData);
@@ -2690,20 +2677,15 @@ describe('MappingActionService', () => {
     });
 
     it('should duplicate a candidate row under a reverted wrapper field item into that field item', () => {
-      const notification = { namespaceUri: 'http://www.example.com/CHOICE_ABSTRACT', name: 'Notification' };
       const doc = parseXsdDocument(
         DocumentType.TARGET_BODY,
         'ChoiceWithAbstract.xsd',
         getChoiceWithAbstractXsd(),
-        notification,
+        NOTIFICATION,
       );
       const shortField = findField(doc, 'Short');
-      const repeatingChoice = shortField.fields.find(
-        (field) => field.wrapperKind === 'choice' && field.maxOccurs === 'unbounded',
-      );
-      if (!repeatingChoice) throw new Error('No repeating choice under Short');
-      const abstractMessage = findField(repeatingChoice, 'AbstractMessage');
-      const localTree = createTargetTree(doc, { ns0: notification.namespaceUri });
+      const abstractMessage = findField(repeatingChoiceOf(shortField), 'AbstractMessage');
+      const localTree = createTargetTree(doc, { ns0: NS_CHOICE_ABSTRACT });
       const notificationItem = new FieldItem(localTree, doc.fields[0]);
       localTree.children.push(notificationItem);
       const shortItem = new FieldItem(notificationItem, shortField);
@@ -2788,7 +2770,7 @@ describe('MappingActionService', () => {
 
       it('should map field to field when dropped onto a target member already wrapped in a for-each', () => {
         const doc = parseXsdDocument(DocumentType.TARGET_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd());
-        const localTree = createTargetTree(doc, { ns0: 'http://www.example.com/SUBSTITUTION' });
+        const localTree = createTargetTree(doc, { ns0: NS_SUBSTITUTION });
         const zooItem = new FieldItem(localTree, doc.fields[0]);
         localTree.children.push(zooItem);
         const forEach = new ForEachItem(zooItem);

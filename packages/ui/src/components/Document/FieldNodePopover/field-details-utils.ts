@@ -5,10 +5,7 @@ import {
   FieldItemNodeData,
   FieldNodeData,
   NodeData,
-  TargetAbstractFieldNodeData,
-  TargetChoiceFieldNodeData,
 } from '../../../models/datamapper/visualization';
-import { DocumentService } from '../../../services/document/document.service';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
 import { QName } from '../../../xml-schema-ts/QName';
 import { getOverrideDisplayInfo } from '../actions/FieldOverride/override-util';
@@ -54,74 +51,28 @@ export const formatTypeQName = (typeQName: QName | null): string => {
 /**
  * Returns the effective maxOccurs for display in the field details popover.
  *
- * A selected choice member (or abstract substitution member) inherits its
- * collection cardinality from the parent wrapper. In that case the member
- * field's own maxOccurs is always 1, while the wrapper's maxOccurs carries
- * the actual repeating constraint.
+ * The popover reads the same cardinality as the collection icon and the collection-gated mapping actions,
+ * so the Max Occurs row never contradicts them on the same row.
  *
  * Resolution order:
  *
- * 1. **No `nodeData`** — returns `field.maxOccurs` directly.
+ * 1. **No `nodeData`** — returns `field.maxOccurs`.
  *
- * 2. **`FieldItemNodeData` with `wrapperField` set** — target-side collection
- *    member whose wrapper was resolved at node-construction time; returns
- *    `wrapperField.maxOccurs`.
+ * 2. **A node that shows a field** — returns the `maxOccurs` of
+ *    {@link VisualizationUtilService.getEffectiveCardinality}: that of the outermost repeating
+ *    choice, sequence or abstract wrapper between the field and its nearest real element, or the field's own
+ *    `maxOccurs` when no wrapper repeats. Only the field's ancestor chain is read, so a wrapper back-reference
+ *    on the node (`wrapperField`, `choiceField`, `abstractField`) or the parent row never changes the value.
  *
- * 3. **`FieldItemNodeData` without `wrapperField`, parent is `TargetChoiceFieldNodeData`
- *    or `TargetAbstractFieldNodeData`** — fallback for the case where
- *    `VisualizationService.findWrapperFieldForFieldItem` returned `undefined`
- *    but the parent node itself carries the wrapper's `IField`; returns
- *    `parent.field.maxOccurs`.
+ * 3. **A node that shows no field** — returns `field.maxOccurs`. The popover renders nothing for such a node.
  *
- * 4. **`ChoiceFieldNodeData` / `TargetChoiceFieldNodeData` with `choiceField` set** —
- *    source or target selected choice member; returns `choiceField.maxOccurs`.
- *
- * 5. **`AbstractFieldNodeData` / `TargetAbstractFieldNodeData` with `abstractField` set** —
- *    source or target selected abstract substitution member; returns `abstractField.maxOccurs`.
- *
- * 6. **All other nodes** (plain `FieldNodeData`, `TargetFieldNodeData`, unselected
- *    choice/abstract wrappers, `AddMappingNodeData`, etc.) — returns `field.maxOccurs`.
- *
- * @param field    - The `IField` associated with the popover node.
+ * @param field    - The `IField` associated with the popover node. Its `maxOccurs` is used only when `nodeData` is
+ *                   absent or shows no field.
  * @param nodeData - Optional visualization node; when absent the raw field value is used.
  */
 export const getEffectiveMaxOccurs = (field: IField, nodeData?: NodeData): IField['maxOccurs'] => {
-  if (!nodeData) {
-    return field.maxOccurs;
-  }
-
-  if (nodeData instanceof FieldItemNodeData) {
-    if (nodeData.wrapperField) {
-      return nodeData.wrapperField.maxOccurs;
-    }
-
-    if (
-      nodeData.parent instanceof TargetChoiceFieldNodeData ||
-      nodeData.parent instanceof TargetAbstractFieldNodeData
-    ) {
-      return nodeData.parent.field.maxOccurs;
-    }
-  }
-
-  if (VisualizationUtilService.isChoiceField(nodeData) && nodeData.choiceField) {
-    return nodeData.choiceField.maxOccurs;
-  }
-
-  if (VisualizationUtilService.isAbstractField(nodeData) && nodeData.abstractField) {
-    return nodeData.abstractField.maxOccurs;
-  }
-
-  // A field nested under a repeating choice/sequence compositor (e.g. the children of an xs:sequence
-  // branch selected inside a `choice(unbounded)`) inherits the compositor's cardinality even though
-  // its own maxOccurs is 1. This mirrors DocumentService.isCollectionField so the popover's Max Occurs
-  // agrees with the collection indicator icon. Covers the source-side plain FieldNodeData, where no
-  // wrapperField/choiceField back-reference is available.
-  const enclosingCollectionCompositor = DocumentService.getEnclosingCollectionCompositor(field);
-  if (enclosingCollectionCompositor) {
-    return enclosingCollectionCompositor.maxOccurs;
-  }
-
-  return field.maxOccurs;
+  const effectiveCardinality = nodeData ? VisualizationUtilService.getEffectiveCardinality(nodeData) : undefined;
+  return effectiveCardinality?.maxOccurs ?? field.maxOccurs;
 };
 
 export const prepareFieldDetails = (

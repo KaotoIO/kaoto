@@ -248,7 +248,8 @@ export class MappingSerializerService {
    * that element are ignored: they repeat the element as a whole, not the order of its children, so
    * the children of one repeated `Email` still sort by schema position. This purposely does not reuse
    * {@link DocumentService.isCollectionField} / {@link DocumentService.getEnclosingCollectionCompositor}:
-   * those answer "is this a UI collection" for the canvas and exclude `abstract` wrappers, while this
+   * those answer the schema-level "is this field a collection" behind the add-mapping row, the per-mapping
+   * wrapper split and wrapper auto-detection, and stop at `abstract` wrappers, while this
    * answers a narrower structural question — can two members legitimately interleave — true for a
    * repeating `abstract` wrapper too, since any of its substitution-group members can recur in any
    * order. A plain `xs:sequence maxOccurs>1` is flattened into its parent without a wrapper
