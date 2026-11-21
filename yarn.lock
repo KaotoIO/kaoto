@@ -9996,8 +9996,8 @@ __metadata:
   linkType: hard
 
 "chromatic@npm:^18.8.1":
-  version: 18.14.3
-  resolution: "chromatic@npm:18.14.3"
+  version: 18.14.4
+  resolution: "chromatic@npm:18.14.4"
   dependencies:
     semver: "npm:^7.3.5"
   peerDependencies:
@@ -10020,7 +10020,7 @@ __metadata:
     chroma: dist/bin.cjs
     chromatic: dist/bin.cjs
     chromatic-cli: dist/bin.cjs
-  checksum: 10/66fae7c37a8ad8a77f498c417439c9118b20ef1b49c0bd9b4b6c9dbbc50fdf9afcb2d4386072ec8698ad608e87d6b6039ec2d4d4fca50755b1001706692d7adb
+  checksum: 10/d7a3a275a1f604637c7f36f7312d8406f72caef0424b0d1e6da6ac77dba325c2ba24a0f595d9a861f94804c325c4f62885da1adf11b06e966ebd6af0f3cd5652
   languageName: node
   linkType: hard
 
