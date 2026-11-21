@@ -30,6 +30,7 @@ import { setColorScheme } from '../../utils/color-scheme';
 import { bindEditorDocument, type EditorDocumentState } from './Bridge/editor-document';
 import { KaotoBridge } from './Bridge/KaotoBridge';
 import { kaotoEditorRouter } from './KaotoEditorRouter';
+import { SendMessageRuntimeProvider } from './SendMessageRuntimeProvider';
 
 export interface KaotoEditorInit {
   fileExtension: string;
@@ -340,7 +341,9 @@ export const KaotoEditor = ({ bus, initialSettings, init }: Props) => {
                           shouldSaveSchema={false}
                           onStepUpdated={onStepUpdated}
                         >
-                          <RouterProvider router={kaotoEditorRouter} />
+                          <SendMessageRuntimeProvider>
+                            <RouterProvider router={kaotoEditorRouter} />
+                          </SendMessageRuntimeProvider>
                         </KaotoBridge>
                       </EntitiesProvider>
                     </CatalogLoaderProvider>

@@ -128,6 +128,24 @@ describe('SendMessageModal', () => {
     DynamicCatalogRegistry.get().clearRegistry();
   });
 
+  it('requires an explicit target when multiple started instances match', async () => {
+    const onSend = vi.fn().mockResolvedValue(undefined);
+    renderWithProvider({
+      endpoint: 'orders',
+      onSend,
+      targets: [
+        { id: 'one', routeId: 'orders', label: 'orders', pid: 1, state: 'Started' },
+        { id: 'two', routeId: 'orders', label: 'orders', pid: 2, state: 'Started' },
+      ],
+    });
+    expect(screen.getByTestId('send-message-submit-btn')).toBeDisabled();
+    fireEvent.change(screen.getByLabelText('Target runtime'), { target: { value: 'two' } });
+    fireEvent.click(screen.getByTestId('send-message-submit-btn'));
+    await waitFor(() => {
+      expect(onSend).toHaveBeenCalledWith(expect.objectContaining({ endpoint: 'orders' }), 'two');
+    });
+  });
+
   it('renders modal with title and initial values', () => {
     renderWithProvider({
       endpoint: 'direct:orders',
@@ -652,5 +670,39 @@ describe('SendMessageModal', () => {
       // Should prefill defaultValue 'POST' into header value input
       expect(screen.getByDisplayValue('POST')).toBeInTheDocument();
     });
+  });
+});
+
+describe('SendMessageModal live targets', () => {
+  it('preserves the draft and disables sending when the selected runtime disappears', async () => {
+    const onSend = vi.fn();
+    const options = {
+      endpoint: 'orders',
+      initialBody: 'keep draft',
+      onSend,
+      targets: [{ id: 'original', routeId: 'orders', label: 'orders', pid: 1, state: 'Started' }],
+    };
+    const Open = () => {
+      const openModal = useSendMessageModal()?.openSendMessageModal;
+      useEffect(() => {
+        openModal?.(options);
+      }, [openModal]);
+      return <SendMessageModal />;
+    };
+    const send = vi.fn();
+    const { rerender } = render(
+      <SendMessageModalProvider runtime={{ targets: options.targets, send }}>
+        <Open />
+      </SendMessageModalProvider>,
+    );
+    expect(screen.getByTestId('send-message-submit-btn')).toBeEnabled();
+    rerender(
+      <SendMessageModalProvider runtime={{ targets: [{ ...options.targets[0], id: 'replacement', pid: 2 }], send }}>
+        <Open />
+      </SendMessageModalProvider>,
+    );
+    expect(screen.getByTestId('send-message-body-textarea')).toHaveValue('keep draft');
+    expect(screen.getByTestId('send-message-submit-btn')).toBeDisabled();
+    expect(onSend).not.toHaveBeenCalled();
   });
 });

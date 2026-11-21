@@ -13,5 +13,7 @@
 export * from './models/catalog-kind';
 export * from './models/file-types';
 export * from './models/runtime-maven-information';
+export type { ICamelMessagePayload } from './models/send-message';
+export type { SendMessageRequest, SendMessageRuntimeSnapshot, SendMessageTarget } from './models/send-message-runtime';
 export * from './models/settings';
 export * from './models/step-update-action';

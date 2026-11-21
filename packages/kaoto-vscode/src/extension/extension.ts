@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import { DeploymentsProvider } from '../views/deployments/DeploymentsProvider';
+import { SendMessageRuntimeService, watchSendMessageTargets } from '../services/SendMessageRuntimeService';
+import { SendMessageService } from '../services/SendMessageService';
 import { getRedHatService, TelemetryService } from '@redhat-developer/vscode-redhat-telemetry';
 import * as vscode from 'vscode';
 import { VIEW_HELP } from '../constants';
@@ -53,7 +56,17 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	const catalogService = new KaotoCatalogService(context);
 	await catalogService.initialize();
+	const portManager = new PortManager();
+	const deployments = new DeploymentsProvider(portManager);
+	const messageRuntimes = new SendMessageRuntimeService(deployments);
+	const messageSender = new SendMessageService(messageRuntimes);
 	const desktopOperations: KaotoDesktopOperations = {
+		getSendMessageTargets: async (uri) => {
+			await deployments.refresh();
+			return messageRuntimes.getSnapshot(uri);
+		},
+		sendMessage: (uri, request, signal) => messageSender.send(uri, request, signal),
+		watchSendMessageTargets: (uri, listener) => watchSendMessageTargets(deployments, messageRuntimes, uri, listener),
 		getSelectedCatalog: async (uri) => {
 			if (await KaotoCatalogService.isMavenProject(uri)) {
 				return undefined;
@@ -75,8 +88,6 @@ export async function activate(context: vscode.ExtensionContext) {
 	};
 	const editors = registerKaotoEditorProvider(context, (documentUri) => new KaotoHostServices(documentUri, desktopOperations));
 
-	const portManager = new PortManager();
-
 	// Create and register status bar item
 	const catalogStatusBar = catalogService.createStatusBarItem();
 	context.subscriptions.push(catalogStatusBar);
@@ -97,7 +108,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	const registrars: IRegistrar[] = [
 		new EditorRegistrar(context, editors, telemetryService),
 		new IntegrationsRegistrar(context, telemetryService, portManager),
-		new DeploymentsRegistrar(context, telemetryService, portManager),
+		new DeploymentsRegistrar(context, telemetryService, portManager, deployments),
 		new InfrastructureRegistrar(context, telemetryService),
 		new TestsRegistrar(context, telemetryService),
 		new OpenApiRegistrar(context, telemetryService),

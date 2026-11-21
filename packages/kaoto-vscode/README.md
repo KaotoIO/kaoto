@@ -164,3 +164,7 @@ We welcome **contributions!** Check out our [Contribution Guide](CONTRIBUTING.md
 The Kaoto VS Code extension collects anonymous [usage data](USAGE_DATA.md) to enhance our products. Read our [privacy statement](https://developers.redhat.com/article/tool-data-collection) for more details.
 
 This extension respects the `redhat.telemetry.enabled` setting. Learn more: [Disable Telemetry](https://github.com/redhat-developer/vscode-redhat-telemetry#how-to-disable-telemetry-reporting).
+
+### Sending test messages
+
+See [Send a test message](docs/send-message.md) for local runtime requirements, executor selection, and payload behavior.
