@@ -21,3 +21,14 @@ flags:
     paths:
       - packages/kaoto-vscode/src
     carryforward: true
+
+coverage:
+  status:
+    project:
+      default:
+        # Coverage of the whole project drifts by a few hundredths between runs (timing-dependent branches in async
+        # code), even on changes without code. Only a real drop should fail the check.
+        threshold: 0.5%
+    patch:
+      default:
+        target: auto
