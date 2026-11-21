@@ -83,7 +83,7 @@
     "@patternfly/react-table": "6.7.0",
     "@patternfly/react-topology": "^6.7.0",
     "@visx/shape": "^4.0.0",
-    "chevrotain": "10.5.0",
+    "chevrotain": "13.2.0",
     "clsx": "^2.1.0",
     "hotkeys-js": "^3.13.15",
     "html-to-image": "1.11.13",
