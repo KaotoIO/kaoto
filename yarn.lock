@@ -3705,7 +3705,7 @@ __metadata:
     eslint-plugin-simple-import-sort: "npm:^14.0.0"
     eslint-plugin-testing-library: "npm:^7.16.2"
     globals: "npm:^17.0.0"
-    hotkeys-js: "npm:^3.13.15"
+    hotkeys-js: "npm:^4.0.0"
     html-to-image: "npm:1.11.13"
     jsdom: "npm:^25.0.0"
     jszip: "npm:^3.10.1"
@@ -14762,10 +14762,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"hotkeys-js@npm:^3.13.15":
-  version: 3.13.15
-  resolution: "hotkeys-js@npm:3.13.15"
-  checksum: 10/f10314bd171c5b265d923e8eae3b0c4d96899a46f956caa6468e8c5c4d1755a08f3986d7ece9f331d783ae1876d535e9471330176d27a5e06568b3e7f7cb7c4a
+"hotkeys-js@npm:^4.0.0":
+  version: 4.1.2
+  resolution: "hotkeys-js@npm:4.1.2"
+  checksum: 10/30cc5eb816b53dfa2479f711e6ee6f89233930de7b9111d9a169ce1b0db5e47e1f2613a5c08840440166068f1188a28082a879c96905d483debacf4417e42f41
   languageName: node
   linkType: hard
 
