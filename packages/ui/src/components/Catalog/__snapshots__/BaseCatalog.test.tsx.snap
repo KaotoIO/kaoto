@@ -7,7 +7,7 @@ exports[`BaseCatalog > renders correctly with Gallery Layout 1`] = `
     data-testid="virtuoso-scroller"
     data-virtuoso-scroller="true"
     id="catalog-list"
-    style="height: 100%; outline: none; overflow-y: auto; position: relative; -webkit-overflow-scrolling: touch;"
+    style="height: 100%; outline: medium; overflow-y: auto; position: relative;"
     tabindex="0"
   >
     <div
@@ -591,7 +591,7 @@ exports[`BaseCatalog > renders correctly with List Layout 1`] = `
     data-testid="virtuoso-scroller"
     data-virtuoso-scroller="true"
     id="catalog-list"
-    style="height: 100%; outline: none; overflow-y: auto; position: relative; -webkit-overflow-scrolling: touch;"
+    style="height: 100%; outline: medium; overflow-y: auto; position: relative;"
     tabindex="0"
   >
     <div

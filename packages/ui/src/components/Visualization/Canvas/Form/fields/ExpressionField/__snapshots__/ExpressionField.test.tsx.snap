@@ -60,7 +60,7 @@ exports[`ExpressionField > renders empty expression field with schema 1`] = `
           class="cds--stack-vertical cds--stack-scale-3"
         >
           <fieldset
-            style="margin: 0px; padding: 0px;"
+            style="border: medium; margin: 0px; padding: 0px;"
           >
             <div
               class="kaoto-typeahead"
@@ -196,7 +196,7 @@ exports[`ExpressionField > renders expression field with selection 1`] = `
           class="cds--stack-vertical cds--stack-scale-3"
         >
           <fieldset
-            style="margin: 0px; padding: 0px;"
+            style="border: medium; margin: 0px; padding: 0px;"
           >
             <div
               class="kaoto-typeahead"
