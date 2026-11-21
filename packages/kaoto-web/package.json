@@ -83,7 +83,7 @@
     "sass": "npm:sass-embedded@^1.105.1",
     "sass-embedded": "^1.105.1",
     "stylelint": "^17.16.0",
-    "stylelint-config-standard-scss": "^17.0.0",
+    "stylelint-config-standard-scss": "^18.0.0",
     "stylelint-plugin-carbon-tokens": "^5.0.6",
     "stylelint-prettier": "^5.0.0",
     "stylelint-use-logical-spec": "^5.0.1",
