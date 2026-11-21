@@ -650,6 +650,7 @@ describe('FieldOverrideModal', () => {
       getSuggestions: vi.fn(),
       shouldSaveSchema: false,
       onStepUpdated: vi.fn(),
+      getTestReport: vi.fn().mockResolvedValue(undefined),
     };
 
     const renderWithContext = (props: Partial<React.ComponentProps<typeof FieldOverrideModal>> = {}) => {

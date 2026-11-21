@@ -11,14 +11,14 @@ export interface TestReportEntry {
  * Test result
  */
 export interface TestResult {
-  testName: string;
+  name: string;
   className?: string;
   cause?: string;
   errorMessage?: string;
   duration?: number;
   result: string;
-  success: boolean;
-  failed: boolean;
+  success?: boolean;
+  failed?: boolean;
   skipped?: boolean;
 }
 
@@ -29,8 +29,8 @@ export interface TestActionResult {
   actions?: TestActionResult[];
   iterations?: TestActionResult[];
   message?: {
-    name: string;
-    type: string;
+    name?: string;
+    type?: string;
     headers?: {
       name: string;
       value: string;

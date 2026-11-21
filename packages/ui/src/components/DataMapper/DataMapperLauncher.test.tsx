@@ -40,6 +40,7 @@ describe('DataMapperLauncher', () => {
     askUserForFileSelection: vi.fn(),
     getSuggestions: vi.fn(),
     shouldSaveSchema: false,
+    getTestReport: vi.fn().mockResolvedValue(undefined),
   };
 
   const mockCamelResource: KaotoResource = {

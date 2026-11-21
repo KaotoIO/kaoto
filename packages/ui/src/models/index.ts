@@ -9,6 +9,7 @@ export * from './camel/kamelets-catalog';
 export * from './catalog-kind';
 export * from './citrus/citrus-catalog';
 export * from './citrus/citrus-catalog-index';
+export * from './citrus/entities';
 export * from './file-types';
 export * from './kaoto-resource';
 export * from './kaoto-schema';
