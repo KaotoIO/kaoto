@@ -3486,7 +3486,7 @@ __metadata:
     eslint-plugin-simple-import-sort: "npm:^14.0.0"
     eslint-plugin-testing-library: "npm:^7.16.2"
     msw: "npm:^2.0.2"
-    msw-storybook-addon: "npm:^2.0.3"
+    msw-storybook-addon: "npm:^3.0.0"
     prettier: "npm:^3.0.0"
     react: "npm:^19.2.1"
     react-dom: "npm:^19.2.1"
@@ -15752,7 +15752,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-node-process@npm:^1.0.1, is-node-process@npm:^1.2.0":
+"is-node-process@npm:^1.2.0":
   version: 1.2.0
   resolution: "is-node-process@npm:1.2.0"
   checksum: 10/930765cdc6d81ab8f1bbecbea4a8d35c7c6d88a3ff61f3630e0fc7f22d624d7661c1df05c58547d0eb6a639dfa9304682c8e342c4113a6ed51472b704cee2928
@@ -18634,14 +18634,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"msw-storybook-addon@npm:^2.0.3":
-  version: 2.0.7
-  resolution: "msw-storybook-addon@npm:2.0.7"
-  dependencies:
-    is-node-process: "npm:^1.0.1"
+"msw-storybook-addon@npm:^3.0.0":
+  version: 3.0.3
+  resolution: "msw-storybook-addon@npm:3.0.3"
   peerDependencies:
-    msw: ^2.0.0
-  checksum: 10/1f36bebfdad6945333aaf330337b850bbd640b9d939280cd91916791585fbe1c88925d8806aabb5fce4894a1ed6e70716b7c0aa4ddaebc98a249033c665adf33
+    msw: ">=2"
+    storybook: ^9.0.0 || ^10.0.0 || ^11.0.0-0
+  bin:
+    msw-storybook-addon: ./build/migrate.mjs
+  checksum: 10/9e371a847b75dc0c72c72c5c90e62690c2c5a2a05c42a22cb3af5973a84bad862b7e5f352b881f9976d3968fd21f53d4966a12e34ae8c8e713a3fe831e8756a7
   languageName: node
   linkType: hard
 
