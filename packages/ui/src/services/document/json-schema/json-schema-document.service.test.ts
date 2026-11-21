@@ -731,6 +731,111 @@ describe('JsonSchemaDocumentService', () => {
     });
   });
 
+  it.each([
+    ['an empty definition', {}],
+    ['a boolean definition', true],
+  ])('should register the definitions that follow %s', (_desc, emptyDefinition) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      definitions: {
+        Empty: emptyDefinition,
+        Real: { type: 'object', properties: { a: { type: 'string' } } },
+      },
+      properties: {
+        x: { $ref: '#/definitions/Real' },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const xField = doc.fields[0].fields.find((f) => f.key === 'x');
+    expect(doc.namedTypeFragments['#/definitions/Real']).toBeDefined();
+    expect(xField!.type).toBe(Types.Container);
+  });
+
+  it.each([
+    ['a boolean schema', true],
+    ['an empty schema', {}],
+  ])('should not duplicate a typed property redeclared as %s in a composition', (_desc, redeclared) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        a: { type: 'string' },
+      },
+      allOf: [{ properties: { a: redeclared } }],
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const aFields = doc.fields[0].fields.filter((f) => f.key === 'a');
+    expect(aFields).toHaveLength(1);
+    expect(aFields[0].type).toBe(Types.String);
+  });
+
+  it.each(['allOf', 'anyOf', 'oneOf'] as const)(
+    'should resolve a $ref to a definition declared inside %s',
+    (composition) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        [composition]: [{ type: 'object' }, { definitions: { D: { type: 'string' } } }],
+        properties: {
+          x: { $ref: `#/${composition}/1/definitions/D` },
+        },
+      };
+
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      const xField = doc.fields[0].fields.find((f) => f.key === 'x');
+      expect(xField!.type).toBe(Types.String);
+    },
+  );
+
+  it.each([
+    [
+      'tuple array items',
+      { type: 'array', items: [{ type: 'string' }, { type: 'number' }] } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields[0],
+    ],
+    [
+      'a property redeclared with another type in a composition',
+      {
+        type: 'object',
+        properties: { foo: { type: 'string' } },
+        anyOf: [{ properties: { foo: { type: 'number' } } }],
+      } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields.find((f) => f.key === 'foo')!,
+    ],
+  ])('should keep the typeQName of the first declared type for %s', (_desc, schema, getField) => {
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const field = getField(doc);
+    expect(field.type).toBe(Types.String);
+    expect(field.typeQName?.getLocalPart()).toBe('string');
+  });
+
+  it('should keep the required properties of a referenced definition required', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        addr: { $ref: '#/definitions/Address' },
+      },
+      definitions: {
+        Address: {
+          type: 'object',
+          required: ['street'],
+          properties: { street: { type: 'string' }, city: { type: 'string' } },
+        },
+      },
+    };
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const addr = doc.fields[0].fields.find((f) => f.key === 'addr')!;
+
+    DocumentUtilService.resolveTypeFragment(addr);
+
+    expect(addr.fields.find((f) => f.key === 'street')!.minOccurs).toBe(1);
+    expect(addr.fields.find((f) => f.key === 'city')!.minOccurs).toBe(0);
+  });
+
   describe('Cross-schema reference resolution', () => {
     const createMultiSchemaDocument = (
       documentType: DocumentType,
@@ -823,6 +928,21 @@ describe('JsonSchemaDocumentService', () => {
 
       expect(amount).toBeDefined();
       expect(amount!.type).toBe(Types.Numeric);
+    });
+
+    it('should create the document for circular references across files', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'circular', {
+        'A.json': JSON.stringify({ type: 'object', properties: { b: { $ref: './B.json' } } }),
+        'B.json': JSON.stringify({ type: 'object', properties: { a: { $ref: './A.json' } } }),
+      });
+
+      const bField = doc.fields[0].fields.find((f) => f.key === 'b')!;
+      DocumentUtilService.resolveTypeFragment(bField);
+      const aField = bField.fields.find((f) => f.key === 'a')!;
+      DocumentUtilService.resolveTypeFragment(aField);
+      expect(bField.type).toBe(Types.Container);
+      expect(aField.type).toBe(Types.Container);
+      expect(aField.fields.find((f) => f.key === 'b')).toBeDefined();
     });
 
     it('should use first schema as document schema', () => {
