@@ -46,7 +46,7 @@
     "@types/fs-extra": "^11.0.4",
     "@types/mocha": "^10.0.10",
     "async-wait-until": "^2.0.31",
-    "chai": "^4.3.10",
+    "chai": "^6.0.0",
     "eslint": "^9.10.0",
     "eslint-config-prettier": "^9.1.2",
     "eslint-plugin-chai-friendly": "^1.2.1",
