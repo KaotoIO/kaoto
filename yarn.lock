@@ -3594,7 +3594,7 @@ __metadata:
     stylelint-config-standard-scss: "npm:^17.0.0"
     stylelint-plugin-carbon-tokens: "npm:^5.0.6"
     stylelint-prettier: "npm:^5.0.0"
-    stylelint-use-logical-spec: "npm:^5.0.1"
+    stylelint-use-logical-spec: "npm:^6.0.0"
     typescript: "npm:^6.0.0"
     typescript-eslint: "npm:^8.71.0"
     vite: "npm:^8.3.0"
@@ -22830,12 +22830,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"stylelint-use-logical-spec@npm:^5.0.1":
-  version: 5.0.1
-  resolution: "stylelint-use-logical-spec@npm:5.0.1"
+"stylelint-use-logical-spec@npm:^6.0.0":
+  version: 6.0.1
+  resolution: "stylelint-use-logical-spec@npm:6.0.1"
+  dependencies:
+    postcss-value-parser: "npm:^4.2.0"
   peerDependencies:
-    stylelint: ">=11 < 17"
-  checksum: 10/88d2784d3a53834b2a709684792a0a28095c04e1ca54bc7bb05f15cd42db36d40661c2b1c55126aaf1d237765cd6e27ca789fcc50214147becdb08dd6ac53924
+    stylelint: ^16.7.0 || ^17.0.0 || ^18.0.0
+  bin:
+    stylelint-use-logical-spec: bin/migrate.js
+  checksum: 10/edbbaba1969a575ff637138346e13b7e18a314a471ae858f137ef99a49f153eaee0dc368bca829546d23189af66e5cfff65eccc2d08c9f76070e898166cb7e03
   languageName: node
   linkType: hard
 
