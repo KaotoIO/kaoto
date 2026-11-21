@@ -85,7 +85,7 @@
     "@visx/shape": "^4.0.0",
     "chevrotain": "10.5.0",
     "clsx": "^2.1.0",
-    "hotkeys-js": "^3.13.15",
+    "hotkeys-js": "^4.0.0",
     "html-to-image": "1.11.13",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
