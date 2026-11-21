@@ -3631,7 +3631,7 @@ __metadata:
     jsdom: "npm:^25.0.0"
     jszip: "npm:^3.10.1"
     lodash: "npm:^4.17.21"
-    mobx: "npm:^6.9.0"
+    mobx: "npm:^7.0.0"
     monaco-editor: "npm:^0.55.1"
     monaco-yaml: "npm:^5.5.1"
     postcss: "npm:^8.4.45"
@@ -18427,6 +18427,13 @@ __metadata:
   version: 6.16.1
   resolution: "mobx@npm:6.16.1"
   checksum: 10/01753230a35d2f8a376d4f0e5b0096848141a6c1567f09f4a5e6f7a983814e971141eccb58288e737a7b259618312e4c963523100ccc13f5505881ead7066c80
+  languageName: node
+  linkType: hard
+
+"mobx@npm:^7.0.0":
+  version: 7.1.7
+  resolution: "mobx@npm:7.1.7"
+  checksum: 10/48d7f886f50f3cecc33957b2bbb60f3a3180c8037ba106cf7358ee53464cca566beec8d95ce4b0c6d4d48b90dd1f73e0b9cc4ebee987478e788ea4eb0db4f64c
   languageName: node
   linkType: hard
 
