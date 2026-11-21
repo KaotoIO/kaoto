@@ -36,11 +36,13 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
   const hasExportedRef = useRef(false);
   const [controller] = useState(() => ControllerService.createController());
   const onCompleteRef = useRef(onComplete);
+  const onBlobGeneratedRef = useRef(onBlobGenerated);
 
-  // Keep onCompleteRef up to date
+  // Keep the callback refs up to date, so a re-render of the parent doesn't restart the export
   useLayoutEffect(() => {
     onCompleteRef.current = onComplete;
-  }, [onComplete]);
+    onBlobGeneratedRef.current = onBlobGenerated;
+  }, [onComplete, onBlobGenerated]);
 
   useEventListener(GRAPH_LAYOUT_END_EVENT, () => {
     if (!hasExportedRef.current) {
@@ -138,7 +140,8 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
           return;
         }
 
-        onBlobGenerated?.(blob);
+        // The canvas may be gone by the time the image is ready; don't hand the blob to a parent that removed it
+        if (isMounted) onBlobGeneratedRef.current?.(blob);
 
         // Only auto-download if enabled
         if (autoDownload) {
@@ -165,10 +168,10 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [layoutComplete, onBlobGenerated, autoDownload]);
+  }, [layoutComplete, autoDownload]);
 
   return (
-    <div ref={containerRef} className="hidden-canvas">
+    <div ref={containerRef} className="hidden-canvas" data-testid="hidden-canvas">
       <VisualizationProvider controller={controller}>
         <VisualizationSurface state={{}} />
       </VisualizationProvider>

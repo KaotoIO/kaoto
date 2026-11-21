@@ -358,6 +358,64 @@ describe('HiddenCanvas', () => {
     });
   });
 
+  it('does not hand the blob to onBlobGenerated once it is unmounted', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    let resolveBlob!: (blob: Blob) => void;
+    vi.mocked(toBlob).mockReturnValue(new Promise((resolve) => (resolveBlob = resolve)));
+    const mockOnBlobGenerated = vi.fn();
+    const vizNode = await entity.toVizNode();
+    const { unmount } = render(
+      <HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} onBlobGenerated={mockOnBlobGenerated} />,
+      { wrapper: Wrapper },
+    );
+    await act(async () => {
+      fireLayoutEnd();
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await waitFor(() => {
+      expect(toBlob).toHaveBeenCalled();
+    });
+
+    unmount();
+    await act(async () => {
+      resolveBlob(new Blob(['fake-image-data'], { type: 'image/png' }));
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(mockOnBlobGenerated).not.toHaveBeenCalled();
+  });
+
+  it('hands the blob to the latest onBlobGenerated when the parent re-renders during the export', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    let resolveBlob!: (blob: Blob) => void;
+    vi.mocked(toBlob).mockReturnValue(new Promise((resolve) => (resolveBlob = resolve)));
+    const mockBlob = new Blob(['fake-image-data'], { type: 'image/png' });
+    const firstOnBlobGenerated = vi.fn();
+    const latestOnBlobGenerated = vi.fn();
+    const vizNode = await entity.toVizNode();
+    const { rerender } = render(
+      <HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} onBlobGenerated={firstOnBlobGenerated} />,
+      { wrapper: Wrapper },
+    );
+    await act(async () => {
+      fireLayoutEnd();
+      await vi.advanceTimersByTimeAsync(0);
+    });
+    await waitFor(() => {
+      expect(toBlob).toHaveBeenCalled();
+    });
+
+    rerender(<HiddenCanvas vizNodes={[vizNode]} onComplete={mockOnComplete} onBlobGenerated={latestOnBlobGenerated} />);
+    await act(async () => {
+      resolveBlob(mockBlob);
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(latestOnBlobGenerated).toHaveBeenCalledWith(mockBlob);
+    expect(firstOnBlobGenerated).not.toHaveBeenCalled();
+    expect(toBlob).toHaveBeenCalledTimes(1);
+  });
+
   it('does not auto-download when autoDownload is false', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const vizNode = await entity.toVizNode();
