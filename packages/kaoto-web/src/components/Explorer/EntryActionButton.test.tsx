@@ -15,14 +15,18 @@ describe('EntryActionButton', () => {
     return { button: screen.getByTestId('explorer-delete-a'), onClick, onParentClick };
   };
 
-  it('shows its label as the tooltip and stays out of the tab order', () => {
+  it('shows its label as a Carbon tooltip on hover and stays out of the tab order', async () => {
     const { button } = renderButton();
 
     expect(button.tagName).toBe('BUTTON');
     expect(button).toHaveAttribute('type', 'button');
-    expect(button).toHaveAttribute('title', 'Delete file');
     expect(button).toHaveAttribute('tabindex', '-1');
     expect(button.querySelector('svg')).toBeInTheDocument();
+
+    fireEvent.mouseEnter(button);
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent('Delete file');
+    expect(button).toHaveAttribute('aria-labelledby', screen.getByRole('tooltip').id);
   });
 
   it('runs its action on click without selecting or toggling the entry around it', () => {
