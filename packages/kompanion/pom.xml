@@ -29,7 +29,7 @@
         <spring-boot.version>3.4.13</spring-boot.version>
         <!-- Quarkus platform whose quarkus-camel-bom carries Camel ${camel.version}; overridden by the camel-4.x profiles.
              The kompanion itself keeps using quarkus.platform.version. -->
-        <bridge-it.quarkus.platform.version>3.20.6.2</bridge-it.quarkus.platform.version>
+        <bridge-it.quarkus.platform.version>3.40.1.2</bridge-it.quarkus.platform.version>
         <compiler-plugin.version>3.16.0</compiler-plugin.version>
         <surefire-plugin.version>3.6.1</surefire-plugin.version>
         <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
