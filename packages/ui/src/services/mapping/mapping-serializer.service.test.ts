@@ -2721,7 +2721,6 @@ describe('MappingSerializerService', () => {
     it.each([
       ['a wildcard', '/ns0:Order/*'],
       ['node()', '/ns0:Order/node()'],
-      ['an attribute', '/ns0:Order/@id'],
       ['an unmatched name', '/ns0:Order/Item[Quantity > 1]/Unknown'],
       ['a wildcard except, whose right operand is not in the result', '/ns0:Order/* except /ns0:Order/ShipTo'],
     ])('keeps a copy-of selecting %s last and adds no field to the target document', (_name, select) => {
@@ -2732,6 +2731,20 @@ describe('MappingSerializerService', () => {
       const fieldNames = orderField.fields.map((f) => f.name);
       const out = serialize(tree);
       expectAscending(order(out, '<TotalAmount', 'xsl:copy-of'));
+      expect(orderField.fields.map((f) => f.name)).toEqual(fieldNames);
+      const reloaded = load(out);
+      expect(reloaded.doc.fields[0].fields.map((f) => f.name)).toEqual(fieldNames);
+      expect(serialize(reloaded.tree)).toEqual(out);
+    });
+
+    it('places a copy-of selecting an attribute before the elements and adds no field to the target document', () => {
+      const { doc, tree } = load(
+        wrap(`${valueOf('Id')}<xsl:copy-of select="/ns0:Order/@id"/>${valueOf('TotalAmount')}`),
+      );
+      const orderField = doc.fields[0];
+      const fieldNames = orderField.fields.map((f) => f.name);
+      const out = serialize(tree);
+      expectAscending(order(out, 'xsl:copy-of', '<Id', '<TotalAmount'));
       expect(orderField.fields.map((f) => f.name)).toEqual(fieldNames);
       const reloaded = load(out);
       expect(reloaded.doc.fields[0].fields.map((f) => f.name)).toEqual(fieldNames);
