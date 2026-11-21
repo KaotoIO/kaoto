@@ -79,13 +79,15 @@ export class DocumentUtilService {
     field.originalField ??= DocumentUtilService.captureOriginalFieldState(field);
     const doc = DocumentUtilService.getOwnerDocument(field);
     const unresolvedRefs: string[] = [];
+    const visitedRefs = new Set<string>();
     for (const ref of field.namedTypeFragmentRefs) {
       const fragment = doc.namedTypeFragments[ref];
       if (!fragment) {
         unresolvedRefs.push(ref);
         continue;
       }
-      unresolvedRefs.push(...DocumentUtilService.adoptTypeFragment(field, fragment));
+      visitedRefs.add(ref);
+      unresolvedRefs.push(...DocumentUtilService.adoptTypeFragment(field, fragment, visitedRefs));
     }
     field.namedTypeFragmentRefs = unresolvedRefs;
     if (
@@ -118,8 +120,9 @@ export class DocumentUtilService {
    * Recursively resolves and adopts any nested type fragment references from the owner document.
    * @param field - The field to adopt the fragment into
    * @param fragment - The type fragment whose properties and children will be merged into the field
+   * @param visitedRefs - The references already adopted into the field, which are skipped to stop at cyclic references
    */
-  static adoptTypeFragment(field: IField, fragment: ITypeFragment): string[] {
+  static adoptTypeFragment(field: IField, fragment: ITypeFragment, visitedRefs: Set<string> = new Set()): string[] {
     const doc = DocumentUtilService.getOwnerDocument(field);
     const unresolved: string[] = [];
     if (fragment.type) field.type = fragment.type;
@@ -127,12 +130,14 @@ export class DocumentUtilService {
     if (fragment.maxOccurs !== undefined) field.maxOccurs = fragment.maxOccurs;
     for (const f of fragment.fields) f.adopt(field);
     for (const childRef of fragment.namedTypeFragmentRefs) {
+      if (visitedRefs.has(childRef)) continue;
+      visitedRefs.add(childRef);
       const childFragment = doc.namedTypeFragments[childRef];
       if (!childFragment) {
         unresolved.push(childRef);
         continue;
       }
-      unresolved.push(...DocumentUtilService.adoptTypeFragment(field, childFragment));
+      unresolved.push(...DocumentUtilService.adoptTypeFragment(field, childFragment, visitedRefs));
     }
     return unresolved;
   }

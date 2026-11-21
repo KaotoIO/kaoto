@@ -449,4 +449,26 @@ describe('JsonSchemaField', () => {
       expect(person.fields[0].namedTypeFragmentRefs).toEqual(['#/definitions/Address']);
     });
   });
+
+  const createDocument = () =>
+    new JsonSchemaDocument(
+      new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.JSON_SCHEMA, 'test', {}),
+    );
+
+  describe('adopt', () => {
+    it('should not add references merged into the adopted copy to the source field', () => {
+      const doc = createDocument();
+      const definitionParent = new JsonSchemaField(doc, '', Types.Container);
+      const home = new JsonSchemaField(definitionParent, 'home', Types.Container);
+      const otherHome = new JsonSchemaField(definitionParent, 'home', Types.Container);
+      otherHome.namedTypeFragmentRefs = ['#/definitions/Address'];
+      const target = new JsonSchemaField(doc, 'r2', Types.Container);
+      home.adopt(target);
+
+      otherHome.adopt(target);
+
+      expect(target.fields[0].namedTypeFragmentRefs).toEqual(['#/definitions/Address']);
+      expect(home.namedTypeFragmentRefs).toEqual([]);
+    });
+  });
 });

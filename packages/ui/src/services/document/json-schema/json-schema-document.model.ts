@@ -478,7 +478,7 @@ export class JsonSchemaField extends BaseField {
   private createNew(parent: JsonSchemaField) {
     const created = new JsonSchemaField(parent, this.key, this.type);
     this.copyTo(created);
-    created.minOccurs = parent.required.includes(this.key) ? 1 : 0;
+    created.minOccurs = parent.required.includes(this.key) ? 1 : this.minOccurs;
     created.maxOccurs = parent.type === Types.Array ? Number.MAX_SAFE_INTEGER : 1;
     return created;
   }
@@ -522,11 +522,12 @@ export class JsonSchemaField extends BaseField {
     to.typeQName = this.typeQName;
     to.typeOverride = this.typeOverride;
     to.originalField = this.originalField;
-    to.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
+    to.namedTypeFragmentRefs = [...this.namedTypeFragmentRefs];
     to.wrapperKind = this.wrapperKind;
     to.selectedMemberIndex = this.selectedMemberIndex;
     to.selectedMemberQName = this.selectedMemberQName;
     to.description = this.description;
+    to.required = [...this.required];
     to.fields = this.fields.map((child) => child.adopt(to) as JsonSchemaField);
     return to;
   }

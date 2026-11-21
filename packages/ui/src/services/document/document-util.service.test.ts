@@ -176,6 +176,26 @@ describe('DocumentUtilService', () => {
       expect(() => DocumentUtilService.resolveTypeFragment(refField)).not.toThrow();
       expect(refField.namedTypeFragmentRefs).toEqual(['nonExistentRef']);
     });
+
+    it('should adopt each of two fragments that refer to each other once', () => {
+      const testDoc = TestUtil.createSourceOrderDoc();
+      testDoc.namedTypeFragments['First'] = {
+        fields: [new XmlSchemaField(testDoc, 'firstChild', false)],
+        namedTypeFragmentRefs: ['Second'],
+      };
+      testDoc.namedTypeFragments['Second'] = {
+        fields: [new XmlSchemaField(testDoc, 'secondChild', false)],
+        namedTypeFragmentRefs: ['First'],
+      };
+      const refField = new XmlSchemaField(testDoc.fields[0], 'cyclicRefField', false);
+      refField.namedTypeFragmentRefs = ['First'];
+      testDoc.fields[0].fields.push(refField);
+
+      DocumentUtilService.resolveTypeFragment(refField);
+
+      expect(refField.fields.map((f) => f.name)).toEqual(['firstChild', 'secondChild']);
+      expect(refField.namedTypeFragmentRefs).toEqual([]);
+    });
   });
 
   describe('adoptTypeFragment()', () => {
