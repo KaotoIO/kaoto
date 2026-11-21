@@ -46,6 +46,55 @@
       "matchPackageNames": ["cypress/browsers"],
       "versioning": "regex:^node-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-chrome-(?<build>\\d+)\\.\\d+\\.\\d+\\.(?<revision>\\d+)-\\d+-ff-[\\d.]+-edge-[\\d.]+-\\d+$",
       "allowedVersions": "/^node-24\\./"
+    },
+    {
+      "description": "Stylelint configs and plugins depend on the stylelint major through peer dependencies, so they have to move together, majors and minors in one PR",
+      "groupName": "stylelint",
+      "matchPackageNames": [
+        "stylelint",
+        "stylelint-config-*",
+        "stylelint-plugin-carbon-tokens",
+        "stylelint-prettier",
+        "stylelint-use-logical-spec",
+        "@double-great/stylelint-a11y"
+      ],
+      "separateMajorMinor": false
+    },
+    {
+      "description": "The Carbon packages are released together from one repository and depend on each other; @carbon/ibm-products has its own repository and release cycle",
+      "groupName": "carbon",
+      "matchPackageNames": ["@carbon/*", "!@carbon/ibm-products"]
+    },
+    {
+      "description": "monaco-yaml and @monaco-editor/react must match the monaco-editor version they are used with",
+      "groupName": "monaco",
+      "matchPackageNames": ["monaco-editor", "monaco-yaml", "@monaco-editor/react"]
+    },
+    {
+      "description": "msw-storybook-addon depends on the msw major through a peer dependency",
+      "groupName": "msw",
+      "matchPackageNames": ["msw", "msw-storybook-addon"]
+    },
+    {
+      "description": "sass is an alias of sass-embedded, so both have to stay on the same version",
+      "groupName": "sass",
+      "matchPackageNames": ["sass", "sass-embedded"]
+    },
+    {
+      "description": "Keep the React types in step with React (moved from the shared KaotoIO/renovate-config, only this repository uses React)",
+      "groupName": "react monorepo",
+      "matchPackageNames": ["@types/react", "@types/react-dom"]
+    },
+    {
+      "description": "PatternFly packages are released together (moved from the shared KaotoIO/renovate-config, only this repository uses PatternFly)",
+      "groupName": "@patternfly",
+      "matchPackageNames": ["@patternfly/**"]
+    },
+    {
+      "description": "Update all Storybook packages together, majors included (moved from the shared KaotoIO/renovate-config, only this repository uses Storybook)",
+      "extends": ["monorepo:storybook"],
+      "groupName": "storybook monorepo",
+      "matchUpdateTypes": ["digest", "patch", "minor", "major"]
     }
   ]
 }
