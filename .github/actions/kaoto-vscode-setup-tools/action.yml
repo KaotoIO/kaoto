@@ -18,7 +18,7 @@ runs:
       if: ${{ inputs.install-jbang == 'true' }}
       with:
         distribution: temurin
-        java-version: '21'
+        java-version: '25'
 
     - name: Setup JBang
       if: ${{ inputs.install-jbang == 'true' && runner.os != 'Windows' }}
