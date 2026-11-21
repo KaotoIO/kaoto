@@ -94,7 +94,7 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
-FROM registry.access.redhat.com/ubi8/openjdk-17:1.21
+FROM registry.access.redhat.com/ubi8/openjdk-17:1.23-7
 
 COPY --chown=185 target/my-camel-spring-boot-route-1.0-SNAPSHOT.jar /deployments/
 
