@@ -27,8 +27,7 @@
     }
   },
   "scripts": {
-    "prepare": "husky",
-    "husky:fix": "git config core.hooksPath .husky",
+    "postinstall": "husky",
     "version": "lerna version",
     "publish": "lerna publish from-package"
   },
