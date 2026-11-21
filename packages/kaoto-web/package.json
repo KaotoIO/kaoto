@@ -96,5 +96,5 @@
     "vitest-canvas-mock": "^1.2.0",
     "vitest-fetch-mock": "^0.4.5"
   },
-  "packageManager": "yarn@4.12.0"
+  "packageManager": "yarn@4.18.1"
 }
