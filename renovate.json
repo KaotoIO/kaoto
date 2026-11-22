@@ -2,6 +2,10 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>KaotoIO/renovate-config"],
   "internalChecksFilter": "strict",
+  "lockFileMaintenance": {
+    "description": "Regenerating yarn.lock gets the hosted Renovate job killed, and the failed job stops all other Renovate updates for this repository (#4880). The lock file is maintained outside Renovate instead",
+    "enabled": false
+  },
   "customManagers": [
     {
       "customType": "regex",
