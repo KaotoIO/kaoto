@@ -142,19 +142,20 @@ function expandVSCodeVariables(pathString: string, cwd: string, workspaceFolder:
 		return pathString;
 	}
 
+	// the values are put in by functions: in a replacement string, $$, $&, $` and $' of a path or name are patterns
 	let expanded = pathString;
 
 	// Handle ${workspaceFolder}
 	if (workspaceFolder) {
-		expanded = expanded.replaceAll('${workspaceFolder}', workspaceFolder.uri.fsPath);
-		expanded = expanded.replaceAll('${workspaceFolderBasename}', workspaceFolder.name);
+		expanded = expanded.replaceAll('${workspaceFolder}', () => workspaceFolder.uri.fsPath);
+		expanded = expanded.replaceAll('${workspaceFolderBasename}', () => workspaceFolder.name);
 	}
 
 	// Handle ${cwd}
-	expanded = expanded.replaceAll('${cwd}', cwd);
+	expanded = expanded.replaceAll('${cwd}', () => cwd);
 
 	// Handle ${homeDir}
-	expanded = expanded.replaceAll('${homeDir}', os.homedir());
+	expanded = expanded.replaceAll('${homeDir}', () => os.homedir());
 
 	return expanded;
 }
