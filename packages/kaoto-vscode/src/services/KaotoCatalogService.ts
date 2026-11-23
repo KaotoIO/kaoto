@@ -492,7 +492,8 @@ export class KaotoCatalogService {
 	 * Create and show the status bar item
 	 */
 	public createStatusBarItem(): vscode.StatusBarItem {
-		this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+		this.statusBarItem = vscode.window.createStatusBarItem('camelCatalog', vscode.StatusBarAlignment.Right, 100);
+		this.statusBarItem.name = 'Camel Catalog';
 
 		this.statusBarItem.command = COMMAND_SELECT_CAMEL_CATALOG;
 		this.statusBarItem.tooltip = 'Select Camel Catalog Version';
