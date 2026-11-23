@@ -4,14 +4,29 @@ import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'r
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { fileUrl } from '../../routes/file-url';
-import { filesStore } from '../../services/files/files.store';
-import { pathOf, storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
+import { indexedDbStorage } from '../../services/files/indexed-db-storage';
+import {
+  pathOf,
+  storedFiles,
+  storedFolders,
+  storedPaths,
+  storeTestFiles,
+  TEST_FILES,
+  withFiles,
+} from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { buildTree, toFolderId } from './build-tree';
 import { Explorer } from './Explorer';
 import { filterFiles } from './filterFiles';
 
 const TREE = buildTree(TEST_FILES);
+
+/** Expects the test file with the id to be stored at the path, and no more at its old path when it moved */
+const expectStoredAt = async (id: string, path: string) => {
+  const paths = await storedPaths();
+  expect(paths).toContain(path);
+  if (path !== pathOf(id)) expect(paths).not.toContain(pathOf(id));
+};
 
 const renderComponent = () =>
   render(
@@ -404,7 +419,6 @@ describe('Explorer', () => {
 
   describe('deleting', () => {
     const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
-    const storedPaths = async () => (await filesStore.getFiles()).map((file) => file.path);
 
     const expandFolder = async (user: ReturnType<typeof userEvent.setup>, folderPath: string) => {
       const folderNode = await screen.findByTestId(`explorer-folder-${folderPath}`);
@@ -514,9 +528,9 @@ describe('Explorer', () => {
       }
       expect(await storedPaths()).toEqual(outside.map((file) => file.path).sort());
       // The stored folders too, or the empty ones would come back on a reload
-      const storedFolders = await filesStore.getFolders();
-      expect(storedFolders.filter((path) => path === 'integrations' || path.startsWith('integrations/'))).toEqual([]);
-      expect(storedFolders).toContain('resources');
+      const folders = await storedFolders();
+      expect(folders.filter((path) => path === 'integrations' || path.startsWith('integrations/'))).toEqual([]);
+      expect(folders).toContain('resources');
       expect(screen.getByTestId('explorer-folder-resources')).toBeInTheDocument();
     });
 
@@ -646,7 +660,7 @@ describe('Explorer', () => {
     });
 
     it('shows the error in the modal and keeps the file when deleting fails', async () => {
-      vi.spyOn(filesStore, 'deleteFileAt').mockRejectedValueOnce(new Error('The storage is blocked'));
+      vi.spyOn(indexedDbStorage, 'removeFile').mockRejectedValueOnce(new Error('The storage is blocked'));
       const user = userEvent.setup();
       renderComponent();
       await expandFolder(user, 'integrations');
@@ -662,7 +676,6 @@ describe('Explorer', () => {
 
   describe('renaming', () => {
     const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
-    const storedFile = async (id: string) => (await filesStore.getFiles()).find((file) => file.id === id);
 
     const expandIntegrations = async (user: ReturnType<typeof userEvent.setup>) => {
       const folderNode = await screen.findByTestId('explorer-folder-integrations');
@@ -738,9 +751,9 @@ describe('Explorer', () => {
         await user.keyboard('assets{Enter}');
 
         await waitFor(async () => {
-          expect((await storedFile('schema'))?.path).toBe('assets/schema.xsd');
+          await expectStoredAt('schema', 'assets/schema.xsd');
         });
-        expect((await storedFile('order-template'))?.path).toBe('assets/templates/order-template.json');
+        await expectStoredAt('order-template', 'assets/templates/order-template.json');
         await waitFor(() => {
           expect(screen.getByTestId('explorer-folder-assets')).toHaveFocus();
         });
@@ -778,7 +791,7 @@ describe('Explorer', () => {
 
         expect(screen.getByText('A file or folder with that name already exists')).toBeInTheDocument();
         expect(screen.getByRole('textbox', { name: 'Rename folder' })).toHaveFocus();
-        expect((await storedFile('schema'))?.path).toBe('resources/schema.xsd');
+        await expectStoredAt('schema', 'resources/schema.xsd');
       });
 
       it('cancels on Escape and focuses the folder again', async () => {
@@ -810,10 +823,11 @@ describe('Explorer', () => {
         'orders flow.camel.yaml',
       );
       expect(screen.getByTestId('explorer-file-integrations/orders flow.camel.yaml')).toHaveFocus();
-      expect(await storedFile('main-flow')).toMatchObject({
+      expect(await storedFiles()).toContainEqual({
         path: 'integrations/orders flow.camel.yaml',
         content: TEST_FILES[0].content,
       });
+      expect(await storedPaths()).not.toContain(pathOf('main-flow'));
       expect(input).not.toBeInTheDocument();
     });
 
@@ -826,7 +840,7 @@ describe('Explorer', () => {
       await user.keyboard('orders{Enter}');
 
       await waitFor(async () => {
-        expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
+        await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
       });
       // The URL follows the open file to its new path
       await waitFor(() => {
@@ -849,7 +863,7 @@ describe('Explorer', () => {
       expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
       expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveTextContent('main-flow.camel.yaml');
       expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveFocus();
-      expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
+      await expectStoredAt('main-flow', TEST_FILES[0].path);
     });
 
     it('renames when the field loses the focus and leaves the focus where it went', async () => {
@@ -862,7 +876,7 @@ describe('Explorer', () => {
       await user.click(screen.getByRole('searchbox'));
 
       await waitFor(async () => {
-        expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
+        await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
       });
       // The field closes once the store resolves, shortly after the path is stored
       await waitFor(() => {
@@ -878,7 +892,7 @@ describe('Explorer', () => {
       ['an empty name', '{Backspace}', 'Enter a file name'],
       ['a name with a slash', 'routes/orders', 'A file name cannot contain / or \\'],
     ])('shows an error for %s and keeps the field open on Enter', async (_, typed, error) => {
-      await filesStore.createFolder('integrations/empty');
+      await indexedDbStorage.createFolder('integrations/empty');
       const user = userEvent.setup();
       renderComponent();
       await expandIntegrations(user);
@@ -894,7 +908,7 @@ describe('Explorer', () => {
       expect(screen.getByText(error)).toBeInTheDocument();
       expect(input).toHaveAttribute('data-invalid', 'true');
       expect(input).toHaveFocus();
-      expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
+      await expectStoredAt('main-flow', TEST_FILES[0].path);
     });
 
     it('cancels when the field loses the focus with a name that cannot be used', async () => {
@@ -908,11 +922,11 @@ describe('Explorer', () => {
 
       expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
       expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveTextContent('main-flow.camel.yaml');
-      expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
+      await expectStoredAt('main-flow', TEST_FILES[0].path);
     });
 
     it('closes without writing when the name is unchanged', async () => {
-      const rename = vi.spyOn(filesStore, 'renameFileAt');
+      const rename = vi.spyOn(indexedDbStorage, 'moveFile');
       const user = userEvent.setup();
       renderComponent();
       await expandIntegrations(user);
@@ -925,7 +939,7 @@ describe('Explorer', () => {
     });
 
     it('shows the error and keeps the field open when the store fails', async () => {
-      vi.spyOn(filesStore, 'renameFileAt').mockRejectedValueOnce(new Error('The storage is blocked'));
+      vi.spyOn(indexedDbStorage, 'moveFile').mockRejectedValueOnce(new Error('The storage is blocked'));
       const user = userEvent.setup();
       renderComponent();
       await expandIntegrations(user);
@@ -945,10 +959,10 @@ describe('Explorer', () => {
       const storing = new Promise<void>((resolve) => {
         finishStoring = resolve;
       });
-      const renameFileAt = filesStore.renameFileAt.bind(filesStore);
-      vi.spyOn(filesStore, 'renameFileAt').mockImplementationOnce(async (...args) => {
+      const moveFile = indexedDbStorage.moveFile.bind(indexedDbStorage);
+      vi.spyOn(indexedDbStorage, 'moveFile').mockImplementationOnce(async (...args) => {
         await storing;
-        return renameFileAt(...args);
+        return moveFile(...args);
       });
       const user = userEvent.setup();
       renderComponent();
@@ -966,7 +980,7 @@ describe('Explorer', () => {
       });
 
       await waitFor(async () => {
-        expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
+        await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
       });
       expect(screen.getByRole('textbox', { name: 'Rename file' })).toBe(other);
       expect(other).toHaveFocus();
@@ -984,11 +998,11 @@ describe('Explorer', () => {
 
       expect(input).toBeInTheDocument();
       expect(input).toHaveFocus();
-      expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
+      await expectStoredAt('main-flow', TEST_FILES[0].path);
 
       await user.keyboard('{Enter}');
       await waitFor(async () => {
-        expect((await storedFile('main-flow'))?.path).toBe('integrations/ちゅうもん.camel.yaml');
+        await expectStoredAt('main-flow', 'integrations/ちゅうもん.camel.yaml');
       });
     });
 
@@ -1011,7 +1025,6 @@ describe('Explorer', () => {
 
   describe('creating inline', () => {
     const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
-    const storedPaths = async () => (await filesStore.getFiles()).map(({ path }) => path);
 
     /** Serves the catalog index, the templates manifest and a Camel route, a Kamelet and a Citrus test template */
     const serveCatalog = (template: Response | undefined = new Response('- route:\n    id: route-__KAOTO_ID__\n')) => {
@@ -1072,7 +1085,7 @@ describe('Explorer', () => {
       await waitFor(async () => {
         expect(await storedPaths()).toContain('notes.txt');
       });
-      const created = (await filesStore.getFiles()).find(({ path }) => path === 'notes.txt')!;
+      const created = (await storedFiles()).find(({ path }) => path === 'notes.txt')!;
       expect(created.content).toBe('');
       expect(screen.queryByTestId('explorer-new-input')).not.toBeInTheDocument();
       await waitFor(() => {
@@ -1093,7 +1106,7 @@ describe('Explorer', () => {
       await user.keyboard('schemas{Enter}');
 
       await waitFor(async () => {
-        expect(await filesStore.getFolders()).toContain('schemas');
+        expect(await storedFolders()).toContain('schemas');
       });
       await waitFor(() => {
         expect(screen.getByTestId('explorer-folder-schemas')).toHaveFocus();
@@ -1116,7 +1129,7 @@ describe('Explorer', () => {
       expect(folder).toContainElement(nameInput());
       await user.keyboard('xslt{Enter}');
       await waitFor(async () => {
-        expect(await filesStore.getFolders()).toContain('resources/xslt');
+        expect(await storedFolders()).toContain('resources/xslt');
       });
     });
 
@@ -1185,7 +1198,7 @@ describe('Explorer', () => {
       await waitFor(async () => {
         expect(await storedPaths()).toContain('orders.camel.yaml');
       });
-      const created = (await filesStore.getFiles()).find(({ path }) => path === 'orders.camel.yaml')!;
+      const created = (await storedFiles()).find(({ path }) => path === 'orders.camel.yaml')!;
       expect(created.content).toMatch(/^- route:\n {4}id: route-\d+\n$/);
       await waitFor(() => {
         expect(screen.getByTestId('location').textContent).toBe(fileUrl(created.path));
@@ -1209,7 +1222,7 @@ describe('Explorer', () => {
       await waitFor(async () => {
         expect(await storedPaths()).toContain(fileName);
       });
-      const created = (await filesStore.getFiles()).find(({ path }) => path === fileName)!;
+      const created = (await storedFiles()).find(({ path }) => path === fileName)!;
       expect(created.content).toMatch(expectedContent);
       await waitFor(() => {
         expect(screen.getByTestId('location').textContent).toBe(fileUrl(created.path));
@@ -1313,9 +1326,9 @@ describe('Explorer', () => {
       await user.keyboard('other{Enter}');
 
       await waitFor(async () => {
-        expect(await filesStore.getFolders()).toContain('other');
+        expect(await storedFolders()).toContain('other');
       });
-      expect(await filesStore.getFolders()).not.toContain('routes/other');
+      expect(await storedFolders()).not.toContain('routes/other');
     });
 
     it('creates a top-level file after a click on the free space of the tree while a file in a folder is open', async () => {
@@ -1361,7 +1374,7 @@ describe('Explorer', () => {
       await user.keyboard('schemas{Enter}');
 
       await waitFor(async () => {
-        expect(await filesStore.getFolders()).toContain('schemas');
+        expect(await storedFolders()).toContain('schemas');
       });
     });
 
@@ -1375,7 +1388,7 @@ describe('Explorer', () => {
 
       expect(screen.queryByTestId('explorer-new-input')).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'New folder' })).toHaveFocus();
-      expect(await filesStore.getFolders()).not.toContain('draft');
+      expect(await storedFolders()).not.toContain('draft');
     });
 
     it('cancels when the field loses the focus while it is empty', async () => {

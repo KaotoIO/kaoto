@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { filesStore } from '../../services/files/files.store';
-import { storeTestFiles, withFiles } from '../../test/files';
+import { indexedDbStorage } from '../../services/files/indexed-db-storage';
+import { storedFiles, storedFolders, storeTestFiles, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { toFolderId } from './build-tree';
 import { NewEntryField, NewEntryKind } from './NewEntryField';
@@ -42,7 +42,7 @@ describe('NewEntryField', () => {
     return screen.getByTestId('explorer-new-input') as HTMLInputElement;
   };
 
-  const storedFile = async (path: string) => (await filesStore.getFiles()).find((file) => file.path === path);
+  const storedFile = async (path: string) => (await storedFiles()).find((file) => file.path === path);
 
   it.each([
     ['file', 'New file name'],
@@ -95,7 +95,7 @@ describe('NewEntryField', () => {
     await waitFor(() => {
       expect(onDone).toHaveBeenCalledWith(true, { id: toFolderId('integrations/routes'), path: 'integrations/routes' });
     });
-    expect(await filesStore.getFolders()).toContain('integrations/routes');
+    expect(await storedFolders()).toContain('integrations/routes');
   });
 
   it('creates the entry at the root when no folder is given', async () => {
@@ -110,7 +110,7 @@ describe('NewEntryField', () => {
   });
 
   it('keeps the field open with an error for a name that is taken', async () => {
-    const create = vi.spyOn(filesStore, 'createFile');
+    const create = vi.spyOn(indexedDbStorage, 'createFile');
     const user = userEvent.setup();
     renderField('file');
 
@@ -132,7 +132,7 @@ describe('NewEntryField', () => {
   });
 
   it('reports a cancelled entry without creating anything', async () => {
-    const create = vi.spyOn(filesStore, 'createFolder');
+    const create = vi.spyOn(indexedDbStorage, 'createFolder');
     const user = userEvent.setup();
     renderField('folder');
 
