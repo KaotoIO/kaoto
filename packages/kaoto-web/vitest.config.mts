@@ -15,6 +15,7 @@ export default defineConfig({
     setupFiles: [
       fileURLToPath(new URL('../ui/vitest-mocks-setup.ts', import.meta.url)),
       fileURLToPath(new URL('../ui/vitest-setup.ts', import.meta.url)),
+      fileURLToPath(new URL('vitest-mocks-setup.ts', import.meta.url)),
     ],
     include: ['**/?(*.)+(test).[tj]s?(x)'],
     typecheck: {
