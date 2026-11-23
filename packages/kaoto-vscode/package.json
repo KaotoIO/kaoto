@@ -1010,17 +1010,17 @@
         },
         {
           "command": "kaoto.infrastructure.openUiInVSCode",
-          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/ && config.kaoto.infrastructure.enabled",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/",
           "group": "inline@3"
         },
         {
           "command": "kaoto.infrastructure.openUiInVSCode",
-          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/ && config.kaoto.infrastructure.enabled",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/",
           "group": "navigation@3"
         },
         {
           "command": "kaoto.infrastructure.openUi",
-          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/ && config.kaoto.infrastructure.enabled",
+          "when": "view == kaoto.infrastructure && viewItem =~ /.*-has-ui-url.*/",
           "group": "navigation@4"
         },
         {
