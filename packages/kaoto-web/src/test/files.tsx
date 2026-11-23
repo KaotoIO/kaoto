@@ -1,16 +1,22 @@
 import { ReactElement } from 'react';
 
 import { FilesProvider } from '../context/FilesContext';
-import { filesStore } from '../services/files/files.store';
-import { NewFile } from '../services/files/stored-file';
+import { indexedDbStorage } from '../services/files/indexed-db-storage';
+
+/** A file for the tests: the id is only a short name for it in the tests; the storage names files by their paths */
+export interface TestFile {
+  id: string;
+  path: string;
+  content: string;
+}
 
 /**
- * Files for the tests, with readable ids.
+ * Files for the tests, with short names.
  *
  * The first integration has content and the integration test and the documents are empty, as an empty file is what a
  * user gets for a file type Kaoto has no template for.
  */
-export const TEST_FILES: Required<NewFile>[] = [
+export const TEST_FILES: TestFile[] = [
   {
     id: 'main-flow',
     path: 'integrations/main-flow.camel.yaml',
@@ -46,10 +52,37 @@ export const TEST_FILES: Required<NewFile>[] = [
 /** The path of the test file with the id */
 export const pathOf = (id: string): string => TEST_FILES.find((file) => file.id === id)!.path;
 
-/** Adds the files to the shared store; call `resetTestIndexedDB()` before, so that every test starts empty */
-export const storeTestFiles = async (files: NewFile[] = TEST_FILES): Promise<void> => {
-  await Promise.all(files.map((file) => filesStore.createFile(file)));
+/** Adds the files to the shared storage; call `resetTestIndexedDB()` before, so that every test starts empty */
+export const storeTestFiles = async (
+  files: (Pick<TestFile, 'path' | 'content'> & { id?: string })[] = TEST_FILES,
+): Promise<void> => {
+  await Promise.all(files.map(({ path, content }) => indexedDbStorage.createFile(path, content)));
 };
 
-/** Wraps the element in a FilesProvider backed by the shared store; use it inside the router */
+/** Code unit order, as the storage lists paths */
+const byCodeUnits = (a: string, b: string) => {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
+};
+
+/** The files in the shared storage with their content, sorted by path */
+export const storedFiles = async (): Promise<{ path: string; content: string }[]> => {
+  const paths = (await indexedDbStorage.list())
+    .filter(({ kind }) => kind === 'file')
+    .map(({ path }) => path)
+    .sort(byCodeUnits);
+  return Promise.all(paths.map(async (path) => ({ path, content: await indexedDbStorage.readFile(path) })));
+};
+
+/** The paths of the files in the shared storage, sorted */
+export const storedPaths = async (): Promise<string[]> => (await storedFiles()).map(({ path }) => path);
+
+/** The paths of the folders in the shared storage, sorted */
+export const storedFolders = async (): Promise<string[]> =>
+  (await indexedDbStorage.list())
+    .filter(({ kind }) => kind === 'folder')
+    .map(({ path }) => path)
+    .sort(byCodeUnits);
+
+/** Wraps the element in a FilesProvider backed by the shared storage; use it inside the router */
 export const withFiles = (ui: ReactElement): ReactElement => <FilesProvider>{ui}</FilesProvider>;

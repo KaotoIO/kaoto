@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { filesStore } from '../../services/files/files.store';
-import { storeTestFiles, withFiles } from '../../test/files';
+import { indexedDbStorage } from '../../services/files/indexed-db-storage';
+import { storedPaths, storeTestFiles, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { RenameFolderField } from './RenameFolderField';
 
@@ -30,8 +30,6 @@ describe('RenameFolderField', () => {
     const view = render(withFiles(<RenameFolderField folderPath={folderPath} onDone={onDone} onRenamed={onRenamed} />));
     return { input: screen.getByRole('textbox', { name: 'Rename folder' }) as HTMLInputElement, ...view };
   };
-
-  const storedPaths = async () => (await filesStore.getFiles()).map((file) => file.path).sort();
 
   it('opens with the folder name, focused and selected', () => {
     const { input } = renderField();
@@ -72,7 +70,7 @@ describe('RenameFolderField', () => {
   });
 
   it('closes without writing when the name is unchanged', async () => {
-    const rename = vi.spyOn(filesStore, 'renameFolder');
+    const rename = vi.spyOn(indexedDbStorage, 'moveFolder');
     const user = userEvent.setup();
     renderField();
 
@@ -83,7 +81,7 @@ describe('RenameFolderField', () => {
   });
 
   it('keeps the field open with an error for the name of a sibling folder', async () => {
-    const rename = vi.spyOn(filesStore, 'renameFolder');
+    const rename = vi.spyOn(indexedDbStorage, 'moveFolder');
     const user = userEvent.setup();
     renderField();
 
@@ -105,7 +103,7 @@ describe('RenameFolderField', () => {
   });
 
   it('reports a cancelled rename without a path', async () => {
-    const rename = vi.spyOn(filesStore, 'renameFolder');
+    const rename = vi.spyOn(indexedDbStorage, 'moveFolder');
     const user = userEvent.setup();
     renderField();
 
@@ -118,8 +116,8 @@ describe('RenameFolderField', () => {
 
   it('reports the rename once it is stored, also when the field is gone by then', async () => {
     let finishRename: () => void = () => {};
-    const rename = filesStore.renameFolder.bind(filesStore);
-    vi.spyOn(filesStore, 'renameFolder').mockImplementation(
+    const rename = indexedDbStorage.moveFolder.bind(indexedDbStorage);
+    vi.spyOn(indexedDbStorage, 'moveFolder').mockImplementation(
       (from, to) =>
         new Promise((resolve, reject) => {
           finishRename = () => {

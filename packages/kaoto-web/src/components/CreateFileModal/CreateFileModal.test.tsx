@@ -4,8 +4,7 @@ import { StrictMode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 
 import { fileUrl } from '../../routes/file-url';
-import { filesStore } from '../../services/files/files.store';
-import { storeTestFiles, withFiles } from '../../test/files';
+import { storedFiles, storeTestFiles, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { CreateFileModal } from './CreateFileModal';
 
@@ -58,8 +57,6 @@ const renderModal = () =>
       </MemoryRouter>
     </StrictMode>,
   );
-
-const storedFiles = () => filesStore.getFiles();
 
 /** The tile of the type; "Citrus Test" must not match "Citrus Test XML" */
 const fileType = (name: string) => screen.getByRole('radio', { name: new RegExp(`^${name}(?! XML)`) });

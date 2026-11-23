@@ -6,8 +6,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { IntegrationHeaderContext, ViewMode } from '../../context/IntegrationHeaderContext';
 import { fileUrl } from '../../routes/file-url';
-import { filesStore } from '../../services/files/files.store';
-import { storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
+import { indexedDbStorage } from '../../services/files/indexed-db-storage';
+import { pathOf, storedFiles, storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { stubRouteVisualization } from '../../test/route-visualization-stub';
 import IntegrationShell from './IntegrationShell';
@@ -264,7 +264,7 @@ describe('IntegrationShell', () => {
   });
 
   it('opens a file whose path needs encoding in the URL', async () => {
-    await filesStore.createFile({ path: 'my folder/a#b?.camel.yaml', content: '- route: {}\n' });
+    await indexedDbStorage.createFile('my folder/a#b?.camel.yaml', '- route: {}\n');
 
     renderWithContext('my folder/a#b?.camel.yaml');
 
@@ -287,7 +287,7 @@ describe('IntegrationShell', () => {
       vi.restoreAllMocks();
     });
 
-    const storedContent = async (id: string) => (await filesStore.getFiles()).find((file) => file.id === id)?.content;
+    const storedContent = async (id: string) => (await storedFiles()).find((file) => file.path === pathOf(id))?.content;
 
     it('stores the code edited on the canvas', async () => {
       renderWithContext('main-flow');
@@ -313,7 +313,7 @@ describe('IntegrationShell', () => {
     });
 
     it('does not store the code again when the canvas reports the code it was given', async () => {
-      const updateFile = vi.spyOn(filesStore, 'updateFileAt');
+      const updateFile = vi.spyOn(indexedDbStorage, 'writeFile');
       renderWithContext('main-flow');
       await screen.findByTestId('route-visualization');
 
@@ -343,7 +343,7 @@ describe('IntegrationShell', () => {
     });
 
     it('shows an error when the code cannot be stored and hides it on close', async () => {
-      vi.spyOn(filesStore, 'updateFileAt').mockRejectedValue(new Error('quota exceeded'));
+      vi.spyOn(indexedDbStorage, 'writeFile').mockRejectedValue(new Error('quota exceeded'));
       const user = userEvent.setup();
       renderWithContext('main-flow');
       await screen.findByTestId('route-visualization');
@@ -359,7 +359,7 @@ describe('IntegrationShell', () => {
     });
 
     it('hides the error after the next edit is stored', async () => {
-      vi.spyOn(filesStore, 'updateFileAt').mockRejectedValueOnce('blocked by the browser');
+      vi.spyOn(indexedDbStorage, 'writeFile').mockRejectedValueOnce('blocked by the browser');
       renderWithContext('main-flow');
       await screen.findByTestId('route-visualization');
 

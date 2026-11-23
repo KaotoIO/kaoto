@@ -3,12 +3,17 @@ import { userEvent } from '@testing-library/user-event';
 import { StrictMode } from 'react';
 
 import { ProjectFile } from '../../context/FilesContextDefinition';
-import { filesStore } from '../../services/files/files.store';
-import { storeTestFiles, withFiles } from '../../test/files';
+import { indexedDbStorage } from '../../services/files/indexed-db-storage';
+import { pathOf, storedPaths, storeTestFiles, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { RenameField } from './RenameField';
 
-const storedFile = async (id: string) => (await filesStore.getFiles()).find((file) => file.id === id);
+/** Expects the test file with the id to be stored at the path, and no more at its old path when it moved */
+const expectStoredAt = async (id: string, path: string) => {
+  const paths = await storedPaths();
+  expect(paths).toContain(path);
+  if (path !== pathOf(id)) expect(paths).not.toContain(pathOf(id));
+};
 
 describe('RenameField', () => {
   /** The file as the files context hands it out: its id is its path */
@@ -62,7 +67,7 @@ describe('RenameField', () => {
       });
       expect(onDone).toHaveBeenCalledWith(true, 'integrations/orders.camel.yaml');
       expect(onRenamed).toHaveBeenCalledWith('integrations/main-flow.camel.yaml', 'integrations/orders.camel.yaml');
-      expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
+      await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
     },
   );
 
@@ -78,11 +83,11 @@ describe('RenameField', () => {
     await waitFor(() => {
       expect(onDone).toHaveBeenCalledWith(false, 'integrations/orders.camel.yaml');
     });
-    expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
+    await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
   });
 
   it('cancels on Escape without renaming', async () => {
-    const rename = vi.spyOn(filesStore, 'renameFileAt');
+    const rename = vi.spyOn(indexedDbStorage, 'moveFile');
     const user = userEvent.setup();
     renderField();
 
@@ -93,7 +98,7 @@ describe('RenameField', () => {
   });
 
   it('does not rename when the field loses the focus after Escape, as it does while it is removed', async () => {
-    const rename = vi.spyOn(filesStore, 'renameFileAt');
+    const rename = vi.spyOn(indexedDbStorage, 'moveFile');
     const user = userEvent.setup();
     const { input } = renderField();
 
@@ -107,7 +112,7 @@ describe('RenameField', () => {
   });
 
   it('closes without writing when the name is unchanged', async () => {
-    const rename = vi.spyOn(filesStore, 'renameFileAt');
+    const rename = vi.spyOn(indexedDbStorage, 'moveFile');
     const user = userEvent.setup();
     renderField();
 
@@ -123,7 +128,7 @@ describe('RenameField', () => {
   ])(
     'keeps the field open with the error for %s on Enter, and gives up when the field loses the focus',
     async (_, typed, error) => {
-      const rename = vi.spyOn(filesStore, 'renameFileAt');
+      const rename = vi.spyOn(indexedDbStorage, 'moveFile');
       const user = userEvent.setup();
       const { input } = renderField();
 
@@ -143,7 +148,7 @@ describe('RenameField', () => {
   );
 
   it('shows a failed rename and stays open, so the name can be changed', async () => {
-    vi.spyOn(filesStore, 'renameFileAt').mockRejectedValueOnce(new Error('The storage is blocked'));
+    vi.spyOn(indexedDbStorage, 'moveFile').mockRejectedValueOnce(new Error('The storage is blocked'));
     const user = userEvent.setup();
     const { input } = renderField();
 
@@ -155,7 +160,7 @@ describe('RenameField', () => {
   });
 
   it('renames once when the field loses the focus right after Enter', async () => {
-    const rename = vi.spyOn(filesStore, 'renameFileAt');
+    const rename = vi.spyOn(indexedDbStorage, 'moveFile');
     const user = userEvent.setup();
     const { input } = renderField();
 
@@ -172,8 +177,8 @@ describe('RenameField', () => {
 
   it('reports a rename that finishes after the field was replaced only as renamed, not as done', async () => {
     let release: () => void = () => undefined;
-    const realRename = filesStore.renameFileAt.bind(filesStore);
-    const rename = vi.spyOn(filesStore, 'renameFileAt').mockImplementation(async (path, newPath) => {
+    const realRename = indexedDbStorage.moveFile.bind(indexedDbStorage);
+    const rename = vi.spyOn(indexedDbStorage, 'moveFile').mockImplementation(async (path, newPath) => {
       await new Promise<void>((resolve) => {
         release = resolve;
       });
@@ -196,7 +201,7 @@ describe('RenameField', () => {
     });
 
     await waitFor(async () => {
-      expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
+      await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
     });
     // The Explorer still moves the open file along
     expect(onRenamed).toHaveBeenCalledWith('integrations/main-flow.camel.yaml', 'integrations/orders.camel.yaml');
@@ -204,7 +209,7 @@ describe('RenameField', () => {
   });
 
   it('leaves Enter and Escape to an IME composition', () => {
-    const rename = vi.spyOn(filesStore, 'renameFileAt');
+    const rename = vi.spyOn(indexedDbStorage, 'moveFile');
     const { input } = renderField();
 
     fireEvent.change(input, { target: { value: 'orders.camel.yaml' } });

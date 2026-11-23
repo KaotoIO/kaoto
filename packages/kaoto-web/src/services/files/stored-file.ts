@@ -14,13 +14,6 @@ export interface StoredFile {
   updatedAt: number;
 }
 
-export interface NewFile {
-  path: string;
-  content: string;
-  /** Generated when omitted */
-  id?: string;
-}
-
 const TEST_FILE = /\.citrus\.(ya?ml|xml)$/;
 const INTEGRATION_FILE = /\.(camel\.(ya?ml|xml)|kamelet\.ya?ml)$/;
 
