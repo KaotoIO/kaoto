@@ -1,0 +1,12 @@
+# repeatCont is a deliberate typo of the timer option repeatCount: the UI test in src/lsp waits for its "Unknown option"
+# problem.
+- route:
+    id: camel-ls-route
+    from:
+      uri: timer
+      parameters:
+        timerName: tick
+        repeatCont: 3
+      steps:
+        - log:
+            message: Hello Camel

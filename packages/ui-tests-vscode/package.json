@@ -16,6 +16,7 @@
     "test:ui:vsix:views": "yarn test:ui:vsix 'src/views/*.test.ts'",
     "test:ui:vsix:project": "yarn test:ui:vsix 'src/project/*.test.ts'",
     "test:ui:vsix:deploy": "yarn test:ui:vsix --code_settings ./src/vscode-settings-minikube.json 'src/deploy/*.test.ts'",
+    "test:ui:vsix:lsp": "yarn test:ui:vsix 'src/lsp/*.test.ts'",
     "test:ui:clean": "rimraf ./test-resources && rimraf ./out && rimraf *.vsix"
   },
   "ciTestGroups": {
@@ -24,7 +25,8 @@
       "source",
       "views",
       "project",
-      "deploy"
+      "deploy",
+      "lsp"
     ],
     "smoke": [
       "editor",

@@ -44,7 +44,7 @@ yarn workspace @kaoto/ui-tests-vscode test:ui
 ```
 
 On Linux without a display, prefix the test command with `xvfb-run -a`. The views, project and deploy groups need Java
-and JBang, and the deploy group also needs minikube.
+and JBang, the lsp group needs Java 17 or newer and access to Maven Central, and the deploy group also needs minikube.
 
 ### Against a prebuilt VSIX
 
@@ -60,6 +60,7 @@ yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:source     # src/source/*.tes
 yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:views      # src/views/*.test.ts
 yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:project    # src/project/*.test.ts
 yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:deploy     # src/deploy/*.test.ts (minikube settings)
+yarn workspace @kaoto/ui-tests-vscode test:ui:vsix:lsp        # src/lsp/*.test.ts
 ```
 
 CI also sets `CODE_VERSION=max` (latest VS Code that ExTester supports), `TEST_RESOURCES` (ExTester storage, uploaded
@@ -88,11 +89,15 @@ runs.
 | `views`   | Kaoto views, New File, Run of a route, folder and workspace, Tests view                            | `all`                          |
 | `project` | Maven dependency update, Explorer "Open with Kaoto", a custom catalog URL, export to a new project | `all`                          |
 | `deploy`  | Deploy to minikube, Deployments view                                                               | `all`, `linuxOnly`             |
+| `lsp`     | Camel Language Server: download, start, diagnostics of a route and of application properties       | `all`                          |
 
 To add a group, add its folder under `src/`, a `test:ui:vsix:<group>` script, its glob in `extester.config.json` so that
 `test:ui:vsix` runs it too, and its name in `ciTestGroups.all`. **CI does not run a group that is missing from
 `ciTestGroups.all`.** Add it to `ciTestGroups.smoke` only if its tests drive the Kaoto webview, and to
-`ciTestGroups.withoutJBang` only if none of them runs Camel JBang.
+`ciTestGroups.withoutJBang` only if none of them needs Java or runs Camel JBang.
+
+The settings of the test instance turn the Camel Language Server off (`kaoto.lsp.enabled`), so that only the lsp group
+downloads and starts it. That group turns it on for its tests and restores the setting afterwards.
 
 ## Linux/Wayland troubleshooting
 
@@ -178,15 +183,15 @@ a pixel, even though nothing changed for the user.
 
 ## Layout
 
-| Path                                                                 | Contents                                                                  |
-| -------------------------------------------------------------------- | ------------------------------------------------------------------------- |
-| `src/editor`, `src/source`, `src/views`, `src/project`, `src/deploy` | Test groups; CI runs each group as its own job                            |
-| `src/pageObjects`                                                    | Kaoto page objects; `locators.ts` is ExTester's `customPageObjects`       |
-| `src/utils`                                                          | Helpers shared by the groups                                              |
-| `src/vscode-settings*.json`                                          | User settings for the VS Code test instance                               |
-| `src/.mocharc.json`                                                  | Mocha `failZero`: a run that finds no tests fails                         |
-| `test Fixture with speci@l chars/`                                   | Workspace the tests open; its name contains spaces and special characters |
-| `extester.config.json`                                               | ExTester setup and run options                                            |
+| Path                                                                            | Contents                                                                  |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `src/editor`, `src/source`, `src/views`, `src/project`, `src/deploy`, `src/lsp` | Test groups; CI runs each group as its own job                            |
+| `src/pageObjects`                                                               | Kaoto page objects; `locators.ts` is ExTester's `customPageObjects`       |
+| `src/utils`                                                                     | Helpers shared by the groups                                              |
+| `src/vscode-settings*.json`                                                     | User settings for the VS Code test instance                               |
+| `src/.mocharc.json`                                                             | Mocha `failZero`: a run that finds no tests fails                         |
+| `test Fixture with speci@l chars/`                                              | Workspace the tests open; its name contains spaces and special characters |
+| `extester.config.json`                                                          | ExTester setup and run options                                            |
 
 The tests and `src/utils` locate the fixture from `__dirname` (`src/<folder>/../../`), so these files must stay one folder
 below `src/`.

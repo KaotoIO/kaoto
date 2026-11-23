@@ -15,7 +15,8 @@
  */
 
 import { resolve } from 'node:path';
-import { ActivityBar, By, ExtensionsViewItem, ExtensionsViewSection, StatusBar, VSBrowser } from 'vscode-extension-tester';
+import { ActivityBar, By, ExtensionsViewItem, ExtensionsViewSection, StatusBar, VSBrowser, WebDriver } from 'vscode-extension-tester';
+import { getNotificationMessages, getStatusBarItemLabel, waitForProblem } from './workbench';
 
 /** The folder or workspace that the last call of openResourcesAndWaitForActivation opened. */
 let openedResource: string | undefined;
@@ -89,6 +90,70 @@ export async function waitForExtensionActivation(extensionName: string = 'Kaoto'
 			`Check that the extension activates properly and status bar messages complete.`,
 		interval,
 	);
+}
+
+/** The status bar item of the Camel Language Server has this in its label */
+const CAMEL_LANGUAGE_SERVER = 'Camel Language Server';
+
+/**
+ * Wait until the status bar item of the Camel Language Server says that it runs. The item shows only while the active tab
+ * is a file that the server serves, and the server starts only when the setting kaoto.lsp.enabled is on.
+ *
+ * Fails at once when the item says that the server failed to start. The error then gives the state of the server, see
+ * describeCamelLanguageServer.
+ *
+ * @param driver The WebDriver instance.
+ * @param timeout Time to wait in ms; the first start downloads the server JAR.
+ */
+export async function waitForCamelLanguageServer(driver: WebDriver, timeout: number): Promise<void> {
+	let status: string | undefined;
+	try {
+		await driver.wait(
+			async () => {
+				// the status bar re-renders the item when its text changes
+				status = (await getStatusBarItemLabel(CAMEL_LANGUAGE_SERVER).catch(() => undefined)) ?? status;
+				if (status?.includes('failed to start')) {
+					throw new Error('The Camel Language Server failed to start');
+				}
+				return status?.includes('is running') === true;
+			},
+			timeout,
+			`The Camel Language Server was not running within ${timeout} ms`,
+			1_000,
+		);
+	} catch (error) {
+		throw new Error(`${(error as Error).message}. ${await describeCamelLanguageServer(status)}`, { cause: error });
+	}
+}
+
+/**
+ * Wait until the Problems view lists a problem of the file that contains the message, as waitForProblem does. When none
+ * shows up, the error also gives the state of the Camel Language Server, see describeCamelLanguageServer.
+ *
+ * @param driver The WebDriver instance.
+ * @param fileName Name of the file, see getProblems.
+ * @param message Text of the diagnostic, such as "Unknown option".
+ * @param timeout Time to wait in ms.
+ */
+export async function waitForCamelLanguageServerDiagnostic(driver: WebDriver, fileName: string, message: string, timeout: number): Promise<void> {
+	try {
+		await waitForProblem(driver, fileName, message, timeout);
+	} catch (error) {
+		throw new Error(`${(error as Error).message}. ${await describeCamelLanguageServer()}`, { cause: error });
+	}
+}
+
+/**
+ * Describe the state of the Camel Language Server for an error: the label of its status bar item and the notifications,
+ * which tell why the server does not run or report, such as a missing Java or a failed download. Best effort, as it only
+ * adds to an error.
+ *
+ * @param lastStatus The last label of the status bar item that the caller saw, for when the item no longer shows.
+ */
+async function describeCamelLanguageServer(lastStatus?: string): Promise<string> {
+	const status = (await getStatusBarItemLabel(CAMEL_LANGUAGE_SERVER).catch(() => undefined)) ?? lastStatus;
+	const notifications = await getNotificationMessages().catch((): string[] => []);
+	return `Its status bar item: ${status ?? 'not shown'}. Notifications: ${notifications.join(' | ') || 'none'}`;
 }
 
 type KaotoStatusBarState = 'ready' | 'in-progress' | 'none';
