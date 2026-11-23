@@ -68,6 +68,33 @@ describe('IntegrationShell', () => {
     mockSetViewMode.mockClear();
   });
 
+  describe('header bar', () => {
+    it.each<[string, ViewMode, string]>([
+      ['main-flow', 'design', 'main-flow.camel.yaml'],
+      ['main-flow', 'code', 'main-flow.camel.yaml'],
+      ['main-flow', 'topology', 'main-flow.camel.yaml'],
+      ['schema', 'design', 'schema.xsd'],
+    ])('shows the name of the open file %s in the %s view', async (fileId, viewMode, name) => {
+      renderWithContext(fileId, viewMode);
+
+      expect(await screen.findByRole('heading', { level: 2, name })).toBeInTheDocument();
+    });
+
+    it('shows no header bar while the files are loading', async () => {
+      renderWithContext('main-flow');
+
+      expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+      await screen.findByTestId('route-visualization');
+    });
+
+    it('shows no header bar for a file that does not exist', async () => {
+      renderWithContext('missing-file');
+
+      expect(await screen.findByText('The file does not exist')).toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+    });
+  });
+
   it('renders the shell and body', async () => {
     renderWithContext();
     expect(screen.getByTestId('integration-shell')).toBeInTheDocument();
