@@ -643,8 +643,7 @@
       {
         "command": "kaoto.redo",
         "key": "ctrl+y",
-        "mac": "cmd+shift+z",
-        "when": "activeCustomEditorId == webviewEditorsKaoto"
+        "when": "activeCustomEditorId == webviewEditorsKaoto && !isMac"
       }
     ],
     "menus": {
@@ -991,7 +990,7 @@
         },
         {
           "command": "kaoto.tests.showSource",
-          "when": "view == kaoto.tests && viewItem =~ /^citrus-test-file/ || viewItem == testing-properties-file",
+          "when": "view == kaoto.tests && (viewItem =~ /^citrus-test-file/ || viewItem == testing-properties-file)",
           "group": "navigation@1"
         },
         {
