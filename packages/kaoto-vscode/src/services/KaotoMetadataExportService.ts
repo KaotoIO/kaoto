@@ -15,7 +15,7 @@
  */
 import path from 'path'; // NOSONAR
 import * as vscode from 'vscode';
-import { arePathsEqual } from '../utils/Path';
+import { arePathsEqual, isInsideDirectory } from '../utils/Path';
 import { parseAllDocuments } from 'yaml';
 import { KaotoOutputChannel } from '../extension/KaotoOutputChannel';
 import { findClasspathRoot } from '../utils/ClasspathRootFinder';
@@ -288,18 +288,12 @@ export class KaotoMetadataExportService {
 		}
 	}
 
-	/** Whether a path stays inside a directory, rather than pointing next to or above it. */
-	private static isInsideDirectory(directory: string, candidatePath: string): boolean {
-		const relative = path.relative(directory, candidatePath);
-		return relative !== '..' && !relative.startsWith(`..${path.sep}`) && !relative.startsWith('../') && !path.isAbsolute(relative);
-	}
-
 	/**
 	 * Whether a resolved path stays inside the given workspace folder. Without a workspace folder
 	 * (a route opened on its own) every path is accepted, which matches the .kaoto lookup.
 	 */
 	private static isWithinWorkspace(candidatePath: string, workspaceDir?: string): boolean {
-		return workspaceDir === undefined || KaotoMetadataExportService.isInsideDirectory(workspaceDir, candidatePath);
+		return workspaceDir === undefined || isInsideDirectory(workspaceDir, candidatePath);
 	}
 
 	/**
@@ -540,7 +534,7 @@ export class KaotoMetadataExportService {
 		group: { files: string[]; owners: vscode.Uri[] },
 		context: ResourceExportContext,
 	): Promise<{ missingFiles: string[]; conflict?: string }> {
-		if (!KaotoMetadataExportService.isInsideDirectory(context.targetResourcesDir, destination)) {
+		if (!isInsideDirectory(context.targetResourcesDir, destination)) {
 			KaotoOutputChannel.logWarning(`Kaoto export: "${group.files.join('", "')}" would be written outside the exported project. Skipping it.`);
 			return { missingFiles: group.files };
 		}

@@ -17,7 +17,7 @@ import { expect } from 'chai';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { expandPath } from '../../utils/Path';
+import { expandPath, isInsideDirectory } from '../../utils/Path';
 
 suite('Path', () => {
 	suite('expandPath', () => {
@@ -42,6 +42,21 @@ suite('Path', () => {
 
 		test('keeps the variables of a workspace folder without one', () => {
 			expect(expandPath('${workspaceFolder}/kamelets', CWD, undefined)).to.equal('${workspaceFolder}/kamelets');
+		});
+	});
+
+	suite('isInsideDirectory', () => {
+		const DIRECTORY = path.join(path.sep, 'workspace', 'app');
+
+		test('accepts the directory and the paths inside it', () => {
+			expect(isInsideDirectory(DIRECTORY, DIRECTORY)).to.be.true;
+			expect(isInsideDirectory(DIRECTORY, path.join(DIRECTORY, 'src', 'route.camel.yaml'))).to.be.true;
+		});
+
+		test('rejects the paths next to or above it, also when they start like it', () => {
+			expect(isInsideDirectory(DIRECTORY, path.join(path.sep, 'workspace', 'app-routes'))).to.be.false;
+			expect(isInsideDirectory(DIRECTORY, path.join(path.sep, 'workspace'))).to.be.false;
+			expect(isInsideDirectory(DIRECTORY, path.join(DIRECTORY, '..', 'other'))).to.be.false;
 		});
 	});
 });

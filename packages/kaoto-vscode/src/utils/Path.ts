@@ -39,6 +39,12 @@ export function arePathsEqual(path1: string, path2: string): boolean {
 	return normalizedPath1 === normalizedPath2;
 }
 
+/** Whether a path stays inside a directory, rather than pointing next to or above it. */
+export function isInsideDirectory(directory: string, candidatePath: string): boolean {
+	const relative = path.relative(directory, candidatePath);
+	return relative !== '..' && !relative.startsWith(`..${path.sep}`) && !relative.startsWith('../') && !path.isAbsolute(relative);
+}
+
 /**
  * Find the folder containing the pom.xml file for a given file.
  *
