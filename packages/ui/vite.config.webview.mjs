@@ -54,6 +54,8 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    // public/ holds files of the web app, such as its favicon, that the webview page does not use
+    publicDir: false,
     base: './',
     css: {
       preprocessorOptions: {
