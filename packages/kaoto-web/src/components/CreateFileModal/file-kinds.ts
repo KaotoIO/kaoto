@@ -10,6 +10,8 @@ export interface FileKind {
   description: string;
   icon: ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
   extension: string;
+  /** The `.yml` spelling of a YAML extension, which starts from the same template in the Explorer */
+  alternateExtensions?: string;
   template: StarterTemplateName;
 }
 
@@ -20,6 +22,7 @@ export const FILE_KINDS: FileKind[] = [
     description: 'Define an Apache Camel integration route using YAML DSL',
     icon: DocumentConfiguration,
     extension: '.camel.yaml',
+    alternateExtensions: '.camel.yml',
     template: 'camel-route-yaml',
   },
   {
@@ -36,6 +39,7 @@ export const FILE_KINDS: FileKind[] = [
     description: 'Reusable Camel route template with a well-defined interface',
     icon: Cube,
     extension: '.kamelet.yaml',
+    alternateExtensions: '.kamelet.yml',
     template: 'kamelet-source-yaml',
   },
   {
@@ -44,6 +48,15 @@ export const FILE_KINDS: FileKind[] = [
     description: 'Integration test using the Citrus testing framework',
     icon: Chemistry,
     extension: '.citrus.yaml',
+    alternateExtensions: '.citrus.yml',
     template: 'citrus-yaml',
+  },
+  {
+    id: 'citrus-test-xml',
+    label: 'Citrus Test XML',
+    description: 'Integration test using the Citrus testing framework with XML DSL',
+    icon: Chemistry,
+    extension: '.citrus.xml',
+    template: 'citrus-xml',
   },
 ];

@@ -1,5 +1,12 @@
-/** The starter templates of `@kaoto/camel-catalog` that kaoto-web creates files from */
-export type StarterTemplateName = 'camel-route-yaml' | 'camel-route-xml' | 'kamelet-source-yaml' | 'citrus-yaml';
+import { CITRUS_XML_TEMPLATE } from './citrus-xml-template';
+
+/** The starter templates that kaoto-web creates files from: those of `@kaoto/camel-catalog` and `citrus-xml` */
+export type StarterTemplateName =
+  | 'camel-route-yaml'
+  | 'camel-route-xml'
+  | 'kamelet-source-yaml'
+  | 'citrus-yaml'
+  | 'citrus-xml';
 
 const ID_PLACEHOLDER = /__KAOTO_ID__/g;
 /** The `metadata.name` of a Kamelet, which Camel expects to match the file name */
@@ -26,8 +33,12 @@ const fetchOk = async (url: URL): Promise<Response> => {
 /**
  * Loads a starter template from the catalog: the catalog index points to the templates manifest, which names the
  * template file. The file names carry a content hash, so they are never hardcoded.
+ *
+ * The catalog has no Citrus XML template, so that one is not fetched.
  */
 export const fetchStarterTemplate = async (catalogUrl: string, name: StarterTemplateName): Promise<string> => {
+  if (name === 'citrus-xml') return CITRUS_XML_TEMPLATE;
+
   const indexUrl = new URL(catalogUrl, globalThis.location.href);
   const index = (await (await fetchOk(indexUrl)).json()) as CatalogIndex;
   if (!index.starterTemplates) throw new Error('The catalog has no starter templates');

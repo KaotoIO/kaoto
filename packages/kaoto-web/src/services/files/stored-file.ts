@@ -21,14 +21,15 @@ export interface NewFile {
   id?: string;
 }
 
-const TEST_FILE = /\.citrus(\.(test|it))?\.(ya?ml|xml)$/;
-const INTEGRATION_FILE = /\.(ya?ml|xml)$/;
+const TEST_FILE = /\.citrus\.(ya?ml|xml)$/;
+const INTEGRATION_FILE = /\.(camel\.(ya?ml|xml)|kamelet\.ya?ml)$/;
 
 /**
  * The type of a file, from its extension.
  *
- * Citrus files are integration tests. Any other YAML or XML file is an integration, as Kaoto opens such a file as a
- * Camel route; every other file is a document.
+ * `.citrus.yaml`, `.citrus.yml` and `.citrus.xml` files are integration tests; `.camel.yaml`, `.camel.yml`,
+ * `.camel.xml`, `.kamelet.yaml` and `.kamelet.yml` files are integrations. Every other file, including a plain YAML or
+ * XML file, is a document, as it is not a Kaoto resource.
  */
 export const getFileType = (path: string): FileType => {
   if (TEST_FILE.test(path)) return 'integration-test';

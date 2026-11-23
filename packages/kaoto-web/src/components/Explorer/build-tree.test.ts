@@ -44,17 +44,17 @@ describe('buildTree', () => {
 
   it('lists folders before files, each sorted by name', () => {
     const tree = buildTree([
-      { id: 'z', path: 'z.yaml' },
-      { id: 'b', path: 'b/x.yaml' },
-      { id: 'a', path: 'a.yaml' },
-      { id: 'c', path: 'a/y.yaml' },
+      { id: 'z', path: 'z.camel.yaml' },
+      { id: 'b', path: 'b/x.camel.yaml' },
+      { id: 'a', path: 'a.camel.yaml' },
+      { id: 'c', path: 'a/y.camel.yaml' },
     ]);
 
     expect(tree.map((node) => [node.type, node.name])).toEqual([
       ['folder', 'a'],
       ['folder', 'b'],
-      ['integration', 'a.yaml'],
-      ['integration', 'z.yaml'],
+      ['integration', 'a.camel.yaml'],
+      ['integration', 'z.camel.yaml'],
     ]);
   });
 

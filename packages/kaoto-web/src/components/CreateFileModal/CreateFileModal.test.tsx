@@ -60,7 +60,8 @@ const renderModal = () =>
 
 const storedFiles = () => filesStore.getFiles();
 
-const fileType = (name: string) => screen.getByRole('radio', { name: new RegExp(`^${name}`) });
+/** The tile of the type; "Citrus Test" must not match "Citrus Test XML" */
+const fileType = (name: string) => screen.getByRole('radio', { name: new RegExp(`^${name}(?! XML)`) });
 
 describe('CreateFileModal', () => {
   beforeEach(() => {
@@ -79,7 +80,7 @@ describe('CreateFileModal', () => {
     expect(screen.getByRole('heading', { name: 'Create new file' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'File type' })).toBeInTheDocument();
     expect(fileType('Camel Route YAML')).toBeChecked();
-    for (const type of ['Camel Route XML', 'Kamelet', 'Citrus Test']) {
+    for (const type of ['Camel Route XML', 'Kamelet', 'Citrus Test', 'Citrus Test XML']) {
       expect(fileType(type)).not.toBeChecked();
     }
     expect(screen.queryByRole('radio', { name: /^Pipe/ })).not.toBeInTheDocument();
@@ -106,6 +107,7 @@ describe('CreateFileModal', () => {
     ['Camel Route XML', 'orders.camel.xml'],
     ['Kamelet', 'orders.kamelet.yaml'],
     ['Citrus Test', 'orders.citrus.yaml'],
+    ['Citrus Test XML', 'orders.citrus.xml'],
   ])('shows the path of a %s', async (type, path) => {
     const user = userEvent.setup();
     renderModal();
@@ -237,6 +239,24 @@ describe('CreateFileModal', () => {
       expect(onClose).toHaveBeenCalled();
     });
     expect((await storedFiles()).map((file) => file.path)).toEqual(['orders.citrus.yaml']);
+  });
+
+  it('creates a Citrus test in XML from the bundled template, without loading it from the catalog', async () => {
+    const user = userEvent.setup();
+    renderModal();
+
+    await user.click(fileType('Citrus Test XML'));
+    await user.type(screen.getByLabelText('File name'), 'orders');
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => {
+      expect(onClose).toHaveBeenCalled();
+    });
+    const [file] = await storedFiles();
+    expect(file.path).toBe('orders.citrus.xml');
+    expect(file.content).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n<test [^>]*name="test-\d{4}">/);
+    expect(file.content).not.toContain('__KAOTO_ID__');
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it('does not create a file on Enter while the name is not valid', async () => {

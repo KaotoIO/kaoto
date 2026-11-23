@@ -76,7 +76,8 @@
       fill: $support-error;
     }
 
-    &--citrus-test {
+    &--citrus-test,
+    &--citrus-test-xml {
       fill: $support-warning;
     }
   }
