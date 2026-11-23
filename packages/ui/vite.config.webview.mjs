@@ -34,6 +34,23 @@ export default defineConfig(({ mode }) => {
           assetFileNames: (assetInfo) => (assetInfo.name?.endsWith('.css') ? 'KaotoEditor.css' : '[name][extname]'),
           sourcemapPathTransform: (relativeSourcePath, sourcemapPath) =>
             path.resolve(path.dirname(sourcemapPath), relativeSourcePath),
+          codeSplitting: {
+            groups: [
+              {
+                // Monaco imports each of its 81 built-in languages on demand, which made a chunk per language and put
+                // more than 100 JavaScript files in the VSIX, the count above which vsce asks to bundle the extension.
+                // The languages share one chunk instead, still loaded when an editor first needs one of them. The
+                // `.contribution.js` files register the languages as Monaco starts, so they stay with the editor.
+                name: 'monaco-languages',
+                test: (id) =>
+                  /[\\/]monaco-editor[\\/]esm[\\/]vs[\\/]basic-languages[\\/]/.test(id) &&
+                  !id.endsWith('.contribution.js'),
+                // The languages import the Monaco editor itself, which is loaded before them. Taking their imports in
+                // too would move the whole editor into this chunk.
+                includeDependenciesRecursively: false,
+              },
+            ],
+          },
         },
       },
     },
