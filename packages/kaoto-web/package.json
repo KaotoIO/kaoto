@@ -41,7 +41,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-is": "^19.0.0",
-    "react-router": "^8.0.0"
+    "react-router": "^8.0.0",
+    "zustand": "^5.0.11"
   },
   "devDependencies": {
     "@carbon-labs/vscode-snippets": "^0.5.0",
