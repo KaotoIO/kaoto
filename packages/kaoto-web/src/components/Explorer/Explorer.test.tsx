@@ -169,18 +169,20 @@ describe('Explorer', () => {
     expect(screen.getByTestId('location')).toHaveTextContent(`/workspace/file/${id}`);
   });
 
-  it.each(['orders-pipe', 'legacy-route'])('does not open %s (not a canvas resource) on click', async (id) => {
-    const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
-    const user = userEvent.setup();
-    renderWithNavigation(<LocationDisplay />);
+  it.each(['orders-pipe', 'legacy-route'])(
+    'opens %s (not a canvas resource) on click, in its text editor',
+    async (id) => {
+      const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
+      const user = userEvent.setup();
+      renderWithNavigation(<LocationDisplay />);
 
-    const folderNode = await screen.findByTestId('explorer-folder-integrations');
-    await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
-    await user.click(screen.getByTestId(`explorer-file-${id}`));
+      const folderNode = await screen.findByTestId('explorer-folder-integrations');
+      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+      await user.click(screen.getByTestId(`explorer-file-${id}`));
 
-    expect(screen.getByTestId('location')).toHaveTextContent('/workspace');
-    expect(screen.getByTestId('location')).not.toHaveTextContent(`/workspace/file/${id}`);
-  });
+      expect(screen.getByTestId('location')).toHaveTextContent(`/workspace/file/${id}`);
+    },
+  );
 
   it('renders the sidebar structure', async () => {
     renderComponent();
@@ -349,7 +351,7 @@ describe('Explorer', () => {
   describe('opening files', () => {
     const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
 
-    it('does not navigate when a non-integration file is clicked', async () => {
+    it('opens a file that is not a route when it is clicked, in its text editor', async () => {
       const user = userEvent.setup();
       renderWithNavigation(<LocationDisplay />);
 
@@ -357,8 +359,7 @@ describe('Explorer', () => {
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
       await user.click(screen.getByTestId('explorer-file-schema'));
 
-      expect(screen.getByTestId('location')).toHaveTextContent('/workspace');
-      expect(screen.getByTestId('location')).not.toHaveTextContent('/file/');
+      expect(screen.getByTestId('location')).toHaveTextContent('/workspace/file/schema');
     });
   });
 
@@ -1059,8 +1060,10 @@ describe('Explorer', () => {
       await waitFor(() => {
         expect(screen.getByTestId(`explorer-file-${created.id}`)).toHaveFocus();
       });
-      // A document does not open
-      expect(screen.getByTestId('location').textContent).toBe('/workspace');
+      // Every file opens, a document in the text editor
+      await waitFor(() => {
+        expect(screen.getByTestId('location').textContent).toBe(`/workspace/file/${created.id}`);
+      });
     });
 
     it('creates a folder that stays after a reload, even while it is empty', async () => {
