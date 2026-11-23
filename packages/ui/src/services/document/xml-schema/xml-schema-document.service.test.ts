@@ -524,8 +524,8 @@ describe('XmlSchemaDocumentService', () => {
     const personType = document.namedTypeFragments[person.namedTypeFragmentRefs[0]];
     expect(personType).toBeDefined();
 
-    // name, street, city from AddressGroup, 1 choice wrapper, createdBy, createdDate, @id, @version, @status
-    expect(personType.fields).toHaveLength(9);
+    // name, street, city from AddressGroup, 1 choice wrapper, createdBy, createdDate, @id, @version
+    expect(personType.fields).toHaveLength(8);
 
     const nameField = personType.fields.find((f) => f.name === 'name');
     expect(nameField).toBeDefined();
@@ -564,9 +564,7 @@ describe('XmlSchemaDocumentService', () => {
     expect(versionAttr!.maxOccurs).toBe(1);
 
     const statusAttr = personType.fields.find((f) => f.name === 'status' && f.isAttribute);
-    expect(statusAttr).toBeDefined();
-    expect(statusAttr!.minOccurs).toBe(0); // prohibited
-    expect(statusAttr!.maxOccurs).toBe(0);
+    expect(statusAttr).toBeUndefined();
 
     const restricted = root.fields[1];
     expect(restricted.name).toBe('restricted');
@@ -731,7 +729,7 @@ describe('XmlSchemaDocumentService', () => {
     );
     const simpleAddressType = document.namedTypeFragments[simpleAddressRef];
     expect(simpleAddressType).toBeDefined();
-    expect(simpleAddressType.fields).toHaveLength(6);
+    expect(simpleAddressType.fields).toHaveLength(5);
     expect(simpleAddressType.fields[0].name).toBe('id');
     expect(simpleAddressType.fields[0].isAttribute).toBeTruthy();
     expect(simpleAddressType.fields[0].minOccurs).toBe(1);
@@ -743,9 +741,7 @@ describe('XmlSchemaDocumentService', () => {
     expect(simpleAddressType.fields[3].isAttribute).toBeFalsy();
     expect(simpleAddressType.fields[4].name).toBe('zip');
     expect(simpleAddressType.fields[4].isAttribute).toBeFalsy();
-    expect(simpleAddressType.fields[5].name).toBe('country');
-    expect(simpleAddressType.fields[5].isAttribute).toBeFalsy();
-    expect(simpleAddressType.fields[5].maxOccurs).toBe(0);
+    expect(simpleAddressType.fields.some((f) => f.name === 'country')).toBe(false);
 
     expect(simpleAddressType.namedTypeFragmentRefs).toHaveLength(0);
 

@@ -25,6 +25,7 @@ import { XmlSchemaAny } from './particle/XmlSchemaAny';
 import { XmlSchemaChoice } from './particle/XmlSchemaChoice';
 import { XmlSchemaElement } from './particle/XmlSchemaElement';
 import { XmlSchemaGroupRef } from './particle/XmlSchemaGroupRef';
+import { XmlSchemaParticle } from './particle/XmlSchemaParticle';
 import { XmlSchemaSequence } from './particle/XmlSchemaSequence';
 import { QName } from './QName';
 import { SchemaKey } from './SchemaKey';
@@ -113,23 +114,13 @@ export class SchemaBuilder {
   }
 
   getMaxOccurs(el: Element): MaxOccursType | null {
-    if (el.getAttributeNode('maxOccurs') != null) {
-      const value = el.getAttribute('maxOccurs')!;
-      if ('unbounded' === value) {
-        return 'unbounded';
-      } else {
-        return Number.parseInt(value);
-      }
-    }
-    return null;
+    const attr = el.getAttributeNode('maxOccurs');
+    return attr == null ? null : XmlSchemaParticle.parseMaxOccurs(attr.value);
   }
 
   getMinOccurs(el: Element): number | null {
-    if (el.getAttributeNode('minOccurs') != null) {
-      const value = el.getAttribute('minOccurs')!;
-      return Number.parseInt(value);
-    }
-    return null;
+    const attr = el.getAttributeNode('minOccurs');
+    return attr == null ? null : XmlSchemaParticle.parseMinOccurs(attr.value);
   }
 
   /**

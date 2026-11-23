@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/PROHIBITED"
+           xmlns:tns="http://www.example.com/PROHIBITED"
+           elementFormDefault="qualified">
+
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="RestrictedPlain" type="tns:RestrictedPlain"/>
+        <xs:element name="ChainTop" type="tns:ChainTop"/>
+        <xs:element name="SimpleChainTop" type="tns:SimpleChainTop"/>
+        <xs:element name="ProhibitedViaGroup" type="tns:ProhibitedViaGroup"/>
+        <xs:element name="BaseGroupRestricted" type="tns:BaseGroupRestricted"/>
+        <xs:element name="ProhibitedByRef" type="tns:ProhibitedByRef"/>
+        <xs:element name="ProhibitedByName" type="tns:ProhibitedByName"/>
+        <xs:element name="UnqualifiedSameName" type="tns:UnqualifiedSameName"/>
+        <xs:element name="RestrictedExtension" type="tns:RestrictedExtension"/>
+        <xs:element name="ReAdded" type="tns:ReAdded"/>
+        <xs:element name="ExtendedZeroed" type="tns:ExtendedZeroed"/>
+        <xs:element name="ExtensionOwnAttributes" type="tns:ExtensionOwnAttributes"/>
+        <xs:element name="ExtensionOwnElements" type="tns:ExtensionOwnElements"/>
+        <xs:element name="ZeroedGroups" type="tns:ZeroedGroups"/>
+        <xs:element name="ZeroedAll" type="tns:ZeroedAll"/>
+        <xs:element name="ZeroedGroupRefParticle" type="tns:ZeroedGroupRefParticle"/>
+        <xs:element name="ZeroedFirstAlternative" type="tns:ZeroedFirstAlternative"/>
+        <xs:element name="ZeroedMiddle" type="tns:ZeroedMiddle"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:attribute name="qattr" type="xs:string"/>
+
+  <xs:element name="AbstractThing" abstract="true"/>
+  <xs:element name="ConcreteThing" type="xs:string" substitutionGroup="tns:AbstractThing"/>
+
+  <xs:group name="ZeroGroup">
+    <xs:sequence>
+      <xs:element name="zg1" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+
+  <xs:attributeGroup name="DropProhibitedGroup">
+    <xs:attribute name="drop" use="prohibited"/>
+  </xs:attributeGroup>
+
+  <xs:attributeGroup name="KeepDropGroup">
+    <xs:attribute name="keep" type="xs:string"/>
+    <xs:attribute name="drop" type="xs:string"/>
+  </xs:attributeGroup>
+
+  <xs:complexType name="PlainBase">
+    <xs:attribute name="keep" type="xs:string"/>
+    <xs:attribute name="drop" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="RestrictedPlain">
+    <xs:complexContent>
+      <xs:restriction base="tns:PlainBase">
+        <xs:attribute name="drop" use="prohibited"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ChainMiddle">
+    <xs:complexContent>
+      <xs:restriction base="tns:PlainBase">
+        <xs:attribute name="drop" use="prohibited"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ChainTop">
+    <xs:complexContent>
+      <xs:restriction base="tns:ChainMiddle"/>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="SimpleExt">
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attribute name="keep" type="xs:string"/>
+        <xs:attribute name="drop" type="xs:string"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="SimpleRestricted">
+    <xs:simpleContent>
+      <xs:restriction base="tns:SimpleExt">
+        <xs:attribute name="drop" use="prohibited"/>
+      </xs:restriction>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="SimpleChainTop">
+    <xs:simpleContent>
+      <xs:restriction base="tns:SimpleRestricted"/>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="ProhibitedViaGroup">
+    <xs:complexContent>
+      <xs:restriction base="tns:PlainBase">
+        <xs:attributeGroup ref="tns:DropProhibitedGroup"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="GroupedBase">
+    <xs:attributeGroup ref="tns:KeepDropGroup"/>
+  </xs:complexType>
+
+  <xs:complexType name="BaseGroupRestricted">
+    <xs:complexContent>
+      <xs:restriction base="tns:GroupedBase">
+        <xs:attribute name="drop" use="prohibited"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="QualifiedByNameBase">
+    <xs:attribute name="keep" type="xs:string"/>
+    <xs:attribute name="qattr" type="xs:string" form="qualified"/>
+  </xs:complexType>
+
+  <xs:complexType name="ProhibitedByRef">
+    <xs:complexContent>
+      <xs:restriction base="tns:QualifiedByNameBase">
+        <xs:attribute ref="tns:qattr" use="prohibited"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="QualifiedByRefBase">
+    <xs:attribute name="keep" type="xs:string"/>
+    <xs:attribute ref="tns:qattr"/>
+  </xs:complexType>
+
+  <xs:complexType name="ProhibitedByName">
+    <xs:complexContent>
+      <xs:restriction base="tns:QualifiedByRefBase">
+        <xs:attribute name="qattr" form="qualified" use="prohibited"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="UnqualifiedBase">
+    <xs:attribute name="keep" type="xs:string"/>
+    <xs:attribute name="qattr" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="UnqualifiedSameName">
+    <xs:complexContent>
+      <xs:restriction base="tns:UnqualifiedBase">
+        <xs:attribute ref="tns:qattr" use="prohibited"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ExtWithOwn">
+    <xs:complexContent>
+      <xs:extension base="tns:PlainBase">
+        <xs:attribute name="extKeep" type="xs:string"/>
+        <xs:attribute name="extDrop" type="xs:string"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="RestrictedExtension">
+    <xs:complexContent>
+      <xs:restriction base="tns:ExtWithOwn">
+        <xs:attribute name="extDrop" use="prohibited"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ReAdded">
+    <xs:complexContent>
+      <xs:extension base="tns:RestrictedPlain">
+        <xs:attribute name="drop" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ElementBase">
+    <xs:sequence>
+      <xs:element name="a" type="xs:string"/>
+      <xs:element name="b" type="xs:string" minOccurs="0"/>
+      <xs:element name="c" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ElementRestricted">
+    <xs:complexContent>
+      <xs:restriction base="tns:ElementBase">
+        <xs:sequence>
+          <xs:element name="a" type="xs:string"/>
+          <xs:element name="b" type="xs:string" minOccurs="0" maxOccurs="0"/>
+          <xs:element name="c" type="xs:string"/>
+        </xs:sequence>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ExtendedZeroed">
+    <xs:complexContent>
+      <xs:extension base="tns:ElementRestricted">
+        <xs:sequence>
+          <xs:element name="d" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ExtensionOwnAttributes">
+    <xs:complexContent>
+      <xs:extension base="tns:PlainBase">
+        <xs:attribute name="keep" use="prohibited"/>
+        <xs:attribute name="newDrop" use="prohibited"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ExtensionOwnElements">
+    <xs:complexContent>
+      <xs:extension base="tns:ElementBase">
+        <xs:sequence>
+          <xs:element name="a" type="xs:string" maxOccurs="0"/>
+          <xs:element name="newZero" type="xs:string" maxOccurs="0"/>
+          <xs:element name="kept" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="ZeroedGroups">
+    <xs:sequence>
+      <xs:element name="kept1" type="xs:string"/>
+      <xs:choice maxOccurs="0">
+        <xs:element name="zc1" type="xs:string"/>
+        <xs:element name="zc2" type="xs:string"/>
+      </xs:choice>
+      <xs:sequence maxOccurs="0">
+        <xs:element name="zs1" type="xs:string"/>
+      </xs:sequence>
+      <xs:choice>
+        <xs:element name="ca" type="xs:string"/>
+        <xs:sequence maxOccurs="0">
+          <xs:element name="zsc" type="xs:string"/>
+        </xs:sequence>
+      </xs:choice>
+      <xs:group ref="tns:ZeroGroup" maxOccurs="0"/>
+      <xs:element ref="tns:AbstractThing" maxOccurs="0"/>
+      <xs:element name="kept2" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ZeroedAll">
+    <xs:all minOccurs="0" maxOccurs="0">
+      <xs:element name="za" type="xs:string"/>
+    </xs:all>
+    <xs:attribute name="keep" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="ZeroedGroupRefParticle">
+    <xs:group ref="tns:ZeroGroup" maxOccurs="0"/>
+    <xs:attribute name="keep" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="ZeroedFirstAlternative">
+    <xs:choice>
+      <xs:element name="alt0" type="xs:string" maxOccurs="0"/>
+      <xs:element name="alt1" type="xs:string"/>
+      <xs:element name="alt2" type="xs:string"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="MiddleBase">
+    <xs:sequence>
+      <xs:element name="first" type="xs:string"/>
+      <xs:element name="middle" type="xs:string" minOccurs="0"/>
+      <xs:element name="last" type="xs:string"/>
+    </xs:sequence>
+    <xs:attribute name="keep" type="xs:string"/>
+    <xs:attribute name="drop" type="xs:string"/>
+  </xs:complexType>
+
+  <xs:complexType name="ZeroedMiddle">
+    <xs:complexContent>
+      <xs:restriction base="tns:MiddleBase">
+        <xs:sequence>
+          <xs:element name="first" type="xs:string"/>
+          <xs:element name="middle" type="xs:string" minOccurs="0" maxOccurs="0"/>
+          <xs:element name="last" type="xs:string"/>
+        </xs:sequence>
+        <xs:attribute name="drop" use="prohibited"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>

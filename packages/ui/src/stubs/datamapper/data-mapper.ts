@@ -257,6 +257,12 @@ export function getSchemaTestXsd(): string {
 export function getRestrictionComplexXsd(): string {
   return readStubFile('./xml/RestrictionComplex.xsd');
 }
+export function getProhibitedComponentsXsd(): string {
+  return readStubFile('./xml/ProhibitedComponents.xsd');
+}
+export function getProhibitedComponentsXslt(): string {
+  return readStubFile('./xml/ProhibitedComponents.xsl');
+}
 export function getRestrictionSimpleXsd(): string {
   return readStubFile('./xml/RestrictionSimple.xsd');
 }

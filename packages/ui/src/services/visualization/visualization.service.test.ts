@@ -205,8 +205,8 @@ describe('VisualizationService', () => {
       expect(personField).toBeDefined();
       const personChildren = VisualizationService.generateNonDocumentNodeDataChildren(personField);
 
-      // name, street, city, choice wrapper, createdBy, createdDate, @id, @version, @status
-      expect(personChildren).toHaveLength(9);
+      // name, street, city, choice wrapper, createdBy, createdDate, @id, @version
+      expect(personChildren).toHaveLength(8);
 
       const nameField = personChildren.find((child) => child.title === 'name');
       expect(nameField).toBeDefined();
@@ -249,7 +249,7 @@ describe('VisualizationService', () => {
       expect(versionAttr).toBeDefined();
 
       const statusAttr = personChildren.find((child) => child.title === 'status');
-      expect(statusAttr).toBeDefined();
+      expect(statusAttr).toBeUndefined();
 
       const restrictedField = rootChildren.find((child) => child.title === 'restricted') as FieldNodeData;
       expect(restrictedField).toBeDefined();

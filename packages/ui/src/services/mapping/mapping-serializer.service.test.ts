@@ -35,6 +35,8 @@ import {
   getFieldSubstitutionXsd,
   getForEachSortToShipOrderXslt,
   getInvoice850Xsd,
+  getProhibitedComponentsXsd,
+  getProhibitedComponentsXslt,
   getRawTextNodeXslt,
   getSchemaTestToSchemaTestXslt,
   getSchemaTestXsd,
@@ -721,6 +723,52 @@ describe('MappingSerializerService', () => {
       expect(itemsFieldItem.field.namedTypeFragmentRefs).toHaveLength(0);
       expect(itemsFieldItem.field.fields).toHaveLength(1);
       expect(itemsFieldItem.field.fields[0] instanceof XmlSchemaField).toBeTruthy();
+    });
+
+    it('should keep mappings to an element and an attribute the schema leaves out, and write them back', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.TARGET_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'Prohibited',
+        { 'ProhibitedComponents.xsd': getProhibitedComponentsXsd() },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getProhibitedComponentsXslt(),
+        result.document!,
+        mappingTree,
+        sourceParameterMap,
+      ));
+
+      const zeroedMiddle = (mappingTree.children[0] as FieldItem).children[0] as FieldItem;
+      const mapped = zeroedMiddle.children.filter((child): child is FieldItem => child instanceof FieldItem);
+      const middle = mapped.find((item) => item.field.name === 'middle');
+      const drop = mapped.find((item) => item.field.name === 'drop');
+      expect(middle?.field).toBeDefined();
+      expect(middle?.field).not.toBeInstanceOf(XmlSchemaField);
+      expect(drop?.field.isAttribute).toBe(true);
+      expect(drop?.field).not.toBeInstanceOf(XmlSchemaField);
+
+      const serialized = domParser.parseFromString(
+        MappingSerializerService.serialize(mappingTree, sourceParameterMap),
+        'application/xml',
+      );
+      const zeroedMiddleElement = serialized.getElementsByTagNameNS(
+        'http://www.example.com/PROHIBITED',
+        'ZeroedMiddle',
+      )[0];
+      const written = Array.from(zeroedMiddleElement.children);
+      expect(written.filter((el) => el.namespaceURI === NS_XSL).map((el) => el.getAttribute('name'))).toEqual([
+        'keep',
+        'drop',
+      ]);
+      expect(written.filter((el) => el.namespaceURI !== NS_XSL).map((el) => el.localName)).toEqual([
+        'first',
+        'last',
+        'middle',
+      ]);
     });
 
     it('should deserialize multiple for-each mappings on a same target collection', () => {

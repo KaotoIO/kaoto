@@ -29,8 +29,7 @@ export class FieldCardinality {
 
   /**
    * `true` when `maxOccurs` is `'unbounded'` or a number above 1. This covers the `Number.MAX_SAFE_INTEGER`
-   * the JSON Schema model assigns to array items. A `maxOccurs` of `0`, or the `NaN` the schema parser
-   * produces for a non-numeric attribute, is not a collection.
+   * the JSON Schema model assigns to array items. A `maxOccurs` of `0` or `NaN` is not a collection.
    *
    * Use this static form for a one-off check on a field, so no instance is allocated. Build an instance
    * with {@link FieldCardinality.of} only when the cardinality is kept and read more than once, or passed on.

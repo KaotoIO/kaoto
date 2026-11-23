@@ -69,6 +69,8 @@ export class XmlSchemaDocumentService {
     Set<XmlSchemaComplexContentExtension>
   >();
 
+  private static readonly NO_EXCLUDED_ATTRIBUTES: ReadonlySet<string> = new Set();
+
   /**
    * Creates an XML Schema Document from a DocumentDefinition.
    * @param definition The DocumentDefinition containing schema information and configuration
@@ -336,6 +338,8 @@ export class XmlSchemaDocumentService {
    * because the caller adds the new files to `document.definition.definitionFiles` only after this call.
    * @param document - The document whose schema collection will be updated
    * @param additionalFiles - Map of file paths to file contents to add
+   * @remarks A malformed `minOccurs` or `maxOccurs` in an added file loads as `1` without a warning here; the
+   * warning is shown only when the files are attached through the Attach Schema modal.
    */
   static addSchemaFiles(document: XmlSchemaDocument, additionalFiles: Record<string, string>): void {
     const collection = document.xmlSchemaCollection;
@@ -855,11 +859,12 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     attr: XmlSchemaAttributeOrGroupRef,
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     if (attr instanceof XmlSchemaAttribute) {
-      XmlSchemaDocumentService.populateAttribute(parent, fields, attr);
+      XmlSchemaDocumentService.populateAttribute(parent, fields, attr, excludedAttributes);
     } else if (attr instanceof XmlSchemaAttributeGroupRef) {
-      XmlSchemaDocumentService.populateAttributeGroupRef(parent, fields, attr);
+      XmlSchemaDocumentService.populateAttributeGroupRef(parent, fields, attr, new Set(), excludedAttributes);
     }
   }
 
@@ -923,18 +928,32 @@ export class XmlSchemaDocumentService {
 
   /**
    * Populates an XML attribute as an {@link XmlSchemaField} into the given fields array.
-   * Skips attributes that already exist in fields (by name, namespace, and isAttribute). Handles required,
-   * optional, and prohibited use cases by setting minOccurs and maxOccurs accordingly.
+   * Skips attributes that already exist in fields (by name, namespace, and isAttribute). Handles required and
+   * optional use cases by setting minOccurs and maxOccurs accordingly. A `use="prohibited"` attribute is not a
+   * field, and neither is an attribute whose key is in `excludedAttributes`: a derived restriction prohibits it,
+   * so the restricted type does not inherit it.
    * @param parent - The parent document or field that owns the fields array
    * @param fields - The target array to append the new field to
    * @param attr - The XML schema attribute to convert into a field
+   * @param excludedAttributes - Keys of the attributes a derived restriction prohibits
    */
-  static populateAttribute(parent: XmlSchemaParentType, fields: XmlSchemaField[], attr: XmlSchemaAttribute) {
+  static populateAttribute(
+    parent: XmlSchemaParentType,
+    fields: XmlSchemaField[],
+    attr: XmlSchemaAttribute,
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
+  ) {
     const name = attr.getWireName()!.getLocalPart()!;
     const namespaceURI = attr.getWireName()!.getNamespaceURI();
     const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
 
     if (fields.some((f) => f.name === name && f.isAttribute && f.namespaceURI === namespaceURI)) {
+      return;
+    }
+    if (attr.getUse() === XmlSchemaUse.PROHIBITED) {
+      return;
+    }
+    if (excludedAttributes.has(XmlSchemaDocumentService.getAttributeKey(attr))) {
       return;
     }
 
@@ -969,27 +988,10 @@ export class XmlSchemaDocumentService {
       }
     }
 
-    const use = attr.getUse();
-    switch (use) {
-      case XmlSchemaUse.PROHIBITED:
-        field.maxOccurs = 0;
-        field.minOccurs = 0;
-        field.minOccursExplicit = true;
-        field.maxOccursExplicit = true;
-        break;
-      case XmlSchemaUse.REQUIRED:
-        field.minOccurs = 1;
-        field.maxOccurs = 1;
-        field.minOccursExplicit = true;
-        field.maxOccursExplicit = true;
-        break;
-      default:
-        field.minOccurs = 0;
-        field.maxOccurs = 1;
-        field.minOccursExplicit = true;
-        field.maxOccursExplicit = true;
-        break;
-    }
+    field.minOccurs = attr.getUse() === XmlSchemaUse.REQUIRED ? 1 : 0;
+    field.maxOccurs = 1;
+    field.minOccursExplicit = true;
+    field.maxOccursExplicit = true;
   }
 
   private static populateAttributeGroupRef(
@@ -997,9 +999,10 @@ export class XmlSchemaDocumentService {
     fields: XmlSchemaField[],
     groupRef: XmlSchemaAttributeGroupRef,
     visitedGroups: Set<XmlSchemaAttributeGroup> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const ref: XmlSchemaRef<XmlSchemaAttributeGroup> = groupRef.getRef();
-    XmlSchemaDocumentService.populateAttributeGroup(parent, fields, ref.getTarget(), visitedGroups);
+    XmlSchemaDocumentService.populateAttributeGroup(parent, fields, ref.getTarget(), visitedGroups, excludedAttributes);
   }
 
   private static populateAttributeGroupMember(
@@ -1007,13 +1010,14 @@ export class XmlSchemaDocumentService {
     fields: XmlSchemaField[],
     member: XmlSchemaAttributeGroupMember,
     visitedGroups: Set<XmlSchemaAttributeGroup> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     if (member instanceof XmlSchemaAttribute) {
-      XmlSchemaDocumentService.populateAttribute(parent, fields, member);
+      XmlSchemaDocumentService.populateAttribute(parent, fields, member, excludedAttributes);
     } else if (member instanceof XmlSchemaAttributeGroup) {
-      XmlSchemaDocumentService.populateAttributeGroup(parent, fields, member, visitedGroups);
+      XmlSchemaDocumentService.populateAttributeGroup(parent, fields, member, visitedGroups, excludedAttributes);
     } else if (member instanceof XmlSchemaAttributeGroupRef) {
-      XmlSchemaDocumentService.populateAttributeGroupRef(parent, fields, member, visitedGroups);
+      XmlSchemaDocumentService.populateAttributeGroupRef(parent, fields, member, visitedGroups, excludedAttributes);
     }
   }
 
@@ -1022,14 +1026,55 @@ export class XmlSchemaDocumentService {
     fields: XmlSchemaField[],
     group: XmlSchemaAttributeGroup | null,
     visitedGroups: Set<XmlSchemaAttributeGroup> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     if (group == null || visitedGroups.has(group)) {
       return;
     }
     visitedGroups.add(group);
     for (const member of group.getAttributes()) {
-      XmlSchemaDocumentService.populateAttributeGroupMember(parent, fields, member, visitedGroups);
+      XmlSchemaDocumentService.populateAttributeGroupMember(parent, fields, member, visitedGroups, excludedAttributes);
     }
+  }
+
+  private static getAttributeKey(attr: XmlSchemaAttribute): string {
+    return attr.getWireName()?.toString() ?? '';
+  }
+
+  private static collectProhibitedAttributeKeys(
+    attributes: XmlSchemaAttributeGroupMember[],
+    prohibited: Set<string> = new Set(),
+    visitedGroups: Set<XmlSchemaAttributeGroup> = new Set(),
+  ): Set<string> {
+    for (const member of attributes) {
+      if (member instanceof XmlSchemaAttribute) {
+        if (member.getUse() === XmlSchemaUse.PROHIBITED) {
+          prohibited.add(XmlSchemaDocumentService.getAttributeKey(member));
+        }
+        continue;
+      }
+      const group = member instanceof XmlSchemaAttributeGroupRef ? member.getRef().getTarget() : member;
+      if (group instanceof XmlSchemaAttributeGroup && !visitedGroups.has(group)) {
+        visitedGroups.add(group);
+        XmlSchemaDocumentService.collectProhibitedAttributeKeys(group.getAttributes(), prohibited, visitedGroups);
+      }
+    }
+    return prohibited;
+  }
+
+  private static mergeExcludedAttributes(
+    excludedAttributes: ReadonlySet<string>,
+    attributes: XmlSchemaAttributeGroupMember[],
+  ): ReadonlySet<string> {
+    const prohibited = XmlSchemaDocumentService.collectProhibitedAttributeKeys(attributes);
+    if (prohibited.size === 0) {
+      return excludedAttributes;
+    }
+    return new Set([...excludedAttributes, ...prohibited]);
+  }
+
+  private static isExcludedParticle(particle: XmlSchemaParticle): boolean {
+    return particle.getMaxOccurs() === 0;
   }
 
   private static populateParticle(
@@ -1038,7 +1083,7 @@ export class XmlSchemaDocumentService {
     particle: XmlSchemaParticle | null,
     visitedGroupRefs?: Set<string>,
   ) {
-    if (particle == null) {
+    if (particle == null || XmlSchemaDocumentService.isExcludedParticle(particle)) {
       return;
     }
     if (particle instanceof XmlSchemaAny) {
@@ -1116,6 +1161,7 @@ export class XmlSchemaDocumentService {
     sequence: XmlSchemaSequence,
     visitedGroupRefs?: Set<string>,
   ) {
+    if (XmlSchemaDocumentService.isExcludedParticle(sequence)) return;
     const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
     const seqField = new XmlSchemaField(parent, '__sequence__', false);
     seqField.wrapperKind = 'sequence';
@@ -1189,7 +1235,7 @@ export class XmlSchemaDocumentService {
     visitedGroupRefs?: Set<string>,
   ) {
     const groupRefQName = groupRef.getRefName();
-    if (!groupRefQName) return;
+    if (!groupRefQName || XmlSchemaDocumentService.isExcludedParticle(groupRef)) return;
 
     const key = groupRefQName.toString();
     visitedGroupRefs ??= new Set();
@@ -1268,17 +1314,30 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     contentModel: XmlSchemaContentModel | null,
     visited: Set<string> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     if (!contentModel) return;
     const content = contentModel.getContent();
     if (content instanceof XmlSchemaSimpleContentExtension) {
-      XmlSchemaDocumentService.populateSimpleContentExtension(document, parent, content, visited);
+      XmlSchemaDocumentService.populateSimpleContentExtension(document, parent, content, visited, excludedAttributes);
     } else if (content instanceof XmlSchemaSimpleContentRestriction) {
-      XmlSchemaDocumentService.populateSimpleContentRestriction(document, parent, content, visited);
+      XmlSchemaDocumentService.populateSimpleContentRestriction(document, parent, content, visited, excludedAttributes);
     } else if (content instanceof XmlSchemaComplexContentExtension) {
-      XmlSchemaDocumentService.populateComplexContentExtensionAttributes(document, parent, content, visited);
+      XmlSchemaDocumentService.populateComplexContentExtensionAttributes(
+        document,
+        parent,
+        content,
+        visited,
+        excludedAttributes,
+      );
     } else if (content instanceof XmlSchemaComplexContentRestriction) {
-      XmlSchemaDocumentService.populateComplexContentRestrictionAttributes(document, parent, content, visited);
+      XmlSchemaDocumentService.populateComplexContentRestrictionAttributes(
+        document,
+        parent,
+        content,
+        visited,
+        excludedAttributes,
+      );
     }
   }
 
@@ -1354,16 +1413,28 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     userDefinedBaseType: XmlSchemaComplexType,
     visited: Set<string> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const complexBase = userDefinedBaseType;
     const contentModel = complexBase.getContentModel();
 
     if (contentModel) {
-      XmlSchemaDocumentService.populateContentModelAttributes(document, parent, contentModel, visited);
+      XmlSchemaDocumentService.populateContentModelAttributes(
+        document,
+        parent,
+        contentModel,
+        visited,
+        excludedAttributes,
+      );
     } else {
       const parentForAttribute = 'parent' in parent ? parent : document;
       for (const attr of complexBase.getAttributes()) {
-        XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
+        XmlSchemaDocumentService.populateAttributeOrGroupRef(
+          parentForAttribute,
+          parent.fields,
+          attr,
+          excludedAttributes,
+        );
       }
     }
   }
@@ -1373,6 +1444,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     baseTypeQName: QName | null,
     visited: Set<string> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     if (!baseTypeQName) return;
     const key = `simpleattr#${baseTypeQName.toString()}`;
@@ -1385,7 +1457,13 @@ export class XmlSchemaDocumentService {
     if (userDefinedBaseType instanceof XmlSchemaSimpleType) {
       XmlSchemaDocumentService.populateSimpleExtensionBaseAttributes(document, parent, userDefinedBaseType, visited);
     } else if (userDefinedBaseType instanceof XmlSchemaComplexType) {
-      XmlSchemaDocumentService.populateComplexExtensionBaseAttributes(document, parent, userDefinedBaseType, visited);
+      XmlSchemaDocumentService.populateComplexExtensionBaseAttributes(
+        document,
+        parent,
+        userDefinedBaseType,
+        visited,
+        excludedAttributes,
+      );
     }
   }
 
@@ -1421,6 +1499,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     baseTypeQName: QName | null,
     visited: Set<string> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     if (!baseTypeQName) return;
     const key = `simplerestrict#${baseTypeQName.toString()}`;
@@ -1439,7 +1518,13 @@ export class XmlSchemaDocumentService {
           content instanceof XmlSchemaSimpleContentExtension ||
           content instanceof XmlSchemaSimpleContentRestriction
         ) {
-          XmlSchemaDocumentService.populateContentModelAttributes(document, parent, contentModel, visited);
+          XmlSchemaDocumentService.populateContentModelAttributes(
+            document,
+            parent,
+            contentModel,
+            visited,
+            excludedAttributes,
+          );
         }
       }
     } else if (userDefinedBaseType instanceof XmlSchemaSimpleType) {
@@ -1471,11 +1556,18 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaSimpleContentExtension,
     visited: Set<string> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
-    XmlSchemaDocumentService.populateExtensionBaseAttributes(document, parent, extension.getBaseTypeName(), visited);
+    XmlSchemaDocumentService.populateExtensionBaseAttributes(
+      document,
+      parent,
+      extension.getBaseTypeName(),
+      visited,
+      excludedAttributes,
+    );
     const parentForAttribute = 'parent' in parent ? parent : document;
     for (const attr of extension.getAttributes()) {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr, excludedAttributes);
     }
   }
 
@@ -1491,16 +1583,18 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     restriction: XmlSchemaSimpleContentRestriction,
     visited: Set<string> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const parentForAttribute = 'parent' in parent ? parent : document;
     for (const attr of restriction.getAttributes()) {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr, excludedAttributes);
     }
     XmlSchemaDocumentService.populateSimpleContentRestrictionBaseType(
       document,
       parent,
       restriction.getBaseTypeName(),
       visited,
+      XmlSchemaDocumentService.mergeExcludedAttributes(excludedAttributes, restriction.getAttributes()),
     );
   }
 
@@ -1534,6 +1628,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaComplexContentExtension,
     visited: Set<string> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const baseTypeQName = extension.getBaseTypeName();
     const isCyclic = baseTypeQName ? visited.has(`attr#${baseTypeQName.toString()}`) : false;
@@ -1550,16 +1645,28 @@ export class XmlSchemaDocumentService {
       const baseHasContentModel = baseType instanceof XmlSchemaComplexType && baseType.getContentModel();
 
       if (baseHasContentModel) {
-        XmlSchemaDocumentService.populateContentModelAttributes(document, parent, baseHasContentModel, visited);
+        XmlSchemaDocumentService.populateContentModelAttributes(
+          document,
+          parent,
+          baseHasContentModel,
+          visited,
+          excludedAttributes,
+        );
       } else {
-        XmlSchemaDocumentService.populateExtensionBaseAttributes(document, parent, baseTypeQName, visited);
+        XmlSchemaDocumentService.populateExtensionBaseAttributes(
+          document,
+          parent,
+          baseTypeQName,
+          visited,
+          excludedAttributes,
+        );
       }
     }
 
     // Always populate the extension's own attributes, even when the base chain is cyclic.
     const parentForAttribute = 'parent' in parent ? parent : document;
     for (const attr of extension.getAttributes()) {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr, excludedAttributes);
     }
   }
 
@@ -1628,6 +1735,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     restriction: XmlSchemaComplexContentRestriction,
     visited: Set<string> = new Set(),
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const baseTypeQName = restriction.getBaseTypeName();
     const visitedKey = baseTypeQName && `restrictattr#${baseTypeQName.toString()}`;
@@ -1637,13 +1745,19 @@ export class XmlSchemaDocumentService {
     // Always populate the restriction's own attributes, even when the base chain is cyclic.
     const parentForAttribute = 'parent' in parent ? parent : document;
     for (const attr of restriction.getAttributes()) {
-      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
+      XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr, excludedAttributes);
     }
 
     if (isCyclic) return;
     const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(document, parent, baseTypeQName);
     if (userDefinedBaseType instanceof XmlSchemaComplexType) {
-      XmlSchemaDocumentService.populateComplexBaseAttributes(document, parent, userDefinedBaseType, visited);
+      XmlSchemaDocumentService.populateComplexBaseAttributes(
+        document,
+        parent,
+        userDefinedBaseType,
+        visited,
+        XmlSchemaDocumentService.mergeExcludedAttributes(excludedAttributes, restriction.getAttributes()),
+      );
     }
   }
 
@@ -1652,14 +1766,26 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     complexBase: XmlSchemaComplexType,
     visited: Set<string>,
+    excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const contentModel = complexBase.getContentModel();
     if (contentModel) {
-      XmlSchemaDocumentService.populateContentModelAttributes(document, parent, contentModel, visited);
+      XmlSchemaDocumentService.populateContentModelAttributes(
+        document,
+        parent,
+        contentModel,
+        visited,
+        excludedAttributes,
+      );
     } else {
       const parentForAttribute = 'parent' in parent ? parent : document;
       for (const attr of complexBase.getAttributes()) {
-        XmlSchemaDocumentService.populateAttributeOrGroupRef(parentForAttribute, parent.fields, attr);
+        XmlSchemaDocumentService.populateAttributeOrGroupRef(
+          parentForAttribute,
+          parent.fields,
+          attr,
+          excludedAttributes,
+        );
       }
     }
   }
