@@ -1,0 +1,26 @@
+@use '@carbon/react/scss/theme' as *;
+@use '../../../styles/kaoto-theme' as kaoto;
+@use '../../../styles/panel-header' as panel;
+
+.cs--editor-header {
+  @include panel.panel-header;
+
+  // The icon and the name sit together on the left
+  justify-content: flex-start;
+}
+
+.cs--editor-header__icon {
+  flex-shrink: 0;
+  color: $icon-secondary;
+
+  // As bold as the icons of the Explorer header buttons
+  @include kaoto.kaoto-theme {
+    color: var(--cs-on-accent);
+    stroke: var(--cs-on-accent);
+    stroke-width: 1px;
+  }
+}
+
+.cs--editor-header__title {
+  @include panel.panel-heading;
+}

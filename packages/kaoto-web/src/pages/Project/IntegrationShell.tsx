@@ -14,8 +14,10 @@ import { useFiles } from '../../hooks/useFiles';
 import { useSafeParams } from '../../hooks/useSafeParams';
 import { getFileType } from '../../services/files/stored-file';
 import { editorKindFor } from './editors/editor-registry';
+import { EditorHeader } from './editors/EditorHeader';
 import { RouteFileEditor } from './editors/RouteFileEditor';
 import { TextFileEditor } from './editors/TextFileEditor';
+import { viewIconFor } from './editors/view-icon';
 
 const WORKSPACE_PATH = '/workspace';
 
@@ -74,19 +76,24 @@ const IntegrationShell: FunctionComponent = () => {
   };
   const currentSaveError = saveError?.fileId === params.fileId ? saveError.error : undefined;
 
+  const viewMode = header?.viewMode ?? 'design';
+  const openFile = loading ? undefined : file;
+  const editorKind = openFile && editorKindFor(getFileType(openFile.path));
+
   let body;
   if (loading) {
     body = <LoadingState />;
-  } else if (!file) {
+  } else if (!openFile || !editorKind) {
     body = <p className="cs--integration-shell__empty">The file does not exist</p>;
-  } else if (editorKindFor(getFileType(file.path)) === 'text') {
-    body = <TextFileEditor key={file.id} file={file} onSave={storeCode} />;
+  } else if (editorKind === 'text') {
+    body = <TextFileEditor key={openFile.id} file={openFile} onSave={storeCode} />;
   } else {
-    body = <RouteFileEditor file={file} view={header?.viewMode ?? 'design'} onSave={storeCode} />;
+    body = <RouteFileEditor file={openFile} view={viewMode} onSave={storeCode} />;
   }
 
   return (
     <div className="cs--integration-shell" data-testid="integration-shell">
+      {openFile && editorKind && <EditorHeader icon={viewIconFor(editorKind, viewMode)} path={openFile.path} />}
       {currentSaveError && (
         <InlineNotification
           kind="error"
