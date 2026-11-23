@@ -1,6 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { getThemeSettings, initializeTheme, setHeaderInverse, setThemeSetting, setThemeStyle } from './theme';
+import { mockSystemColorScheme } from '../test/system-color-scheme';
+import {
+  getThemeSettings,
+  initializeTheme,
+  isDarkThemeActive,
+  setHeaderInverse,
+  setThemeSetting,
+  setThemeStyle,
+} from './theme';
 
 const clearState = () => {
   for (const cookie of document.cookie.split(';')) {
@@ -11,25 +19,6 @@ const clearState = () => {
   delete document.documentElement.dataset.headerInverse;
   delete document.documentElement.dataset.themeStyle;
   document.documentElement.classList.remove('pf-v6-theme-dark');
-};
-
-/** Stubs the OS colour scheme; the returned function changes it and notifies the listeners, like the browser does. */
-const mockSystemColorScheme = (prefersDark: boolean) => {
-  const listeners = new Set<() => void>();
-  const mediaQueryList = {
-    matches: prefersDark,
-    addEventListener: (_type: string, listener: () => void) => listeners.add(listener),
-    removeEventListener: (_type: string, listener: () => void) => listeners.delete(listener),
-  };
-  vi.stubGlobal(
-    'matchMedia',
-    vi.fn(() => mediaQueryList),
-  );
-
-  return (nextPrefersDark: boolean) => {
-    mediaQueryList.matches = nextPrefersDark;
-    for (const listener of listeners) listener();
-  };
 };
 
 const isPatternFlyDark = () => document.documentElement.classList.contains('pf-v6-theme-dark');
@@ -183,5 +172,23 @@ describe('theme', () => {
 
       expect(isPatternFlyDark()).toBe(false);
     });
+  });
+
+  describe('isDarkThemeActive', () => {
+    it.each([
+      { themeSetting: 'dark', prefersDark: false, expected: true },
+      { themeSetting: 'light', prefersDark: true, expected: false },
+      { themeSetting: 'system', prefersDark: true, expected: true },
+      { themeSetting: 'system', prefersDark: false, expected: false },
+      { themeSetting: undefined, prefersDark: true, expected: true },
+    ] as const)(
+      'should be $expected for "$themeSetting" when the OS prefers dark: $prefersDark',
+      ({ themeSetting, prefersDark, expected }) => {
+        mockSystemColorScheme(prefersDark);
+        if (themeSetting) document.documentElement.dataset.themeSetting = themeSetting;
+
+        expect(isDarkThemeActive()).toBe(expected);
+      },
+    );
   });
 });

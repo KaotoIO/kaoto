@@ -15,17 +15,39 @@ const PATTERNFLY_DARK_CLASS = 'pf-v6-theme-dark';
 const SYSTEM_DARK_QUERY = '(prefers-color-scheme: dark)';
 
 /**
+ * Whether the content area is dark: the `data-theme-setting` on `<html>` decides, and the OS while it is `system`.
+ */
+export function isDarkThemeActive(): boolean {
+  const { themeSetting } = document.documentElement.dataset;
+  return themeSetting === 'dark' || (themeSetting !== 'light' && globalThis.matchMedia(SYSTEM_DARK_QUERY).matches);
+}
+
+/** Notified by `setThemeSetting`, the only place that changes `data-theme-setting` after start */
+const themeSettingListeners = new Set<() => void>();
+
+/**
+ * Calls `onChange` whenever the dark theme may have changed: the theme setting or the OS colour scheme. Returns the
+ * function that stops listening.
+ */
+export function subscribeToDarkTheme(onChange: () => void): () => void {
+  themeSettingListeners.add(onChange);
+  const systemQuery = globalThis.matchMedia(SYSTEM_DARK_QUERY);
+  systemQuery.addEventListener('change', onChange);
+
+  return () => {
+    themeSettingListeners.delete(onChange);
+    systemQuery.removeEventListener('change', onChange);
+  };
+}
+
+/**
  * Keep PatternFly's theme in line with the content theme.
  *
  * The canvas, its controls and the form come from `@kaoto/kaoto` and use PatternFly tokens, which do not react to
  * `data-theme-setting`. They all sit in the content area, so an inverted header does not matter here.
  */
 function syncPatternFlyTheme(): void {
-  const { themeSetting } = document.documentElement.dataset;
-  const isDark =
-    themeSetting === 'dark' || (themeSetting !== 'light' && globalThis.matchMedia(SYSTEM_DARK_QUERY).matches);
-
-  document.documentElement.classList.toggle(PATTERNFLY_DARK_CLASS, isDark);
+  document.documentElement.classList.toggle(PATTERNFLY_DARK_CLASS, isDarkThemeActive());
 }
 
 /**
@@ -48,6 +70,7 @@ export function setThemeSetting(themeSetting: ThemeSetting): void {
   if (typeof document !== 'undefined') {
     document.documentElement.dataset.themeSetting = themeSetting;
     syncPatternFlyTheme();
+    for (const listener of themeSettingListeners) listener();
   }
 }
 
