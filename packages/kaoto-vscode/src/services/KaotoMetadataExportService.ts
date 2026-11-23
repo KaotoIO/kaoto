@@ -152,7 +152,7 @@ export class KaotoMetadataExportService {
 		}
 
 		const routeUris: vscode.Uri[] = [];
-		const isRouteFile = (name: string) => /\.(yaml|yml|xml)$/i.test(name);
+		const isRouteFile = (name: string) => /\.(yaml|xml)$/i.test(name);
 
 		const scanDirectory = async (dirUri: vscode.Uri) => {
 			let entries: [string, vscode.FileType][];

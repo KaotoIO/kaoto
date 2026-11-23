@@ -303,11 +303,9 @@ suite('KaotoCatalogService Test Suite', () => {
 	test('should detect Kaoto integration files', () => {
 		// Test .camel.yaml files
 		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/route.camel.yaml'))).to.be.true;
-		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/route.camel.yml'))).to.be.true;
 
 		// Test .kamelet.yaml files
 		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/source.kamelet.yaml'))).to.be.true;
-		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/source.kamelet.yml'))).to.be.true;
 
 		// Test .pipe.yaml files
 		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/integration.pipe.yaml'))).to.be.true;
@@ -320,12 +318,16 @@ suite('KaotoCatalogService Test Suite', () => {
 		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/test.citrus.yaml'))).to.be.false;
 		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/random.yaml'))).to.be.false;
 		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/pom.xml'))).to.be.false;
+
+		// Camel loads no .yml route file
+		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/route.camel.yml'))).to.be.false;
+		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/source.kamelet.yml'))).to.be.false;
+		expect(catalogService['isKaotoIntegrationFile'](vscode.Uri.file('/path/to/integration.pipe.yml'))).to.be.false;
 	});
 
 	test('should detect Citrus test files', () => {
 		// Test .citrus.yaml files
 		expect(catalogService['isKaotoCitrusTestFile'](vscode.Uri.file('/path/to/test.citrus.yaml'))).to.be.true;
-		expect(catalogService['isKaotoCitrusTestFile'](vscode.Uri.file('/path/to/test.citrus.yml'))).to.be.true;
 
 		// Test .citrus.test.yaml files
 		expect(catalogService['isKaotoCitrusTestFile'](vscode.Uri.file('/path/to/test.citrus.test.yaml'))).to.be.true;
@@ -339,6 +341,7 @@ suite('KaotoCatalogService Test Suite', () => {
 		expect(catalogService['isKaotoCitrusTestFile'](vscode.Uri.file('/path/to/route.camel.yaml'))).to.be.false;
 		expect(catalogService['isKaotoCitrusTestFile'](vscode.Uri.file('/path/to/random.yaml'))).to.be.false;
 		expect(catalogService['isKaotoCitrusTestFile'](vscode.Uri.file('/path/to/pom.xml'))).to.be.false;
+		expect(catalogService['isKaotoCitrusTestFile'](vscode.Uri.file('/path/to/test.citrus.yml'))).to.be.false;
 	});
 
 	test('should detect any Kaoto file (integration or test)', () => {
