@@ -36,18 +36,18 @@ describe('ProjectToolbar', () => {
   });
 
   describe('with an active integration', () => {
-    const ViewModeProvider = ({ children }: { children: React.ReactNode }) => {
+    const ViewModeProvider = ({ current, children }: { current: string; children: React.ReactNode }) => {
       const [viewMode, setViewMode] = useState<ViewMode>('design');
       const value = useMemo(
         () => ({
           breadcrumbItems: [],
-          current: 'my-flow',
+          current,
           viewMode,
           setViewMode,
           setBreadcrumbItems: () => {},
           setCurrent: () => {},
         }),
-        [viewMode],
+        [current, viewMode],
       );
       return (
         <IntegrationHeaderContext.Provider value={value}>
@@ -57,11 +57,12 @@ describe('ProjectToolbar', () => {
       );
     };
 
-    const renderWithIntegration = () =>
+    /** `current` is the name of the open file */
+    const renderWithIntegration = (current = 'my-flow.camel.yaml') =>
       render(
         <MemoryRouter>
           <RuntimeProvider catalogUrl="" runtimeCatalogName="" testingCatalogName="">
-            <ViewModeProvider>
+            <ViewModeProvider current={current}>
               <ProjectToolbar />
             </ViewModeProvider>
           </RuntimeProvider>
@@ -85,5 +86,33 @@ describe('ProjectToolbar', () => {
       await user.click(screen.getByTestId('view-mode-topology'));
       expect(screen.getByTestId('view-mode')).toHaveTextContent('topology');
     });
+
+    it.each(['main-flow.camel.yaml', 'legacy-route.camel.xml', 'order-test.citrus.yaml'])(
+      'enables the views for the route file %s',
+      (current) => {
+        renderWithIntegration(current);
+
+        for (const testId of ['view-mode-design', 'view-mode-code', 'view-mode-topology']) {
+          expect(screen.getByTestId(testId)).toBeEnabled();
+        }
+        expect(screen.getByTestId('view-mode-design')).toHaveAttribute('aria-selected', 'true');
+      },
+    );
+
+    it.each(['schema.xsd', 'order-template.json', 'notes.txt', 'pom.xml'])(
+      'disables the views for %s and marks Code, as it opens as text',
+      async (current) => {
+        const user = userEvent.setup();
+        renderWithIntegration(current);
+
+        for (const testId of ['view-mode-design', 'view-mode-code', 'view-mode-topology']) {
+          expect(screen.getByTestId(testId)).toBeDisabled();
+        }
+        expect(screen.getByTestId('view-mode-code')).toHaveAttribute('aria-selected', 'true');
+
+        await user.click(screen.getByTestId('view-mode-topology'));
+        expect(screen.getByTestId('view-mode')).toHaveTextContent('design');
+      },
+    );
   });
 });
