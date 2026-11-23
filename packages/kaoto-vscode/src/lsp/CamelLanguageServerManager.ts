@@ -74,7 +74,7 @@ export class CamelLanguageServerManager {
 		// the release pinned in the camelLanguageServer group of the extension's package.json
 		private readonly downloader = new CamelLspServerDownloader(context.globalStorageUri.fsPath, context.extension.packageJSON.camelLanguageServer),
 	) {
-		this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, Number.MIN_VALUE);
+		this.statusBarItem = vscode.window.createStatusBarItem('camelLanguageServer', vscode.StatusBarAlignment.Right, Number.MIN_VALUE);
 		this.statusBarItem.name = 'Camel Language Server';
 		context.subscriptions.push(this.retryRequested, this.statusBarItem);
 	}
