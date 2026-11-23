@@ -52,7 +52,10 @@ export const NewEntryField: FunctionComponent<NewEntryFieldProps> = ({ kind, fol
       created.current = { id: toFolderId(path), path };
       return;
     }
-    const fileKind = FILE_KINDS.find(({ extension }) => path.endsWith(extension));
+    const fileKind = FILE_KINDS.find(
+      ({ extension, alternateExtensions }) =>
+        path.endsWith(extension) || (alternateExtensions !== undefined && path.endsWith(alternateExtensions)),
+    );
     const fileName = path.slice(path.lastIndexOf('/') + 1);
     const content = fileKind
       ? resolveStarterTemplate(await fetchStarterTemplate(CATALOG_URL, fileKind.template), fileName)

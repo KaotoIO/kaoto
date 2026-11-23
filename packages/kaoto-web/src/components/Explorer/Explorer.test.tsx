@@ -157,20 +157,30 @@ describe('Explorer', () => {
     expect(screen.getByTestId('explorer-file-kafka-consumer')).toHaveTextContent('kafka-consumer.camel.yaml');
   });
 
-  it.each(['order-test', 'timer-source', 'orders-pipe', 'legacy-route'])(
-    'opens %s (non-camel.yaml canvas resource) on click',
-    async (id) => {
-      const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
-      const user = userEvent.setup();
-      renderWithNavigation(<LocationDisplay />);
+  it.each(['order-test', 'timer-source'])('opens %s (non-camel.yaml canvas resource) on click', async (id) => {
+    const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
+    const user = userEvent.setup();
+    renderWithNavigation(<LocationDisplay />);
 
-      const folderNode = await screen.findByTestId('explorer-folder-integrations');
-      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
-      await user.click(screen.getByTestId(`explorer-file-${id}`));
+    const folderNode = await screen.findByTestId('explorer-folder-integrations');
+    await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+    await user.click(screen.getByTestId(`explorer-file-${id}`));
 
-      expect(screen.getByTestId('location')).toHaveTextContent(`/workspace/file/${id}`);
-    },
-  );
+    expect(screen.getByTestId('location')).toHaveTextContent(`/workspace/file/${id}`);
+  });
+
+  it.each(['orders-pipe', 'legacy-route'])('does not open %s (not a canvas resource) on click', async (id) => {
+    const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
+    const user = userEvent.setup();
+    renderWithNavigation(<LocationDisplay />);
+
+    const folderNode = await screen.findByTestId('explorer-folder-integrations');
+    await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+    await user.click(screen.getByTestId(`explorer-file-${id}`));
+
+    expect(screen.getByTestId('location')).toHaveTextContent('/workspace');
+    expect(screen.getByTestId('location')).not.toHaveTextContent(`/workspace/file/${id}`);
+  });
 
   it('renders the sidebar structure', async () => {
     renderComponent();
@@ -984,7 +994,7 @@ describe('Explorer', () => {
     const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
     const storedPaths = async () => (await filesStore.getFiles()).map(({ path }) => path);
 
-    /** Serves the catalog index, the templates manifest and a Camel route template */
+    /** Serves the catalog index, the templates manifest and a Camel route, a Kamelet and a Citrus test template */
     const serveCatalog = (template: Response | undefined = new Response('- route:\n    id: route-__KAOTO_ID__\n')) => {
       vi.stubGlobal(
         'fetch',
@@ -996,10 +1006,20 @@ describe('Explorer', () => {
             );
           }
           if (pathname === '/camel-catalog/starter-templates/index-1.json') {
-            const catalogs = { 'camel-route-yaml': { file: 'camel-route-yaml-hash.yaml' } };
+            const catalogs = {
+              'camel-route-yaml': { file: 'camel-route-yaml-hash.yaml' },
+              'kamelet-source-yaml': { file: 'kamelet-source-yaml-hash.yaml' },
+              'citrus-yaml': { file: 'citrus-yaml-hash.yaml' },
+            };
             return Promise.resolve(new Response(JSON.stringify({ catalogs })));
           }
           if (pathname.endsWith('/camel-route-yaml-hash.yaml') && template) return Promise.resolve(template);
+          if (pathname.endsWith('/kamelet-source-yaml-hash.yaml')) {
+            return Promise.resolve(new Response('kind: Kamelet\nmetadata:\n  name: kamelet-source-__KAOTO_ID__\n'));
+          }
+          if (pathname.endsWith('/citrus-yaml-hash.yaml')) {
+            return Promise.resolve(new Response('name: myTest.citrus\n'));
+          }
           return Promise.resolve(new Response(null, { status: 404 }));
         }),
       );
@@ -1146,6 +1166,30 @@ describe('Explorer', () => {
       });
       const created = (await filesStore.getFiles()).find(({ path }) => path === 'orders.camel.yaml')!;
       expect(created.content).toMatch(/^- route:\n {4}id: route-\d+\n$/);
+      await waitFor(() => {
+        expect(screen.getByTestId('location').textContent).toBe(`/workspace/file/${created.id}`);
+      });
+    });
+
+    it.each([
+      ['orders.camel.yml', /^- route:\n {4}id: route-\d+\n$/],
+      ['orders.kamelet.yml', /^kind: Kamelet\nmetadata:\n {2}name: orders\n$/],
+      ['orders.citrus.yml', /^name: myTest\.citrus\n$/],
+      ['orders.citrus.xml', /^<\?xml version="1\.0" encoding="UTF-8"\?>\n<test [^>]*name="test-\d{4}">/],
+    ])('starts %s from its template and opens it', async (fileName, expectedContent) => {
+      serveCatalog();
+      const user = userEvent.setup();
+      renderWithNavigation(<LocationDisplay />);
+      await screen.findByTestId('explorer-folder-integrations');
+
+      await user.click(screen.getByRole('button', { name: 'New file' }));
+      await user.keyboard(`${fileName}{Enter}`);
+
+      await waitFor(async () => {
+        expect(await storedPaths()).toContain(fileName);
+      });
+      const created = (await filesStore.getFiles()).find(({ path }) => path === fileName)!;
+      expect(created.content).toMatch(expectedContent);
       await waitFor(() => {
         expect(screen.getByTestId('location').textContent).toBe(`/workspace/file/${created.id}`);
       });

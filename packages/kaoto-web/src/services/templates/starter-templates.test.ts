@@ -78,6 +78,7 @@ describe('fetchStarterTemplate', () => {
 
   beforeEach(() => {
     responses.clear();
+    fetchMock.mockClear();
     vi.stubGlobal('fetch', fetchMock);
   });
 
@@ -130,6 +131,16 @@ describe('fetchStarterTemplate', () => {
     await expect(fetchStarterTemplate('/camel-catalog/index.json', 'citrus-yaml')).rejects.toThrow(
       'Could not load /camel-catalog/starter-templates/citrus-test-citrus-2.yaml (not found)',
     );
+  });
+
+  it('gives the Citrus XML template without loading the catalog', async () => {
+    const template = await fetchStarterTemplate('/camel-catalog/index.json', 'citrus-xml');
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(template).toContain(
+      '<test xmlns="http://citrusframework.org/schema/xml/testcase" name="test-__KAOTO_ID__">',
+    );
+    expect(resolveStarterTemplate(template, 'orders.citrus.xml')).toMatch(/name="test-\d{4}"/);
   });
 
   it('rejects when a file cannot be loaded', async () => {
