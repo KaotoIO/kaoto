@@ -17,7 +17,7 @@ import { expect } from 'chai';
 import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { expandPath, isInsideDirectory } from '../../utils/Path';
+import { expandPath, isInsideDirectory, resolvePaths } from '../../utils/Path';
 
 suite('Path', () => {
 	suite('expandPath', () => {
@@ -42,6 +42,35 @@ suite('Path', () => {
 
 		test('keeps the variables of a workspace folder without one', () => {
 			expect(expandPath('${workspaceFolder}/kamelets', CWD, undefined)).to.equal('${workspaceFolder}/kamelets');
+		});
+	});
+
+	suite('resolvePaths', () => {
+		const originalWorkspaceFolders = Object.getOwnPropertyDescriptor(vscode.workspace, 'workspaceFolders')!;
+		const app = { uri: vscode.Uri.file('/workspace/app'), name: 'app', index: 0 };
+		const appRoutes = { uri: vscode.Uri.file('/workspace/app-routes'), name: 'app-routes', index: 1 };
+
+		setup(() => {
+			Object.defineProperty(vscode.workspace, 'workspaceFolders', { get: () => [app, appRoutes], configurable: true });
+		});
+
+		teardown(() => {
+			Object.defineProperty(vscode.workspace, 'workspaceFolders', originalWorkspaceFolders);
+		});
+
+		test('takes the workspace folder that contains cwd, not an earlier one whose path starts like it', () => {
+			const cwd = path.join(appRoutes.uri.fsPath, 'src');
+
+			expect([...resolvePaths(['${workspaceFolder}/kamelets', '${homeDir}/${workspaceFolderBasename}'], cwd)]).to.deep.equal([
+				path.join(appRoutes.uri.fsPath, 'kamelets'),
+				path.join(os.homedir(), 'app-routes'),
+			]);
+		});
+
+		test('takes the first workspace folder when none contains cwd', () => {
+			expect([...resolvePaths(['${workspaceFolder}/kamelets'], path.join(path.sep, 'tmp', 'camel'))]).to.deep.equal([
+				path.join(app.uri.fsPath, 'kamelets'),
+			]);
 		});
 	});
 

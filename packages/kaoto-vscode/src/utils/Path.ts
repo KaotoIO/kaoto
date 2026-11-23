@@ -122,8 +122,8 @@ export function expandPath(pathString: string, cwd: string, workspaceFolder: Pic
 function findWorkspaceFolder(cwd: string): WorkspaceFolder | undefined {
 	const workspaceFolders = workspace.workspaceFolders;
 	if (workspaceFolders && workspaceFolders.length > 0) {
-		// Try to find workspace folder that contains cwd
-		return workspaceFolders.find((wf) => cwd.startsWith(wf.uri.fsPath)) || workspaceFolders[0];
+		// Try to find workspace folder that contains cwd, and not one whose path only starts like it
+		return workspaceFolders.find((wf) => isInsideDirectory(wf.uri.fsPath, cwd)) || workspaceFolders[0];
 	}
 	return undefined;
 }
