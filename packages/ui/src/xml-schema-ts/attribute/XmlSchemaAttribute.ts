@@ -60,6 +60,10 @@ export class XmlSchemaAttribute
     return this.ref;
   }
 
+  /**
+   * The inline anonymous simple type of this attribute, if any. A `type="..."` reference is not bound to a type;
+   * it is only available through {@link getSchemaTypeName}.
+   */
   getSchemaType() {
     return this.schemaType;
   }

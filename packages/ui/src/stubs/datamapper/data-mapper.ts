@@ -13,7 +13,7 @@ import {
   PrimitiveDocument,
   RootElementOption,
 } from '../../models/datamapper/document';
-import { IFieldTypeOverride } from '../../models/datamapper/metadata';
+import { IFieldSubstitution, IFieldTypeOverride } from '../../models/datamapper/metadata';
 import { JsonSchemaDocumentService } from '../../services/document/json-schema/json-schema-document.service';
 import { XmlSchemaDocumentService } from '../../services/document/xml-schema/xml-schema-document.service';
 import { DATAMAPPER_ID_PREFIX, XSLT_COMPONENT_NAME } from '../../utils';
@@ -444,6 +444,13 @@ export function getSchemaTestToSchemaTestXslt(): string {
   return readStubFile('./xml/SchemaTestToSchemaTest.xsl');
 }
 
+export const TYPE_BINDING_COLLISION_NS = { t: 'urn:t' };
+
+const TYPE_BINDING_COLLISION_ORDERS: Record<'before' | 'after', string[]> = {
+  before: ['OtherLeaf', '<unrelated>', 'Types', 'Members', 'Entry', 'MemberTypes', 'MemberFile'],
+  after: ['Types', 'Members', 'OtherLeaf', '<unrelated>', 'Entry', 'MemberTypes', 'MemberFile'],
+};
+
 export class TestUtil {
   static createSourceOrderDoc() {
     return TestUtil.createSourceBodyDoc('shipOrder.xsd', getShipOrderXsd());
@@ -596,6 +603,34 @@ export class TestUtil {
       throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
     }
     return result.document;
+  }
+
+  /**
+   * The `type-binding-collision` stub set with entry `Entry.xsd` and root `{urn:t}R`, plus one unrelated file that
+   * declares the same QNames. `order` is the attach order: `before` makes the unrelated file parse before
+   * `Entry.xsd`, `after` makes it parse after.
+   */
+  static createTypeBindingCollisionDefinition(
+    unrelated: 'OtherSimpleKind' | 'OtherDifferentKind',
+    order: 'before' | 'after',
+    fieldSubstitutions?: IFieldSubstitution[],
+  ) {
+    const files: Record<string, string> = {};
+    for (const stem of TYPE_BINDING_COLLISION_ORDERS[order]) {
+      const name = `${stem === '<unrelated>' ? unrelated : stem}.xsd`;
+      files[name] = getXmlStubFile(`type-binding-collision/${name}`);
+    }
+    return new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      files,
+      { namespaceUri: TYPE_BINDING_COLLISION_NS.t, name: 'R' },
+      undefined,
+      undefined,
+      fieldSubstitutions,
+      'Entry.xsd',
+    );
   }
 
   static createFieldsBeyondFrontierJsonDoc() {

@@ -3,6 +3,7 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  IField,
 } from '../../../models/datamapper/document';
 import { NS_XML_SCHEMA_INSTANCE } from '../../../models/datamapper/standard-namespaces';
 import { Types } from '../../../models/datamapper/types';
@@ -33,6 +34,8 @@ import {
   getSimpleTypeInheritanceXsd,
   getTestDocumentXsd,
   getXmlStubFile,
+  TestUtil,
+  TYPE_BINDING_COLLISION_NS,
 } from '../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../xml-schema-ts/QName';
 import { DocumentUtilService } from '../document-util.service';
@@ -2273,6 +2276,86 @@ describe('XmlSchemaDocumentService', () => {
           expect(fragmentChildren(doc as XmlSchemaDocument, `ProbeA.xsd#{${NS}}U`)).toEqual(['fromA']);
         });
       });
+    });
+
+    describe('same-QName components in an unrelated attached file', () => {
+      type Unrelated = 'OtherSimpleKind' | 'OtherDifferentKind';
+      type Order = 'before' | 'after';
+      const variants: Array<[Unrelated, Order]> = [
+        ['OtherSimpleKind', 'before'],
+        ['OtherSimpleKind', 'after'],
+        ['OtherDifferentKind', 'before'],
+        ['OtherDifferentKind', 'after'],
+      ];
+      const createDoc = (unrelated: Unrelated, order: Order) => {
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+          TestUtil.createTypeBindingCollisionDefinition(unrelated, order),
+          TYPE_BINDING_COLLISION_NS,
+        );
+        expect(result.validationStatus).not.toBe('error');
+        return result.document as XmlSchemaDocument;
+      };
+      const childOf = (field: IField | undefined, name: string, isAttribute = false) =>
+        field?.fields.find((f) => f.name === name && f.isAttribute === isAttribute);
+      const resolved = (field: IField | undefined) =>
+        field ? DocumentUtilService.resolveTypeFragment(field) : undefined;
+      const refsInto = (field: IField | undefined, fileName: string) =>
+        field?.namedTypeFragmentRefs.filter((ref) => ref.startsWith(`${fileName}#`)) ?? [];
+
+      it.each(variants)(
+        'should bind M at parse time to the CT of the file parsed first (%s, %s)',
+        (unrelated, order) => {
+          const doc = createDoc(unrelated, order);
+
+          const m = XmlSchemaDocumentUtilService.lookupSchemaElement(
+            doc.xmlSchemaCollection,
+            new QName('urn:t', 'M'),
+            'Entry.xsd',
+          );
+
+          expect(m?.getSchemaType()?.getParent()?.getSourceURI()).toBe(
+            order === 'before' ? `${unrelated}.xsd` : 'Types.xsd',
+          );
+        },
+      );
+
+      it.each(variants)('should type R/E and R/@a from the entry assembly (%s, %s)', (unrelated, order) => {
+        const root = createDoc(unrelated, order).fields[0];
+
+        const e = childOf(root, 'E');
+        expect(e?.type).toBe(Types.Integer);
+        expect(e?.fields).toEqual([]);
+        expect(refsInto(e, `${unrelated}.xsd`)).toEqual([]);
+        expect(childOf(root, 'a', true)?.type).toBe(Types.Integer);
+      });
+
+      it.each(variants)('should type the fields of R/S from the entry assembly (%s, %s)', (unrelated, order) => {
+        const s = resolved(childOf(createDoc(unrelated, order).fields[0], 'S'));
+
+        const f = childOf(s, 'F');
+        expect(f?.type).toBe(Types.Integer);
+        expect(f?.fields).toEqual([]);
+        expect(refsInto(f, `${unrelated}.xsd`)).toEqual([]);
+        expect(childOf(s, 'F2')?.type).toBe(Types.Integer);
+        expect(childOf(s, 's', true)?.type).toBe(Types.Integer);
+      });
+
+      it.each(variants)('should take the group content of R/S from the entry assembly (%s, %s)', (unrelated, order) => {
+        const s = resolved(childOf(createDoc(unrelated, order).fields[0], 'S'));
+
+        expect(childOf(s, 'fromTypesG')).toBeDefined();
+        expect(childOf(s, 'fromOtherG')).toBeUndefined();
+      });
+
+      it.each(variants)(
+        'should expand the abstract member AM with the CT of the entry assembly (%s, %s)',
+        (unrelated, order) => {
+          const ah = childOf(createDoc(unrelated, order).fields[0], 'AH');
+          const am = resolved(childOf(ah, 'AM'));
+
+          expect(am?.fields.map((f) => f.name)).toEqual(['b', 'fromTypes']);
+        },
+      );
     });
   });
 });

@@ -142,6 +142,14 @@ export class XmlSchemaElement
     return this.ref;
   }
 
+  /**
+   * The type bound when this element was parsed. For an inline anonymous type it is exact. For a `type="..."`
+   * reference it is the first type with {@link getSchemaTypeName} already registered in the collection when this
+   * element was parsed, including the declaring file's own includes and its declarations above the element, or the
+   * next one parsed for a forward reference. It does not depend on the entry schema, so when several attached files
+   * declare the same type QName it can be a type from a file outside the entry's assembly. Code that needs the
+   * effective named type resolves {@link getSchemaTypeName} against the selected entry schema instead.
+   */
   getSchemaType() {
     return this.schemaType;
   }
