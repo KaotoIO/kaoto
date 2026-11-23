@@ -605,7 +605,7 @@ describe('JsonSchemaDocumentService', () => {
     expect(bField!.type).toBe(Types.Numeric);
   });
 
-  it('should use the first entry of a type array as the field type', () => {
+  it('should take the field type and typeQName from the string entry of a nullable type list', () => {
     const schema: JSONSchema7 = {
       type: 'object',
       properties: {
@@ -800,7 +800,12 @@ describe('JsonSchemaDocumentService', () => {
       { type: 'array', items: [{ type: 'string' }, { type: 'number' }] } as JSONSchema7,
       (doc: JsonSchemaDocument) => doc.fields[0].fields[0],
     ],
-  ])('should keep the typeQName of the first declared type for %s', (_desc, schema, getField) => {
+    [
+      'a type list in which another type comes first',
+      { type: 'object', properties: { v: { type: ['null', 'string'] } } } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields.find((f) => f.key === 'v')!,
+    ],
+  ])('should take the typeQName from the type the field gets for %s', (_desc, schema, getField) => {
     const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
 
     const field = getField(doc);

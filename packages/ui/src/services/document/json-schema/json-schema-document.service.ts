@@ -585,7 +585,9 @@ export class JsonSchemaDocumentService {
     // a later declaration of another type doesn't change the field type, so it mustn't change the typeQName either
     if (schema.type && field.type === schemaType) {
       const typeArray = Array.isArray(schema.type) ? schema.type : [schema.type];
-      const typeString = typeArray[0];
+      // a type list elects its field type by precedence, not by position
+      const typeString =
+        typeArray.find((t) => JsonSchemaTypesService.mapTypeStringToEnum(t) === schemaType) ?? typeArray[0];
       const typeQName = new QName(null, typeString);
       field.typeQName = typeQName;
     }
