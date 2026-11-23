@@ -1113,6 +1113,9 @@
             "type": "string",
             "default": null,
             "markdownDescription": "URL to a Kaoto catalog. For instance `https://raw.githubusercontent.com/KaotoIO/camel-catalog/refs/heads/main/catalog/index.json `. Documentation to generate your own set of catalog is available [here](https://kaoto.io/docs/designer/04-runtime-selector/).\n\nIt requires to reopen the Kaoto editors to be effective.\n\n**Note**: Use the Kaoto editor status bar to select from a custom catalogs.",
+            "tags": [
+              "usesOnlineServices"
+            ],
             "scope": "window",
             "order": 0
           },
@@ -1227,7 +1230,7 @@
               "*.xsl",
               "pom.xml"
             ],
-            "markdownDescription": "Regular expression to filter files to be displayed in `Kaoto > Integrations` view.",
+            "markdownDescription": "Glob patterns to filter files to be displayed in `Kaoto > Integrations` view.",
             "scope": "window",
             "order": 1
           },
@@ -1246,7 +1249,7 @@
               "jbang.properties",
               "citrus*.properties"
             ],
-            "markdownDescription": "Regular expression to filter files to be displayed in `Kaoto > Tests` view.",
+            "markdownDescription": "Glob patterns to filter files to be displayed in `Kaoto > Tests` view.",
             "scope": "window",
             "order": 2
           },
@@ -1261,7 +1264,7 @@
               "*openapi.yml",
               "*openapi.json"
             ],
-            "markdownDescription": "Regular expression to filter files to be displayed in `Kaoto > OpenAPI` view.",
+            "markdownDescription": "Glob patterns to filter files to be displayed in `Kaoto > OpenAPI` view.",
             "scope": "window",
             "order": 3
           }
@@ -1316,7 +1319,7 @@
           },
           "kaoto.executor.redHatMavenRepository": {
             "type": "string",
-            "markdownDescription": "Define Red Hat Maven Repository, which is used automatically in case the `#kaoto.camelVersion#` uses Red Hat productized Camel version (e.g. `4.8.0.redhat-00017`).",
+            "markdownDescription": "Define Red Hat Maven Repository, which is used automatically in case the catalog selected in `#kaoto.runtimeCatalogName#` uses Red Hat productized Camel version (e.g. `4.8.0.redhat-00017`).",
             "default": "https://maven.repository.redhat.com/ga/",
             "order": 4
           },
@@ -1333,7 +1336,7 @@
               "type": "string"
             },
             "additionalProperties": false,
-            "markdownDescription": "User defined arguments to be applied at every deploy (See [Camel Kubernetes plugin](https://camel.apache.org/manual/camel-jbang-kubernetes.html)). In case of spaces, the values needs to be enclosed with quotes.\n\n**User settings take priority:** If you define `--camel-version`, your value will override the extension's default from `#kaoto.camelVersion#`. Warnings will be shown in the output when conflicts are detected.\n\nBeware that `--disable-auto`, which is provided by default, requires Camel 4.11+.",
+            "markdownDescription": "User defined arguments to be applied at every deploy (See [Camel Kubernetes plugin](https://camel.apache.org/manual/camel-jbang-kubernetes.html)). In case of spaces, the values needs to be enclosed with quotes.\n\n**User settings take priority:** If you define `--camel-version`, your value will override the extension's default from the catalog selected in `#kaoto.runtimeCatalogName#`. Warnings will be shown in the output when conflicts are detected.\n\nBeware that `--disable-auto`, which is provided by default, requires Camel 4.11+.",
             "default": [
               "--cluster-type=openshift",
               "--disable-auto",
@@ -1389,6 +1392,9 @@
             "type": "string",
             "markdownDescription": "URL to the Apicurio Registry. It is used to store and manage REST API specifications. Example: `https://registry.example.com/apis/registry/v3`",
             "default": null,
+            "tags": [
+              "usesOnlineServices"
+            ],
             "order": 0
           },
           "kaoto.restConfiguration.customMediaTypes": {
@@ -1431,6 +1437,9 @@
             "type": "boolean",
             "default": true,
             "markdownDescription": "Enable Camel Language Server for source code features (completion, validation, hover). Requires Java 17+ on the system PATH or JAVA_HOME. The server starts when a Camel route, Kamelet or application properties file is opened, and stops about a minute after the last one is closed. It is downloaded from Maven Central the first time.",
+            "tags": [
+              "usesOnlineServices"
+            ],
             "scope": "window",
             "order": 0
           },
