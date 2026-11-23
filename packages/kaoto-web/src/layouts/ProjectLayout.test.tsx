@@ -28,7 +28,11 @@ describe('ProjectLayout', () => {
     await storeTestFiles();
     const FilesConsumer = () => {
       const { files } = useFiles(); // throws if FilesProvider is not in the tree
-      return <div data-testid="files-consumer">{files.some((file) => file.id === 'main-flow') ? 'stored' : ''}</div>;
+      return (
+        <div data-testid="files-consumer">
+          {files.some((file) => file.path === 'integrations/main-flow.camel.yaml') ? 'stored' : ''}
+        </div>
+      );
     };
 
     renderLayout(<FilesConsumer />);

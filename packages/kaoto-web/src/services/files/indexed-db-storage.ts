@@ -1,4 +1,4 @@
-import { FilesStore } from './files.store';
+import { FilesStore, filesStore } from './files.store';
 import { FilesStorage, StorageEntry } from './files-storage';
 
 /**
@@ -45,3 +45,6 @@ export class IndexedDbStorage implements FilesStorage {
     await this.store.deleteFolder(path);
   }
 }
+
+/** The browser storage kaoto-web keeps the files in */
+export const indexedDbStorage = new IndexedDbStorage(filesStore);

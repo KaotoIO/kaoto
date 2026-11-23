@@ -30,7 +30,7 @@ export const routes: RouteConfigArray = [
         index: true,
       },
       {
-        path: 'file/:fileId',
+        path: 'file/*',
         element: IntegrationShell,
       },
     ],

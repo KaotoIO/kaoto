@@ -2,8 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { FunctionComponent, useState } from 'react';
 
 import { useFiles } from '../hooks/useFiles';
-import { FilesStore } from '../services/files/files.store';
-import { resetTestIndexedDB } from '../test/indexed-db';
+import { InMemoryStorage } from '../test/in-memory-storage';
 import { FilesProvider } from './FilesContext';
 
 const Consumer: FunctionComponent = () => {
@@ -28,24 +27,21 @@ const Consumer: FunctionComponent = () => {
   return (
     <>
       <div data-testid="state">{state}</div>
-      <div data-testid="paths">{files.map((file) => file.path).join(',')}</div>
       <div data-testid="rename-error">{renameError}</div>
       <div data-testid="folders">{folders.join(',')}</div>
       <button onClick={reload}>reload</button>
-      <button onClick={() => void updateFile('a', 'changed').catch(() => undefined)}>update</button>
-      <button onClick={() => void createFile({ id: 'c', path: 'a/c.camel.yaml', content: 'C' }).catch(() => undefined)}>
-        create
-      </button>
+      <button onClick={() => void updateFile('a.yaml', 'changed').catch(() => undefined)}>update</button>
+      <button onClick={() => void createFile({ path: 'a/c.yaml', content: 'C' }).catch(() => undefined)}>create</button>
       <button
         onClick={() =>
-          void renameFile('a', 'z.camel.yaml').catch((renameFailure: unknown) => {
+          void renameFile('a.yaml', 'z.yaml').catch((renameFailure: unknown) => {
             setRenameError(renameFailure instanceof Error ? renameFailure.message : String(renameFailure));
           })
         }
       >
         rename
       </button>
-      <button onClick={() => void deleteFile('a').catch(() => undefined)}>delete file</button>
+      <button onClick={() => void deleteFile('a.yaml').catch(() => undefined)}>delete file</button>
       <button onClick={() => void deleteFolder('a').catch(() => undefined)}>delete folder</button>
       <button onClick={() => void createFolder('a/new').catch(() => undefined)}>create folder</button>
       <button onClick={() => void renameFolder('a', 'z').catch(() => undefined)}>rename folder</button>
@@ -53,27 +49,26 @@ const Consumer: FunctionComponent = () => {
   );
 };
 
-const renderProvider = (store: FilesStore) =>
+const renderProvider = (storage: InMemoryStorage) =>
   render(
-    <FilesProvider store={store}>
+    <FilesProvider storage={storage}>
       <Consumer />
     </FilesProvider>,
   );
 
+const click = (name: string) => {
+  fireEvent.click(screen.getByRole('button', { name }));
+};
+
+const storedPaths = async (storage: InMemoryStorage) =>
+  (await storage.list())
+    .filter(({ kind }) => kind === 'file')
+    .map(({ path }) => path)
+    .sort();
+
 describe('FilesProvider', () => {
-  let store: FilesStore;
-
-  beforeEach(() => {
-    resetTestIndexedDB();
-    store = new FilesStore();
-  });
-
-  afterEach(() => {
-    store.close();
-  });
-
   it('starts loading and then exposes no files when nothing is stored', async () => {
-    renderProvider(store);
+    renderProvider(new InMemoryStorage());
 
     expect(screen.getByTestId('state')).toHaveTextContent('loading');
     await waitFor(() => {
@@ -81,207 +76,208 @@ describe('FilesProvider', () => {
     });
   });
 
-  it('exposes the stored files', async () => {
-    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
+  it('exposes the stored files with their content, sorted by path, with the path as their id', async () => {
+    renderProvider(
+      new InMemoryStorage([
+        { kind: 'file', path: 'b.yaml', content: 'B' },
+        { kind: 'file', path: 'a.yaml', content: 'A' },
+      ]),
+    );
 
-    renderProvider(store);
-
-    expect(await screen.findByText('a=A')).toBeInTheDocument();
+    expect(await screen.findByText('a.yaml=A,b.yaml=B')).toBeInTheDocument();
   });
 
-  it('exposes an error when the store fails', async () => {
-    vi.spyOn(store, 'getFiles').mockRejectedValue(new Error('blocked'));
+  it.each([
+    ['an Error', new Error('blocked'), 'error blocked'],
+    ['a failure that is no Error', 'blocked by the browser', 'error blocked by the browser'],
+  ])('exposes an error when the storage fails with %s', async (_, failure, shown) => {
+    const storage = new InMemoryStorage();
+    vi.spyOn(storage, 'list').mockRejectedValue(failure);
 
-    renderProvider(store);
+    renderProvider(storage);
 
-    expect(await screen.findByText('error blocked')).toBeInTheDocument();
+    expect(await screen.findByText(shown)).toBeInTheDocument();
   });
 
-  it('turns a failure that is not an Error into an error', async () => {
-    vi.spyOn(store, 'getFiles').mockRejectedValue('blocked by the browser');
+  it('exposes an error when a content cannot be read', async () => {
+    const storage = new InMemoryStorage([{ kind: 'file', path: 'a.yaml', content: 'A' }]);
+    vi.spyOn(storage, 'readFile').mockRejectedValue(new Error('unreadable'));
 
-    renderProvider(store);
+    renderProvider(storage);
 
-    expect(await screen.findByText('error blocked by the browser')).toBeInTheDocument();
+    expect(await screen.findByText('error unreadable')).toBeInTheDocument();
   });
 
   it('loads the files again on reload', async () => {
-    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
-    vi.spyOn(store, 'getFiles').mockRejectedValueOnce(new Error('blocked'));
-    renderProvider(store);
+    const storage = new InMemoryStorage([{ kind: 'file', path: 'a.yaml', content: 'A' }]);
+    vi.spyOn(storage, 'list').mockRejectedValueOnce(new Error('blocked'));
+    renderProvider(storage);
     await screen.findByText('error blocked');
 
-    fireEvent.click(screen.getByRole('button', { name: 'reload' }));
+    click('reload');
 
     expect(screen.getByTestId('state')).toHaveTextContent('loading');
-    expect(await screen.findByText('a=A')).toBeInTheDocument();
+    expect(await screen.findByText('a.yaml=A')).toBeInTheDocument();
   });
 
   it('stores an updated file and exposes its new content', async () => {
-    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
-    await store.createFile({ id: 'b', path: 'b.camel.yaml', content: 'B' });
-    renderProvider(store);
-    await screen.findByText('a=A,b=B');
+    const storage = new InMemoryStorage([
+      { kind: 'file', path: 'a.yaml', content: 'A' },
+      { kind: 'file', path: 'b.yaml', content: 'B' },
+    ]);
+    renderProvider(storage);
+    await screen.findByText('a.yaml=A,b.yaml=B');
 
-    fireEvent.click(screen.getByRole('button', { name: 'update' }));
+    click('update');
 
-    expect(await screen.findByText('a=changed,b=B')).toBeInTheDocument();
-    expect((await store.getFiles()).map((file) => file.content)).toEqual(['changed', 'B']);
+    expect(await screen.findByText('a.yaml=changed,b.yaml=B')).toBeInTheDocument();
+    expect(await storage.readFile('a.yaml')).toBe('changed');
   });
 
-  it('stores a created file and exposes it in path order', async () => {
-    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
-    await store.createFile({ id: 'b', path: 'b.camel.yaml', content: 'B' });
-    renderProvider(store);
-    await screen.findByText('a=A,b=B');
+  it('stores a created file, exposes it in path order with the parent folders it brings along', async () => {
+    const storage = new InMemoryStorage([
+      { kind: 'file', path: 'a.yaml', content: 'A' },
+      { kind: 'file', path: 'b.yaml', content: 'B' },
+    ]);
+    renderProvider(storage);
+    await screen.findByText('a.yaml=A,b.yaml=B');
 
-    fireEvent.click(screen.getByRole('button', { name: 'create' }));
+    click('create');
 
-    expect(await screen.findByText('a=A,c=C,b=B')).toBeInTheDocument();
-    expect((await store.getFiles()).map((file) => file.id)).toEqual(['a', 'c', 'b']);
+    expect(await screen.findByText('a.yaml=A,a/c.yaml=C,b.yaml=B')).toBeInTheDocument();
+    expect(screen.getByTestId('folders')).toHaveTextContent(/^a$/);
+    expect(await storage.readFile('a/c.yaml')).toBe('C');
   });
 
   it('keeps the files when a file with the same path exists', async () => {
-    await store.createFile({ id: 'other', path: 'a/c.camel.yaml', content: 'X' });
-    renderProvider(store);
-    await screen.findByText('other=X');
+    const storage = new InMemoryStorage([{ kind: 'file', path: 'a/c.yaml', content: 'X' }]);
+    const create = vi.spyOn(storage, 'createFile');
+    renderProvider(storage);
+    await screen.findByText('a/c.yaml=X');
 
-    fireEvent.click(screen.getByRole('button', { name: 'create' }));
-
-    await waitFor(async () => {
-      expect(await store.getFiles()).toHaveLength(1);
-    });
-    expect(screen.getByTestId('state')).toHaveTextContent('other=X');
-  });
-
-  it('renames a file and exposes it in path order', async () => {
-    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
-    await store.createFile({ id: 'b', path: 'b.camel.yaml', content: 'B' });
-    renderProvider(store);
-    await screen.findByText('a=A,b=B');
-
-    fireEvent.click(screen.getByRole('button', { name: 'rename' }));
-
-    expect(await screen.findByText('b=B,a=A')).toBeInTheDocument();
-    expect((await store.getFiles()).map((file) => file.path)).toEqual(['b.camel.yaml', 'z.camel.yaml']);
-  });
-
-  it('keeps the files when renaming fails', async () => {
-    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
-    await store.createFile({ id: 'z', path: 'z.camel.yaml', content: 'Z' });
-    const rename = vi.spyOn(store, 'renameFile');
-    renderProvider(store);
-    await screen.findByText('a=A,z=Z');
-
-    fireEvent.click(screen.getByRole('button', { name: 'rename' }));
+    click('create');
 
     await waitFor(() => {
-      expect(rename).toHaveBeenCalledWith('a', 'z.camel.yaml');
+      expect(create).toHaveBeenCalled();
     });
-    await expect(rename.mock.results[0].value).rejects.toThrow();
+    await expect(create.mock.results[0].value).rejects.toThrow();
+    expect(screen.getByTestId('state')).toHaveTextContent('a/c.yaml=X');
+    expect(await storage.readFile('a/c.yaml')).toBe('X');
+  });
+
+  it('renames a file, exposes it in path order under its new path as id', async () => {
+    const storage = new InMemoryStorage([
+      { kind: 'file', path: 'a.yaml', content: 'A' },
+      { kind: 'file', path: 'b.yaml', content: 'B' },
+    ]);
+    renderProvider(storage);
+    await screen.findByText('a.yaml=A,b.yaml=B');
+
+    click('rename');
+
+    expect(await screen.findByText('b.yaml=B,z.yaml=A')).toBeInTheDocument();
+    expect(await storedPaths(storage)).toEqual(['b.yaml', 'z.yaml']);
+  });
+
+  it('keeps the files and passes the rejection on when renaming fails', async () => {
+    const storage = new InMemoryStorage([
+      { kind: 'file', path: 'a.yaml', content: 'A' },
+      { kind: 'file', path: 'z.yaml', content: 'Z' },
+    ]);
+    renderProvider(storage);
+    await screen.findByText('a.yaml=A,z.yaml=Z');
+
+    click('rename');
+
     // The rename field shows its error only because the context passes the rejection on
+    expect(await screen.findByText('z.yaml already exists')).toBeInTheDocument();
+    expect(screen.getByTestId('state')).toHaveTextContent('a.yaml=A,z.yaml=Z');
+    expect(await storedPaths(storage)).toEqual(['a.yaml', 'z.yaml']);
+  });
+
+  it('deletes a file and drops it from the files, keeping its folder', async () => {
+    const storage = new InMemoryStorage([
+      { kind: 'file', path: 'a.yaml', content: 'A' },
+      { kind: 'file', path: 'x/b.yaml', content: 'B' },
+    ]);
+    renderProvider(storage);
+    await screen.findByText('a.yaml=A,x/b.yaml=B');
+
+    click('delete file');
+
+    expect(await screen.findByText('x/b.yaml=B')).toBeInTheDocument();
+    expect(screen.getByTestId('folders')).toHaveTextContent(/^x$/);
+    expect(await storedPaths(storage)).toEqual(['x/b.yaml']);
+  });
+
+  it('deletes a folder with its files and folders and keeps the others', async () => {
+    const storage = new InMemoryStorage([
+      { kind: 'file', path: 'a.yaml', content: 'A' },
+      { kind: 'file', path: 'a/b.yaml', content: 'B' },
+      { kind: 'file', path: 'a/c/d.yaml', content: 'D' },
+      { kind: 'folder', path: 'ab' },
+    ]);
+    renderProvider(storage);
+    await screen.findByText('a.yaml=A,a/b.yaml=B,a/c/d.yaml=D');
+
+    click('delete folder');
+
+    expect(await screen.findByText('a.yaml=A')).toBeInTheDocument();
+    expect(screen.getByTestId('folders')).toHaveTextContent(/^ab$/);
+    expect(await storedPaths(storage)).toEqual(['a.yaml']);
+  });
+
+  it('keeps the files when deleting a folder fails', async () => {
+    const storage = new InMemoryStorage([{ kind: 'file', path: 'a/b.yaml', content: 'B' }]);
+    vi.spyOn(storage, 'removeFolder').mockRejectedValue(new Error('blocked'));
+    renderProvider(storage);
+    await screen.findByText('a/b.yaml=B');
+
+    click('delete folder');
+
     await waitFor(() => {
-      expect(screen.getByTestId('rename-error')).not.toBeEmptyDOMElement();
+      expect(storage.removeFolder).toHaveBeenCalledWith('a');
     });
-    expect((await store.getFiles()).map((file) => file.path)).toEqual(['a.camel.yaml', 'z.camel.yaml']);
-    expect(screen.getByTestId('paths').textContent).toBe('a.camel.yaml,z.camel.yaml');
-    expect(screen.getByTestId('state')).toHaveTextContent('a=A,z=Z');
+    expect(screen.getByTestId('state')).toHaveTextContent('a/b.yaml=B');
+    expect(screen.getByTestId('folders')).toHaveTextContent(/^a$/);
   });
 
-  it('deletes a file and drops it from the files', async () => {
-    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
-    await store.createFile({ id: 'b', path: 'b.camel.yaml', content: 'B' });
-    renderProvider(store);
-    await screen.findByText('a=A,b=B');
-
-    fireEvent.click(screen.getByRole('button', { name: 'delete file' }));
-
-    expect(await screen.findByText('b=B')).toBeInTheDocument();
-    expect((await store.getFiles()).map((file) => file.id)).toEqual(['b']);
-  });
-
-  it('deletes the files of a folder and drops them from the files', async () => {
-    await store.createFile({ id: 'a', path: 'a.camel.yaml', content: 'A' });
-    await store.createFile({ id: 'b', path: 'a/b.camel.yaml', content: 'B' });
-    await store.createFile({ id: 'c', path: 'a/c/d.camel.yaml', content: 'C' });
-    renderProvider(store);
-    await screen.findByText('a=A,b=B,c=C');
-
-    fireEvent.click(screen.getByRole('button', { name: 'delete folder' }));
-
-    expect(await screen.findByText('a=A')).toBeInTheDocument();
-    expect((await store.getFiles()).map((file) => file.id)).toEqual(['a']);
-  });
-
-  it('exposes the stored folders', async () => {
-    await store.createFolder('b');
-    await store.createFolder('a');
-
-    renderProvider(store);
+  it('exposes the stored folders, also the empty ones, sorted by path', async () => {
+    renderProvider(
+      new InMemoryStorage([
+        { kind: 'folder', path: 'b' },
+        { kind: 'folder', path: 'a' },
+      ]),
+    );
 
     await waitFor(() => {
-      expect(screen.getByTestId('folders')).toHaveTextContent('a,b');
+      expect(screen.getByTestId('folders')).toHaveTextContent(/^a,b$/);
     });
-  });
-
-  it('exposes an error when the folders cannot be loaded', async () => {
-    vi.spyOn(store, 'getFolders').mockRejectedValue(new Error('blocked'));
-
-    renderProvider(store);
-
-    expect(await screen.findByText('error blocked')).toBeInTheDocument();
   });
 
   it('stores a created folder and exposes it in path order', async () => {
-    await store.createFolder('b');
-    renderProvider(store);
+    const storage = new InMemoryStorage([{ kind: 'folder', path: 'b' }]);
+    renderProvider(storage);
     await waitFor(() => {
-      expect(screen.getByTestId('folders')).toHaveTextContent('b');
+      expect(screen.getByTestId('folders')).toHaveTextContent(/^b$/);
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'create folder' }));
+    click('create folder');
 
     await waitFor(() => {
-      expect(screen.getByTestId('folders')).toHaveTextContent('a,a/new,b');
+      expect(screen.getByTestId('folders')).toHaveTextContent(/^a,a\/new,b$/);
     });
-    expect(await store.getFolders()).toEqual(['a', 'a/new', 'b']);
-  });
-
-  it('exposes the parent folders a created file brings along', async () => {
-    renderProvider(store);
-    await waitFor(() => {
-      expect(screen.getByTestId('state')).toBeEmptyDOMElement();
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: 'create' }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('folders')).toHaveTextContent(/^a$/);
-    });
-  });
-
-  it('keeps a folder after its last file is deleted', async () => {
-    await store.createFile({ id: 'a', path: 'x/a.camel.yaml', content: 'A' });
-    renderProvider(store);
-    await screen.findByText('a=A');
-
-    fireEvent.click(screen.getByRole('button', { name: 'delete file' }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('state')).toBeEmptyDOMElement();
-    });
-    expect(screen.getByTestId('folders')).toHaveTextContent(/^x$/);
   });
 
   it('keeps the folders when the folder exists', async () => {
-    await store.createFolder('a/new');
-    const create = vi.spyOn(store, 'createFolder');
-    renderProvider(store);
+    const storage = new InMemoryStorage([{ kind: 'folder', path: 'a/new' }]);
+    const create = vi.spyOn(storage, 'createFolder');
+    renderProvider(storage);
     await waitFor(() => {
-      expect(screen.getByTestId('folders')).toHaveTextContent('a/new');
+      expect(screen.getByTestId('folders')).toHaveTextContent(/^a,a\/new$/);
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'create folder' }));
+    click('create folder');
 
     await waitFor(() => {
       expect(create).toHaveBeenCalledWith('a/new');
@@ -291,80 +287,37 @@ describe('FilesProvider', () => {
   });
 
   it('renames a folder and exposes its files and folders at their new paths', async () => {
-    await store.createFile({ id: 'b', path: 'a/b.camel.yaml', content: 'B' });
-    await store.createFolder('a/empty');
-    renderProvider(store);
-    await screen.findByText('b=B');
+    const storage = new InMemoryStorage([
+      { kind: 'file', path: 'a/b.yaml', content: 'B' },
+      { kind: 'folder', path: 'a/empty' },
+    ]);
+    renderProvider(storage);
+    await screen.findByText('a/b.yaml=B');
 
-    fireEvent.click(screen.getByRole('button', { name: 'rename folder' }));
+    click('rename folder');
 
-    await waitFor(() => {
-      expect(screen.getByTestId('folders')).toHaveTextContent(/^z,z\/empty$/);
-    });
-    expect((await store.getFiles()).map(({ path }) => path)).toEqual(['z/b.camel.yaml']);
-  });
-
-  it('drops the folders under a deleted folder and keeps the others', async () => {
-    for (const path of ['a', 'a/c', 'ab']) await store.createFolder(path);
-    renderProvider(store);
-    await waitFor(() => {
-      expect(screen.getByTestId('folders')).toHaveTextContent('a,a/c,ab');
-    });
-
-    fireEvent.click(screen.getByRole('button', { name: 'delete folder' }));
-
-    await waitFor(() => {
-      expect(screen.getByTestId('folders')).toHaveTextContent(/^ab$/);
-    });
-  });
-
-  it('keeps the files when deleting a folder fails', async () => {
-    await store.createFile({ id: 'b', path: 'a/b.camel.yaml', content: 'B' });
-    vi.spyOn(store, 'deleteFolder').mockRejectedValue(new Error('blocked'));
-    renderProvider(store);
-    await screen.findByText('b=B');
-
-    fireEvent.click(screen.getByRole('button', { name: 'delete folder' }));
-
-    await waitFor(() => {
-      expect(store.deleteFolder).toHaveBeenCalledWith('a');
-    });
-    expect(screen.getByTestId('state')).toHaveTextContent('b=B');
+    expect(await screen.findByText('z/b.yaml=B')).toBeInTheDocument();
+    expect(screen.getByTestId('folders')).toHaveTextContent(/^z,z\/empty$/);
+    expect(await storedPaths(storage)).toEqual(['z/b.yaml']);
   });
 
   it('rejects an update of a missing file and keeps the files', async () => {
-    await store.createFile({ id: 'b', path: 'b.camel.yaml', content: 'B' });
-    const UpdateMissing = () => {
-      const { updateFile } = useFiles();
-      const [failure, setFailure] = useState('');
-      return (
-        <button
-          onClick={() => {
-            updateFile('missing', 'x').catch((error: Error) => {
-              setFailure(error.message);
-            });
-          }}
-        >
-          {failure || 'update missing'}
-        </button>
-      );
-    };
-    render(
-      <FilesProvider store={store}>
-        <UpdateMissing />
-        <Consumer />
-      </FilesProvider>,
-    );
-    await screen.findByText('b=B');
+    const storage = new InMemoryStorage([{ kind: 'file', path: 'b.yaml', content: 'B' }]);
+    const write = vi.spyOn(storage, 'writeFile');
+    renderProvider(storage);
+    await screen.findByText('b.yaml=B');
 
-    fireEvent.click(screen.getByRole('button', { name: 'update missing' }));
+    click('update');
 
-    expect(await screen.findByRole('button', { name: 'The file missing does not exist' })).toBeInTheDocument();
-    expect(screen.getByTestId('state')).toHaveTextContent('b=B');
+    await waitFor(() => {
+      expect(write).toHaveBeenCalled();
+    });
+    await expect(write.mock.results[0].value).rejects.toThrow('The file a.yaml does not exist');
+    expect(screen.getByTestId('state')).toHaveTextContent('b.yaml=B');
   });
 
   it('throws when used outside the provider', () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
 
     expect(() => render(<Consumer />)).toThrow('useFiles must be used within a FilesProvider');
   });

@@ -1,37 +1,57 @@
 import { FunctionComponent, PropsWithChildren, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { FilesStore, filesStore } from '../services/files/files.store';
-import { NewFile, StoredFile } from '../services/files/stored-file';
-import { FilesContext, IFilesContext } from './FilesContextDefinition';
+import { FilesStorage, StorageEntry } from '../services/files/files-storage';
+import { indexedDbStorage } from '../services/files/indexed-db-storage';
+import { FilesContext, IFilesContext, ProjectFile } from './FilesContextDefinition';
 
 interface FilesProviderProps {
-  store?: FilesStore;
+  storage?: FilesStorage;
 }
 
 /** The loaded files and folders, tagged with their load attempt, so that a reload shows the loading state */
 interface LoadedFiles {
   attempt: number;
-  files: StoredFile[];
+  files: ProjectFile[];
   folders: string[];
   error?: Error;
 }
 
-const NO_FILES: StoredFile[] = [];
+const NO_FILES: ProjectFile[] = [];
 const NO_FOLDERS: string[] = [];
 
 /** Whether the path is the folder or lies under it */
 const isInFolder = (path: string, folderPath: string) => path === folderPath || path.startsWith(`${folderPath}/`);
 
-const byPath = (a: StoredFile, b: StoredFile) => {
-  if (a.path === b.path) return 0;
-  return a.path < b.path ? -1 : 1;
+/** Code unit order, the order the storage lists paths in; not `localeCompare`, which would order them differently */
+const byCodeUnits = (a: string, b: string) => {
+  if (a === b) return 0;
+  return a < b ? -1 : 1;
 };
+
+const byPath = (a: ProjectFile, b: ProjectFile) => byCodeUnits(a.path, b.path);
+
+const toFile = (path: string, content: string): ProjectFile => ({ id: path, path, content });
+
+const foldersOf = (entries: StorageEntry[]): string[] =>
+  entries
+    .filter(({ kind }) => kind === 'folder')
+    .map(({ path }) => path)
+    .sort(byCodeUnits);
 
 const toError = (error: unknown): Error => (error instanceof Error ? error : new Error(String(error)));
 
-/** Loads the files from the browser storage */
+/** Loads every file with its content and every folder */
+const loadFiles = async (storage: FilesStorage): Promise<Pick<LoadedFiles, 'files' | 'folders'>> => {
+  const entries = await storage.list();
+  const filePaths = entries.filter(({ kind }) => kind === 'file').map(({ path }) => path);
+  const files = await Promise.all(filePaths.map(async (path) => toFile(path, await storage.readFile(path))));
+  files.sort(byPath);
+  return { files, folders: foldersOf(entries) };
+};
+
+/** Loads the files from the storage of the project, the browser storage by default */
 export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderProps>> = ({
-  store = filesStore,
+  storage = indexedDbStorage,
   children,
 }) => {
   const [loaded, setLoaded] = useState<LoadedFiles>();
@@ -39,8 +59,8 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
 
   useEffect(() => {
     let isCurrent = true;
-    Promise.all([store.getFiles(), store.getFolders()]).then(
-      ([files, folders]) => {
+    loadFiles(storage).then(
+      ({ files, folders }) => {
         if (isCurrent) setLoaded({ attempt, files, folders });
       },
       (error: unknown) => {
@@ -50,101 +70,108 @@ export const FilesProvider: FunctionComponent<PropsWithChildren<FilesProviderPro
     return () => {
       isCurrent = false;
     };
-  }, [store, attempt]);
+  }, [storage, attempt]);
 
   const reload = useCallback(() => {
     setAttempt((previous) => previous + 1);
   }, []);
 
+  /** The folders as stored now, as the storage creates the missing parent folders along */
+  const storedFolders = useCallback(async () => foldersOf(await storage.list()), [storage]);
+
   const createFile = useCallback(
-    async (file: NewFile) => {
-      const created = await store.createFile(file);
-      // The store creates the missing parent folders as well
-      const folders = await store.getFolders();
+    async ({ path, content }: { path: string; content: string }) => {
+      await storage.createFile(path, content);
+      const created = toFile(path, content);
+      const folders = await storedFolders();
       setLoaded((previous) => previous && { ...previous, files: [...previous.files, created].sort(byPath), folders });
       return created;
     },
-    [store],
+    [storage, storedFolders],
   );
 
   const createFolder = useCallback(
     async (folderPath: string) => {
-      await store.createFolder(folderPath);
-      // The store creates the missing parent folders as well
-      const folders = await store.getFolders();
+      await storage.createFolder(folderPath);
+      const folders = await storedFolders();
       setLoaded((previous) => previous && { ...previous, folders });
     },
-    [store],
+    [storage, storedFolders],
   );
 
   const updateFile = useCallback(
     async (id: string, content: string) => {
-      const updated = await store.updateFile(id, content);
+      await storage.writeFile(id, content);
       setLoaded(
         (previous) =>
           previous && {
             ...previous,
-            files: previous.files.map((file) => (file.id === updated.id ? updated : file)),
+            files: previous.files.map((file) => (file.id === id ? toFile(file.path, content) : file)),
           },
       );
     },
-    [store],
+    [storage],
   );
 
   const renameFile = useCallback(
     async (id: string, path: string) => {
-      const renamed = await store.renameFile(id, path);
-      // The store creates the missing parent folders of the new path as well
-      const folders = await store.getFolders();
+      await storage.moveFile(id, path);
+      const folders = await storedFolders();
       setLoaded(
         (previous) =>
           previous && {
             ...previous,
-            files: previous.files.map((file) => (file.id === renamed.id ? renamed : file)).sort(byPath),
+            files: previous.files.map((file) => (file.id === id ? toFile(path, file.content) : file)).sort(byPath),
             folders,
           },
       );
     },
-    [store],
+    [storage, storedFolders],
   );
 
   const renameFolder = useCallback(
     async (folderPath: string, newPath: string) => {
-      const moved = new Map((await store.renameFolder(folderPath, newPath)).map((file) => [file.id, file]));
-      const folders = await store.getFolders();
+      await storage.moveFolder(folderPath, newPath);
+      const folders = await storedFolders();
       setLoaded(
         (previous) =>
           previous && {
             ...previous,
-            files: previous.files.map((file) => moved.get(file.id) ?? file).sort(byPath),
+            files: previous.files
+              .map((file) =>
+                isInFolder(file.path, folderPath)
+                  ? toFile(`${newPath}${file.path.slice(folderPath.length)}`, file.content)
+                  : file,
+              )
+              .sort(byPath),
             folders,
           },
       );
     },
-    [store],
+    [storage, storedFolders],
   );
 
   const deleteFile = useCallback(
     async (id: string) => {
-      await store.deleteFile(id);
+      await storage.removeFile(id);
       setLoaded((previous) => previous && { ...previous, files: previous.files.filter((file) => file.id !== id) });
     },
-    [store],
+    [storage],
   );
 
   const deleteFolder = useCallback(
     async (folderPath: string) => {
-      const deleted = new Set(await store.deleteFolder(folderPath));
+      await storage.removeFolder(folderPath);
       setLoaded(
         (previous) =>
           previous && {
             ...previous,
-            files: previous.files.filter((file) => !deleted.has(file.id)),
+            files: previous.files.filter((file) => !isInFolder(file.path, folderPath)),
             folders: previous.folders.filter((path) => !isInFolder(path, folderPath)),
           },
       );
     },
-    [store],
+    [storage],
   );
 
   const current = loaded?.attempt === attempt ? loaded : undefined;

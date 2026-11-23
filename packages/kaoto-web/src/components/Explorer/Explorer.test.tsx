@@ -3,8 +3,9 @@ import { userEvent } from '@testing-library/user-event';
 import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { fileUrl } from '../../routes/file-url';
 import { filesStore } from '../../services/files/files.store';
-import { storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
+import { pathOf, storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { buildTree, toFolderId } from './build-tree';
 import { Explorer } from './Explorer';
@@ -41,7 +42,7 @@ const renderWithNavigation = (children?: React.ReactNode, initialPath = '/worksp
           )}
         >
           <Route index element={null} />
-          <Route path="file/:fileId" element={null} />
+          <Route path="file/*" element={null} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -154,7 +155,9 @@ describe('Explorer', () => {
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
     }
 
-    expect(screen.getByTestId('explorer-file-kafka-consumer')).toHaveTextContent('kafka-consumer.camel.yaml');
+    expect(screen.getByTestId(`explorer-file-${pathOf('kafka-consumer')}`)).toHaveTextContent(
+      'kafka-consumer.camel.yaml',
+    );
   });
 
   it.each(['order-test', 'timer-source'])('opens %s (non-camel.yaml canvas resource) on click', async (id) => {
@@ -164,9 +167,9 @@ describe('Explorer', () => {
 
     const folderNode = await screen.findByTestId('explorer-folder-integrations');
     await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
-    await user.click(screen.getByTestId(`explorer-file-${id}`));
+    await user.click(screen.getByTestId(`explorer-file-${pathOf(id)}`));
 
-    expect(screen.getByTestId('location')).toHaveTextContent(`/workspace/file/${id}`);
+    expect(screen.getByTestId('location')).toHaveTextContent(fileUrl(pathOf(id)));
   });
 
   it.each(['orders-pipe', 'legacy-route'])(
@@ -178,9 +181,9 @@ describe('Explorer', () => {
 
       const folderNode = await screen.findByTestId('explorer-folder-integrations');
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
-      await user.click(screen.getByTestId(`explorer-file-${id}`));
+      await user.click(screen.getByTestId(`explorer-file-${pathOf(id)}`));
 
-      expect(screen.getByTestId('location')).toHaveTextContent(`/workspace/file/${id}`);
+      expect(screen.getByTestId('location')).toHaveTextContent(fileUrl(pathOf(id)));
     },
   );
 
@@ -285,8 +288,8 @@ describe('Explorer', () => {
 
     await user.type(screen.getByRole('searchbox'), 'main');
 
-    expect(screen.getByTestId('explorer-file-main-flow')).toBeInTheDocument();
-    expect(screen.queryByTestId('explorer-file-error-handler')).not.toBeInTheDocument();
+    expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toBeInTheDocument();
+    expect(screen.queryByTestId(`explorer-file-${pathOf('error-handler')}`)).not.toBeInTheDocument();
     expect(screen.getByTestId('explorer-folder-integrations')).toHaveAttribute('aria-expanded', 'true');
   });
 
@@ -300,7 +303,7 @@ describe('Explorer', () => {
     expect(folderNode).toHaveAttribute('aria-expanded', 'true');
 
     await user.click(screen.getByText('main-flow.camel.yaml'));
-    expect(screen.getByTestId('location')).toHaveTextContent('/workspace/file/main-flow');
+    expect(screen.getByTestId('location')).toHaveTextContent(fileUrl(pathOf('main-flow')));
     expect(screen.getByTestId('explorer-folder-integrations')).toHaveAttribute('aria-expanded', 'true');
   });
 
@@ -312,11 +315,11 @@ describe('Explorer', () => {
     await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
 
     await user.click(screen.getByText('main-flow.camel.yaml'));
-    expect(screen.getByTestId('explorer-file-main-flow')).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveAttribute('aria-selected', 'true');
 
     await user.click(screen.getByText('error-handler.camel.yaml'));
-    expect(screen.getByTestId('explorer-file-error-handler')).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByTestId('explorer-file-main-flow')).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByTestId(`explorer-file-${pathOf('error-handler')}`)).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveAttribute('aria-selected', 'false');
   });
 
   it('syncs selection with the URL on browser back/forward navigation', async () => {
@@ -333,19 +336,19 @@ describe('Explorer', () => {
     const folderNode = await screen.findByTestId('explorer-folder-integrations');
     await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
     await user.click(screen.getByText('main-flow.camel.yaml'));
-    expect(screen.getByTestId('explorer-file-main-flow')).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveAttribute('aria-selected', 'true');
 
     // Navigate to error-handler — main-flow should deselect
     await user.click(screen.getByText('error-handler.camel.yaml'));
-    expect(screen.getByTestId('explorer-file-error-handler')).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByTestId('explorer-file-main-flow')).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByTestId(`explorer-file-${pathOf('error-handler')}`)).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveAttribute('aria-selected', 'false');
 
     // Go back — URL returns to main-flow; Explorer must follow
     act(() => {
       void navigateFn(-1);
     });
-    expect(screen.getByTestId('explorer-file-main-flow')).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByTestId('explorer-file-error-handler')).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByTestId(`explorer-file-${pathOf('error-handler')}`)).toHaveAttribute('aria-selected', 'false');
   });
 
   describe('opening files', () => {
@@ -357,9 +360,9 @@ describe('Explorer', () => {
 
       const folderNode = await screen.findByTestId('explorer-folder-resources');
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
-      await user.click(screen.getByTestId('explorer-file-schema'));
+      await user.click(screen.getByTestId(`explorer-file-${pathOf('schema')}`));
 
-      expect(screen.getByTestId('location')).toHaveTextContent('/workspace/file/schema');
+      expect(screen.getByTestId('location')).toHaveTextContent(fileUrl(pathOf('schema')));
     });
   });
 
@@ -419,8 +422,8 @@ describe('Explorer', () => {
         'aria-keyshortcuts',
         'F2 Delete Backspace',
       );
-      const deleteButton = screen.getByTestId('explorer-delete-main-flow');
-      const renameButton = screen.getByTestId('explorer-rename-main-flow');
+      const deleteButton = screen.getByTestId(`explorer-delete-${pathOf('main-flow')}`);
+      const renameButton = screen.getByTestId(`explorer-rename-${pathOf('main-flow')}`);
       expect(deleteButton.parentElement).toHaveAttribute('aria-hidden', 'true');
       expect(renameButton.parentElement).toBe(deleteButton.parentElement);
       expect(deleteButton).toHaveAttribute('tabindex', '-1');
@@ -442,7 +445,7 @@ describe('Explorer', () => {
       renderWithNavigation(<LocationDisplay />);
       await expandFolder(user, 'integrations');
 
-      await user.click(screen.getByTestId('explorer-delete-main-flow'));
+      await user.click(screen.getByTestId(`explorer-delete-${pathOf('main-flow')}`));
 
       expect(screen.getByTestId('location')).toHaveTextContent(/^\/workspace$/);
       expect(screen.getByRole('heading', { name: 'Delete file?' })).toBeInTheDocument();
@@ -453,7 +456,7 @@ describe('Explorer', () => {
       await user.click(screen.getByRole('button', { name: 'Delete' }));
 
       await waitFor(() => {
-        expect(screen.queryByTestId('explorer-file-main-flow')).not.toBeInTheDocument();
+        expect(screen.queryByTestId(`explorer-file-${pathOf('main-flow')}`)).not.toBeInTheDocument();
       });
       expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
       expect(await storedPaths()).not.toContain('integrations/main-flow.camel.yaml');
@@ -483,7 +486,7 @@ describe('Explorer', () => {
       const paths = await storedPaths();
       expect(paths.filter((path) => path.startsWith('integrations/routes/'))).toEqual([]);
       expect(paths).toHaveLength(TEST_FILES.length - 3);
-      expect(screen.getByTestId('explorer-file-main-flow')).toBeInTheDocument();
+      expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toBeInTheDocument();
     });
 
     it('deletes every subfolder and file of a folder and nothing outside it', async () => {
@@ -507,7 +510,7 @@ describe('Explorer', () => {
         expect(screen.queryByTestId(`explorer-folder-${folder}`)).not.toBeInTheDocument();
       }
       for (const file of inIntegrations) {
-        expect(screen.queryByTestId(`explorer-file-${file.id}`)).not.toBeInTheDocument();
+        expect(screen.queryByTestId(`explorer-file-${file.path}`)).not.toBeInTheDocument();
       }
       expect(await storedPaths()).toEqual(outside.map((file) => file.path).sort());
       // The stored folders too, or the empty ones would come back on a reload
@@ -522,11 +525,11 @@ describe('Explorer', () => {
       renderComponent();
       await expandFolder(user, 'integrations');
 
-      await user.click(screen.getByTestId('explorer-delete-main-flow'));
+      await user.click(screen.getByTestId(`explorer-delete-${pathOf('main-flow')}`));
       await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
       expect(screen.queryByTestId('delete-confirm-modal')).not.toBeInTheDocument();
-      expect(screen.getByTestId('explorer-file-main-flow')).toHaveFocus();
+      expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveFocus();
       expect(await storedPaths()).toHaveLength(TEST_FILES.length);
     });
 
@@ -534,7 +537,7 @@ describe('Explorer', () => {
       const user = userEvent.setup();
       renderComponent();
       await expandFolder(user, 'integrations');
-      screen.getByTestId('explorer-file-main-flow').focus();
+      screen.getByTestId(`explorer-file-${pathOf('main-flow')}`).focus();
 
       await user.keyboard('{Delete}');
 
@@ -557,7 +560,7 @@ describe('Explorer', () => {
       const user = userEvent.setup();
       renderComponent();
       await expandFolder(user, 'integrations');
-      screen.getByTestId('explorer-file-main-flow').focus();
+      screen.getByTestId(`explorer-file-${pathOf('main-flow')}`).focus();
 
       await user.keyboard('{Backspace}');
 
@@ -595,7 +598,7 @@ describe('Explorer', () => {
       renderComponent();
       await expandFolder(user, 'integrations');
 
-      await user.click(screen.getByTestId('explorer-delete-main-flow'));
+      await user.click(screen.getByTestId(`explorer-delete-${pathOf('main-flow')}`));
       await user.click(screen.getByRole('button', { name: 'Delete' }));
 
       await waitFor(() => {
@@ -621,13 +624,13 @@ describe('Explorer', () => {
     });
 
     it.each([
-      ['the open file', '/workspace', 'main-flow'],
+      ['the open file', '/workspace', pathOf('main-flow')],
       ['the folder of the open file', '/workspace', toFolderId('integrations')],
-      ['another file', '/workspace/file/main-flow', 'error-handler'],
-      ['another folder', '/workspace/file/main-flow', toFolderId('resources')],
+      ['another file', fileUrl(pathOf('main-flow')), pathOf('error-handler')],
+      ['another folder', fileUrl(pathOf('main-flow')), toFolderId('resources')],
     ])('deleting %s leads to %s', async (_, location, nodeId) => {
       const user = userEvent.setup();
-      renderWithNavigation(<LocationDisplay />, '/workspace/file/main-flow');
+      renderWithNavigation(<LocationDisplay />, fileUrl(pathOf('main-flow')));
       await expandFolder(user, 'integrations');
 
       await user.click(screen.getByTestId(`explorer-delete-${nodeId}`));
@@ -643,16 +646,16 @@ describe('Explorer', () => {
     });
 
     it('shows the error in the modal and keeps the file when deleting fails', async () => {
-      vi.spyOn(filesStore, 'deleteFile').mockRejectedValueOnce(new Error('The storage is blocked'));
+      vi.spyOn(filesStore, 'deleteFileAt').mockRejectedValueOnce(new Error('The storage is blocked'));
       const user = userEvent.setup();
       renderComponent();
       await expandFolder(user, 'integrations');
 
-      await user.click(screen.getByTestId('explorer-delete-main-flow'));
+      await user.click(screen.getByTestId(`explorer-delete-${pathOf('main-flow')}`));
       await user.click(screen.getByRole('button', { name: 'Delete' }));
 
       expect(await screen.findByText('The storage is blocked')).toBeInTheDocument();
-      expect(screen.getByTestId('explorer-file-main-flow')).toBeInTheDocument();
+      expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toBeInTheDocument();
       expect(await storedPaths()).toHaveLength(TEST_FILES.length);
     });
   });
@@ -667,7 +670,7 @@ describe('Explorer', () => {
     };
 
     const startRenaming = async (user: ReturnType<typeof userEvent.setup>, id = 'main-flow') => {
-      await user.click(screen.getByTestId(`explorer-rename-${id}`));
+      await user.click(screen.getByTestId(`explorer-rename-${pathOf(id)}`));
       return screen.getByRole('textbox', { name: 'Rename file' });
     };
 
@@ -683,7 +686,7 @@ describe('Explorer', () => {
       expect((input as HTMLInputElement).selectionStart).toBe(0);
       expect((input as HTMLInputElement).selectionEnd).toBe('main-flow'.length);
       expect(screen.getByTestId('location').textContent).toBe('/workspace');
-      expect(screen.queryByTestId('explorer-delete-main-flow')).not.toBeInTheDocument();
+      expect(screen.queryByTestId(`explorer-delete-${pathOf('main-flow')}`)).not.toBeInTheDocument();
     });
 
     it('edits the name with Backspace and Delete instead of asking to delete the file', async () => {
@@ -704,7 +707,7 @@ describe('Explorer', () => {
       renderComponent();
       await expandIntegrations(user);
 
-      screen.getByTestId('explorer-file-main-flow').focus();
+      screen.getByTestId(`explorer-file-${pathOf('main-flow')}`).focus();
       await user.keyboard('{F2}');
       expect(screen.getByRole('textbox', { name: 'Rename file' })).toHaveValue('main-flow.camel.yaml');
       await user.keyboard('{Escape}');
@@ -746,7 +749,7 @@ describe('Explorer', () => {
 
       it('keeps the open file open and a renamed folder expanded', async () => {
         const user = userEvent.setup();
-        renderWithNavigation(<LocationDisplay />, '/workspace/file/rest-api');
+        renderWithNavigation(<LocationDisplay />, fileUrl(pathOf('rest-api')));
         await expandIntegrations(user);
         const routes = screen.getByTestId('explorer-folder-integrations/routes');
         await user.click(routes.querySelector('.cds--tree-parent-node__toggle')!);
@@ -756,8 +759,14 @@ describe('Explorer', () => {
         await waitFor(() => {
           expect(screen.getByTestId('explorer-folder-integrations/api')).toHaveAttribute('aria-expanded', 'true');
         });
-        expect(screen.getByTestId('location').textContent).toBe('/workspace/file/rest-api');
-        expect(screen.getByTestId('explorer-file-rest-api')).toHaveAttribute('aria-selected', 'true');
+        // The URL follows the open file to its new path
+        await waitFor(() => {
+          expect(screen.getByTestId('location').textContent).toBe(fileUrl('integrations/api/rest-api.camel.yaml'));
+        });
+        expect(screen.getByTestId('explorer-file-integrations/api/rest-api.camel.yaml')).toHaveAttribute(
+          'aria-selected',
+          'true',
+        );
       });
 
       it('shows an error for a name that is taken and keeps the field open on Enter', async () => {
@@ -796,8 +805,11 @@ describe('Explorer', () => {
       await waitFor(() => {
         expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
       });
-      expect(screen.getByTestId('explorer-file-main-flow')).toHaveTextContent('orders flow.camel.yaml');
-      expect(screen.getByTestId('explorer-file-main-flow')).toHaveFocus();
+      // A file's id is its path, so its tree item now has the new one
+      expect(screen.getByTestId('explorer-file-integrations/orders flow.camel.yaml')).toHaveTextContent(
+        'orders flow.camel.yaml',
+      );
+      expect(screen.getByTestId('explorer-file-integrations/orders flow.camel.yaml')).toHaveFocus();
       expect(await storedFile('main-flow')).toMatchObject({
         path: 'integrations/orders flow.camel.yaml',
         content: TEST_FILES[0].content,
@@ -807,7 +819,7 @@ describe('Explorer', () => {
 
     it('keeps the renamed file open', async () => {
       const user = userEvent.setup();
-      renderWithNavigation(<LocationDisplay />, '/workspace/file/main-flow');
+      renderWithNavigation(<LocationDisplay />, fileUrl(pathOf('main-flow')));
       await expandIntegrations(user);
 
       await startRenaming(user);
@@ -816,8 +828,14 @@ describe('Explorer', () => {
       await waitFor(async () => {
         expect((await storedFile('main-flow'))?.path).toBe('integrations/orders.camel.yaml');
       });
-      expect(screen.getByTestId('location').textContent).toBe('/workspace/file/main-flow');
-      expect(screen.getByTestId('explorer-file-main-flow')).toHaveAttribute('aria-selected', 'true');
+      // The URL follows the open file to its new path
+      await waitFor(() => {
+        expect(screen.getByTestId('location').textContent).toBe(fileUrl('integrations/orders.camel.yaml'));
+      });
+      expect(screen.getByTestId('explorer-file-integrations/orders.camel.yaml')).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
     });
 
     it('cancels on Escape and focuses the tree item again', async () => {
@@ -829,8 +847,8 @@ describe('Explorer', () => {
       await user.keyboard('orders{Escape}');
 
       expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
-      expect(screen.getByTestId('explorer-file-main-flow')).toHaveTextContent('main-flow.camel.yaml');
-      expect(screen.getByTestId('explorer-file-main-flow')).toHaveFocus();
+      expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveTextContent('main-flow.camel.yaml');
+      expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveFocus();
       expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
     });
 
@@ -889,12 +907,12 @@ describe('Explorer', () => {
       await user.click(screen.getByRole('searchbox'));
 
       expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
-      expect(screen.getByTestId('explorer-file-main-flow')).toHaveTextContent('main-flow.camel.yaml');
+      expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveTextContent('main-flow.camel.yaml');
       expect((await storedFile('main-flow'))?.path).toBe(TEST_FILES[0].path);
     });
 
     it('closes without writing when the name is unchanged', async () => {
-      const rename = vi.spyOn(filesStore, 'renameFile');
+      const rename = vi.spyOn(filesStore, 'renameFileAt');
       const user = userEvent.setup();
       renderComponent();
       await expandIntegrations(user);
@@ -907,7 +925,7 @@ describe('Explorer', () => {
     });
 
     it('shows the error and keeps the field open when the store fails', async () => {
-      vi.spyOn(filesStore, 'renameFile').mockRejectedValueOnce(new Error('The storage is blocked'));
+      vi.spyOn(filesStore, 'renameFileAt').mockRejectedValueOnce(new Error('The storage is blocked'));
       const user = userEvent.setup();
       renderComponent();
       await expandIntegrations(user);
@@ -927,10 +945,10 @@ describe('Explorer', () => {
       const storing = new Promise<void>((resolve) => {
         finishStoring = resolve;
       });
-      const renameFile = filesStore.renameFile.bind(filesStore);
-      vi.spyOn(filesStore, 'renameFile').mockImplementationOnce(async (...args) => {
+      const renameFileAt = filesStore.renameFileAt.bind(filesStore);
+      vi.spyOn(filesStore, 'renameFileAt').mockImplementationOnce(async (...args) => {
         await storing;
-        return renameFile(...args);
+        return renameFileAt(...args);
       });
       const user = userEvent.setup();
       renderComponent();
@@ -1058,11 +1076,11 @@ describe('Explorer', () => {
       expect(created.content).toBe('');
       expect(screen.queryByTestId('explorer-new-input')).not.toBeInTheDocument();
       await waitFor(() => {
-        expect(screen.getByTestId(`explorer-file-${created.id}`)).toHaveFocus();
+        expect(screen.getByTestId(`explorer-file-${created.path}`)).toHaveFocus();
       });
       // Every file opens, a document in the text editor
       await waitFor(() => {
-        expect(screen.getByTestId('location').textContent).toBe(`/workspace/file/${created.id}`);
+        expect(screen.getByTestId('location').textContent).toBe(fileUrl(created.path));
       });
     });
 
@@ -1107,7 +1125,7 @@ describe('Explorer', () => {
       renderComponent();
       const folderNode = await screen.findByTestId('explorer-folder-integrations');
       await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
-      screen.getByTestId('explorer-file-main-flow').focus();
+      screen.getByTestId(`explorer-file-${pathOf('main-flow')}`).focus();
 
       await user.click(screen.getByRole('button', { name: 'New file' }));
       await user.keyboard('readme.md{Enter}');
@@ -1119,7 +1137,7 @@ describe('Explorer', () => {
 
     it('creates the entry in the folder of the open file when no tree item had the focus', async () => {
       const user = userEvent.setup();
-      renderWithNavigation(undefined, '/workspace/file/rest-api');
+      renderWithNavigation(undefined, fileUrl(pathOf('rest-api')));
       await screen.findByTestId('explorer-folder-integrations');
 
       await user.click(screen.getByRole('button', { name: 'New file' }));
@@ -1135,13 +1153,13 @@ describe('Explorer', () => {
         const navigate = useNavigate();
         return (
           <>
-            <button onClick={() => void navigate('/workspace/file/main-flow')}>Open main-flow</button>
-            <button onClick={() => void navigate('/workspace/file/rest-api')}>Open rest-api</button>
+            <button onClick={() => void navigate(fileUrl(pathOf('main-flow')))}>Open main-flow</button>
+            <button onClick={() => void navigate(fileUrl(pathOf('rest-api')))}>Open rest-api</button>
           </>
         );
       };
       const user = userEvent.setup();
-      renderWithNavigation(<OpenFileButtons />, '/workspace/file/rest-api');
+      renderWithNavigation(<OpenFileButtons />, fileUrl(pathOf('rest-api')));
       (await screen.findByTestId('explorer-folder-resources')).focus();
       await user.click(screen.getByRole('button', { name: 'Open main-flow' }));
       await user.click(screen.getByRole('button', { name: 'Open rest-api' }));
@@ -1170,7 +1188,7 @@ describe('Explorer', () => {
       const created = (await filesStore.getFiles()).find(({ path }) => path === 'orders.camel.yaml')!;
       expect(created.content).toMatch(/^- route:\n {4}id: route-\d+\n$/);
       await waitFor(() => {
-        expect(screen.getByTestId('location').textContent).toBe(`/workspace/file/${created.id}`);
+        expect(screen.getByTestId('location').textContent).toBe(fileUrl(created.path));
       });
     });
 
@@ -1194,7 +1212,7 @@ describe('Explorer', () => {
       const created = (await filesStore.getFiles()).find(({ path }) => path === fileName)!;
       expect(created.content).toMatch(expectedContent);
       await waitFor(() => {
-        expect(screen.getByTestId('location').textContent).toBe(`/workspace/file/${created.id}`);
+        expect(screen.getByTestId('location').textContent).toBe(fileUrl(created.path));
       });
     });
 
@@ -1262,7 +1280,7 @@ describe('Explorer', () => {
       const OpenRestApi = () => {
         const navigate = useNavigate();
         return (
-          <button type="button" onClick={() => void navigate('/workspace/file/rest-api')}>
+          <button type="button" onClick={() => void navigate(fileUrl(pathOf('rest-api')))}>
             open rest-api
           </button>
         );
@@ -1302,7 +1320,7 @@ describe('Explorer', () => {
 
     it('creates a top-level file after a click on the free space of the tree while a file in a folder is open', async () => {
       const user = userEvent.setup();
-      renderWithNavigation(undefined, '/workspace/file/rest-api');
+      renderWithNavigation(undefined, fileUrl(pathOf('rest-api')));
       await screen.findByTestId('explorer-folder-integrations');
 
       await user.click(screen.getByTestId('explorer-tree'));
