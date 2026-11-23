@@ -1,12 +1,12 @@
 import { FunctionComponent } from 'react';
 
-import { StoredFile } from '../../../services/files/stored-file';
 import { CodeEditor } from './CodeEditor';
+import { OpenFile } from './open-file';
 import { useDebouncedSave } from './use-debounced-save';
 
 interface TextFileEditorProps {
-  file: Pick<StoredFile, 'id' | 'path' | 'content'>;
-  onSave: (fileId: string, content: string) => void;
+  file: OpenFile;
+  onSave: (key: string, content: string) => void;
 }
 
 /**
@@ -18,7 +18,7 @@ export const TextFileEditor: FunctionComponent<TextFileEditorProps> = ({ file, o
   const { schedule } = useDebouncedSave(onSave);
 
   const handleChange = (content: string) => {
-    schedule(file.id, content);
+    schedule(file.key, content);
   };
 
   return <CodeEditor path={file.path} initialContent={file.content} onChange={handleChange} />;

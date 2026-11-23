@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { IntegrationHeaderContext, ViewMode } from '../../context/IntegrationHeaderContext';
 import { fileUrl } from '../../routes/file-url';
 import { indexedDbStorage } from '../../services/files/indexed-db-storage';
+import { useFilesUiStoreApi } from '../../store/files/use-files-ui-store';
 import { pathOf, storedFiles, storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { stubRouteVisualization } from '../../test/route-visualization-stub';
@@ -43,16 +44,28 @@ const renderWithContext = (fileId = 'main-flow', viewMode: ViewMode = 'design', 
       }}
     >
       <MemoryRouter initialEntries={[urlOf(fileId)]}>
-        {extra}
         {withFiles(
-          <Routes>
-            <Route path="/workspace" element={<div data-testid="workspace-page" />} />
-            <Route path="/workspace/file/*" element={<IntegrationShell />} />
-          </Routes>,
+          <>
+            {extra}
+            <Routes>
+              <Route path="/workspace" element={<div data-testid="workspace-page" />} />
+              <Route path="/workspace/file/*" element={<IntegrationShell />} />
+            </Routes>
+          </>,
         )}
       </MemoryRouter>
     </IntegrationHeaderContext.Provider>,
   );
+
+/** Renames the test file with the id through the files UI store on a click */
+const RenameButton: FunctionComponent<{ id: string; to: string }> = ({ id, to }) => {
+  const store = useFilesUiStoreApi();
+  const rename = () => {
+    const entry = store.getState().entries.find((candidate) => candidate.path === pathOf(id))!;
+    void store.getState().moveFile(entry.key, to);
+  };
+  return <button onClick={rename}>rename</button>;
+};
 
 /** Rendered inside the router to hand its navigate function to the test */
 const NavCapture: FunctionComponent<{ onNavigate: (navigate: NavigateFunction) => void }> = ({ onNavigate }) => {
@@ -180,10 +193,11 @@ describe('IntegrationShell', () => {
     expect(mockSetViewMode).toHaveBeenCalledTimes(1);
   });
 
-  it('resets viewMode to design on mount', async () => {
+  it('resets viewMode to design once the file is loaded', async () => {
     renderWithContext('main-flow');
-    expect(mockSetViewMode).toHaveBeenCalledWith('design');
+
     expect(await screen.findByTestId('route-visualization')).toBeInTheDocument();
+    expect(mockSetViewMode).toHaveBeenCalledWith('design');
   });
 
   it('resets viewMode to design when navigating to a different file', async () => {
@@ -200,19 +214,21 @@ describe('IntegrationShell', () => {
     expect(mockSetViewMode).toHaveBeenCalledWith('design');
   });
 
-  it('keeps the view mode when the URL follows the open file to its new path after a rename', async () => {
-    let navigateTo: NavigateFunction = () => Promise.resolve();
-    renderWithContext('error-handler', 'code', <NavCapture onNavigate={(navigate) => (navigateTo = navigate)} />);
+  it('keeps the view mode and follows the open file when it is renamed', async () => {
+    const user = userEvent.setup();
+    renderWithContext('error-handler', 'code', <RenameButton id="error-handler" to="integrations/errors.camel.yaml" />);
     await waitFor(() => {
       expect(mockSetCurrent).toHaveBeenLastCalledWith('error-handler.camel.yaml');
     });
     mockSetViewMode.mockClear();
 
-    act(() => {
-      void navigateTo(urlOf('main-flow'), { replace: true, state: { renamed: true } });
-    });
+    await user.click(screen.getByRole('button', { name: 'rename' }));
 
+    await waitFor(() => {
+      expect(mockSetCurrent).toHaveBeenLastCalledWith('errors.camel.yaml');
+    });
     expect(mockSetViewMode).not.toHaveBeenCalled();
+    expect(routeVisualization.mountCount()).toBe(1);
   });
 
   it('clears context on unmount', async () => {
@@ -278,7 +294,9 @@ describe('IntegrationShell', () => {
     act(() => {
       navigateTo(urlOf('main-flow'));
     });
-    expect(screen.getByTestId('route-visualization')).toHaveAttribute('data-code', contentOf('main-flow'));
+    await waitFor(() => {
+      expect(screen.getByTestId('route-visualization')).toHaveAttribute('data-code', contentOf('main-flow'));
+    });
   });
 
   it('opens a file whose path needs encoding in the URL', async () => {
@@ -358,6 +376,34 @@ describe('IntegrationShell', () => {
 
       expect(screen.getByTestId('route-visualization')).toHaveAttribute('data-code', 'edited main-flow');
       expect(await storedContent('error-handler')).toBe(contentOf('error-handler'));
+    });
+
+    it('shows the stored edits once a rename opens the file in the text editor', async () => {
+      const user = userEvent.setup();
+      renderWithContext('main-flow', 'design', <RenameButton id="main-flow" to="integrations/main-flow.yaml" />);
+      await screen.findByTestId('route-visualization');
+      editOnCanvas('- route:\n    id: edited\n');
+      await waitFor(async () => {
+        expect(await storedContent('main-flow')).toBe('- route:\n    id: edited\n');
+      });
+
+      await user.click(screen.getByRole('button', { name: 'rename' }));
+
+      expect(await screen.findByRole('textbox', { name: 'Code' })).toHaveValue('- route:\n    id: edited\n');
+    });
+
+    it('stores a pending edit and shows it once a rename opens the file on the canvas', async () => {
+      const user = userEvent.setup();
+      renderWithContext('schema', 'design', <RenameButton id="schema" to="resources/schema.camel.yaml" />);
+      const editor = await screen.findByRole('textbox', { name: 'Code' });
+      fireEvent.change(editor, { target: { value: '- route: {}\n' } });
+
+      await user.click(screen.getByRole('button', { name: 'rename' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('route-visualization')).toHaveAttribute('data-code', '- route: {}\n');
+      });
+      expect(await indexedDbStorage.readFile('resources/schema.camel.yaml')).toBe('- route: {}\n');
     });
 
     it('shows an error when the code cannot be stored and hides it on close', async () => {

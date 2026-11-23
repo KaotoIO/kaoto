@@ -5,9 +5,9 @@ import { ViewMode } from '../../../context/IntegrationHeaderContext';
 import { stubRouteVisualization } from '../../../test/route-visualization-stub';
 import { RouteFileEditor } from './RouteFileEditor';
 
-const MAIN_FLOW = { id: 'main-flow', path: 'integrations/main-flow.camel.yaml', content: '- route:\n    id: main\n' };
+const MAIN_FLOW = { key: 'main-flow', path: 'integrations/main-flow.camel.yaml', content: '- route:\n    id: main\n' };
 const ERROR_HANDLER = {
-  id: 'error-handler',
+  key: 'error-handler',
   path: 'integrations/error-handler.camel.yaml',
   content: '- errorHandler: {}\n',
 };

@@ -25,19 +25,19 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useNavigate } from 'react-router';
 
-import { ProjectFile } from '../../context/FilesContextDefinition';
-import { useFiles } from '../../hooks/useFiles';
-import { filePathFromSplat, fileUrl } from '../../routes/file-url';
+import { useActiveFile } from '../../hooks/useActiveFile';
+import { fileUrl } from '../../routes/file-url';
+import { FileEntry } from '../../store/files/files-ui-state';
+import { useFilesUiStore, useFilesUiStoreApi } from '../../store/files/use-files-ui-store';
 import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
 import { DeleteConfirmModal } from '../DeleteConfirmModal/DeleteConfirmModal';
 import { ErrorState } from '../ErrorState/ErrorState';
-import { buildTree, toFolderId, toFolderPath } from './build-tree';
+import { buildTree } from './build-tree';
 import { EntryLabel } from './EntryLabel';
 import { ExplorerFile } from './explorer-file';
 import { filterFiles } from './filterFiles';
-import { moveExpandedFolders } from './move-expanded-folders';
 import { CreatedEntry, NewEntryField, NewEntryKind } from './NewEntryField';
 import { RenameField } from './RenameField';
 import { RenameFolderField } from './RenameFolderField';
@@ -48,19 +48,13 @@ interface RenderOptions {
   expandedFolders: Record<string, boolean>;
   handleToggle: (folderId: string) => ComponentProps<typeof TreeNode>['onToggle'];
   /** Opens a file in the editor of its type */
-  openFile: (fileId: string) => void;
+  openFile: (node: ExplorerFile) => void;
   requestDelete: (node: ExplorerFile) => void;
   /** Starts renaming the file or folder with the tree node id */
   requestRename: (nodeId: string) => void;
-  /** The file being renamed */
-  renaming: ProjectFile | undefined;
-  /** The path of the folder being renamed */
-  renamingFolder: string | undefined;
-  finishRename: (byKeyboard: boolean, renamedNodeId?: string) => void;
-  /** Moves the expansion state and the open file along with a folder renamed in storage */
-  folderRenamed: (fromPath: string, toPath: string) => void;
-  /** Moves the open file along with a file renamed in storage */
-  fileRenamed: (fromPath: string, toPath: string) => void;
+  /** The file or folder being renamed */
+  renaming: FileEntry | undefined;
+  finishRename: (byKeyboard: boolean) => void;
   /** The file or folder being created */
   newEntry: NewEntry | undefined;
   finishCreate: (byKeyboard: boolean, created: CreatedEntry | undefined) => void;
@@ -84,7 +78,12 @@ const ROOT_TARGET = 'root:';
 
 /** Puts the node of the new entry into its folder: a folder first among the folders, a file first among the files */
 function insertNewEntry(nodes: ExplorerFile[], entry: NewEntry): ExplorerFile[] {
-  const node: ExplorerFile = { id: NEW_ENTRY_ID, name: '', type: entry.kind === 'folder' ? 'folder' : 'document' };
+  const node: ExplorerFile = {
+    id: NEW_ENTRY_ID,
+    path: '',
+    name: '',
+    type: entry.kind === 'folder' ? 'folder' : 'document',
+  };
   const insert = (siblings: ExplorerFile[]) => {
     const index = entry.kind === 'folder' ? 0 : siblings.findIndex((sibling) => !sibling.children);
     const at = index === -1 ? siblings.length : index;
@@ -92,19 +91,15 @@ function insertNewEntry(nodes: ExplorerFile[], entry: NewEntry): ExplorerFile[] 
   };
   if (!entry.folderPath) return insert(nodes);
 
-  const folderId = toFolderId(entry.folderPath);
   return nodes.map((candidate) => {
     if (!candidate.children) return candidate;
-    if (candidate.id === folderId) return { ...candidate, children: insert(candidate.children) };
-    if (entry.folderPath.startsWith(`${toFolderPath(candidate.id)}/`)) {
+    if (candidate.path === entry.folderPath) return { ...candidate, children: insert(candidate.children) };
+    if (entry.folderPath.startsWith(`${candidate.path}/`)) {
       return { ...candidate, children: insertNewEntry(candidate.children, entry) };
     }
     return candidate;
   });
 }
-
-/** Whether the tree node id is the id of a folder */
-const isFolderId = (id: string): boolean => toFolderId(toFolderPath(id)) === id;
 
 /** The folder paths from the outermost folder down to the folder itself */
 const folderAndParents = (folderPath: string): string[] =>
@@ -129,18 +124,11 @@ function handleEntryKeys(node: ExplorerFile, opts: RenderOptions) {
 }
 
 function renderEntryLabel(node: ExplorerFile, opts: RenderOptions): React.ReactNode {
-  if (opts.renaming?.id === node.id) {
-    return <RenameField file={opts.renaming} onDone={opts.finishRename} onRenamed={opts.fileRenamed} />;
-  }
-  if (opts.renamingFolder !== undefined && node.children && toFolderPath(node.id) === opts.renamingFolder) {
-    return (
-      <RenameFolderField
-        folderPath={opts.renamingFolder}
-        onDone={(byKeyboard, renamedPath) => {
-          opts.finishRename(byKeyboard, renamedPath === undefined ? undefined : toFolderId(renamedPath));
-        }}
-        onRenamed={opts.folderRenamed}
-      />
+  if (opts.renaming?.key === node.id) {
+    return opts.renaming.kind === 'folder' ? (
+      <RenameFolderField folder={opts.renaming} onDone={opts.finishRename} />
+    ) : (
+      <RenameField file={opts.renaming} onDone={opts.finishRename} />
     );
   }
   return (
@@ -181,7 +169,7 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
           onToggle={opts.handleToggle(node.id)}
           onKeyDown={handleEntryKeys(node, opts)}
           aria-keyshortcuts="F2 Delete Backspace"
-          data-testid={`explorer-folder-${toFolderPath(node.id)}`}
+          data-testid={`explorer-folder-${node.path}`}
         >
           {renderNodes(node.children, opts)}
         </TreeNode>
@@ -193,11 +181,11 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
         id={node.id}
         label={renderEntryLabel(node, opts)}
         renderIcon={getFileIcon(node.type)}
-        data-testid={`explorer-file-${node.id}`}
+        data-testid={`explorer-file-${node.path}`}
         onKeyDown={handleEntryKeys(node, opts)}
         aria-keyshortcuts="F2 Delete Backspace"
         onSelect={() => {
-          opts.openFile(node.id);
+          opts.openFile(node);
         }}
       />
     );
@@ -212,8 +200,7 @@ interface ExplorerProps {
 }
 
 export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMouseDown }) => {
-  // The id of a file is its path, which the URL of the open file holds
-  const selectedId = filePathFromSplat(useParams()['*']);
+  const selectedId = useActiveFile().entry?.key;
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState('');
   const query = searchText.toLowerCase();
@@ -231,8 +218,11 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
     setSearchText(e.target.value);
   }, []);
 
-  const { files, folders, loading, error, reload, deleteFile, deleteFolder } = useFiles();
-  const tree = useMemo(() => buildTree(files, folders), [files, folders]);
+  const store = useFilesUiStoreApi();
+  const entries = useFilesUiStore((state) => state.entries);
+  const loading = useFilesUiStore((state) => state.status === 'loading');
+  const error = useFilesUiStore((state) => state.error);
+  const tree = useMemo(() => buildTree(entries), [entries]);
   const filtered = useMemo(() => filterFiles(tree, query), [tree, query]);
 
   const [newEntry, setNewEntry] = useState<NewEntry>();
@@ -257,8 +247,8 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
   );
 
   const openFile = useCallback(
-    (fileId: string) => {
-      void navigate(fileUrl(fileId));
+    (node: Pick<ExplorerFile, 'path'>) => {
+      void navigate(fileUrl(node.path));
     },
     [navigate],
   );
@@ -275,30 +265,10 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
     target?.focus();
   }, [focusNode]);
 
-  const renaming = renamingId ? files.find((file) => file.id === renamingId) : undefined;
-  const renamingFolder = renamingId && isFolderId(renamingId) ? toFolderPath(renamingId) : undefined;
-  /** The URL holds the path of the open file, so it follows the file when the file or a folder above it is renamed */
-  const fileRenamed = useCallback(
-    (fromPath: string, toPath: string) => {
-      if (!selectedId || (selectedId !== fromPath && !selectedId.startsWith(`${fromPath}/`))) return;
-      void navigate(fileUrl(`${toPath}${selectedId.slice(fromPath.length)}`), {
-        replace: true,
-        state: { renamed: true },
-      });
-    },
-    [selectedId, navigate],
-  );
-  /** The folder ids follow the paths, so a renamed folder and its subfolders stay expanded under their new ids */
-  const folderRenamed = useCallback(
-    (fromPath: string, toPath: string) => {
-      setExpandedFolders((previous) => moveExpandedFolders(previous, fromPath, toPath));
-      fileRenamed(fromPath, toPath);
-    },
-    [fileRenamed],
-  );
-  const finishRename = (byKeyboard: boolean, renamedNodeId?: string) => {
-    const nodeId = renamedNodeId ?? renamingId;
-    if (byKeyboard && nodeId) setFocusNode({ nodeId });
+  const renaming = renamingId ? entries.find((entry) => entry.key === renamingId) : undefined;
+  /** A renamed entry keeps its key, so it stays expanded and is focused again by the same id */
+  const finishRename = (byKeyboard: boolean) => {
+    if (byKeyboard && renamingId) setFocusNode({ nodeId: renamingId });
     setRenamingId(undefined);
   };
 
@@ -312,12 +282,10 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
     const folderOf = (path: string) => path.slice(0, Math.max(path.lastIndexOf('/'), 0));
     const lastFocused = lastFocusedNodeRef.current;
     if (lastFocused === ROOT_TARGET) return '';
-    if (lastFocused && isFolderId(lastFocused)) {
-      const folderPath = toFolderPath(lastFocused);
-      // Every folder is stored, so a folder that was renamed or deleted since is gone from the list
-      if (folders.includes(folderPath)) return folderPath;
-    }
-    const file = files.find(({ id }) => id === lastFocused) ?? files.find(({ id }) => id === selectedId);
+    // A folder that was deleted since is gone from the entries; a renamed one keeps its key and is found
+    const focused = entries.find(({ key }) => key === lastFocused);
+    if (focused?.kind === 'folder') return focused.path;
+    const file = focused ?? entries.find(({ key }) => key === selectedId);
     return file ? folderOf(file.path) : '';
   };
 
@@ -326,10 +294,10 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
     const folderPath = targetFolderPath();
     // The search would hide the new entry
     setSearchText('');
-    setExpandedFolders((previous) => ({
-      ...previous,
-      ...Object.fromEntries(folderAndParents(folderPath).map((path) => [toFolderId(path), true])),
-    }));
+    const folderKeys = folderAndParents(folderPath).flatMap(
+      (path) => entries.find((entry) => entry.path === path)?.key ?? [],
+    );
+    setExpandedFolders((previous) => ({ ...previous, ...Object.fromEntries(folderKeys.map((key) => [key, true])) }));
     setNewEntry((previous) => ({ kind, folderPath, key: (previous?.key ?? 0) + 1, opener }));
   };
 
@@ -340,7 +308,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
       return;
     }
     if (byKeyboard) setFocusNode({ nodeId: created.id });
-    if (!isFolderId(created.id)) openFile(created.id);
+    if (newEntry?.kind === 'file') openFile(created);
   };
 
   /**
@@ -357,27 +325,15 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
 
   /**
    * Asks to delete a node. The confirmation names its full path, so that the user can tell entries of the same name
-   * in different folders apart. The path is taken now: a file of the tree is one of the files, while during the
-   * deletion it may already be gone from them.
+   * in different folders apart. The path is taken now, while the node is still in the tree.
    */
   const requestDelete = (node: ExplorerFile) => {
-    const path = node.children ? toFolderPath(node.id) : files.find((file) => file.id === node.id)!.path;
-    setToDelete({ node, path });
+    setToDelete({ node, path: node.path });
   };
 
-  const deleteNode = async (node: ExplorerFile) => {
-    const openPath = files.find((file) => file.id === selectedId)?.path;
-    let deletesOpenFile;
-    if (node.children) {
-      const folderPath = toFolderPath(node.id);
-      await deleteFolder(folderPath);
-      deletesOpenFile = !!openPath?.startsWith(`${folderPath}/`);
-    } else {
-      await deleteFile(node.id);
-      deletesOpenFile = node.id === selectedId;
-    }
-    if (deletesOpenFile) void navigate('/workspace');
-  };
+  /** The open file leads to the workspace on its own once it is gone, see `useOpenFile` */
+  const deleteNode = (node: ExplorerFile) =>
+    node.children ? store.getState().removeFolder(node.id) : store.getState().removeFile(node.id);
 
   return (
     <aside
@@ -469,7 +425,9 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
           <ErrorState
             title="Could not load the files"
             message={`Kaoto keeps the files in the browser storage, and the browser storage may be blocked, for example in a private window. (${error.message})`}
-            onRetry={reload}
+            onRetry={() => {
+              void store.getState().load();
+            }}
           />
         )}
         {!loading && !error && tree.length === 0 && !newEntry && (
@@ -495,10 +453,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
                 requestDelete,
                 requestRename: setRenamingId,
                 renaming,
-                renamingFolder,
                 finishRename,
-                folderRenamed,
-                fileRenamed,
                 newEntry,
                 finishCreate,
               })}

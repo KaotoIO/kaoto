@@ -5,10 +5,10 @@ import { FunctionComponent, SyntheticEvent, useEffect, useRef, useState } from '
 import { useNavigate } from 'react-router';
 
 import { CATALOG_URL } from '../../catalog-url';
-import { useFiles } from '../../hooks/useFiles';
 import { fileUrl } from '../../routes/file-url';
 import { buildFilePath } from '../../services/files/file-path';
 import { fetchStarterTemplate, resolveStarterTemplate } from '../../services/templates/starter-templates';
+import { useFilesUiStore, useFilesUiStoreApi } from '../../store/files/use-files-ui-store';
 import { KaotoModal } from '../KaotoModal/KaotoModal';
 import { FILE_KINDS, FileKind } from './file-kinds';
 import { FileKindTiles } from './FileKindTiles';
@@ -25,7 +25,8 @@ interface CreateFileModalProps {
  * Render it only while it is open, so that every opening starts with an empty form.
  */
 export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClose }) => {
-  const { files, createFile } = useFiles();
+  const entries = useFilesUiStore((state) => state.entries);
+  const store = useFilesUiStoreApi();
   const navigate = useNavigate();
   // The most common type is chosen up front, so that the name can be typed right away
   const [kind, setKind] = useState<FileKind>(FILE_KINDS[0]);
@@ -51,7 +52,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
 
   const result = buildFilePath(folder, name, kind.extension);
   const path = 'path' in result ? result.path : undefined;
-  const pathTaken = !!path && files.some((file) => file.path === path);
+  const pathTaken = !!path && entries.some((entry) => entry.path === path);
   const nameError = name.trim() && 'field' in result && result.field === 'name' ? result.error : undefined;
   const folderError = 'field' in result && result.field === 'folder' ? result.error : undefined;
   const canCreate = !!path && !pathTaken && !creating;
@@ -66,7 +67,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
       // Cancelled while the template was loading: create nothing
       if (closedRef.current) return;
       const fileName = path.split('/').pop()!;
-      const created = await createFile({ path, content: resolveStarterTemplate(template, fileName) });
+      const created = await store.getState().addFile(path, resolveStarterTemplate(template, fileName));
       // Cancelled while storing: the file is kept, it is already in the store and shows in the Explorer
       if (closedRef.current) return;
       close();

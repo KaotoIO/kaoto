@@ -3,8 +3,13 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { EntryLabel } from './EntryLabel';
 import { ExplorerFile } from './explorer-file';
 
-const FILE: ExplorerFile = { id: 'main-flow', name: 'Main-Flow.camel.yaml', type: 'integration' };
-const FOLDER: ExplorerFile = { id: 'folder:integrations', name: 'integrations', type: 'folder', children: [] };
+const FILE: ExplorerFile = {
+  id: 'main-flow',
+  path: 'integrations/Main-Flow.camel.yaml',
+  name: 'Main-Flow.camel.yaml',
+  type: 'integration',
+};
+const FOLDER: ExplorerFile = { id: 'f1', path: 'integrations', name: 'integrations', type: 'folder', children: [] };
 
 describe('EntryLabel', () => {
   const requestDelete = vi.fn();
@@ -42,8 +47,8 @@ describe('EntryLabel', () => {
   it('offers rename and delete for a file, outside the accessibility tree', () => {
     renderLabel(FILE);
 
-    const rename = screen.getByTestId('explorer-rename-main-flow');
-    const remove = screen.getByTestId('explorer-delete-main-flow');
+    const rename = screen.getByTestId('explorer-rename-integrations/Main-Flow.camel.yaml');
+    const remove = screen.getByTestId('explorer-delete-integrations/Main-Flow.camel.yaml');
     expect(rename).toHaveAttribute('title', 'Rename file');
     expect(remove).toHaveAttribute('title', 'Delete file');
     expect(rename.parentElement).toHaveAttribute('aria-hidden', 'true');
@@ -53,15 +58,15 @@ describe('EntryLabel', () => {
   it('offers rename and delete for a folder', () => {
     renderLabel(FOLDER);
 
-    expect(screen.getByTestId('explorer-rename-folder:integrations')).toHaveAttribute('title', 'Rename folder');
-    expect(screen.getByTestId('explorer-delete-folder:integrations')).toHaveAttribute('title', 'Delete folder');
+    expect(screen.getByTestId('explorer-rename-integrations')).toHaveAttribute('title', 'Rename folder');
+    expect(screen.getByTestId('explorer-delete-integrations')).toHaveAttribute('title', 'Delete folder');
   });
 
   it('asks to rename the file and to delete the entry', () => {
     renderLabel(FILE);
 
-    fireEvent.click(screen.getByTestId('explorer-rename-main-flow'));
-    fireEvent.click(screen.getByTestId('explorer-delete-main-flow'));
+    fireEvent.click(screen.getByTestId('explorer-rename-integrations/Main-Flow.camel.yaml'));
+    fireEvent.click(screen.getByTestId('explorer-delete-integrations/Main-Flow.camel.yaml'));
 
     expect(requestRename).toHaveBeenCalledWith('main-flow');
     expect(requestDelete).toHaveBeenCalledWith(FILE);

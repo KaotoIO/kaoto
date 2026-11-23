@@ -4,7 +4,6 @@ import { userEvent } from '@testing-library/user-event';
 import { indexedDbStorage } from '../../services/files/indexed-db-storage';
 import { storedFiles, storedFolders, storeTestFiles, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
-import { toFolderId } from './build-tree';
 import { NewEntryField, NewEntryKind } from './NewEntryField';
 
 /** Serves the catalog index, the starter templates manifest and the Camel route template */
@@ -68,7 +67,7 @@ describe('NewEntryField', () => {
     expect(fetchMock.mock.calls.map(([url]) => url.pathname)).toContain('/camel-catalog/starter-templates/route.yaml');
     expect(file?.content).toMatch(/^- route:\n {4}id: route-\d{4}\n$/);
     expect(onDone).toHaveBeenCalledWith(true, {
-      id: 'integrations/orders.camel.yaml',
+      id: expect.any(String),
       path: 'integrations/orders.camel.yaml',
     });
   });
@@ -93,7 +92,7 @@ describe('NewEntryField', () => {
     await user.keyboard('routes{Enter}');
 
     await waitFor(() => {
-      expect(onDone).toHaveBeenCalledWith(true, { id: toFolderId('integrations/routes'), path: 'integrations/routes' });
+      expect(onDone).toHaveBeenCalledWith(true, { id: expect.any(String), path: 'integrations/routes' });
     });
     expect(await storedFolders()).toContain('integrations/routes');
   });
@@ -105,7 +104,7 @@ describe('NewEntryField', () => {
     await user.keyboard('resources{Enter}');
 
     await waitFor(() => {
-      expect(onDone).toHaveBeenCalledWith(true, { id: toFolderId('resources'), path: 'resources' });
+      expect(onDone).toHaveBeenCalledWith(true, { id: expect.any(String), path: 'resources' });
     });
   });
 

@@ -1,11 +1,10 @@
 import { FunctionComponent, useRef } from 'react';
 
 import { CATALOG_URL } from '../../catalog-url';
-import { useFiles } from '../../hooks/useFiles';
 import { buildChildPath } from '../../services/files/file-path';
 import { fetchStarterTemplate, resolveStarterTemplate } from '../../services/templates/starter-templates';
+import { useFilesUiStore, useFilesUiStoreApi } from '../../store/files/use-files-ui-store';
 import { FILE_KINDS } from '../CreateFileModal/file-kinds';
-import { toFolderId } from './build-tree';
 import { NameField, NameResult } from './NameField';
 import { TAKEN, takenPaths } from './taken-paths';
 
@@ -37,19 +36,19 @@ interface NewEntryFieldProps {
  * other file starts empty.
  */
 export const NewEntryField: FunctionComponent<NewEntryFieldProps> = ({ kind, folderPath, onDone }) => {
-  const { files, folders, createFile, createFolder } = useFiles();
+  const entries = useFilesUiStore((state) => state.entries);
+  const store = useFilesUiStoreApi();
   const created = useRef<CreatedEntry | undefined>(undefined);
 
   const validate = (name: string): NameResult => {
     const result = buildChildPath(folderPath, name, kind);
-    if ('path' in result && takenPaths(files, folders).has(result.path)) return { error: TAKEN };
+    if ('path' in result && takenPaths(entries).has(result.path)) return { error: TAKEN };
     return result;
   };
 
   const commit = async (path: string) => {
     if (kind === 'folder') {
-      await createFolder(path);
-      created.current = { id: toFolderId(path), path };
+      created.current = { id: (await store.getState().addFolder(path)).key, path };
       return;
     }
     const fileKind = FILE_KINDS.find(
@@ -60,7 +59,7 @@ export const NewEntryField: FunctionComponent<NewEntryFieldProps> = ({ kind, fol
     const content = fileKind
       ? resolveStarterTemplate(await fetchStarterTemplate(CATALOG_URL, fileKind.template), fileName)
       : '';
-    created.current = { id: (await createFile({ path, content })).id, path };
+    created.current = { id: (await store.getState().addFile(path, content)).key, path };
   };
 
   return (

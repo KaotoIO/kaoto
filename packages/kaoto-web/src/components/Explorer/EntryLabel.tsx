@@ -41,7 +41,7 @@ export const EntryLabel: FunctionComponent<EntryLabelProps> = ({ node, query, re
     <span className="cs--explorer__node-actions" aria-hidden="true">
       <EntryActionButton
         label={node.children ? 'Rename folder' : 'Rename file'}
-        testId={`explorer-rename-${node.id}`}
+        testId={`explorer-rename-${node.path}`}
         icon={Edit}
         onClick={() => {
           requestRename(node.id);
@@ -49,7 +49,7 @@ export const EntryLabel: FunctionComponent<EntryLabelProps> = ({ node, query, re
       />
       <EntryActionButton
         label={node.children ? 'Delete folder' : 'Delete file'}
-        testId={`explorer-delete-${node.id}`}
+        testId={`explorer-delete-${node.path}`}
         icon={TrashCan}
         onClick={() => {
           requestDelete(node);
