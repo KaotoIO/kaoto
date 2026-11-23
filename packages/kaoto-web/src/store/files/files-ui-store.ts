@@ -1,48 +1,10 @@
 import { createStore } from 'zustand/vanilla';
 
-import { EntryKind, FilesAdapter } from '../../services/files/files-adapter';
+import { EntryKind, FilesStorage } from '../../services/files/files-storage';
 import { generateId } from '../../services/files/generate-id';
+import { FileEntry, FilesState } from './files-ui-state';
 
-/** A file or folder of the project */
-export interface FileEntry {
-  /** A UUID the store assigns; stable for the session, also across moves, and independent of the storage */
-  key: string;
-  kind: EntryKind;
-  /** `/`-separated, without a leading or trailing `/`, e.g. `routes/my-route.camel.yaml` */
-  path: string;
-  /** The last segment of the path */
-  name: string;
-}
-
-export interface FilesState {
-  /** Sorted by path */
-  entries: FileEntry[];
-  status: 'loading' | 'ready' | 'error';
-  error: Error | undefined;
-
-  /** Loads the list from the storage; the entries get new keys */
-  load(): Promise<void>;
-
-  /** Stores a new file; resolves with its entry. Missing parent folders are created along */
-  addFile(path: string, content: string): Promise<FileEntry>;
-  /** Moves the file; resolves with its entry, which keeps its key */
-  moveFile(key: string, newPath: string): Promise<FileEntry>;
-  removeFile(key: string): Promise<void>;
-
-  /** Stores a new folder, also while it is empty; resolves with its entry */
-  addFolder(path: string): Promise<FileEntry>;
-  /** Moves the folder with every entry under it; all of them keep their keys */
-  moveFolder(key: string, newPath: string): Promise<void>;
-  /** Removes the folder with every entry under it */
-  removeFolder(key: string): Promise<void>;
-
-  /** Reads the content from the storage; the store never keeps it */
-  getFileContent(key: string): Promise<string>;
-  /** Writes the content to the storage */
-  setFileContent(key: string, content: string): Promise<void>;
-}
-
-export type FilesStoreApi = ReturnType<typeof createFilesStore>;
+export type FilesUiStoreApi = ReturnType<typeof createFilesUiStore>;
 
 /** The last segment of a path: its file or folder name */
 const nameOf = (path: string): string => path.slice(path.lastIndexOf('/') + 1);
@@ -99,14 +61,14 @@ const withoutFolder = (entries: FileEntry[], folderPath: string): FileEntry[] =>
   entries.filter((entry) => !isInFolder(entry.path, folderPath));
 
 /**
- * Creates the store of a project's files and folders over the storage the adapter reaches.
+ * Creates the UI store of a project's files and folders over a files storage.
  *
- * The store holds the list only, never the content. Every change goes to the adapter first and reaches the list once
- * the adapter confirmed it; when the adapter refuses, the list stays and the promise rejects with an `Error`. The
+ * The store holds the list only, never the content. Every change goes to the storage first and reaches the list once
+ * the storage confirmed it; when the storage refuses, the list stays and the promise rejects with an `Error`. The
  * operations on one entry run one after another, so that a read waits for a write still on its way. Nothing loads
  * until `load()` is called.
  */
-export const createFilesStore = (adapter: FilesAdapter) => {
+export const createFilesUiStore = (storage: FilesStorage) => {
   /** The last operation of each entry, so that the next one waits for it */
   const pending = new Map<string, Promise<unknown>>();
   /** Counts the loads, so that an older load that ends late does not overwrite a newer one */
@@ -154,7 +116,7 @@ export const createFilesStore = (adapter: FilesAdapter) => {
         const load = ++loads;
         set({ status: 'loading', error: undefined });
         try {
-          const listed = await adapter.list();
+          const listed = await storage.list();
           if (load !== loads) return;
           set({ entries: listed.map(({ kind, path }) => newEntry(kind, path)).sort(byPath), status: 'ready' });
         } catch (error) {
@@ -163,13 +125,13 @@ export const createFilesStore = (adapter: FilesAdapter) => {
         }
       },
 
-      addFile: (path, content) => add('file', path, () => adapter.createFile(path, content)),
+      addFile: (path, content) => add('file', path, () => storage.createFile(path, content)),
 
-      addFolder: (path) => add('folder', path, () => adapter.createFolder(path)),
+      addFolder: (path) => add('folder', path, () => storage.createFolder(path)),
 
       moveFile: (key, newPath) =>
         inTurn(key, async () => {
-          await adapter.moveFile(entryOf(key, 'file').path, newPath);
+          await storage.moveFile(entryOf(key, 'file').path, newPath);
           const moved = movedTo(entryOf(key), newPath);
           set((state) => ({ entries: withParents(replaceEntry(state.entries, moved), newPath) }));
           return moved;
@@ -177,27 +139,27 @@ export const createFilesStore = (adapter: FilesAdapter) => {
 
       removeFile: (key) =>
         inTurn(key, async () => {
-          await adapter.removeFile(entryOf(key, 'file').path);
+          await storage.removeFile(entryOf(key, 'file').path);
           set((state) => ({ entries: withoutEntry(state.entries, key) }));
         }),
 
       moveFolder: (key, newPath) =>
         inTurn(key, async () => {
           const folderPath = entryOf(key, 'folder').path;
-          await adapter.moveFolder(folderPath, newPath);
+          await storage.moveFolder(folderPath, newPath);
           set((state) => ({ entries: withParents(moveFolderEntries(state.entries, folderPath, newPath), newPath) }));
         }),
 
       removeFolder: (key) =>
         inTurn(key, async () => {
           const folderPath = entryOf(key, 'folder').path;
-          await adapter.removeFolder(folderPath);
+          await storage.removeFolder(folderPath);
           set((state) => ({ entries: withoutFolder(state.entries, folderPath) }));
         }),
 
-      getFileContent: (key) => inTurn(key, () => adapter.readFile(entryOf(key, 'file').path)),
+      getFileContent: (key) => inTurn(key, () => storage.readFile(entryOf(key, 'file').path)),
 
-      setFileContent: (key, content) => inTurn(key, () => adapter.writeFile(entryOf(key, 'file').path, content)),
+      setFileContent: (key, content) => inTurn(key, () => storage.writeFile(entryOf(key, 'file').path, content)),
     };
   });
 };

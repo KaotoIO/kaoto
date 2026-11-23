@@ -1,9 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { describeFilesAdapter } from '../../test/files-adapter-contract';
+import { describeFilesStorage } from '../../test/files-storage-contract';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { FilesStore } from './files.store';
-import { IndexedDbAdapter } from './indexed-db-adapter';
+import { IndexedDbStorage } from './indexed-db-storage';
 
 let store: FilesStore | undefined;
 
@@ -15,19 +15,19 @@ afterEach(() => {
   store?.close();
 });
 
-describe('IndexedDbAdapter', () => {
-  describeFilesAdapter('IndexedDbAdapter', () => {
+describe('IndexedDbStorage', () => {
+  describeFilesStorage('IndexedDbStorage', () => {
     store = new FilesStore();
-    return new IndexedDbAdapter(store);
+    return new IndexedDbStorage(store);
   });
 
   it('keeps the files and folders in the browser storage for the next visit', async () => {
     const firstVisit = new FilesStore();
-    await new IndexedDbAdapter(firstVisit).createFile('routes/a.camel.yaml', 'content');
+    await new IndexedDbStorage(firstVisit).createFile('routes/a.camel.yaml', 'content');
     firstVisit.close();
 
     store = new FilesStore();
-    const nextVisit = new IndexedDbAdapter(store);
+    const nextVisit = new IndexedDbStorage(store);
 
     expect(await nextVisit.list()).toEqual([
       { kind: 'folder', path: 'routes' },

@@ -1,4 +1,4 @@
-import { AdapterEntry, FilesAdapter } from '../services/files/files-adapter';
+import { FilesStorage, StorageEntry } from '../services/files/files-storage';
 
 type InitialEntry = { kind: 'file'; path: string; content: string } | { kind: 'folder'; path: string };
 
@@ -15,10 +15,10 @@ const parentsOf = (path: string): string[] =>
     .map((_, index, segments) => segments.slice(0, index + 1).join('/'));
 
 /**
- * A `FilesAdapter` over a `Map`, for tests: it behaves like the real adapters (the shared contract suite checks that)
+ * A `FilesStorage` over a `Map`, for tests: it behaves like the real storages (the shared contract suite checks that)
  * without a storage, so that a test needs neither IndexedDB nor mocks.
  */
-export class InMemoryFilesAdapter implements FilesAdapter {
+export class InMemoryStorage implements FilesStorage {
   private readonly entries = new Map<string, Stored>();
   private readsReleased: Promise<void> = Promise.resolve();
 
@@ -39,7 +39,7 @@ export class InMemoryFilesAdapter implements FilesAdapter {
     return { release };
   }
 
-  async list(): Promise<AdapterEntry[]> {
+  async list(): Promise<StorageEntry[]> {
     return [...this.entries].map(([path, { kind }]) => ({ kind, path }));
   }
 
