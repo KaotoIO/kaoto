@@ -2,7 +2,7 @@ import { createContext, Dispatch, SetStateAction, useContext } from 'react';
 
 import { BreadcrumbLink } from '../components/Breadcrumbs/Breadcrumbs';
 
-export type ViewMode = 'design' | 'code' | 'topology';
+export type ViewMode = 'design' | 'code';
 
 export interface IIntegrationHeaderContext {
   breadcrumbItems: BreadcrumbLink[];

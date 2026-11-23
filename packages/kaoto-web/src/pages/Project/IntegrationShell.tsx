@@ -26,7 +26,7 @@ const WORKSPACE_PATH = '/workspace';
  *
  * Shows the stored file in the editor of its type (routes on the canvas and as code, other files as text) and writes
  * the edits back to the store. Publishes the breadcrumb into IntegrationHeaderContext so the Nav header shows the full
- * file path. View mode switcher (Design/Code/Topology) is rendered by ProjectToolbar.
+ * file path. View mode switcher (Design/Code) is rendered by ProjectToolbar.
  */
 const IntegrationShell: FunctionComponent = () => {
   const path = filePathFromSplat(useParams()['*']);

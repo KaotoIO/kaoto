@@ -82,9 +82,6 @@ describe('ProjectToolbar', () => {
 
       await user.click(screen.getByTestId('view-mode-code'));
       expect(screen.getByTestId('view-mode')).toHaveTextContent('code');
-
-      await user.click(screen.getByTestId('view-mode-topology'));
-      expect(screen.getByTestId('view-mode')).toHaveTextContent('topology');
     });
 
     it.each(['main-flow.camel.yaml', 'legacy-route.camel.xml', 'order-test.citrus.yaml'])(
@@ -92,7 +89,7 @@ describe('ProjectToolbar', () => {
       (current) => {
         renderWithIntegration(current);
 
-        for (const testId of ['view-mode-design', 'view-mode-code', 'view-mode-topology']) {
+        for (const testId of ['view-mode-design', 'view-mode-code']) {
           expect(screen.getByTestId(testId)).toBeEnabled();
         }
         expect(screen.getByTestId('view-mode-design')).toHaveAttribute('aria-selected', 'true');
@@ -101,17 +98,13 @@ describe('ProjectToolbar', () => {
 
     it.each(['schema.xsd', 'order-template.json', 'notes.txt', 'pom.xml'])(
       'disables the views for %s and marks Code, as it opens as text',
-      async (current) => {
-        const user = userEvent.setup();
+      (current) => {
         renderWithIntegration(current);
 
-        for (const testId of ['view-mode-design', 'view-mode-code', 'view-mode-topology']) {
+        for (const testId of ['view-mode-design', 'view-mode-code']) {
           expect(screen.getByTestId(testId)).toBeDisabled();
         }
         expect(screen.getByTestId('view-mode-code')).toHaveAttribute('aria-selected', 'true');
-
-        await user.click(screen.getByTestId('view-mode-topology'));
-        expect(screen.getByTestId('view-mode')).toHaveTextContent('design');
       },
     );
   });

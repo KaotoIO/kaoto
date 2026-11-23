@@ -11,7 +11,7 @@ import { getFileType } from '../../services/files/stored-file';
 import { AppMenuDropdown } from './AppMenuDropdown/AppMenuDropdown';
 import { SelectedRuntime } from './SelectedRuntime/SelectedRuntime';
 
-const VIEW_MODES: ViewMode[] = ['design', 'code', 'topology'];
+const VIEW_MODES: ViewMode[] = ['design', 'code'];
 
 export const ProjectToolbar: FunctionComponent = () => {
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
@@ -44,7 +44,6 @@ export const ProjectToolbar: FunctionComponent = () => {
         >
           <Switch name="design" text="Design" disabled={isTextFile} data-testid="view-mode-design" />
           <Switch name="code" text="Code" disabled={isTextFile} data-testid="view-mode-code" />
-          <Switch name="topology" text="Topology" disabled={isTextFile} data-testid="view-mode-topology" />
         </ContentSwitcher>
       )}
     </div>

@@ -76,7 +76,6 @@ describe('IntegrationShell', () => {
     it.each<[string, ViewMode, string]>([
       ['main-flow', 'design', 'main-flow.camel.yaml'],
       ['main-flow', 'code', 'main-flow.camel.yaml'],
-      ['main-flow', 'topology', 'main-flow.camel.yaml'],
       ['schema', 'design', 'schema.xsd'],
     ])('shows the name of the open file %s in the %s view', async (fileId, viewMode, name) => {
       renderWithContext(fileId, viewMode);
