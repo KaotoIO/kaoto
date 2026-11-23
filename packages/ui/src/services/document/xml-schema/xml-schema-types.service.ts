@@ -49,19 +49,20 @@ export class XmlSchemaTypesService {
    * @param typeString - Qualified type name with optional prefix (e.g., "xs:string", "CustomType")
    * @param namespaceMap - Namespace prefix to URI mapping
    * @param field - The field being overridden (used to determine compatibility)
-   * @returns Object containing the mapped type, QName, and override variant
+   * @returns Object containing the mapped type, QName, override variant and, for a Container type, the scoped
+   *   type fragment key of the type
    *
    * @example
    * ```typescript
    * const result = XmlSchemaTypesService.parseTypeOverride('xs:int', namespaceMap, field);
-   * // result = { type: Types.Integer, typeQName: QName, variant: FieldOverrideVariant.SAFE }
+   * // result = { type: Types.Integer, typeQName: QName, variant: FieldOverrideVariant.SAFE, namedTypeFragmentRefs: [] }
    * ```
    */
   static parseTypeOverride(
     typeString: string,
     namespaceMap: Record<string, string>,
     field: IField,
-  ): { type: Types; typeQName: QName; variant: FieldOverrideVariant } {
+  ): { type: Types; typeQName: QName; variant: FieldOverrideVariant; namedTypeFragmentRefs: string[] } {
     const { prefix, localPart } = parseQNameString(typeString);
     if (!localPart || localPart.includes(':')) {
       throw new Error(`Invalid type override '${typeString}'`);
@@ -77,7 +78,24 @@ export class XmlSchemaTypesService {
 
     const variant = XmlSchemaTypesService.determineOverrideVariant(field, type, typeQName, namespaceURI);
 
-    return { type, typeQName, variant };
+    const namedTypeFragmentRefs =
+      type === Types.Container ? [XmlSchemaTypesService.buildOverrideFragmentKey(field, typeQName)] : [];
+
+    return { type, typeQName, variant, namedTypeFragmentRefs };
+  }
+
+  /**
+   * Builds the scoped type fragment key of a type override, resolving the type in the entry scope of the field's
+   * owner document.
+   */
+  private static buildOverrideFragmentKey(field: IField, typeQName: QName): string {
+    const doc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(field);
+    const schemaType = XmlSchemaDocumentUtilService.lookupSchemaType(
+      doc.xmlSchemaCollection,
+      typeQName,
+      doc.definition?.entrySchemaFile,
+    );
+    return XmlSchemaDocumentUtilService.buildTypeFragmentKeyOf(schemaType, typeQName);
   }
 
   /**
@@ -825,7 +843,7 @@ export class XmlSchemaTypesService {
     collection?: XmlSchemaCollection,
     entrySchemaFile?: string,
   ): Omit<IFieldSubstituteInfo, 'qname' | 'displayName'> {
-    const schemaType = element.getSchemaType();
+    const schemaType = XmlSchemaDocumentUtilService.resolveElementSchemaType(element, collection, entrySchemaFile);
     let type = Types.AnyType;
     let typeQName: QName | null = null;
     let namedTypeFragmentRefs: string[] = [];
@@ -835,7 +853,7 @@ export class XmlSchemaTypesService {
       const tqname = schemaType.getQName();
       if (tqname) {
         typeQName = tqname;
-        namedTypeFragmentRefs = [tqname.toString()];
+        namedTypeFragmentRefs = [XmlSchemaDocumentUtilService.buildTypeFragmentKeyOf(schemaType, tqname)];
       } else {
         const wireName = element.getWireName()!;
         namedTypeFragmentRefs = [

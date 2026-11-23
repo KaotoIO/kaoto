@@ -31,6 +31,7 @@ describe('JsonSchemaTypesService', () => {
       expect(parseResult.typeQName.getLocalPart()).toBe('string');
       const namespaceURI = parseResult.typeQName.getNamespaceURI();
       expect(namespaceURI).toBe('');
+      expect(parseResult.namedTypeFragmentRefs).toEqual([]);
     });
 
     it('should parse number type', () => {
@@ -146,6 +147,7 @@ describe('JsonSchemaTypesService', () => {
 
       expect(parseResult.type).toBe(Types.Container);
       expect(parseResult.typeQName.getLocalPart()).toBe('#/$defs/Address');
+      expect(parseResult.namedTypeFragmentRefs).toEqual(['#/$defs/Address']);
     });
 
     it('should determine SAFE variant for AnyType field', () => {

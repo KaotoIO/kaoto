@@ -55,6 +55,13 @@ function readStubFile(relativePath: string): string {
   return fileCache.get(relativePath)!;
 }
 
+/**
+ * Reads a stub file below `./xml/`, for stub sets that are spread over several files.
+ */
+export function getXmlStubFile(relativePath: string): string {
+  return readStubFile(`./xml/${relativePath}`);
+}
+
 export function getCopyOfSequenceOrderXsd(): string {
   return readStubFile('./xml/CopyOfSequenceOrder.xsd');
 }

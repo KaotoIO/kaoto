@@ -1,4 +1,5 @@
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
+import { IFieldTypeOverride } from '../../../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant, TypeDerivation, Types } from '../../../models/datamapper/types';
 import {
@@ -7,6 +8,7 @@ import {
   getFieldSubstitutionXsd,
   getRestrictionComplexXsd,
   getSimpleTypeInheritanceXsd,
+  getXmlStubFile,
   TestUtil,
 } from '../../../stubs/datamapper/data-mapper';
 import { XmlSchema, XmlSchemaCollection, XmlSchemaComplexType, XmlSchemaSimpleType } from '../../../xml-schema-ts';
@@ -14,6 +16,7 @@ import { XmlSchemaComplexContent } from '../../../xml-schema-ts/complex/XmlSchem
 import { XmlSchemaComplexContentExtension } from '../../../xml-schema-ts/complex/XmlSchemaComplexContentExtension';
 import { QName } from '../../../xml-schema-ts/QName';
 import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
+import { DocumentUtilService } from '../document-util.service';
 import { JsonSchemaDocument, JsonSchemaField } from '../json-schema/json-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
@@ -1086,6 +1089,117 @@ describe('XmlSchemaTypesService', () => {
     });
   });
 
+  describe('substitution members whose type QName is also declared by an unrelated attached file', () => {
+    const NS = 'urn:t';
+    const STUB_DIR = 'entry-scope-substitution';
+    const MEMBER_KEY = `Types.xsd#{${NS}}CT`;
+    const FOREIGN_KEY = `Other.xsd#{${NS}}CT`;
+    const attachOrders: Array<[string, string[]]> = [
+      ['unrelated file attached first', ['Other.xsd', 'A.xsd', 'Types.xsd']],
+      ['unrelated file attached last', ['A.xsd', 'Types.xsd', 'Other.xsd']],
+    ];
+
+    const createDoc = (order: string[]) => {
+      const files = Object.fromEntries(order.map((name) => [name, getXmlStubFile(`${STUB_DIR}/${name}`)]));
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'doc',
+        files,
+        { namespaceUri: NS, name: 'R' },
+        undefined,
+        undefined,
+        undefined,
+        'A.xsd',
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      return result.document as XmlSchemaDocument;
+    };
+
+    const childNames = (doc: XmlSchemaDocument, key: string) => doc.namedTypeFragments[key].fields.map((f) => f.name);
+
+    describe.each(attachOrders)('%s', (_label, order) => {
+      it('getFieldSubstitutionCandidates() should bind the member to the entry assembly type', () => {
+        const doc = createDoc(order);
+        const head = new XmlSchemaField(doc, 'H', false);
+        head.namespaceURI = NS;
+        head.typeOverride = FieldOverrideVariant.NONE;
+
+        const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
+          head,
+          doc.xmlSchemaCollection,
+          { t: NS },
+          'A.xsd',
+        );
+
+        expect(Object.keys(candidates)).toEqual(['t:M']);
+        expect(candidates['t:M'].namedTypeFragmentRefs).toEqual([MEMBER_KEY]);
+        expect(childNames(doc, candidates['t:M'].namedTypeFragmentRefs[0])).toEqual(['b', 'fromTypes']);
+        expect(doc.namedTypeFragments[FOREIGN_KEY].fields.map((f) => f.name)).toEqual(['fromOther']);
+      });
+
+      it('resolveSubstitution() should bind the member to the entry assembly type', () => {
+        const doc = createDoc(order);
+
+        const info = XmlSchemaTypesService.resolveSubstitution(
+          doc,
+          { schemaPath: '/t:R/t:H', name: 't:M', originalName: 't:H' },
+          { t: NS },
+        );
+
+        expect(info?.namedTypeFragmentRefs).toEqual([MEMBER_KEY]);
+      });
+
+      it('findSubstitutionGroupHead() should bind the member to the entry assembly type', () => {
+        const doc = createDoc(order);
+
+        const found = XmlSchemaTypesService.findSubstitutionGroupHead(
+          doc.fields[0],
+          'M',
+          NS,
+          doc.xmlSchemaCollection,
+          'A.xsd',
+        );
+
+        expect(found?.headField.name).toBe('H');
+        expect(found?.info.namedTypeFragmentRefs).toEqual([MEMBER_KEY]);
+      });
+
+      it('parseTypeOverride() should bind the override type to the entry assembly type', () => {
+        const doc = createDoc(order);
+        const head = new XmlSchemaField(doc, 'H', false);
+        head.namespaceURI = NS;
+
+        const result = XmlSchemaTypesService.parseTypeOverride('t:CT', { t: NS }, head);
+
+        expect(result.type).toBe(Types.Container);
+        expect(result.namedTypeFragmentRefs).toEqual([MEMBER_KEY]);
+      });
+
+      it('processTypeOverride() should expand the children of the entry assembly type', () => {
+        const doc = createDoc(order);
+        const override: IFieldTypeOverride = {
+          schemaPath: '/t:R/t:H',
+          type: 't:CT',
+          originalType: 't:Base',
+          variant: FieldOverrideVariant.SAFE,
+        };
+
+        const applied = DocumentUtilService.processTypeOverride(
+          doc,
+          override,
+          { t: NS },
+          XmlSchemaTypesService.parseTypeOverride,
+        );
+
+        expect(applied).toBe(true);
+        const head = doc.fields[0].fields.find((f) => f.name === 'H');
+        expect(head?.fields.map((f) => f.name)).toEqual(['b', 'fromTypes']);
+      });
+    });
+  });
+
   describe('determineOverrideVariant()', () => {
     it('should return SAFE for compatible container type override', () => {
       const definition = new DocumentDefinition(
@@ -1184,7 +1298,9 @@ describe('XmlSchemaTypesService', () => {
       expect(result!.qname.getLocalPart()).toBe('Cat');
       expect(result!.qname.getNamespaceURI()).toBe(NS_SUBSTITUTION);
       expect(result!.type).toBe(Types.Container);
-      expect(result!.namedTypeFragmentRefs.length).toBeGreaterThan(0);
+      expect(result!.namedTypeFragmentRefs).toEqual([
+        XmlSchemaDocumentUtilService.buildTypeFragmentKey('FieldSubstitution.xsd', new QName(NS_SUBSTITUTION, 'Cat_t')),
+      ]);
     });
 
     it('should resolve Dog substitute element with Container type', () => {
