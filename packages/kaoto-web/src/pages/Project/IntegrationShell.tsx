@@ -15,6 +15,8 @@ import { useIntegrationHeader } from '../../context/IntegrationHeaderContext';
 import { useFiles } from '../../hooks/useFiles';
 import { useSafeParams } from '../../hooks/useSafeParams';
 import { getFileType } from '../../services/files/stored-file';
+import { editorKindFor } from './editors/editor-registry';
+import { TextFileEditor } from './editors/TextFileEditor';
 
 const WORKSPACE_PATH = '/workspace';
 
@@ -118,9 +120,9 @@ const IntegrationShell: FunctionComponent = () => {
     body = <LoadingState />;
   } else if (!file) {
     body = <p className="cs--integration-shell__empty">The file does not exist</p>;
-  } else if (getFileType(file.path) === 'document') {
-    body = <p className="cs--integration-shell__empty">No preview available</p>;
-  } else {
+  } else if (editorKindFor(getFileType(file.path)) === 'text') {
+    body = <TextFileEditor key={file.id} file={file} onSave={storeCode} />;
+  } else if (isDesignMode) {
     const fileId = file.id;
     body = (
       <IntegrationCanvas
@@ -148,7 +150,7 @@ const IntegrationShell: FunctionComponent = () => {
         />
       )}
       <div className="cs--integration-shell__body" data-testid="integration-body">
-        {isDesignMode && body}
+        {body}
       </div>
     </div>
   );

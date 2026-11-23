@@ -1,5 +1,5 @@
 import * as KaotoComponentsModule from '@kaoto/kaoto/components';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { FunctionComponent, ReactNode, useEffect } from 'react';
 import { MemoryRouter, NavigateFunction, Route, Routes, useNavigate } from 'react-router';
@@ -199,13 +199,20 @@ describe('IntegrationShell', () => {
   it('renders a Citrus test on the canvas', async () => {
     renderWithContext('order-test');
     expect(await screen.findByTestId('route-visualization')).toHaveAttribute('data-code', contentOf('order-test'));
-    expect(screen.queryByText('No preview available')).not.toBeInTheDocument();
+    expect(screen.queryByRole('textbox', { name: 'Code' })).not.toBeInTheDocument();
   });
 
-  it('shows an empty state for a document', async () => {
-    renderWithContext('schema');
-    expect(await screen.findByText('No preview available')).toBeInTheDocument();
+  it.each(['schema', 'mapping', 'order-template'])('opens the document %s in the text editor', async (fileId) => {
+    renderWithContext(fileId);
+
+    expect(await screen.findByRole('textbox', { name: 'Code' })).toHaveValue(contentOf(fileId));
     expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
+  });
+
+  it('opens a document in the text editor in every view mode', async () => {
+    renderWithContext('schema', 'code');
+
+    expect(await screen.findByRole('textbox', { name: 'Code' })).toBeInTheDocument();
   });
 
   it('does not render the canvas outside design mode', async () => {
@@ -254,6 +261,17 @@ describe('IntegrationShell', () => {
         expect(await storedContent('main-flow')).toBe('- route:\n    id: edited\n');
       });
       expect(screen.getByTestId('route-visualization')).toHaveAttribute('data-code', '- route:\n    id: edited\n');
+    });
+
+    it('stores the text edited in the text editor', async () => {
+      renderWithContext('order-template');
+      const editor = await screen.findByRole('textbox', { name: 'Code' });
+
+      fireEvent.change(editor, { target: { value: '{ "order": 1 }' } });
+
+      await waitFor(async () => {
+        expect(await storedContent('order-template')).toBe('{ "order": 1 }');
+      });
     });
 
     it('does not store the code again when the canvas reports the code it was given', async () => {
