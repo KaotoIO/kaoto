@@ -3,21 +3,19 @@ import { FunctionComponent, useState } from 'react';
 
 import { CATALOG_URL } from '../../../catalog-url';
 import { ViewMode } from '../../../context/IntegrationHeaderContext';
-import { StoredFile } from '../../../services/files/stored-file';
 import { CodeEditor } from './CodeEditor';
+import { OpenFile } from './open-file';
 import { useDebouncedSave } from './use-debounced-save';
 
-type RouteFile = Pick<StoredFile, 'id' | 'path' | 'content'>;
-
 interface RouteFileEditorProps {
-  file: RouteFile;
+  file: OpenFile;
   view: ViewMode;
-  onSave: (fileId: string, code: string) => void;
+  onSave: (key: string, code: string) => void;
 }
 
 /** The code of a route and the file it belongs to, so that a late save of one file cannot land in another */
 interface RouteCode {
-  fileId: string;
+  key: string;
   code: string;
 }
 
@@ -28,14 +26,14 @@ interface RouteCode {
  * which hands a pending edit over right away, so the canvas never shows an older state.
  */
 const RouteCodeView: FunctionComponent<{
-  file: RouteFile;
+  file: OpenFile;
   initialCode: string;
-  onCommit: (fileId: string, code: string) => void;
+  onCommit: (key: string, code: string) => void;
 }> = ({ file, initialCode, onCommit }) => {
   const { schedule } = useDebouncedSave(onCommit);
 
   const handleChange = (code: string) => {
-    schedule(file.id, code);
+    schedule(file.key, code);
   };
 
   // The hidden canvas keeps listening to Delete and Backspace on the page: keys belong in the editor here
@@ -50,24 +48,24 @@ const RouteCodeView: FunctionComponent<{
  * open file; edits from either side are saved.
  */
 export const RouteFileEditor: FunctionComponent<RouteFileEditorProps> = ({ file, view, onSave }) => {
-  const [routeCode, setRouteCode] = useState<RouteCode>({ fileId: file.id, code: file.content });
-  if (routeCode.fileId !== file.id) {
+  const [routeCode, setRouteCode] = useState<RouteCode>({ key: file.key, code: file.content });
+  if (routeCode.key !== file.key) {
     // Adjust state while rendering (https://react.dev/learn/you-might-not-need-an-effect)
-    setRouteCode({ fileId: file.id, code: file.content });
+    setRouteCode({ key: file.key, code: file.content });
   }
   const { code } = routeCode;
 
   const handleCanvasChange = (newCode: string) => {
     // The canvas also reports the code it was given, which needs no write
     if (newCode === code) return;
-    setRouteCode({ fileId: file.id, code: newCode });
-    onSave(file.id, newCode);
+    setRouteCode({ key: file.key, code: newCode });
+    onSave(file.key, newCode);
   };
 
-  const handleCodeCommit = (fileId: string, newCode: string) => {
+  const handleCodeCommit = (key: string, newCode: string) => {
     // A pending edit can arrive after another file opened: it is saved, but the canvas keeps the open file
-    setRouteCode((current) => (current.fileId === fileId ? { fileId, code: newCode } : current));
-    onSave(fileId, newCode);
+    setRouteCode((current) => (current.key === key ? { key, code: newCode } : current));
+    onSave(key, newCode);
   };
 
   return (
@@ -82,7 +80,7 @@ export const RouteFileEditor: FunctionComponent<RouteFileEditorProps> = ({ file,
           codeChange={handleCanvasChange}
         />
       </div>
-      {view === 'code' && <RouteCodeView key={file.id} file={file} initialCode={code} onCommit={handleCodeCommit} />}
+      {view === 'code' && <RouteCodeView key={file.key} file={file} initialCode={code} onCommit={handleCodeCommit} />}
     </>
   );
 };

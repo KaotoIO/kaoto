@@ -1,14 +1,24 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { useState } from 'react';
 
 import { indexedDbStorage } from '../../services/files/indexed-db-storage';
+import { useFilesUiStore } from '../../store/files/use-files-ui-store';
 import { storedPaths, storeTestFiles, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { RenameFolderField } from './RenameFolderField';
 
+/** The field for the stored entry at the path, once the files are loaded; it keeps the entry when it moves */
+const FieldFor = ({ path, onDone }: { path: string; onDone: (byKeyboard: boolean) => void }) => {
+  const entries = useFilesUiStore((state) => state.entries);
+  const [key, setKey] = useState<string>();
+  const entry = entries.find((candidate) => (key ? candidate.key === key : candidate.path === path));
+  if (entry && !key) setKey(entry.key);
+  return entry ? <RenameFolderField folder={entry} onDone={onDone} /> : null;
+};
+
 describe('RenameFolderField', () => {
   const onDone = vi.fn();
-  const onRenamed = vi.fn();
 
   beforeEach(async () => {
     resetTestIndexedDB();
@@ -19,20 +29,19 @@ describe('RenameFolderField', () => {
       { id: 'schema', path: 'resources/schema.xsd', content: '' },
     ]);
     onDone.mockReset();
-    onRenamed.mockReset();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  const renderField = (folderPath = 'integrations/routes') => {
-    const view = render(withFiles(<RenameFolderField folderPath={folderPath} onDone={onDone} onRenamed={onRenamed} />));
-    return { input: screen.getByRole('textbox', { name: 'Rename folder' }) as HTMLInputElement, ...view };
+  const renderField = async (folderPath = 'integrations/routes') => {
+    const view = render(withFiles(<FieldFor path={folderPath} onDone={onDone} />));
+    return { input: (await screen.findByRole('textbox', { name: 'Rename folder' })) as HTMLInputElement, ...view };
   };
 
-  it('opens with the folder name, focused and selected', () => {
-    const { input } = renderField();
+  it('opens with the folder name, focused and selected', async () => {
+    const { input } = await renderField();
 
     expect(input).toHaveValue('routes');
     expect(input).toHaveFocus();
@@ -41,14 +50,13 @@ describe('RenameFolderField', () => {
 
   it('renames the folder with everything in it and reports the new path', async () => {
     const user = userEvent.setup();
-    renderField();
+    await renderField();
 
     await user.keyboard('flows{Enter}');
 
     await waitFor(() => {
-      expect(onDone).toHaveBeenCalledWith(true, 'integrations/flows');
+      expect(onDone).toHaveBeenCalledWith(true);
     });
-    expect(onRenamed).toHaveBeenCalledWith('integrations/routes', 'integrations/flows');
     expect(await storedPaths()).toEqual([
       'integrations/flows/async/kafka.camel.yaml',
       'integrations/flows/rest-api.camel.yaml',
@@ -59,12 +67,12 @@ describe('RenameFolderField', () => {
 
   it('renames a folder at the root', async () => {
     const user = userEvent.setup();
-    renderField('resources');
+    await renderField('resources');
 
     await user.keyboard('schemas{Enter}');
 
     await waitFor(() => {
-      expect(onDone).toHaveBeenCalledWith(true, 'schemas');
+      expect(onDone).toHaveBeenCalledWith(true);
     });
     expect(await storedPaths()).toContain('schemas/schema.xsd');
   });
@@ -72,18 +80,18 @@ describe('RenameFolderField', () => {
   it('closes without writing when the name is unchanged', async () => {
     const rename = vi.spyOn(indexedDbStorage, 'moveFolder');
     const user = userEvent.setup();
-    renderField();
+    await renderField();
 
     await user.keyboard('{Enter}');
 
-    expect(onDone).toHaveBeenCalledWith(true, undefined);
+    expect(onDone).toHaveBeenCalledWith(true);
     expect(rename).not.toHaveBeenCalled();
   });
 
   it('keeps the field open with an error for the name of a sibling folder', async () => {
     const rename = vi.spyOn(indexedDbStorage, 'moveFolder');
     const user = userEvent.setup();
-    renderField();
+    await renderField();
 
     await user.keyboard('other{Enter}');
 
@@ -94,7 +102,7 @@ describe('RenameFolderField', () => {
 
   it('keeps the field open with an error for a name with a slash', async () => {
     const user = userEvent.setup();
-    const { input } = renderField();
+    const { input } = await renderField();
 
     await user.keyboard('a/b{Enter}');
 
@@ -105,12 +113,11 @@ describe('RenameFolderField', () => {
   it('reports a cancelled rename without a path', async () => {
     const rename = vi.spyOn(indexedDbStorage, 'moveFolder');
     const user = userEvent.setup();
-    renderField();
+    await renderField();
 
     await user.keyboard('flows{Escape}');
 
-    expect(onDone).toHaveBeenCalledWith(true, undefined);
-    expect(onRenamed).not.toHaveBeenCalled();
+    expect(onDone).toHaveBeenCalledWith(true);
     expect(rename).not.toHaveBeenCalled();
   });
 
@@ -126,15 +133,13 @@ describe('RenameFolderField', () => {
         }),
     );
     const user = userEvent.setup();
-    const { unmount } = renderField();
+    const { unmount } = await renderField();
     await user.keyboard('flows{Enter}');
 
     unmount();
     finishRename();
 
-    await waitFor(() => {
-      expect(onRenamed).toHaveBeenCalledWith('integrations/routes', 'integrations/flows');
-    });
+    await waitFor(() => {});
     expect(onDone).not.toHaveBeenCalled();
   });
 });

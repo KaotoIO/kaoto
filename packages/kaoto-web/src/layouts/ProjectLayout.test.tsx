@@ -2,8 +2,8 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
-import { useFiles } from '../hooks/useFiles';
 import { useRuntimeContext } from '../hooks/useRuntimeContext';
+import { useFilesUiStore } from '../store/files/use-files-ui-store';
 import { storeTestFiles } from '../test/files';
 import { resetTestIndexedDB } from '../test/indexed-db';
 import { ProjectLayout } from './ProjectLayout';
@@ -27,10 +27,11 @@ describe('ProjectLayout', () => {
   it('provides the stored files to outlet children', async () => {
     await storeTestFiles();
     const FilesConsumer = () => {
-      const { files } = useFiles(); // throws if FilesProvider is not in the tree
+      // Throws if the files store is not in the tree
+      const entries = useFilesUiStore((state) => state.entries);
       return (
         <div data-testid="files-consumer">
-          {files.some((file) => file.path === 'integrations/main-flow.camel.yaml') ? 'stored' : ''}
+          {entries.some((entry) => entry.path === 'integrations/main-flow.camel.yaml') ? 'stored' : ''}
         </div>
       );
     };

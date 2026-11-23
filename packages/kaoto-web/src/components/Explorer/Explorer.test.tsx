@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { useOpenFile } from '../../pages/Project/useOpenFile';
 import { fileUrl } from '../../routes/file-url';
 import { indexedDbStorage } from '../../services/files/indexed-db-storage';
 import {
@@ -16,12 +17,12 @@ import {
   withFiles,
 } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
-import { buildTree, toFolderId } from './build-tree';
+import { buildTree } from './build-tree';
 import { Explorer } from './Explorer';
 import { filterFiles } from './filterFiles';
 import { useExplorerWidth } from './useExplorerWidth';
 
-const TREE = buildTree(TEST_FILES);
+const TREE = buildTree(TEST_FILES.map(({ id, path }) => ({ key: id, kind: 'file' as const, path })));
 
 /** Expects the test file with the id to be stored at the path, and no more at its old path when it moved */
 const expectStoredAt = async (id: string, path: string) => {
@@ -45,6 +46,12 @@ const renderComponent = () =>
     </MemoryRouter>,
   );
 
+/** Keeps the URL on the open file, as the page of the open file does */
+const OpenFileFollower = () => {
+  useOpenFile();
+  return null;
+};
+
 /**
  * Renders Explorer inside a nested route that mirrors the real app structure:
  * the inner Route provides :fileId when navigated to the file path,
@@ -65,7 +72,7 @@ const renderWithNavigation = (children?: React.ReactNode, initialPath = '/worksp
           )}
         >
           <Route index element={null} />
-          <Route path="file/*" element={null} />
+          <Route path="file/*" element={<OpenFileFollower />} />
         </Route>
       </Routes>
     </MemoryRouter>,
@@ -79,20 +86,20 @@ describe('filterFiles', () => {
   it('returns only nodes whose name contains the query', () => {
     const result = filterFiles(TREE, 'main');
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe(toFolderId('integrations'));
+    expect(result[0].path).toBe('integrations');
     expect(result[0].children?.map((c) => c.id)).toEqual(['main-flow']);
   });
 
   it('excludes non-matching siblings when a child matches', () => {
     const result = filterFiles(TREE, 'rest-api');
-    const routes = result[0].children?.find((c) => c.id === toFolderId('integrations/routes'));
+    const routes = result[0].children?.find((c) => c.path === 'integrations/routes');
     expect(routes?.children?.map((c) => c.id)).toEqual(['rest-api']);
   });
 
   it('returns a folder with all its children when the folder name matches', () => {
     const result = filterFiles(TREE, 'resources');
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe(toFolderId('resources'));
+    expect(result[0].path).toBe('resources');
     // All original children are kept so the user can browse folder contents
     expect(result[0].children).toHaveLength(3); // schema, mapping, templates
   });
@@ -100,8 +107,8 @@ describe('filterFiles', () => {
   it('recurses into 3-level deep folders', () => {
     const result = filterFiles(TREE, 'kafka');
     const async_ = result[0].children
-      ?.find((c) => c.id === toFolderId('integrations/routes'))
-      ?.children?.find((c) => c.id === toFolderId('integrations/routes/async'));
+      ?.find((c) => c.path === 'integrations/routes')
+      ?.children?.find((c) => c.path === 'integrations/routes/async');
     expect(async_?.children?.map((c) => c.id)).toEqual(['kafka-consumer', 'kafka-producer']);
   });
 
@@ -455,14 +462,8 @@ describe('Explorer', () => {
       expect(renameButton).toHaveAttribute('tabindex', '-1');
       expect(deleteButton).toHaveAttribute('title', 'Delete file');
       expect(renameButton).toHaveAttribute('title', 'Rename file');
-      expect(screen.getByTestId(`explorer-delete-${toFolderId('integrations')}`)).toHaveAttribute(
-        'title',
-        'Delete folder',
-      );
-      expect(screen.getByTestId(`explorer-rename-${toFolderId('integrations')}`)).toHaveAttribute(
-        'title',
-        'Rename folder',
-      );
+      expect(screen.getByTestId(`explorer-delete-integrations`)).toHaveAttribute('title', 'Delete folder');
+      expect(screen.getByTestId(`explorer-rename-integrations`)).toHaveAttribute('title', 'Rename folder');
     });
 
     it('deletes a file after confirmation without opening it', async () => {
@@ -495,7 +496,7 @@ describe('Explorer', () => {
       const routes = await screen.findByTestId('explorer-folder-integrations/routes');
       await user.click(routes.querySelector('.cds--tree-parent-node__toggle')!);
 
-      await user.click(screen.getByTestId(`explorer-delete-${toFolderId('integrations/routes')}`));
+      await user.click(screen.getByTestId(`explorer-delete-integrations/routes`));
 
       expect(routes).toHaveAttribute('aria-expanded', 'true');
       expect(screen.getByRole('heading', { name: 'Delete folder?' })).toBeInTheDocument();
@@ -525,7 +526,7 @@ describe('Explorer', () => {
       // The folder holds files on three levels
       expect(inIntegrations.map((file) => file.path.split('/').length)).toEqual(expect.arrayContaining([2, 3, 4]));
 
-      await user.click(screen.getByTestId(`explorer-delete-${toFolderId('integrations')}`));
+      await user.click(screen.getByTestId(`explorer-delete-integrations`));
       await user.click(screen.getByRole('button', { name: 'Delete' }));
 
       await waitFor(() => {
@@ -639,7 +640,7 @@ describe('Explorer', () => {
       renderComponent();
       await screen.findByTestId('explorer-folder-integrations');
 
-      await user.click(screen.getByTestId(`explorer-delete-${toFolderId('integrations')}`));
+      await user.click(screen.getByTestId(`explorer-delete-integrations`));
       await user.click(screen.getByRole('button', { name: 'Delete' }));
 
       await waitFor(() => {
@@ -650,9 +651,9 @@ describe('Explorer', () => {
 
     it.each([
       ['the open file', '/workspace', pathOf('main-flow')],
-      ['the folder of the open file', '/workspace', toFolderId('integrations')],
+      ['the folder of the open file', '/workspace', 'integrations'],
       ['another file', fileUrl(pathOf('main-flow')), pathOf('error-handler')],
-      ['another folder', fileUrl(pathOf('main-flow')), toFolderId('resources')],
+      ['another folder', fileUrl(pathOf('main-flow')), 'resources'],
     ])('deleting %s leads to %s', async (_, location, nodeId) => {
       const user = userEvent.setup();
       renderWithNavigation(<LocationDisplay />, fileUrl(pathOf('main-flow')));
@@ -743,7 +744,7 @@ describe('Explorer', () => {
 
     describe('folders', () => {
       const renameFolder = async (user: ReturnType<typeof userEvent.setup>, folderPath: string, name: string) => {
-        await user.click(screen.getByTestId(`explorer-rename-${toFolderId(folderPath)}`));
+        await user.click(screen.getByTestId(`explorer-rename-${folderPath}`));
         const input = screen.getByRole('textbox', { name: 'Rename folder' });
         await user.clear(input);
         await user.keyboard(`${name}{Enter}`);
@@ -754,7 +755,7 @@ describe('Explorer', () => {
         renderComponent();
         await screen.findByTestId('explorer-folder-resources');
 
-        await user.click(screen.getByTestId(`explorer-rename-${toFolderId('resources')}`));
+        await user.click(screen.getByTestId(`explorer-rename-resources`));
         const input = screen.getByRole('textbox', { name: 'Rename folder' });
         expect(input).toHaveValue('resources');
         expect(input).toHaveFocus();
@@ -810,7 +811,7 @@ describe('Explorer', () => {
         renderComponent();
         await screen.findByTestId('explorer-folder-resources');
 
-        await user.click(screen.getByTestId(`explorer-rename-${toFolderId('resources')}`));
+        await user.click(screen.getByTestId(`explorer-rename-resources`));
         await user.keyboard('x{Escape}');
 
         expect(screen.queryByRole('textbox', { name: 'Rename folder' })).not.toBeInTheDocument();
@@ -1370,12 +1371,12 @@ describe('Explorer', () => {
       expect(screen.getByRole('searchbox')).toHaveFocus();
     });
 
-    it('creates the entry at the root once the folder that had the focus was renamed away', async () => {
+    it('creates the entry in the folder that had the focus, also after it was renamed', async () => {
       const user = userEvent.setup();
       renderComponent();
       await screen.findByTestId('explorer-folder-resources');
-      // Renaming by leaving the field keeps the old folder as the last focused tree item
-      await user.click(screen.getByTestId(`explorer-rename-${toFolderId('resources')}`));
+      // Renaming by leaving the field keeps the folder as the last focused tree item; it keeps its key
+      await user.click(screen.getByTestId(`explorer-rename-resources`));
       await user.clear(screen.getByRole('textbox', { name: 'Rename folder' }));
       await user.keyboard('assets');
       await user.click(screen.getByRole('searchbox'));
@@ -1385,7 +1386,7 @@ describe('Explorer', () => {
       await user.keyboard('schemas{Enter}');
 
       await waitFor(async () => {
-        expect(await storedFolders()).toContain('schemas');
+        expect(await storedFolders()).toContain('assets/schemas');
       });
     });
 

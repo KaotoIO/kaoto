@@ -1,7 +1,8 @@
 import { ReactElement } from 'react';
 
-import { FilesProvider } from '../context/FilesContext';
+import { FilesStorage } from '../services/files/files-storage';
 import { indexedDbStorage } from '../services/files/indexed-db-storage';
+import { FilesUiStoreProvider } from '../store/files/FilesUiStoreProvider';
 
 /** A file for the tests: the id is only a short name for it in the tests; the storage names files by their paths */
 export interface TestFile {
@@ -84,5 +85,10 @@ export const storedFolders = async (): Promise<string[]> =>
     .map(({ path }) => path)
     .sort(byCodeUnits);
 
-/** Wraps the element in a FilesProvider backed by the shared storage; use it inside the router */
-export const withFiles = (ui: ReactElement): ReactElement => <FilesProvider>{ui}</FilesProvider>;
+/**
+ * Wraps the element in a files UI store; use it inside the router. By default the store works on the shared browser
+ * storage, so that the tests check what is stored.
+ */
+export const withFiles = (ui: ReactElement, storage: FilesStorage = indexedDbStorage): ReactElement => (
+  <FilesUiStoreProvider storage={storage}>{ui}</FilesUiStoreProvider>
+);

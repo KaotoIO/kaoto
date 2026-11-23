@@ -1,27 +1,30 @@
-import { buildTree, toFolderId } from './build-tree';
-import { findPath } from './filterFiles';
+import { buildTree } from './build-tree';
+
+const file = (key: string, path: string) => ({ key, kind: 'file' as const, path });
+const folder = (key: string, path: string) => ({ key, kind: 'folder' as const, path });
 
 describe('buildTree', () => {
-  it('nests files into folders derived from their paths', () => {
-    const tree = buildTree([{ id: 'k', path: 'integrations/routes/async/k.camel.yaml' }]);
+  it('nests files into their folders, with the keys of the entries as ids', () => {
+    const tree = buildTree([
+      folder('f1', 'integrations'),
+      folder('f2', 'integrations/routes'),
+      file('k', 'integrations/routes/k.camel.yaml'),
+    ]);
 
     expect(tree).toEqual([
       {
-        id: toFolderId('integrations'),
+        id: 'f1',
+        path: 'integrations',
         name: 'integrations',
         type: 'folder',
         children: [
           {
-            id: toFolderId('integrations/routes'),
+            id: 'f2',
+            path: 'integrations/routes',
             name: 'routes',
             type: 'folder',
             children: [
-              {
-                id: toFolderId('integrations/routes/async'),
-                name: 'async',
-                type: 'folder',
-                children: [{ id: 'k', name: 'k.camel.yaml', type: 'integration' }],
-              },
+              { id: 'k', path: 'integrations/routes/k.camel.yaml', name: 'k.camel.yaml', type: 'integration' },
             ],
           },
         ],
@@ -30,24 +33,24 @@ describe('buildTree', () => {
   });
 
   it('keeps files at the root', () => {
-    expect(buildTree([{ id: 'a', path: 'a.xsd' }])).toEqual([{ id: 'a', name: 'a.xsd', type: 'document' }]);
+    expect(buildTree([file('a', 'a.xsd')])).toEqual([{ id: 'a', path: 'a.xsd', name: 'a.xsd', type: 'document' }]);
   });
 
   it('derives the type of a file from its path', () => {
-    expect(
-      buildTree([
-        { id: 'r', path: 'r.camel.yaml' },
-        { id: 't', path: 't.citrus.yaml' },
-      ]).map((node) => node.type),
-    ).toEqual(['integration', 'integration-test']);
+    expect(buildTree([file('r', 'r.camel.yaml'), file('t', 't.citrus.yaml')]).map((node) => node.type)).toEqual([
+      'integration',
+      'integration-test',
+    ]);
   });
 
   it('lists folders before files, each sorted by name', () => {
     const tree = buildTree([
-      { id: 'z', path: 'z.camel.yaml' },
-      { id: 'b', path: 'b/x.camel.yaml' },
-      { id: 'a', path: 'a.camel.yaml' },
-      { id: 'c', path: 'a/y.camel.yaml' },
+      file('z', 'z.camel.yaml'),
+      folder('fb', 'b'),
+      file('b', 'b/x.camel.yaml'),
+      file('a', 'a.camel.yaml'),
+      folder('fa', 'a'),
+      file('c', 'a/y.camel.yaml'),
     ]);
 
     expect(tree.map((node) => [node.type, node.name])).toEqual([
@@ -58,62 +61,45 @@ describe('buildTree', () => {
     ]);
   });
 
-  it('puts the files of one folder under a single folder node', () => {
-    const tree = buildTree([
-      { id: 'x', path: 'routes/x.yaml' },
-      { id: 'y', path: 'routes/y.yaml' },
-    ]);
-
-    expect(tree).toHaveLength(1);
-    expect(tree[0].children?.map((node) => node.id)).toEqual(['x', 'y']);
-  });
-
   it('sorts names naturally, ignoring case and comparing numbers by value', () => {
     const tree = buildTree([
-      { id: 'zeta', path: 'Zeta.yaml' },
-      { id: 'file10', path: 'file10.yaml' },
-      { id: 'alpha', path: 'alpha.yaml' },
-      { id: 'file2', path: 'file2.yaml' },
+      file('zeta', 'Zeta.yaml'),
+      file('file10', 'file10.yaml'),
+      file('alpha', 'alpha.yaml'),
+      file('file2', 'file2.yaml'),
     ]);
 
     expect(tree.map((node) => node.name)).toEqual(['alpha.yaml', 'file2.yaml', 'file10.yaml', 'Zeta.yaml']);
   });
 
-  it('never gives a folder the id of a file', () => {
-    // `integrations` is a valid file id, and the file lives in a folder of the same name
-    const tree = buildTree([{ id: 'integrations', path: 'integrations/a.camel.yaml' }]);
-
-    expect(tree[0].id).not.toBe('integrations');
-    expect(findPath(tree, 'integrations')?.map((node) => node.name)).toEqual(['integrations', 'a.camel.yaml']);
+  it('shows empty folders', () => {
+    expect(buildTree([folder('a', 'a'), folder('b', 'a/b')])).toEqual([
+      {
+        id: 'a',
+        path: 'a',
+        name: 'a',
+        type: 'folder',
+        children: [{ id: 'b', path: 'a/b', name: 'b', type: 'folder', children: [] }],
+      },
+    ]);
   });
 
-  it('returns an empty tree for no files', () => {
+  it('adds a folder for entries whose folder is not among them, whatever their order', () => {
+    const tree = buildTree([file('f', 'a/f.yaml'), folder('a', 'a')]);
+
+    expect(tree).toEqual([
+      {
+        id: 'a',
+        path: 'a',
+        name: 'a',
+        type: 'folder',
+        children: [{ id: 'f', path: 'a/f.yaml', name: 'f.yaml', type: 'document' }],
+      },
+    ]);
+    expect(buildTree([file('f', 'x/f.yaml')])[0]).toMatchObject({ path: 'x', type: 'folder' });
+  });
+
+  it('returns an empty tree for no entries', () => {
     expect(buildTree([])).toEqual([]);
-  });
-
-  it('shows created folders without files, with their parents', () => {
-    expect(buildTree([], ['a/b', 'c'])).toEqual([
-      {
-        id: toFolderId('a'),
-        name: 'a',
-        type: 'folder',
-        children: [{ id: toFolderId('a/b'), name: 'b', type: 'folder', children: [] }],
-      },
-      { id: toFolderId('c'), name: 'c', type: 'folder', children: [] },
-    ]);
-  });
-
-  it('merges a created folder with the folder of its files', () => {
-    expect(buildTree([{ id: 'f', path: 'a/f.camel.yaml' }], ['a', 'a/empty'])).toEqual([
-      {
-        id: toFolderId('a'),
-        name: 'a',
-        type: 'folder',
-        children: [
-          { id: toFolderId('a/empty'), name: 'empty', type: 'folder', children: [] },
-          { id: 'f', name: 'f.camel.yaml', type: 'integration' },
-        ],
-      },
-    ]);
   });
 });

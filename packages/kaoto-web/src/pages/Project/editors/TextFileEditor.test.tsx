@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { TextFileEditor } from './TextFileEditor';
 
-const FILE = { id: 'schema', path: 'resources/schema.json', content: '{}' };
+const FILE = { key: 'schema', path: 'resources/schema.json', content: '{}' };
 
 const typeInEditor = (content: string) => {
   fireEvent.change(screen.getByRole('textbox', { name: 'Code' }), { target: { value: content } });

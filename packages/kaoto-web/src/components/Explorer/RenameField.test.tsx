@@ -1,9 +1,9 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { StrictMode } from 'react';
+import { StrictMode, useState } from 'react';
 
-import { ProjectFile } from '../../context/FilesContextDefinition';
 import { indexedDbStorage } from '../../services/files/indexed-db-storage';
+import { useFilesUiStore } from '../../store/files/use-files-ui-store';
 import { pathOf, storedPaths, storeTestFiles, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
 import { RenameField } from './RenameField';
@@ -15,15 +15,17 @@ const expectStoredAt = async (id: string, path: string) => {
   if (path !== pathOf(id)) expect(paths).not.toContain(pathOf(id));
 };
 
+/** The field for the stored entry at the path, once the files are loaded; it keeps the entry when it moves */
+const FieldFor = ({ path, onDone }: { path: string; onDone: (byKeyboard: boolean) => void }) => {
+  const entries = useFilesUiStore((state) => state.entries);
+  const [key, setKey] = useState<string>();
+  const entry = entries.find((candidate) => (key ? candidate.key === key : candidate.path === path));
+  if (entry && !key) setKey(entry.key);
+  return entry ? <RenameField file={entry} onDone={onDone} /> : null;
+};
+
 describe('RenameField', () => {
-  /** The file as the files context hands it out: its id is its path */
-  const file: ProjectFile = {
-    id: 'integrations/main-flow.camel.yaml',
-    path: 'integrations/main-flow.camel.yaml',
-    content: 'x',
-  };
   const onDone = vi.fn();
-  const onRenamed = vi.fn();
 
   beforeEach(async () => {
     resetTestIndexedDB();
@@ -31,7 +33,6 @@ describe('RenameField', () => {
       { id: 'main-flow', path: 'integrations/main-flow.camel.yaml', content: 'x' },
       { id: 'other', path: 'integrations/other.camel.yaml', content: '' },
     ]);
-    onRenamed.mockReset();
     onDone.mockReset();
   });
 
@@ -39,41 +40,43 @@ describe('RenameField', () => {
     vi.restoreAllMocks();
   });
 
-  const renderField = (strict = false) => {
-    const field = withFiles(<RenameField file={file} onDone={onDone} onRenamed={onRenamed} />);
+  const renderField = async (strict = false) => {
+    const field = withFiles(<FieldFor path="integrations/main-flow.camel.yaml" onDone={onDone} />);
     const result = render(strict ? <StrictMode>{field}</StrictMode> : field);
-    return { ...result, input: screen.getByRole('textbox', { name: 'Rename file' }) as HTMLInputElement };
+    return { ...result, input: (await screen.findByRole('textbox', { name: 'Rename file' })) as HTMLInputElement };
   };
 
-  it.each([false, true])('focuses the field and selects the name before its first dot (StrictMode %s)', (strict) => {
-    const { input } = renderField(strict);
+  it.each([false, true])(
+    'focuses the field and selects the name before its first dot (StrictMode %s)',
+    async (strict) => {
+      const { input } = await renderField(strict);
 
-    expect(input).toHaveFocus();
-    expect(input).toHaveValue('main-flow.camel.yaml');
-    expect(input.selectionStart).toBe(0);
-    expect(input.selectionEnd).toBe('main-flow'.length);
-  });
+      expect(input).toHaveFocus();
+      expect(input).toHaveValue('main-flow.camel.yaml');
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe('main-flow'.length);
+    },
+  );
 
   it.each([false, true])(
     'renames the file on Enter and reports it once by keyboard (StrictMode %s)',
     async (strict) => {
       const user = userEvent.setup();
-      renderField(strict);
+      await renderField(strict);
 
       await user.keyboard('orders{Enter}');
 
       await waitFor(() => {
         expect(onDone).toHaveBeenCalledTimes(1);
       });
-      expect(onDone).toHaveBeenCalledWith(true, 'integrations/orders.camel.yaml');
-      expect(onRenamed).toHaveBeenCalledWith('integrations/main-flow.camel.yaml', 'integrations/orders.camel.yaml');
+      expect(onDone).toHaveBeenCalledWith(true);
       await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
     },
   );
 
   it('renames the file when the field loses the focus and reports it as not by keyboard', async () => {
     const user = userEvent.setup();
-    const { input } = renderField();
+    const { input } = await renderField();
 
     await user.keyboard('orders');
     act(() => {
@@ -81,7 +84,7 @@ describe('RenameField', () => {
     });
 
     await waitFor(() => {
-      expect(onDone).toHaveBeenCalledWith(false, 'integrations/orders.camel.yaml');
+      expect(onDone).toHaveBeenCalledWith(false);
     });
     await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
   });
@@ -89,18 +92,18 @@ describe('RenameField', () => {
   it('cancels on Escape without renaming', async () => {
     const rename = vi.spyOn(indexedDbStorage, 'moveFile');
     const user = userEvent.setup();
-    renderField();
+    await renderField();
 
     await user.keyboard('orders{Escape}');
 
-    expect(onDone).toHaveBeenCalledWith(true, undefined);
+    expect(onDone).toHaveBeenCalledWith(true);
     expect(rename).not.toHaveBeenCalled();
   });
 
   it('does not rename when the field loses the focus after Escape, as it does while it is removed', async () => {
     const rename = vi.spyOn(indexedDbStorage, 'moveFile');
     const user = userEvent.setup();
-    const { input } = renderField();
+    const { input } = await renderField();
 
     await user.keyboard('orders{Escape}');
     act(() => {
@@ -114,11 +117,11 @@ describe('RenameField', () => {
   it('closes without writing when the name is unchanged', async () => {
     const rename = vi.spyOn(indexedDbStorage, 'moveFile');
     const user = userEvent.setup();
-    renderField();
+    await renderField();
 
     await user.keyboard('{Enter}');
 
-    expect(onDone).toHaveBeenCalledWith(true, undefined);
+    expect(onDone).toHaveBeenCalledWith(true);
     expect(rename).not.toHaveBeenCalled();
   });
 
@@ -130,7 +133,7 @@ describe('RenameField', () => {
     async (_, typed, error) => {
       const rename = vi.spyOn(indexedDbStorage, 'moveFile');
       const user = userEvent.setup();
-      const { input } = renderField();
+      const { input } = await renderField();
 
       if (typed) await user.keyboard(typed);
       else await user.clear(input);
@@ -142,7 +145,7 @@ describe('RenameField', () => {
       act(() => {
         input.blur();
       });
-      expect(onDone).toHaveBeenCalledWith(false, undefined);
+      expect(onDone).toHaveBeenCalledWith(false);
       expect(rename).not.toHaveBeenCalled();
     },
   );
@@ -150,7 +153,7 @@ describe('RenameField', () => {
   it('shows a failed rename and stays open, so the name can be changed', async () => {
     vi.spyOn(indexedDbStorage, 'moveFile').mockRejectedValueOnce(new Error('The storage is blocked'));
     const user = userEvent.setup();
-    const { input } = renderField();
+    const { input } = await renderField();
 
     await user.keyboard('orders{Enter}');
 
@@ -162,7 +165,7 @@ describe('RenameField', () => {
   it('renames once when the field loses the focus right after Enter', async () => {
     const rename = vi.spyOn(indexedDbStorage, 'moveFile');
     const user = userEvent.setup();
-    const { input } = renderField();
+    const { input } = await renderField();
 
     await user.keyboard('orders{Enter}');
     act(() => {
@@ -175,7 +178,7 @@ describe('RenameField', () => {
     expect(rename).toHaveBeenCalledTimes(1);
   });
 
-  it('reports a rename that finishes after the field was replaced only as renamed, not as done', async () => {
+  it('does not report a rename that finishes after the field was replaced', async () => {
     let release: () => void = () => undefined;
     const realRename = indexedDbStorage.moveFile.bind(indexedDbStorage);
     const rename = vi.spyOn(indexedDbStorage, 'moveFile').mockImplementation(async (path, newPath) => {
@@ -185,7 +188,7 @@ describe('RenameField', () => {
       return realRename(path, newPath);
     });
     const user = userEvent.setup();
-    const { input, unmount } = renderField();
+    const { input, unmount } = await renderField();
 
     await user.keyboard('orders');
     act(() => {
@@ -203,14 +206,12 @@ describe('RenameField', () => {
     await waitFor(async () => {
       await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
     });
-    // The Explorer still moves the open file along
-    expect(onRenamed).toHaveBeenCalledWith('integrations/main-flow.camel.yaml', 'integrations/orders.camel.yaml');
     expect(onDone).not.toHaveBeenCalled();
   });
 
-  it('leaves Enter and Escape to an IME composition', () => {
+  it('leaves Enter and Escape to an IME composition', async () => {
     const rename = vi.spyOn(indexedDbStorage, 'moveFile');
-    const { input } = renderField();
+    const { input } = await renderField();
 
     fireEvent.change(input, { target: { value: 'orders.camel.yaml' } });
     fireEvent.keyDown(input, { key: 'Enter', isComposing: true });

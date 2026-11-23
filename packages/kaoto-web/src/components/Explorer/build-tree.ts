@@ -1,18 +1,6 @@
-import { getFileType, StoredFile } from '../../services/files/stored-file';
+import { getFileType } from '../../services/files/stored-file';
+import { FileEntry } from '../../store/files/files-ui-state';
 import { ExplorerFile } from './explorer-file';
-
-const FOLDER_ID_PREFIX = 'folder:';
-
-/**
- * The id of the folder node for a folder path.
- *
- * The prefix keeps folder ids apart from file ids, which only hold `[a-zA-Z0-9_-]`: a file `integrations` in the
- * folder `integrations` must not share its id with the folder.
- */
-export const toFolderId = (folderPath: string): string => `${FOLDER_ID_PREFIX}${folderPath}`;
-
-/** The folder path of a folder node id */
-export const toFolderPath = (folderId: string): string => folderId.slice(FOLDER_ID_PREFIX.length);
 
 /** Natural order: case-insensitive, numbers compared by value (`file2` before `file10`) */
 const byName = (a: ExplorerFile, b: ExplorerFile) =>
@@ -32,39 +20,47 @@ const sortNodes = (nodes: ExplorerFile[]): ExplorerFile[] => {
 };
 
 /**
- * Builds the Explorer tree from the flat list of stored files and the folders the user created.
+ * Builds the Explorer tree from the entries of the files store.
  *
- * Folders come from the file paths and from `folders`, which keeps folders that hold no file; their id is built with
- * `toFolderId`. The type of a file is derived from its path. Folders come before files, each in natural order by name.
+ * Every node takes the key of its entry as its id. The type of a file is derived from its path. A folder that is not
+ * among the entries is added for the entries under it. Folders come before files, each in natural order by name.
  */
-export function buildTree(files: Pick<StoredFile, 'id' | 'path'>[], folders: string[] = []): ExplorerFile[] {
+export function buildTree(entries: Pick<FileEntry, 'key' | 'kind' | 'path'>[]): ExplorerFile[] {
   const root: ExplorerFile[] = [];
-  const folderChildren = new Map<string, ExplorerFile[]>();
+  const folders = new Map<string, ExplorerFile>();
 
-  /** The children of the folder, creating it and its parents in the tree when needed */
-  const childrenOf = (segments: string[]): ExplorerFile[] => {
-    let siblings = root;
-    let folderPath = '';
-    for (const segment of segments) {
-      folderPath = folderPath ? `${folderPath}/${segment}` : segment;
-      let children = folderChildren.get(folderPath);
-      if (!children) {
-        children = [];
-        folderChildren.set(folderPath, children);
-        siblings.push({ id: toFolderId(folderPath), name: segment, type: 'folder', children });
-      }
-      siblings = children;
+  /** The folder node at the path, creating it and its parents in the tree when needed */
+  const folderAt = (folderPath: string, key?: string): ExplorerFile => {
+    let folder = folders.get(folderPath);
+    if (!folder) {
+      const slash = folderPath.lastIndexOf('/');
+      folder = {
+        id: key ?? `folder:${folderPath}`,
+        path: folderPath,
+        name: folderPath.slice(slash + 1),
+        type: 'folder',
+        children: [],
+      };
+      folders.set(folderPath, folder);
+      siblingsOf(folderPath).push(folder);
+    } else if (key) {
+      folder.id = key;
     }
-    return siblings;
+    return folder;
   };
 
-  for (const file of files) {
-    const segments = file.path.split('/');
-    const fileName = segments[segments.length - 1];
-    childrenOf(segments.slice(0, -1)).push({ id: file.id, name: fileName, type: getFileType(file.path) });
-  }
-  for (const folderPath of folders) {
-    childrenOf(folderPath.split('/'));
+  const siblingsOf = (path: string): ExplorerFile[] => {
+    const slash = path.lastIndexOf('/');
+    return slash === -1 ? root : folderAt(path.slice(0, slash)).children!;
+  };
+
+  for (const entry of entries) {
+    if (entry.kind === 'folder') {
+      folderAt(entry.path, entry.key);
+    } else {
+      const name = entry.path.slice(entry.path.lastIndexOf('/') + 1);
+      siblingsOf(entry.path).push({ id: entry.key, path: entry.path, name, type: getFileType(entry.path) });
+    }
   }
 
   return sortNodes(root);
