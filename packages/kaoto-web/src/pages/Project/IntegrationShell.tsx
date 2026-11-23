@@ -3,11 +3,9 @@ import '@patternfly/react-core/dist/styles/base-no-reset.css';
 import './IntegrationShell.scss';
 
 import { InlineNotification } from '@carbon/react';
-import { RouteVisualization } from '@kaoto/kaoto/components';
 import { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { Navigate } from 'react-router';
 
-import { CATALOG_URL } from '../../catalog-url';
 import { buildTree } from '../../components/Explorer/build-tree';
 import { findPath } from '../../components/Explorer/filterFiles';
 import { LoadingState } from '../../components/LoadingState/LoadingState';
@@ -16,54 +14,17 @@ import { useFiles } from '../../hooks/useFiles';
 import { useSafeParams } from '../../hooks/useSafeParams';
 import { getFileType } from '../../services/files/stored-file';
 import { editorKindFor } from './editors/editor-registry';
+import { RouteFileEditor } from './editors/RouteFileEditor';
 import { TextFileEditor } from './editors/TextFileEditor';
 
 const WORKSPACE_PATH = '/workspace';
 
 /**
- * Edits the code of the open file, starting from its stored content.
- *
- * The canvas stays mounted across files: re-mounting it would tear down the providers inside RouteVisualization and
- * download the whole Camel catalog again. The local code is reset instead.
- */
-const IntegrationCanvas: FunctionComponent<{
-  fileId: string;
-  initialCode: string;
-  onCodeChange: (code: string) => void;
-}> = ({ fileId, initialCode, onCodeChange }) => {
-  const [code, setCode] = useState(initialCode);
-  const [codeOwner, setCodeOwner] = useState(fileId);
-  if (codeOwner !== fileId) {
-    // Adjust state while rendering (https://react.dev/learn/you-might-not-need-an-effect)
-    setCodeOwner(fileId);
-    setCode(initialCode);
-  }
-
-  const handleCodeChange = (newCode: string) => {
-    // The canvas also reports the code it was given, which needs no write
-    if (newCode === code) return;
-    setCode(newCode);
-    onCodeChange(newCode);
-  };
-
-  return (
-    <RouteVisualization
-      className="cs--integration-shell__canvas"
-      catalogUrl={CATALOG_URL}
-      runtimeCatalogName=""
-      testingCatalogName=""
-      code={code}
-      codeChange={handleCodeChange}
-    />
-  );
-};
-
-/**
  * IntegrationShell — rendered at `/workspace/file/:fileId`.
  *
- * Shows the stored file on the canvas and writes the edits back to the store. Publishes the breadcrumb into
- * IntegrationHeaderContext so the Nav header shows the full file path. View mode switcher (Design/Code/Topology) is
- * rendered by ProjectToolbar.
+ * Shows the stored file in the editor of its type (routes on the canvas and as code, other files as text) and writes
+ * the edits back to the store. Publishes the breadcrumb into IntegrationHeaderContext so the Nav header shows the full
+ * file path. View mode switcher (Design/Code/Topology) is rendered by ProjectToolbar.
  */
 const IntegrationShell: FunctionComponent = () => {
   const params = useSafeParams(['fileId']);
@@ -113,8 +74,6 @@ const IntegrationShell: FunctionComponent = () => {
   };
   const currentSaveError = saveError?.fileId === params.fileId ? saveError.error : undefined;
 
-  const isDesignMode = (header?.viewMode ?? 'design') === 'design';
-
   let body;
   if (loading) {
     body = <LoadingState />;
@@ -122,17 +81,8 @@ const IntegrationShell: FunctionComponent = () => {
     body = <p className="cs--integration-shell__empty">The file does not exist</p>;
   } else if (editorKindFor(getFileType(file.path)) === 'text') {
     body = <TextFileEditor key={file.id} file={file} onSave={storeCode} />;
-  } else if (isDesignMode) {
-    const fileId = file.id;
-    body = (
-      <IntegrationCanvas
-        fileId={fileId}
-        initialCode={file.content}
-        onCodeChange={(code) => {
-          storeCode(fileId, code);
-        }}
-      />
-    );
+  } else {
+    body = <RouteFileEditor file={file} view={header?.viewMode ?? 'design'} onSave={storeCode} />;
   }
 
   return (

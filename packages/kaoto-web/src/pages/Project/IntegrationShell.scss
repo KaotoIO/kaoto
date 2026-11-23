@@ -18,10 +18,27 @@
 }
 
 .cs--integration-shell__body {
+  position: relative;
   display: flex;
   flex: 1;
   min-block-size: 0;
   overflow: hidden;
+}
+
+// Holds the canvas; hidden outside the Design view, where the canvas stays mounted
+.cs--integration-shell__design {
+  display: flex;
+  flex: 1;
+  min-block-size: 0;
+
+  // Invisible but as large as the body: with `display: none` the canvas would shrink to 0×0 and fit a route that
+  // appears while it is hidden into no space at all
+  &[hidden] {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    visibility: hidden;
+  }
 }
 
 .cs--integration-shell__canvas {

@@ -1,6 +1,6 @@
 import './CodeEditor.scss';
 
-import { Editor } from '@monaco-editor/react';
+import { Editor, OnChange, OnMount } from '@monaco-editor/react';
 import { FunctionComponent } from 'react';
 
 import { useDarkTheme } from '../../../hooks/useDarkTheme';
@@ -14,6 +14,8 @@ interface CodeEditorProps {
   path: string;
   initialContent: string;
   onChange: (content: string) => void;
+  /** Take the focus once the editor is ready */
+  focusOnMount?: boolean;
 }
 
 const OPTIONS = { automaticLayout: true, scrollBeyondLastLine: false };
@@ -21,10 +23,24 @@ const OPTIONS = { automaticLayout: true, scrollBeyondLastLine: false };
 /**
  * Monaco editor for the content of one file, in the light or dark theme of kaoto-web.
  *
- * It keeps its own content after the start, so give it a `key` per file to start over with another one.
+ * It keeps its own content after the start: later changes of `initialContent` are not shown. Give it a `key` per file
+ * to start over with another one.
  */
-export const CodeEditor: FunctionComponent<CodeEditorProps> = ({ path, initialContent, onChange }) => {
+export const CodeEditor: FunctionComponent<CodeEditorProps> = ({
+  path,
+  initialContent,
+  onChange,
+  focusOnMount = false,
+}) => {
   const isDark = useDarkTheme();
+
+  const handleChange: OnChange = (content) => {
+    onChange(content ?? '');
+  };
+
+  const handleMount: OnMount = (editor) => {
+    if (focusOnMount) editor.focus();
+  };
 
   return (
     <Editor
@@ -33,9 +49,8 @@ export const CodeEditor: FunctionComponent<CodeEditorProps> = ({ path, initialCo
       defaultLanguage={languageForPath(path)}
       theme={isDark ? 'vs-dark' : 'vs'}
       options={OPTIONS}
-      onChange={(content) => {
-        onChange(content ?? '');
-      }}
+      onChange={handleChange}
+      onMount={handleMount}
     />
   );
 };

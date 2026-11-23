@@ -1,40 +1,25 @@
-import * as KaotoComponentsModule from '@kaoto/kaoto/components';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { FunctionComponent, ReactNode, useEffect } from 'react';
 import { MemoryRouter, NavigateFunction, Route, Routes, useNavigate } from 'react-router';
-import { afterEach, beforeEach, describe, expect, it, MockInstance, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { IntegrationHeaderContext, ViewMode } from '../../context/IntegrationHeaderContext';
 import { filesStore } from '../../services/files/files.store';
 import { storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
+import { stubRouteVisualization } from '../../test/route-visualization-stub';
 import IntegrationShell from './IntegrationShell';
 
-let routeVisualizationSpy: MockInstance<typeof KaotoComponentsModule.RouteVisualization>;
-let routeVisualizationMounts = 0;
-
-const RouteVisualizationStub: typeof KaotoComponentsModule.RouteVisualization = ({ code }) => {
-  useEffect(() => {
-    routeVisualizationMounts++;
-  }, []);
-  return <div data-testid="route-visualization" data-code={code} />;
-};
-
-/** The code change callback the canvas got last, as if the user edited the route on the canvas */
+let routeVisualization: ReturnType<typeof stubRouteVisualization>;
 const editOnCanvas = (code: string) => {
-  act(() => {
-    routeVisualizationSpy.mock.lastCall![0].codeChange(code);
-  });
+  routeVisualization.editOnCanvas(code);
 };
 
 const contentOf = (id: string) => TEST_FILES.find((file) => file.id === id)!.content;
 
 beforeEach(() => {
-  routeVisualizationMounts = 0;
-  routeVisualizationSpy = vi
-    .spyOn(KaotoComponentsModule, 'RouteVisualization')
-    .mockImplementation(RouteVisualizationStub);
+  routeVisualization = stubRouteVisualization();
 });
 
 const mockSetBreadcrumbItems = vi.fn();
@@ -192,7 +177,7 @@ describe('IntegrationShell', () => {
     renderWithContext('main-flow');
     const canvas = await screen.findByTestId('route-visualization');
     expect(canvas).toHaveAttribute('data-code', contentOf('main-flow'));
-    const { catalogUrl } = routeVisualizationSpy.mock.lastCall![0];
+    const { catalogUrl } = routeVisualization.spy.mock.lastCall![0];
     expect(catalogUrl).toMatch(/^\/.*camel-catalog\/index\.json$/);
   });
 
@@ -215,12 +200,11 @@ describe('IntegrationShell', () => {
     expect(await screen.findByRole('textbox', { name: 'Code' })).toBeInTheDocument();
   });
 
-  it('does not render the canvas outside design mode', async () => {
+  it('shows the code of a route in code mode and keeps its canvas mounted but hidden', async () => {
     renderWithContext('main-flow', 'code');
-    await waitFor(() => {
-      expect(mockSetCurrent).toHaveBeenLastCalledWith('main-flow.camel.yaml');
-    });
-    expect(screen.queryByTestId('route-visualization')).not.toBeInTheDocument();
+
+    expect(await screen.findByRole('textbox', { name: 'Code' })).toHaveValue(contentOf('main-flow'));
+    expect(screen.getByTestId('route-visualization')).not.toBeVisible();
   });
 
   it('shows the content of the newly selected file when switching', async () => {
@@ -240,7 +224,7 @@ describe('IntegrationShell', () => {
     act(() => {
       navigateTo('/workspace/file/main-flow');
     });
-    expect(routeVisualizationMounts).toBe(1);
+    expect(routeVisualization.mountCount()).toBe(1);
   });
 
   describe('saving', () => {
