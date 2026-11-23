@@ -1,0 +1,6 @@
+// Fills the body of the shell; Monaco sizes itself to this box (`automaticLayout`)
+.cs--code-editor {
+  flex: 1;
+  inline-size: 100%;
+  min-block-size: 0;
+}
