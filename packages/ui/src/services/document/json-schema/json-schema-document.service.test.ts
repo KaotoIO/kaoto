@@ -795,23 +795,27 @@ describe('JsonSchemaDocumentService', () => {
     expect(aFields[0].type).toBe(Types.String);
   });
 
-  it.each(['allOf', 'anyOf', 'oneOf'] as const)(
-    'should resolve a $ref to a definition declared inside %s',
-    (composition) => {
-      const schema: JSONSchema7 = {
-        type: 'object',
-        [composition]: [{ type: 'object' }, { definitions: { D: { type: 'string' } } }],
-        properties: {
-          x: { $ref: `#/${composition}/1/definitions/D` },
-        },
-      };
+  it.each([
+    ['allOf', 'definitions'],
+    ['anyOf', 'definitions'],
+    ['oneOf', 'definitions'],
+    ['allOf', '$defs'],
+    ['anyOf', '$defs'],
+    ['oneOf', '$defs'],
+  ] as const)('should resolve a $ref to a definition declared inside %s under %s', (composition, keyword) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      [composition]: [{ type: 'object' }, { [keyword]: { D: { type: 'string' } } }],
+      properties: {
+        x: { $ref: `#/${composition}/1/${keyword}/D` },
+      },
+    };
 
-      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
 
-      const xField = doc.fields[0].fields.find((f) => f.key === 'x');
-      expect(xField!.type).toBe(Types.String);
-    },
-  );
+    const xField = doc.fields[0].fields.find((f) => f.key === 'x');
+    expect(xField!.type).toBe(Types.String);
+  });
 
   it.each([
     [

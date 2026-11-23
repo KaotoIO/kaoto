@@ -512,7 +512,7 @@ export class JsonSchemaDocumentService {
       filePath: schemaContext.filePath,
       path: schemaContext.path,
     };
-    schemaDef.definitions && this.populateTypeFragmentsFromDefinition(field, schemaMeta);
+    this.populateTypeFragmentsFromDefinition(field, schemaMeta);
 
     const type = JsonSchemaDocumentUtilService.electFieldTypeFromSchema(schemaMeta);
     const updatedField = this.updateFieldByType(field, type, schemaMeta);
