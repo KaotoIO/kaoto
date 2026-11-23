@@ -609,7 +609,7 @@ export class KaotoCatalogService {
 	 */
 	private isKaotoIntegrationFile(uri: vscode.Uri): boolean {
 		const fileName = path.basename(uri.fsPath);
-		return /\.(camel|kamelet|pipe)\.(yaml|yml)$/.test(fileName) || /-pipe\.(yaml|yml)$/.test(fileName) || fileName.endsWith('.camel.xml');
+		return /\.(camel|kamelet|pipe)\.yaml$/.test(fileName) || fileName.endsWith('-pipe.yaml') || fileName.endsWith('.camel.xml');
 	}
 
 	/**
@@ -617,7 +617,7 @@ export class KaotoCatalogService {
 	 */
 	private isKaotoCitrusTestFile(uri: vscode.Uri): boolean {
 		const fileName = path.basename(uri.fsPath);
-		return /\.citrus\.(yaml|yml)$/.test(fileName) || /\.citrus[.-](test|it)\.(yaml|yml)$/.test(fileName);
+		return fileName.endsWith('.citrus.yaml') || /\.citrus[.-](test|it)\.yaml$/.test(fileName);
 	}
 
 	/**

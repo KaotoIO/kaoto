@@ -15,8 +15,8 @@ import { KAOTO_EDITOR_VIEW_TYPE } from '../constants';
 // `DocumentFilter` union while keeping the narrower inferred element type (`{ pattern }`)
 // so consumers (and this module's tests) can rely on `pattern` always being present.
 export const CAMEL_LSP_DOCUMENT_SELECTORS = [
-	{ pattern: '**/*.camel.{yaml,yml}' },
-	{ pattern: '**/*.kamelet.{yaml,yml}' },
+	{ pattern: '**/*.camel.yaml' },
+	{ pattern: '**/*.kamelet.yaml' },
 	{ pattern: '**/*.camel.xml' },
 	{ pattern: '**/application*.properties' },
 ] satisfies DocumentFilter[];

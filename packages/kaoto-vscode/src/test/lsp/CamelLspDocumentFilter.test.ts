@@ -21,8 +21,8 @@ suite('CamelLspDocumentFilter', () => {
 	const patterns = CAMEL_LSP_DOCUMENT_SELECTORS.map((s) => s.pattern);
 
 	test('should define document selectors for Camel YAML files', () => {
-		expect(patterns).to.include('**/*.camel.{yaml,yml}');
-		expect(patterns).to.include('**/*.kamelet.{yaml,yml}');
+		expect(patterns).to.include('**/*.camel.yaml');
+		expect(patterns).to.include('**/*.kamelet.yaml');
 	});
 
 	test('should define document selectors for Camel XML files', () => {
@@ -73,7 +73,6 @@ suite('CamelLspDocumentFilter', () => {
 		// plaintext when no extension defines it
 		test('should serve Camel files whatever their language', () => {
 			expect(isCamelLspDocument(documentWithLanguage('/project/route.camel.yaml', 'camel'))).to.be.true;
-			expect(isCamelLspDocument(documentWithLanguage('/project/route.camel.yml', 'plaintext'))).to.be.true;
 			expect(isCamelLspDocument(documentWithLanguage('/project/source.kamelet.yaml', 'camel'))).to.be.true;
 			expect(isCamelLspDocument(documentWithLanguage('/project/route.camel.xml', 'plaintext'))).to.be.true;
 			expect(isCamelLspDocument(documentWithLanguage('/project/route.xml', 'plaintext'))).to.be.false;
@@ -82,6 +81,7 @@ suite('CamelLspDocumentFilter', () => {
 			expect(isCamelLspDocument(documentWithLanguage('/project/route.yaml', 'camel'))).to.be.false;
 			expect(isCamelLspDocument(documentWithLanguage('/project/route.yml', 'plaintext'))).to.be.false;
 			expect(isCamelLspDocument(documentWithLanguage('/project/route.yml', 'camel'))).to.be.false;
+			expect(isCamelLspDocument(documentWithLanguage('/project/route.camel.yml', 'plaintext'))).to.be.false;
 		});
 
 		test('should serve the application properties of the Quarkus and Spring Boot extensions', () => {

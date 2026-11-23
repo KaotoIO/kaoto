@@ -119,13 +119,9 @@
   ],
   "activationEvents": [
     "workspaceContains:**/*.camel.yaml",
-    "workspaceContains:**/*.camel.yml",
     "workspaceContains:**/*.kamelet.yaml",
-    "workspaceContains:**/*.kamelet.yml",
     "workspaceContains:**/*.pipe.yaml",
-    "workspaceContains:**/*.pipe.yml",
     "workspaceContains:**/*-pipe.yaml",
-    "workspaceContains:**/*-pipe.yml",
     "workspaceContains:**/*.camel.xml",
     "workspaceContains:**/*.citrus.yaml",
     "workspaceContains:**/*.citrus.test.yaml",
@@ -846,7 +842,7 @@
       "explorer/context": [
         {
           "command": "kaoto.open",
-          "when": "resourceExtname == .yaml || resourceExtname == .yml || resourceExtname == .xml",
+          "when": "resourceExtname == .yaml || resourceExtname == .xml",
           "group": "1_belowOpenWith"
         }
       ],
@@ -1488,7 +1484,7 @@
         "displayName": "Kaoto Editor",
         "selector": [
           {
-            "filenamePattern": "*{.camel,.kamelet,.pipe,-pipe}.{yaml,yml}"
+            "filenamePattern": "*{.camel,.kamelet,.pipe,-pipe}.yaml"
           },
           {
             "filenamePattern": "*.camel.xml"
