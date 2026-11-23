@@ -27,9 +27,10 @@ import {
 } from 'react';
 import { useNavigate, useParams } from 'react-router';
 
+import { ProjectFile } from '../../context/FilesContextDefinition';
 import { useFiles } from '../../hooks/useFiles';
 import { usePanelResizer } from '../../hooks/usePanelResizer';
-import { StoredFile } from '../../services/files/stored-file';
+import { filePathFromSplat, fileUrl } from '../../routes/file-url';
 import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
 import { DeleteConfirmModal } from '../DeleteConfirmModal/DeleteConfirmModal';
 import { ErrorState } from '../ErrorState/ErrorState';
@@ -57,12 +58,14 @@ interface RenderOptions {
   /** Starts renaming the file or folder with the tree node id */
   requestRename: (nodeId: string) => void;
   /** The file being renamed */
-  renaming: StoredFile | undefined;
+  renaming: ProjectFile | undefined;
   /** The path of the folder being renamed */
   renamingFolder: string | undefined;
   finishRename: (byKeyboard: boolean, renamedNodeId?: string) => void;
-  /** Moves the expansion state along with a folder renamed in storage */
-  moveExpanded: (fromPath: string, toPath: string) => void;
+  /** Moves the expansion state and the open file along with a folder renamed in storage */
+  folderRenamed: (fromPath: string, toPath: string) => void;
+  /** Moves the open file along with a file renamed in storage */
+  fileRenamed: (fromPath: string, toPath: string) => void;
   /** The file or folder being created */
   newEntry: NewEntry | undefined;
   finishCreate: (byKeyboard: boolean, created: CreatedEntry | undefined) => void;
@@ -132,7 +135,7 @@ function handleEntryKeys(node: ExplorerFile, opts: RenderOptions) {
 
 function renderEntryLabel(node: ExplorerFile, opts: RenderOptions): React.ReactNode {
   if (opts.renaming?.id === node.id) {
-    return <RenameField file={opts.renaming} onDone={opts.finishRename} />;
+    return <RenameField file={opts.renaming} onDone={opts.finishRename} onRenamed={opts.fileRenamed} />;
   }
   if (opts.renamingFolder !== undefined && node.children && toFolderPath(node.id) === opts.renamingFolder) {
     return (
@@ -141,7 +144,7 @@ function renderEntryLabel(node: ExplorerFile, opts: RenderOptions): React.ReactN
         onDone={(byKeyboard, renamedPath) => {
           opts.finishRename(byKeyboard, renamedPath === undefined ? undefined : toFolderId(renamedPath));
         }}
-        onRenamed={opts.moveExpanded}
+        onRenamed={opts.folderRenamed}
       />
     );
   }
@@ -207,7 +210,8 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
 }
 
 export const Explorer: FunctionComponent = () => {
-  const { fileId: selectedId } = useParams();
+  // The id of a file is its path, which the URL of the open file holds
+  const selectedId = filePathFromSplat(useParams()['*']);
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState('');
   const query = searchText.toLowerCase();
@@ -257,7 +261,7 @@ export const Explorer: FunctionComponent = () => {
 
   const openFile = useCallback(
     (fileId: string) => {
-      void navigate(`/workspace/file/${fileId}`);
+      void navigate(fileUrl(fileId));
     },
     [navigate],
   );
@@ -276,10 +280,25 @@ export const Explorer: FunctionComponent = () => {
 
   const renaming = renamingId ? files.find((file) => file.id === renamingId) : undefined;
   const renamingFolder = renamingId && isFolderId(renamingId) ? toFolderPath(renamingId) : undefined;
+  /** The URL holds the path of the open file, so it follows the file when the file or a folder above it is renamed */
+  const fileRenamed = useCallback(
+    (fromPath: string, toPath: string) => {
+      if (!selectedId || (selectedId !== fromPath && !selectedId.startsWith(`${fromPath}/`))) return;
+      void navigate(fileUrl(`${toPath}${selectedId.slice(fromPath.length)}`), {
+        replace: true,
+        state: { renamed: true },
+      });
+    },
+    [selectedId, navigate],
+  );
   /** The folder ids follow the paths, so a renamed folder and its subfolders stay expanded under their new ids */
-  const moveExpanded = useCallback((fromPath: string, toPath: string) => {
-    setExpandedFolders((previous) => moveExpandedFolders(previous, fromPath, toPath));
-  }, []);
+  const folderRenamed = useCallback(
+    (fromPath: string, toPath: string) => {
+      setExpandedFolders((previous) => moveExpandedFolders(previous, fromPath, toPath));
+      fileRenamed(fromPath, toPath);
+    },
+    [fileRenamed],
+  );
   const finishRename = (byKeyboard: boolean, renamedNodeId?: string) => {
     const nodeId = renamedNodeId ?? renamingId;
     if (byKeyboard && nodeId) setFocusNode({ nodeId });
@@ -485,7 +504,8 @@ export const Explorer: FunctionComponent = () => {
                 renaming,
                 renamingFolder,
                 finishRename,
-                moveExpanded,
+                folderRenamed,
+                fileRenamed,
                 newEntry,
                 finishCreate,
               })}

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 
 import { CATALOG_URL } from '../../catalog-url';
 import { useFiles } from '../../hooks/useFiles';
+import { fileUrl } from '../../routes/file-url';
 import { buildFilePath } from '../../services/files/file-path';
 import { fetchStarterTemplate, resolveStarterTemplate } from '../../services/templates/starter-templates';
 import { KaotoModal } from '../KaotoModal/KaotoModal';
@@ -69,7 +70,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
       // Cancelled while storing: the file is kept, it is already in the store and shows in the Explorer
       if (closedRef.current) return;
       close();
-      void navigate(`/workspace/file/${created.id}`);
+      void navigate(fileUrl(created.path));
     } catch (error) {
       if (closedRef.current) return;
       setFailure(error instanceof Error ? error.message : String(error));

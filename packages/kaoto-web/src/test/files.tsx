@@ -43,6 +43,9 @@ export const TEST_FILES: Required<NewFile>[] = [
   { id: 'order-template', path: 'resources/templates/order-template.json', content: '' },
 ];
 
+/** The path of the test file with the id */
+export const pathOf = (id: string): string => TEST_FILES.find((file) => file.id === id)!.path;
+
 /** Adds the files to the shared store; call `resetTestIndexedDB()` before, so that every test starts empty */
 export const storeTestFiles = async (files: NewFile[] = TEST_FILES): Promise<void> => {
   await Promise.all(files.map((file) => filesStore.createFile(file)));

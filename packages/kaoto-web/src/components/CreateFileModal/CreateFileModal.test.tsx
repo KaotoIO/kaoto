@@ -3,6 +3,7 @@ import { userEvent } from '@testing-library/user-event';
 import { StrictMode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 
+import { fileUrl } from '../../routes/file-url';
 import { filesStore } from '../../services/files/files.store';
 import { storeTestFiles, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
@@ -175,7 +176,7 @@ describe('CreateFileModal', () => {
     expect(file.path).toBe('routes/orders.camel.yaml');
     expect(file.content).toMatch(/^- route:\n {4}id: route-\d{4}\n$/);
     await waitFor(() => {
-      expect(screen.getByTestId('location')).toHaveTextContent(`/workspace/file/${file.id}`);
+      expect(screen.getByTestId('location')).toHaveTextContent(fileUrl(file.path));
     });
   });
 

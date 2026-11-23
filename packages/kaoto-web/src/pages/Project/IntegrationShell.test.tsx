@@ -5,6 +5,7 @@ import { MemoryRouter, NavigateFunction, Route, Routes, useNavigate } from 'reac
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { IntegrationHeaderContext, ViewMode } from '../../context/IntegrationHeaderContext';
+import { fileUrl } from '../../routes/file-url';
 import { filesStore } from '../../services/files/files.store';
 import { storeTestFiles, TEST_FILES, withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
@@ -17,6 +18,9 @@ const editOnCanvas = (code: string) => {
 };
 
 const contentOf = (id: string) => TEST_FILES.find((file) => file.id === id)!.content;
+
+/** The URL of a test file by its id, or of the path for anything else */
+const urlOf = (idOrPath: string) => fileUrl(TEST_FILES.find((file) => file.id === idOrPath)?.path ?? idOrPath);
 
 beforeEach(() => {
   routeVisualization = stubRouteVisualization();
@@ -38,12 +42,12 @@ const renderWithContext = (fileId = 'main-flow', viewMode: ViewMode = 'design', 
         setCurrent: mockSetCurrent,
       }}
     >
-      <MemoryRouter initialEntries={[`/workspace/file/${fileId}`]}>
+      <MemoryRouter initialEntries={[urlOf(fileId)]}>
         {extra}
         {withFiles(
           <Routes>
             <Route path="/workspace" element={<div data-testid="workspace-page" />} />
-            <Route path="/workspace/file/:fileId" element={<IntegrationShell />} />
+            <Route path="/workspace/file/*" element={<IntegrationShell />} />
           </Routes>,
         )}
       </MemoryRouter>
@@ -173,9 +177,24 @@ describe('IntegrationShell', () => {
     });
     mockSetViewMode.mockClear();
     act(() => {
-      navigateTo('/workspace/file/main-flow');
+      navigateTo(urlOf('main-flow'));
     });
     expect(mockSetViewMode).toHaveBeenCalledWith('design');
+  });
+
+  it('keeps the view mode when the URL follows the open file to its new path after a rename', async () => {
+    let navigateTo: NavigateFunction = () => Promise.resolve();
+    renderWithContext('error-handler', 'code', <NavCapture onNavigate={(navigate) => (navigateTo = navigate)} />);
+    await waitFor(() => {
+      expect(mockSetCurrent).toHaveBeenLastCalledWith('error-handler.camel.yaml');
+    });
+    mockSetViewMode.mockClear();
+
+    act(() => {
+      void navigateTo(urlOf('main-flow'), { replace: true, state: { renamed: true } });
+    });
+
+    expect(mockSetViewMode).not.toHaveBeenCalled();
   });
 
   it('clears context on unmount', async () => {
@@ -188,10 +207,10 @@ describe('IntegrationShell', () => {
 
   it('renders the route visualization in design mode without an integration header', async () => {
     render(
-      <MemoryRouter initialEntries={['/workspace/file/main-flow']}>
+      <MemoryRouter initialEntries={[urlOf('main-flow')]}>
         {withFiles(
           <Routes>
-            <Route path="/workspace/file/:fileId" element={<IntegrationShell />} />
+            <Route path="/workspace/file/*" element={<IntegrationShell />} />
           </Routes>,
         )}
       </MemoryRouter>,
@@ -239,9 +258,17 @@ describe('IntegrationShell', () => {
     renderWithContext('error-handler', 'design', <NavCapture onNavigate={(navigate) => (navigateTo = navigate)} />);
     expect(await screen.findByTestId('route-visualization')).toHaveAttribute('data-code', contentOf('error-handler'));
     act(() => {
-      navigateTo('/workspace/file/main-flow');
+      navigateTo(urlOf('main-flow'));
     });
     expect(screen.getByTestId('route-visualization')).toHaveAttribute('data-code', contentOf('main-flow'));
+  });
+
+  it('opens a file whose path needs encoding in the URL', async () => {
+    await filesStore.createFile({ path: 'my folder/a#b?.camel.yaml', content: '- route: {}\n' });
+
+    renderWithContext('my folder/a#b?.camel.yaml');
+
+    expect(await screen.findByTestId('route-visualization')).toHaveAttribute('data-code', '- route: {}\n');
   });
 
   it('keeps the canvas mounted when switching files so the catalog is not reloaded', async () => {
@@ -249,7 +276,7 @@ describe('IntegrationShell', () => {
     renderWithContext('error-handler', 'design', <NavCapture onNavigate={(navigate) => (navigateTo = navigate)} />);
     await screen.findByTestId('route-visualization');
     act(() => {
-      navigateTo('/workspace/file/main-flow');
+      navigateTo(urlOf('main-flow'));
     });
     expect(routeVisualization.mountCount()).toBe(1);
   });
@@ -286,7 +313,7 @@ describe('IntegrationShell', () => {
     });
 
     it('does not store the code again when the canvas reports the code it was given', async () => {
-      const updateFile = vi.spyOn(filesStore, 'updateFile');
+      const updateFile = vi.spyOn(filesStore, 'updateFileAt');
       renderWithContext('main-flow');
       await screen.findByTestId('route-visualization');
 
@@ -305,10 +332,10 @@ describe('IntegrationShell', () => {
       });
 
       act(() => {
-        navigateTo('/workspace/file/error-handler');
+        navigateTo(urlOf('error-handler'));
       });
       act(() => {
-        navigateTo('/workspace/file/main-flow');
+        navigateTo(urlOf('main-flow'));
       });
 
       expect(screen.getByTestId('route-visualization')).toHaveAttribute('data-code', 'edited main-flow');
@@ -316,7 +343,7 @@ describe('IntegrationShell', () => {
     });
 
     it('shows an error when the code cannot be stored and hides it on close', async () => {
-      vi.spyOn(filesStore, 'updateFile').mockRejectedValue(new Error('quota exceeded'));
+      vi.spyOn(filesStore, 'updateFileAt').mockRejectedValue(new Error('quota exceeded'));
       const user = userEvent.setup();
       renderWithContext('main-flow');
       await screen.findByTestId('route-visualization');
@@ -332,7 +359,7 @@ describe('IntegrationShell', () => {
     });
 
     it('hides the error after the next edit is stored', async () => {
-      vi.spyOn(filesStore, 'updateFile').mockRejectedValueOnce('blocked by the browser');
+      vi.spyOn(filesStore, 'updateFileAt').mockRejectedValueOnce('blocked by the browser');
       renderWithContext('main-flow');
       await screen.findByTestId('route-visualization');
 
@@ -348,8 +375,8 @@ describe('IntegrationShell', () => {
     });
   });
 
-  it('redirects to the workspace for invalid params', () => {
-    renderWithContext('INVALID%20ID');
+  it('redirects to the workspace without a file path', () => {
+    renderWithContext('');
     expect(screen.getByTestId('workspace-page')).toBeInTheDocument();
     expect(screen.queryByTestId('integration-shell')).not.toBeInTheDocument();
   });

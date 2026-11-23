@@ -67,7 +67,10 @@ describe('NewEntryField', () => {
     const file = await storedFile('integrations/orders.camel.yaml');
     expect(fetchMock.mock.calls.map(([url]) => url.pathname)).toContain('/camel-catalog/starter-templates/route.yaml');
     expect(file?.content).toMatch(/^- route:\n {4}id: route-\d{4}\n$/);
-    expect(onDone).toHaveBeenCalledWith(true, { id: file?.id, path: 'integrations/orders.camel.yaml' });
+    expect(onDone).toHaveBeenCalledWith(true, {
+      id: 'integrations/orders.camel.yaml',
+      path: 'integrations/orders.camel.yaml',
+    });
   });
 
   it('creates a file of another kind empty, without loading a template', async () => {

@@ -6,7 +6,7 @@ describe('PathRouteConfig', () => {
   it('accepts children as an optional RouteConfigArray', () => {
     const route: PathRouteConfig = {
       path: 'workspace',
-      children: [{ path: 'file/:fileId' }],
+      children: [{ path: 'file/*' }],
     };
     expectTypeOf(route.children).toEqualTypeOf<RouteConfigArray | undefined>();
   });
