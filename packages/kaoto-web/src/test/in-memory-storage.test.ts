@@ -1,33 +1,33 @@
 import { describe, expect, it } from 'vitest';
 
-import { describeFilesAdapter } from './files-adapter-contract';
-import { InMemoryFilesAdapter } from './in-memory-files-adapter';
+import { describeFilesStorage } from './files-storage-contract';
+import { InMemoryStorage } from './in-memory-storage';
 
-describeFilesAdapter('InMemoryFilesAdapter', () => new InMemoryFilesAdapter());
+describeFilesStorage('InMemoryStorage', () => new InMemoryStorage());
 
-describe('InMemoryFilesAdapter', () => {
+describe('InMemoryStorage', () => {
   it('starts with the given files and folders and their parents', async () => {
-    const adapter = new InMemoryFilesAdapter([
+    const storage = new InMemoryStorage([
       { kind: 'file', path: 'a/b.yaml', content: 'b' },
       { kind: 'folder', path: 'c' },
     ]);
 
-    expect(await adapter.list()).toEqual(
+    expect(await storage.list()).toEqual(
       expect.arrayContaining([
         { kind: 'folder', path: 'a' },
         { kind: 'file', path: 'a/b.yaml' },
         { kind: 'folder', path: 'c' },
       ]),
     );
-    expect(await adapter.readFile('a/b.yaml')).toBe('b');
+    expect(await storage.readFile('a/b.yaml')).toBe('b');
   });
 
   it('waits with reads until they are released', async () => {
-    const adapter = new InMemoryFilesAdapter([{ kind: 'file', path: 'a.yaml', content: 'a' }]);
-    const reads = adapter.delayReads();
+    const storage = new InMemoryStorage([{ kind: 'file', path: 'a.yaml', content: 'a' }]);
+    const reads = storage.delayReads();
     let content: string | undefined;
 
-    const read = adapter.readFile('a.yaml').then((value) => {
+    const read = storage.readFile('a.yaml').then((value) => {
       content = value;
     });
     await Promise.resolve();

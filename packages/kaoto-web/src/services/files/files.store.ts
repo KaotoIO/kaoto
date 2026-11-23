@@ -1,6 +1,6 @@
 import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 
-import { AdapterEntry } from './files-adapter';
+import { StorageEntry } from './files-storage';
 import { generateId } from './generate-id';
 import { NewFile, StoredFile } from './stored-file';
 
@@ -92,7 +92,7 @@ export class FilesStore {
   }
 
   /** All files and folders, sorted by path, without the content of the files */
-  async getEntries(): Promise<AdapterEntry[]> {
+  async getEntries(): Promise<StorageEntry[]> {
     const entries = await this.getStoredEntries();
     return entries.map(({ kind, path }) => ({ kind, path }));
   }

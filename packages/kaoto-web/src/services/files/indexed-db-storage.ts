@@ -1,15 +1,15 @@
 import { FilesStore } from './files.store';
-import { AdapterEntry, FilesAdapter } from './files-adapter';
+import { FilesStorage, StorageEntry } from './files-storage';
 
 /**
  * Keeps a project's files in the browser storage (IndexedDB), through `FilesStore`.
  *
- * The stored entries keep their ids; they do not leave this adapter, which speaks paths like every other one.
+ * The stored entries keep their ids; they do not leave this storage, which speaks paths like every other one.
  */
-export class IndexedDbAdapter implements FilesAdapter {
+export class IndexedDbStorage implements FilesStorage {
   constructor(private readonly store: FilesStore) {}
 
-  list(): Promise<AdapterEntry[]> {
+  list(): Promise<StorageEntry[]> {
     return this.store.getEntries();
   }
 
