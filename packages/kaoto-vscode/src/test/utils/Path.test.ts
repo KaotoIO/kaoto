@@ -43,6 +43,17 @@ suite('Path', () => {
 		test('keeps the variables of a workspace folder without one', () => {
 			expect(expandPath('${workspaceFolder}/kamelets', CWD, undefined)).to.equal('${workspaceFolder}/kamelets');
 		});
+
+		test('keeps the dollar signs of the paths and names that it puts in', () => {
+			for (const name of ['a$$b', "it$'s", 'x$&y', 'v$`1']) {
+				const dollarFolder = { uri: vscode.Uri.file(`/workspace/${name}`), name };
+				const dollarCwd = path.join(path.sep, 'routes', name);
+
+				expect(expandPath('${workspaceFolder}/kamelets', CWD, dollarFolder)).to.equal(`${dollarFolder.uri.fsPath}/kamelets`);
+				expect(expandPath('../${workspaceFolderBasename}-kamelets', CWD, dollarFolder)).to.equal(`../${name}-kamelets`);
+				expect(expandPath('${cwd}/kamelets', dollarCwd, folder)).to.equal(`${dollarCwd}/kamelets`);
+			}
+		});
 	});
 
 	suite('resolvePaths', () => {
