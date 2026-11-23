@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/MALFORMED-IMPORTED"
+           xmlns:imp="http://www.example.com/MALFORMED-IMPORTED"
+           elementFormDefault="qualified">
+
+  <xs:include schemaLocation="MalformedOccurrencesCommon.xsd"/>
+
+  <xs:complexType name="ImportedType">
+    <xs:sequence>
+      <xs:choice maxOccurs="many">
+        <xs:element name="Left" type="xs:string"/>
+        <xs:element name="Right" type="xs:string"/>
+      </xs:choice>
+      <xs:element ref="imp:Referenced" maxOccurs="1.5"/>
+      <xs:element name="Shared" type="imp:CommonType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="Referenced" type="xs:string"/>
+</xs:schema>

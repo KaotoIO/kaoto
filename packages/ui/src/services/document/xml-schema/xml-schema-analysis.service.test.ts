@@ -238,6 +238,103 @@ ${elements}
     expect(result.edges).toHaveLength(1);
     expect(result.edges[0].to).toBe('schemas/common.xsd');
   });
+
+  describe('malformed occurrence values', () => {
+    const warningsFor = (elements: string) =>
+      XmlSchemaAnalysisService.analyze({ 'schema.xsd': makeSchema({ elements }) }).warnings;
+
+    it('should report each malformed value on a particle once, in document order', () => {
+      const warnings = warningsFor(
+        '<xs:element name="Root"><xs:complexType><xs:sequence maxOccurs="x">' +
+          '<xs:element name="a" type="xs:string" minOccurs="-1" maxOccurs="1.5"/>' +
+          '<xs:element ref="Root" maxOccurs="3abc"/>' +
+          '<xs:any minOccurs="y"/>' +
+          '</xs:sequence></xs:complexType></xs:element>',
+      );
+
+      expect(warnings).toEqual([
+        { message: 'Invalid maxOccurs value "x" on xs:sequence; the default 1 is used.', filePath: 'schema.xsd' },
+        {
+          message: 'Invalid minOccurs value "-1" on xs:element name="a"; the default 1 is used.',
+          filePath: 'schema.xsd',
+        },
+        {
+          message: 'Invalid maxOccurs value "1.5" on xs:element name="a"; the default 1 is used.',
+          filePath: 'schema.xsd',
+        },
+        {
+          message: 'Invalid maxOccurs value "3abc" on xs:element ref="Root"; the default 1 is used.',
+          filePath: 'schema.xsd',
+        },
+        { message: 'Invalid minOccurs value "y" on xs:any; the default 1 is used.', filePath: 'schema.xsd' },
+      ]);
+    });
+
+    it('should report a value padded with a no-break space, which is not XML whitespace', () => {
+      const warnings = warningsFor(
+        '<xs:element name="Root"><xs:complexType><xs:sequence>' +
+          '<xs:element name="a" type="xs:string" maxOccurs="&#xA0;0&#xA0;"/>' +
+          '</xs:sequence></xs:complexType></xs:element>',
+      );
+
+      expect(warnings.map((w) => w.message)).toEqual([
+        'Invalid maxOccurs value "\u00A00\u00A0" on xs:element name="a"; the default 1 is used.',
+      ]);
+    });
+
+    it('should report a malformed value on a global element and on a group reference', () => {
+      const warnings = warningsFor(
+        '<xs:element name="Root" type="xs:string" maxOccurs="z"/>' +
+          '<xs:group name="G"><xs:sequence><xs:element name="a" type="xs:string"/></xs:sequence></xs:group>' +
+          '<xs:complexType name="T"><xs:group ref="G" maxOccurs="w"/></xs:complexType>',
+      );
+
+      expect(warnings.map((w) => w.message)).toEqual([
+        'Invalid maxOccurs value "z" on xs:element name="Root"; the default 1 is used.',
+        'Invalid maxOccurs value "w" on xs:group ref="G"; the default 1 is used.',
+      ]);
+    });
+
+    it.each([
+      [
+        'annotation content',
+        '<xs:element name="Root"><xs:annotation><xs:appinfo>' +
+          '<xs:element name="Example" maxOccurs="bad"/></xs:appinfo></xs:annotation></xs:element>',
+      ],
+      [
+        'type alternative content',
+        '<xs:element name="Root"><xs:alternative test="true()"><xs:complexType><xs:sequence>' +
+          '<xs:element name="a" maxOccurs="bad"/></xs:sequence></xs:complexType></xs:alternative></xs:element>',
+      ],
+      ['a named group definition', '<xs:group name="G" maxOccurs="bad"><xs:sequence/></xs:group>'],
+      [
+        'override content',
+        '<xs:override schemaLocation="base.xsd"><xs:complexType name="T"><xs:sequence>' +
+          '<xs:element name="a" maxOccurs="bad"/></xs:sequence></xs:complexType></xs:override>',
+      ],
+      [
+        'an element directly under redefine',
+        '<xs:redefine schemaLocation="base.xsd"><xs:element name="E" maxOccurs="bad"/></xs:redefine>',
+      ],
+      [
+        'an xs:any inside xs:all',
+        '<xs:complexType name="T"><xs:all><xs:any maxOccurs="bad"/></xs:all></xs:complexType>',
+      ],
+      [
+        'foreign-namespace content',
+        '<xs:element name="Root" xmlns:f="urn:foreign"><xs:complexType><xs:sequence>' +
+          '<f:element maxOccurs="bad"/></xs:sequence></xs:complexType></xs:element>',
+      ],
+      [
+        'valid values',
+        '<xs:element name="Root"><xs:complexType><xs:sequence minOccurs="0" maxOccurs="unbounded">' +
+          '<xs:element name="a" type="xs:string" minOccurs="+0" maxOccurs="007"/></xs:sequence></xs:complexType></xs:element>',
+      ],
+    ])('should report nothing for %s', (_label, elements) => {
+      expect(warningsFor(elements)).toEqual([]);
+    });
+  });
+
   describe('findUnreferencedSchemas', () => {
     it('should return the single file for a single schema', () => {
       const report = XmlSchemaAnalysisService.analyze({ 'root.xsd': makeSchema() });

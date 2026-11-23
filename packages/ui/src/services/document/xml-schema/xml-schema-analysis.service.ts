@@ -1,4 +1,6 @@
 import { ReportMessage, SchemaAnalysisReport } from '../../../models/datamapper/schema';
+import { NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
+import { XmlSchemaParticle } from '../../../xml-schema-ts/particle/XmlSchemaParticle';
 import { PathUtil } from '../../path-util';
 import { stronglyConnectedComponents } from './graph-util';
 
@@ -13,6 +15,16 @@ interface SchemaFileInfo {
   targetNamespace: string | null;
   directives: SchemaDirective[];
 }
+
+interface MalformedOccurrence {
+  component: string;
+  attribute: 'minOccurs' | 'maxOccurs';
+  value: string;
+}
+
+const OCCURRENCE_PARTICLES = new Set(['element', 'all', 'any', 'choice', 'sequence']);
+
+const UNREAD_SUBTREES = new Set(['annotation', 'override', 'alternative']);
 
 export interface DependencyEdge {
   from: string;
@@ -31,7 +43,8 @@ export interface XmlSchemaAnalysisReport extends SchemaAnalysisReport {
 
 /**
  * Analyzes XML Schema (XSD) files to determine inter-file dependencies,
- * detect circular includes, and compute a valid loading order.
+ * detect circular includes, and compute a valid loading order. It also reports malformed `minOccurs` /
+ * `maxOccurs` values as warnings, because each file is parsed here exactly once.
  *
  * @see XmlSchemaDocumentService.createXmlSchemaDocument
  */
@@ -39,20 +52,33 @@ export class XmlSchemaAnalysisService {
   /**
    * Analyzes dependency relationships among the provided XML Schema files.
    * Parses `xs:include` and `xs:import` directives, resolves schema locations,
-   * detects circular `xs:include` chains, and produces a topologically sorted load order.
+   * detects circular `xs:include` chains, and produces a topologically sorted load order. A `minOccurs` or
+   * `maxOccurs` value that {@link XmlSchemaParticle.parseMinOccurs} / {@link XmlSchemaParticle.parseMaxOccurs}
+   * rejects, on a component the schema parser reads it from, is reported as one warning; the parser then
+   * uses the default `1`.
    * @param definitionFiles - Map of file paths to XML Schema content strings
-   * @returns Analysis report with load order, dependency edges, and any errors
+   * @returns Analysis report with load order, dependency edges, and any errors and warnings
    */
   static analyze(definitionFiles: Record<string, string>): XmlSchemaAnalysisReport {
     const fileInfos = new Map<string, SchemaFileInfo>();
     const edges: DependencyEdge[] = [];
     const errors: ReportMessage[] = [];
+    const malformedOccurrenceWarnings: ReportMessage[] = [];
 
     for (const [filePath, content] of Object.entries(definitionFiles)) {
-      const { info, parseError } = XmlSchemaAnalysisService.parseSchemaFileInfo(filePath, content);
+      const { info, parseError, malformedOccurrences } = XmlSchemaAnalysisService.parseSchemaFileInfo(
+        filePath,
+        content,
+      );
       fileInfos.set(filePath, info);
       if (parseError) {
         errors.push({ message: parseError, filePath });
+      }
+      for (const { component, attribute, value } of malformedOccurrences) {
+        malformedOccurrenceWarnings.push({
+          message: `Invalid ${attribute} value "${value}" on ${component}; the default 1 is used.`,
+          filePath,
+        });
       }
     }
 
@@ -86,7 +112,7 @@ export class XmlSchemaAnalysisService {
     errors.push(...importNsErrors);
 
     const duplicateNsWarnings = XmlSchemaAnalysisService.detectDuplicateTargetNamespaces(fileInfos, edges);
-    warnings.push(...duplicateNsWarnings);
+    warnings.push(...duplicateNsWarnings, ...malformedOccurrenceWarnings);
 
     const loadOrder = XmlSchemaAnalysisService.topologicalSort(Object.keys(definitionFiles), edges);
 
@@ -110,8 +136,9 @@ export class XmlSchemaAnalysisService {
   private static parseSchemaFileInfo(
     filePath: string,
     content: string,
-  ): { info: SchemaFileInfo; parseError: string | null } {
+  ): { info: SchemaFileInfo; parseError: string | null; malformedOccurrences: MalformedOccurrence[] } {
     const directives: SchemaDirective[] = [];
+    const malformedOccurrences: MalformedOccurrence[] = [];
     let targetNamespace: string | null = null;
 
     try {
@@ -124,10 +151,12 @@ export class XmlSchemaAnalysisService {
         return {
           info: { filePath, targetNamespace, directives },
           parseError: `XML parse error in "${filePath}": ${message}`,
+          malformedOccurrences,
         };
       }
 
       targetNamespace = root.getAttribute('targetNamespace') || null;
+      XmlSchemaAnalysisService.collectMalformedOccurrences(root, malformedOccurrences);
 
       for (const child of Array.from(root.children)) {
         const localName = child.localName;
@@ -149,10 +178,59 @@ export class XmlSchemaAnalysisService {
       return {
         info: { filePath, targetNamespace, directives },
         parseError: `XML parse error in "${filePath}": ${message}`,
+        malformedOccurrences,
       };
     }
 
-    return { info: { filePath, targetNamespace, directives }, parseError: null };
+    return { info: { filePath, targetNamespace, directives }, parseError: null, malformedOccurrences };
+  }
+
+  private static collectMalformedOccurrences(parent: Element, found: MalformedOccurrence[]): void {
+    for (const child of Array.from(parent.children)) {
+      if (child.namespaceURI !== NS_XML_SCHEMA || UNREAD_SUBTREES.has(child.localName)) continue;
+      if (parent.localName === 'all' && child.localName !== 'element') continue;
+      if (parent.localName === 'redefine' && child.localName === 'element') continue;
+      if (XmlSchemaAnalysisService.isOccurrenceParticle(child)) {
+        XmlSchemaAnalysisService.checkOccurrence(child, 'minOccurs', found);
+        XmlSchemaAnalysisService.checkOccurrence(child, 'maxOccurs', found);
+      }
+      XmlSchemaAnalysisService.collectMalformedOccurrences(child, found);
+    }
+  }
+
+  private static isOccurrenceParticle(el: Element): boolean {
+    if (el.localName === 'group') {
+      return el.hasAttribute('ref');
+    }
+    return OCCURRENCE_PARTICLES.has(el.localName);
+  }
+
+  private static checkOccurrence(
+    el: Element,
+    attribute: MalformedOccurrence['attribute'],
+    found: MalformedOccurrence[],
+  ): void {
+    const attr = el.getAttributeNode(attribute);
+    if (!attr) return;
+    const parsed =
+      attribute === 'maxOccurs'
+        ? XmlSchemaParticle.parseMaxOccurs(attr.value)
+        : XmlSchemaParticle.parseMinOccurs(attr.value);
+    if (parsed === null) {
+      found.push({ component: XmlSchemaAnalysisService.describeComponent(el), attribute, value: attr.value });
+    }
+  }
+
+  private static describeComponent(el: Element): string {
+    const name = el.getAttribute('name');
+    if (name) {
+      return `xs:${el.localName} name="${name}"`;
+    }
+    const ref = el.getAttribute('ref');
+    if (ref) {
+      return `xs:${el.localName} ref="${ref}"`;
+    }
+    return `xs:${el.localName}`;
   }
 
   private static resolveSchemaLocation(

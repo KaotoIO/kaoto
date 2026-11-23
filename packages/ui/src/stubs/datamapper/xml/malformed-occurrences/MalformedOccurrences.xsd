@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.example.com/MALFORMED"
+           xmlns:tns="http://www.example.com/MALFORMED"
+           xmlns:imp="http://www.example.com/MALFORMED-IMPORTED"
+           elementFormDefault="qualified">
+
+  <xs:import namespace="http://www.example.com/MALFORMED-IMPORTED" schemaLocation="MalformedOccurrencesImported.xsd"/>
+  <xs:include schemaLocation="MalformedOccurrencesCommon.xsd"/>
+
+  <xs:element name="Root">
+    <xs:annotation>
+      <xs:appinfo>
+        <xs:element name="Example" type="xs:string" maxOccurs="not-read"/>
+      </xs:appinfo>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="NotANumber" type="xs:string" maxOccurs="abc"/>
+        <xs:element name="Negative" type="xs:string" minOccurs="-1"/>
+        <xs:element name="TrailingText" type="xs:string" maxOccurs="3abc"/>
+        <xs:element name="Imported" type="imp:ImportedType"/>
+        <xs:element name="Common" type="tns:CommonType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

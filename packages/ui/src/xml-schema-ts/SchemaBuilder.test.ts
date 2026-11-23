@@ -308,6 +308,28 @@ describe('SchemaBuilder', () => {
 
       expect(schema.getGroups().get(q('G'))!.getParticle()).toBeInstanceOf(particleClass);
     });
+
+    it('keeps the default occurrences when the values are malformed', () => {
+      const schema = read(
+        '<xs:complexType name="C"><xs:sequence minOccurs="-1" maxOccurs="3abc">' +
+          '<xs:element name="a" type="xs:string"/></xs:sequence></xs:complexType>',
+      );
+
+      const sequence = complexType(schema, 'C').getParticle() as XmlSchemaSequence;
+      expect([sequence.getMinOccurs(), sequence.getMaxOccurs()]).toEqual([1, 1]);
+      expect([sequence.isMinOccursExplicit(), sequence.isMaxOccursExplicit()]).toEqual([false, false]);
+    });
+
+    it('applies valid occurrences and marks them explicit', () => {
+      const schema = read(
+        '<xs:complexType name="C"><xs:sequence minOccurs="0" maxOccurs=" unbounded ">' +
+          '<xs:element name="a" type="xs:string"/></xs:sequence></xs:complexType>',
+      );
+
+      const sequence = complexType(schema, 'C').getParticle() as XmlSchemaSequence;
+      expect([sequence.getMinOccurs(), sequence.getMaxOccurs()]).toEqual([0, 'unbounded']);
+      expect([sequence.isMinOccursExplicit(), sequence.isMaxOccursExplicit()]).toEqual([true, true]);
+    });
   });
 
   describe('complex content', () => {
