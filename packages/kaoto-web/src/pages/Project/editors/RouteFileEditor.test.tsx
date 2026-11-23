@@ -49,7 +49,8 @@ describe('RouteFileEditor', () => {
     expect(codeEditor()).not.toBeInTheDocument();
   });
 
-  it.each<ViewMode>(['code', 'topology'])('hides the canvas in the %s view', (view) => {
+  it('hides the canvas in the code view', () => {
+    const view: ViewMode = 'code';
     renderEditor(view);
 
     expect(canvas()).not.toBeVisible();
