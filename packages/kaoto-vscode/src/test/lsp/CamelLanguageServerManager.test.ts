@@ -767,6 +767,35 @@ suite('CamelLanguageServerManager', () => {
 			expect(manager.clients[0].notifications).to.be.empty;
 		});
 
+		test('sends the settings of the latest update, also when an older update ends its read later', async () => {
+			const reader = manager as unknown as { readSettings: () => Promise<CamelLspSettings> };
+			const originalReadSettings = reader.readSettings;
+			let endOlderRead: () => void = () => undefined;
+			// e.g. the start and an older update read the default catalog of a window of Maven projects, and a newer update,
+			// after a folder that is not a Maven project replaced one of them, reads the selected catalog before the older one ends
+			const readResults = [
+				Promise.resolve(MAIN_SETTINGS),
+				new Promise<CamelLspSettings>((resolve) => {
+					endOlderRead = () => resolve(MAIN_SETTINGS);
+				}),
+				Promise.resolve(QUARKUS_SETTINGS),
+			];
+			reader.readSettings = () => readResults.shift()!;
+			try {
+				await manager.start();
+
+				const olderUpdate = manager.updateSettings();
+				await manager.updateSettings();
+				endOlderRead();
+				await olderUpdate;
+
+				expect(manager.clients[0].initializations).to.deep.equal([MAIN_SETTINGS]);
+				expect(manager.clients[0].notifications).to.deep.equal([{ settings: QUARKUS_SETTINGS }]);
+			} finally {
+				reader.readSettings = originalReadSettings;
+			}
+		});
+
 		test('does not send settings on state change if client is no longer the active client', async () => {
 			await manager.start();
 			const firstClient = manager.clients[0];
