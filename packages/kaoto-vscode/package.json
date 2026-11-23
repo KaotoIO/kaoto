@@ -12,6 +12,7 @@
   "repositoryDirectory": "packages/kaoto-vscode",
   "bugs": "https://github.com/KaotoIO/kaoto/issues",
   "homepage": "https://kaoto.io/",
+  "qna": "https://github.com/KaotoIO/kaoto/discussions",
   "author": "The Kaoto Team",
   "scripts": {
     "build": "yarn workspace @kaoto/kaoto build:webview && rimraf dist && yarn run compile",
@@ -82,19 +83,39 @@
     "sha256": "4e35085b7f87e9f6647291a30c5fde8b63e79a2150279f96fc7a12fa61174307"
   },
   "icon": "icon.png",
+  "galleryBanner": {
+    "color": "#151515",
+    "theme": "dark"
+  },
   "main": "./dist/extension/extension.js",
   "browser": "./dist/extension/extensionWeb.js",
   "engines": {
     "vscode": "^1.100.0"
   },
   "categories": [
-    "Other"
+    "Visualization",
+    "Testing",
+    "Programming Languages"
   ],
   "keywords": [
     "Kaoto",
     "Apache Camel",
     "Low Code Integration",
-    "No Code Integration"
+    "No Code Integration",
+    "Camel",
+    "Integration",
+    "Enterprise Integration Patterns",
+    "EIP",
+    "Route Designer",
+    "Kamelet",
+    "Pipe",
+    "Citrus",
+    "DataMapper",
+    "Data Mapping",
+    "OpenAPI",
+    "REST",
+    "Camel YAML",
+    "Camel XML"
   ],
   "activationEvents": [
     "workspaceContains:**/*.camel.yaml",
