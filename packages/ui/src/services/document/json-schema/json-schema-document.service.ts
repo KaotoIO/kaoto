@@ -308,7 +308,8 @@ export class JsonSchemaDocumentService {
 
     if (schema.$ref) {
       this.handleSchemaRef(field, schema.$ref, schema);
-      this.assignRefTypeQName(field, schema.$ref);
+      // the first declaration names the type: a later $ref doesn't rename a field that has a typeQName already
+      if (field.typeQName === null) this.assignRefTypeQName(field, schema.$ref);
     } else {
       this.assignTypeMetadata(field, schema, fieldType);
     }
@@ -634,6 +635,7 @@ export class JsonSchemaDocumentService {
     fragment: JsonSchemaField | JsonSchemaTypeFragment,
   ): JsonSchemaField | JsonSchemaTypeFragment {
     const traversedType = this.traverseFieldType(fragment);
+    this.dropRefsOfOtherTypes(fragment, traversedType);
     let updatedFragment = fragment;
     if (fragment instanceof JsonSchemaField) {
       updatedFragment = this.ensureFieldType(fragment, traversedType);
@@ -660,6 +662,29 @@ export class JsonSchemaDocumentService {
     }
 
     return updatedFragment;
+  }
+
+  /**
+   * A field or type fragment keeps the type it gets first: a `$ref` to a definition of another type, such as a second
+   * tuple item, would otherwise switch the type when the field is expanded, while its name stays the one of the first
+   * type. A `$ref` to a definition of the same type, or of no type, still adds to it.
+   *
+   * The first type known when the fields are populated wins. The type of a `$ref` is known only afterwards, so in
+   * `anyOf: [{ $ref: '#/definitions/Foo' }, { type: 'string' }]` the field is a string and the ref to `Foo` is dropped.
+   * @param type - the type of `holder`, its own or the one of its first typed ref
+   */
+  private dropRefsOfOtherTypes(holder: JsonSchemaField | JsonSchemaTypeFragment, type: Types): void {
+    if (type === Types.AnyType) return;
+    const isOtherType = (ref: string) => {
+      const referenced = this.jsonDocument.namedTypeFragments[ref];
+      if (!referenced) return false;
+      const referencedType = this.traverseFieldType(referenced);
+      return referencedType !== Types.AnyType && referencedType !== type;
+    };
+    const otherTypeRefs = holder.namedTypeFragmentRefs.filter(isOtherType);
+    if (otherTypeRefs.length === 0) return;
+    holder.namedTypeFragmentRefs = holder.namedTypeFragmentRefs.filter((ref) => !otherTypeRefs.includes(ref));
+    holder.optionalFragmentRefs = holder.optionalFragmentRefs?.filter((ref) => !otherTypeRefs.includes(ref));
   }
 
   private traverseFieldType(fragment: JsonSchemaField | JsonSchemaTypeFragment): Types {

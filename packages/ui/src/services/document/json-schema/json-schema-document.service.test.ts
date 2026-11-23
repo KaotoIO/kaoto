@@ -20,6 +20,7 @@ import { DocumentUtilService } from '../document-util.service';
 import { FieldOverrideService } from '../field-override.service';
 import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
+import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
 
 function createTestJsonDocument(documentType: DocumentType, documentId: string, content: string): JsonSchemaDocument {
   const definition = new DocumentDefinition(
@@ -824,17 +825,85 @@ describe('JsonSchemaDocumentService', () => {
       (doc: JsonSchemaDocument) => doc.fields[0].fields[0],
     ],
     [
+      'tuple array items with a $ref to another type after a type',
+      {
+        type: 'array',
+        items: [{ type: 'string' }, { $ref: '#/definitions/Num' }],
+        definitions: { Num: { type: 'number' } },
+      } as JSONSchema7,
+      (doc: JsonSchemaDocument) => DocumentUtilService.resolveTypeFragment(doc.fields[0].fields[0]) as JsonSchemaField,
+    ],
+    [
       'a type list in which another type comes first',
       { type: 'object', properties: { v: { type: ['null', 'string'] } } } as JSONSchema7,
       (doc: JsonSchemaDocument) => doc.fields[0].fields.find((f) => f.key === 'v')!,
     ],
-  ])('should take the typeQName from the type the field gets for %s', (_desc, schema, getField) => {
-    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    [
+      'tuple array items with $refs to two types',
+      {
+        type: 'array',
+        items: [{ $ref: '#/definitions/Str' }, { $ref: '#/definitions/Num' }],
+        definitions: { Str: { type: 'string' }, Num: { type: 'number' } },
+      } as JSONSchema7,
+      (doc: JsonSchemaDocument) => DocumentUtilService.resolveTypeFragment(doc.fields[0].fields[0]) as JsonSchemaField,
+      Types.String,
+      '#/definitions/Str',
+    ],
+    [
+      'an object that also has a $ref',
+      {
+        type: 'object',
+        properties: { addr: { type: 'object', $ref: '#/definitions/Address' } },
+        definitions: { Address: { type: 'object', properties: { street: { type: 'string' } } } },
+      } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields.find((f) => f.key === 'addr')!,
+      Types.Container,
+      '#/definitions/Address',
+    ],
+  ] as [string, JSONSchema7, (doc: JsonSchemaDocument) => JsonSchemaField, Types?, string?][])(
+    'should take the typeQName from the type the field gets for %s',
+    (_desc, schema, getField, type = Types.String, typeQName = 'string') => {
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
 
-    const field = getField(doc);
-    expect(field.type).toBe(Types.String);
-    expect(field.typeQName?.getLocalPart()).toBe('string');
-  });
+      const field = getField(doc);
+      expect(field.type).toBe(type);
+      expect(field.typeQName?.getLocalPart()).toBe(typeQName);
+      expect(field.name).toBe(JsonSchemaDocumentUtilService.toXsltTypeName(type));
+    },
+  );
+
+  it.each([
+    [
+      'an untyped anyOf of $refs to an object and a string',
+      {
+        anyOf: [{ $ref: '#/definitions/Model' }, { $ref: '#/definitions/Status' }],
+      },
+      Types.Container,
+    ],
+    ['a $ref to a string definition with an anyOf $ref to a number', { $ref: '#/definitions/Id' }, Types.String],
+  ] as [string, JSONSchema7, Types][])(
+    'should keep the type of a field that gets it from %s when it is expanded',
+    (_desc, valueSchema, type) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        properties: { value: valueSchema },
+        definitions: {
+          Model: { type: 'object', properties: { name: { type: 'string' } } },
+          Status: { type: 'string', enum: ['active', 'inactive'] },
+          Id: { type: 'string', anyOf: [{ $ref: '#/definitions/NumericId' }] },
+          NumericId: { type: 'number' },
+        },
+      };
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      const value = DocumentUtilService.resolveTypeFragment(
+        doc.fields[0].fields.find((f) => f.key === 'value')!,
+      ) as JsonSchemaField;
+
+      expect(value.type).toBe(type);
+      expect(value.name).toBe(JsonSchemaDocumentUtilService.toXsltTypeName(type));
+    },
+  );
 
   it.each([
     ['as its own $ref', { $ref: '#/definitions/Address' }, 1],
