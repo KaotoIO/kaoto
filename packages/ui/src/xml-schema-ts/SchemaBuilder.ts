@@ -1106,6 +1106,10 @@ export class SchemaBuilder {
     }
   }
 
+  /**
+   * Binds `type="..."` to the first type with that QName in the collection. The binding is not scoped to an entry
+   * schema: the entry is selected after parsing, and the document layer resolves named types against it.
+   */
   private handleElementGlobalType(el: Element, element: XmlSchemaElement) {
     if (el.getAttributeNode('type') != null) {
       const typeName = el.getAttribute('type')!;

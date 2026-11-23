@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:t="urn:t" targetNamespace="urn:t">
+  <xs:element name="MS" type="t:CT" substitutionGroup="t:H"/>
+  <xs:element name="AM" type="t:CT" substitutionGroup="t:AH"/>
+  <xs:element name="MSC" type="t:Code" substitutionGroup="t:HC"/>
+  <xs:simpleType name="SCode">
+    <xs:restriction base="t:Code"/>
+  </xs:simpleType>
+  <xs:element name="S">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="F" type="t:Code"/>
+        <xs:element name="F2" type="t:SCode"/>
+        <xs:group ref="t:G"/>
+      </xs:sequence>
+      <xs:attribute name="s" type="t:Code"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

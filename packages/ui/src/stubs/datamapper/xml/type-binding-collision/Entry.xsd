@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:t="urn:t" targetNamespace="urn:t">
+  <xs:include schemaLocation="Types.xsd"/>
+  <xs:include schemaLocation="Members.xsd"/>
+  <xs:element name="H" type="t:Base"/>
+  <xs:element name="AH" abstract="true" type="t:Base"/>
+  <xs:element name="HC" type="t:Code"/>
+  <xs:element name="M" type="t:CT" substitutionGroup="t:H"/>
+  <xs:element name="R">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="E" type="t:Code"/>
+        <xs:element ref="t:H"/>
+        <xs:element ref="t:AH"/>
+        <xs:element ref="t:HC"/>
+        <xs:element ref="t:S"/>
+      </xs:sequence>
+      <xs:attribute name="a" type="t:Code"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

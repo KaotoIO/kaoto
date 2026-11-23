@@ -318,31 +318,33 @@ export class XmlSchemaTypesService {
     return undefined;
   }
 
+  /**
+   * Maps a simple type to its field type by following its restriction chain to a built-in type.
+   *
+   * `schemaType` must already be the type resolved in the entry scope, for example by
+   * {@link XmlSchemaDocumentUtilService.lookupSchemaType} or
+   * {@link XmlSchemaDocumentUtilService.resolveElementSchemaType}; it is not looked up again. Only the base types of
+   * its restriction chain are looked up, with `entrySchemaFile`.
+   *
+   * @param schemaType - The simple type, already resolved in the entry scope
+   * @param collection - The schema collection used to look up base types
+   * @param entrySchemaFile - Optional entry schema file that scopes the base type lookups
+   * @returns The field type, or {@link Types.AnyType} when the chain does not end in a built-in type
+   */
   static resolveSimpleTypeToEnum(
     schemaType: XmlSchemaSimpleType,
     collection?: XmlSchemaCollection,
     entrySchemaFile?: string,
   ): Types {
     const typeQName = schemaType.getQName();
-    if (!typeQName?.getLocalPart()) {
-      const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection, entrySchemaFile);
-      return resolved === Types.Container ? Types.AnyType : resolved;
+    if (typeQName?.getLocalPart()) {
+      const type = XmlSchemaDocumentUtilService.getFieldTypeFromName(
+        typeQName.getLocalPart()!,
+        typeQName.getNamespaceURI(),
+      );
+      if (type !== Types.Container) return type;
     }
-    const type = XmlSchemaDocumentUtilService.getFieldTypeFromName(
-      typeQName.getLocalPart()!,
-      typeQName.getNamespaceURI(),
-    );
-    if (type !== Types.Container) return type;
-    // The element may have been bound at parse time to a same-QName type from a schema outside the entry assembly.
-    const scopedType =
-      collection &&
-      entrySchemaFile &&
-      XmlSchemaDocumentUtilService.lookupSchemaType(collection, typeQName, entrySchemaFile);
-    const resolved = XmlSchemaTypesService.followRestrictionChain(
-      scopedType instanceof XmlSchemaSimpleType ? scopedType : schemaType,
-      collection,
-      entrySchemaFile,
-    );
+    const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection, entrySchemaFile);
     return resolved === Types.Container ? Types.AnyType : resolved;
   }
 

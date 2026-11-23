@@ -1,5 +1,5 @@
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { IFieldTypeOverride } from '../../../models/datamapper/metadata';
+import { IFieldSubstitution, IFieldTypeOverride } from '../../../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant, TypeDerivation, Types } from '../../../models/datamapper/types';
 import {
@@ -10,6 +10,7 @@ import {
   getSimpleTypeInheritanceXsd,
   getXmlStubFile,
   TestUtil,
+  TYPE_BINDING_COLLISION_NS,
 } from '../../../stubs/datamapper/data-mapper';
 import { XmlSchema, XmlSchemaCollection, XmlSchemaComplexType, XmlSchemaSimpleType } from '../../../xml-schema-ts';
 import { XmlSchemaComplexContent } from '../../../xml-schema-ts/complex/XmlSchemaComplexContent';
@@ -1198,6 +1199,122 @@ describe('XmlSchemaTypesService', () => {
         expect(head?.fields.map((f) => f.name)).toEqual(['b', 'fromTypes']);
       });
     });
+  });
+
+  describe('same-QName components in an unrelated attached file', () => {
+    type Unrelated = 'OtherSimpleKind' | 'OtherDifferentKind';
+    type Order = 'before' | 'after';
+    const NS = TYPE_BINDING_COLLISION_NS.t;
+    const ENTRY = 'Entry.xsd';
+    const CT_KEY = XmlSchemaDocumentUtilService.buildTypeFragmentKey('Types.xsd', new QName(NS, 'CT'));
+    const variants: Array<[Unrelated, Order]> = [
+      ['OtherSimpleKind', 'before'],
+      ['OtherSimpleKind', 'after'],
+      ['OtherDifferentKind', 'before'],
+      ['OtherDifferentKind', 'after'],
+    ];
+    const memberVariants: Array<[string, Unrelated, Order]> = [
+      ['M', 'OtherDifferentKind', 'before'],
+      ['M', 'OtherDifferentKind', 'after'],
+      ...variants.map(([unrelated, order]): [string, Unrelated, Order] => ['MS', unrelated, order]),
+    ];
+
+    const createDoc = (unrelated: Unrelated, order: Order, fieldSubstitutions?: IFieldSubstitution[]) => {
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+        TestUtil.createTypeBindingCollisionDefinition(unrelated, order, fieldSubstitutions),
+        TYPE_BINDING_COLLISION_NS,
+      );
+      expect(result.validationStatus).not.toBe('error');
+      return result.document as XmlSchemaDocument;
+    };
+    const candidatesOf = (doc: XmlSchemaDocument, headName: string) => {
+      const head = new XmlSchemaField(doc, headName, false);
+      head.namespaceURI = NS;
+      head.typeOverride = FieldOverrideVariant.NONE;
+      return XmlSchemaTypesService.getFieldSubstitutionCandidates(
+        head,
+        doc.xmlSchemaCollection,
+        TYPE_BINDING_COLLISION_NS,
+        ENTRY,
+      );
+    };
+
+    it.each(memberVariants)(
+      'getFieldSubstitutionCandidates() should give %s the CT of the entry assembly (%s, %s)',
+      (member, unrelated, order) => {
+        const candidate = candidatesOf(createDoc(unrelated, order), 'H')[`t:${member}`];
+
+        expect(candidate?.type).toBe(Types.Container);
+        expect(candidate?.namedTypeFragmentRefs).toEqual([CT_KEY]);
+      },
+    );
+
+    it.each(memberVariants)(
+      'findSubstitutionGroupHead() should give %s the head H and the CT of the entry assembly (%s, %s)',
+      (member, unrelated, order) => {
+        const doc = createDoc(unrelated, order);
+
+        const found = XmlSchemaTypesService.findSubstitutionGroupHead(
+          doc.fields[0],
+          member,
+          NS,
+          doc.xmlSchemaCollection,
+          ENTRY,
+        );
+
+        expect(found?.headField.name).toBe('H');
+        expect(found?.info.type).toBe(Types.Container);
+        expect(found?.info.namedTypeFragmentRefs).toEqual([CT_KEY]);
+      },
+    );
+
+    it.each(memberVariants)(
+      'a document with the substitution H -> %s should show the children of the entry assembly CT (%s, %s)',
+      (member, unrelated, order) => {
+        const doc = createDoc(unrelated, order, [{ schemaPath: '/t:R/t:H', name: `t:${member}`, originalName: 't:H' }]);
+
+        const substituted = doc.fields[0].fields.find((f) => f.name === member);
+        const resolved = substituted ? DocumentUtilService.resolveTypeFragment(substituted) : undefined;
+
+        expect(resolved?.fields.map((f) => f.name)).toEqual(['b', 'fromTypes']);
+      },
+    );
+
+    it.each(variants)(
+      'getFieldSubstitutionCandidates() should give the abstract member AM the CT of the entry assembly (%s, %s)',
+      (unrelated, order) => {
+        const candidate = candidatesOf(createDoc(unrelated, order), 'AH')['t:AM'];
+
+        expect(candidate?.type).toBe(Types.Container);
+        expect(candidate?.namedTypeFragmentRefs).toEqual([CT_KEY]);
+      },
+    );
+
+    it.each(variants)(
+      'should type the simple-typed member MSC from the entry assembly (%s, %s)',
+      (unrelated, order) => {
+        const doc = createDoc(unrelated, order);
+
+        const candidate = candidatesOf(doc, 'HC')['t:MSC'];
+        const found = XmlSchemaTypesService.findSubstitutionGroupHead(
+          doc.fields[0],
+          'MSC',
+          NS,
+          doc.xmlSchemaCollection,
+          ENTRY,
+        );
+
+        expect(candidate?.type).toBe(Types.Integer);
+        expect(found?.headField.name).toBe('HC');
+        expect(found?.info.type).toBe(Types.Integer);
+      },
+    );
+
+    it.todo('getFieldSubstitutionCandidates() should give MU the CT2 of MemberTypes.xsd (membership rule of #4483)');
+    it.todo(
+      'findSubstitutionGroupHead() should give MU the head H and the CT2 of MemberTypes.xsd (membership rule of #4483)',
+    );
+    it.todo('a document with the substitution H -> MU should show b, fromMemberTypes (membership rule of #4483)');
   });
 
   describe('determineOverrideVariant()', () => {
