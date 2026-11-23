@@ -1,5 +1,6 @@
 import { IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 
+import { AdapterEntry } from './files-adapter';
 import { generateId } from './generate-id';
 import { NewFile, StoredFile } from './stored-file';
 
@@ -90,15 +91,21 @@ export class FilesStore {
     return db.getAll(PROJECTS);
   }
 
+  /** All files and folders, sorted by path, without the content of the files */
+  async getEntries(): Promise<AdapterEntry[]> {
+    const entries = await this.getStoredEntries();
+    return entries.map(({ kind, path }) => ({ kind, path }));
+  }
+
   /** All files, sorted by path */
   async getFiles(): Promise<StoredFile[]> {
-    const entries = await this.getEntries();
+    const entries = await this.getStoredEntries();
     return entries.filter((entry): entry is StoredEntry & { kind: 'file' } => entry.kind === 'file').map(toFile);
   }
 
   /** All folder paths, sorted */
   async getFolders(): Promise<string[]> {
-    const entries = await this.getEntries();
+    const entries = await this.getStoredEntries();
     return entries.filter((entry) => entry.kind === 'folder').map(({ path }) => path);
   }
 
@@ -128,6 +135,32 @@ export class FilesStore {
     await this.write(async (content, now) => {
       await ensureParents(content, folderPath, now);
       await content.add(newFolder(folderPath, now));
+    });
+  }
+
+  /** The content of the file at the path; rejects when there is no file at the path */
+  async readFile(path: string): Promise<string> {
+    const { db, projectId } = await this.connect();
+    const entry = (await db.getFromIndex(contentStore(projectId), BY_PATH, path)) as StoredEntry | undefined;
+    if (entry?.kind !== 'file') throw new Error(`The file ${path} does not exist`);
+    return entry.content;
+  }
+
+  /** Like `updateFile`, for the file at the path; the path is looked up in the same transaction */
+  async updateFileAt(path: string, content: string): Promise<StoredFile> {
+    return this.modifyFileAt(path, (existing, now) => ({ ...existing, content, updatedAt: now }));
+  }
+
+  /** Like `renameFile`, for the file at the path; the path is looked up in the same transaction */
+  async renameFileAt(path: string, newPath: string): Promise<StoredFile> {
+    return this.modifyFileAt(path, (existing, now) => ({ ...existing, path: newPath, updatedAt: now }), newPath);
+  }
+
+  /** Deletes the file at the path; rejects when there is no file at the path */
+  async deleteFileAt(path: string): Promise<void> {
+    await this.write(async (content) => {
+      const existing = await fileAt(content, path);
+      await content.delete(existing.id);
     });
   }
 
@@ -184,7 +217,8 @@ export class FilesStore {
   }
 
   /**
-   * Deletes the folder with every folder and file under it, in one transaction: either all of them or none.
+   * Deletes the folder with every folder and file under it, in one transaction: either all of them or none. Rejects
+   * when a file is at the path, so that a file is never deleted as a folder.
    *
    * @param folderPath `/`-separated, without a leading or trailing `/`
    * @returns the ids of the deleted files
@@ -192,10 +226,11 @@ export class FilesStore {
   async deleteFolder(folderPath: string): Promise<string[]> {
     return this.write(async (content) => {
       const index = content.index(BY_PATH);
+      const folder = (await index.get(folderPath)) as StoredEntry | undefined;
+      if (folder?.kind === 'file') throw new Error(`${folderPath} is a file`);
       const entries = (await index.getAll(pathsUnder(folderPath))) as StoredEntry[];
-      const folderId = await index.getKey(folderPath);
       const ids = entries.map(({ id }) => id);
-      await Promise.all([...ids, ...(folderId ? [folderId] : [])].map((id) => content.delete(id)));
+      await Promise.all([...ids, ...(folder ? [folder.id] : [])].map((id) => content.delete(id)));
       return entries.filter(({ kind }) => kind === 'file').map(({ id }) => id);
     });
   }
@@ -210,7 +245,7 @@ export class FilesStore {
       .catch(() => undefined);
   }
 
-  private async getEntries(): Promise<StoredEntry[]> {
+  private async getStoredEntries(): Promise<StoredEntry[]> {
     const { db, projectId } = await this.connect();
     // An index returns its records in key order
     return db.getAllFromIndex(contentStore(projectId), BY_PATH);
@@ -244,6 +279,21 @@ export class FilesStore {
       if (existing?.kind !== 'file') {
         throw new Error(`The file ${id} does not exist`);
       }
+      if (newPath) await ensureParents(content, newPath, now);
+      const modified = modify(existing, now);
+      await content.put(modified);
+      return toFile(modified);
+    });
+  }
+
+  /** Reads the file at the path and writes its modified copy in one transaction */
+  private async modifyFileAt(
+    path: string,
+    modify: (existing: StoredEntry & { kind: 'file' }, now: number) => StoredEntry & { kind: 'file' },
+    newPath?: string,
+  ): Promise<StoredFile> {
+    return this.write(async (content, now) => {
+      const existing = await fileAt(content, path);
       if (newPath) await ensureParents(content, newPath, now);
       const modified = modify(existing, now);
       await content.put(modified);
@@ -368,6 +418,16 @@ function createContentStore(db: Db, projectId: string): void {
 
 function newFolder(path: string, now: number): StoredFolder {
   return { id: generateId(), path, kind: 'folder', createdAt: now, updatedAt: now };
+}
+
+/** The file at the path; rejects when there is none, also when a folder is at the path */
+async function fileAt(
+  content: ReturnType<WriteTx['objectStore']>,
+  path: string,
+): Promise<StoredEntry & { kind: 'file' }> {
+  const existing = (await content.index(BY_PATH).get(path)) as StoredEntry | undefined;
+  if (existing?.kind !== 'file') throw new Error(`The file ${path} does not exist`);
+  return existing;
 }
 
 /** Adds the missing parent folders of the path; rejects when a parent is a file */

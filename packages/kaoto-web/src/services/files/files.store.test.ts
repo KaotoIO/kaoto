@@ -283,6 +283,67 @@ describe('FilesStore', () => {
     });
   });
 
+  describe('by path', () => {
+    it('lists the files and folders without their content', async () => {
+      await store.createFolder('empty');
+      await store.createFile({ path: 'a/b.yaml', content: 'x' });
+
+      expect(await store.getEntries()).toEqual([
+        { kind: 'folder', path: 'a' },
+        { kind: 'file', path: 'a/b.yaml' },
+        { kind: 'folder', path: 'empty' },
+      ]);
+    });
+
+    it('reads the content of a file by its path', async () => {
+      await store.createFile({ path: 'a/b.yaml', content: 'x' });
+
+      expect(await store.readFile('a/b.yaml')).toBe('x');
+    });
+
+    it('updates a file by its path and moves its update time', async () => {
+      const now = vi.spyOn(Date, 'now').mockReturnValue(1000);
+      const file = await store.createFile({ path: 'a.yaml', content: 'x' });
+      now.mockReturnValue(2000);
+
+      const updated = await store.updateFileAt('a.yaml', 'y');
+      now.mockRestore();
+
+      expect(updated).toEqual({ ...file, content: 'y', updatedAt: 2000 });
+    });
+
+    it('renames a file by its path, keeps its id and creates the missing parents', async () => {
+      const file = await store.createFile({ path: 'a.yaml', content: 'x' });
+
+      const renamed = await store.renameFileAt('a.yaml', 'routes/b.yaml');
+
+      expect(renamed).toMatchObject({ id: file.id, path: 'routes/b.yaml', content: 'x' });
+      expect(await store.getFolders()).toEqual(['routes']);
+    });
+
+    it('deletes a file by its path', async () => {
+      await store.createFile({ path: 'a.yaml', content: '' });
+      await store.createFile({ path: 'b.yaml', content: '' });
+
+      await store.deleteFileAt('a.yaml');
+
+      expect((await store.getFiles()).map(({ path }) => path)).toEqual(['b.yaml']);
+    });
+
+    it.each<[string, (store: FilesStore, path: string) => Promise<unknown>]>([
+      ['reading', (s, path) => s.readFile(path)],
+      ['updating', (s, path) => s.updateFileAt(path, '')],
+      ['renaming', (s, path) => s.renameFileAt(path, 'moved.yaml')],
+      ['deleting', (s, path) => s.deleteFileAt(path)],
+    ])('rejects %s a path without a file, also a folder path', async (_, change) => {
+      await store.createFolder('folder');
+
+      await expect(change(store, 'missing.yaml')).rejects.toThrow('The file missing.yaml does not exist');
+      await expect(change(store, 'folder')).rejects.toThrow('The file folder does not exist');
+      expect(await store.getFolders()).toEqual(['folder']);
+    });
+  });
+
   describe('timestamps', () => {
     const at = (time: number) => vi.spyOn(Date, 'now').mockReturnValue(time);
     const project = async () => (await store.getProjects())[0];
