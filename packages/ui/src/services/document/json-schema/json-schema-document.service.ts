@@ -267,6 +267,11 @@ export class JsonSchemaDocumentService {
 
     const definition = JsonSchemaDocumentUtilService.resolveJsonSchemaReference(ref);
 
+    if (definition === true) {
+      // allows any value, like an empty definition does
+      this.jsonDocument.namedTypeFragments[fullRef] = { type: Types.AnyType, fields: [], namedTypeFragmentRefs: [] };
+      return;
+    }
     if (!definition || typeof definition === 'boolean') {
       throw new Error(`Cannot resolve definition at ${fullRef}: Path not found or empty definition`);
     }
@@ -328,9 +333,13 @@ export class JsonSchemaDocumentService {
   private populateTypeFragmentsFromDefinition(parent: JsonSchemaParentType, schema: JsonSchemaMetadata) {
     const definitions = { ...schema.$defs, ...schema.definitions };
     for (const [definitionName, definitionSchema] of Object.entries(definitions)) {
-      if (typeof definitionSchema === 'boolean' || Object.keys(definitionSchema).length === 0) continue;
       const path =
         schema.path + (schema.$defs && definitionName in schema.$defs ? '/$defs/' : '/definitions/') + definitionName;
+      if (typeof definitionSchema === 'boolean' || Object.keys(definitionSchema).length === 0) {
+        // allows any value, like an empty or true definition in another file does
+        this.jsonDocument.namedTypeFragments[path] = { type: Types.AnyType, fields: [], namedTypeFragmentRefs: [] };
+        continue;
+      }
       const definitionSchemaMeta: JsonSchemaMetadata = {
         ...definitionSchema,
         identifier: schema.identifier,

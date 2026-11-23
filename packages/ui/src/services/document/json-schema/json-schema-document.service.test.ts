@@ -723,7 +723,7 @@ describe('JsonSchemaDocumentService', () => {
     it.each<[string, JSONSchema7Definition]>([
       ['boolean', true],
       ['empty', {}],
-    ])('should not register a %s definition as a type fragment', (_kind, definition) => {
+    ])('should register a %s definition as a type fragment of any type', (_kind, definition) => {
       const schema: JSONSchema7 = {
         type: 'object',
         definitions: { Anything: definition },
@@ -731,7 +731,9 @@ describe('JsonSchemaDocumentService', () => {
 
       const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
 
-      expect(doc.namedTypeFragments).toEqual({});
+      expect(doc.namedTypeFragments).toEqual({
+        '#/definitions/Anything': { type: Types.AnyType, fields: [], namedTypeFragmentRefs: [] },
+      });
     });
   });
 
@@ -755,6 +757,23 @@ describe('JsonSchemaDocumentService', () => {
     const xField = doc.fields[0].fields.find((f) => f.key === 'x');
     expect(doc.namedTypeFragments['#/definitions/Real']).toBeDefined();
     expect(xField!.type).toBe(Types.Container);
+  });
+
+  it.each([
+    ['an empty definition', {}],
+    ['a boolean definition', true],
+  ])('should give a field that refers to %s any type', (_desc, emptyDefinition) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      definitions: { AnyValue: emptyDefinition },
+      properties: { payload: { $ref: '#/definitions/AnyValue' } },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const payload = doc.fields[0].fields.find((f) => f.key === 'payload')!;
+    expect(payload.type).toBe(Types.AnyType);
+    expect(() => DocumentUtilService.resolveTypeFragment(payload)).not.toThrow();
   });
 
   it.each([
@@ -1061,6 +1080,19 @@ describe('JsonSchemaDocumentService', () => {
       expect(amount!.type).toBe(Types.Numeric);
     });
 
+    it('should give a field that refers to a true definition in another file any type', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'multiTestTrue', {
+        'Main.schema.json': JSON.stringify({
+          type: 'object',
+          properties: { payload: { $ref: 'Other.schema.json#/definitions/AnyValue' } },
+        }),
+        'Other.schema.json': JSON.stringify({ definitions: { AnyValue: true } }),
+      });
+
+      const payload = doc.fields[0].fields.find((f) => f.key === 'payload')!;
+      expect(payload.type).toBe(Types.AnyType);
+    });
+
     it('should create the document for circular references across files', () => {
       const doc = createMultiSchemaDocument(DocumentType.PARAM, 'circular', {
         'CircularA.schema.json': getCircularAJsonSchema(),
@@ -1222,7 +1254,7 @@ describe('JsonSchemaDocumentService', () => {
 
     it.each<[string, string]>([
       ['does not exist', 'Missing'],
-      ['is a boolean schema', 'Flag'],
+      ['is the false schema', 'Flag'],
     ])('should throw when an external $ref points to a definition that %s', (_case, definitionName) => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
@@ -1233,7 +1265,7 @@ describe('JsonSchemaDocumentService', () => {
             type: 'object',
             properties: { other: { $ref: `./Other.json#/definitions/${definitionName}` } },
           }),
-          'Other.json': JSON.stringify({ type: 'object', definitions: { Flag: true } }),
+          'Other.json': JSON.stringify({ type: 'object', definitions: { Flag: false } }),
         },
       );
 
