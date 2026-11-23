@@ -47,6 +47,8 @@ export class CamelLanguageServerManager {
 	private settings: CamelLspSettings | undefined;
 	/** The settings that the server got, as JSON. */
 	private sentSettings: string | undefined;
+	/** The number of the latest updateSettings() call: the settings of an older call, read later, are older and dropped. */
+	private settingsUpdate = 0;
 	private outputChannel: vscode.LogOutputChannel | undefined;
 	private starting: Promise<void> | undefined;
 	private startAbort: AbortController | undefined;
@@ -207,8 +209,10 @@ export class CamelLanguageServerManager {
 	/**
 	 * Reads the settings, once a start in progress is done, and sends them to the running server when they changed.
 	 * A server that is not running gets them when it starts, also when its client restarts it.
+	 * When calls overlap, the settings of the latest call win, also when an older call ends its read later.
 	 */
 	async updateSettings(): Promise<void> {
+		const update = ++this.settingsUpdate;
 		await this.starting?.catch(() => undefined);
 		const client = this.languageClient;
 		if (!client) {
@@ -216,8 +220,8 @@ export class CamelLanguageServerManager {
 		}
 		try {
 			const settings = await this.readSettings();
-			// a client created meanwhile read them at its start
-			if (client === this.languageClient) {
+			// a client created meanwhile read them at its start, and a later call read them after the changes that it follows
+			if (client === this.languageClient && update === this.settingsUpdate) {
 				this.settings = settings;
 				await this.sendSettings(client);
 			}
