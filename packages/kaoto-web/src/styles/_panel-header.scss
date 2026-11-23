@@ -1,0 +1,65 @@
+// The header bar of a panel, like the one of the Explorer: a heading on the left, small ghost icon buttons on the right.
+// In the Kaoto theme it is a bar in the accent colour (`accent-header`) with rounded top corners.
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
+@use 'kaoto-theme' as kaoto;
+
+/// The bar; include it in the rule of the header element at the top of a floating card
+@mixin panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-03;
+
+  // At least as high as a small icon button inside the padding, so a header without buttons is as high as one with
+  // them. The content box only applies to the bar: its children keep Carbon's border box.
+  box-sizing: content-box;
+  min-block-size: $spacing-07;
+  padding-inline: $spacing-05 $spacing-03;
+  padding-block: $spacing-02;
+  flex-shrink: 0;
+  background-color: $background;
+  border-block-end: 1px solid $border-subtle-01;
+
+  > * {
+    box-sizing: border-box;
+  }
+
+  @include kaoto.kaoto-theme {
+    @include kaoto.accent-header($rounded-top: true);
+
+    border-block-end: none;
+
+    // Slightly bolder lines for the icons
+    .cds--btn--ghost svg {
+      stroke: var(--cs-on-accent);
+      stroke-width: 1px;
+    }
+  }
+
+  // In the dark theme the tooltips are light: a border and a shadow set them apart from light content below the bar,
+  // like the search field of the Explorer
+  @include kaoto.kaoto-theme-dark {
+    .cds--popover-content {
+      outline: 1px solid $border-strong;
+      box-shadow: 0 2px 6px $shadow;
+    }
+  }
+}
+
+/// The heading in the bar; long text ends in an ellipsis
+@mixin panel-heading {
+  @include type-style('label-01');
+
+  overflow: hidden;
+  margin: 0;
+  color: $text-secondary;
+  font-weight: font-weight('semibold');
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @include kaoto.kaoto-theme {
+    color: var(--cs-on-accent);
+  }
+}
