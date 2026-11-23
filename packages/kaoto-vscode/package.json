@@ -79,8 +79,8 @@
     "webpack-merge": "6.0.1"
   },
   "camelLanguageServer": {
-    "version": "1.36.0",
-    "sha256": "4e35085b7f87e9f6647291a30c5fde8b63e79a2150279f96fc7a12fa61174307"
+    "version": "1.37.0",
+    "sha256": "ad263dd0557662e07bab7e85ae346c5535de47829eaa6217bba8380fbb5c387b"
   },
   "icon": "icon.png",
   "galleryBanner": {
