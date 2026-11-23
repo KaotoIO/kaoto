@@ -11,11 +11,18 @@ import { FieldOverrideVariant, IFieldSubstituteInfo, Types } from '../../models/
 import { QName } from '../../xml-schema-ts/QName';
 import { SchemaPathService } from '../schema-path.service';
 
+/**
+ * Parses a type override string into the overriding type of a field.
+ *
+ * `namedTypeFragmentRefs` are the keys of the type's fragment in {@link IDocument.namedTypeFragments}. Each schema
+ * format builds its own key, e.g. the XML Schema side scopes it by the declaring schema file, so callers treat the
+ * keys as opaque. They are only read when `type` is {@link Types.Container}.
+ */
 export type ParseTypeOverrideFn = (
   typeString: string,
   namespaceMap: Record<string, string>,
   field: IField,
-) => { type: Types; typeQName: QName; variant: FieldOverrideVariant };
+) => { type: Types; typeQName: QName; variant: FieldOverrideVariant; namedTypeFragmentRefs: string[] };
 
 export type ResolveSubstituteFn = (
   document: IDocument,
@@ -440,7 +447,7 @@ export class DocumentUtilService {
   ): void {
     field.originalField ??= DocumentUtilService.captureOriginalFieldState(field);
 
-    const { type, typeQName, variant } = parseTypeOverride(typeString, namespaceMap, field);
+    const { type, typeQName, variant, namedTypeFragmentRefs } = parseTypeOverride(typeString, namespaceMap, field);
 
     field.type = type;
     field.typeQName = typeQName;
@@ -449,7 +456,7 @@ export class DocumentUtilService {
     field.fields = [];
 
     if (type === Types.Container) {
-      field.namedTypeFragmentRefs = [typeQName.toString()];
+      field.namedTypeFragmentRefs = [...namedTypeFragmentRefs];
       // Eagerly resolve type fragment so children are immediately available
       DocumentUtilService.resolveTypeFragment(field);
     } else {
@@ -462,15 +469,15 @@ export class DocumentUtilService {
    *
    * Reverses a type override or element substitution by restoring the field's
    * name, namespace, type, and child fields to their captured original values.
-   * For Container types whose children were not captured, eagerly resolves
-   * type fragments so children are immediately available.
+   * The original `namedTypeFragmentRefs` are restored as well, so children that were
+   * not captured are re-expanded from them by {@link resolveTypeFragment}.
    *
    * @param field - The field to restore
    */
   static restoreOriginalField(field: IField): void {
     const origType = field.originalField?.type ?? field.type;
     const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
-    const origRefs = field.originalField?.namedTypeFragmentRefs;
+    const origRefs = field.originalField?.namedTypeFragmentRefs ?? field.namedTypeFragmentRefs;
     const origFields = field.originalField?.fields;
 
     field.type = origType;
@@ -486,15 +493,7 @@ export class DocumentUtilService {
     field.originalField = undefined;
 
     field.fields = origFields ?? [];
-    if (origRefs !== undefined) {
-      field.namedTypeFragmentRefs = [...origRefs];
-    } else if (!origFields && origType === Types.Container && origTypeQName) {
-      field.namedTypeFragmentRefs = [origTypeQName.toString()];
-      // Eagerly resolve type fragment so children are immediately available
-      DocumentUtilService.resolveTypeFragment(field);
-    } else {
-      field.namedTypeFragmentRefs = [];
-    }
+    field.namedTypeFragmentRefs = [...origRefs];
     for (const child of field.fields) {
       if (child.typeOverride !== FieldOverrideVariant.NONE) {
         DocumentUtilService.restoreOriginalField(child);

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:t="urn:t" targetNamespace="urn:t">
+  <xs:complexType name="U">
+    <xs:sequence>
+      <xs:element name="fromA" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="S">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:group name="G">
+    <xs:sequence>
+      <xs:element name="groupFromA" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:complexType name="T">
+    <xs:sequence>
+      <xs:element name="u" type="t:U"/>
+      <xs:group ref="t:G"/>
+    </xs:sequence>
+    <xs:attribute name="s" type="t:S"/>
+  </xs:complexType>
+  <xs:element name="Root" type="t:T"/>
+</xs:schema>

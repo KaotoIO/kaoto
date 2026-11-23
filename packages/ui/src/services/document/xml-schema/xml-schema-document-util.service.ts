@@ -418,6 +418,53 @@ export class XmlSchemaDocumentUtilService {
   }
 
   /**
+   * Builds the key used to store a named type fragment in {@link IDocument.namedTypeFragments}.
+   * When `sourceURI` is provided, scopes the key as `<sourceURI>#<typeQName>`.
+   *
+   * @param sourceURI - The source URI / file path of the declaring schema, if available
+   * @param typeQName - The qualified name of the type
+   * @returns Fragment key string
+   */
+  static buildTypeFragmentKey(sourceURI: string | null | undefined, typeQName: QName): string {
+    const qNameStr = typeQName.toString();
+    return sourceURI ? `${sourceURI}#${qNameStr}` : qNameStr;
+  }
+
+  /**
+   * Builds the scoped key of a named type fragment from the declaring schema of `schemaType`.
+   * Falls back to the unscoped QName when the type has no declaring schema, e.g. when it is not found.
+   *
+   * @param schemaType - The schema type the fragment belongs to, if it was found
+   * @param typeQName - The qualified name of the type
+   * @returns Fragment key string
+   */
+  static buildTypeFragmentKeyOf(schemaType: XmlSchemaType | null | undefined, typeQName: QName): string {
+    return XmlSchemaDocumentUtilService.buildTypeFragmentKey(schemaType?.getParent()?.getSourceURI(), typeQName);
+  }
+
+  /**
+   * Resolves the type of an element. `element.getSchemaType()` is bound at parse time to the first type with that
+   * QName in the collection, so a named type is looked up again in the entry scope, falling back to the bound type.
+   *
+   * @param element - The element whose type is resolved
+   * @param collection - The schema collection to search
+   * @param entrySchemaFile - Optional entry schema file path
+   * @returns The type of the element, or null when it has none
+   */
+  static resolveElementSchemaType(
+    element: XmlSchemaElement,
+    collection: XmlSchemaCollection | undefined,
+    entrySchemaFile?: string,
+  ): XmlSchemaType | null {
+    const typeName = element.getSchemaTypeName();
+    const scopedType =
+      typeName && collection
+        ? XmlSchemaDocumentUtilService.lookupSchemaType(collection, typeName, entrySchemaFile)
+        : null;
+    return scopedType ?? element.getSchemaType();
+  }
+
+  /**
    * Checks if a namespace is a standard XML/XSD namespace that doesn't require
    * type fragment resolution.
    * @param namespace - The namespace URI to check

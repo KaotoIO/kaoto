@@ -26,12 +26,12 @@ export class JsonSchemaTypesService {
    * @param typeString - Type name or $ref path (e.g., "string", "#/definitions/Address")
    * @param _namespaceMap - Namespace map (unused for JSON Schema but kept for interface consistency)
    * @param field - The field being overridden (used to determine compatibility)
-   * @returns Object containing the mapped type, QName, and override variant
+   * @returns Object containing the mapped type, QName, override variant and, for a Container type, the type fragment key
    *
    * @example
    * ```typescript
    * const result = JsonSchemaTypesService.parseTypeOverride('number', {}, field);
-   * // result = { type: Types.Numeric, typeQName: QName, variant: FieldOverrideVariant.SAFE }
+   * // result = { type: Types.Numeric, typeQName: QName, variant: FieldOverrideVariant.SAFE, namedTypeFragmentRefs: [] }
    *
    * const refResult = JsonSchemaTypesService.parseTypeOverride('#/definitions/Address', {}, field);
    * // result = { type: Types.Container, typeQName: QName, variant: ... }
@@ -41,14 +41,16 @@ export class JsonSchemaTypesService {
     typeString: string,
     _namespaceMap: Record<string, string>,
     field: IField,
-  ): { type: Types; typeQName: QName; variant: FieldOverrideVariant } {
+  ): { type: Types; typeQName: QName; variant: FieldOverrideVariant; namedTypeFragmentRefs: string[] } {
     const type = typeString.startsWith('#/') ? Types.Container : JsonSchemaTypesService.mapTypeStringToEnum(typeString);
 
     const typeQName = new QName(null, typeString);
 
     const variant = JsonSchemaTypesService.determineOverrideVariant(field, type, typeString);
 
-    return { type, typeQName, variant };
+    const namedTypeFragmentRefs = type === Types.Container ? [typeQName.toString()] : [];
+
+    return { type, typeQName, variant, namedTypeFragmentRefs };
   }
 
   /**

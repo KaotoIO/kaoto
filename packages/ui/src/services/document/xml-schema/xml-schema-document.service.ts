@@ -203,7 +203,7 @@ export class XmlSchemaDocumentService {
    */
   static loadSchemaFiles(
     collection: XmlSchemaCollection,
-    analysis: { loadOrder: string[]; edges: Array<{ directive: { type: string }; to: string; from: string }> },
+    analysis: { loadOrder: string[]; edges: DependencyEdge[] },
     definitionFiles: Record<string, string>,
     selectedEntry?: string,
   ): { error?: { message: string; filePath?: string } } {
@@ -233,10 +233,7 @@ export class XmlSchemaDocumentService {
    * direct loading so the SchemaBuilder can process the cycle via its built-in
    * `collection.check(key)` guard.
    */
-  private static computeIncludeTargetsToSkip(
-    loadOrder: string[],
-    edges: Array<{ directive: { type: string }; to: string; from: string }>,
-  ): Set<string> {
+  private static computeIncludeTargetsToSkip(loadOrder: string[], edges: DependencyEdge[]): Set<string> {
     const includeEdges = edges.filter((e) => e.directive.type === 'include');
     const includeTargets = new Set(includeEdges.map((e) => e.to));
     const adjacencyMap = XmlSchemaDocumentService.buildIncludeAdjacency(includeEdges);
@@ -335,6 +332,8 @@ export class XmlSchemaDocumentService {
   /**
    * Adds additional schema files to an existing document's schema collection.
    * This is useful when field type overrides reference types defined in additional schema files.
+   * The dependency edges are recomputed from the existing definition files merged with the added ones,
+   * because the caller adds the new files to `document.definition.definitionFiles` only after this call.
    * @param document - The document whose schema collection will be updated
    * @param additionalFiles - Map of file paths to file contents to add
    */
@@ -342,7 +341,10 @@ export class XmlSchemaDocumentService {
     const collection = document.xmlSchemaCollection;
     collection.getSchemaResolver().addFiles(additionalFiles);
     XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, additionalFiles);
-    document.dependencyEdges = undefined;
+    document.dependencyEdges = XmlSchemaAnalysisService.analyze({
+      ...document.definition.definitionFiles,
+      ...additionalFiles,
+    }).edges;
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
     XmlSchemaDocumentService.rebuildAbstractWrapperChildren(document);
   }
@@ -563,15 +565,15 @@ export class XmlSchemaDocumentService {
     typeQName: QName,
     schemaType: XmlSchemaSimpleType,
   ) {
-    const typeFragmentName = typeQName.toString();
+    const scopedKey = XmlSchemaDocumentUtilService.buildTypeFragmentKeyOf(schemaType, typeQName);
 
-    if (document.namedTypeFragments[typeFragmentName]) {
+    if (document.namedTypeFragments[scopedKey]) {
       return;
     }
 
     const fields: XmlSchemaField[] = [];
     const typeFragment: XmlSchemaTypeFragment = { fields, namedTypeFragmentRefs: [] };
-    document.namedTypeFragments[typeFragmentName] = typeFragment;
+    document.namedTypeFragments[scopedKey] = typeFragment;
 
     const simpleContent = schemaType.getContent();
     simpleContent && XmlSchemaDocumentService.populateSimpleTypeContent(document, typeFragment, simpleContent);
@@ -582,15 +584,15 @@ export class XmlSchemaDocumentService {
     typeQName: QName,
     schemaType: XmlSchemaComplexType,
   ) {
-    const typeFragmentName = typeQName.toString();
+    const scopedKey = XmlSchemaDocumentUtilService.buildTypeFragmentKeyOf(schemaType, typeQName);
 
-    if (document.namedTypeFragments[typeFragmentName]) {
+    if (document.namedTypeFragments[scopedKey]) {
       return;
     }
 
     const fields: XmlSchemaField[] = [];
     const typeFragment: XmlSchemaTypeFragment = { type: Types.Container, fields, namedTypeFragmentRefs: [] };
-    document.namedTypeFragments[typeFragmentName] = typeFragment;
+    document.namedTypeFragments[scopedKey] = typeFragment;
 
     XmlSchemaDocumentService.populateContentModel(document, typeFragment, schemaType.getContentModel());
     const attributes = schemaType.getAttributes();
@@ -640,10 +642,12 @@ export class XmlSchemaDocumentService {
 
   /**
    * Populates all named type definitions (complexType and simpleType) from the schema into namedTypeFragments.
-   * Prioritizes schemas in the reachable assembly of entrySchemaFile so that active type definitions take precedence
-   * over unrelated attached schemas.
+   * Type definitions are keyed by their scoped key (`${sourceURI}#${typeQName}`), so same-QName types of different
+   * files do not compete for a key.
    *
-   * When two reachable schemas declare the same QName, the first registered wins.
+   * Schemas in the reachable assembly of entrySchemaFile are populated first because the fragments of global elements
+   * with an anonymous complex type are keyed by the element QName only (`__elem:` keys), and the first one registered
+   * wins.
    *
    * @param document - The document whose schema collection will be traversed and whose namedTypeFragments will be populated.
    *   Its `dependencyEdges` are used when present, otherwise they are derived from `definitionFiles`.
@@ -732,7 +736,11 @@ export class XmlSchemaDocumentService {
 
     ownerDoc.totalFieldCount++;
 
-    const schemaType = resolvedElement.getSchemaType();
+    const schemaType = XmlSchemaDocumentUtilService.resolveElementSchemaType(
+      resolvedElement,
+      ownerDoc.xmlSchemaCollection,
+      ownerDoc.definition?.entrySchemaFile,
+    );
     if (refTarget !== null && schemaType instanceof XmlSchemaComplexType && !schemaType.getQName()) {
       XmlSchemaDocumentService.populateGlobalElementFragment(ownerDoc, resolvedElement, schemaType, field);
     } else {
@@ -827,8 +835,9 @@ export class XmlSchemaDocumentService {
       field.typeQName = typeQName;
       const namespace = typeQName.getNamespaceURI();
       if (!XmlSchemaDocumentUtilService.isStandardXmlNamespace(namespace)) {
-        if (!field.namedTypeFragmentRefs.includes(typeQName.toString())) {
-          field.namedTypeFragmentRefs.push(typeQName.toString());
+        const fragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKeyOf(schemaType, typeQName);
+        if (!field.namedTypeFragmentRefs.includes(fragmentKey)) {
+          field.namedTypeFragmentRefs.push(fragmentKey);
         }
       }
       return;
@@ -934,20 +943,13 @@ export class XmlSchemaDocumentService {
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
     const attrSchemaTypeQName = attr.getSchemaTypeName();
+    const entrySchemaFile = ownerDoc.definition?.entrySchemaFile;
     const attrSchemaType =
       attrSchemaTypeQName &&
-      XmlSchemaDocumentUtilService.lookupSchemaType(
-        ownerDoc.xmlSchemaCollection,
-        attrSchemaTypeQName,
-        ownerDoc.definition?.entrySchemaFile,
-      );
+      XmlSchemaDocumentUtilService.lookupSchemaType(ownerDoc.xmlSchemaCollection, attrSchemaTypeQName, entrySchemaFile);
     field.type =
       attrSchemaType instanceof XmlSchemaSimpleType
-        ? XmlSchemaTypesService.resolveSimpleTypeToEnum(
-            attrSchemaType,
-            ownerDoc.xmlSchemaCollection,
-            ownerDoc.definition?.entrySchemaFile,
-          )
+        ? XmlSchemaTypesService.resolveSimpleTypeToEnum(attrSchemaType, ownerDoc.xmlSchemaCollection, entrySchemaFile)
         : XmlSchemaDocumentUtilService.getFieldTypeFromName(
             attrSchemaTypeQName?.getLocalPart() || null,
             attrSchemaTypeQName?.getNamespaceURI() || null,
@@ -960,8 +962,11 @@ export class XmlSchemaDocumentService {
     if (attrSchemaTypeQName) {
       field.typeQName = attrSchemaTypeQName;
     }
-    if (attrSchemaType) {
-      field.namedTypeFragmentRefs.push(attrSchemaTypeQName.toString());
+    if (attrSchemaType && attrSchemaTypeQName) {
+      const fragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKeyOf(attrSchemaType, attrSchemaTypeQName);
+      if (!field.namedTypeFragmentRefs.includes(fragmentKey)) {
+        field.namedTypeFragmentRefs.push(fragmentKey);
+      }
     }
 
     const use = attr.getUse();

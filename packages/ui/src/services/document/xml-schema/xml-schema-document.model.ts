@@ -37,7 +37,10 @@ export class XmlSchemaDocument extends BaseDocument {
   totalFieldCount = 0;
   isNamespaceAware = true;
   definitionType: DocumentDefinitionType;
-  /** Include/import edges of the attached schema files, computed once when the document is created. */
+  /**
+   * Include/import edges of the attached schema files, computed when the document is created and recomputed when
+   * schema files are added to it.
+   */
   dependencyEdges?: DependencyEdge[];
 
   constructor(

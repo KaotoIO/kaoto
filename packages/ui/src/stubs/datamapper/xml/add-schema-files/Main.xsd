@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:m="urn:main" targetNamespace="urn:main">
+  <xs:complexType name="BaseType">
+    <xs:sequence>
+      <xs:element name="id" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Root" type="m:BaseType"/>
+</xs:schema>

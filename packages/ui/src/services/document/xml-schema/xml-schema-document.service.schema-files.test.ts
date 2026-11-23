@@ -16,12 +16,14 @@ import {
   getImportedTypesXsd,
   getMainWithIncludeXsd,
   getShipOrderXsd,
+  getXmlStubFile,
 } from '../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../xml-schema-ts/QName';
 import { ensureNamespaceRegistered } from '../../namespace-util';
 import { FieldOverrideService } from '../field-override.service';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
+import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 
 describe('XmlSchemaDocumentService / schema file management', () => {
   describe('addSchemaFiles', () => {
@@ -64,6 +66,24 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       const additionalQName = new QName('http://example.com/additional', 'AdditionalType');
       const additionalType = document.xmlSchemaCollection.getTypeByQName(additionalQName);
       expect(additionalType).toBeDefined();
+    });
+
+    it('should compute the dependency edges from the merged file set', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'test-doc',
+        { 'Main.xsd': getXmlStubFile('add-schema-files/Main.xsd') },
+      );
+      const document = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document as XmlSchemaDocument;
+      expect(document.dependencyEdges).toEqual([]);
+
+      FieldOverrideService.addSchemaFilesForTypeOverride(document, {
+        'Extension.xsd': getXmlStubFile('add-schema-files/Extension.xsd'),
+      });
+
+      expect(document.dependencyEdges?.map((edge) => [edge.from, edge.to])).toEqual([['Extension.xsd', 'Main.xsd']]);
+      expect(document.namedTypeFragments['Extension.xsd#{urn:ext}ExtendedType']).toBeDefined();
     });
 
     it('should allow schemas with imports to resolve after adding files', () => {
@@ -348,10 +368,16 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       const productTypeQName = new QName(NS, 'ProductType');
       expect(document.xmlSchemaCollection.getTypeByQName(productTypeQName)).toBeDefined();
 
-      const orderFragment = document.namedTypeFragments[orderTypeQName.toString()];
+      const orderFragment =
+        document.namedTypeFragments[
+          XmlSchemaDocumentUtilService.buildTypeFragmentKey('CircularIncludeA.xsd', orderTypeQName)
+        ];
       expect(orderFragment).toBeDefined();
       expect(orderFragment.fields.some((f) => f.name === 'product')).toBe(true);
-      const productFragment = document.namedTypeFragments[productTypeQName.toString()];
+      const productFragment =
+        document.namedTypeFragments[
+          XmlSchemaDocumentUtilService.buildTypeFragmentKey('CircularIncludeB.xsd', productTypeQName)
+        ];
       expect(productFragment).toBeDefined();
       expect(productFragment.fields.some((f) => f.name === 'productName')).toBe(true);
     });

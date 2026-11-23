@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:m="urn:main" xmlns:e="urn:ext" targetNamespace="urn:ext">
+  <xs:import namespace="urn:main" schemaLocation="Main.xsd"/>
+  <xs:complexType name="ExtendedType">
+    <xs:complexContent>
+      <xs:extension base="m:BaseType">
+        <xs:sequence>
+          <xs:element name="extra" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+</xs:schema>
