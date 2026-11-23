@@ -29,7 +29,7 @@ import { useNavigate, useParams } from 'react-router';
 
 import { useFiles } from '../../hooks/useFiles';
 import { usePanelResizer } from '../../hooks/usePanelResizer';
-import { getFileType, StoredFile } from '../../services/files/stored-file';
+import { StoredFile } from '../../services/files/stored-file';
 import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
 import { DeleteConfirmModal } from '../DeleteConfirmModal/DeleteConfirmModal';
 import { ErrorState } from '../ErrorState/ErrorState';
@@ -51,7 +51,8 @@ interface RenderOptions {
   selectedId: string | undefined;
   expandedFolders: Record<string, boolean>;
   handleToggle: (folderId: string) => ComponentProps<typeof TreeNode>['onToggle'];
-  openIntegration: (fileId: string) => void;
+  /** Opens a file in the editor of its type */
+  openFile: (fileId: string) => void;
   requestDelete: (node: ExplorerFile) => void;
   /** Starts renaming the file or folder with the tree node id */
   requestRename: (nodeId: string) => void;
@@ -149,8 +150,6 @@ function renderEntryLabel(node: ExplorerFile, opts: RenderOptions): React.ReactN
   );
 }
 
-const OPENABLE_TYPES: ReadonlySet<ExplorerFile['type']> = new Set(['integration', 'integration-test']);
-
 function getFileIcon(type: ExplorerFile['type']) {
   if (type === 'integration') return DocumentConfiguration;
   if (type === 'integration-test') return TestTool;
@@ -200,7 +199,7 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
         onKeyDown={handleEntryKeys(node, opts)}
         aria-keyshortcuts="F2 Delete Backspace"
         onSelect={() => {
-          if (OPENABLE_TYPES.has(node.type)) opts.openIntegration(node.id);
+          opts.openFile(node.id);
         }}
       />
     );
@@ -256,7 +255,7 @@ export const Explorer: FunctionComponent = () => {
     [],
   );
 
-  const openIntegration = useCallback(
+  const openFile = useCallback(
     (fileId: string) => {
       void navigate(`/workspace/file/${fileId}`);
     },
@@ -325,7 +324,7 @@ export const Explorer: FunctionComponent = () => {
       return;
     }
     if (byKeyboard) setFocusNode({ nodeId: created.id });
-    if (!isFolderId(created.id) && OPENABLE_TYPES.has(getFileType(created.path))) openIntegration(created.id);
+    if (!isFolderId(created.id)) openFile(created.id);
   };
 
   /**
@@ -480,7 +479,7 @@ export const Explorer: FunctionComponent = () => {
                 selectedId,
                 expandedFolders,
                 handleToggle,
-                openIntegration,
+                openFile,
                 requestDelete,
                 requestRename: setRenamingId,
                 renaming,
