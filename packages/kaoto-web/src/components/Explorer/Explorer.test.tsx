@@ -420,20 +420,19 @@ describe('Explorer', () => {
       );
       const deleteButton = screen.getByTestId('explorer-delete-main-flow');
       const renameButton = screen.getByTestId('explorer-rename-main-flow');
-      expect(deleteButton.parentElement).toHaveAttribute('aria-hidden', 'true');
-      expect(renameButton.parentElement).toBe(deleteButton.parentElement);
+      const actions = deleteButton.closest('.cs--explorer__node-actions');
+      expect(actions).toHaveAttribute('aria-hidden', 'true');
+      expect(renameButton.closest('.cs--explorer__node-actions')).toBe(actions);
       expect(deleteButton).toHaveAttribute('tabindex', '-1');
       expect(renameButton).toHaveAttribute('tabindex', '-1');
-      expect(deleteButton).toHaveAttribute('title', 'Delete file');
-      expect(renameButton).toHaveAttribute('title', 'Rename file');
-      expect(screen.getByTestId(`explorer-delete-${toFolderId('integrations')}`)).toHaveAttribute(
-        'title',
-        'Delete folder',
-      );
-      expect(screen.getByTestId(`explorer-rename-${toFolderId('integrations')}`)).toHaveAttribute(
-        'title',
-        'Rename folder',
-      );
+      expect(deleteButton.closest('.cds--tooltip')).toHaveTextContent('Delete file');
+      expect(renameButton.closest('.cds--tooltip')).toHaveTextContent('Rename file');
+      expect(
+        screen.getByTestId(`explorer-delete-${toFolderId('integrations')}`).closest('.cds--tooltip'),
+      ).toHaveTextContent('Delete folder');
+      expect(
+        screen.getByTestId(`explorer-rename-${toFolderId('integrations')}`).closest('.cds--tooltip'),
+      ).toHaveTextContent('Rename folder');
     });
 
     it('deletes a file after confirmation without opening it', async () => {

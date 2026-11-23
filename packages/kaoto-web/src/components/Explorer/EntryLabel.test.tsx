@@ -44,17 +44,22 @@ describe('EntryLabel', () => {
 
     const rename = screen.getByTestId('explorer-rename-main-flow');
     const remove = screen.getByTestId('explorer-delete-main-flow');
-    expect(rename).toHaveAttribute('title', 'Rename file');
-    expect(remove).toHaveAttribute('title', 'Delete file');
-    expect(rename.parentElement).toHaveAttribute('aria-hidden', 'true');
-    expect(remove.parentElement).toBe(rename.parentElement);
+    expect(rename.closest('.cds--tooltip')).toHaveTextContent('Rename file');
+    expect(remove.closest('.cds--tooltip')).toHaveTextContent('Delete file');
+    const actions = rename.closest('.cs--explorer__node-actions');
+    expect(actions).toHaveAttribute('aria-hidden', 'true');
+    expect(remove.closest('.cs--explorer__node-actions')).toBe(actions);
   });
 
   it('offers rename and delete for a folder', () => {
     renderLabel(FOLDER);
 
-    expect(screen.getByTestId('explorer-rename-folder:integrations')).toHaveAttribute('title', 'Rename folder');
-    expect(screen.getByTestId('explorer-delete-folder:integrations')).toHaveAttribute('title', 'Delete folder');
+    expect(screen.getByTestId('explorer-rename-folder:integrations').closest('.cds--tooltip')).toHaveTextContent(
+      'Rename folder',
+    );
+    expect(screen.getByTestId('explorer-delete-folder:integrations').closest('.cds--tooltip')).toHaveTextContent(
+      'Delete folder',
+    );
   });
 
   it('asks to rename the file and to delete the entry', () => {
