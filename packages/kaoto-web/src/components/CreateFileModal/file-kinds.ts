@@ -34,15 +34,6 @@ export const FILE_KINDS: FileKind[] = [
     template: 'camel-route-xml',
   },
   {
-    id: 'kamelet',
-    label: 'Kamelet',
-    description: 'Reusable Camel route template with a well-defined interface',
-    icon: Cube,
-    extension: '.kamelet.yaml',
-    alternateExtensions: '.kamelet.yml',
-    template: 'kamelet-source-yaml',
-  },
-  {
     id: 'citrus-test',
     label: 'Citrus Test',
     description: 'Integration test using the Citrus testing framework',
@@ -58,5 +49,14 @@ export const FILE_KINDS: FileKind[] = [
     icon: Chemistry,
     extension: '.citrus.xml',
     template: 'citrus-xml',
+  },
+  {
+    id: 'kamelet',
+    label: 'Kamelet',
+    description: 'Reusable Camel route template with a well-defined interface',
+    icon: Cube,
+    extension: '.kamelet.yaml',
+    alternateExtensions: '.kamelet.yml',
+    template: 'kamelet-source-yaml',
   },
 ];
