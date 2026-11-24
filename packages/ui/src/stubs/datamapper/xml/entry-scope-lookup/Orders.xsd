@@ -3,6 +3,32 @@
   <xs:complexType name="OrderType">
     <xs:sequence>
       <xs:element name="shipTo" type="tns:Address"/>
+      <xs:element ref="tns:AddressEl"/>
+      <xs:element name="restricted" type="tns:RestrictedAB"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="tns:AddrAttrs"/>
+    <xs:attribute ref="tns:addrCode"/>
+  </xs:complexType>
+  <xs:complexType name="BaseAB">
+    <xs:attribute name="a" type="xs:string"/>
+    <xs:attribute name="b" type="xs:string"/>
+  </xs:complexType>
+  <xs:complexType name="RestrictedAB">
+    <xs:complexContent>
+      <xs:restriction base="tns:BaseAB">
+        <xs:attributeGroup ref="tns:AG"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="LocalHolder">
+    <xs:sequence>
+      <xs:element name="AddressEl">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="localLine" type="xs:string"/>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
     </xs:sequence>
   </xs:complexType>
 </xs:schema>

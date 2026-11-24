@@ -1,8 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:t" targetNamespace="urn:t">
+  <xs:include schemaLocation="UnrelatedLeaf.xsd"/>
   <xs:complexType name="Address">
     <xs:sequence>
       <xs:element name="foreignLine" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
+  <xs:element name="AddressEl">
+    <xs:annotation>
+      <xs:documentation>Address element of Unrelated</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="foreignElLine" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="AddrAttrs">
+    <xs:attribute name="foreignAttr" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:attribute name="addrCode" type="xs:boolean" default="true">
+    <xs:annotation>
+      <xs:documentation>Address code of Unrelated</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attributeGroup name="AG">
+    <xs:attribute name="b" use="prohibited"/>
+  </xs:attributeGroup>
 </xs:schema>

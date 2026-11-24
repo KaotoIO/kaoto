@@ -10,7 +10,6 @@ import {
 } from '../../../models/datamapper/document';
 import { NodePath } from '../../../models/datamapper/nodepath';
 import { XmlSchemaCollection, XmlSchemaElement } from '../../../xml-schema-ts';
-import type { DependencyEdge } from './xml-schema-analysis.service';
 import { XmlSchemaAssembly } from './xml-schema-assembly.model';
 
 /**
@@ -38,11 +37,6 @@ export class XmlSchemaDocument extends BaseDocument {
   totalFieldCount = 0;
   isNamespaceAware = true;
   definitionType: DocumentDefinitionType;
-  /**
-   * Include, import and redefine edges of the attached schema files, computed when the document is created and
-   * recomputed when schema files are added to it.
-   */
-  dependencyEdges?: DependencyEdge[];
   /**
    * Entry-first component lookups for the entry schema file of the definition the document is created with. A root
    * element change picks a new entry and builds a new document, so the entry is fixed for the document's lifetime;

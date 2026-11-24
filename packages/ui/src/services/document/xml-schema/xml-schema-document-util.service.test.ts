@@ -19,6 +19,7 @@ import {
   getSimpleTypeRestrictionXsd,
   TestUtil,
 } from '../../../stubs/datamapper/data-mapper';
+import { XmlSchema, XmlSchemaElement } from '../../../xml-schema-ts';
 import { QName } from '../../../xml-schema-ts/QName';
 import { XmlSchemaCollection } from '../../../xml-schema-ts/XmlSchemaCollection';
 import { XmlSchemaAnalysisService } from './xml-schema-analysis.service';
@@ -1703,6 +1704,38 @@ describe('XmlSchemaDocumentUtilService', () => {
       expect(XmlSchemaDocumentUtilService.buildTypeFragmentKey(undefined, qname)).toBe(
         '{http://example.com}AddressType',
       );
+    });
+  });
+
+  describe('buildElementFragmentKey() and buildElementFragmentKeyOf()', () => {
+    it('should scope the element key by the declaring schema file', () => {
+      expect(XmlSchemaDocumentUtilService.buildElementFragmentKey('Common.xsd', 'urn:t', 'AddressEl')).toBe(
+        'Common.xsd#__elem:urn:t:AddressEl',
+      );
+    });
+
+    it('should build the bare element key without a source URI', () => {
+      expect(XmlSchemaDocumentUtilService.buildElementFragmentKey(undefined, 'urn:t', 'AddressEl')).toBe(
+        '__elem:urn:t:AddressEl',
+      );
+      expect(XmlSchemaDocumentUtilService.buildElementFragmentKey('', '', 'AddressEl')).toBe('__elem::AddressEl');
+    });
+
+    it('should derive the key from the declaring schema of the element', () => {
+      const schema = new XmlSchema('urn:t');
+      schema.setSourceURI('Common.xsd');
+      const element = new XmlSchemaElement(schema, true);
+      element.setName('AddressEl');
+
+      expect(XmlSchemaDocumentUtilService.buildElementFragmentKeyOf(element)).toBe('Common.xsd#__elem:urn:t:AddressEl');
+    });
+
+    it('should use empty name parts for an element without a name', () => {
+      const schema = new XmlSchema('urn:t');
+      schema.setSourceURI('Common.xsd');
+      const element = new XmlSchemaElement(schema, false);
+
+      expect(XmlSchemaDocumentUtilService.buildElementFragmentKeyOf(element)).toBe('Common.xsd#__elem::');
     });
   });
 });

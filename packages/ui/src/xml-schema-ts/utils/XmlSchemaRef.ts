@@ -17,6 +17,13 @@ export class XmlSchemaRef<T extends XmlSchemaNamed> extends XmlSchemaRefBase {
     this.targetObject = null;
   }
 
+  /**
+   * Resolves the referenced component when it is first asked for: in the declaring schema, including the schemas it
+   * includes and imports, then in the whole collection. A found target is cached until the target QName is set again
+   * or {@link forgetTargetObject} is called; an unresolved reference is looked up again on the next call.
+   *
+   * @returns The referenced component, or null when it is not found
+   */
   getTarget(): T | null {
     if (this.targetObject == null && this.targetQName != null) {
       const parentCollection = this.parent!.getParent();

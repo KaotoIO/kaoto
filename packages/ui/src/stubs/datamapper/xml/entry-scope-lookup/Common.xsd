@@ -5,4 +5,25 @@
       <xs:element name="street" type="xs:string"/>
     </xs:sequence>
   </xs:complexType>
+  <xs:element name="AddressEl" nillable="true">
+    <xs:annotation>
+      <xs:documentation>Address element of Common</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="commonLine" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:attributeGroup name="AddrAttrs">
+    <xs:attribute name="commonAttr" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:attribute name="addrCode" type="xs:int" default="1">
+    <xs:annotation>
+      <xs:documentation>Address code of Common</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attributeGroup name="AG">
+    <xs:attribute name="a" use="prohibited"/>
+  </xs:attributeGroup>
 </xs:schema>

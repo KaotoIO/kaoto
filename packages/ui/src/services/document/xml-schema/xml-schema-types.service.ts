@@ -758,10 +758,7 @@ export class XmlSchemaTypesService {
         typeQName = tqname;
         namedTypeFragmentRefs = [XmlSchemaDocumentUtilService.buildTypeFragmentKeyOf(schemaType, tqname)];
       } else {
-        const wireName = element.getWireName()!;
-        namedTypeFragmentRefs = [
-          XmlSchemaDocumentUtilService.buildElementFragmentKey(wireName.getNamespaceURI(), wireName.getLocalPart()!),
-        ];
+        namedTypeFragmentRefs = [XmlSchemaDocumentUtilService.buildElementFragmentKeyOf(element)];
       }
     } else if (schemaType instanceof XmlSchemaSimpleType) {
       typeQName = schemaType.getQName();

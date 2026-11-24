@@ -26,10 +26,11 @@ import {
   UnknownMappingNodeData,
   VariableNodeData,
 } from '../../models/datamapper/visualization';
-import { TestUtil } from '../../stubs/datamapper/data-mapper';
+import { getAttributeRefXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { QName } from '../../xml-schema-ts/QName';
 import { JsonSchemaDocument, JsonSchemaField } from '../document/json-schema/json-schema-document.model';
 import { XmlSchemaDocument, XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
+import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingValidationService } from './mapping-validation.service';
 
 function createMockField(overrides: Partial<IField> = {}): IField {
@@ -805,3 +806,38 @@ function createJsonSchemaField(key: string, type: Types): JsonSchemaField {
   );
   return new JsonSchemaField(doc, key, type);
 }
+
+describe('MappingValidationService attribute reference fields', () => {
+  const createRoot = (documentType: DocumentType) => {
+    const root = XmlSchemaDocumentService.createXmlSchemaDocument(
+      new DocumentDefinition(
+        documentType,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'AttributeRef.xsd': getAttributeRefXsd() },
+        { namespaceUri: 'urn:ar', name: 'Root' },
+      ),
+    ).document?.fields[0];
+    if (!root) throw new Error('Root field not found');
+    return root;
+  };
+  const childOf = (field: IField, name: string, isAttribute: boolean) => {
+    const child = field.fields.find((f) => f.name === name && f.isAttribute === isAttribute);
+    if (!child) throw new Error(`${name} field not found`);
+    return child;
+  };
+
+  it('should refuse a mapping between an attribute-ref field and a container in both directions', () => {
+    const source = createRoot(DocumentType.SOURCE_BODY);
+    const target = createRoot(DocumentType.TARGET_BODY);
+
+    expect(
+      MappingValidationService.validateFieldPair(childOf(source, 'code', true), childOf(target, 'container', false))
+        .isValid,
+    ).toBe(false);
+    expect(
+      MappingValidationService.validateFieldPair(childOf(source, 'container', false), childOf(target, 'code', true))
+        .isValid,
+    ).toBe(false);
+  });
+});

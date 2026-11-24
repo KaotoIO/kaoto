@@ -64,6 +64,33 @@ describe('XmlSchemaAssembly', () => {
       expect(sourceOf(new XmlSchemaAssembly(collection).lookupElement(qName))).toBe('Other.xsd');
     });
 
+    it('should find attributes and attribute groups of the entry before same-QName ones of a file parsed earlier', () => {
+      const ns = 'urn:a';
+      const declare = (attrType: string, groupAttr: string) =>
+        `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}"><xs:attribute name="A" type="xs:${attrType}"/><xs:attributeGroup name="AG"><xs:attribute name="${groupAttr}" type="xs:string"/></xs:attributeGroup></xs:schema>`;
+      const files = {
+        'Other.xsd': declare('int', 'fromOther'),
+        'Entry.xsd': declare('string', 'fromEntry'),
+        'Only.xsd': `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="${ns}"><xs:attribute name="OnlyA" type="xs:int"/><xs:attributeGroup name="OnlyAG"/></xs:schema>`,
+      };
+      const collection = new XmlSchemaCollection();
+      loadFiles(collection, files);
+      const entryAssembly = new XmlSchemaAssembly(collection, 'Entry.xsd');
+      const attribute = new QName(ns, 'A');
+      const group = new QName(ns, 'AG');
+
+      expect(sourceOf(entryAssembly.lookupAttribute(attribute))).toBe('Entry.xsd');
+      expect(sourceOf(entryAssembly.lookupAttributeGroup(group))).toBe('Entry.xsd');
+      expect(sourceOf(new XmlSchemaAssembly(collection).lookupAttribute(attribute))).toBe('Other.xsd');
+      expect(sourceOf(new XmlSchemaAssembly(collection).lookupAttributeGroup(group))).toBe('Other.xsd');
+      expect(sourceOf(entryAssembly.lookupAttribute(new QName(ns, 'OnlyA')))).toBe('Only.xsd');
+      expect(sourceOf(entryAssembly.lookupAttributeGroup(new QName(ns, 'OnlyAG')))).toBe('Only.xsd');
+      expect(entryAssembly.lookupAttribute(new QName(ns, 'Missing'))).toBeNull();
+      expect(entryAssembly.lookupAttributeGroup(new QName(ns, 'Missing'))).toBeNull();
+      expect(entryAssembly.lookupAttribute(null)).toBeNull();
+      expect(entryAssembly.lookupAttributeGroup(null)).toBeNull();
+    });
+
     it('should read the collection at every lookup', () => {
       const ns = 'urn:late';
       const collection = new XmlSchemaCollection();
@@ -124,15 +151,21 @@ describe('XmlSchemaAssembly', () => {
       const getTypeByQName = vi.spyOn(collection, 'getTypeByQName');
       const getElementByQName = vi.spyOn(collection, 'getElementByQName');
       const getGroupByQName = vi.spyOn(collection, 'getGroupByQName');
+      const getAttributeByQName = vi.spyOn(collection, 'getAttributeByQName');
+      const getAttributeGroupByQName = vi.spyOn(collection, 'getAttributeGroupByQName');
       const getXmlSchema = vi.spyOn(collection, 'getXmlSchema');
 
       assembly.lookupType(t('CT'));
       assembly.lookupElement(t('M'));
       assembly.lookupGroup(t('G'));
+      assembly.lookupAttribute(t('a'));
+      assembly.lookupAttributeGroup(t('AG'));
 
       expect(getTypeByQName).toHaveBeenCalledWith(t('CT'));
       expect(getElementByQName).toHaveBeenCalledWith(t('M'));
       expect(getGroupByQName).toHaveBeenCalledWith(t('G'));
+      expect(getAttributeByQName).toHaveBeenCalledWith(t('a'));
+      expect(getAttributeGroupByQName).toHaveBeenCalledWith(t('AG'));
       expect(getXmlSchema).not.toHaveBeenCalled();
     });
   });

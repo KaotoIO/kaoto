@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:t" targetNamespace="urn:t">
+  <xs:element name="AddressEl">
+    <xs:annotation>
+      <xs:documentation>Address element of CommonB</xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="lineB" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="Address">
+    <xs:sequence>
+      <xs:element name="streetB" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:attributeGroup name="AddrAttrs">
+    <xs:attribute name="attrB" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:attribute name="addrCode" type="xs:int" default="2"/>
+  <xs:attributeGroup name="AG">
+    <xs:attribute name="a" use="prohibited"/>
+  </xs:attributeGroup>
+</xs:schema>

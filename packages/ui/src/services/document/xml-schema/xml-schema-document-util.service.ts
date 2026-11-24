@@ -348,14 +348,37 @@ export class XmlSchemaDocumentUtilService {
 
   /**
    * Builds the key used to store an anonymous global element's type fragment in {@link IDocument.namedTypeFragments}.
-   * The `__elem:` prefix distinguishes element fragments from named type fragments.
+   * The `__elem:` prefix distinguishes element fragments from named type fragments. Like named type fragments, the
+   * key is scoped by the declaring schema file, so same-QName elements of different files do not compete for a key.
    *
+   * @param sourceURI - The source URI / file path of the declaring schema, if available
    * @param namespaceURI - Namespace URI of the element (empty string for no-namespace elements)
    * @param localPart - Local name of the element
-   * @returns Fragment key string in the form `__elem:<namespaceURI>:<localPart>`
+   * @returns Fragment key string in the form `<sourceURI>#__elem:<namespaceURI>:<localPart>`, or
+   *   `__elem:<namespaceURI>:<localPart>` without a source URI
    */
-  static buildElementFragmentKey(namespaceURI: string, localPart: string): string {
-    return `__elem:${namespaceURI}:${localPart}`;
+  static buildElementFragmentKey(
+    sourceURI: string | null | undefined,
+    namespaceURI: string,
+    localPart: string,
+  ): string {
+    const elementKey = `__elem:${namespaceURI}:${localPart}`;
+    return sourceURI ? `${sourceURI}#${elementKey}` : elementKey;
+  }
+
+  /**
+   * Builds the scoped key of an anonymous global element's type fragment from the declaring schema of `element`.
+   *
+   * @param element - The global element the fragment belongs to
+   * @returns Fragment key string, see {@link buildElementFragmentKey}
+   */
+  static buildElementFragmentKeyOf(element: XmlSchemaElement): string {
+    const wireName = element.getWireName();
+    return XmlSchemaDocumentUtilService.buildElementFragmentKey(
+      element.getParent().getSourceURI(),
+      wireName?.getNamespaceURI() ?? '',
+      wireName?.getLocalPart() ?? '',
+    );
   }
 
   /**
