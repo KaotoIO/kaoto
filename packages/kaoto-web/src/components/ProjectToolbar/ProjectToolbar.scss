@@ -4,7 +4,17 @@
 @use '../../styles/kaoto-theme' as kaoto;
 
 .cs--project-toolbar {
-  display: flex;
+  // The view switcher starts where the editor starts: after the padding of the layout, the Explorer and the gap next
+  // to it
+  --cs-switcher-inline-size: 12rem; // 6rem per view
+  --cs-editor-start: calc(
+    var(--cs-project-layout-padding, 0px) + var(--cs-explorer-inline-size, 0px) + var(--cs-project-layout-gap, 0px)
+  );
+
+  // The start, the view switcher and the end. The first column ends where the editor starts, so the switcher starts
+  // there too; the end takes what is left, and the runtime name in it shortens when that is too little.
+  display: grid;
+  grid-template-columns: minmax(max-content, var(--cs-editor-start)) auto minmax(0, 1fr);
   align-items: center;
   block-size: $spacing-08; // 40px
   flex-shrink: 0;
@@ -18,6 +28,21 @@
   }
 }
 
+.cs--project-toolbar__start {
+  display: flex;
+  align-items: center;
+  padding-inline-end: $spacing-05;
+}
+
+.cs--project-toolbar__end {
+  // The last column, also while no file is open and the switcher isn't there
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  grid-column: 3;
+  min-inline-size: 0;
+}
+
 .cs--project-toolbar__controls {
   display: flex;
   align-items: center;
@@ -26,10 +51,7 @@
 }
 
 .cs--project-toolbar__switcher {
-  flex-shrink: 0;
-  margin-inline: auto $spacing-05;
-  inline-size: 18rem;
-  align-self: center;
+  inline-size: var(--cs-switcher-inline-size);
 
   .cds--content-switcher-btn {
     justify-content: center;

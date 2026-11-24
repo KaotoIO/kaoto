@@ -29,7 +29,6 @@ import { useNavigate, useParams } from 'react-router';
 
 import { ProjectFile } from '../../context/FilesContextDefinition';
 import { useFiles } from '../../hooks/useFiles';
-import { usePanelResizer } from '../../hooks/usePanelResizer';
 import { filePathFromSplat, fileUrl } from '../../routes/file-url';
 import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
 import { DeleteConfirmModal } from '../DeleteConfirmModal/DeleteConfirmModal';
@@ -42,10 +41,6 @@ import { moveExpandedFolders } from './move-expanded-folders';
 import { CreatedEntry, NewEntryField, NewEntryKind } from './NewEntryField';
 import { RenameField } from './RenameField';
 import { RenameFolderField } from './RenameFolderField';
-
-const MIN_WIDTH = 160;
-const MAX_WIDTH = 480;
-const DEFAULT_WIDTH = 240;
 
 interface RenderOptions {
   query: string;
@@ -209,7 +204,14 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
   });
 }
 
-export const Explorer: FunctionComponent = () => {
+interface ExplorerProps {
+  /** The width of the panel in pixels, see {@link useExplorerWidth} */
+  width: number;
+  /** Starts resizing the panel when its resize handle is pressed */
+  onResizerMouseDown: (event: React.MouseEvent) => void;
+}
+
+export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMouseDown }) => {
   // The id of a file is its path, which the URL of the open file holds
   const selectedId = filePathFromSplat(useParams()['*']);
   const navigate = useNavigate();
@@ -224,11 +226,6 @@ export const Explorer: FunctionComponent = () => {
   /** The button that opened the Create New File modal */
   const createOpenerRef = useRef<HTMLElement | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
-  const { width, handleResizerMouseDown } = usePanelResizer({
-    initialWidth: DEFAULT_WIDTH,
-    minWidth: MIN_WIDTH,
-    maxWidth: MAX_WIDTH,
-  });
 
   const handleSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -444,11 +441,7 @@ export const Explorer: FunctionComponent = () => {
       </div>
 
       {/* Resize handle */}
-      <button
-        className="cs--explorer__resizer"
-        aria-label="Resize explorer panel"
-        onMouseDown={handleResizerMouseDown}
-      />
+      <button className="cs--explorer__resizer" aria-label="Resize explorer panel" onMouseDown={onResizerMouseDown} />
 
       {/* Section 3 — File tree */}
       {/* A click on the free space below the items makes the root the folder of the next new file or folder */}
