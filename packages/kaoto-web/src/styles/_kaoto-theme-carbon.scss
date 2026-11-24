@@ -2,15 +2,27 @@
 @use 'kaoto-theme' as kaoto;
 
 // The selected part of a content switcher takes the accent colour instead of black. Carbon paints it through
-// `::after` and the outline through the buttons and their `::before` dividers.
+// `::after` and the outline through the container, the buttons and their `::before` dividers.
 .cds--content-switcher {
   @include kaoto.kaoto-theme {
+    outline-color: var(--cs-accent);
+
     .cds--content-switcher-btn {
       border-color: var(--cs-accent);
       box-shadow: none;
 
       &::before {
         border-color: var(--cs-accent);
+      }
+
+      // The outer edges of the end buttons, as Carbon draws them: a hovered or selected button paints over the
+      // container's outline, but not over its own inset shadow.
+      &:first-child {
+        box-shadow: inset 1px 0 0 0 var(--cs-accent);
+      }
+
+      &:last-child {
+        box-shadow: inset -1px 0 0 0 var(--cs-accent);
       }
 
       &:not(.cds--content-switcher--selected):hover,
