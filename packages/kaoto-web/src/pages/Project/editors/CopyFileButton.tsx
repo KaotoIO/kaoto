@@ -1,6 +1,6 @@
 import { Copy } from '@carbon/icons-react';
 import { IconButton } from '@carbon/react';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 
 type CopyState = 'idle' | 'copied' | 'failed';
 
@@ -22,24 +22,36 @@ interface CopyFileButtonProps {
 /** Copies the content of the open file to the clipboard, and tells in its label for a moment that it did */
 export const CopyFileButton: FunctionComponent<CopyFileButtonProps> = ({ content }) => {
   const [state, setState] = useState<CopyState>('idle');
+  /** Sets the label back once the feedback is shown long enough */
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  useEffect(() => {
-    if (state === 'idle') return;
-    const timer = setTimeout(() => {
+  // No reset after the button is gone
+  useEffect(
+    () => () => {
+      clearTimeout(resetTimerRef.current);
+    },
+    [],
+  );
+
+  /**
+   * Shows how the copy went, from the last copy on. The reset is started here rather than in an effect on `state`: an
+   * effect only runs after the next render, and a copy that has the same outcome as the one before renders nothing new.
+   */
+  const showFeedback = (feedback: CopyState) => {
+    setState(feedback);
+    clearTimeout(resetTimerRef.current);
+    resetTimerRef.current = setTimeout(() => {
       setState('idle');
     }, FEEDBACK_MS);
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [state]);
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(content).then(
       () => {
-        setState('copied');
+        showFeedback('copied');
       },
       () => {
-        setState('failed');
+        showFeedback('failed');
       },
     );
   };
