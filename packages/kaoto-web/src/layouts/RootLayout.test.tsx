@@ -39,7 +39,7 @@ describe('RootLayout', () => {
     expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content');
   });
 
-  it('renders the loader inside the main content while a lazy route loads', async () => {
+  it('renders the loader overlay inside the main content while a lazy route loads', async () => {
     const LazyPage = lazy(() => new Promise<{ default: () => ReactElement }>(() => {}));
     render(
       <MemoryRouter initialEntries={['/']}>
@@ -53,6 +53,6 @@ describe('RootLayout', () => {
 
     const spinner = await screen.findByRole('img', { name: 'Loading' });
     expect(screen.getByRole('main')).toContainElement(spinner);
-    expect(spinner.closest('.loading')).toBeInTheDocument();
+    expect(spinner.closest('.cds--loading-overlay')).toBeInTheDocument();
   });
 });
