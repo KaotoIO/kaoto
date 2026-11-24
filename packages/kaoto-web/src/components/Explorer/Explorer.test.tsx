@@ -37,6 +37,24 @@ const ResizableExplorer = () => {
   return <Explorer width={width} onResizerMouseDown={handleResizerMouseDown} />;
 };
 
+/** Serves the starter template of a Camel Route YAML from the catalog, as the Create new file dialog loads it */
+const stubStarterTemplates = () =>
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((url: URL) => {
+      const { pathname } = url;
+      if (pathname === '/camel-catalog/index.json') {
+        return Promise.resolve(new Response(JSON.stringify({ starterTemplates: 'starter-templates/index-1.json' })));
+      }
+      if (pathname === '/camel-catalog/starter-templates/index-1.json') {
+        return Promise.resolve(
+          new Response(JSON.stringify({ catalogs: { 'camel-route-yaml': { file: 'camel-route-yaml-hash.yaml' } } })),
+        );
+      }
+      return Promise.resolve(new Response('- route:\n    id: route-1\n'));
+    }),
+  );
+
 const renderComponent = () =>
   render(
     <MemoryRouter initialEntries={['/workspace']}>
@@ -260,21 +278,7 @@ describe('Explorer', () => {
 
   it('focuses the toolbar button after a file is created from the empty state', async () => {
     resetTestIndexedDB();
-    vi.stubGlobal(
-      'fetch',
-      vi.fn((url: URL) => {
-        const { pathname } = url;
-        if (pathname === '/camel-catalog/index.json') {
-          return Promise.resolve(new Response(JSON.stringify({ starterTemplates: 'starter-templates/index-1.json' })));
-        }
-        if (pathname === '/camel-catalog/starter-templates/index-1.json') {
-          return Promise.resolve(
-            new Response(JSON.stringify({ catalogs: { 'camel-route-yaml': { file: 'camel-route-yaml-hash.yaml' } } })),
-          );
-        }
-        return Promise.resolve(new Response('- route:\n    id: route-1\n'));
-      }),
-    );
+    stubStarterTemplates();
     try {
       const user = userEvent.setup();
       renderWithNavigation();
@@ -288,6 +292,28 @@ describe('Explorer', () => {
       expect(await screen.findByRole('treeitem', { name: /orders\.camel\.yaml/ })).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Create your first file…' })).not.toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Create a file' })).toHaveFocus();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('unfolds the folders down to a file created in a nested folder through the dialog', async () => {
+    stubStarterTemplates();
+    try {
+      const user = userEvent.setup();
+      renderWithNavigation();
+      await screen.findByTestId('explorer-folder-integrations');
+
+      await user.click(screen.getByRole('button', { name: 'Create a file' }));
+      await user.click(screen.getByRole('radio', { name: /^Camel Route YAML/ }));
+      await user.type(screen.getByLabelText('File name'), 'inbound');
+      await user.type(screen.getByLabelText('Folder path (optional)'), 'orders/new');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      const file = await screen.findByTestId('explorer-file-orders/new/inbound.camel.yaml');
+      await waitFor(() => expect(file).toHaveAttribute('aria-selected', 'true'));
+      expect(screen.getByTestId('explorer-folder-orders')).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('explorer-folder-orders/new')).toHaveAttribute('aria-expanded', 'true');
     } finally {
       vi.unstubAllGlobals();
     }
@@ -396,6 +422,44 @@ describe('Explorer', () => {
       await user.click(screen.getByTestId(`explorer-file-${pathOf('schema')}`));
 
       expect(screen.getByTestId('location')).toHaveTextContent(fileUrl(pathOf('schema')));
+    });
+
+    it.each([
+      ['integrations', 'true'],
+      ['integrations/routes', 'true'],
+      ['integrations/routes/async', 'true'],
+      ['resources', 'false'],
+    ])('unfolds the folders down to a file opened by its URL: %s expanded=%s', async (folder, expanded) => {
+      renderWithNavigation(undefined, fileUrl(pathOf('kafka-consumer')));
+
+      expect(await screen.findByTestId(`explorer-folder-${folder}`)).toHaveAttribute('aria-expanded', expanded);
+    });
+
+    it('unfolds the folders down to a file opened from outside the tree', async () => {
+      const OpenRestApi = () => {
+        const navigate = useNavigate();
+        return <button onClick={() => void navigate(fileUrl(pathOf('rest-api')))}>Open rest-api</button>;
+      };
+      const user = userEvent.setup();
+      renderWithNavigation(<OpenRestApi />);
+      await screen.findByTestId('explorer-folder-integrations');
+
+      await user.click(screen.getByRole('button', { name: 'Open rest-api' }));
+
+      expect(screen.getByTestId('explorer-folder-integrations')).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('explorer-folder-integrations/routes')).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId(`explorer-file-${pathOf('rest-api')}`)).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('keeps a folder of the open file collapsed once it is collapsed', async () => {
+      const user = userEvent.setup();
+      renderWithNavigation(undefined, fileUrl(pathOf('rest-api')));
+      const routes = await screen.findByTestId('explorer-folder-integrations/routes');
+      await waitFor(() => expect(routes).toHaveAttribute('aria-expanded', 'true'));
+
+      await user.click(routes.querySelector('.cds--tree-parent-node__toggle')!);
+
+      expect(routes).toHaveAttribute('aria-expanded', 'false');
     });
   });
 
