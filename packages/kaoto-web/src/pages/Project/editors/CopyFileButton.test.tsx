@@ -35,6 +35,27 @@ describe('CopyFileButton', () => {
     expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toBeInTheDocument();
   });
 
+  it('confirms a copy again for two seconds from the last copy on', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<CopyFileButton content={CONTENT} />);
+    await user.click(screen.getByRole('button', { name: 'Copy to clipboard' }));
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Copied to clipboard' }));
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    expect(screen.getByRole('button', { name: 'Copied to clipboard' })).toBeInTheDocument();
+    act(() => {
+      vi.advanceTimersByTime(500);
+    });
+    expect(screen.getByRole('button', { name: 'Copy to clipboard' })).toBeInTheDocument();
+  });
+
   it('tells in its label that the content could not be copied', async () => {
     const user = userEvent.setup();
     vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('Not allowed'));
