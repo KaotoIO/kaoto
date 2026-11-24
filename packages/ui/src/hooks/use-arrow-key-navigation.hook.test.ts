@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react';
 import hotkeys, { KeyHandler } from 'hotkeys-js';
 
 import { CanvasDefaults } from '../components/Visualization/Canvas/canvas.defaults';
+import type { CanvasNode } from '../components/Visualization/Canvas/canvas.models';
 import { useArrowKeyNavigation } from './use-arrow-key-navigation.hook';
 
 /* hotkeys-js is mocked globally in vitest-mocks-setup.ts */
@@ -52,7 +53,7 @@ describe('useArrowKeyNavigation', () => {
   });
 
   /** Render the hook and capture the handler registered with hotkeys */
-  function setupHook(nodes?: { id: string }[]): (key: string) => void {
+  function setupHook(nodes?: Pick<CanvasNode, 'id' | 'group' | 'parentNode'>[]): (key: string) => void {
     const handlers: Record<string, KeyHandler> = {};
     mockHotkeys.mockImplementation((keys: string, ...args: unknown[]) => {
       const handler = args.find((arg): arg is KeyHandler => typeof arg === 'function');
@@ -222,21 +223,115 @@ describe('useArrowKeyNavigation', () => {
       expect(document.activeElement).toBe(step10);
     });
 
-    it('should exclude g.custom-group elements without a dot in their data-testid (route container)', () => {
+    it('should include the root group (single-segment path) as the first stop of its route', () => {
       pathContainer = document.createElement('div');
-      const routeContainer = makeNode('custom-group', 'custom-group__route');
-      const stepNode = makeNode('custom-node', 'custom-node__route.from');
+      const routeGroup = makeNode('custom-group', 'custom-group__route');
+      const fromNode = makeNode('custom-node', 'custom-node__route.from');
+      const logNode = makeNode('custom-node', 'custom-node__route.from.steps.0.log');
 
-      pathContainer.appendChild(routeContainer);
-      pathContainer.appendChild(stepNode);
+      // DOM order intentionally different from navigation order: the group is painted last
+      pathContainer.appendChild(logNode);
+      pathContainer.appendChild(fromNode);
+      pathContainer.appendChild(routeGroup);
       document.body.appendChild(pathContainer);
 
       const fire = setupHook();
 
-      // Only stepNode should be in the navigation list; routeContainer has no dot
       canvasRoot.focus();
       fire('arrowright');
-      expect(document.activeElement).toBe(stepNode);
+      expect(document.activeElement).toBe(routeGroup);
+
+      fire('arrowright');
+      expect(document.activeElement).toBe(fromNode);
+
+      fire('arrowright');
+      expect(document.activeElement).toBe(logNode);
+    });
+
+    it('should reach the root group from its first step with ArrowUp / ArrowLeft', () => {
+      pathContainer = document.createElement('div');
+      const routeGroup = makeNode('custom-group', 'custom-group__route');
+      const fromNode = makeNode('custom-node', 'custom-node__route.from');
+
+      pathContainer.appendChild(fromNode);
+      pathContainer.appendChild(routeGroup);
+      document.body.appendChild(pathContainer);
+
+      const fire = setupHook();
+
+      fromNode.focus();
+      fire('arrowup');
+      expect(document.activeElement).toBe(routeGroup);
+
+      fromNode.focus();
+      fire('arrowleft');
+      expect(document.activeElement).toBe(routeGroup);
+    });
+
+    it('should keep each root group at the head of its own route when there are several routes', () => {
+      pathContainer = document.createElement('div');
+      canvasRoot.appendChild(pathContainer);
+      const routes = ['first-route', 'second-route'];
+      const ordered = routes.flatMap((route) =>
+        [
+          { cls: 'custom-group', path: 'route' },
+          { cls: 'custom-node', path: 'route.from' },
+          { cls: 'custom-node', path: 'route.from.steps.0.log' },
+        ].map(({ cls, path }) => {
+          const node = makeNode(cls, `${cls}__${path}`);
+          const wrapper = document.createElement('div');
+          wrapper.dataset.id = `${route}|${path}`;
+          wrapper.appendChild(node);
+          return { node, wrapper };
+        }),
+      );
+      [...ordered].reverse().forEach(({ wrapper }) => pathContainer.appendChild(wrapper));
+
+      const fire = setupHook(ordered.map(({ wrapper }) => ({ id: wrapper.dataset.id! })));
+
+      canvasRoot.focus();
+      for (const { node } of ordered) {
+        fire('arrowdown');
+        expect(node).toHaveFocus();
+      }
+    });
+
+    it('should make the root group of a flow whose id is not a path the first stop (Pipe, Citrus)', () => {
+      container.remove();
+      pathContainer = document.createElement('div');
+      canvasRoot.appendChild(pathContainer);
+      const scope = 'timer-to-log';
+      const groupId = `${scope}|${scope}`;
+      const group = makeNode('custom-group', `custom-group__${scope}`);
+      const leafPaths = ['source', 'steps.0.log', 'sink'];
+      const leaves = leafPaths.map((path) => makeNode('custom-node', `custom-node__${path}`));
+      const entries = [
+        { node: group, id: groupId },
+        ...leaves.map((node, index) => ({ node, id: `${scope}|${leafPaths[index]}` })),
+      ];
+      // Paint order is scrambled so it cannot explain the navigation order.
+      [entries[2], entries[0], entries[3], entries[1]].forEach(({ node, id }) => {
+        const wrapper = document.createElement('div');
+        wrapper.dataset.id = id;
+        wrapper.appendChild(node);
+        pathContainer.appendChild(wrapper);
+      });
+
+      const fire = setupHook([
+        { id: groupId, group: true },
+        ...entries.slice(1).map(({ id }) => ({ id, parentNode: groupId })),
+      ]);
+
+      canvasRoot.focus();
+      fire('arrowright');
+      expect(document.activeElement).toBe(group);
+
+      const visited = leaves.map(() => {
+        fire('arrowright');
+        return document.activeElement;
+      });
+      expect(visited).toHaveLength(leaves.length);
+      expect(new Set(visited)).toEqual(new Set(leaves));
     });
 
     it('should order choice children as: when-placeholder → when[0] → when[0] steps → otherwise → otherwise steps', () => {

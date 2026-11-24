@@ -8,7 +8,7 @@ import {
   Rect,
   Visualization,
 } from '@patternfly/react-topology';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import { CatalogModalContext, CatalogModalContextValue } from '../../../../dynamic-catalog/catalog-modal.provider';
@@ -354,5 +354,64 @@ describe('CustomGroupExpanded', () => {
     expect(screen.getByTestId(`${groupVizNode.getId()}|choice-1`)).toHaveClass(
       'custom-group__container__dropTarget-right',
     );
+  });
+
+  describe('keyboard', () => {
+    const renderGroup = async (
+      props: Partial<Pick<React.ComponentProps<typeof CustomGroupExpanded>, 'onSelect' | 'onContextMenu'>>,
+    ) => {
+      const vizNode = createChoiceVizNode({ path: 'route' });
+      createController({ vizNode });
+      const element = controller.getNodeById(GROUP_ID)!;
+      await renderInContext(<CustomGroupExpanded element={element} {...props} />);
+      return screen.getByTestId('custom-group__choice-1');
+    };
+
+    it('is focusable and exposes its role and label', async () => {
+      const group = await renderGroup({});
+
+      expect(group).toHaveAttribute('tabindex', '-1');
+      expect(group).toHaveAttribute('role', 'button');
+      expect(group).toHaveAttribute('aria-label', 'Choice');
+
+      group.focus();
+      expect(group).toHaveFocus();
+    });
+
+    it.each([
+      { name: 'Enter', key: 'Enter' },
+      { name: 'Space', key: ' ' },
+    ])('calls onSelect when $name is pressed', async ({ key }) => {
+      const onSelect = vi.fn();
+      const group = await renderGroup({ onSelect });
+
+      expect(fireEvent.keyDown(group, { key })).toBe(false);
+
+      expect(onSelect).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      { name: 'Shift+F10', keyEvent: { key: 'F10', shiftKey: true } },
+      { name: 'the ContextMenu key', keyEvent: { key: 'ContextMenu' } },
+    ])('calls onContextMenu when $name is pressed', async ({ keyEvent }) => {
+      const onContextMenu = vi.fn();
+      const group = await renderGroup({ onContextMenu });
+      vi.spyOn(group, 'getBoundingClientRect').mockReturnValue({ left: 12, bottom: 34 } as DOMRect);
+
+      expect(fireEvent.keyDown(group, keyEvent)).toBe(false);
+
+      expect(onContextMenu).toHaveBeenCalledTimes(1);
+      expect(onContextMenu.mock.calls[0][0]).toEqual(expect.objectContaining({ clientX: 12, clientY: 34 }));
+      expect(onContextMenu.mock.calls[0][0].currentTarget).toBe(group);
+    });
+
+    it('does not call onContextMenu for F10 without Shift', async () => {
+      const onContextMenu = vi.fn();
+      const group = await renderGroup({ onContextMenu });
+
+      expect(fireEvent.keyDown(group, { key: 'F10' })).toBe(true);
+
+      expect(onContextMenu).not.toHaveBeenCalled();
+    });
   });
 });

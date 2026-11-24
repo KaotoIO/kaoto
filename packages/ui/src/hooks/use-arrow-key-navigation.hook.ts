@@ -81,6 +81,9 @@ const compareNodePaths = (a: HTMLElement, b: HTMLElement): number => {
   return 0;
 };
 
+/** Returns the canvas model id carried by the closest `[data-id]` wrapper of a canvas element. */
+const wrapperId = (el: HTMLElement): string => el.closest<HTMLElement>('[data-id]')?.dataset.id ?? '';
+
 const ARROW_KEYS = 'arrowleft,arrowright,arrowup,arrowdown';
 
 /**
@@ -89,16 +92,19 @@ const ARROW_KEYS = 'arrowleft,arrowright,arrowup,arrowdown';
  * inside an INPUT, TEXTAREA, SELECT, or contenteditable — preventing the
  * canvas from stealing arrow keys from form fields.
  *
- * Navigation follows route order in the canvas model, then logical viz-node path order:
+ * Navigation follows route order in the canvas model, then logical viz-node path order. The root group of
+ * each flow (e.g. the route group) is the first stop of its flow, so its context menu is reachable by keyboard:
  * - ArrowRight / ArrowDown → next node
  * - ArrowLeft / ArrowUp → previous node
  * Wraps around at the ends.
  */
-export function useArrowKeyNavigation(nodes?: readonly Pick<CanvasNode, 'id'>[]): void {
-  const routeOrderByNodeId = useMemo(() => {
+export function useArrowKeyNavigation(nodes?: readonly Pick<CanvasNode, 'id' | 'group' | 'parentNode'>[]): void {
+  const { routeOrderByNodeId, rootGroupIds } = useMemo(() => {
     const routes = new Map<string, number>();
     const order = new Map<string, number>();
-    nodes?.forEach(({ id }) => {
+    const rootGroups = new Set<string>();
+    nodes?.forEach(({ id, group, parentNode }) => {
+      if (group && !parentNode) rootGroups.add(id);
       // FlowService prefixes each path with its entity scope; the scope can itself contain pipes.
       const separator = id.lastIndexOf('|');
       const scope = separator === -1 ? id : id.slice(0, separator);
@@ -106,7 +112,7 @@ export function useArrowKeyNavigation(nodes?: readonly Pick<CanvasNode, 'id'>[])
       routes.set(scope, routeOrder);
       order.set(id, routeOrder);
     });
-    return order;
+    return { routeOrderByNodeId: order, rootGroupIds: rootGroups };
   }, [nodes]);
   useEffect(() => {
     const navigate = (event: KeyboardEvent) => {
@@ -117,13 +123,13 @@ export function useArrowKeyNavigation(nodes?: readonly Pick<CanvasNode, 'id'>[])
       if (!isCanvasFocus) return;
 
       const allNodes = Array.from(
-        document.querySelectorAll<HTMLElement>('g.custom-node, g.placeholder-node, g.custom-group[data-testid*="."]'),
+        document.querySelectorAll<HTMLElement>('g.custom-node, g.placeholder-node, g.custom-group'),
       ).sort((a, b) => {
-        const aOrder =
-          routeOrderByNodeId.get(a.closest<HTMLElement>('[data-id]')?.dataset.id ?? '') ?? routeOrderByNodeId.size;
-        const bOrder =
-          routeOrderByNodeId.get(b.closest<HTMLElement>('[data-id]')?.dataset.id ?? '') ?? routeOrderByNodeId.size;
-        return aOrder - bOrder || compareNodePaths(a, b);
+        const aOrder = routeOrderByNodeId.get(wrapperId(a)) ?? routeOrderByNodeId.size;
+        const bOrder = routeOrderByNodeId.get(wrapperId(b)) ?? routeOrderByNodeId.size;
+        const aRoot = rootGroupIds.has(wrapperId(a));
+        const bRoot = rootGroupIds.has(wrapperId(b));
+        return aOrder - bOrder || Number(bRoot) - Number(aRoot) || compareNodePaths(a, b);
       });
       if (allNodes.length === 0) return;
 
@@ -150,5 +156,5 @@ export function useArrowKeyNavigation(nodes?: readonly Pick<CanvasNode, 'id'>[])
     return () => {
       hotkeys.unbind(ARROW_KEYS, navigate);
     };
-  }, [routeOrderByNodeId]);
+  }, [routeOrderByNodeId, rootGroupIds]);
 }
