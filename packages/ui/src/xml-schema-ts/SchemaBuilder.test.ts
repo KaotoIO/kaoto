@@ -543,8 +543,8 @@ describe('SchemaBuilder', () => {
       });
 
       const redefine = schema.getExternals()[0] as XmlSchemaRedefine;
-      const [type] = redefine.getSchemaTypes().values();
-      const [attributeGroup] = redefine.getAttributeGroups().values();
+      const type = redefine.getSchemaTypes().get(q('Code'))!;
+      const attributeGroup = redefine.getAttributeGroups().get(q('Common'))!;
       expect(type).toBeInstanceOf(XmlSchemaSimpleType);
       expect(type.getName()).toBe('Code');
       expect(attributeGroup.getName()).toBe('Common');
@@ -568,8 +568,8 @@ describe('SchemaBuilder', () => {
       });
 
       const redefine = schema.getExternals()[0] as XmlSchemaRedefine;
-      const [type] = redefine.getSchemaTypes().values();
-      const [group] = redefine.getGroups().values();
+      const type = redefine.getSchemaTypes().get(q('Address'))!;
+      const group = redefine.getGroups().get(q('Lines'))!;
       expect(type).toBeInstanceOf(XmlSchemaComplexType);
       expect(type.getName()).toBe('Address');
       expect(group.getName()).toBe('Lines');
