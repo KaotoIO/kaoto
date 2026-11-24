@@ -1,5 +1,6 @@
 import { DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
 import { IFieldSubstitution, IFieldTypeOverride } from '../../../models/datamapper/metadata';
+import { ReportMessage } from '../../../models/datamapper/schema';
 import { NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant, TypeDerivation, Types } from '../../../models/datamapper/types';
 import {
@@ -1099,6 +1100,13 @@ describe('XmlSchemaTypesService', () => {
       ['unrelated file attached first', ['Other.xsd', 'A.xsd', 'Types.xsd']],
       ['unrelated file attached last', ['A.xsd', 'Types.xsd', 'Other.xsd']],
     ];
+    const duplicateWarningOf: Record<string, ReportMessage> = {
+      'A.xsd': { filePath: 'A.xsd', message: `Multiple schemas share targetNamespace "${NS}": "Other.xsd"` },
+      'Other.xsd': {
+        filePath: 'Other.xsd',
+        message: `Multiple schemas share targetNamespace "${NS}": "A.xsd" (with "Types.xsd")`,
+      },
+    };
 
     const createDoc = (order: string[]) => {
       const files = Object.fromEntries(order.map((name) => [name, getXmlStubFile(`${STUB_DIR}/${name}`)]));
@@ -1114,7 +1122,10 @@ describe('XmlSchemaTypesService', () => {
         'A.xsd',
       );
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-      expect(result.validationStatus).toBe('success');
+      expect(result.validationStatus).toBe('warning');
+      expect(result.warnings).toEqual(
+        order.filter((file) => file in duplicateWarningOf).map((file) => duplicateWarningOf[file]),
+      );
       return result.document as XmlSchemaDocument;
     };
 

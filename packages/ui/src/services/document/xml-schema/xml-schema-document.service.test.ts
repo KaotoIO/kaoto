@@ -7,6 +7,7 @@ import {
   ITypeFragment,
   RootElementOption,
 } from '../../../models/datamapper/document';
+import { ReportMessage } from '../../../models/datamapper/schema';
 import { NS_XML_SCHEMA_INSTANCE } from '../../../models/datamapper/standard-namespaces';
 import { Types } from '../../../models/datamapper/types';
 import {
@@ -1594,6 +1595,17 @@ describe('XmlSchemaDocumentService', () => {
       expect(childNames(result, rootField(result))).toEqual(['b']);
     });
 
+    const shadowingWarningOf: Record<string, ReportMessage> = {
+      'implementation.xsd': {
+        filePath: 'implementation.xsd',
+        message: 'Multiple schemas share targetNamespace "urn:x": "other.xsd"',
+      },
+      'other.xsd': {
+        filePath: 'other.xsd',
+        message: 'Multiple schemas share targetNamespace "urn:x": "implementation.xsd" (with "base.xsd")',
+      },
+    };
+
     it.each([[['implementation.xsd', 'base.xsd', 'other.xsd']], [['other.xsd', 'implementation.xsd', 'base.xsd']]])(
       'should resolve components declared only in the redefined schema through the collection, attach order %j',
       (order) => {
@@ -1605,7 +1617,10 @@ describe('XmlSchemaDocumentService', () => {
           entrySchemaFile: 'implementation.xsd',
         });
 
-        expect(root.validationStatus).toBe('success');
+        expect(root.validationStatus).toBe('warning');
+        expect(root.warnings).toEqual(
+          order.filter((file) => file in shadowingWarningOf).map((file) => shadowingWarningOf[file]),
+        );
         expect(baseRoot.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}BaseRoot');
         const rootChildren = rootField(root)?.fields ?? [];
         expect(childNames(root, rootChildren[0])).toEqual(['fromOther']);
@@ -1860,6 +1875,15 @@ describe('XmlSchemaDocumentService', () => {
   </xs:complexType>
 </xs:schema>`;
 
+    const mainDuplicateWarning = {
+      filePath: 'Main.xsd',
+      message: 'Multiple schemas share targetNamespace "http://example.com/ns": "Unrelated.xsd"',
+    };
+    const unrelatedDuplicateWarning = {
+      filePath: 'Unrelated.xsd',
+      message: 'Multiple schemas share targetNamespace "http://example.com/ns": "Main.xsd" (with "MainTypes.xsd")',
+    };
+
     it('should resolve types consistently regardless of file order in definitionFiles (three-file reproducer)', () => {
       // Order 1: Main.xsd first
       const def1 = new DocumentDefinition(
@@ -1879,7 +1903,8 @@ describe('XmlSchemaDocumentService', () => {
       );
 
       const res1 = XmlSchemaDocumentService.createXmlSchemaDocument(def1);
-      expect(res1.validationStatus).toBe('success');
+      expect(res1.validationStatus).toBe('warning');
+      expect(res1.warnings).toEqual([mainDuplicateWarning, unrelatedDuplicateWarning]);
       const doc1 = res1.document as XmlSchemaDocument;
 
       const orderFragmentKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey(
@@ -1917,7 +1942,8 @@ describe('XmlSchemaDocumentService', () => {
       );
 
       const res2 = XmlSchemaDocumentService.createXmlSchemaDocument(def2);
-      expect(res2.validationStatus).toBe('success');
+      expect(res2.validationStatus).toBe('warning');
+      expect(res2.warnings).toEqual([unrelatedDuplicateWarning, mainDuplicateWarning]);
       const doc2 = res2.document as XmlSchemaDocument;
 
       const fragment2 = doc2.namedTypeFragments[orderFragmentKey];
