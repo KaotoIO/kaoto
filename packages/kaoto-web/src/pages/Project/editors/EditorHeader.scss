@@ -26,10 +26,15 @@
   @include panel.panel-heading;
 }
 
-// Undo and redo sit on the right
+// Undo and redo and the tools for the file sit on the right, in groups set a little apart
 .cs--editor-header__actions {
   display: flex;
   flex-shrink: 0;
-  gap: $spacing-01;
+  gap: $spacing-04;
   margin-inline-start: auto;
+}
+
+.cs--editor-header__group {
+  display: flex;
+  gap: $spacing-01;
 }
