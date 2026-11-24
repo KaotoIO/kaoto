@@ -187,8 +187,8 @@ describe('useKeepCenterOnResize', () => {
     });
   });
 
-  describe('sidebar toggling (selection changes together with the size)', () => {
-    it('does not shift the graph when the sidebar opens', () => {
+  describe('sidebar toggling (selection changes together with or without the size)', () => {
+    it('does not shift the graph when the sidebar opens (panIntoView handles it)', () => {
       const { controller, graph, resize } = makeController({ width: 1000, height: 800 });
       let ids: string[] = [];
       const { rerender } = renderKeepCenter(controller, () => ids);
@@ -200,7 +200,7 @@ describe('useKeepCenterOnResize', () => {
       expect(graph.getPosition()).toEqual(new Point(100, 50));
     });
 
-    it('does not shift the graph when the sidebar closes, so open/close does not drift', () => {
+    it('centers the graph when the sidebar closes (canvas widens)', () => {
       const { controller, graph, resize } = makeController({ width: 1000, height: 800 });
       let ids: string[] = [];
       const { rerender } = renderKeepCenter(controller, () => ids);
@@ -212,10 +212,12 @@ describe('useKeepCenterOnResize', () => {
       rerender();
       resize(1000, 800);
 
-      expect(graph.getPosition()).toEqual(new Point(100, 50));
+      // After sidebar closes, the canvas widens by 500px.
+      // Centering shifts the graph right by half: 100 + (1000 - 500) / 2 = 350.
+      expect(graph.getPosition()).toEqual(new Point(350, 50));
     });
 
-    it('shifts the graph again on later resizes once the sidebar is closed', () => {
+    it('centers the graph on further resizes after the sidebar is closed', () => {
       const { controller, graph, resize } = makeController({ width: 1000, height: 800 });
       let ids: string[] = [];
       const { rerender } = renderKeepCenter(controller, () => ids);
@@ -225,10 +227,29 @@ describe('useKeepCenterOnResize', () => {
       resize(500, 800);
       ids = [];
       rerender();
-      resize(1000, 800);
-      resize(600, 800);
+      resize(1000, 800); // sidebar closes → center: 100 + 250 = 350
+      resize(600, 800); // external resize → center: 350 + (600 - 1000) / 2 = 350 - 200 = 150
 
-      expect(graph.getPosition()).toEqual(new Point(-100, 50));
+      expect(graph.getPosition()).toEqual(new Point(150, 50));
+    });
+
+    it('centers after an external resize when the sidebar was open in overlay mode (no resize on sidebar toggle)', () => {
+      // Narrow viewport: sidebar opens/closes as an overlay, not pushing the canvas.
+      // Sequence: select (overlay, no resize) → external resize → deselect (no resize) → external resize.
+      // The final external resize should center the graph.
+      const { controller, graph, resize } = makeController({ width: 1000, height: 800 });
+      let ids: string[] = [];
+      const { rerender } = renderKeepCenter(controller, () => ids);
+
+      ids = [NODE_ID]; // sidebar opens as overlay — canvas size unchanged
+      rerender();
+      resize(500, 800); // external resize while selected → panIntoView (position unchanged, mocked)
+      ids = []; // sidebar closes as overlay — canvas size unchanged
+      rerender();
+      resize(800, 800); // external resize after deselect → should center
+
+      // Centering: 100 + (800 - 500) / 2 = 100 + 150 = 250
+      expect(graph.getPosition()).toEqual(new Point(250, 50));
     });
   });
 

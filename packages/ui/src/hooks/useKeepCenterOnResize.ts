@@ -24,8 +24,6 @@ import { useEffect, useRef } from 'react';
  * - Nothing selected: the visible center is kept fixed, so a centered graph stays centered.
  * - One node selected: the graph is panned just enough to keep that node in view.
  *
- * Resizes caused by the side bar opening or closing are not re-centered, since selecting a node already
- * pans it into view and re-centering on both open and close would make the graph drift.
  * Zero-sized measurements (hidden container) are ignored and the last non-zero size is used as reference.
  */
 export const useKeepCenterOnResize = (selectedIds: string[]): void => {
@@ -38,7 +36,6 @@ export const useKeepCenterOnResize = (selectedIds: string[]): void => {
 
   useEffect(() => {
     let previous: { width: number; height: number } | undefined;
-    let hadSelection = false;
 
     return reaction(
       () => {
@@ -54,7 +51,7 @@ export const useKeepCenterOnResize = (selectedIds: string[]): void => {
         const hasSelection = selection.length > 0;
 
         if (previous) {
-          if (!hasSelection && !hadSelection) {
+          if (!hasSelection) {
             const { x, y } = graph.getPosition();
             graph.setPosition(
               new Point(x + (current.width - previous.width) / 2, y + (current.height - previous.height) / 2),
@@ -68,7 +65,6 @@ export const useKeepCenterOnResize = (selectedIds: string[]): void => {
         }
 
         previous = current;
-        hadSelection = hasSelection;
       }),
       { fireImmediately: true, equals: comparer.structural },
     );
