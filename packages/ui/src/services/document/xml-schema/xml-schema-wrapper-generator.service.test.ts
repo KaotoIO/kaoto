@@ -12,11 +12,15 @@ describe('XmlSchemaWrapperGeneratorService', () => {
   const makeSchema = (opts?: {
     targetNamespace?: string;
     includes?: string[];
+    redefines?: string[];
     imports?: { ns?: string; loc: string }[];
     elements?: string;
   }) => {
     const ns = opts?.targetNamespace ? ` targetNamespace="${opts.targetNamespace}"` : '';
-    const includes = (opts?.includes ?? []).map((loc) => `  <xs:include schemaLocation="${loc}"/>`).join('\n');
+    const includes = [
+      ...(opts?.includes ?? []).map((loc) => `  <xs:include schemaLocation="${loc}"/>`),
+      ...(opts?.redefines ?? []).map((loc) => `  <xs:redefine schemaLocation="${loc}"/>`),
+    ].join('\n');
     const imports = (opts?.imports ?? [])
       .map((imp) => {
         const nsAttr = imp.ns == null ? '' : ` namespace="${imp.ns}"`;
@@ -521,9 +525,8 @@ ${elements}
 
   it('should fall back to the first file, instead of a wrapper with nothing for its root, when the root namespace is only a chameleon-excluded file', () => {
     // common.xsd has no targetNamespace of its own, so groupFilesByNamespace excludes it from the "" group once
-    // root.xsd includes it; createXmlSchemaDocument resolving the root element to that same "" namespace (e.g. via
-    // a redefine/override this service's own edge-based analysis does not track) would otherwise silently produce
-    // a wrapper with no content for its own declared namespace.
+    // root.xsd includes it; a root element chosen in that "" namespace would otherwise produce a wrapper with no
+    // content for its own declared namespace.
     const definitionFiles = {
       'root.xsd': makeSchema({
         targetNamespace: 'urn:a',
@@ -533,17 +536,81 @@ ${elements}
       'common.xsd': makeSchema({ elements: '<xs:element name="Common" type="xs:string"/>' }),
       'other.xsd': makeSchema({ targetNamespace: 'urn:b', elements: '<xs:element name="Other" type="xs:string"/>' }),
     };
-    const createDocSpy = vi.spyOn(XmlSchemaDocumentService, 'createXmlSchemaDocument').mockReturnValue({
-      validationStatus: 'success',
-      document: { rootElement: { getQName: () => ({ getNamespaceURI: () => '' }) } },
-    } as unknown as ReturnType<typeof XmlSchemaDocumentService.createXmlSchemaDocument>);
 
-    const result = XmlSchemaWrapperGeneratorService.computeValidationUri({ definitionFiles }, 'wrapper.xsd');
-    createDocSpy.mockRestore();
+    const result = XmlSchemaWrapperGeneratorService.computeValidationUri(
+      { definitionFiles, rootElement: { namespaceUri: '', name: 'Common' } },
+      'wrapper.xsd',
+    );
 
     expect(result.kind).toBe('root');
     expect(result.uri).toBe('root.xsd');
     expect(result.warnings.some((w) => w.includes('matches no attached schema file'))).toBe(true);
+  });
+
+  describe('with xs:redefine', () => {
+    it('should validate a two-file redefine set against the redefining schema', () => {
+      const result = XmlSchemaWrapperGeneratorService.computeValidationUri(
+        {
+          definitionFiles: {
+            'base.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+            'impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['base.xsd'] }),
+          },
+        },
+        'wrapper.xsd',
+      );
+      expect(result).toEqual({ kind: 'root', uri: 'impl.xsd', warnings: [] });
+    });
+
+    it.each([
+      ['a chameleon', undefined],
+      ['a namespaced', 'urn:x'],
+    ])('should leave %s redefined schema out of the wrapper', (_label, baseNamespace) => {
+      const result = XmlSchemaWrapperGeneratorService.computeValidationUri(
+        {
+          definitionFiles: {
+            'impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['base.xsd'] }),
+            'base.xsd': makeSchema({ targetNamespace: baseNamespace, elements: '' }),
+            'other.xsd': makeSchema({
+              targetNamespace: 'urn:b',
+              elements: '<xs:element name="Other" type="xs:string"/>',
+            }),
+          },
+          rootElement: { namespaceUri: 'urn:x', name: 'Root' },
+        },
+        'wrapper.xsd',
+      );
+
+      expect(result.kind).toBe('wrapper');
+      const { xsd } = result as { kind: 'wrapper'; xsd: string };
+      expect(xsd).toContain('impl.xsd');
+      expect(xsd).toContain('other.xsd');
+      expect(xsd).not.toContain('base.xsd');
+    });
+  });
+
+  it.each([
+    ['redefines', 'redefines' as const],
+    ['includes', 'includes' as const],
+  ])('should import a namespace before the one that %s a chameleon schema importing it', (_label, directive) => {
+    const definitionFiles = {
+      'root.xsd': makeSchema({ targetNamespace: 'urn:r', imports: [{ ns: 'urn:x', loc: 'impl.xsd' }] }),
+      'impl.xsd': makeSchema({ targetNamespace: 'urn:x', [directive]: ['base.xsd'], elements: '' }),
+      'base.xsd': makeSchema({ imports: [{ ns: 'urn:b', loc: 'b1.xsd' }], elements: '' }),
+      'b1.xsd': makeSchema({ targetNamespace: 'urn:b', elements: '<xs:element name="B1" type="xs:string"/>' }),
+      'b2.xsd': makeSchema({ targetNamespace: 'urn:b', elements: '<xs:element name="B2" type="xs:string"/>' }),
+    };
+    const result = XmlSchemaWrapperGeneratorService.computeValidationUri(
+      { definitionFiles, rootElement: { namespaceUri: 'urn:r', name: 'Root' } },
+      'wrapper.xsd',
+    );
+
+    expect(result.kind).toBe('wrapper');
+    const { xsd } = result as { kind: 'wrapper'; xsd: string };
+    expect(xsd).toContain('<xs:import namespace="urn:b" schemaLocation="wrapper-1.xsd"/>');
+    expect(xsd).toContain('<xs:import namespace="urn:x" schemaLocation="impl.xsd"/>');
+    expect(xsd.indexOf('namespace="urn:b"')).toBeLessThan(xsd.indexOf('namespace="urn:x"'));
+    expect(xsd).not.toContain('base.xsd');
+    expect(result.warnings).toEqual([]);
   });
 
   it('should keep the file order of definitionFiles in the generated wrapper', () => {

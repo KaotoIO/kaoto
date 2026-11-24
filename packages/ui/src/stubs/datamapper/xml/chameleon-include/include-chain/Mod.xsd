@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:include schemaLocation="Sub.xsd"/>
+  <xs:complexType name="ModType">
+    <xs:sequence>
+      <xs:element name="sub" type="SubType"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

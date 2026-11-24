@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:complexType name="PtysSubGrp_Block_t">
+    <xs:attribute name="ID" type="xs:string" use="required"/>
+  </xs:complexType>
+  <xs:group name="PartiesElements">
+    <xs:sequence>
+      <xs:element name="Sub" type="PtysSubGrp_Block_t" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+</xs:schema>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:simpleType name="SubType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+</xs:schema>

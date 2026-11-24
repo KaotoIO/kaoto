@@ -198,10 +198,12 @@ export class XmlSchemaDocumentService {
   }
 
   /**
-   * Helper method to load schema files into the collection in topological dependency order.
-   * @param selectedEntry - An entry schema chosen with the root element. When another file includes it, it is
-   *   still loaded directly, so that its own (possibly no-namespace) declarations stay resolvable next to the
-   *   copy the including file adopts into its namespace.
+   * Helper method to load schema files into the collection in topological dependency order. Targets of include-like
+   * directives (`xs:include`, `xs:redefine`) are not loaded directly: the referencing schema loads them, in its own
+   * namespace when they declare none.
+   * @param selectedEntry - An entry schema chosen with the root element. When another file includes or redefines it,
+   *   it is still loaded directly, so that its own (possibly no-namespace) declarations stay resolvable next to the
+   *   copy the referencing file adopts into its namespace.
    */
   static loadSchemaFiles(
     collection: XmlSchemaCollection,
@@ -209,12 +211,15 @@ export class XmlSchemaDocumentService {
     definitionFiles: Record<string, string>,
     selectedEntry?: string,
   ): { error?: { message: string; filePath?: string } } {
-    const includeTargets = XmlSchemaDocumentService.computeIncludeTargetsToSkip(analysis.loadOrder, analysis.edges);
-    if (selectedEntry) includeTargets.delete(selectedEntry);
+    const includeLikeTargets = XmlSchemaDocumentService.computeIncludeLikeTargetsToSkip(
+      analysis.loadOrder,
+      analysis.edges,
+    );
+    if (selectedEntry) includeLikeTargets.delete(selectedEntry);
 
     try {
       for (const path of analysis.loadOrder) {
-        if (includeTargets.has(path)) continue;
+        if (includeLikeTargets.has(path)) continue;
         collection.read(definitionFiles[path], () => {}, path);
       }
       return {};
@@ -227,40 +232,33 @@ export class XmlSchemaDocumentService {
   }
 
   /**
-   * Determines which include-target files can safely be skipped during direct loading.
-   * Normally, files that are xs:include targets are loaded indirectly when their parent
-   * schema processes the include directive. However, with circular includes (A includes B,
-   * B includes A), all files in the cycle become include targets — skipping them all means
-   * nothing loads. This method ensures at least one file per isolated cycle is promoted to
-   * direct loading so the SchemaBuilder can process the cycle via its built-in
-   * `collection.check(key)` guard.
+   * Determines which include-like targets (`xs:include`, `xs:redefine`) can safely be skipped during direct loading.
+   * Normally such a target is loaded indirectly when its referencing schema processes the directive. With a cycle
+   * (A includes B, B includes A) every member is a target, and skipping them all would load nothing, so at least one
+   * file per cycle that no loaded file reaches is promoted to direct loading. SchemaBuilder copes with the cycle
+   * because a schema is registered before its children are read, and `collection.getSchema(key)` returns it.
+   * A target in `loadOrder` that only files outside `loadOrder` reference is promoted the same way.
    */
-  private static computeIncludeTargetsToSkip(loadOrder: string[], edges: DependencyEdge[]): Set<string> {
-    const includeEdges = edges.filter((e) => e.directive.type === 'include');
-    const includeTargets = new Set(includeEdges.map((e) => e.to));
-    const adjacencyMap = XmlSchemaDocumentService.buildIncludeAdjacency(includeEdges);
+  private static computeIncludeLikeTargetsToSkip(loadOrder: string[], edges: DependencyEdge[]): Set<string> {
+    const includeLikeTargets = new Set(
+      edges.filter((e) => XmlSchemaAnalysisService.isIncludeLikeDirective(e.directive.type)).map((e) => e.to),
+    );
+    const adjacencyMap = XmlSchemaAnalysisService.buildSuccessors(
+      edges,
+      XmlSchemaAnalysisService.isIncludeLikeDirective,
+    );
 
     const reachable = new Set<string>();
-    const seeds = loadOrder.filter((p) => !includeTargets.has(p));
+    const seeds = loadOrder.filter((p) => !includeLikeTargets.has(p));
     XmlSchemaDocumentService.bfsReachable(seeds, adjacencyMap, reachable);
 
     for (const path of loadOrder) {
       if (reachable.has(path)) continue;
-      includeTargets.delete(path);
+      includeLikeTargets.delete(path);
       XmlSchemaDocumentService.bfsReachable([path], adjacencyMap, reachable);
     }
 
-    return includeTargets;
-  }
-
-  private static buildIncludeAdjacency(includeEdges: Array<{ from: string; to: string }>): Map<string, string[]> {
-    const adjacencyMap = new Map<string, string[]>();
-    for (const edge of includeEdges) {
-      const list = adjacencyMap.get(edge.from) ?? [];
-      list.push(edge.to);
-      adjacencyMap.set(edge.from, list);
-    }
-    return adjacencyMap;
+    return includeLikeTargets;
   }
 
   private static bfsReachable(seeds: string[], adj: Map<string, string[]>, reachable: Set<string>): void {
@@ -334,21 +332,40 @@ export class XmlSchemaDocumentService {
   /**
    * Adds additional schema files to an existing document's schema collection.
    * This is useful when field type overrides reference types defined in additional schema files.
-   * The dependency edges are recomputed from the existing definition files merged with the added ones,
-   * because the caller adds the new files to `document.definition.definitionFiles` only after this call.
+   * The existing definition files are analysed together with the added ones, because the caller adds the new files
+   * to `document.definition.definitionFiles` only after this call, and the added files are loaded the way a reload
+   * loads them: in dependency order, with include-like targets loaded through the schema that references them.
+   * The analysis runs before the files are given to the schema resolver, so a file the analysis rejects leaves no
+   * trace there; after a loader error the resolver and the collection keep what was added up to that point.
+   * The load order is limited to the added files before the skip set is computed: an existing include that resolved
+   * through the file-name fallback can resolve to an added file by its exact path instead, and that file is then
+   * loaded directly rather than skipped.
    * @param document - The document whose schema collection will be updated
    * @param additionalFiles - Map of file paths to file contents to add
+   * @throws Error with the analysis errors joined by `; `, or with the loader error, when the files cannot be added
    * @remarks A malformed `minOccurs` or `maxOccurs` in an added file loads as `1` without a warning here; the
    * warning is shown only when the files are attached through the Attach Schema modal.
    */
   static addSchemaFiles(document: XmlSchemaDocument, additionalFiles: Record<string, string>): void {
     const collection = document.xmlSchemaCollection;
+    const mergedFiles = { ...document.definition.definitionFiles, ...additionalFiles };
+    const analysis = XmlSchemaAnalysisService.analyze(mergedFiles);
+    if (analysis.errors.length > 0) {
+      throw new Error(analysis.errors.map((e) => e.message).join('; '));
+    }
+
     collection.getSchemaResolver().addFiles(additionalFiles);
-    XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, additionalFiles);
-    document.dependencyEdges = XmlSchemaAnalysisService.analyze({
-      ...document.definition.definitionFiles,
-      ...additionalFiles,
-    }).edges;
+    const loadOrder = analysis.loadOrder.filter((path) => path in additionalFiles);
+    const loadResult = XmlSchemaDocumentService.loadSchemaFiles(
+      collection,
+      { loadOrder, edges: analysis.edges },
+      mergedFiles,
+    );
+    if (loadResult.error) {
+      throw new Error(loadResult.error.message);
+    }
+
+    document.dependencyEdges = analysis.edges;
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
     XmlSchemaDocumentService.rebuildAbstractWrapperChildren(document);
   }
@@ -631,7 +648,7 @@ export class XmlSchemaDocumentService {
     entrySchemaFile: string,
     edges: DependencyEdge[],
   ): (s: XmlSchema) => boolean {
-    const effectiveNamespaces = XmlSchemaDocumentUtilService.collectEffectiveNamespaces(
+    const effectiveNamespaces = XmlSchemaAnalysisService.collectEffectiveNamespaces(
       entrySchemaFile,
       edges,
       XmlSchemaDocumentUtilService.collectSyntacticNamespaces(collection),

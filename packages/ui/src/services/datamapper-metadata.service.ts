@@ -138,8 +138,8 @@ export class DataMapperMetadataService {
   /**
    * Loads a document definition from metadata.
    * For legacy XML schema metadata lacking both `rootElementChoice` and `entrySchemaFile`,
-   * the default root element is inferred via {@link inferLegacyRootElementChoice} in topological
-   * load order to maintain backwards compatibility with existing mappings.
+   * the default root element is inferred via {@link inferLegacyRootElementChoice} in load order
+   * to maintain backwards compatibility with existing mappings.
    * The persisted `entrySchemaFile` is passed through as is; for metadata saved without one
    * it is inferred by `XmlSchemaDocumentService.createXmlSchemaDocument`.
    * File contents are keyed in `filePath` order (attach order).
@@ -204,8 +204,9 @@ export class DataMapperMetadataService {
 
   /**
    * For legacy XML schema metadata saved without `entrySchemaFile`, resolves the root element the way
-   * pre-#3462 code did, using topological dependency load order and a collection-wide lookup, to preserve
-   * backwards compatibility for existing field mappings. Without a saved choice it is the first element;
+   * pre-#3462 code did, using the order in which the loader registers the schemas and a collection-wide lookup, to
+   * preserve backwards compatibility for existing field mappings. A schema that includes or redefines another is
+   * registered before the file it loads. Without a saved choice it is the first element;
    * with a QName-only saved choice it is the first declaration of that QName.
    * The result carries the entry schema (the unreferenced schema whose assembly reaches the exact declaring
    * schema instance), so that reconstruction resolves the same declaration when several schemas declare the same QName.
@@ -236,7 +237,7 @@ export class DataMapperMetadataService {
         const entrySchemaFile = declaringFile
           ? XmlSchemaAnalysisService.findUnreferencedSchemas(Object.keys(definitionFiles), analysis.edges).find(
               (candidate) =>
-                XmlSchemaDocumentUtilService.collectEffectiveNamespaces(candidate, analysis.edges, syntacticNamespaces)
+                XmlSchemaAnalysisService.collectEffectiveNamespaces(candidate, analysis.edges, syntacticNamespaces)
                   .get(declaringFile)
                   ?.has(declaringNamespace),
             )

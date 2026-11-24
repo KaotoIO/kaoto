@@ -338,7 +338,9 @@ export class FieldOverrideService {
    * @param document - The document to enhance with additional schemas
    * @param additionalFiles - Map of file paths to file contents
    * @throws Error if document is PrimitiveDocument or unsupported type
-   * @throws Error if schema parsing fails (propagated from format-specific service)
+   * @throws Error if the merged schema analysis reports errors (e.g. a missing included file), in which case the
+   *   document and its definition files are left unchanged, or if schema loading fails (propagated from
+   *   format-specific service)
    *
    * @example
    * ```typescript

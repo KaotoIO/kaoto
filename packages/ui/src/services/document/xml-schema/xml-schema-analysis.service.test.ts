@@ -4,11 +4,15 @@ describe('XmlSchemaAnalysisService', () => {
   const makeSchema = (opts?: {
     targetNamespace?: string;
     includes?: string[];
+    redefines?: string[];
     imports?: { ns?: string; loc: string }[];
     elements?: string;
   }) => {
     const ns = opts?.targetNamespace ? ` targetNamespace="${opts.targetNamespace}"` : '';
-    const includes = (opts?.includes ?? []).map((loc) => `  <xs:include schemaLocation="${loc}"/>`).join('\n');
+    const includes = [
+      ...(opts?.includes ?? []).map((loc) => `  <xs:include schemaLocation="${loc}"/>`),
+      ...(opts?.redefines ?? []).map((loc) => `  <xs:redefine schemaLocation="${loc}"/>`),
+    ].join('\n');
     const imports = (opts?.imports ?? [])
       .map((imp) => {
         const nsAttr = imp.ns == null ? '' : ` namespace="${imp.ns}"`;
@@ -419,6 +423,13 @@ ${elements}
         expect(nsErrors[0].message).toContain('xs:include');
         expect(nsErrors[0].message).toContain('main.xsd');
         expect(nsErrors[0].message).toContain('helper.xsd');
+        expect(nsErrors).toEqual([
+          {
+            filePath: 'main.xsd',
+            message:
+              'Namespace mismatch in xs:include: "main.xsd" (targetNamespace: http://example.com/main) includes "helper.xsd" (targetNamespace: http://example.com/other). Included schemas must have the same targetNamespace or no targetNamespace (chameleon include).',
+          },
+        ]);
       });
 
       it('should allow chameleon include (no targetNamespace on included schema)', () => {
@@ -454,6 +465,112 @@ ${elements}
         expect(nsErrors[0].message).toContain('main.xsd');
         expect(nsErrors[0].message).toContain('helper.xsd');
         expect(nsErrors[0].message).toContain('chameleon');
+        expect(nsErrors).toEqual([
+          {
+            filePath: 'main.xsd',
+            message:
+              'Namespace mismatch in xs:include: "main.xsd" (targetNamespace: (no targetNamespace)) includes "helper.xsd" (targetNamespace: http://example.com/helper). Included schemas must have the same targetNamespace or no targetNamespace (chameleon include).',
+          },
+        ]);
+      });
+
+      it('should accept a chameleon schema that includes a schema of the namespace it is included into', () => {
+        const files = {
+          'Main.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['Mod.xsd'] }),
+          'Mod.xsd': makeSchema({ includes: ['Sub.xsd'], elements: '' }),
+          'Sub.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toEqual([]);
+      });
+
+      it('should report a chameleon schema that includes a schema of another namespace than it is included into', () => {
+        const files = {
+          'Main.xsd': makeSchema({ targetNamespace: 'urn:y', includes: ['Mod.xsd'] }),
+          'Mod.xsd': makeSchema({ includes: ['Sub.xsd'], elements: '' }),
+          'Sub.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toEqual([
+          {
+            filePath: 'Mod.xsd',
+            message:
+              'Namespace mismatch in xs:include: "Mod.xsd" (no targetNamespace, reached as urn:y) includes "Sub.xsd" (targetNamespace: urn:x). Included schemas must have the same targetNamespace or no targetNamespace (chameleon include).',
+          },
+        ]);
+      });
+
+      it('should report a chameleon schema once per reached namespace that differs from the included schema', () => {
+        const files = {
+          'A.xsd': makeSchema({ targetNamespace: 'urn:a', includes: ['Mod.xsd'] }),
+          'B.xsd': makeSchema({ targetNamespace: 'urn:b', includes: ['Mod.xsd'] }),
+          'Mod.xsd': makeSchema({ includes: ['Sub.xsd'], elements: '' }),
+          'Sub.xsd': makeSchema({ targetNamespace: 'urn:a', elements: '' }),
+        };
+        const result = XmlSchemaAnalysisService.analyze(files);
+        expect(result.errors).toEqual([
+          {
+            filePath: 'Mod.xsd',
+            message:
+              'Namespace mismatch in xs:include: "Mod.xsd" (no targetNamespace, reached as urn:b) includes "Sub.xsd" (targetNamespace: urn:a). Included schemas must have the same targetNamespace or no targetNamespace (chameleon include).',
+          },
+        ]);
+      });
+    });
+
+    describe('xs:redefine namespace validation', () => {
+      it('should allow redefine with matching targetNamespace', () => {
+        const files = {
+          'impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['base.xsd'] }),
+          'base.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).errors).toEqual([]);
+      });
+
+      it('should allow chameleon redefine (no targetNamespace on redefined schema)', () => {
+        const files = {
+          'impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['base.xsd'] }),
+          'base.xsd': makeSchema({ elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).errors).toEqual([]);
+      });
+
+      it('should report error for redefine with mismatched targetNamespace', () => {
+        const files = {
+          'impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['base.xsd'] }),
+          'base.xsd': makeSchema({ targetNamespace: 'urn:y', elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).errors).toEqual([
+          {
+            filePath: 'impl.xsd',
+            message:
+              'Namespace mismatch in xs:redefine: "impl.xsd" (targetNamespace: urn:x) redefines "base.xsd" (targetNamespace: urn:y). Redefined schemas must have the same targetNamespace or no targetNamespace (chameleon redefine).',
+          },
+        ]);
+      });
+
+      it('should accept a chameleon redefiner included into the namespace of the redefined schema', () => {
+        const files = {
+          'Main.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['Mod.xsd'] }),
+          'Mod.xsd': makeSchema({ redefines: ['Base.xsd'], elements: '' }),
+          'Base.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).errors).toEqual([]);
+      });
+
+      it('should report a chameleon redefiner included into another namespace than the redefined schema', () => {
+        const files = {
+          'Main.xsd': makeSchema({ targetNamespace: 'urn:y', includes: ['Mod.xsd'] }),
+          'Mod.xsd': makeSchema({ redefines: ['Base.xsd'], elements: '' }),
+          'Base.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).errors).toEqual([
+          {
+            filePath: 'Mod.xsd',
+            message:
+              'Namespace mismatch in xs:redefine: "Mod.xsd" (no targetNamespace, reached as urn:y) redefines "Base.xsd" (targetNamespace: urn:x). Redefined schemas must have the same targetNamespace or no targetNamespace (chameleon redefine).',
+          },
+        ]);
       });
     });
 
@@ -568,6 +685,32 @@ ${elements}
         const nsWarnings = result.warnings.filter((w) => w.message.includes('Multiple schemas'));
         expect(nsWarnings).toHaveLength(0);
       });
+
+      it('should not warn for a third same-namespace schema next to an include pair', () => {
+        const files = {
+          'main.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['component.xsd'] }),
+          'component.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+          'other.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([]);
+      });
+
+      it('should not warn when same-namespace schemas are connected via xs:redefine', () => {
+        const files = {
+          'impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['base.xsd'] }),
+          'base.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([]);
+      });
+
+      it('should not warn for a third same-namespace schema next to a redefine pair', () => {
+        const files = {
+          'impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['base.xsd'] }),
+          'base.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+          'other.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([]);
+      });
     });
 
     it('should report multiple namespace issues at once', () => {
@@ -585,6 +728,218 @@ ${elements}
       expect(nsErrors).toHaveLength(2);
       expect(nsErrors.some((e) => e.message.includes('xs:include'))).toBe(true);
       expect(nsErrors.some((e) => e.message.includes('xs:import'))).toBe(true);
+    });
+  });
+
+  describe('with xs:redefine', () => {
+    it('should create a redefine edge and load the redefined schema first in every input order', () => {
+      const impl = makeSchema({ redefines: ['base.xsd'] });
+      const base = makeSchema({ elements: '' });
+
+      const implFirst = XmlSchemaAnalysisService.analyze({ 'impl.xsd': impl, 'base.xsd': base });
+      const baseFirst = XmlSchemaAnalysisService.analyze({ 'base.xsd': base, 'impl.xsd': impl });
+
+      expect(implFirst.edges).toEqual([
+        {
+          from: 'impl.xsd',
+          to: 'base.xsd',
+          directive: { type: 'redefine', schemaLocation: 'base.xsd', namespace: null },
+        },
+      ]);
+      expect(implFirst.loadOrder).toEqual(['base.xsd', 'impl.xsd']);
+      expect(baseFirst.loadOrder).toEqual(['base.xsd', 'impl.xsd']);
+      expect(implFirst.errors).toEqual([]);
+      expect(implFirst.warnings).toEqual([]);
+    });
+
+    it('should report a missing redefined schema', () => {
+      const result = XmlSchemaAnalysisService.analyze({ 'impl.xsd': makeSchema({ redefines: ['base.xsd'] }) });
+      expect(result.errors).toEqual([
+        {
+          filePath: 'impl.xsd',
+          message: 'Missing required schema: "base.xsd" referenced by "impl.xsd" via xs:redefine',
+        },
+      ]);
+    });
+
+    it('should not offer the redefined schema as an unreferenced schema', () => {
+      const result = XmlSchemaAnalysisService.analyze({
+        'base.xsd': makeSchema(),
+        'impl.xsd': makeSchema({ redefines: ['base.xsd'] }),
+      });
+      expect(XmlSchemaAnalysisService.findUnreferencedSchemas(result)).toEqual(['impl.xsd']);
+    });
+
+    describe('circular redefines', () => {
+      it('should warn on a redefine cycle', () => {
+        const result = XmlSchemaAnalysisService.analyze({
+          'A.xsd': makeSchema({ redefines: ['B.xsd'] }),
+          'B.xsd': makeSchema({ redefines: ['A.xsd'] }),
+        });
+        expect(result.errors).toEqual([]);
+        expect(result.warnings).toEqual([
+          { filePath: 'A.xsd', message: 'Circular xs:redefine detected: A.xsd->B.xsd->A.xsd' },
+          { filePath: 'B.xsd', message: 'Circular xs:redefine detected: B.xsd->A.xsd->B.xsd' },
+        ]);
+        expect(result.loadOrder).toEqual(['A.xsd', 'B.xsd']);
+      });
+
+      it('should warn on a cycle that mixes include and redefine', () => {
+        const result = XmlSchemaAnalysisService.analyze({
+          'A.xsd': makeSchema({ includes: ['B.xsd'] }),
+          'B.xsd': makeSchema({ redefines: ['A.xsd'] }),
+        });
+        expect(result.warnings).toEqual([
+          { filePath: 'B.xsd', message: 'Circular xs:include/xs:redefine detected: B.xsd->A.xsd->B.xsd' },
+          { filePath: 'A.xsd', message: 'Circular xs:include/xs:redefine detected: A.xsd->B.xsd->A.xsd' },
+        ]);
+      });
+
+      it('should label a cycle through an include and a redefine between the same two files', () => {
+        const result = XmlSchemaAnalysisService.analyze({
+          'A.xsd': makeSchema({ includes: ['B.xsd'], redefines: ['B.xsd'] }),
+          'B.xsd': makeSchema({ includes: ['A.xsd'] }),
+        });
+        expect(result.warnings).toEqual([
+          { filePath: 'A.xsd', message: 'Circular xs:include detected: A.xsd->B.xsd->A.xsd' },
+          { filePath: 'B.xsd', message: 'Circular xs:include detected: B.xsd->A.xsd->B.xsd' },
+          { filePath: 'A.xsd', message: 'Circular xs:include/xs:redefine detected: A.xsd->B.xsd->A.xsd' },
+          { filePath: 'B.xsd', message: 'Circular xs:include/xs:redefine detected: B.xsd->A.xsd->B.xsd' },
+        ]);
+      });
+
+      it('should find a redefine cycle that a depth-first search in directive order would not report', () => {
+        const result = XmlSchemaAnalysisService.analyze({
+          'A.xsd': makeSchema({ includes: ['B.xsd'], redefines: ['C.xsd'] }),
+          'B.xsd': makeSchema({ includes: ['A.xsd'] }),
+          'C.xsd': makeSchema({ includes: ['B.xsd'] }),
+        });
+        expect(result.warnings).toEqual([
+          { filePath: 'A.xsd', message: 'Circular xs:include detected: A.xsd->B.xsd->A.xsd' },
+          { filePath: 'B.xsd', message: 'Circular xs:include detected: B.xsd->A.xsd->B.xsd' },
+          { filePath: 'A.xsd', message: 'Circular xs:include/xs:redefine detected: A.xsd->C.xsd->B.xsd->A.xsd' },
+          { filePath: 'C.xsd', message: 'Circular xs:include/xs:redefine detected: C.xsd->B.xsd->A.xsd->C.xsd' },
+          { filePath: 'B.xsd', message: 'Circular xs:include/xs:redefine detected: B.xsd->A.xsd->C.xsd->B.xsd' },
+        ]);
+      });
+
+      it('should not give a redefine warning to a component member that lies on no cycle with a redefine', () => {
+        const result = XmlSchemaAnalysisService.analyze({
+          'A.xsd': makeSchema({ includes: ['C.xsd'], redefines: ['B.xsd'] }),
+          'B.xsd': makeSchema({ includes: ['A.xsd'] }),
+          'C.xsd': makeSchema({ includes: ['B.xsd'] }),
+        });
+        expect(result.warnings).toEqual([
+          { filePath: 'A.xsd', message: 'Circular xs:include detected: A.xsd->C.xsd->B.xsd->A.xsd' },
+          { filePath: 'C.xsd', message: 'Circular xs:include detected: C.xsd->B.xsd->A.xsd->C.xsd' },
+          { filePath: 'B.xsd', message: 'Circular xs:include detected: B.xsd->A.xsd->C.xsd->B.xsd' },
+          { filePath: 'A.xsd', message: 'Circular xs:include/xs:redefine detected: A.xsd->B.xsd->A.xsd' },
+          { filePath: 'B.xsd', message: 'Circular xs:include/xs:redefine detected: B.xsd->A.xsd->B.xsd' },
+        ]);
+      });
+
+      it('should warn on a schema that redefines itself', () => {
+        const result = XmlSchemaAnalysisService.analyze({ 'A.xsd': makeSchema({ redefines: ['A.xsd'] }) });
+        expect(result.warnings).toEqual([
+          { filePath: 'A.xsd', message: 'Circular xs:redefine detected: A.xsd->A.xsd' },
+        ]);
+      });
+    });
+  });
+
+  describe('isIncludeLikeDirective', () => {
+    it.each([
+      ['include', true],
+      ['redefine', true],
+      ['import', false],
+    ] as const)('should return %s -> %s', (type, expected) => {
+      expect(XmlSchemaAnalysisService.isIncludeLikeDirective(type)).toBe(expected);
+    });
+  });
+
+  describe('collectEffectiveNamespaces', () => {
+    const collect = (files: Record<string, string>, entry: string) => {
+      const { edges, fileInfos } = XmlSchemaAnalysisService.analyze(files);
+      const syntacticNamespaces = new Map(
+        [...fileInfos].map(([filePath, info]) => [filePath, info.targetNamespace ?? '']),
+      );
+      const effective = XmlSchemaAnalysisService.collectEffectiveNamespaces(entry, edges, syntacticNamespaces);
+      return Object.fromEntries([...effective].map(([filePath, namespaces]) => [filePath, [...namespaces]]));
+    };
+
+    it('should let a chameleon include target adopt the including namespace', () => {
+      expect(
+        collect(
+          { 'Main.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['Inc.xsd'] }), 'Inc.xsd': makeSchema() },
+          'Main.xsd',
+        ),
+      ).toEqual({ 'Main.xsd': ['urn:x'], 'Inc.xsd': ['urn:x'] });
+    });
+
+    it('should let a chameleon redefine target adopt the redefining namespace', () => {
+      expect(
+        collect(
+          { 'Impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['Base.xsd'] }), 'Base.xsd': makeSchema() },
+          'Impl.xsd',
+        ),
+      ).toEqual({ 'Impl.xsd': ['urn:x'], 'Base.xsd': ['urn:x'] });
+    });
+
+    it('should keep the declared namespace of an include-like target', () => {
+      expect(
+        collect(
+          {
+            'Impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['Base.xsd'] }),
+            'Base.xsd': makeSchema({ targetNamespace: 'urn:x' }),
+          },
+          'Impl.xsd',
+        ),
+      ).toEqual({ 'Impl.xsd': ['urn:x'], 'Base.xsd': ['urn:x'] });
+    });
+
+    it('should keep the declared namespace of an imported schema and not adopt for a no-namespace import', () => {
+      expect(
+        collect(
+          {
+            'Main.xsd': makeSchema({
+              targetNamespace: 'urn:x',
+              imports: [{ ns: 'urn:t', loc: 'T.xsd' }, { loc: 'NoNs.xsd' }],
+            }),
+            'T.xsd': makeSchema({ targetNamespace: 'urn:t' }),
+            'NoNs.xsd': makeSchema(),
+          },
+          'Main.xsd',
+        ),
+      ).toEqual({ 'Main.xsd': ['urn:x'], 'T.xsd': ['urn:t'], 'NoNs.xsd': [''] });
+    });
+
+    it('should reach a chameleon schema under every namespace it is included into', () => {
+      expect(
+        collect(
+          {
+            'Entry.xsd': makeSchema({
+              targetNamespace: 'urn:a',
+              includes: ['Cham.xsd'],
+              imports: [{ ns: 'urn:b', loc: 'Other.xsd' }],
+            }),
+            'Other.xsd': makeSchema({ targetNamespace: 'urn:b', includes: ['Cham.xsd'] }),
+            'Cham.xsd': makeSchema(),
+          },
+          'Entry.xsd',
+        ),
+      ).toEqual({ 'Entry.xsd': ['urn:a'], 'Cham.xsd': ['urn:a', 'urn:b'], 'Other.xsd': ['urn:b'] });
+    });
+
+    it('should terminate on an include cycle', () => {
+      expect(
+        collect(
+          {
+            'A.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['B.xsd'] }),
+            'B.xsd': makeSchema({ includes: ['A.xsd'] }),
+          },
+          'A.xsd',
+        ),
+      ).toEqual({ 'A.xsd': ['urn:x'], 'B.xsd': ['urn:x'] });
     });
   });
 });

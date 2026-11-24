@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:b="urn:x" elementFormDefault="qualified">
+  <xs:complexType name="T">
+    <xs:sequence>
+      <xs:element name="a" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:group name="G">
+    <xs:sequence>
+      <xs:element name="g1" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="AG">
+    <xs:attribute name="ag1" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:complexType name="H">
+    <xs:sequence>
+      <xs:group ref="G"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="AG"/>
+  </xs:complexType>
+  <xs:element name="BaseRoot" type="T"/>
+  <xs:element name="BaseHolder" type="H"/>
+</xs:schema>
