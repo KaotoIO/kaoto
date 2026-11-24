@@ -364,6 +364,7 @@ describe('CreateFileModal', () => {
     expect(screen.getByLabelText('File name')).toBeDisabled();
     expect(screen.getByLabelText('Folder path (optional)')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Creating…' })).toBeDisabled();
+    expect(document.querySelector('.cds--inline-loading')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
 
     await act(async () => {
