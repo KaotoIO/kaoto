@@ -52,10 +52,11 @@ export const SourcePanel: FunctionComponent<SourcePanelProps> = ({ isReadOnly = 
     return sourceBodyTree.flatten(documentExpansionState);
   }, [sourceBodyTree, documentExpansionState]);
 
-  // Recalculate connection ports when flattened nodes change (expand/collapse)
+  // Recalculate connection ports when flattened nodes change (expand/collapse) or the tree is rebuilt, for example
+  // when a schema is attached again: its fields get new IDs, so the node paths change while the node count may not
   useEffect(() => {
     syncConnectionPorts();
-  }, [flattenedNodes.length, syncConnectionPorts]);
+  }, [flattenedNodes.length, sourceBodyTree, syncConnectionPorts]);
 
   const renderSourceItem = useCallback(
     (index: number) => {
