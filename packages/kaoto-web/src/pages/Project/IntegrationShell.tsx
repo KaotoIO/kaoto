@@ -95,7 +95,9 @@ const IntegrationShell: FunctionComponent = () => {
 
   return (
     <div className="cs--integration-shell" data-testid="integration-shell">
-      {openFile && editorKind && <EditorHeader icon={viewIconFor(editorKind, viewMode)} path={openFile.path} />}
+      {openFile && editorKind && (
+        <EditorHeader icon={viewIconFor(editorKind, viewMode)} path={openFile.path} content={openFile.content} />
+      )}
       {currentSaveError && (
         <InlineNotification
           kind="error"

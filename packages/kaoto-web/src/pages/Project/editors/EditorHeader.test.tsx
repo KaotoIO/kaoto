@@ -10,13 +10,13 @@ describe('EditorHeader', () => {
     ['integrations/routes/orders.camel.yaml', 'orders.camel.yaml'],
     ['resources/Order Mapping.XSL', 'Order Mapping.XSL'],
   ])('shows the file %s by its name %s', (path, name) => {
-    render(<EditorHeader icon={Code} path={path} />);
+    render(<EditorHeader icon={Code} path={path} content="" />);
 
     expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument();
   });
 
   it.each(['Undo', 'Redo'])('shows %s, disabled while there is nothing to undo', (name) => {
-    render(<EditorHeader icon={Code} path="orders.camel.yaml" />);
+    render(<EditorHeader icon={Code} path="orders.camel.yaml" content="" />);
 
     expect(screen.getByRole('button', { name })).toBeDisabled();
   });

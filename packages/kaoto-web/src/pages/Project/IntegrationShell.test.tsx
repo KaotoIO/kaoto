@@ -96,6 +96,25 @@ describe('IntegrationShell', () => {
       expect(await screen.findByText('The file does not exist')).toBeInTheDocument();
       expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
     });
+
+    it('copies the content of the open file, with an edit made on the canvas', async () => {
+      const user = userEvent.setup();
+      const writeText = vi.spyOn(navigator.clipboard, 'writeText');
+      renderWithContext('main-flow');
+      await screen.findByTestId('route-visualization');
+      await user.click(screen.getByRole('button', { name: 'Copy to clipboard' }));
+      expect(writeText).toHaveBeenLastCalledWith(contentOf('main-flow'));
+
+      editOnCanvas('- route:\n    id: edited\n');
+      await waitFor(async () => {
+        expect((await storedFiles()).find((file) => file.path === pathOf('main-flow'))?.content).toBe(
+          '- route:\n    id: edited\n',
+        );
+      });
+      await user.click(screen.getByRole('button', { name: /^Cop/ }));
+
+      expect(writeText).toHaveBeenLastCalledWith('- route:\n    id: edited\n');
+    });
   });
 
   it('renders the shell and body', async () => {
