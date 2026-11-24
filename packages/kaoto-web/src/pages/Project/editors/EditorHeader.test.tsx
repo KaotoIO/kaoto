@@ -14,4 +14,10 @@ describe('EditorHeader', () => {
 
     expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument();
   });
+
+  it.each(['Undo', 'Redo'])('shows %s, disabled while there is nothing to undo', (name) => {
+    render(<EditorHeader icon={Code} path="orders.camel.yaml" />);
+
+    expect(screen.getByRole('button', { name })).toBeDisabled();
+  });
 });

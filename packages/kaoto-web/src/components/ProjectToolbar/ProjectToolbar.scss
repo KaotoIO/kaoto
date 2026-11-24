@@ -43,13 +43,6 @@
   min-inline-size: 0;
 }
 
-.cs--project-toolbar__controls {
-  display: flex;
-  align-items: center;
-  padding-inline: $spacing-03;
-  gap: $spacing-02;
-}
-
 .cs--project-toolbar__switcher {
   inline-size: var(--cs-switcher-inline-size);
 

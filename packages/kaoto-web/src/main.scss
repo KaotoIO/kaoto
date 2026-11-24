@@ -45,6 +45,7 @@
   --cs-on-accent: #{$white};
   --cs-on-accent-hover: #{rgba($white, 0.16)};
   --cs-on-accent-active: #{rgba($white, 0.24)};
+  --cs-on-accent-disabled: #{rgba($white, 0.4)};
 
   background-color: $background;
   color: $text-primary;
@@ -66,6 +67,7 @@
   --cs-on-accent: #{$white};
   --cs-on-accent-hover: #{rgba($white, 0.16)};
   --cs-on-accent-active: #{rgba($white, 0.24)};
+  --cs-on-accent-disabled: #{rgba($white, 0.4)};
 
   background: $background;
   color: $text-primary;
