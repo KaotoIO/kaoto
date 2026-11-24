@@ -28,6 +28,7 @@ import {
   TargetDocumentNodeData,
   TargetRenderIndex,
 } from '../../models/datamapper/visualization';
+import { XPathOutputKind } from '../../models/datamapper/xpath';
 import {
   getAccountJsonSchema,
   getAccountNameRequiredJsonSchema,
@@ -35,6 +36,7 @@ import {
   getCartXsd,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { appendCopyOf, appendIf } from '../../stubs/datamapper/target-row-test-helpers';
 import { JsonSchemaField } from '../document/json-schema/json-schema-document.model';
 import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
@@ -446,6 +448,16 @@ describe('TargetRenderService', () => {
       renderIndex = TargetRenderService.buildIndex(loadedTree, sourceContext);
     });
 
+    it('should record what each copy-of writes', () => {
+      const attributes = appendCopyOf(shipOrderItem, '/ns0:ShipOrder/@*');
+      const children = appendCopyOf(shipOrderItem, '/ns0:ShipOrder/node()');
+
+      const index = TargetRenderService.buildIndex(mappingTree, sourceContext);
+
+      expect(index.getCopyOfPlacement(attributes)?.outputKind).toBe(XPathOutputKind.ATTRIBUTES);
+      expect(index.getCopyOfPlacement(children)?.outputKind).toBe(XPathOutputKind.CHILDREN);
+    });
+
     it('should absorb a loaded guard only when its source is optional', () => {
       const decisions = collectIfItems(loadedTree).map((guard) => [guard.expression, renderIndex.isAbsorbed(guard)]);
 
@@ -509,6 +521,58 @@ describe('TargetRenderService', () => {
   });
 
   describe('hasDecisionChanged()', () => {
+    it('should report a copy-of edit between children and attributes, in both directions', () => {
+      const copyOf = appendCopyOf(shipOrderItem, '/ns0:ShipOrder/node()');
+      let renderIndex = buildIndex();
+
+      MappingService.updateExpression(copyOf, '/ns0:ShipOrder/@*');
+      expect(TargetRenderService.hasDecisionChanged(copyOf, renderIndex)).toBe(true);
+
+      renderIndex = buildIndex();
+      MappingService.updateExpression(copyOf, '/ns0:ShipOrder/node()');
+      expect(TargetRenderService.hasDecisionChanged(copyOf, renderIndex)).toBe(true);
+    });
+
+    it('should report a copy-of edit from writing nothing to writing children inside an attribute instruction', () => {
+      const ifItem = appendIf(shipOrderItem);
+      MappingService.createFieldItem(ifItem, findField(shipOrderItem.field, 'OrderId'));
+      const copyOf = appendCopyOf(ifItem, '()');
+      const renderIndex = buildIndex();
+
+      MappingService.updateExpression(copyOf, '/ns0:ShipOrder/node()');
+
+      expect(TargetRenderService.hasDecisionChanged(copyOf, renderIndex)).toBe(true);
+    });
+
+    it('should not report a copy-of edit that keeps what it writes', () => {
+      const copyOf = appendCopyOf(shipOrderItem, '/ns0:ShipOrder/@*');
+      const renderIndex = buildIndex();
+
+      MappingService.updateExpression(copyOf, '/ns0:ShipOrder/attribute::*');
+
+      expect(TargetRenderService.hasDecisionChanged(copyOf, renderIndex)).toBe(false);
+    });
+
+    it('should report a for-each edit that makes a copy of the context item write attributes', () => {
+      const loop = addLoop('/ns0:ShipOrder/node()');
+      appendCopyOf(loop, '.');
+      const renderIndex = buildIndex();
+
+      MappingService.updateExpression(loop, '/ns0:ShipOrder/@*');
+
+      expect(TargetRenderService.hasDecisionChanged(loop, renderIndex)).toBe(true);
+    });
+
+    it('should report a for-each edit that reaches a copy of the context item through a field item', () => {
+      itemLoop.expression = '/ns0:ShipOrder/node()';
+      appendCopyOf(itemItem, '.');
+      const renderIndex = buildIndex();
+
+      MappingService.updateExpression(itemLoop, '/ns0:ShipOrder/@*');
+
+      expect(TargetRenderService.hasDecisionChanged(itemLoop, renderIndex)).toBe(true);
+    });
+
     it('should report no change while every decision still matches the snapshot', () => {
       const { selector } = addGuard(itemItem, noteField, NOTE);
       const { guard: visibleGuard } = addGuard(itemItem, noteField, TITLE);

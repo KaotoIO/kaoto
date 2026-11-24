@@ -3,6 +3,7 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  IField,
 } from '../../models/datamapper/document';
 import {
   ChooseItem,
@@ -26,8 +27,26 @@ import {
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
+  TargetSequenceFieldNodeData,
 } from '../../models/datamapper/visualization';
-import { getTestDocumentXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
+import {
+  createTargetTree,
+  descendantRow,
+  documentRows,
+  findField,
+  NS_POC,
+  parseXsdDocument,
+  rowNamed,
+  rowsOf,
+} from '../../stubs/datamapper/cardinality-test-helpers';
+import {
+  getAttributesAroundWrappersXsd,
+  getChoiceRepeatingAbstractXsd,
+  getFieldSubstitutionXsd,
+  getTestDocumentXsd,
+  TestUtil,
+} from '../../stubs/datamapper/data-mapper';
+import { appendCopyOf, appendFieldItem, appendIf, rowLabels } from '../../stubs/datamapper/target-row-test-helpers';
 import { QName } from '../../xml-schema-ts/QName';
 import { DocumentService } from '../document/document.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
@@ -2116,6 +2135,368 @@ describe('VisualizationService / choice fields', () => {
       expect(children).toHaveLength(1);
       expect(children[0]).toBeInstanceOf(AbstractFieldNodeData);
       expect(children[0].title).toBe('AbstractMessage');
+    });
+  });
+
+  describe('mixed and attribute items around wrappers', () => {
+    const loadTarget = (fileName: string, content: string, namespaceMap: Record<string, string>) => {
+      const doc = parseXsdDocument(DocumentType.TARGET_BODY, fileName, content);
+      const wrapperTree = createTargetTree(doc, namespaceMap);
+      const root = doc.fields[0];
+      const rootItem = appendFieldItem(wrapperTree, root);
+      const topRows = () => rowsOf(documentRows(doc, wrapperTree)[0]);
+      const elementRows = (name: string) => rowsOf(rowNamed(documentRows(doc, wrapperTree)[0], name));
+      const select = (wrapper: IField, member: IField) => {
+        WrapperSelectionService.setChoiceSelection(doc, wrapper, wrapper.fields.indexOf(member), namespaceMap);
+      };
+      const topRowsParent = () => documentRows(doc, wrapperTree)[0];
+      return { doc, root, rootItem, topRows, topRowsParent, elementRows, select };
+    };
+    const testDocument = () => loadTarget('testDocument.xsd', getTestDocumentXsd(), { ns0: NS_POC });
+    const holder = () =>
+      loadTarget('AttributesAroundWrappers.xsd', getAttributesAroundWrappersXsd(), {
+        ns0: 'io.kaoto.datamapper.test.attributes',
+      });
+    const wrapperOf = (parent: IField, kind: 'choice' | 'sequence' | 'abstract'): IField => {
+      const wrapper = parent.fields.find((f) => f.wrapperKind === kind);
+      if (!wrapper) throw new Error(`no ${kind} wrapper under ${parent.name}`);
+      return wrapper;
+    };
+    const mixedIf = (parent: FieldItem, field: IField, copyOf: string) => {
+      const ifItem = appendIf(parent);
+      appendFieldItem(ifItem, field);
+      appendCopyOf(ifItem, copyOf);
+      return ifItem;
+    };
+
+    describe('SequenceInChoiceElement with the sequence branch selected', () => {
+      const setUp = () => {
+        const t = testDocument();
+        const element = findField(t.root, 'SequenceInChoiceElement');
+        const choice = wrapperOf(element, 'choice');
+        const sequence = wrapperOf(choice, 'sequence');
+        t.select(choice, sequence);
+        const elementItem = appendFieldItem(t.rootItem, element);
+        return { ...t, sequence, elementItem };
+      };
+
+      it('should draw an item that writes both once, at the element level, and keep the sequence row', () => {
+        const t = setUp();
+        mixedIf(t.elementItem, findField(t.sequence, 'key'), '/ns0:TestDocument/@*');
+
+        const rows = t.elementRows('SequenceInChoiceElement');
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetSequenceFieldNodeData);
+        expect(rowLabels(rowsOf(rows[1]))).toEqual(['value']);
+      });
+
+      it('should draw an empty sequence branch when an item that writes both maps every member', () => {
+        const t = setUp();
+        const ifItem = mixedIf(t.elementItem, findField(t.sequence, 'key'), '/ns0:TestDocument/@*');
+        appendFieldItem(ifItem, findField(t.sequence, 'value'));
+
+        const rows = t.elementRows('SequenceInChoiceElement');
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetSequenceFieldNodeData);
+        expect(rowsOf(rows[1])).toEqual([]);
+      });
+
+      it.each(['/ns0:TestDocument/@*', '/ns0:TestDocument/@* | /ns0:TestDocument/SequenceInChoiceElement/key'])(
+        'should draw the copy-of %s once, at the element level',
+        (expression) => {
+          const t = setUp();
+          appendCopyOf(t.elementItem, expression);
+
+          const rows = t.elementRows('SequenceInChoiceElement');
+
+          expect(rowLabels(rows)[0]).toBe(`copy(${expression})`);
+          expect(rows).toHaveLength(2);
+          expect(rows[1]).toBeInstanceOf(TargetSequenceFieldNodeData);
+          expect(rowLabels(rowsOf(rows[1]))).toEqual(['key', 'value']);
+        },
+      );
+
+      it('should keep a children-only instruction in place of the wrapper', () => {
+        const t = setUp();
+        const ifItem = appendIf(t.elementItem);
+        appendFieldItem(ifItem, findField(t.sequence, 'key'));
+
+        expect(rowLabels(t.elementRows('SequenceInChoiceElement'))).toEqual(['if']);
+      });
+    });
+
+    describe('NestedChoiceInSequenceElement with the sequence branch selected', () => {
+      const setUp = (selectInnerA: boolean) => {
+        const t = testDocument();
+        const element = findField(t.root, 'NestedChoiceInSequenceElement');
+        const choice = wrapperOf(element, 'choice');
+        const sequence = wrapperOf(choice, 'sequence');
+        t.select(choice, sequence);
+        const inner = wrapperOf(sequence, 'choice');
+        const innerA = findField(inner, 'innerA');
+        if (selectInnerA) t.select(inner, innerA);
+        const elementItem = appendFieldItem(t.rootItem, element);
+        mixedIf(elementItem, innerA, '/ns0:TestDocument/@*');
+        return t;
+      };
+
+      it('should draw the item once at the element level when the inner choice is on the mapped member', () => {
+        const t = setUp(true);
+
+        const rows = t.elementRows('NestedChoiceInSequenceElement');
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetSequenceFieldNodeData);
+        expect(rowLabels(rowsOf(rows[1]))).toEqual(['seqKey']);
+      });
+
+      it('should draw the item once at the element level when the inner choice is unselected', () => {
+        const t = setUp(false);
+
+        const rows = t.elementRows('NestedChoiceInSequenceElement');
+        const branchRows = rowsOf(rows[1]);
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetSequenceFieldNodeData);
+        expect(rowLabels(branchRows)[0]).toBe('seqKey');
+        expect(branchRows).toHaveLength(2);
+        expect(branchRows[1]).toBeInstanceOf(TargetChoiceFieldNodeData);
+      });
+    });
+
+    describe('an element with an attribute and a choice', () => {
+      const setUp = (selectSequence: boolean) => {
+        const t = holder();
+        const element = findField(t.root, 'WithChoice');
+        const choice = wrapperOf(element, 'choice');
+        const sequence = wrapperOf(choice, 'sequence');
+        if (selectSequence) t.select(choice, sequence);
+        const inner = wrapperOf(sequence, 'choice');
+        const elementItem = appendFieldItem(t.rootItem, element);
+        return { ...t, element, choice, sequence, inner, elementItem, kind: findField(element, 'kind') };
+      };
+
+      it('should draw an item that writes both once, not on the attribute row and not in the branch', () => {
+        const t = setUp(true);
+        const ifItem = appendIf(t.elementItem);
+        appendFieldItem(ifItem, t.kind);
+        appendFieldItem(ifItem, findField(t.sequence, 'SeqKey'));
+
+        const rows = t.elementRows('WithChoice');
+        const branchRows = rowsOf(rows[1]);
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetSequenceFieldNodeData);
+        expect(branchRows).toHaveLength(1);
+        expect(branchRows[0]).toBeInstanceOf(TargetChoiceFieldNodeData);
+      });
+
+      it('should draw an item that writes both and maps a nested choice member once', () => {
+        const t = setUp(true);
+        const innerA = findField(t.inner, 'InnerA');
+        t.select(t.inner, innerA);
+        const ifItem = appendIf(t.elementItem);
+        appendFieldItem(ifItem, t.kind);
+        appendFieldItem(ifItem, innerA);
+
+        const rows = t.elementRows('WithChoice');
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetSequenceFieldNodeData);
+        expect(rowLabels(rowsOf(rows[1]))).toEqual(['SeqKey']);
+      });
+
+      it('should draw an instruction that writes only an attribute once, on its row', () => {
+        const t = setUp(true);
+        const ifItem = appendIf(t.elementItem);
+        appendFieldItem(ifItem, t.kind);
+
+        const rows = t.elementRows('WithChoice');
+        const branchRows = rowsOf(rows[1]);
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetSequenceFieldNodeData);
+        expect(rowLabels(branchRows)[0]).toBe('SeqKey');
+        expect(branchRows).toHaveLength(2);
+        expect(branchRows[1]).toBeInstanceOf(TargetChoiceFieldNodeData);
+      });
+
+      it('should keep an item that writes both out of the children of an unselected choice it configures', () => {
+        const t = setUp(false);
+        const ifItem = appendIf(t.elementItem);
+        appendFieldItem(ifItem, t.kind);
+        appendFieldItem(ifItem, findField(t.choice, 'OptA'));
+
+        const rows = t.elementRows('WithChoice');
+        const choiceChildren = rowsOf(rows[1]);
+        const sequenceChildren = rowsOf(choiceChildren[0]);
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetChoiceFieldNodeData);
+        expect(choiceChildren).toHaveLength(1);
+        expect(choiceChildren[0]).toBeInstanceOf(TargetSequenceFieldNodeData);
+        expect(rowLabels(sequenceChildren)[0]).toBe('SeqKey');
+        expect(sequenceChildren).toHaveLength(2);
+        expect(sequenceChildren[1]).toBeInstanceOf(TargetChoiceFieldNodeData);
+      });
+    });
+
+    describe('a field held only by an item that writes both', () => {
+      it('should draw no row for a selected choice member', () => {
+        const t = testDocument();
+        const element = findField(t.root, 'ChoiceElement');
+        const choice = wrapperOf(element, 'choice');
+        const choice1 = findField(choice, 'Choice1');
+        t.select(choice, choice1);
+        mixedIf(appendFieldItem(t.rootItem, element), choice1, '/ns0:TestDocument/@*');
+
+        expect(rowLabels(t.elementRows('ChoiceElement'))).toEqual(['if']);
+      });
+
+      it('should draw the row of an unselected choice it configures', () => {
+        const t = testDocument();
+        const element = findField(t.root, 'ChoiceElement');
+        const choice = wrapperOf(element, 'choice');
+        mixedIf(appendFieldItem(t.rootItem, element), findField(choice, 'Choice1'), '/ns0:TestDocument/@*');
+
+        const rows = t.elementRows('ChoiceElement');
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetChoiceFieldNodeData);
+      });
+
+      it('should keep the other mapped member of a choice', () => {
+        const t = testDocument();
+        const element = findField(t.root, 'ChoiceElement');
+        const choice = wrapperOf(element, 'choice');
+        const elementItem = appendFieldItem(t.rootItem, element);
+        appendFieldItem(elementItem, findField(choice, 'Choice1'));
+        mixedIf(elementItem, findField(choice, 'Choice2'), '/ns0:TestDocument/@*');
+
+        expect(rowLabels(t.elementRows('ChoiceElement'))).toEqual(['if', 'Choice1']);
+      });
+
+      it('should keep the Add row of a repeating choice after an attribute and an element', () => {
+        const t = holder();
+        const element = findField(t.root, 'WithRepeatingChoice');
+        const choice = wrapperOf(element, 'choice');
+        mixedIf(appendFieldItem(t.rootItem, element), findField(choice, 'RepA'), '/ns0:Holder/@*');
+
+        const rows = t.elementRows('WithRepeatingChoice');
+
+        expect(rowLabels(rows).slice(0, 3)).toEqual(['ref', 'if', 'Lead']);
+        expect(rows).toHaveLength(4);
+        expect(rows[3]).toBeInstanceOf(AddMappingNodeData);
+        expect((rows[3] as AddMappingNodeData).field).toBe(choice);
+      });
+
+      it('should keep the wrapper row of a repeating choice whose only instruction is children-only', () => {
+        const t = holder();
+        const element = findField(t.root, 'WithRepeatingChoice');
+        const choice = wrapperOf(element, 'choice');
+        const ifItem = appendIf(appendFieldItem(t.rootItem, element));
+        appendFieldItem(ifItem, findField(element, 'Lead'));
+        appendFieldItem(ifItem, findField(choice, 'RepA'));
+
+        const rows = t.elementRows('WithRepeatingChoice');
+
+        expect(rowLabels(rows).slice(0, 2)).toEqual(['ref', 'if']);
+        expect(rows).toHaveLength(3);
+        expect(rows[2]).toBeInstanceOf(TargetChoiceFieldNodeData);
+      });
+
+      it('should keep the Add row of a repeating choice that is the first field', () => {
+        const t = testDocument();
+        const element = findField(t.root, 'CollectionChoiceElement');
+        const choice = wrapperOf(element, 'choice');
+        mixedIf(appendFieldItem(t.rootItem, element), findField(choice, 'Email'), '/ns0:TestDocument/@*');
+
+        const rows = t.elementRows('CollectionChoiceElement');
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(AddMappingNodeData);
+        expect((rows[1] as AddMappingNodeData).field).toBe(choice);
+      });
+
+      it('should keep the Add row of a repeating abstract wrapper', () => {
+        const t = loadTarget('FieldSubstitution.xsd', getFieldSubstitutionXsd(), {
+          ns0: 'http://www.example.com/SUBSTITUTION',
+        });
+        const animal = wrapperOf(t.root, 'abstract');
+        mixedIf(t.rootItem, findField(animal, 'Dog'), '/ns0:Zoo/@*');
+
+        const rows = t.topRows();
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows[1]).toBeInstanceOf(AddMappingNodeData);
+        expect((rows[1] as AddMappingNodeData).field).toBe(animal);
+        expect(rowLabels(rows).filter((label) => label === 'if')).toHaveLength(1);
+      });
+
+      it('should fall back to the row of a non-repeating wrapper inside a repeating sequence', () => {
+        const t = loadTarget('ChoiceRepeatingAbstract.xsd', getChoiceRepeatingAbstractXsd(), { ns0: NS_POC });
+        const element = findField(t.root, 'AbstractInSequenceInChoice');
+        const choice = wrapperOf(element, 'choice');
+        const sequence = wrapperOf(choice, 'sequence');
+        t.select(choice, sequence);
+        const animal = wrapperOf(sequence, 'abstract');
+        mixedIf(appendFieldItem(t.rootItem, element), findField(animal, 'Dog'), '/ns0:Root/@*');
+
+        const rows = t.elementRows('AbstractInSequenceInChoice');
+        const branchRows = rowsOf(rows[1]);
+
+        expect(rowLabels(rows)[0]).toBe('if');
+        expect(rows).toHaveLength(2);
+        expect(rows[1]).toBeInstanceOf(TargetSequenceFieldNodeData);
+        expect(branchRows).toHaveLength(1);
+        expect(branchRows[0]).toBeInstanceOf(TargetAbstractFieldNodeData);
+      });
+
+      it('should keep the per-instance rows of a repeating choice with a children-only instruction', () => {
+        const t = testDocument();
+        const element = findField(t.root, 'CollectionChoiceElement');
+        const choice = wrapperOf(element, 'choice');
+        const elementItem = appendFieldItem(t.rootItem, element);
+        appendFieldItem(elementItem, findField(choice, 'Email'));
+        const ifItem = appendIf(elementItem);
+        appendFieldItem(ifItem, findField(choice, 'Phone'));
+
+        const rows = t.elementRows('CollectionChoiceElement');
+
+        expect(rowLabels(rows).slice(0, 2)).toEqual(['Email', 'if']);
+        expect(rows).toHaveLength(3);
+        expect(rows[2]).toBeInstanceOf(AddMappingNodeData);
+        expect((rows[2] as AddMappingNodeData).field).toBe(choice);
+      });
+
+      it('should keep the per-instance rows of a non-repeating wrapper inside a repeating sequence', () => {
+        const t = loadTarget('ChoiceRepeatingAbstract.xsd', getChoiceRepeatingAbstractXsd(), { ns0: NS_POC });
+        const element = findField(t.root, 'AbstractInSequenceInChoice');
+        const sequence = wrapperOf(wrapperOf(element, 'choice'), 'sequence');
+        const animal = wrapperOf(sequence, 'abstract');
+        const dog = findField(animal, 'Dog');
+        appendFieldItem(appendFieldItem(t.rootItem, element), dog);
+
+        const dogRow = descendantRow(
+          rowNamed(t.topRowsParent(), 'AbstractInSequenceInChoice'),
+          (row) => row instanceof FieldItemNodeData && row.field === dog,
+          'for the mapped Dog',
+        );
+
+        expect((dogRow as FieldItemNodeData).wrapperField).toBe(animal);
+      });
     });
   });
 });

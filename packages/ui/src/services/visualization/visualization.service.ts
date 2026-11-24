@@ -4,6 +4,7 @@ import { qname } from 'xml-name-validator';
 import { IDocument, IField } from '../../models/datamapper/document';
 import { FieldCardinality } from '../../models/datamapper/field-cardinality';
 import {
+  AttributeOutputBucket,
   CopyOfSelector,
   FieldItem,
   IExpressionHolder,
@@ -11,6 +12,7 @@ import {
   InstructionItem,
   isExpressionHolder,
   MappingItem,
+  MappingItemOrderBucket,
   MappingParentType,
   MappingTree,
   UnknownMappingItem,
@@ -53,6 +55,45 @@ interface WrapperSpec {
   isTargetInstance: (node: NodeData) => boolean;
   hasWrapperRef: (node: NodeData) => boolean;
   isUnconfiguredTarget: (node: NodeData, mappings: MappingItem[] | undefined) => boolean;
+}
+
+/**
+ * What one {@link VisualizationService} `doGenerateNodeDataFromFields` call knows about the rows it draws, computed
+ * once per call so every helper classifies the mappings the same way.
+ */
+interface FieldRowContext {
+  parent: NodeData;
+  mappings: MappingItem[] | undefined;
+  /** The standalone copy-ofs that write only children, keyed by the earliest field among `fields` they return. */
+  anchored: Map<IField, CopyOfSelector[]>;
+  /**
+   * The items that write only attributes and have no attribute row of their own among the call's fields, with their
+   * index in `mappings`, in authored order. They are interleaved with the attribute rows.
+   */
+  rowlessAttributeItems: { item: MappingItem; index: number }[];
+  /** The items that can write both attributes and children, in authored order, drawn after the attribute rows. */
+  mixedItems: MappingItem[];
+  /**
+   * Whether `item` is drawn before the element rows by the call that owns the mappings: a rowless attribute item or a
+   * mixed item. Every other row-drawing step skips these. Among the items one field row or one wrapper would draw,
+   * it removes exactly the mixed ones, since a rowless attribute item maps no element and no attribute among the
+   * call's fields. In a call that borrows its mappings, the fields hold no attribute, so it also covers an
+   * attribute-only instruction such as `xsl:if { xsl:attribute X }`, which the owning element draws on the `X` row.
+   */
+  isDrawnBeforeElementRows: (item: MappingItem) => boolean;
+  /**
+   * The authored position of each attribute field that has a row item: the index in `mappings` of the first item
+   * drawn on its row ({@link MappingService.filterMappingsForField} without the mixed items).
+   */
+  attributeRowPositions: Map<IField, number>;
+}
+
+/** The mappings that touch a choice or abstract wrapper, as {@link VisualizationService} draws them. */
+interface WrapperMappingItems {
+  fieldItems: FieldItem[];
+  instructionItems: InstructionItem[];
+  /** Whether an item drawn before the element rows maps a member, so the wrapper still holds mappings. */
+  heldByMovedItems: boolean;
 }
 
 const CHOICE_WRAPPER: WrapperSpec = {
@@ -241,80 +282,216 @@ export class VisualizationService {
   }
 
   private static generateCollectionWrapperNodes(
-    parent: NodeData,
+    ctx: FieldRowContext,
     field: IField,
-    mappings: MappingItem[],
     renderedNodes: NodeData[],
   ): NodeData[] {
-    const wrapperSpec = field.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
-    const wrapperFieldItems = mappings.filter(
+    const mappings = ctx.mappings ?? [];
+    const touchesWrapper = (m: InstructionItem) =>
+      MappingService.getInstructionFields(m).some((f) => f === field || DocumentService.isDescendant(field, f));
+    const fieldItems = mappings.filter(
       (m): m is FieldItem =>
         m instanceof FieldItem && (m.field === field || DocumentService.isDescendant(field, m.field)),
     );
-    const wrapperInstructionItems = mappings.filter(
+    const instructionItems = mappings.filter(
       (m): m is InstructionItem =>
         m instanceof InstructionItem &&
+        !ctx.isDrawnBeforeElementRows(m) &&
         !VisualizationService.isExistingMapping(renderedNodes as TargetNodeData[], m) &&
-        MappingService.getInstructionFields(m).some((f) => f === field || DocumentService.isDescendant(field, f)),
+        touchesWrapper(m),
     );
-    if (wrapperFieldItems.length === 0 && wrapperInstructionItems.length === 0) {
-      const node = VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, wrapperSpec);
-      return node ? [node] : [];
-    }
-    if (!DocumentService.isCollectionField(field) && wrapperInstructionItems.length === 0) {
-      const node = VisualizationService.doGenerateNodeDataFromWrapperField(parent, field, mappings, wrapperSpec);
-      return node ? [node] : [];
-    }
-    const nodes: NodeData[] = [];
-    const allItems: MappingItem[] = [...wrapperFieldItems, ...wrapperInstructionItems];
-    for (const item of allItems.sort((left, right) => MappingService.sortMappingItem(left, right))) {
-      if (item instanceof FieldItem) {
-        nodes.push(new FieldItemNodeData(parent as TargetNodeData, item, field));
-      } else {
-        nodes.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, item));
-      }
-    }
-    if (FieldCardinality.isCollection(field)) {
-      nodes.push(new AddMappingNodeData(parent as TargetNodeData, field));
-    }
-    return nodes;
+    const heldByMovedItems = mappings.some(
+      (m) => m instanceof InstructionItem && ctx.isDrawnBeforeElementRows(m) && touchesWrapper(m),
+    );
+    return VisualizationService.generateWrapperNodes(ctx, field, { fieldItems, instructionItems, heldByMovedItems });
   }
 
   private static doGenerateNodeDataFromFields(
     parent: NodeData,
     fields: IField[],
     mappings?: MappingItem[],
+    owned = true,
   ): NodeData[] {
+    const ctx = VisualizationService.createFieldRowContext(parent, fields, mappings);
     const answer: NodeData[] = [];
     VisualizationService.collectPriorityMappings(answer, parent, mappings);
 
-    const anchored = VisualizationService.groupAnchoredCopyOfs(fields, mappings);
-    for (const field of fields) {
-      // A copy-of of several fields is written where the earliest of them sits in the target's sequence.
-      for (const copyOf of anchored.get(field) ?? []) {
-        answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, copyOf));
+    if (parent.isSource || !owned) {
+      for (const field of fields) {
+        VisualizationService.processField(answer, ctx, field);
       }
-      if (VisualizationService.processWrapperField(answer, parent, field, mappings)) continue;
-      VisualizationService.processRegularField(answer, parent, field, mappings);
+    } else {
+      VisualizationService.processAttributeFields(
+        answer,
+        ctx,
+        fields.filter((field) => field.isAttribute),
+      );
+      VisualizationService.collectMixedItems(answer, ctx);
+      for (const field of fields.filter((f) => !f.isAttribute)) {
+        VisualizationService.processField(answer, ctx, field);
+      }
     }
 
-    VisualizationService.collectUnrenderedMappings(answer, parent, mappings);
+    VisualizationService.collectUnrenderedMappings(answer, ctx);
     return answer;
   }
 
   /**
-   * The standalone copy-ofs that return fields among `fields`, keyed by the earliest field they return, the one
-   * the serializer places them before. A copy-of that is 1-to-1 with a field is drawn on that field's row
-   * instead, and one that returns none stays after the fields.
+   * The rows of a choice or abstract wrapper among its element's rows: the wrapper row, or, when the wrapper repeats
+   * or an instruction maps a member, its mapped items followed by an "Add" row for a repeating wrapper.
+   *
+   * An item drawn before the element rows (see {@link FieldRowContext.isDrawnBeforeElementRows}) still counts as a
+   * mapping the wrapper holds, so moving it up leaves the wrapper's structure in place: a repeating wrapper keeps its
+   * "Add" row, and a wrapper with other mapped members keeps drawing them. A repeating target wrapper is never
+   * selected at document level (`ChoiceFieldService.dispatchChoiceSelection` routes it to per-instance
+   * selection), so its wrapper row never stood for such a mapping. When nothing is left to draw and the wrapper
+   * doesn't repeat itself, the wrapper row is drawn instead.
+   */
+  private static generateWrapperNodes(ctx: FieldRowContext, field: IField, items: WrapperMappingItems): NodeData[] {
+    const { fieldItems, instructionItems, heldByMovedItems } = items;
+    const holdsInstructions = instructionItems.length > 0 || heldByMovedItems;
+    if (
+      (fieldItems.length === 0 && !holdsInstructions) ||
+      (!DocumentService.isCollectionField(field) && !holdsInstructions)
+    ) {
+      return VisualizationService.generateWrapperRow(ctx, field);
+    }
+    const nodes: NodeData[] = [];
+    const allItems: MappingItem[] = [...fieldItems, ...instructionItems];
+    for (const item of allItems.sort((left, right) => MappingService.sortMappingItem(left, right))) {
+      if (item instanceof FieldItem) {
+        nodes.push(new FieldItemNodeData(ctx.parent as TargetNodeData, item, field));
+      } else {
+        nodes.push(VisualizationService.createNodeDataFromMappingItem(ctx.parent as TargetNodeData, item));
+      }
+    }
+    if (FieldCardinality.isCollection(field)) {
+      nodes.push(new AddMappingNodeData(ctx.parent as TargetNodeData, field));
+    }
+    return nodes.length > 0 ? nodes : VisualizationService.generateWrapperRow(ctx, field);
+  }
+
+  private static generateWrapperRow(ctx: FieldRowContext, field: IField): NodeData[] {
+    const wrapperSpec = field.wrapperKind === 'choice' ? CHOICE_WRAPPER : ABSTRACT_WRAPPER;
+    const node = VisualizationService.doGenerateNodeDataFromWrapperField(ctx.parent, field, ctx.mappings, wrapperSpec);
+    return node ? [node] : [];
+  }
+
+  private static createFieldRowContext(
+    parent: NodeData,
+    fields: IField[],
+    mappings: MappingItem[] | undefined,
+  ): FieldRowContext {
+    const buckets = new Map<MappingItem, AttributeOutputBucket | undefined>();
+    for (const item of mappings ?? []) {
+      buckets.set(item, CopyOfPlacementService.getAttributeOutputBucket(item));
+    }
+    const context: FieldRowContext = {
+      parent,
+      mappings,
+      anchored: VisualizationService.groupAnchoredCopyOfs(fields, mappings, buckets),
+      rowlessAttributeItems: [],
+      mixedItems: [],
+      isDrawnBeforeElementRows: () => false,
+      attributeRowPositions: new Map(),
+    };
+    if (!parent.isSource && mappings) {
+      VisualizationService.classifyAttributeItems(context, fields, mappings, buckets);
+    }
+    return context;
+  }
+
+  private static classifyAttributeItems(
+    context: FieldRowContext,
+    fields: IField[],
+    mappings: MappingItem[],
+    buckets: Map<MappingItem, AttributeOutputBucket | undefined>,
+  ): void {
+    const isMixed = (item: MappingItem) => buckets.get(item) === MappingItemOrderBucket.ATTRIBUTES_AND_CHILDREN;
+    const attributeRowItems = new Set<MappingItem>();
+    for (const field of fields) {
+      if (!field.isAttribute) continue;
+      const rowItems = MappingService.filterMappingsForField(mappings, field).filter((item) => !isMixed(item));
+      if (rowItems.length === 0) continue;
+      context.attributeRowPositions.set(field, mappings.indexOf(rowItems[0]));
+      for (const item of rowItems) {
+        attributeRowItems.add(item);
+      }
+    }
+    const drawnBeforeElementRows = new Set<MappingItem>();
+    for (const [index, item] of mappings.entries()) {
+      if (item instanceof FieldItem || !buckets.get(item) || attributeRowItems.has(item)) continue;
+      if (isMixed(item)) {
+        context.mixedItems.push(item);
+      } else {
+        context.rowlessAttributeItems.push({ item, index });
+      }
+      drawnBeforeElementRows.add(item);
+    }
+    context.isDrawnBeforeElementRows = (item) => drawnBeforeElementRows.has(item);
+  }
+
+  /**
+   * Draws the attribute rows of an element in schema order, with the items that write only attributes and have no
+   * row of their own placed among them by authored order: each goes just above the first attribute row whose items
+   * it was authored before, otherwise below the last attribute row. The serializer keeps authored order among the
+   * items that write only attributes, and the later attribute of the same name wins in XSLT, so this shows the same
+   * winner as the stylesheet whenever the mapped attributes were authored in schema order. An attribute row held only
+   * by an item that writes both has no position and pulls nothing.
+   *
+   * `attributeFields` is a new array: `FieldOrderService.getFieldOrderPath` reads the live `fields` arrays by index,
+   * so they must not be reordered. Attribute fields that sit after the elements in `fields`, such as `xsi:nil` on an
+   * inline nillable complex type or an imported attribute the schema doesn't declare, are drawn here too.
+   */
+  private static processAttributeFields(answer: NodeData[], ctx: FieldRowContext, attributeFields: IField[]): void {
+    const pending = ctx.rowlessAttributeItems;
+    let next = 0;
+    for (const field of attributeFields) {
+      const position = ctx.attributeRowPositions.get(field);
+      while (position !== undefined && next < pending.length && pending[next].index < position) {
+        answer.push(
+          VisualizationService.createNodeDataFromMappingItem(ctx.parent as TargetNodeData, pending[next].item),
+        );
+        next++;
+      }
+      VisualizationService.processField(answer, ctx, field);
+    }
+    for (const { item } of pending.slice(next)) {
+      answer.push(VisualizationService.createNodeDataFromMappingItem(ctx.parent as TargetNodeData, item));
+    }
+  }
+
+  private static collectMixedItems(answer: NodeData[], ctx: FieldRowContext): void {
+    for (const item of ctx.mixedItems) {
+      answer.push(VisualizationService.createNodeDataFromMappingItem(ctx.parent as TargetNodeData, item));
+    }
+  }
+
+  private static processField(answer: NodeData[], ctx: FieldRowContext, field: IField): void {
+    // A copy-of of several fields that writes only children is written where the earliest of them sits in the
+    // target's sequence.
+    for (const copyOf of ctx.anchored.get(field) ?? []) {
+      answer.push(VisualizationService.createNodeDataFromMappingItem(ctx.parent as TargetNodeData, copyOf));
+    }
+    if (VisualizationService.processWrapperField(answer, ctx, field)) return;
+    VisualizationService.processRegularField(answer, ctx, field);
+  }
+
+  /**
+   * The standalone copy-ofs that return fields among `fields` and write only children, keyed by the earliest field
+   * they return, the one the serializer places them before. A copy-of that is 1-to-1 with a field is drawn on that
+   * field's row instead, one that writes attributes is drawn with the attribute rows, and one that returns none of
+   * `fields` stays after the fields.
    */
   private static groupAnchoredCopyOfs(
     fields: IField[],
     mappings: MappingItem[] | undefined,
+    buckets: Map<MappingItem, AttributeOutputBucket | undefined>,
   ): Map<IField, CopyOfSelector[]> {
     const grouped = new Map<IField, CopyOfSelector[]>();
     for (const m of mappings ?? []) {
       if (!(m instanceof CopyOfSelector) || CopyOfPlacementService.isLeadingCopyOf(m)) continue;
-      if (CopyOfPlacementService.getInlineField(m)) continue;
+      if (CopyOfPlacementService.getInlineField(m) || buckets.get(m)) continue;
       const anchor = CopyOfPlacementService.getAnchorFields(m)
         .filter((f) => fields.includes(f))
         .sort((a, b) => fields.indexOf(a) - fields.indexOf(b))[0];
@@ -330,8 +507,8 @@ export class VisualizationService {
     mappings: MappingItem[] | undefined,
   ): void {
     if (!mappings) return;
-    // Only an empty copy-of leads. Any other separate copy-of can't be tied to a child field, and the
-    // serializer emits it after the fields, so it renders after them too (collectUnrenderedMappings).
+    // Only an empty copy-of leads. Any other separate copy-of is drawn with the attribute rows when it writes
+    // attributes, at its anchor field, or after the fields, where the serializer emits it.
     let filterPriorityMappingItem: (m: MappingItem) => boolean = (m) =>
       m instanceof UnknownMappingItem || m instanceof VariableItem || CopyOfPlacementService.isLeadingCopyOf(m);
     if (parent.isPrimitive) {
@@ -345,12 +522,8 @@ export class VisualizationService {
     }
   }
 
-  private static processRegularField(
-    answer: NodeData[],
-    parent: NodeData,
-    field: IField,
-    mappings: MappingItem[] | undefined,
-  ): void {
+  private static processRegularField(answer: NodeData[], ctx: FieldRowContext, field: IField): void {
+    const { parent, mappings } = ctx;
     const mappingsForField = mappings ? MappingService.filterMappingsForField(mappings, field) : [];
     if (mappingsForField.length === 0) {
       const fieldNodeData = parent.isSource
@@ -360,7 +533,11 @@ export class VisualizationService {
       return;
     }
     for (const mapping of mappingsForField
-      .filter((mapping) => !VisualizationService.isExistingMapping(answer as TargetNodeData[], mapping))
+      .filter(
+        (mapping) =>
+          !ctx.isDrawnBeforeElementRows(mapping) &&
+          !VisualizationService.isExistingMapping(answer as TargetNodeData[], mapping),
+      )
       .sort((left, right) => MappingService.sortMappingItem(left, right))) {
       answer.push(VisualizationService.createNodeDataFromMappingItem(parent as TargetNodeData, mapping));
     }
@@ -369,11 +546,8 @@ export class VisualizationService {
     }
   }
 
-  private static collectUnrenderedMappings(
-    answer: NodeData[],
-    parent: NodeData,
-    mappings: MappingItem[] | undefined,
-  ): void {
+  private static collectUnrenderedMappings(answer: NodeData[], ctx: FieldRowContext): void {
+    const { parent, mappings } = ctx;
     if (!mappings || VisualizationService.isUnconfiguredTargetWrapper(parent, mappings)) return;
     const rendered = new Set<MappingParentType | undefined>();
     for (const n of answer.filter((x): x is TargetNodeData => 'mapping' in x)) {
@@ -384,6 +558,7 @@ export class VisualizationService {
     for (const m of mappings) {
       if (
         !rendered.has(m) &&
+        !ctx.isDrawnBeforeElementRows(m) &&
         !(m instanceof FieldItem) &&
         !VisualizationUtilService.isInlineValueSelector(m) &&
         !(m instanceof VariableItem) &&
@@ -398,14 +573,10 @@ export class VisualizationService {
     return nodes.some((node) => 'mapping' in node && node.mapping === mapping);
   }
 
-  private static processWrapperField(
-    answer: NodeData[],
-    parent: NodeData,
-    field: IField,
-    mappings: MappingItem[] | undefined,
-  ): boolean {
+  private static processWrapperField(answer: NodeData[], ctx: FieldRowContext, field: IField): boolean {
+    const { parent, mappings } = ctx;
     if ((field.wrapperKind === 'choice' || field.wrapperKind === 'abstract') && !parent.isSource && mappings) {
-      answer.push(...VisualizationService.generateCollectionWrapperNodes(parent, field, mappings, answer));
+      answer.push(...VisualizationService.generateCollectionWrapperNodes(ctx, field, answer));
       return true;
     }
     if (field.wrapperKind === 'choice') {
@@ -467,16 +638,27 @@ export class VisualizationService {
    * Resolves mapping children for a wrapper node. Unselected target wrappers
    * have no mapping tree counterpart, so we walk up through any nested unselected
    * wrappers to find the nearest real ancestor that carries mapping children.
+   *
+   * `owned` is `true` when the mappings belong to the node itself: a source node, or a selected choice or abstract
+   * member that keeps a reference to its wrapper. It is `false` when they are borrowed from an ancestor, which is
+   * always the case for a sequence node. A borrowing call draws only its members' rows; the owning element draws the
+   * items that write attributes. On the source side `owned` is `true` too, where nothing is drawn by ownership.
    */
-  private static resolveWrapperNodeMappings(parent: NodeData, spec: WrapperSpec): MappingItem[] | undefined {
+  private static resolveWrapperNodeMappings(
+    parent: NodeData,
+    spec: WrapperSpec,
+  ): { mappings: MappingItem[] | undefined; owned: boolean } {
     if (!spec.isTargetInstance(parent) || spec.hasWrapperRef(parent)) {
-      return 'mapping' in parent ? (parent as TargetNodeData).mapping?.children : undefined;
+      return {
+        mappings: 'mapping' in parent ? (parent as TargetNodeData).mapping?.children : undefined,
+        owned: true,
+      };
     }
     let ancestor: TargetNodeData = (parent as TargetFieldNodeData).parent;
     while (VisualizationService.resolveWrapperSpec(ancestor)?.spec.isTargetInstance(ancestor)) {
       ancestor = (ancestor as TargetFieldNodeData).parent;
     }
-    return ancestor.mapping?.children;
+    return { mappings: ancestor.mapping?.children, owned: false };
   }
 
   /**
@@ -490,16 +672,18 @@ export class VisualizationService {
     const wrapperMatch = VisualizationService.resolveWrapperSpec(parent);
     if (wrapperMatch) {
       const { node, spec } = wrapperMatch;
-      const mappings = VisualizationService.resolveWrapperNodeMappings(node, spec);
+      const { mappings, owned } = VisualizationService.resolveWrapperNodeMappings(node, spec);
       if (VisualizationService.isUnconfiguredTargetWrapper(node, mappings)) return [];
       const fields = VisualizationService.resolveWrapperNodeFields(node.field);
-      return VisualizationService.doGenerateNodeDataFromFields(node, fields, mappings);
+      return VisualizationService.doGenerateNodeDataFromFields(node, fields, mappings, owned);
     }
     if (parent instanceof SequenceFieldNodeData || parent instanceof TargetSequenceFieldNodeData) {
+      const { mappings, owned } = VisualizationService.resolveWrapperNodeMappings(parent, SEQUENCE_WRAPPER);
       return VisualizationService.doGenerateNodeDataFromFields(
         parent,
         VisualizationService.resolveWrapperNodeFields(parent.field),
-        VisualizationService.resolveWrapperNodeMappings(parent, SEQUENCE_WRAPPER),
+        mappings,
+        owned,
       );
     }
     if (parent instanceof FieldNodeData || parent instanceof FieldItemNodeData) {

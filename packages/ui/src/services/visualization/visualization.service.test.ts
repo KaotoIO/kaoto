@@ -22,6 +22,7 @@ import {
 import {
   AddMappingNodeData,
   ChoiceFieldNodeData,
+  CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
@@ -32,16 +33,33 @@ import {
   VariableNodeData,
 } from '../../models/datamapper/visualization';
 import {
+  createTargetTree,
+  findField,
+  NS_POC,
+  parseXsdDocument,
+  rowsOf,
+} from '../../stubs/datamapper/cardinality-test-helpers';
+import {
+  getAnnotatedFieldsXsd,
+  getAttributesAroundWrappersXsd,
   getExtensionComplexXsd,
   getExtensionSimpleXsd,
   getNestedConditionalsToShipOrderXslt,
   getSchemaTestXsd,
+  getShipOrderAttributeCopyOfXslt,
   getShipOrderToShipOrderCollectionIndexXslt,
   getShipOrderToShipOrderMultipleForEachXslt,
   getShipOrderToShipOrderXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { expectLinksOnRenderedRows } from '../../stubs/datamapper/target-render-test-helpers';
+import {
+  appendCopyOf,
+  appendFieldItem,
+  appendIf,
+  findRow,
+  rowLabels,
+} from '../../stubs/datamapper/target-row-test-helpers';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
@@ -809,6 +827,308 @@ describe('VisualizationService', () => {
       const children = VisualizationService.generatePrimitiveDocumentChildren(primitiveDocNode);
       const copyOfNode = children.find((c) => c instanceof MappingNodeData && c.mapping instanceof ValueSelector);
       expect(copyOfNode).toBeDefined();
+    });
+  });
+
+  describe('attribute groups on the target', () => {
+    const ATTRS_NS = 'io.kaoto.datamapper.test.attributes';
+
+    const renderChildren = (docNode: DocumentNodeData) =>
+      rowsOf(VisualizationService.generateStructuredDocumentChildren(docNode)[0]);
+
+    const shipOrder = () => {
+      const shipTree = createTargetTree(targetDoc, { ns0: NS_POC });
+      const root = findField(targetDoc, 'ShipOrder');
+      const rootItem = appendFieldItem(shipTree, root);
+      return {
+        root,
+        rootItem,
+        field: (name: string) => findField(root, name),
+        render: () => renderChildren(new TargetDocumentNodeData(targetDoc, shipTree)),
+      };
+    };
+
+    const customer = () => {
+      const doc = parseXsdDocument(DocumentType.TARGET_BODY, 'annotated.xsd', getAnnotatedFieldsXsd(), {
+        namespaceUri: 'http://www.example.com/annotated',
+        name: 'Customer',
+      });
+      const customerTree = createTargetTree(doc, {});
+      const root = findField(doc, 'Customer');
+      const rootItem = appendFieldItem(customerTree, root);
+      return {
+        rootItem,
+        field: (name: string) => findField(root, name),
+        render: () => renderChildren(new TargetDocumentNodeData(doc, customerTree)),
+      };
+    };
+
+    const holderDoc = (type: DocumentType) =>
+      parseXsdDocument(type, 'AttributesAroundWrappers.xsd', getAttributesAroundWrappersXsd());
+
+    it('should draw an imported attribute copy-of right below the attribute rows', () => {
+      const importTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      MappingSerializerService.deserialize(getShipOrderAttributeCopyOfXslt(), targetDoc, importTree, paramsMap);
+
+      expect(rowLabels(renderChildren(new TargetDocumentNodeData(targetDoc, importTree)))).toEqual([
+        'OrderId',
+        'copy(/ns0:ShipOrder/@*)',
+        'OrderPerson',
+        'ShipTo',
+        'Item',
+      ]);
+    });
+
+    it('should draw a copy-of of a single attribute below the attribute rows', () => {
+      const s = shipOrder();
+      appendCopyOf(s.rootItem, '/ns0:ShipOrder/@OrderId');
+
+      expect(rowLabels(s.render())).toEqual([
+        'OrderId',
+        'copy(/ns0:ShipOrder/@OrderId)',
+        'OrderPerson',
+        'ShipTo',
+        'Item',
+      ]);
+    });
+
+    it('should draw an attribute copy above an attribute authored after it, which overrides the copy', () => {
+      const s = shipOrder();
+      appendCopyOf(s.rootItem, '/ns0:ShipOrder/@*');
+      appendFieldItem(s.rootItem, s.field('OrderId'));
+      appendFieldItem(s.rootItem, s.field('OrderPerson'));
+
+      expect(rowLabels(s.render())).toEqual(['copy(/ns0:ShipOrder/@*)', 'OrderId', 'OrderPerson', 'ShipTo', 'Item']);
+    });
+
+    it('should draw an attribute copy below an attribute authored before it, which the copy overrides', () => {
+      const s = shipOrder();
+      appendFieldItem(s.rootItem, s.field('OrderId'));
+      appendCopyOf(s.rootItem, '/ns0:ShipOrder/@*');
+      appendFieldItem(s.rootItem, s.field('OrderPerson'));
+
+      expect(rowLabels(s.render())).toEqual(['OrderId', 'copy(/ns0:ShipOrder/@*)', 'OrderPerson', 'ShipTo', 'Item']);
+    });
+
+    it('should keep attribute rows in schema order when mapped attributes are authored out of it', () => {
+      const c = customer();
+      appendFieldItem(c.rootItem, c.field('status'));
+      appendCopyOf(c.rootItem, '/Customer/@*');
+      appendFieldItem(c.rootItem, c.field('id'));
+
+      expect(rowLabels(c.render())).toEqual([
+        'copy(/Customer/@*)',
+        'id',
+        'status',
+        'noAnnotationAttr',
+        'name',
+        'email',
+        'age',
+        'address',
+        'noAnnotation',
+      ]);
+    });
+
+    it('should not let an attribute held only by an item that writes both pull an attribute copy above it', () => {
+      const c = customer();
+      appendFieldItem(c.rootItem, c.field('status'));
+      appendCopyOf(c.rootItem, '/Customer/@*');
+      const ifItem = appendIf(c.rootItem);
+      appendFieldItem(ifItem, c.field('id'));
+      appendFieldItem(ifItem, c.field('name'));
+
+      expect(rowLabels(c.render())).toEqual([
+        'status',
+        'noAnnotationAttr',
+        'copy(/Customer/@*)',
+        'if',
+        'email',
+        'age',
+        'address',
+        'noAnnotation',
+      ]);
+    });
+
+    it('should draw an attribute authored after an instruction that writes both before that instruction', () => {
+      const c = customer();
+      const ifItem = appendIf(c.rootItem);
+      appendFieldItem(ifItem, c.field('id'));
+      appendFieldItem(ifItem, c.field('name'));
+      appendFieldItem(c.rootItem, c.field('status'));
+
+      expect(rowLabels(c.render())).toEqual([
+        'status',
+        'noAnnotationAttr',
+        'if',
+        'email',
+        'age',
+        'address',
+        'noAnnotation',
+      ]);
+    });
+
+    it('should draw an instruction that writes both after the attribute rows, with no row for its element', () => {
+      const s = shipOrder();
+      const ifItem = appendIf(s.rootItem);
+      appendCopyOf(ifItem, '/ns0:ShipOrder/@*');
+      appendFieldItem(ifItem, s.field('ShipTo'));
+
+      expect(rowLabels(s.render())).toEqual(['OrderId', 'if', 'OrderPerson', 'Item']);
+    });
+
+    it('should keep the Add row of a collection held only by an instruction that writes both at its position', () => {
+      const s = shipOrder();
+      const ifItem = appendIf(s.rootItem);
+      appendCopyOf(ifItem, '/ns0:ShipOrder/@*');
+      appendFieldItem(ifItem, s.field('Item'));
+
+      expect(rowLabels(s.render())).toEqual(['OrderId', 'if', 'OrderPerson', 'ShipTo', '+Item']);
+    });
+
+    it('should draw a copy-of of attributes and an element before the element rows, not in front of that element', () => {
+      const s = shipOrder();
+      appendCopyOf(s.rootItem, '/ns0:ShipOrder/@* | /ns0:ShipOrder/ShipTo');
+
+      expect(rowLabels(s.render())).toEqual([
+        'OrderId',
+        'copy(/ns0:ShipOrder/@* | /ns0:ShipOrder/ShipTo)',
+        'OrderPerson',
+        'ShipTo',
+        'Item',
+      ]);
+    });
+
+    it('should draw items that write both in authored order, after every item that writes only attributes', () => {
+      const s = shipOrder();
+      const itemIf = appendIf(s.rootItem);
+      appendCopyOf(itemIf, '/ns0:ShipOrder/@*');
+      appendFieldItem(itemIf, s.field('Item'));
+      const shipToIf = appendIf(s.rootItem);
+      appendCopyOf(shipToIf, '/ns0:ShipOrder/@*');
+      appendFieldItem(shipToIf, s.field('ShipTo'));
+      appendCopyOf(s.rootItem, '/ns0:ShipOrder/@*');
+
+      const rows = s.render();
+
+      expect(rowLabels(rows)).toEqual(['OrderId', 'copy(/ns0:ShipOrder/@*)', 'if', 'if', 'OrderPerson', '+Item']);
+      expect((rows[2] as MappingNodeData).mapping).toBe(itemIf);
+      expect((rows[3] as MappingNodeData).mapping).toBe(shipToIf);
+    });
+
+    it('should draw field-less instructions by what they write', () => {
+      const s = shipOrder();
+      const ifItem = appendIf(s.rootItem);
+      appendCopyOf(ifItem, '/ns0:ShipOrder/@* | /ns0:ShipOrder/node()');
+      const loop = new ForEachItem(s.rootItem);
+      loop.expression = '/ns0:ShipOrder/@*';
+      s.rootItem.children.push(loop);
+      appendCopyOf(loop, '.');
+
+      expect(rowLabels(s.render())).toEqual(['OrderId', 'for-each', 'if', 'OrderPerson', 'ShipTo', 'Item']);
+    });
+
+    it('should draw an attribute copy of a simple-content element right after its attribute rows', () => {
+      const doc = TestUtil.createExtensionSimpleDoc();
+      const simpleTree = createTargetTree(doc, { ns0: 'http://www.example.com/SIMPLE' });
+      const product = findField(doc, 'Product');
+      const productItem = appendFieldItem(simpleTree, product);
+      const nameItem = appendFieldItem(productItem, findField(product, 'name'));
+      const value = new ValueOfSelector(nameItem, ValueOfType.VALUE);
+      value.expression = '/ns0:Product/ns0:name';
+      nameItem.children.push(value);
+      appendCopyOf(nameItem, '/ns0:Product/ns0:name/@*');
+      const nameNode = findRow(renderChildren(new TargetDocumentNodeData(doc, simpleTree)), 'name');
+
+      const labels = rowLabels(VisualizationService.generateNonDocumentNodeDataChildren(nameNode));
+
+      expect(labels.slice(0, 3)).toEqual(['lang', 'format', 'copy(/ns0:Product/ns0:name/@*)']);
+    });
+
+    describe('xsi:nil on a nillable element with an inline complex type', () => {
+      const nillableRows = (type: DocumentType, mapLeaf: boolean) => {
+        const doc = holderDoc(type);
+        const holder = findField(doc, 'Holder');
+        const nillable = findField(holder, 'NillableInline');
+        let docNode: DocumentNodeData;
+        if (type === DocumentType.TARGET_BODY) {
+          const holderTree = createTargetTree(doc, { ns0: ATTRS_NS });
+          if (mapLeaf) {
+            const holderItem = appendFieldItem(holderTree, holder);
+            const nillableItem = appendFieldItem(holderItem, nillable);
+            appendFieldItem(nillableItem, findField(nillable, 'Leaf'));
+          }
+          docNode = new TargetDocumentNodeData(doc, holderTree);
+        } else {
+          docNode = new DocumentNodeData(doc);
+        }
+        const nillableNode = findRow(renderChildren(docNode), 'NillableInline');
+        return rowLabels(VisualizationService.generateNonDocumentNodeDataChildren(nillableNode));
+      };
+
+      it('should draw xsi:nil among the attribute rows of an unmapped target element', () => {
+        expect(nillableRows(DocumentType.TARGET_BODY, false)).toEqual(['code', 'xsi:nil', 'Leaf']);
+      });
+
+      it('should draw xsi:nil among the attribute rows of a mapped target element', () => {
+        expect(nillableRows(DocumentType.TARGET_BODY, true)).toEqual(['code', 'xsi:nil', 'Leaf']);
+      });
+
+      it('should keep schema order on the source', () => {
+        expect(nillableRows(DocumentType.SOURCE_BODY, false)).toEqual(['code', 'Leaf', 'xsi:nil']);
+      });
+    });
+
+    it('should draw an imported attribute the schema does not declare among the attribute rows', () => {
+      const xslt = `<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="io.kaoto.datamapper.poc.test">
+  <xsl:template match="/">
+    <ShipOrder xmlns="io.kaoto.datamapper.poc.test">
+      <OrderPerson><xsl:value-of select="/ns0:ShipOrder/ns0:OrderPerson"/></OrderPerson>
+      <xsl:attribute name="extra"><xsl:value-of select="'x'"/></xsl:attribute>
+    </ShipOrder>
+  </xsl:template>
+</xsl:stylesheet>`;
+      const importTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      MappingSerializerService.deserialize(xslt, targetDoc, importTree, paramsMap);
+
+      const labels = rowLabels(renderChildren(new TargetDocumentNodeData(targetDoc, importTree)));
+
+      expect(labels.slice(0, 3)).toEqual(['OrderId', 'extra', 'OrderPerson']);
+    });
+
+    it('should draw an instruction that writes only attributes and maps an attribute once, on its row', () => {
+      const s = shipOrder();
+      const ifItem = appendIf(s.rootItem);
+      appendFieldItem(ifItem, s.field('OrderId'));
+      appendCopyOf(ifItem, '/ns0:ShipOrder/@*');
+
+      expect(rowLabels(s.render())).toEqual(['if', 'OrderPerson', 'ShipTo', 'Item']);
+    });
+
+    it('should keep copy-ofs that write only children where they were', () => {
+      const s = shipOrder();
+      appendCopyOf(s.rootItem, "/ns0:ShipOrder/Item[@type = 'a']");
+      appendCopyOf(s.rootItem, 'string(/ns0:ShipOrder/@OrderId)');
+
+      const rows = s.render();
+
+      expect(rowLabels(rows)).toEqual([
+        'OrderId',
+        'OrderPerson',
+        'ShipTo',
+        'Item',
+        '+Item',
+        'copy(string(/ns0:ShipOrder/@OrderId))',
+      ]);
+      expect(rows[3]).toBeInstanceOf(CopyOfFieldNodeData);
     });
   });
 });

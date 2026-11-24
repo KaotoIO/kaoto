@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="io.kaoto.datamapper.test.attributes"
+           targetNamespace="io.kaoto.datamapper.test.attributes"
+           elementFormDefault="qualified">
+    <xs:element name="Holder">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="NillableInline" nillable="true">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Leaf" type="xs:string"/>
+                        </xs:sequence>
+                        <xs:attribute name="code" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="WithChoice">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:choice>
+                                <xs:element name="OptA" type="xs:string"/>
+                                <xs:sequence>
+                                    <xs:element name="SeqKey" type="xs:string"/>
+                                    <xs:choice>
+                                        <xs:element name="InnerA" type="xs:string"/>
+                                        <xs:element name="InnerB" type="xs:string"/>
+                                    </xs:choice>
+                                </xs:sequence>
+                            </xs:choice>
+                        </xs:sequence>
+                        <xs:attribute name="kind" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="WithRepeatingChoice">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Lead" type="xs:string"/>
+                            <xs:choice maxOccurs="unbounded">
+                                <xs:element name="RepA" type="xs:string"/>
+                                <xs:element name="RepB" type="xs:string"/>
+                            </xs:choice>
+                        </xs:sequence>
+                        <xs:attribute name="ref" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="id" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
