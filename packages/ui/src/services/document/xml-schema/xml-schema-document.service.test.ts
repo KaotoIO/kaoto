@@ -4,6 +4,8 @@ import {
   DocumentDefinitionType,
   DocumentType,
   IField,
+  ITypeFragment,
+  RootElementOption,
 } from '../../../models/datamapper/document';
 import { NS_XML_SCHEMA_INSTANCE } from '../../../models/datamapper/standard-namespaces';
 import { Types } from '../../../models/datamapper/types';
@@ -38,6 +40,7 @@ import {
   TYPE_BINDING_COLLISION_NS,
 } from '../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../xml-schema-ts/QName';
+import { DocumentService } from '../document.service';
 import { DocumentUtilService } from '../document-util.service';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
@@ -1456,6 +1459,215 @@ describe('XmlSchemaDocumentService', () => {
     expect(typeA01Field!.type).toEqual(Types.Container);
   });
 
+  describe('with xs:redefine', () => {
+    const stubFiles = (dir: string, order: string[]) =>
+      Object.fromEntries(order.map((name) => [name, getXmlStubFile(`${dir}/${name}`)]));
+
+    const create = (files: Record<string, string>, rootElementChoice?: RootElementOption) =>
+      XmlSchemaDocumentService.createXmlSchemaDocument(
+        new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'redefine-doc',
+          files,
+          rootElementChoice,
+        ),
+      );
+
+    const fieldNames = (fields: IField[], fragmentRefs: string[], fragments: Record<string, ITypeFragment>) => {
+      const names = fields.map((field) => field.name);
+      for (const ref of fragmentRefs) {
+        const fragment = fragments[ref];
+        if (fragment) names.push(...fieldNames(fragment.fields, fragment.namedTypeFragmentRefs, fragments));
+      }
+      return names;
+    };
+
+    const childNames = (result: ReturnType<typeof create>, field: IField | undefined) =>
+      field && result.document
+        ? fieldNames(field.fields, field.namedTypeFragmentRefs, result.document.namedTypeFragments)
+        : [];
+
+    const userSchemasOf = (result: ReturnType<typeof create>) =>
+      result.document?.xmlSchemaCollection.getUserSchemas() ?? [];
+
+    const rootField = (result: ReturnType<typeof create>) => result.document?.fields[0];
+
+    const BOTH_ORDERS = [
+      ['base.xsd', 'implementation.xsd'],
+      ['implementation.xsd', 'base.xsd'],
+    ];
+
+    it.each(BOTH_ORDERS)('should default to the root of the redefining schema, attach order %s, %s', (...order) => {
+      const result = create(stubFiles('redefine/chameleon', order));
+
+      expect(result.validationStatus).toBe('success');
+      expect(result.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}Root');
+      expect(result.documentDefinition?.entrySchemaFile).toBe('implementation.xsd');
+    });
+
+    it.each(BOTH_ORDERS)(
+      'should default to the redefined schema element when the redefining schema declares none, attach order %s, %s',
+      (...order) => {
+        const result = create(stubFiles('redefine/redefine-only', order));
+
+        expect(result.validationStatus).toBe('success');
+        expect(result.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}BaseRoot');
+        expect(result.documentDefinition?.entrySchemaFile).toBe('implementation.xsd');
+      },
+    );
+
+    it.each(BOTH_ORDERS)(
+      'should load a chameleon redefined schema once, in the redefining namespace, attach order %s, %s',
+      (...order) => {
+        const result = create(stubFiles('redefine/chameleon', order));
+        const userSchemas = userSchemasOf(result);
+
+        expect(userSchemas.map((schema) => schema.getSourceURI())).toEqual(['implementation.xsd', 'base.xsd']);
+        expect(userSchemas.map((schema) => schema.getLogicalTargetNamespace())).toEqual(['urn:x', 'urn:x']);
+        expect(result.rootElementOptions).toEqual([
+          { namespaceUri: 'urn:x', name: 'Root', entrySchemaFile: 'implementation.xsd' },
+          { namespaceUri: 'urn:x', name: 'BaseRoot', entrySchemaFile: 'implementation.xsd', declaringFile: 'base.xsd' },
+          {
+            namespaceUri: 'urn:x',
+            name: 'BaseHolder',
+            entrySchemaFile: 'implementation.xsd',
+            declaringFile: 'base.xsd',
+          },
+        ]);
+      },
+    );
+
+    it('should register the namespace prefix of the redefining schema first', () => {
+      const document = create(stubFiles('redefine/chameleon', ['base.xsd', 'implementation.xsd'])).document;
+      const namespaceMap: Record<string, string> = {};
+
+      expect(document).toBeDefined();
+      if (document) DocumentService.registerSchemaNamespaces(document, namespaceMap);
+
+      expect(namespaceMap).toEqual({ x: 'urn:x' });
+    });
+
+    it.each(['redefine/same-namespace', 'redefine/chameleon'])(
+      'should resolve a root declared in the redefined schema in the redefining assembly (%s)',
+      (dir) => {
+        const files = stubFiles(dir, ['base.xsd', 'implementation.xsd']);
+        const option = create(files).rootElementOptions?.find((o) => o.name === 'BaseRoot');
+        expect(option?.entrySchemaFile).toBe('implementation.xsd');
+
+        const baseRoot = create(files, option);
+        expect(baseRoot.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}BaseRoot');
+        expect(childNames(baseRoot, rootField(baseRoot))).toEqual(['b']);
+
+        const holderOption = create(files).rootElementOptions?.find((o) => o.name === 'BaseHolder');
+        const baseHolder = create(files, holderOption);
+        expect(childNames(baseHolder, rootField(baseHolder))).toEqual(['ag1', 'g2']);
+      },
+    );
+
+    it.each([
+      ['redefine/same-namespace', 'urn:x', ['urn:x']],
+      ['redefine/chameleon', '', ['', 'urn:x']],
+    ])(
+      'should keep the original content for a choice whose entry is the redefined schema (%s)',
+      (dir, namespaceUri, baseCopies) => {
+        const result = create(stubFiles(dir, ['base.xsd', 'implementation.xsd']), {
+          namespaceUri,
+          name: 'BaseRoot',
+          entrySchemaFile: 'base.xsd',
+        });
+
+        expect(result.validationStatus).toBe('success');
+        expect(childNames(result, rootField(result))).toEqual(['a']);
+        expect(
+          userSchemasOf(result)
+            .filter((schema) => schema.getSourceURI() === 'base.xsd')
+            .map((schema) => schema.getLogicalTargetNamespace() || ''),
+        ).toEqual(baseCopies);
+      },
+    );
+
+    it.each(BOTH_ORDERS)('should resolve a self-extending complexType redefine, attach order %s, %s', (...order) => {
+      const result = create(stubFiles('redefine/complex-type', order), { namespaceUri: '', name: 'Root' });
+
+      expect(result.validationStatus).toBe('success');
+      expect(childNames(result, rootField(result))).toEqual(['b']);
+    });
+
+    it.each([[['implementation.xsd', 'base.xsd', 'other.xsd']], [['other.xsd', 'implementation.xsd', 'base.xsd']]])(
+      'should resolve components declared only in the redefined schema through the collection, attach order %j',
+      (order) => {
+        const files = stubFiles('redefine/shadowing', order);
+        const root = create(files, { namespaceUri: 'urn:x', name: 'Root', entrySchemaFile: 'implementation.xsd' });
+        const baseRoot = create(files, {
+          namespaceUri: 'urn:x',
+          name: 'BaseRoot',
+          entrySchemaFile: 'implementation.xsd',
+        });
+
+        expect(root.validationStatus).toBe('success');
+        expect(baseRoot.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}BaseRoot');
+        const rootChildren = rootField(root)?.fields ?? [];
+        expect(childNames(root, rootChildren[0])).toEqual(['fromOther']);
+        expect(rootChildren[1]?.type).toBe(Types.Integer);
+        expect(childNames(baseRoot, rootField(baseRoot))).toEqual([]);
+      },
+    );
+
+    it('should load a chameleon redefiner that includes a schema of the redefining namespace', () => {
+      const result = create(stubFiles('redefine/chameleon-chain', ['R.xsd', 'C.xsd', 'N.xsd']));
+
+      expect(result.validationStatus).toBe('success');
+      expect(result.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}Root');
+    });
+
+    it('should load a chameleon include chain back into the including namespace', () => {
+      const result = create(stubFiles('chameleon-include/include-chain', ['Main.xsd', 'Mod.xsd', 'Sub.xsd']));
+
+      expect(result.validationStatus).toBe('success');
+      expect(result.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}Root');
+    });
+
+    it('should report a missing redefined schema before loading', () => {
+      const result = create(stubFiles('redefine/same-namespace', ['implementation.xsd']));
+
+      expect(result.validationStatus).toBe('error');
+      expect(result.errors).toEqual([
+        {
+          message: 'Missing required schema: "base.xsd" referenced by "implementation.xsd" via xs:redefine',
+          filePath: 'implementation.xsd',
+        },
+      ]);
+    });
+
+    it('should report a namespace mismatch of a redefined schema before loading', () => {
+      const result = create(stubFiles('redefine/mismatch', ['implementation.xsd', 'base.xsd']));
+
+      expect(result.validationStatus).toBe('error');
+      expect(result.errors).toEqual([
+        {
+          message:
+            'Namespace mismatch in xs:redefine: "implementation.xsd" (targetNamespace: urn:x) redefines "base.xsd" (targetNamespace: urn:y). Redefined schemas must have the same targetNamespace or no targetNamespace (chameleon redefine).',
+          filePath: 'implementation.xsd',
+        },
+      ]);
+    });
+
+    it.each([
+      ['redefine/cycle', 'xs:redefine'],
+      ['redefine/mixed-cycle', 'xs:include/xs:redefine'],
+    ])('should load every file of a cycle (%s) and warn', (dir, label) => {
+      const result = create(stubFiles(dir, ['A.xsd', 'B.xsd']));
+
+      expect(result.validationStatus).toBe('warning');
+      expect(result.warnings?.map((warning) => warning.message)).toEqual(
+        expect.arrayContaining([expect.stringContaining(`Circular ${label} detected:`)]),
+      );
+      const loaded = userSchemasOf(result).map((schema) => schema.getSourceURI());
+      expect(new Set(loaded)).toEqual(new Set(['A.xsd', 'B.xsd']));
+    });
+  });
+
   describe('Field descriptions from xs:annotation/xs:documentation', () => {
     it('should extract description from element annotation', () => {
       const definition = new DocumentDefinition(
@@ -2008,54 +2220,15 @@ describe('XmlSchemaDocumentService', () => {
       expect(names).toContain('attrQ');
     });
 
-    it('should handle xs:redefine reproducer without throwing RangeError or crashing', () => {
-      const baseXsd = `<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:complexType name="PtysSubGrp_Block_t">
-    <xs:attribute name="ID" type="xs:string" use="required"/>
-  </xs:complexType>
-  <xs:group name="PartiesElements">
-    <xs:sequence>
-      <xs:element name="Sub" type="PtysSubGrp_Block_t" minOccurs="0" maxOccurs="unbounded"/>
-    </xs:sequence>
-  </xs:group>
-</xs:schema>`;
-
-      const implementationXsd = `<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:redefine schemaLocation="base.xsd">
-    <xs:group name="PartiesElements">
-      <xs:sequence>
-        <xs:group ref="PartiesElements"/>
-        <xs:element name="ReltdPty" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element name="AltPty" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-        <xs:element name="PtyRtg" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-      </xs:sequence>
-    </xs:group>
-  </xs:redefine>
-  <xs:element name="Parties">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="Party" maxOccurs="unbounded">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:group ref="PartiesElements"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-</xs:schema>`;
-
+    it.each([
+      ['base.xsd', 'implementation.xsd'],
+      ['implementation.xsd', 'base.xsd'],
+    ])('should resolve the xs:redefine reproducer without crashing, attach order %s, %s', (...order) => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
         'redefine-doc',
-        {
-          'base.xsd': baseXsd,
-          'implementation.xsd': implementationXsd,
-        },
+        Object.fromEntries(order.map((name) => [name, getXmlStubFile(`redefine/group-reproducer/${name}`)])),
         { namespaceUri: '', name: 'Parties', entrySchemaFile: 'implementation.xsd' },
         undefined,
         undefined,
@@ -2064,18 +2237,15 @@ describe('XmlSchemaDocumentService', () => {
       );
 
       const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-      expect(result.document).toBeDefined();
+      expect(result.validationStatus).toBe('success');
       expect(result.document?.rootElement?.getName()).toBe('Parties');
       const partiesField = result.document?.fields[0];
       expect(partiesField?.name).toBe('Parties');
       const partyField = partiesField?.fields[0];
       expect(partyField?.name).toBe('Party');
-      const partyChildNames = partyField?.fields.map((f) => f.name);
-      // Interim S1 assertion: In S1 (foundation phase with cycle guard), self-referencing group ref
-      // is guarded against recursion (base element 'Sub' is omitted by cycle guard) and non-recursive
-      // sibling elements from the redefine block are populated.
-      // S3 (#4248) will introduce layer resolution to include base elements ('Sub') as well.
-      expect(partyChildNames).toEqual(['ReltdPty', 'AltPty', 'PtyRtg']);
+      // The self-referencing group ref inside the redefinition is cut by the group-ref guard, so only the
+      // redefinition's own particles are listed; the base particle `Sub` is not expanded.
+      expect(partyField?.fields.map((f) => f.name)).toEqual(['ReltdPty', 'AltPty', 'PtyRtg']);
     });
 
     it('should re-infer entrySchemaFile when the persisted file is missing from definitionFiles', () => {

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:redefine schemaLocation="base.xsd">
+    <xs:group name="PartiesElements">
+      <xs:sequence>
+        <xs:group ref="PartiesElements"/>
+        <xs:element name="ReltdPty" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="AltPty" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xs:element name="PtyRtg" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:group>
+  </xs:redefine>
+  <xs:element name="Parties">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Party" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:group ref="PartiesElements"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

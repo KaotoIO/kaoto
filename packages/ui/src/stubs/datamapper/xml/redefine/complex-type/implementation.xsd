@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:redefine schemaLocation="base.xsd">
+    <xs:complexType name="T">
+      <xs:complexContent>
+        <xs:extension base="T">
+          <xs:sequence>
+            <xs:element name="b" type="xs:string"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:redefine>
+  <xs:element name="Root" type="T"/>
+</xs:schema>

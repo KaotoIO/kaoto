@@ -1621,6 +1621,12 @@ describe('XmlSchemaDocumentUtilService', () => {
   });
 
   describe('inferEntrySchemaFile()', () => {
+    const loadFiles = (collection: XmlSchemaCollection, files: Record<string, string>) => {
+      const analysis = XmlSchemaAnalysisService.analyze(files);
+      XmlSchemaDocumentService.loadSchemaFiles(collection, analysis, files);
+      return analysis.edges;
+    };
+
     it('should return undefined when definitionFiles is empty', () => {
       const collection = new XmlSchemaCollection();
       expect(XmlSchemaDocumentUtilService.inferEntrySchemaFile(collection, {}, [])).toBeUndefined();
@@ -1634,7 +1640,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         'Main.xsd':
           '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/main"><xs:element name="Root" type="xs:string"/></xs:schema>',
       };
-      XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, files);
+      loadFiles(collection, files);
 
       const entry = XmlSchemaDocumentUtilService.inferEntrySchemaFile(collection, files, [], {
         namespaceUri: 'http://example.com/main',
@@ -1652,7 +1658,7 @@ describe('XmlSchemaDocumentUtilService', () => {
         'Main.xsd':
           '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/main"><xs:element name="Root" type="xs:string"/></xs:schema>',
       };
-      XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, files);
+      loadFiles(collection, files);
 
       // Types.xsd is attached first and both are unreferenced, but Types.xsd has 0 elements.
       const entry = XmlSchemaDocumentUtilService.inferEntrySchemaFile(collection, files, []);
@@ -1670,8 +1676,7 @@ describe('XmlSchemaDocumentUtilService', () => {
           '<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://example.com/types"><xs:element name="ImportedElem" type="xs:string"/></xs:schema>',
       };
       collection.getSchemaResolver().addFiles(files);
-      XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, files);
-      const edges = XmlSchemaAnalysisService.analyze(files).edges;
+      const edges = loadFiles(collection, files);
 
       const entry = XmlSchemaDocumentUtilService.inferEntrySchemaFile(collection, files, edges);
 
@@ -1690,8 +1695,9 @@ describe('XmlSchemaDocumentUtilService', () => {
       };
       collection.getSchemaResolver().addFiles(files);
       // Load HostB first so its chameleon instance (urn:ns-b) is first in collection.getUserSchemas()
-      XmlSchemaDocumentUtilService.loadXmlSchemaFiles(collection, files);
-      const edges = XmlSchemaAnalysisService.analyze(files).edges;
+      const edges = loadFiles(collection, files);
+      const chameleonCopies = collection.getUserSchemas().filter((schema) => schema.getSourceURI() === 'Cham.xsd');
+      expect(chameleonCopies.map((schema) => schema.getLogicalTargetNamespace())).toEqual(['urn:ns-b', 'urn:ns-a']);
 
       // In HostA (urn:ns-a), determineRootElement must find SharedItem under urn:ns-a, not urn:ns-b
       const rootElemA = XmlSchemaDocumentUtilService.determineRootElement(collection, undefined, 'HostA.xsd', edges);

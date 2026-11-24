@@ -11,7 +11,7 @@ export interface ReportMessage {
 export interface SchemaAnalysisReport {
   /** Topologically sorted file identifiers — dependencies come before dependents. */
   loadOrder: string[];
-  /** Errors that prevent schema loading (missing dependencies, circular includes). */
+  /** Errors that prevent schema loading (missing dependencies, namespace mismatches, parse errors). */
   errors: ReportMessage[];
   /** Non-fatal issues such as circular imports that are allowed but noteworthy. */
   warnings: ReportMessage[];

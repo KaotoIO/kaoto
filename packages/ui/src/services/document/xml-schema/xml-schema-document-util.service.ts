@@ -105,34 +105,18 @@ export class XmlSchemaDocumentUtilService {
   }
 
   /**
-   * Loads XML schema files into an XmlSchemaCollection.
-   * Wraps collection.read() with proper iteration over multiple schema files.
-   *
-   * @param collection - The collection to load schemas into
-   * @param definitionFiles - Map of file paths to file contents
-   * @throws Error if schema parsing fails
-   */
-  static loadXmlSchemaFiles(collection: XmlSchemaCollection, definitionFiles: Record<string, string>): void {
-    const filePaths = Object.keys(definitionFiles);
-    for (const path of filePaths) {
-      const fileContent = definitionFiles[path];
-      collection.read(fileContent, () => {}, path);
-    }
-  }
-
-  /**
    * Infers the entry schema file (assembly root) of a loaded schema set when no valid entry is stored. It is not the
    * only place that decides the entry: `createXmlSchemaDocument` takes the entry of the root choice first, and
    * `DataMapperMetadataService.inferLegacyRootElementChoice` derives the root choice, with its entry, for legacy
    * metadata.
-   * Candidates are the schemas with no incoming include/import edge, in attach order. When a root element choice
-   * is given, the first candidate whose reachable assembly declares that element wins. If there is no such candidate
-   * (or no choice), the first candidate wins; when every file is referenced (e.g. circular includes) the first
-   * attached file is used.
+   * Candidates are the schemas with no incoming include, import or redefine edge, in attach order. When a root
+   * element choice is given, the first candidate whose reachable assembly declares that element wins. If there is no
+   * such candidate (or no choice), the first candidate wins; when every file is referenced (e.g. circular includes)
+   * the first attached file is used.
    *
    * @param collection - The loaded XML schema collection
    * @param definitionFiles - Schema files keyed by path, in attach order
-   * @param edges - Include/import dependency edges produced by schema analysis
+   * @param edges - Dependency edges produced by schema analysis
    * @param rootElementChoice - Optional user-chosen root element
    * @returns The inferred entry schema file path, or undefined when no files are attached
    */
@@ -169,7 +153,7 @@ export class XmlSchemaDocumentUtilService {
    * @param collection - The XML schema collection
    * @param rootElemChoice - Optional user-specified root element choice
    * @param entrySchemaFile - Optional entry schema file used to scope the lookup
-   * @param edges - Include/import dependency edges produced by schema analysis
+   * @param edges - Dependency edges produced by schema analysis
    * @returns The root element
    * @throws Error if root element cannot be determined or specified element not found
    */
@@ -245,7 +229,7 @@ export class XmlSchemaDocumentUtilService {
     entrySchemaFile: string,
     edges: DependencyEdge[],
   ): XmlSchemaElement | undefined {
-    const effectiveNamespaces = XmlSchemaDocumentUtilService.collectEffectiveNamespaces(
+    const effectiveNamespaces = XmlSchemaAnalysisService.collectEffectiveNamespaces(
       entrySchemaFile,
       edges,
       XmlSchemaDocumentUtilService.collectSyntacticNamespaces(collection),
@@ -265,7 +249,7 @@ export class XmlSchemaDocumentUtilService {
 
   /**
    * Returns the first element declared in the entry schema, or else in any schema reachable
-   * from it through include/import edges. The result is deterministic regardless of load order.
+   * from it through include, import or redefine edges. The result is deterministic regardless of load order.
    */
   private static getFirstElementFromSchema(
     collection: XmlSchemaCollection,
@@ -284,12 +268,12 @@ export class XmlSchemaDocumentUtilService {
    * Collects all available root element options from the schema collection.
    * Each option carries the unreferenced schema (assembly entry point) it is reachable from as
    * `entrySchemaFile`. When the element is declared in a different file, that file is exposed as
-   * the display-only `declaringFile`. Circular include/import cycles yield a single entry per cycle.
-   * Within an entry, the entry's own elements come first, followed by those of the files it reaches in
-   * breadth-first include/import order.
+   * the display-only `declaringFile`. Directive cycles yield a single entry per cycle, and a redefined file is not an
+   * entry of its own: its elements are listed under the schema that redefines it. Within an entry, the entry's own
+   * elements come first, followed by those of the files it reaches in breadth-first directive order.
    *
    * @param collection - The XML schema collection
-   * @param edges - Include/import dependency edges produced by schema analysis
+   * @param edges - Dependency edges produced by schema analysis
    * @returns Array of root element options
    */
   static collectRootElementOptions(collection: XmlSchemaCollection, edges: DependencyEdge[]): RootElementOption[] {
@@ -297,9 +281,9 @@ export class XmlSchemaDocumentUtilService {
     const syntacticNamespaces = XmlSchemaDocumentUtilService.collectSyntacticNamespaces(collection);
 
     const options: RootElementOption[] = [];
-    // Entries are the unreferenced schemas plus one member per unreferenced include/import cycle.
+    // Entries are the unreferenced schemas plus one member per unreferenced directive cycle.
     for (const entryURI of XmlSchemaAnalysisService.findUnreferencedSchemas([...syntacticNamespaces.keys()], edges)) {
-      const effectiveNamespaces = XmlSchemaDocumentUtilService.collectEffectiveNamespaces(
+      const effectiveNamespaces = XmlSchemaAnalysisService.collectEffectiveNamespaces(
         entryURI,
         edges,
         syntacticNamespaces,
@@ -311,8 +295,8 @@ export class XmlSchemaDocumentUtilService {
 
   /**
    * Lists the global elements that the given entry schema reaches, the entry's own elements first and then those of
-   * the reached files in breadth-first order. A chameleon schema is loaded once per including namespace, so only
-   * the copy whose logical target namespace the entry actually reaches counts.
+   * the reached files in breadth-first order. A chameleon schema is loaded once per including or redefining
+   * namespace, so only the copy whose logical target namespace the entry actually reaches counts.
    *
    * @param entryURI - The entry schema file path
    * @param userSchemas - All user schemas of the collection
@@ -369,40 +353,6 @@ export class XmlSchemaDocumentUtilService {
       options.push({ namespaceUri, name, entrySchemaFile: entryURI });
     }
     return options;
-  }
-
-  /**
-   * Computes, for every schema file reachable from `entryURI`, the namespaces under which it is reached.
-   * An `xs:include` of a schema without a target namespace (chameleon) adopts the namespace of the including
-   * schema; an `xs:import` or a schema that declares its own target namespace keeps that namespace.
-   *
-   * @param entryURI - The entry schema file path
-   * @param edges - Include/import dependency edges produced by schema analysis
-   * @param syntacticNamespaces - Declared target namespace per schema file ('' when absent)
-   * @returns Map of file path to the set of namespaces under which the entry reaches it
-   */
-  static collectEffectiveNamespaces(
-    entryURI: string,
-    edges: DependencyEdge[],
-    syntacticNamespaces: Map<string, string>,
-  ): Map<string, Set<string>> {
-    const result = new Map<string, Set<string>>();
-    const queue: Array<[string, string]> = [[entryURI, syntacticNamespaces.get(entryURI) ?? '']];
-    while (queue.length > 0) {
-      const [file, namespace] = queue.shift()!;
-      const known = result.get(file) ?? new Set<string>();
-      if (known.has(namespace)) continue;
-      known.add(namespace);
-      result.set(file, known);
-
-      for (const edge of edges) {
-        if (edge.from !== file) continue;
-        const declared = syntacticNamespaces.get(edge.to) ?? '';
-        const childNamespace = edge.directive.type === 'include' && !declared ? namespace : declared;
-        queue.push([edge.to, childNamespace]);
-      }
-    }
-    return result;
   }
 
   /**

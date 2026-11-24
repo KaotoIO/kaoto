@@ -15,6 +15,7 @@ import {
   getImportedTypesXsd,
   getNamedTypesXsd,
   getShipOrderXsd,
+  getXmlStubFile,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaCollection } from '../../xml-schema-ts';
@@ -22,6 +23,7 @@ import { QName } from '../../xml-schema-ts/QName';
 import { FieldOverrideService } from './field-override.service';
 import { JsonSchemaDocument } from './json-schema/json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema/json-schema-document.service';
+import { XmlSchemaAnalysisService } from './xml-schema/xml-schema-analysis.service';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema/xml-schema-document.service';
 import { XmlSchemaTypesService } from './xml-schema/xml-schema-types.service';
@@ -477,6 +479,40 @@ describe('FieldOverrideService', () => {
 
         expect(Object.keys(document.namedTypeFragments).some((k) => k.includes('ImportedType'))).toBe(true);
       });
+
+      it.each([
+        ['chameleon-include/include-pair', ['Host.xsd', 'Inc.xsd'], 'Inc.xsd', ['Host.xsd', 'Inc.xsd']],
+        ['chameleon-include/include-pair', ['Inc.xsd', 'Host.xsd'], 'Inc.xsd', ['Host.xsd', 'Inc.xsd']],
+        ['redefine/chameleon', ['implementation.xsd', 'base.xsd'], 'base.xsd', ['implementation.xsd', 'base.xsd']],
+        ['redefine/chameleon', ['base.xsd', 'implementation.xsd'], 'base.xsd', ['implementation.xsd', 'base.xsd']],
+      ])(
+        'should load a chameleon target added in the same pick once, in the referencing namespace (%s, attach order %j)',
+        (dir, names, target, registrationOrder) => {
+          const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+            new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+              'ShipOrder.xsd': getShipOrderXsd(),
+            }),
+          );
+          const document = result.document as XmlSchemaDocument;
+
+          FieldOverrideService.addSchemaFilesForTypeOverride(
+            document,
+            Object.fromEntries(names.map((name) => [name, getXmlStubFile(`${dir}/${name}`)])),
+          );
+
+          const targetCopies = document.xmlSchemaCollection
+            .getUserSchemas()
+            .filter((schema) => schema.getSourceURI() === target)
+            .map((schema) => schema.getLogicalTargetNamespace());
+          expect(targetCopies).toEqual(['urn:x']);
+          expect(
+            document.xmlSchemaCollection
+              .getUserSchemas()
+              .map((schema) => schema.getSourceURI())
+              .filter((uri) => names.includes(uri ?? '')),
+          ).toEqual(registrationOrder);
+        },
+      );
     });
 
     describe('JSON Schema documents', () => {
@@ -519,6 +555,99 @@ describe('FieldOverrideService', () => {
         expect(() => {
           FieldOverrideService.addSchemaFilesForTypeOverride(document, { 'test.xsd': '<schema/>' });
         }).toThrow('Cannot add schema files to primitive document');
+      });
+
+      it('should reject an added schema whose include is missing and leave the document unchanged', () => {
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+          new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+            'ShipOrder.xsd': getShipOrderXsd(),
+          }),
+        );
+        const document = result.document as XmlSchemaDocument;
+        const definitionFiles = document.definition.definitionFiles;
+        const dependencyEdges = document.dependencyEdges;
+        const rejected = getXmlStubFile('chameleon-include/include-pair/Host.xsd').replace('Inc.xsd', 'missing.xsd');
+
+        expect(() => {
+          FieldOverrideService.addSchemaFilesForTypeOverride(document, { 'a/common.xsd': rejected });
+        }).toThrow('Missing required schema: "missing.xsd" referenced by "a/common.xsd" via xs:include');
+
+        expect(document.definition.definitionFiles).toEqual(definitionFiles);
+        expect(document.dependencyEdges).toBe(dependencyEdges);
+        expect(() =>
+          document.xmlSchemaCollection.getSchemaResolver().resolveEntity(null, 'a/common.xsd', null),
+        ).toThrow('Schema not found');
+
+        FieldOverrideService.addSchemaFilesForTypeOverride(document, {
+          'b/common.xsd': getXmlStubFile('chameleon-include/include-pair/Inc.xsd'),
+          'host.xsd': getXmlStubFile('chameleon-include/include-pair/Host.xsd').replace('Inc.xsd', 'common.xsd'),
+        });
+        expect(Object.keys(document.definition.definitionFiles ?? {})).toEqual([
+          'ShipOrder.xsd',
+          'b/common.xsd',
+          'host.xsd',
+        ]);
+        expect(
+          document.xmlSchemaCollection
+            .getUserSchemas()
+            .filter((schema) => schema.getSourceURI() === 'b/common.xsd')
+            .map((schema) => schema.getLogicalTargetNamespace()),
+        ).toEqual(['urn:x']);
+      });
+
+      it('should load an added file that an existing include now resolves to by its exact path', () => {
+        const host = getXmlStubFile('chameleon-include/include-pair/Host.xsd');
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+          new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+            'Host.xsd': host,
+            'lib/Inc.xsd': getXmlStubFile('chameleon-include/include-pair/Inc.xsd'),
+          }),
+        );
+        const document = result.document as XmlSchemaDocument;
+
+        FieldOverrideService.addSchemaFilesForTypeOverride(document, {
+          'Inc.xsd': getXmlStubFile('chameleon-include/include-pair/Inc.xsd').replace('IncType', 'AddedType'),
+        });
+
+        const loaded = document.xmlSchemaCollection.getUserSchemas().map((schema) => schema.getSourceURI());
+        expect(loaded).toContain('Inc.xsd');
+      });
+
+      it('should throw the loader error when the added files pass the analysis but cannot be loaded', () => {
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+          new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+            'ShipOrder.xsd': getShipOrderXsd(),
+          }),
+        );
+        const document = result.document as XmlSchemaDocument;
+        const definitionFiles = document.definition.definitionFiles;
+
+        const xs = 'xmlns:xs="http://www.w3.org/2001/XMLSchema"';
+        const importCycle = {
+          'Root.xsd': `<xs:schema ${xs} targetNamespace="urn:r"><xs:import namespace="urn:x" schemaLocation="A.xsd"/></xs:schema>`,
+          'B.xsd': `<xs:schema ${xs}><xs:include schemaLocation="A.xsd"/></xs:schema>`,
+          'A.xsd': `<xs:schema ${xs} targetNamespace="urn:x"><xs:include schemaLocation="B.xsd"/></xs:schema>`,
+        };
+
+        expect(XmlSchemaAnalysisService.analyze({ ...definitionFiles, ...importCycle }).errors).toEqual([]);
+        expect(() => {
+          FieldOverrideService.addSchemaFilesForTypeOverride(document, importCycle);
+        }).toThrow();
+        expect(document.definition.definitionFiles).toEqual(definitionFiles);
+      });
+
+      it('should throw when an added schema cannot be parsed', () => {
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+          new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.XML_SCHEMA, 'test-doc', {
+            'ShipOrder.xsd': getShipOrderXsd(),
+          }),
+        );
+
+        expect(() => {
+          FieldOverrideService.addSchemaFilesForTypeOverride(result.document as XmlSchemaDocument, {
+            'broken.xsd': '<xs:schema',
+          });
+        }).toThrow('XML parse error in "broken.xsd"');
       });
 
       it('should handle empty additionalFiles and keep existing definition files', () => {

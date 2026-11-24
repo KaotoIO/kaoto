@@ -80,7 +80,8 @@ export class XmlSchemaWrapperGeneratorService {
    *
    * XML Schema processors keep one grammar per namespace and read only the first location they meet for it. To
    * not depend on the processor, every file takes part in the wrapper exactly once:
-   * - all files of the root namespace are `xs:include`d by the wrapper itself;
+   * - all files of the root namespace are `xs:include`d by the wrapper itself, except files that another attached file
+   *   includes or redefines and that therefore reach the wrapper through it;
    * - every other namespace is `xs:import`ed once. A namespace with several files gets a generated aggregator
    *   schema (see {@link getAggregatorPath}) that `xs:include`s all of them;
    * - the imports come before the includes, and a namespace that other namespaces import comes first, so that the
@@ -135,9 +136,9 @@ export class XmlSchemaWrapperGeneratorService {
 
     const filesByNamespace = this.groupFilesByNamespace(files, analysis);
     if (!filesByNamespace.has(rootNamespace)) {
-      // Matches no attached file, e.g. one groupFilesByNamespace excludes as a chameleon include: a wrapper
-      // declaring this namespace would include none of its content, so fall back the same way as any other
-      // failure to resolve a trustworthy root.
+      // Matches no attached file, e.g. one groupFilesByNamespace excludes as a chameleon include or a redefine
+      // target: a wrapper declaring this namespace would include none of its content, so fall back the same way as
+      // any other failure to resolve a trustworthy root.
       warnings.push(
         `The root element's namespace "${rootNamespace}" matches no attached schema file, validating against "${files[0]}" only. Choose a different root element in the attach schema settings.`,
       );
@@ -277,19 +278,28 @@ export class XmlSchemaWrapperGeneratorService {
   }
 
   /**
-   * Chameleon schemas are left out: a schema without a `targetNamespace` that another file includes takes the
-   * namespace of that file, so it must not additionally be loaded as a no-namespace schema.
+   * Two kinds of files are left out, because they reach the wrapper through the file that references them:
+   * - chameleon targets of an include-like directive: a schema without a `targetNamespace` that another file includes
+   *   or redefines takes the namespace of that file, so it must not additionally be loaded as a no-namespace schema;
+   * - every `xs:redefine` target, also one with a `targetNamespace`: the redefining schema already brings it in with
+   *   the redefinitions applied, and including it directly as well puts the original and the redefined component
+   *   under one name into the assembly (XML Schema processors reject that with `sch-props-correct.2`).
    */
   private static groupFilesByNamespace(files: string[], analysis: XmlSchemaAnalysisReport): Map<string, string[]> {
-    const chameleonIncludes = new Set(
+    const omittedFiles = new Set(
       analysis.edges
-        .filter((edge) => edge.directive.type === 'include' && !analysis.fileInfos.get(edge.to)?.targetNamespace)
+        .filter(
+          (edge) =>
+            edge.directive.type === 'redefine' ||
+            (XmlSchemaAnalysisService.isIncludeLikeDirective(edge.directive.type) &&
+              !analysis.fileInfos.get(edge.to)?.targetNamespace),
+        )
         .map((edge) => edge.to),
     );
 
     const filesByNamespace = new Map<string, string[]>();
     for (const file of files) {
-      if (chameleonIncludes.has(file)) continue;
+      if (omittedFiles.has(file)) continue;
       const namespace = analysis.fileInfos.get(file)?.targetNamespace || '';
       const group = filesByNamespace.get(namespace) ?? [];
       group.push(file);
@@ -367,27 +377,37 @@ export class XmlSchemaWrapperGeneratorService {
       return [...component].sort((a, b) => Number(hasSeveralFiles(b)) - Number(hasSeveralFiles(a)));
     });
 
-    // A chameleon include can add a namespace without files of its own to the edges; there is nothing to import
+    // A chameleon include or redefine can add a namespace without files of its own to the edges; there is
+    // nothing to import
     return ordered.filter((namespace) => namespace !== rootNamespace && filesByNamespace.has(namespace));
   }
 
   /**
    * The "namespace A references namespace B" graph. Self references are dropped, and only a namespace that has
-   * files of its own can be a source.
+   * files of its own can be a source. A file without a target namespace references from every namespace it acts in
+   * (`effectiveNamespaces`), so the imports of a chameleon include or redefine target, which the wrapper leaves out,
+   * still order the imported namespace before the one that includes or redefines it. An include or redefine of such a
+   * file stays in the referencing namespace and adds no dependency.
    */
   private static buildNamespaceDependencies(
     filesByNamespace: Map<string, string[]>,
     analysis: XmlSchemaAnalysisReport,
   ): Map<string, Set<string>> {
     const namespaceOf = (file: string) => analysis.fileInfos.get(file)?.targetNamespace || '';
+    const sourceNamespacesOf = (file: string) => {
+      const declared = namespaceOf(file);
+      return declared ? [declared] : [...(analysis.effectiveNamespaces.get(file) ?? [declared])];
+    };
     const dependencies = new Map<string, Set<string>>();
     for (const namespace of filesByNamespace.keys()) {
       dependencies.set(namespace, new Set());
     }
     for (const edge of analysis.edges) {
-      const from = namespaceOf(edge.from);
       const to = namespaceOf(edge.to);
-      if (from !== to) dependencies.get(from)?.add(to);
+      if (!to && XmlSchemaAnalysisService.isIncludeLikeDirective(edge.directive.type)) continue;
+      for (const from of sourceNamespacesOf(edge.from)) {
+        if (from !== to) dependencies.get(from)?.add(to);
+      }
     }
     return dependencies;
   }

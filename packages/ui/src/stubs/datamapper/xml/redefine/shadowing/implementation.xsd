@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:redefine schemaLocation="base.xsd">
+    <xs:simpleType name="S">
+      <xs:restriction base="x:S">
+        <xs:maxLength value="10"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:redefine>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="bt" type="x:BT"/>
+        <xs:element name="s" type="x:S"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
