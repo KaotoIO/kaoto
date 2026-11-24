@@ -219,6 +219,29 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       expect(document.definition.entrySchemaFile).toBe('shipOrder.xsd');
     });
 
+    it('should find a type of an added file through the document assembly', () => {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'shipOrder.xsd': getShipOrderXsd() },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        'shipOrder.xsd',
+      );
+      const document = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document as XmlSchemaDocument;
+      const assembly = document.assembly;
+
+      FieldOverrideService.addSchemaFilesForTypeOverride(document, { 'ImportedTypes.xsd': getImportedTypesXsd() });
+
+      const importedType = document.assembly.lookupType(new QName('http://example.com/types', 'ImportedType'));
+      expect(document.assembly).toBe(assembly);
+      expect(document.assembly.entrySchemaFile).toBe(document.definition.entrySchemaFile);
+      expect(importedType?.getParent()?.getSourceURI()).toBe('ImportedTypes.xsd');
+    });
+
     it('should support multiple sequential addSchemaFiles() calls', () => {
       const mainSchema = `<?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"

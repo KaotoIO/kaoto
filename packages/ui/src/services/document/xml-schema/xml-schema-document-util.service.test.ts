@@ -20,9 +20,9 @@ import {
   TestUtil,
 } from '../../../stubs/datamapper/data-mapper';
 import { QName } from '../../../xml-schema-ts/QName';
-import { XmlSchema } from '../../../xml-schema-ts/XmlSchema';
 import { XmlSchemaCollection } from '../../../xml-schema-ts/XmlSchemaCollection';
 import { XmlSchemaAnalysisService } from './xml-schema-analysis.service';
+import { XmlSchemaAssembly } from './xml-schema-assembly.model';
 import { XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
@@ -1472,44 +1472,6 @@ describe('XmlSchemaDocumentUtilService', () => {
       const keyB = XmlSchemaDocumentUtilService.buildTypeFragmentKey('B.xsd', new QName('', 'T'));
       expect(result.document!.namedTypeFragments[keyB].fields.map((f) => f.name)).toEqual(['fromB']);
     });
-
-    it('should visit each schema once per scoped lookup in a diamond-shaped include graph', () => {
-      const levels = 12;
-      const wrap = (body: string) => `<?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">${body}</xs:schema>`;
-      const include = (file: string) => `<xs:include schemaLocation="${file}"/>`;
-      const files: Record<string, string> = {};
-      for (let i = 0; i < levels; i++) {
-        files[`N${i}.xsd`] = wrap(include(`A${i}.xsd`) + include(`B${i}.xsd`));
-        const next = i + 1 < levels ? include(`N${i + 1}.xsd`) : '<xs:element name="Leaf" type="xs:string"/>';
-        files[`A${i}.xsd`] = wrap(next);
-        files[`B${i}.xsd`] = wrap(next);
-      }
-      const definition = new DocumentDefinition(
-        DocumentType.SOURCE_BODY,
-        DocumentDefinitionType.XML_SCHEMA,
-        BODY_DOCUMENT_ID,
-        files,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        'N0.xsd',
-      );
-      const { document } = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-
-      const spy = vi.spyOn(XmlSchema.prototype, 'getElementByQName');
-      const found = XmlSchemaDocumentUtilService.lookupSchemaElement(
-        document!.xmlSchemaCollection,
-        new QName('', 'Missing'),
-        'N0.xsd',
-      );
-
-      expect(found).toBeNull();
-      // 2^12 paths reach the leaf; one visit per schema keeps it near files x edges.
-      expect(spy.mock.calls.length).toBeLessThan(Object.keys(files).length ** 2 * 4);
-      spy.mockRestore();
-    });
   });
 
   describe('entry schema inference and persistence round-trip', () => {
@@ -1700,7 +1662,11 @@ describe('XmlSchemaDocumentUtilService', () => {
       expect(chameleonCopies.map((schema) => schema.getLogicalTargetNamespace())).toEqual(['urn:ns-b', 'urn:ns-a']);
 
       // In HostA (urn:ns-a), determineRootElement must find SharedItem under urn:ns-a, not urn:ns-b
-      const rootElemA = XmlSchemaDocumentUtilService.determineRootElement(collection, undefined, 'HostA.xsd', edges);
+      const rootElemA = XmlSchemaDocumentUtilService.determineRootElement(
+        new XmlSchemaAssembly(collection, 'HostA.xsd'),
+        undefined,
+        edges,
+      );
       expect(rootElemA.getQName()?.getNamespaceURI()).toBe('urn:ns-a');
       expect(rootElemA.getName()).toBe('SharedItem');
     });
@@ -1737,34 +1703,6 @@ describe('XmlSchemaDocumentUtilService', () => {
       expect(XmlSchemaDocumentUtilService.buildTypeFragmentKey(undefined, qname)).toBe(
         '{http://example.com}AddressType',
       );
-    });
-  });
-
-  describe('lookupSchemaElement() and lookupSchemaGroup()', () => {
-    it('should return null when element or group QName is null', () => {
-      const doc = TestUtil.createSourceOrderDoc();
-      expect(XmlSchemaDocumentUtilService.lookupSchemaElement(doc.xmlSchemaCollection, null)).toBeNull();
-      expect(XmlSchemaDocumentUtilService.lookupSchemaGroup(doc.xmlSchemaCollection, null)).toBeNull();
-    });
-
-    it('should lookup schema element by QName', () => {
-      const doc = TestUtil.createSourceOrderDoc();
-      const firstEl = XmlSchemaDocumentUtilService.getFirstElement(doc.xmlSchemaCollection);
-      const qname = firstEl?.getQName();
-      expect(qname).toBeDefined();
-
-      const found = XmlSchemaDocumentUtilService.lookupSchemaElement(doc.xmlSchemaCollection, qname!);
-      expect(found).toBeDefined();
-      expect(found?.getQName()?.toString()).toBe(qname?.toString());
-    });
-
-    it('should return null when element is not found', () => {
-      const doc = TestUtil.createSourceOrderDoc();
-      const notFound = XmlSchemaDocumentUtilService.lookupSchemaElement(
-        doc.xmlSchemaCollection,
-        new QName('http://nonexistent', 'NonExistent'),
-      );
-      expect(notFound).toBeNull();
     });
   });
 });

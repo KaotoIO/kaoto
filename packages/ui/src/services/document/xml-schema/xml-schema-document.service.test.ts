@@ -42,6 +42,7 @@ import {
 import { QName } from '../../../xml-schema-ts/QName';
 import { DocumentService } from '../document.service';
 import { DocumentUtilService } from '../document-util.service';
+import { XmlSchemaAssembly } from './xml-schema-assembly.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
@@ -70,6 +71,43 @@ describe('XmlSchemaDocumentService', () => {
     expect(original.definition.rootElementChoice).toEqual({ name: 'first', namespaceUri: '' });
     expect(original.definition.fieldTypeOverrides).toBeUndefined();
     expect(updated.definition.fieldTypeOverrides).toEqual([]);
+  });
+
+  it('should build the assembly of the new entry when the root element moves to another file', () => {
+    const definition = new DocumentDefinition(
+      DocumentType.SOURCE_BODY,
+      DocumentDefinitionType.XML_SCHEMA,
+      BODY_DOCUMENT_ID,
+      {
+        'first.xsd': `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <xs:element name="first" type="T" />
+          <xs:simpleType name="T"><xs:restriction base="xs:int" /></xs:simpleType>
+        </xs:schema>`,
+        'second.xsd': `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+          <xs:element name="second" type="T" />
+          <xs:simpleType name="T"><xs:restriction base="xs:string" /></xs:simpleType>
+        </xs:schema>`,
+      },
+      { name: 'first', namespaceUri: '', entrySchemaFile: 'first.xsd' },
+    );
+    const original = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document as XmlSchemaDocument;
+    expect(original.assembly.entrySchemaFile).toBe('first.xsd');
+
+    const updated = XmlSchemaDocumentService.updateRootElement(original, {
+      name: 'second',
+      namespaceUri: '',
+      entrySchemaFile: 'second.xsd',
+    });
+
+    expect(updated.assembly).not.toBe(original.assembly);
+    expect(updated.assembly.entrySchemaFile).toBe('second.xsd');
+    expect(updated.assembly.collection).toBe(original.xmlSchemaCollection);
+    expect(original.assembly.entrySchemaFile).toBe('first.xsd');
+    const typeQName = new QName('', 'T');
+    expect(original.assembly.lookupType(typeQName)?.getParent()?.getSourceURI()).toBe('first.xsd');
+    expect(updated.assembly.lookupType(typeQName)?.getParent()?.getSourceURI()).toBe('second.xsd');
+    expect(original.fields[0].type).toBe(Types.Integer);
+    expect(updated.fields[0].type).toBe(Types.String);
   });
 
   it('should parse ShipOrder XML schema', () => {
@@ -2473,11 +2511,7 @@ describe('XmlSchemaDocumentService', () => {
         (unrelated, order) => {
           const doc = createDoc(unrelated, order);
 
-          const m = XmlSchemaDocumentUtilService.lookupSchemaElement(
-            doc.xmlSchemaCollection,
-            new QName('urn:t', 'M'),
-            'Entry.xsd',
-          );
+          const m = new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd').lookupElement(new QName('urn:t', 'M'));
 
           expect(m?.getSchemaType()?.getParent()?.getSourceURI()).toBe(
             order === 'before' ? `${unrelated}.xsd` : 'Types.xsd',

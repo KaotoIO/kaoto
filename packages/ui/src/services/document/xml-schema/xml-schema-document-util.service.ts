@@ -1,16 +1,11 @@
 import { IField, IParentType, RootElementOption } from '../../../models/datamapper/document';
 import { NS_XML, NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
 import { Types } from '../../../models/datamapper/types';
-import {
-  XmlSchema,
-  XmlSchemaCollection,
-  XmlSchemaElement,
-  XmlSchemaGroup,
-  XmlSchemaType,
-} from '../../../xml-schema-ts';
+import { XmlSchema, XmlSchemaCollection, XmlSchemaElement, XmlSchemaType } from '../../../xml-schema-ts';
 import { QName } from '../../../xml-schema-ts/QName';
 import { DocumentUtilService } from '../document-util.service';
 import { DependencyEdge, XmlSchemaAnalysisService } from './xml-schema-analysis.service';
+import { XmlSchemaAssembly } from './xml-schema-assembly.model';
 import { mapXmlSchemaTypeToEnum } from './xml-schema-type-mapping';
 
 /**
@@ -150,22 +145,22 @@ export class XmlSchemaDocumentUtilService {
    * Determines the root element from the XML schema collection.
    * Uses the provided rootElementChoice if available, otherwise selects the first element.
    *
-   * @param collection - The XML schema collection
+   * @param assembly - The assembly of the resolved entry schema file, which scopes the lookup
    * @param rootElemChoice - Optional user-specified root element choice
-   * @param entrySchemaFile - Optional entry schema file used to scope the lookup
    * @param edges - Dependency edges produced by schema analysis
    * @returns The root element
    * @throws Error if root element cannot be determined or specified element not found
    */
   static determineRootElement(
-    collection: XmlSchemaCollection,
+    assembly: XmlSchemaAssembly,
     rootElemChoice: RootElementOption | undefined,
-    entrySchemaFile: string | undefined,
     edges: DependencyEdge[],
   ): XmlSchemaElement {
     if (rootElemChoice) {
-      return XmlSchemaDocumentUtilService.resolveChosenRootElement(collection, rootElemChoice, entrySchemaFile);
+      return XmlSchemaDocumentUtilService.resolveChosenRootElement(assembly, rootElemChoice);
     }
+
+    const { collection, entrySchemaFile } = assembly;
 
     if (entrySchemaFile) {
       const fromEntry = XmlSchemaDocumentUtilService.getFirstElementFromSchema(collection, entrySchemaFile, edges);
@@ -180,21 +175,17 @@ export class XmlSchemaDocumentUtilService {
   }
 
   /**
-   * Resolves the chosen root element in the scope of its entry schema first. When the entry scope does not declare it
-   * (e.g. a legacy choice without an entry), it falls back to the first declaration in the whole collection, which is
-   * what the lookup did before entry schemas were tracked.
+   * Resolves the chosen root element through the assembly of its entry schema. When the entry scope does not declare
+   * it (e.g. a legacy choice without an entry), it falls back to the first declaration in the whole collection, which
+   * is what the lookup did before entry schemas were tracked. The assembly is built for the resolved entry, which is
+   * the entry of the choice whenever the choice names one.
    */
   private static resolveChosenRootElement(
-    collection: XmlSchemaCollection,
+    assembly: XmlSchemaAssembly,
     rootElemChoice: RootElementOption,
-    entrySchemaFile?: string,
   ): XmlSchemaElement {
     const qName = new QName(rootElemChoice.namespaceUri, rootElemChoice.name);
-    const foundRootElement = XmlSchemaDocumentUtilService.lookupSchemaElement(
-      collection,
-      qName,
-      rootElemChoice.entrySchemaFile ?? entrySchemaFile,
-    );
+    const foundRootElement = assembly.lookupElement(qName);
     if (!foundRootElement) {
       throw new Error(`The specified root element '${qName.toString()}' is not found in the schema file(s)`);
     }
@@ -393,28 +384,6 @@ export class XmlSchemaDocumentUtilService {
   }
 
   /**
-   * Resolves the type of an element. `element.getSchemaType()` is bound at parse time to the first type with that
-   * QName in the collection, so a named type is looked up again in the entry scope, falling back to the bound type.
-   *
-   * @param element - The element whose type is resolved
-   * @param collection - The schema collection to search
-   * @param entrySchemaFile - Optional entry schema file path
-   * @returns The type of the element, or null when it has none
-   */
-  static resolveElementSchemaType(
-    element: XmlSchemaElement,
-    collection: XmlSchemaCollection | undefined,
-    entrySchemaFile?: string,
-  ): XmlSchemaType | null {
-    const typeName = element.getSchemaTypeName();
-    const scopedType =
-      typeName && collection
-        ? XmlSchemaDocumentUtilService.lookupSchemaType(collection, typeName, entrySchemaFile)
-        : null;
-    return scopedType ?? element.getSchemaType();
-  }
-
-  /**
    * Checks if a namespace is a standard XML/XSD namespace that doesn't require
    * type fragment resolution.
    * @param namespace - The namespace URI to check
@@ -423,109 +392,5 @@ export class XmlSchemaDocumentUtilService {
   static isStandardXmlNamespace(namespace: string | null | undefined): boolean {
     if (!namespace) return false;
     return namespace === NS_XML_SCHEMA || namespace === NS_XML;
-  }
-
-  /**
-   * Runs `find` against the schemas loaded for `entrySchemaFile` (the entry schema and its reachable assembly) and
-   * returns the first hit, or null when there is no entry or nothing was found there.
-   */
-  private static findInEntryScope<T>(
-    collection: XmlSchemaCollection,
-    entrySchemaFile: string | undefined,
-    find: (entrySchema: XmlSchema) => T | null | undefined,
-  ): T | null {
-    if (!entrySchemaFile) return null;
-    for (const entrySchema of collection.getXmlSchema(entrySchemaFile)) {
-      const found = find(entrySchema);
-      if (found) return found;
-    }
-    return null;
-  }
-
-  /**
-   * Looks up a schema type by QName. The reachable hierarchy of entrySchemaFile, if provided, is searched first,
-   * then the whole collection. Returns null for built-in XSD types or if the type is not declared anywhere.
-   * @param collection - The schema collection to search
-   * @param typeQName - The qualified name of the type to find
-   * @param entrySchemaFile - Optional entry schema file path
-   * @returns The schema type if found and user-defined, null otherwise
-   */
-  static lookupSchemaType(
-    collection: XmlSchemaCollection,
-    typeQName: QName | null,
-    entrySchemaFile?: string,
-  ): XmlSchemaType | null {
-    if (!typeQName || typeQName.getNamespaceURI() === NS_XML_SCHEMA) return null;
-
-    return (
-      XmlSchemaDocumentUtilService.findInEntryScope(collection, entrySchemaFile, (schema) =>
-        schema.getTypeByQName(typeQName, true),
-      ) ??
-      collection.getTypeByQName(typeQName) ??
-      null
-    );
-  }
-
-  /**
-   * Same as {@link lookupSchemaType}, but also resolves built-in XSD types through the collection.
-   */
-  static lookupSchemaTypeOrBuiltIn(
-    collection: XmlSchemaCollection,
-    typeQName: QName,
-    entrySchemaFile?: string,
-  ): XmlSchemaType | null {
-    return (
-      XmlSchemaDocumentUtilService.lookupSchemaType(collection, typeQName, entrySchemaFile) ??
-      collection.getTypeByQName(typeQName) ??
-      null
-    );
-  }
-
-  /**
-   * Looks up a schema element by QName. The reachable hierarchy of entrySchemaFile, if provided, is searched first,
-   * then the whole collection.
-   *
-   * @param collection - The XML schema collection
-   * @param elementQName - The QName of the element to find
-   * @param entrySchemaFile - Optional entry schema file path
-   * @returns The schema element if declared anywhere, null otherwise
-   */
-  static lookupSchemaElement(
-    collection: XmlSchemaCollection,
-    elementQName: QName | null,
-    entrySchemaFile?: string,
-  ): XmlSchemaElement | null {
-    if (!elementQName) return null;
-    return (
-      XmlSchemaDocumentUtilService.findInEntryScope(collection, entrySchemaFile, (schema) =>
-        schema.getElementByQName(elementQName, true),
-      ) ??
-      collection.getElementByQName(elementQName) ??
-      null
-    );
-  }
-
-  /**
-   * Looks up a schema group by QName. The reachable hierarchy of entrySchemaFile, if provided, is searched first,
-   * then the whole collection.
-   *
-   * @param collection - The XML schema collection
-   * @param groupQName - The QName of the group to find
-   * @param entrySchemaFile - Optional entry schema file path
-   * @returns The schema group if declared anywhere, null otherwise
-   */
-  static lookupSchemaGroup(
-    collection: XmlSchemaCollection,
-    groupQName: QName | null,
-    entrySchemaFile?: string,
-  ): XmlSchemaGroup | null {
-    if (!groupQName) return null;
-    return (
-      XmlSchemaDocumentUtilService.findInEntryScope(collection, entrySchemaFile, (schema) =>
-        schema.getGroupByQName(groupQName, true),
-      ) ??
-      collection.getGroupByQName(groupQName) ??
-      null
-    );
   }
 }

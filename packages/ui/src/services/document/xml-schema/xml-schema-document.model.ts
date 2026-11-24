@@ -11,6 +11,7 @@ import {
 import { NodePath } from '../../../models/datamapper/nodepath';
 import { XmlSchemaCollection, XmlSchemaElement } from '../../../xml-schema-ts';
 import type { DependencyEdge } from './xml-schema-analysis.service';
+import { XmlSchemaAssembly } from './xml-schema-assembly.model';
 
 /**
  * Type fragment representing a named XML Schema type (complexType or simpleType).
@@ -42,15 +43,22 @@ export class XmlSchemaDocument extends BaseDocument {
    * recomputed when schema files are added to it.
    */
   dependencyEdges?: DependencyEdge[];
+  /**
+   * Entry-first component lookups for the entry schema file of the definition the document is created with. A root
+   * element change picks a new entry and builds a new document, so the entry is fixed for the document's lifetime;
+   * schema files added to the document later go into the same collection and are found through the same assembly.
+   */
+  readonly assembly: XmlSchemaAssembly;
 
   constructor(
     definition: DocumentDefinition,
-    public xmlSchemaCollection: XmlSchemaCollection,
+    public readonly xmlSchemaCollection: XmlSchemaCollection,
     public rootElement?: XmlSchemaElement,
   ) {
     super(definition);
     this.name = definition.name;
     this.definitionType = DocumentDefinitionType.XML_SCHEMA;
+    this.assembly = new XmlSchemaAssembly(xmlSchemaCollection, definition.entrySchemaFile);
   }
 }
 
