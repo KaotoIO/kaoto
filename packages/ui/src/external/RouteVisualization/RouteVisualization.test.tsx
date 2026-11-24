@@ -128,6 +128,33 @@ describe('RouteVisualization', () => {
     expect(document.querySelector('[data-kind="graph"]')).toBe(graph);
   });
 
+  it.each([
+    ['on', undefined],
+    ['off', true],
+  ])('leaves the hotkeys of the canvas %s with hotkeysDisabled=%s', async (_state, hotkeysDisabled) => {
+    const designerSpy = vi
+      .spyOn(VisualizationModule, 'DesignerVisualization')
+      .mockImplementation(() => <div data-testid="designer-visualization" />);
+
+    render(
+      <RouteVisualization
+        catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+        runtimeCatalogName=""
+        testingCatalogName=""
+        code={camelRouteYaml}
+        codeChange={vi.fn()}
+        hotkeysDisabled={hotkeysDisabled}
+      />,
+    );
+    for (let i = 0; i < 5 && !screen.queryByTestId('designer-visualization'); i++) {
+      await act(async () => {
+        fetchResolve();
+      });
+    }
+
+    expect(designerSpy.mock.lastCall![0].hotkeysDisabled).toBe(hotkeysDisabled);
+  });
+
   /** Renders the component with DesignerVisualization replaced by `probe` and waits until the probe is mounted */
   const renderWithProbe = async (probe: () => void) => {
     vi.spyOn(VisualizationModule, 'DesignerVisualization').mockImplementation(() => {

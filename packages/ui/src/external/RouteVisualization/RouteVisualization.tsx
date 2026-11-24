@@ -37,7 +37,10 @@ import { EventNotifier } from '../../utils';
  */
 const componentsToRegister = [componentModeRegistration, groupAutoStartupRegistration];
 
-const VisibleFlowsVisualization: FunctionComponent<{ className?: string }> = ({ className = '' }) => {
+const VisibleFlowsVisualization: FunctionComponent<{ className?: string; hotkeysDisabled?: boolean }> = ({
+  className = '',
+  hotkeysDisabled,
+}) => {
   const { visualFlowsApi } = useContext(VisibleFlowsContext)!;
   const entitiesContext = useContext(EntitiesContext);
   const visualEntities = entitiesContext?.visualEntities ?? [];
@@ -49,7 +52,13 @@ const VisibleFlowsVisualization: FunctionComponent<{ className?: string }> = ({ 
     visualFlowsApi.showFlows();
   }, [visualFlowsApi]);
 
-  return <DesignerVisualization className={`canvas-page ${className}`} entities={visualEntities} />;
+  return (
+    <DesignerVisualization
+      className={`canvas-page ${className}`}
+      entities={visualEntities}
+      hotkeysDisabled={hotkeysDisabled}
+    />
+  );
 };
 
 const Viz: FunctionComponent<{
@@ -57,7 +66,8 @@ const Viz: FunctionComponent<{
   runtimeCatalogName: string;
   testingCatalogName: string;
   className?: string;
-}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, className = '' }) => {
+  hotkeysDisabled?: boolean;
+}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, className = '', hotkeysDisabled }) => {
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
@@ -86,7 +96,10 @@ const Viz: FunctionComponent<{
                                 <CatalogModalProvider>
                                   {/* Asks before deleting a step with children, a route or a group */}
                                   <ActionConfirmationModalContextProvider>
-                                    <VisibleFlowsVisualization className={className} />
+                                    <VisibleFlowsVisualization
+                                      className={className}
+                                      hotkeysDisabled={hotkeysDisabled}
+                                    />
                                   </ActionConfirmationModalContextProvider>
                                 </CatalogModalProvider>
                               </SuggestionRegistryProvider>
@@ -113,7 +126,12 @@ export const RouteVisualization: FunctionComponent<{
   code: string;
   codeChange: (code: string) => void;
   className?: string;
-}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, code, codeChange, className }) => {
+  /**
+   * Turns the page-wide hotkeys of the canvas off (Delete and Backspace). Set it while the canvas is kept mounted
+   * but not shown, so that a key pressed elsewhere on the page does not delete the selected step.
+   */
+  hotkeysDisabled?: boolean;
+}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, code, codeChange, className, hotkeysDisabled }) => {
   const eventNotifier = EventNotifier.getInstance();
   /** The code the entities currently represent, either parsed from `code` or serialized from a canvas edit */
   const entitiesCodeRef = useRef<string | undefined>(undefined);
@@ -140,6 +158,7 @@ export const RouteVisualization: FunctionComponent<{
       runtimeCatalogName={runtimeCatalogName}
       testingCatalogName={testingCatalogName}
       className={className}
+      hotkeysDisabled={hotkeysDisabled}
     />
   );
 };

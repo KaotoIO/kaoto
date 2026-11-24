@@ -16,6 +16,8 @@ interface DesignerVisualizationProps {
   entities: BaseVisualEntity[];
   fallback?: ReactNode;
   contextToolbar?: ReactNode;
+  /** Turns the page-wide hotkeys of the canvas off, for a host that keeps the canvas mounted while it is not shown */
+  hotkeysDisabled?: boolean;
 }
 
 export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps> = ({
@@ -23,6 +25,7 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
   entities,
   fallback,
   contextToolbar,
+  hotkeysDisabled,
 }) => {
   const { visibleFlows } = useContext(VisibleFlowsContext)!;
   const { vizNodes, isResolving } = useVisibleVizNodes(entities, visibleFlows);
@@ -70,6 +73,7 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
         overlaySource={overlaySource}
         applyCollapseOnUpdate
         blocked={isFileBroken}
+        hotkeysDisabled={hotkeysDisabled}
       >
         {overlay}
       </Canvas>

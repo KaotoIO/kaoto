@@ -517,6 +517,24 @@ describe('Canvas', () => {
     });
   });
 
+  describe('with its hotkeys disabled', () => {
+    it('turns the Delete hotkey off, but leaves the graph usable', async () => {
+      const result = await renderCanvas();
+      const canvasProps = getCanvasPropsFromVizNodes([result.vizNode], 1);
+      await renderWith(result, result.rerender, canvasProps);
+      const { removeChildSpy } = await selectStep(result, canvasProps);
+
+      await renderWith(result, result.rerender, { ...canvasProps, hotkeysDisabled: true });
+      await pressDelete();
+      expect(removeChildSpy).not.toHaveBeenCalled();
+      expect(result.container.querySelector('[inert]')).not.toBeInTheDocument();
+
+      await renderWith(result, result.rerender, canvasProps);
+      await pressDelete();
+      expect(removeChildSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('should schedule a graph.fit(80) upon loading', async () => {
     // Cannot use renderCanvas() here: fitSpy and layoutSpy must be installed on controller.getGraph()
     // *after* render but *before* runAllTimersAsync — a timing requirement the helper does not support.

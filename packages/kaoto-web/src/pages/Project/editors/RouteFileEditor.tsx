@@ -36,7 +36,7 @@ const RouteCodeView: FunctionComponent<{
     schedule(file.key, code);
   };
 
-  // The hidden canvas keeps listening to Delete and Backspace on the page: keys belong in the editor here
+  // The editor takes the focus, so that typing starts right away
   return <CodeEditor path={file.path} initialContent={initialCode} onChange={handleChange} focusOnMount />;
 };
 
@@ -78,6 +78,8 @@ export const RouteFileEditor: FunctionComponent<RouteFileEditorProps> = ({ file,
           testingCatalogName=""
           code={code}
           codeChange={handleCanvasChange}
+          // The hidden canvas would otherwise delete its selected step on Delete or Backspace pressed anywhere
+          hotkeysDisabled={view !== 'design'}
         />
       </div>
       {view === 'code' && <RouteCodeView key={file.key} file={file} initialCode={code} onCommit={handleCodeCommit} />}

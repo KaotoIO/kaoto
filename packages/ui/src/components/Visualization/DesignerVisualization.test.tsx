@@ -1,5 +1,6 @@
-import { isNode, Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
-import { render, screen, waitFor } from '@testing-library/react';
+import { isNode, Model, SELECTION_EVENT, Visualization, VisualizationProvider } from '@patternfly/react-topology';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import hotkeys from 'hotkeys-js';
 import type { ReactElement } from 'react';
 import type { MockInstance } from 'vitest';
 
@@ -149,6 +150,46 @@ describe('DesignerVisualization', () => {
     expect(fromModelSpy).toHaveBeenLastCalledWith(expect.anything(), true);
     expect(container.querySelector('#canvas-main')).toBe(root);
     expect(container.querySelector('[data-kind="graph"]')).toBe(graph);
+  });
+
+  it('turns the Delete hotkey of the canvas off with hotkeysDisabled', async () => {
+    const entities = [entity];
+    const { rerender } = await renderWithVisibleFlows(
+      <DesignerVisualization entities={entities} hotkeysDisabled />,
+      map,
+    );
+    await waitFor(() => {
+      expect(fromModelSpy).toHaveBeenCalled();
+    });
+    const step = controller
+      .getElements()
+      .find(
+        (element) => isNode(element) && element.getData()?.vizNode?.data?.path === 'route.from.steps.0.set-header',
+      )!;
+    const removeChildSpy = vi
+      .spyOn(step.getData().vizNode as IVisualizationNode, 'removeChild')
+      .mockImplementation(() => {});
+    act(() => {
+      controller.fireEvent(SELECTION_EVENT, [step.getId()]);
+    });
+    await screen.findByTestId('close-side-bar');
+    /** `hotkeys-js` is mocked globally in vitest-mocks-setup.ts */
+    const pressDelete = async () => {
+      const registrations = vi.mocked(hotkeys).mock.calls.filter(([keys]) => keys === 'Delete, backspace');
+      const handler = registrations[registrations.length - 1][1] as unknown as (event: KeyboardEvent) => void;
+      await act(async () => {
+        handler(new KeyboardEvent('keydown', { key: 'Delete' }));
+      });
+    };
+
+    await pressDelete();
+    expect(removeChildSpy).not.toHaveBeenCalled();
+
+    rerender(<DesignerVisualization entities={entities} />);
+    await pressDelete();
+    await waitFor(() => {
+      expect(removeChildSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('does not show EmptyCanvas while viz nodes are resolving', async () => {
