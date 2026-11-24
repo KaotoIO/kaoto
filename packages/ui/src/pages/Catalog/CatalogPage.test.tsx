@@ -63,8 +63,8 @@ describe('CatalogPage', () => {
       { wrapper: VirtuosoWrapper },
     );
 
-    expect(screen.getByText('Fetching catalogs', { selector: '.loading__message' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Fetching catalogs')).toBeInTheDocument();
+    expect(screen.getByText('Fetching catalogs')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Loading' })).toBeInTheDocument();
     expect(fetchTiles).toHaveBeenCalledTimes(1);
 
     await act(async () => {
