@@ -661,55 +661,65 @@ export class XmlSchemaAnalysisService {
     return errors;
   }
 
+  /**
+   * Warns when the files that declare one target namespace form more than one group, a group being the files
+   * connected to each other over include-like edges ({@link XmlSchemaAnalysisService.isIncludeLikeDirective}) in
+   * either direction, possibly through a file without a target namespace. Each group gets one warning that names the
+   * other groups, attached to its first file that is not an include-like target (its first file when every file is
+   * one). A namespace whose files are all connected gets no warning.
+   */
   private static detectDuplicateTargetNamespaces(
     fileInfos: Map<string, SchemaFileInfo>,
     edges: DependencyEdge[],
   ): ReportMessage[] {
     const includeLikeEdges = edges.filter((e) => XmlSchemaAnalysisService.isIncludeLikeDirective(e.directive.type));
     const includeLikeTargets = new Set(includeLikeEdges.map((e) => e.to));
+    const neighbors = XmlSchemaAnalysisService.buildSuccessors([
+      ...includeLikeEdges,
+      ...includeLikeEdges.map((edge) => ({ ...edge, from: edge.to, to: edge.from })),
+    ]);
+    const components = stronglyConnectedComponents([...fileInfos.keys()], (node) => neighbors.get(node) ?? []);
+    const componentOf = new Map<string, number>();
+    components.forEach((component, index) => {
+      for (const node of component) componentOf.set(node, index);
+    });
 
-    const nsByNamespace = new Map<string, string[]>();
-    for (const [filePath, info] of fileInfos) {
-      if (info.targetNamespace === null) {
-        continue;
-      }
-      if (includeLikeTargets.has(filePath)) {
-        continue;
-      }
-      const files = nsByNamespace.get(info.targetNamespace) ?? [];
-      files.push(filePath);
-      nsByNamespace.set(info.targetNamespace, files);
+    const groupsByNamespace = new Map<string, Map<number, string[]>>();
+    for (const [filePath, { targetNamespace }] of fileInfos) {
+      if (targetNamespace === null) continue;
+      const groups = groupsByNamespace.get(targetNamespace) ?? new Map<number, string[]>();
+      const component = componentOf.get(filePath)!;
+      const group = groups.get(component) ?? [];
+      group.push(filePath);
+      groups.set(component, group);
+      groupsByNamespace.set(targetNamespace, groups);
     }
 
     const warnings: ReportMessage[] = [];
-    const reportDuplicate = (ns: string, files: string[]) => {
-      for (const file of files) {
-        const fileList = files
-          .filter((f) => f !== file)
-          .map((f) => `"${f}"`)
+    for (const [ns, groups] of groupsByNamespace) {
+      if (groups.size <= 1) continue;
+
+      const rootFirstGroups = [...groups.values()].map((files) => {
+        const root = files.find((file) => !includeLikeTargets.has(file)) ?? files[0];
+        return [root, ...files.filter((file) => file !== root)];
+      });
+      for (const group of rootFirstGroups) {
+        const otherGroups = rootFirstGroups
+          .filter((other) => other !== group)
+          .map(XmlSchemaAnalysisService.formatNamespaceGroup)
           .join(', ');
         warnings.push({
-          message: `Multiple schemas share targetNamespace "${ns}": ${fileList}`,
-          filePath: file,
+          message: `Multiple schemas share targetNamespace "${ns}": ${otherGroups}`,
+          filePath: group[0],
         });
       }
-    };
-
-    for (const [ns, files] of nsByNamespace) {
-      if (files.length <= 1) continue;
-
-      const allFilesWithNs = new Set<string>();
-      for (const [fp, info] of fileInfos) {
-        if (info.targetNamespace === ns) allFilesWithNs.add(fp);
-      }
-      const connectedViaIncludeLike = includeLikeEdges.some(
-        (e) => allFilesWithNs.has(e.from) && allFilesWithNs.has(e.to),
-      );
-      if (connectedViaIncludeLike) continue;
-
-      reportDuplicate(ns, files);
     }
     return warnings;
+  }
+
+  private static formatNamespaceGroup([root, ...connected]: string[]): string {
+    const connectedList = connected.map((file) => `"${file}"`).join(', ');
+    return connected.length === 0 ? `"${root}"` : `"${root}" (with ${connectedList})`;
   }
 
   private static buildAdjacency(

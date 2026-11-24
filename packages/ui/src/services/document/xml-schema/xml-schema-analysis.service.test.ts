@@ -686,13 +686,19 @@ ${elements}
         expect(nsWarnings).toHaveLength(0);
       });
 
-      it('should not warn for a third same-namespace schema next to an include pair', () => {
+      it('should warn for a third same-namespace schema next to an include pair', () => {
         const files = {
           'main.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['component.xsd'] }),
           'component.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
           'other.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
         };
-        expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([]);
+        expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([
+          { filePath: 'main.xsd', message: 'Multiple schemas share targetNamespace "urn:x": "other.xsd"' },
+          {
+            filePath: 'other.xsd',
+            message: 'Multiple schemas share targetNamespace "urn:x": "main.xsd" (with "component.xsd")',
+          },
+        ]);
       });
 
       it('should not warn when same-namespace schemas are connected via xs:redefine', () => {
@@ -703,13 +709,92 @@ ${elements}
         expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([]);
       });
 
-      it('should not warn for a third same-namespace schema next to a redefine pair', () => {
+      it('should warn for a third same-namespace schema next to a redefine pair', () => {
         const files = {
+          'base.xsd': makeSchema({
+            targetNamespace: 'urn:x',
+            elements: '  <xs:element name="BaseRoot" type="xs:string"/>',
+          }),
           'impl.xsd': makeSchema({ targetNamespace: 'urn:x', redefines: ['base.xsd'] }),
-          'base.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
-          'other.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+          'other.xsd': makeSchema({
+            targetNamespace: 'urn:x',
+            elements: '  <xs:element name="BaseRoot" type="xs:int"/>',
+          }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([
+          { filePath: 'impl.xsd', message: 'Multiple schemas share targetNamespace "urn:x": "other.xsd"' },
+          {
+            filePath: 'other.xsd',
+            message: 'Multiple schemas share targetNamespace "urn:x": "impl.xsd" (with "base.xsd")',
+          },
+        ]);
+      });
+
+      it('should name every other group in the warning of each of three unconnected groups', () => {
+        const files = {
+          'a.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['b.xsd'] }),
+          'b.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+          'c.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+          'd.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([
+          { filePath: 'a.xsd', message: 'Multiple schemas share targetNamespace "urn:x": "c.xsd", "d.xsd"' },
+          {
+            filePath: 'c.xsd',
+            message: 'Multiple schemas share targetNamespace "urn:x": "a.xsd" (with "b.xsd"), "d.xsd"',
+          },
+          {
+            filePath: 'd.xsd',
+            message: 'Multiple schemas share targetNamespace "urn:x": "a.xsd" (with "b.xsd"), "c.xsd"',
+          },
+        ]);
+      });
+
+      it('should warn once per group when two same-namespace include sets are unconnected', () => {
+        const files = {
+          'a.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['a-part.xsd'] }),
+          'a-part.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+          'b.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['b-part1.xsd', 'b-part2.xsd'] }),
+          'b-part1.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+          'b-part2.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([
+          {
+            filePath: 'a.xsd',
+            message: 'Multiple schemas share targetNamespace "urn:x": "b.xsd" (with "b-part1.xsd", "b-part2.xsd")',
+          },
+          {
+            filePath: 'b.xsd',
+            message: 'Multiple schemas share targetNamespace "urn:x": "a.xsd" (with "a-part.xsd")',
+          },
+        ]);
+      });
+
+      it('should not warn when same-namespace schemas are connected through a chameleon schema', () => {
+        const files = {
+          'a.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['chameleon.xsd'] }),
+          'b.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['chameleon.xsd'], elements: '' }),
+          'chameleon.xsd': makeSchema({ elements: '' }),
         };
         expect(XmlSchemaAnalysisService.analyze(files).warnings).toEqual([]);
+      });
+
+      it('should attach the warning to the first file of a group whose files all lie on an include cycle', () => {
+        const files = {
+          'a.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['b.xsd'] }),
+          'b.xsd': makeSchema({ targetNamespace: 'urn:x', includes: ['a.xsd'], elements: '' }),
+          'other.xsd': makeSchema({ targetNamespace: 'urn:x', elements: '' }),
+        };
+        const nsWarnings = XmlSchemaAnalysisService.analyze(files).warnings.filter((w) =>
+          w.message.includes('Multiple schemas'),
+        );
+        expect(nsWarnings).toEqual([
+          { filePath: 'a.xsd', message: 'Multiple schemas share targetNamespace "urn:x": "other.xsd"' },
+          {
+            filePath: 'other.xsd',
+            message: 'Multiple schemas share targetNamespace "urn:x": "a.xsd" (with "b.xsd")',
+          },
+        ]);
       });
     });
 
