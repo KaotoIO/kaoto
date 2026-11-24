@@ -245,26 +245,22 @@ export class MappingService {
     documentType: DocumentType,
     documentReferenceId?: string,
   ) {
-    let paths: PathExpression[] = [];
-    try {
-      paths = XPathService.extractFieldPaths(expressionItem.expression, expressionItem.contextPath);
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-    } catch (error: any) {
-      // Field path extraction failed, there might be xpath parse error. Since the same error should be shown
-      // on xpath input field, just ignoring here.
-      console.debug('XPath field path extraction failed:', error);
-      return false;
-    }
+    const sourcePaths = MappingService.extractSourcePaths(expressionItem);
     // Every referenced path must belong to the removed document before the mapping goes. An
     // expression can name several — `/ShipOrder/Name | $Account/Name` — and dropping it on the
     // first match would take the still-valid half with it.
     if (documentType === DocumentType.PARAM) {
       // A reference to a removed xsl:param is a static XSLT error, so any such operand is fatal.
-      return !!documentReferenceId && paths.some((xpath) => xpath.documentReferenceName === documentReferenceId);
+      return (
+        !!documentReferenceId &&
+        sourcePaths.some(({ absolutePath }) => absolutePath.documentReferenceName === documentReferenceId)
+      );
     }
     return (
-      paths.length > 0 &&
-      paths.every((xpath) => documentType === DocumentType.SOURCE_BODY && !xpath.documentReferenceName)
+      sourcePaths.length > 0 &&
+      sourcePaths.every(
+        ({ absolutePath }) => documentType === DocumentType.SOURCE_BODY && !absolutePath.documentReferenceName,
+      )
     );
   }
 
@@ -349,33 +345,22 @@ export class MappingService {
 
   private static hasStaleSourceField(expressionItem: IExpressionHolder & MappingItem, document: IDocument): boolean {
     const namespaces = expressionItem.mappingTree.namespaceMap;
-    let fieldPaths = [];
-    try {
-      fieldPaths = XPathService.extractFieldPaths(expressionItem.expression);
-    } catch (error: any) {
-      // Field path extraction failed, there might be xpath parse error. Since the same error should be shown
-      // on xpath input field, just ignoring here.
-      console.debug('XPath field path extraction failed:', error);
-      return false;
-    }
+    const sourcePaths = MappingService.extractSourcePaths(expressionItem);
 
     // As in hasStaleSourceDocument: only a mapping whose every referenced path has gone stale is
     // removed, so one operand of a union expression cannot take the rest of it down.
     return (
-      fieldPaths.length > 0 &&
-      fieldPaths.every((xpath) => {
-        xpath.contextPath = expressionItem.parent.contextPath;
-        xpath.isRelative = !!xpath.contextPath;
-        const absPath = XPathService.toAbsolutePath(xpath);
+      sourcePaths.length > 0 &&
+      sourcePaths.every(({ absolutePath }) => {
         if (
-          (document.documentType === DocumentType.SOURCE_BODY && !absPath.documentReferenceName) ||
+          (document.documentType === DocumentType.SOURCE_BODY && !absolutePath.documentReferenceName) ||
           (document.documentType === DocumentType.PARAM &&
-            absPath.documentReferenceName === document.getReferenceId(namespaces))
+            absolutePath.documentReferenceName === document.getReferenceId(namespaces))
         ) {
           const referredField = DocumentService.getFieldFromPathSegments(
             expressionItem.mappingTree.namespaceMap,
             document,
-            absPath.pathSegments,
+            absolutePath.pathSegments,
           );
           return !referredField;
         }
@@ -1003,10 +988,8 @@ export class MappingService {
     const sourceXPath = expressionHolder.expression;
     const validationResult = XPathService.validate(sourceXPath);
     if (!validationResult.getExprNode() || validationResult.dataMapperErrors.length > 0) return [];
-    const fieldPaths = XPathService.extractFieldPaths(sourceXPath, expressionHolder.parent.contextPath);
     const results: { field: IField; document: IDocument; path: PathExpression }[] = [];
-    for (const xpath of fieldPaths) {
-      const absolutePath = XPathService.toAbsolutePath(xpath);
+    for (const { path, absolutePath } of MappingService.extractSourcePaths(expressionHolder)) {
       if (
         absolutePath.documentReferenceName &&
         MappingService.resolveVariableInScope(absolutePath.documentReferenceName, expressionHolder)
@@ -1017,10 +1000,27 @@ export class MappingService {
       if (!document) continue;
       const result = DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments);
       if (result && 'parent' in result) {
-        results.push({ field: result, document, path: xpath });
+        results.push({ field: result, document, path });
       }
     }
     return results;
+  }
+
+  /**
+   * The field paths of an item's expression, each with its absolute form, read in the item's parent's context.
+   * Returns no paths on an XPath parse error, which is only logged because the XPath input field shows it.
+   */
+  private static extractSourcePaths(
+    expressionItem: IExpressionHolder & MappingItem,
+  ): { path: PathExpression; absolutePath: PathExpression }[] {
+    try {
+      return XPathService.extractFieldPaths(expressionItem.expression, expressionItem.parent.contextPath).map(
+        (path) => ({ path, absolutePath: XPathService.toAbsolutePath(path) }),
+      );
+    } catch (error) {
+      console.debug('XPath field path extraction failed:', error);
+      return [];
+    }
   }
 
   /**
@@ -1278,7 +1278,7 @@ export class MappingService {
 
   private static expressionReferencesVariable(item: IExpressionHolder & MappingItem, variableName: string): boolean {
     try {
-      return XPathService.extractVariableNames(item.expression, item.contextPath).includes(variableName);
+      return XPathService.extractVariableNames(item.expression, item.parent.contextPath).includes(variableName);
     } catch {
       return false;
     }
