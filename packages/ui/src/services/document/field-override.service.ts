@@ -89,12 +89,7 @@ export class FieldOverrideService {
     }
 
     if (field.ownerDocument instanceof XmlSchemaDocument) {
-      return XmlSchemaTypesService.getTypeOverrideCandidatesForField(
-        field,
-        field.ownerDocument.xmlSchemaCollection,
-        namespaceMap,
-        field.ownerDocument.definition?.entrySchemaFile,
-      );
+      return XmlSchemaTypesService.getTypeOverrideCandidatesForField(field, field.ownerDocument.assembly, namespaceMap);
     }
 
     if (field.ownerDocument instanceof JsonSchemaDocument) {
@@ -400,12 +395,7 @@ export class FieldOverrideService {
     namespaceMap: Record<string, string>,
   ): Record<string, IFieldSubstituteInfo> {
     if (!(field.ownerDocument instanceof XmlSchemaDocument) || !field.ownerDocument.xmlSchemaCollection) return {};
-    return XmlSchemaTypesService.getFieldSubstitutionCandidates(
-      field,
-      field.ownerDocument.xmlSchemaCollection,
-      namespaceMap,
-      field.ownerDocument.definition?.entrySchemaFile,
-    );
+    return XmlSchemaTypesService.getFieldSubstitutionCandidates(field, field.ownerDocument.assembly, namespaceMap);
   }
 
   /**
@@ -426,8 +416,7 @@ export class FieldOverrideService {
       parentField,
       elementName,
       elementNamespace,
-      document.xmlSchemaCollection,
-      document.definition?.entrySchemaFile,
+      document.assembly,
     );
   }
 

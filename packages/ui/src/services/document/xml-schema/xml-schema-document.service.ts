@@ -41,6 +41,7 @@ import { XmlSchemaAnnotated } from '../../../xml-schema-ts/XmlSchemaAnnotated';
 import { parseQNameString } from '../../namespace-util';
 import { DocumentUtilService } from '../document-util.service';
 import { DependencyEdge, XmlSchemaAnalysisService } from './xml-schema-analysis.service';
+import { XmlSchemaAssembly } from './xml-schema-assembly.model';
 import type {
   CreateXmlSchemaDocumentResult,
   XmlSchemaParentType,
@@ -115,7 +116,11 @@ export class XmlSchemaDocumentService {
       analysis.edges,
     );
 
-    const rootElement = XmlSchemaDocumentService.getRootElement(collection, resolvedDefinition, analysis.edges);
+    const rootElement = XmlSchemaDocumentService.getRootElement(
+      new XmlSchemaAssembly(collection, resolvedDefinition.entrySchemaFile),
+      resolvedDefinition,
+      analysis.edges,
+    );
     if ('validationStatus' in rootElement) {
       return rootElement;
     }
@@ -308,17 +313,12 @@ export class XmlSchemaDocumentService {
    * Helper method to get the root element.
    */
   private static getRootElement(
-    collection: XmlSchemaCollection,
+    assembly: XmlSchemaAssembly,
     definition: DocumentDefinition,
     edges: DependencyEdge[],
   ): XmlSchemaElement | CreateXmlSchemaDocumentResult {
     try {
-      return XmlSchemaDocumentUtilService.determineRootElement(
-        collection,
-        definition.rootElementChoice,
-        definition.entrySchemaFile,
-        edges,
-      );
+      return XmlSchemaDocumentUtilService.determineRootElement(assembly, definition.rootElementChoice, edges);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       return {
@@ -380,33 +380,21 @@ export class XmlSchemaDocumentService {
    */
   private static rebuildAbstractWrapperChildren(document: XmlSchemaDocument): void {
     for (const field of document.fields) {
-      XmlSchemaDocumentService.rebuildAbstractWrapperField(
-        field as XmlSchemaField,
-        document.xmlSchemaCollection,
-        document.definition.entrySchemaFile,
-      );
+      XmlSchemaDocumentService.rebuildAbstractWrapperField(field as XmlSchemaField, document.assembly);
     }
     for (const fragment of Object.values(document.namedTypeFragments)) {
       for (const field of fragment.fields) {
-        XmlSchemaDocumentService.rebuildAbstractWrapperField(
-          field as XmlSchemaField,
-          document.xmlSchemaCollection,
-          document.definition.entrySchemaFile,
-        );
+        XmlSchemaDocumentService.rebuildAbstractWrapperField(field as XmlSchemaField, document.assembly);
       }
     }
   }
 
-  private static rebuildAbstractWrapperField(
-    field: XmlSchemaField,
-    collection: XmlSchemaCollection,
-    entrySchemaFile?: string,
-  ): void {
+  private static rebuildAbstractWrapperField(field: XmlSchemaField, assembly: XmlSchemaAssembly): void {
     if (field.wrapperKind === 'abstract') {
       const headQName = new QName(field.namespaceURI, field.name);
-      const headElement = XmlSchemaDocumentUtilService.lookupSchemaElement(collection, headQName, entrySchemaFile);
+      const headElement = assembly.lookupElement(headQName);
       if (headElement) {
-        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement, collection, entrySchemaFile);
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement, assembly);
         const existingByKey = new Map(field.fields.map((f) => [`${f.namespaceURI}|${f.name}`, f]));
         const newFields: XmlSchemaField[] = [];
         for (const member of members) {
@@ -424,7 +412,7 @@ export class XmlSchemaDocumentService {
       }
     }
     for (const child of field.fields) {
-      XmlSchemaDocumentService.rebuildAbstractWrapperField(child as XmlSchemaField, collection, entrySchemaFile);
+      XmlSchemaDocumentService.rebuildAbstractWrapperField(child as XmlSchemaField, assembly);
     }
   }
 
@@ -553,10 +541,8 @@ export class XmlSchemaDocumentService {
   static updateRootElement(document: XmlSchemaDocument, rootElementOption: RootElementOption): XmlSchemaDocument {
     const entrySchemaFile = rootElementOption.entrySchemaFile ?? document.definition.entrySchemaFile;
     const newRootQName = new QName(rootElementOption.namespaceUri, rootElementOption.name);
-    const newRootElement = XmlSchemaDocumentUtilService.lookupSchemaElement(
-      document.xmlSchemaCollection,
+    const newRootElement = new XmlSchemaAssembly(document.xmlSchemaCollection, entrySchemaFile).lookupElement(
       newRootQName,
-      entrySchemaFile,
     );
 
     if (!newRootElement) {
@@ -757,11 +743,7 @@ export class XmlSchemaDocumentService {
 
     ownerDoc.totalFieldCount++;
 
-    const schemaType = XmlSchemaDocumentUtilService.resolveElementSchemaType(
-      resolvedElement,
-      ownerDoc.xmlSchemaCollection,
-      ownerDoc.definition?.entrySchemaFile,
-    );
+    const schemaType = ownerDoc.assembly.resolveElementSchemaType(resolvedElement);
     if (refTarget !== null && schemaType instanceof XmlSchemaComplexType && !schemaType.getQName()) {
       XmlSchemaDocumentService.populateGlobalElementFragment(ownerDoc, resolvedElement, schemaType, field);
     } else {
@@ -830,11 +812,7 @@ export class XmlSchemaDocumentService {
   ) {
     if (!schemaType) return;
     if (schemaType instanceof XmlSchemaSimpleType) {
-      const newType = XmlSchemaTypesService.resolveSimpleTypeToEnum(
-        schemaType,
-        ownerDocument.xmlSchemaCollection,
-        ownerDocument.definition?.entrySchemaFile,
-      );
+      const newType = XmlSchemaTypesService.resolveSimpleTypeToEnum(schemaType, ownerDocument.assembly);
       if (!field.type || field.type === Types.AnyType) {
         field.type = newType;
       }
@@ -979,13 +957,10 @@ export class XmlSchemaDocumentService {
     field.namespacePrefix = attr.getWireName()!.getPrefix();
     field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
     const attrSchemaTypeQName = attr.getSchemaTypeName();
-    const entrySchemaFile = ownerDoc.definition?.entrySchemaFile;
-    const attrSchemaType =
-      attrSchemaTypeQName &&
-      XmlSchemaDocumentUtilService.lookupSchemaType(ownerDoc.xmlSchemaCollection, attrSchemaTypeQName, entrySchemaFile);
+    const attrSchemaType = attrSchemaTypeQName && ownerDoc.assembly.lookupType(attrSchemaTypeQName);
     field.type =
       attrSchemaType instanceof XmlSchemaSimpleType
-        ? XmlSchemaTypesService.resolveSimpleTypeToEnum(attrSchemaType, ownerDoc.xmlSchemaCollection, entrySchemaFile)
+        ? XmlSchemaTypesService.resolveSimpleTypeToEnum(attrSchemaType, ownerDoc.assembly)
         : XmlSchemaDocumentUtilService.getFieldTypeFromName(
             attrSchemaTypeQName?.getLocalPart() || null,
             attrSchemaTypeQName?.getNamespaceURI() || null,
@@ -1235,11 +1210,7 @@ export class XmlSchemaDocumentService {
     fields.push(abstractField);
     ownerDoc.totalFieldCount++;
 
-    const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
-      resolvedElement,
-      ownerDoc.xmlSchemaCollection,
-      ownerDoc.definition?.entrySchemaFile,
-    );
+    const members = XmlSchemaTypesService.getSubstitutionGroupMembers(resolvedElement, ownerDoc.assembly);
     for (const member of members) {
       XmlSchemaDocumentService.populateElement(abstractField, abstractField.fields, member);
     }
@@ -1260,11 +1231,7 @@ export class XmlSchemaDocumentService {
     visitedGroupRefs.add(key);
 
     const doc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
-    const group = XmlSchemaDocumentUtilService.lookupSchemaGroup(
-      doc.xmlSchemaCollection,
-      groupRefQName,
-      doc.definition?.entrySchemaFile,
-    );
+    const group = doc.assembly.lookupGroup(groupRefQName);
     if (group) {
       XmlSchemaDocumentService.populateGroup(parent, fields, group, visitedGroupRefs);
     }
@@ -1382,20 +1349,12 @@ export class XmlSchemaDocumentService {
   ): XmlSchemaType | null {
     if (!baseTypeQName) return null;
 
-    const baseType = XmlSchemaDocumentUtilService.lookupSchemaType(
-      document.xmlSchemaCollection,
-      baseTypeQName,
-      document.definition?.entrySchemaFile,
-    );
+    const baseType = document.assembly.lookupType(baseTypeQName);
 
     if (!parent.type) {
       parent.type =
         baseType instanceof XmlSchemaSimpleType
-          ? XmlSchemaTypesService.resolveSimpleTypeToEnum(
-              baseType,
-              document.xmlSchemaCollection,
-              document.definition?.entrySchemaFile,
-            )
+          ? XmlSchemaTypesService.resolveSimpleTypeToEnum(baseType, document.assembly)
           : XmlSchemaDocumentUtilService.getFieldTypeFromName(
               baseTypeQName.getLocalPart(),
               baseTypeQName.getNamespaceURI(),
@@ -1417,11 +1376,7 @@ export class XmlSchemaDocumentService {
       XmlSchemaDocumentService.populateSimpleTypeContent(document, parent, simpleContent, visited);
     }
     if (!parent.type) {
-      parent.type = XmlSchemaTypesService.resolveSimpleTypeToEnum(
-        simpleBase,
-        document.xmlSchemaCollection,
-        document.definition?.entrySchemaFile,
-      );
+      parent.type = XmlSchemaTypesService.resolveSimpleTypeToEnum(simpleBase, document.assembly);
     }
   }
 
@@ -1551,11 +1506,7 @@ export class XmlSchemaDocumentService {
         XmlSchemaDocumentService.populateSimpleTypeContent(document, parent, simpleContent, visited);
       }
       if (!parent.type) {
-        parent.type = XmlSchemaTypesService.resolveSimpleTypeToEnum(
-          simpleBase,
-          document.xmlSchemaCollection,
-          document.definition?.entrySchemaFile,
-        );
+        parent.type = XmlSchemaTypesService.resolveSimpleTypeToEnum(simpleBase, document.assembly);
       }
     }
   }
@@ -1652,13 +1603,7 @@ export class XmlSchemaDocumentService {
 
     if (!isCyclic) {
       if (baseTypeQName) visited.add(`attr#${baseTypeQName.toString()}`);
-      const baseType = baseTypeQName
-        ? XmlSchemaDocumentUtilService.lookupSchemaType(
-            document.xmlSchemaCollection,
-            baseTypeQName,
-            document.definition?.entrySchemaFile,
-          )
-        : null;
+      const baseType = baseTypeQName ? document.assembly.lookupType(baseTypeQName) : null;
       const baseHasContentModel = baseType instanceof XmlSchemaComplexType && baseType.getContentModel();
 
       if (baseHasContentModel) {
@@ -1707,11 +1652,7 @@ export class XmlSchemaDocumentService {
 
       if (!isCyclic && baseTypeQName) {
         visited.add(`elem#${baseTypeQName.toString()}`);
-        const baseType = XmlSchemaDocumentUtilService.lookupSchemaType(
-          document.xmlSchemaCollection,
-          baseTypeQName,
-          document.definition?.entrySchemaFile,
-        );
+        const baseType = document.assembly.lookupType(baseTypeQName);
         const baseHasContentModel = baseType instanceof XmlSchemaComplexType && baseType.getContentModel();
 
         if (baseHasContentModel) {

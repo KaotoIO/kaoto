@@ -18,7 +18,6 @@ import {
   getXmlStubFile,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
-import { XmlSchemaCollection } from '../../xml-schema-ts';
 import { QName } from '../../xml-schema-ts/QName';
 import { FieldOverrideService } from './field-override.service';
 import { JsonSchemaDocument } from './json-schema/json-schema-document.model';
@@ -404,11 +403,12 @@ describe('FieldOverrideService', () => {
     });
 
     it('should return empty array for XmlSchemaDocument with undefined collection', () => {
-      const malformedDoc = Object.create(XmlSchemaDocument.prototype);
-      malformedDoc.documentType = DocumentType.SOURCE_BODY;
-      malformedDoc.documentId = 'test';
-      malformedDoc.fields = [];
-      malformedDoc.xmlSchemaCollection = undefined;
+      const malformedDoc = Object.assign(Object.create(XmlSchemaDocument.prototype), {
+        documentType: DocumentType.SOURCE_BODY,
+        documentId: 'test',
+        fields: [],
+        xmlSchemaCollection: undefined,
+      }) as XmlSchemaDocument;
 
       const candidates = FieldOverrideService.getAllOverrideCandidates(malformedDoc, {});
 
@@ -1104,8 +1104,9 @@ describe('FieldOverrideService', () => {
     });
 
     it('should return empty Record for XmlSchemaDocument with undefined xmlSchemaCollection', () => {
-      const malformedDoc = Object.create(XmlSchemaDocument.prototype) as XmlSchemaDocument;
-      malformedDoc.xmlSchemaCollection = undefined as unknown as XmlSchemaCollection;
+      const malformedDoc = Object.assign(Object.create(XmlSchemaDocument.prototype), {
+        xmlSchemaCollection: undefined,
+      }) as XmlSchemaDocument;
       const field = { ownerDocument: malformedDoc } as unknown as IField;
 
       expect(() => FieldOverrideService.getFieldSubstitutionCandidates(field, {})).not.toThrow();
@@ -1156,8 +1157,9 @@ describe('FieldOverrideService', () => {
       // Both calls must scope the head/type lookups to the same entry schema, otherwise the UI list and the applied
       // candidate can differ when a QName is declared in more than one file.
       expect(spy).toHaveBeenCalledTimes(2);
-      expect(spy.mock.calls[0][3]).toBe('Entry.xsd');
-      expect(spy.mock.calls[1][3]).toBe('Entry.xsd');
+      expect(doc.assembly.entrySchemaFile).toBe('Entry.xsd');
+      expect(spy.mock.calls[0][1]).toBe(doc.assembly);
+      expect(spy.mock.calls[1][1]).toBe(doc.assembly);
       spy.mockRestore();
       expect(listed.type).toBe(Types.String);
       expect(headField.selectedMemberQName?.getLocalPart()).toBe('Member');
@@ -1241,8 +1243,9 @@ describe('FieldOverrideService', () => {
     });
 
     it('should do nothing on apply when XmlSchemaDocument has undefined xmlSchemaCollection', () => {
-      const malformedDoc = Object.create(XmlSchemaDocument.prototype) as XmlSchemaDocument;
-      malformedDoc.xmlSchemaCollection = undefined as unknown as XmlSchemaCollection;
+      const malformedDoc = Object.assign(Object.create(XmlSchemaDocument.prototype), {
+        xmlSchemaCollection: undefined,
+      }) as XmlSchemaDocument;
       malformedDoc.definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,

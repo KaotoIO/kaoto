@@ -24,6 +24,7 @@ import { XmlSchemaSimpleContent } from '../../../xml-schema-ts/simple/XmlSchemaS
 import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { ensureNamespaceRegistered, formatQNameWithPrefix, parseQNameString } from '../../namespace-util';
 import { DocumentUtilService } from '../document-util.service';
+import { XmlSchemaAssembly } from './xml-schema-assembly.model';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 import { mapXmlSchemaTypeToEnum, XML_SCHEMA_BUILT_IN_TYPES } from './xml-schema-type-mapping';
@@ -90,11 +91,7 @@ export class XmlSchemaTypesService {
    */
   private static buildOverrideFragmentKey(field: IField, typeQName: QName): string {
     const doc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(field);
-    const schemaType = XmlSchemaDocumentUtilService.lookupSchemaType(
-      doc.xmlSchemaCollection,
-      typeQName,
-      doc.definition?.entrySchemaFile,
-    );
+    const schemaType = doc.assembly.lookupType(typeQName);
     return XmlSchemaDocumentUtilService.buildTypeFragmentKeyOf(schemaType, typeQName);
   }
 
@@ -164,32 +161,16 @@ export class XmlSchemaTypesService {
       return false;
     }
 
-    const xmlDoc = ownerDoc as XmlSchemaDocument;
-    const entrySchemaFile = xmlDoc.definition?.entrySchemaFile;
-    const newSchemaType = XmlSchemaDocumentUtilService.lookupSchemaType(
-      xmlDoc.xmlSchemaCollection,
-      newTypeQName,
-      entrySchemaFile,
-    );
+    const assembly = (ownerDoc as XmlSchemaDocument).assembly;
+    const newSchemaType = assembly.lookupType(newTypeQName);
     const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
-    const originalSchemaType = origTypeQName
-      ? XmlSchemaDocumentUtilService.lookupSchemaTypeOrBuiltIn(
-          xmlDoc.xmlSchemaCollection,
-          origTypeQName,
-          entrySchemaFile,
-        )
-      : null;
+    const originalSchemaType = origTypeQName ? assembly.lookupTypeOrBuiltIn(origTypeQName) : null;
 
     if (!newSchemaType || !originalSchemaType) {
       return false;
     }
 
-    return XmlSchemaTypesService.isExtensionOrRestriction(
-      newSchemaType,
-      originalSchemaType,
-      xmlDoc.xmlSchemaCollection,
-      entrySchemaFile,
-    );
+    return XmlSchemaTypesService.isExtensionOrRestriction(newSchemaType, originalSchemaType, assembly);
   }
 
   private static isCompatibleSimpleTypeOverride(field: IField, newTypeQName: QName, newNamespaceURI: string): boolean {
@@ -197,24 +178,16 @@ export class XmlSchemaTypesService {
       return false;
     }
 
-    const collection = field.ownerDocument.xmlSchemaCollection;
-    const entrySchemaFile = field.ownerDocument.definition?.entrySchemaFile;
-    const newSchemaType = XmlSchemaDocumentUtilService.lookupSchemaType(collection, newTypeQName, entrySchemaFile);
+    const assembly = field.ownerDocument.assembly;
+    const newSchemaType = assembly.lookupType(newTypeQName);
     const originalTypeQName = field.originalField?.typeQName ?? field.typeQName;
-    const originalSchemaType = originalTypeQName
-      ? XmlSchemaDocumentUtilService.lookupSchemaTypeOrBuiltIn(collection, originalTypeQName, entrySchemaFile)
-      : null;
+    const originalSchemaType = originalTypeQName ? assembly.lookupTypeOrBuiltIn(originalTypeQName) : null;
 
     if (!(newSchemaType instanceof XmlSchemaSimpleType) || !(originalSchemaType instanceof XmlSchemaSimpleType)) {
       return false;
     }
 
-    return XmlSchemaTypesService.isExtensionOrRestriction(
-      newSchemaType,
-      originalSchemaType,
-      collection,
-      entrySchemaFile,
-    );
+    return XmlSchemaTypesService.isExtensionOrRestriction(newSchemaType, originalSchemaType, assembly);
   }
 
   /**
@@ -322,20 +295,14 @@ export class XmlSchemaTypesService {
    * Maps a simple type to its field type by following its restriction chain to a built-in type.
    *
    * `schemaType` must already be the type resolved in the entry scope, for example by
-   * {@link XmlSchemaDocumentUtilService.lookupSchemaType} or
-   * {@link XmlSchemaDocumentUtilService.resolveElementSchemaType}; it is not looked up again. Only the base types of
-   * its restriction chain are looked up, with `entrySchemaFile`.
+   * {@link XmlSchemaAssembly.lookupType} or {@link XmlSchemaAssembly.resolveElementSchemaType}; it is not looked up
+   * again. Only the base types of its restriction chain are looked up, through `assembly`.
    *
    * @param schemaType - The simple type, already resolved in the entry scope
-   * @param collection - The schema collection used to look up base types
-   * @param entrySchemaFile - Optional entry schema file that scopes the base type lookups
+   * @param assembly - The assembly used to look up base types
    * @returns The field type, or {@link Types.AnyType} when the chain does not end in a built-in type
    */
-  static resolveSimpleTypeToEnum(
-    schemaType: XmlSchemaSimpleType,
-    collection?: XmlSchemaCollection,
-    entrySchemaFile?: string,
-  ): Types {
+  static resolveSimpleTypeToEnum(schemaType: XmlSchemaSimpleType, assembly: XmlSchemaAssembly): Types {
     const typeQName = schemaType.getQName();
     if (typeQName?.getLocalPart()) {
       const type = XmlSchemaDocumentUtilService.getFieldTypeFromName(
@@ -344,15 +311,11 @@ export class XmlSchemaTypesService {
       );
       if (type !== Types.Container) return type;
     }
-    const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, collection, entrySchemaFile);
+    const resolved = XmlSchemaTypesService.followRestrictionChain(schemaType, assembly);
     return resolved === Types.Container ? Types.AnyType : resolved;
   }
 
-  private static followRestrictionChain(
-    schemaType: XmlSchemaSimpleType,
-    collection?: XmlSchemaCollection,
-    entrySchemaFile?: string,
-  ): Types {
+  private static followRestrictionChain(schemaType: XmlSchemaSimpleType, assembly: XmlSchemaAssembly): Types {
     let current: XmlSchemaSimpleType = schemaType;
     const visited = new Set<XmlSchemaSimpleType>();
     while (true) {
@@ -365,9 +328,7 @@ export class XmlSchemaTypesService {
         baseInfo.baseTypeName.getLocalPart() || '',
       );
       if (baseType !== Types.Container) return baseType;
-      const next =
-        collection &&
-        XmlSchemaDocumentUtilService.lookupSchemaTypeOrBuiltIn(collection, baseInfo.baseTypeName, entrySchemaFile);
+      const next = assembly.lookupTypeOrBuiltIn(baseInfo.baseTypeName);
       if (!(next instanceof XmlSchemaSimpleType)) return Types.Container;
       current = next;
     }
@@ -420,7 +381,7 @@ export class XmlSchemaTypesService {
    *
    * @param derivedType - The type that may be derived from baseType
    * @param baseType - The potential base type
-   * @param collection - XML Schema collection for type lookups
+   * @param assembly - The assembly used to look up base types
    * @returns True if derivedType extends or restricts baseType, false otherwise
    *
    * @example
@@ -429,7 +390,7 @@ export class XmlSchemaTypesService {
    * const isExtension = XmlSchemaTypesService.isExtensionOrRestriction(
    *   positiveIntegerType,
    *   integerType,
-   *   collection
+   *   assembly
    * );
    * // Returns true
    * ```
@@ -437,23 +398,15 @@ export class XmlSchemaTypesService {
   static isExtensionOrRestriction(
     derivedType: XmlSchemaType,
     baseType: XmlSchemaType,
-    collection: XmlSchemaCollection,
-    entrySchemaFile?: string,
+    assembly: XmlSchemaAssembly,
   ): boolean {
-    return XmlSchemaTypesService.doIsExtensionOrRestriction(
-      derivedType,
-      baseType,
-      collection,
-      entrySchemaFile,
-      new Set<XmlSchemaType>(),
-    );
+    return XmlSchemaTypesService.doIsExtensionOrRestriction(derivedType, baseType, assembly, new Set<XmlSchemaType>());
   }
 
   private static doIsExtensionOrRestriction(
     derivedType: XmlSchemaType,
     baseType: XmlSchemaType,
-    collection: XmlSchemaCollection,
-    entrySchemaFile: string | undefined,
+    assembly: XmlSchemaAssembly,
     visited: Set<XmlSchemaType>,
   ): boolean {
     if (derivedType === baseType) return true;
@@ -461,23 +414,11 @@ export class XmlSchemaTypesService {
     visited.add(derivedType);
 
     if (derivedType instanceof XmlSchemaComplexType) {
-      return XmlSchemaTypesService.checkComplexTypeInheritance(
-        derivedType,
-        baseType,
-        collection,
-        entrySchemaFile,
-        visited,
-      );
+      return XmlSchemaTypesService.checkComplexTypeInheritance(derivedType, baseType, assembly, visited);
     }
 
     if (derivedType instanceof XmlSchemaSimpleType) {
-      return XmlSchemaTypesService.checkSimpleTypeInheritance(
-        derivedType,
-        baseType,
-        collection,
-        entrySchemaFile,
-        visited,
-      );
+      return XmlSchemaTypesService.checkSimpleTypeInheritance(derivedType, baseType, assembly, visited);
     }
 
     return false;
@@ -491,15 +432,13 @@ export class XmlSchemaTypesService {
    *
    * @param derivedType - The complexType to check
    * @param baseType - The potential base type
-   * @param collection - XML Schema collection for type lookups
-   * @param entrySchemaFile - Optional entry schema file for scoped type resolution
+   * @param assembly - The assembly used to look up base types
    * @returns True if derivedType extends or restricts baseType
    */
   static checkComplexTypeInheritance(
     derivedType: XmlSchemaComplexType,
     baseType: XmlSchemaType,
-    collection: XmlSchemaCollection,
-    entrySchemaFile?: string,
+    assembly: XmlSchemaAssembly,
     visited?: Set<XmlSchemaType>,
   ): boolean {
     const contentModel = derivedType.getContentModel();
@@ -513,13 +452,7 @@ export class XmlSchemaTypesService {
       return false;
     }
 
-    return XmlSchemaTypesService.checkBaseTypeMatch(
-      content.getBaseTypeName(),
-      baseType,
-      collection,
-      entrySchemaFile,
-      visited,
-    );
+    return XmlSchemaTypesService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, assembly, visited);
   }
 
   /**
@@ -530,51 +463,37 @@ export class XmlSchemaTypesService {
    *
    * @param derivedType - The simpleType to check
    * @param baseType - The potential base type
-   * @param collection - XML Schema collection for type lookups
-   * @param entrySchemaFile - Optional entry schema file for scoped type resolution
+   * @param assembly - The assembly used to look up base types
    * @returns True if derivedType restricts baseType
    */
   static checkSimpleTypeInheritance(
     derivedType: XmlSchemaSimpleType,
     baseType: XmlSchemaType,
-    collection: XmlSchemaCollection,
-    entrySchemaFile?: string,
+    assembly: XmlSchemaAssembly,
     visited?: Set<XmlSchemaType>,
   ): boolean {
     const content = derivedType.getContent();
     if (!(content instanceof XmlSchemaSimpleTypeRestriction)) return false;
 
-    return XmlSchemaTypesService.checkBaseTypeMatch(
-      content.getBaseTypeName(),
-      baseType,
-      collection,
-      entrySchemaFile,
-      visited,
-    );
+    return XmlSchemaTypesService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, assembly, visited);
   }
 
   private static checkBaseTypeMatch(
     baseTypeName: QName | null,
     targetBaseType: XmlSchemaType,
-    collection: XmlSchemaCollection,
-    entrySchemaFile?: string,
+    assembly: XmlSchemaAssembly,
     visited?: Set<XmlSchemaType>,
   ): boolean {
     if (!baseTypeName) return false;
 
-    const baseSchemaType = XmlSchemaDocumentUtilService.lookupSchemaTypeOrBuiltIn(
-      collection,
-      baseTypeName,
-      entrySchemaFile,
-    );
+    const baseSchemaType = assembly.lookupTypeOrBuiltIn(baseTypeName);
     if (baseSchemaType === targetBaseType) return true;
     if (!baseSchemaType) return false;
 
     return XmlSchemaTypesService.doIsExtensionOrRestriction(
       baseSchemaType,
       targetBaseType,
-      collection,
-      entrySchemaFile,
+      assembly,
       visited ?? new Set<XmlSchemaType>(),
     );
   }
@@ -604,10 +523,9 @@ export class XmlSchemaTypesService {
 
   private static resolveCandidateTypeIfUnseen(
     type: XmlSchemaType,
-    collection: XmlSchemaCollection,
+    assembly: XmlSchemaAssembly,
     seenQNames: Set<string>,
     seenTypes: Set<XmlSchemaType>,
-    entrySchemaFile?: string,
   ): XmlSchemaType | undefined {
     const typeQName = type.getQName();
     const qnameKey = typeQName?.toString();
@@ -616,11 +534,7 @@ export class XmlSchemaTypesService {
       seenQNames.add(qnameKey);
     }
 
-    const candidateType =
-      (typeQName &&
-        entrySchemaFile &&
-        XmlSchemaDocumentUtilService.lookupSchemaType(collection, typeQName, entrySchemaFile)) ||
-      type;
+    const candidateType = (typeQName && assembly.entrySchemaFile && assembly.lookupType(typeQName)) || type;
 
     if (seenTypes.has(candidateType)) return undefined;
     seenTypes.add(candidateType);
@@ -635,45 +549,34 @@ export class XmlSchemaTypesService {
    * those that are derived from the base type through extension or restriction.
    *
    * @param baseType - The base type to find derivations of
-   * @param collection - XML Schema collection containing the types
-   * @param entrySchemaFile - Optional entry schema file to prioritize entry-scoped definitions
+   * @param assembly - The assembly whose collection is searched and through which candidates are resolved
    * @returns Array of types that extend or restrict the base type (excluding the base type itself)
    *
    * @example
    * ```typescript
    * const derivedTypes = XmlSchemaTypesService.getExtensionsAndRestrictions(
    *   integerType,
-   *   collection
+   *   assembly
    * );
    * // Returns [PositiveInteger, NegativeInteger, NonNegativeInteger, ...]
    * ```
    */
-  static getExtensionsAndRestrictions(
-    baseType: XmlSchemaType,
-    collection: XmlSchemaCollection,
-    entrySchemaFile?: string,
-  ): XmlSchemaType[] {
+  static getExtensionsAndRestrictions(baseType: XmlSchemaType, assembly: XmlSchemaAssembly): XmlSchemaType[] {
     const results: XmlSchemaType[] = [];
     const seenTypes = new Set<XmlSchemaType>();
     const seenQNames = new Set<string>();
 
     // Enumerate all schemas to find derived types — derived types may be in any attached schema.
-    // When entrySchemaFile is provided, candidate types are resolved against the entry assembly first
+    // When the assembly has an entry, candidate types are resolved through the assembly first
     // so that entry-scoped definitions take precedence and their compatibility is evaluated.
-    for (const schema of collection.getUserSchemas()) {
+    for (const schema of assembly.collection.getUserSchemas()) {
       for (const type of schema.getSchemaTypes().values()) {
-        const candidateType = XmlSchemaTypesService.resolveCandidateTypeIfUnseen(
-          type,
-          collection,
-          seenQNames,
-          seenTypes,
-          entrySchemaFile,
-        );
+        const candidateType = XmlSchemaTypesService.resolveCandidateTypeIfUnseen(type, assembly, seenQNames, seenTypes);
 
         if (
           candidateType &&
           candidateType !== baseType &&
-          XmlSchemaTypesService.isExtensionOrRestriction(candidateType, baseType, collection, entrySchemaFile)
+          XmlSchemaTypesService.isExtensionOrRestriction(candidateType, baseType, assembly)
         ) {
           results.push(candidateType);
         }
@@ -794,7 +697,7 @@ export class XmlSchemaTypesService {
    * schema compatibility.
    *
    * @param field - The field to get extension/restriction candidates for
-   * @param collection - XML Schema collection for type lookups
+   * @param assembly - The assembly of the field's owner document
    * @param namespaceMap - Namespace prefix to URI mapping
    * @returns Record keyed by `nsPrefix:localName` of type override candidates for extensions/restrictions
    *
@@ -802,7 +705,7 @@ export class XmlSchemaTypesService {
    * ```typescript
    * const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
    *   field,
-   *   xmlDoc.xmlSchemaCollection,
+   *   xmlDoc.assembly,
    *   namespaceMap
    * );
    * // Returns types that extend/restrict the field's original type
@@ -810,21 +713,20 @@ export class XmlSchemaTypesService {
    */
   static getTypeOverrideCandidatesForField(
     field: IField,
-    collection: XmlSchemaCollection,
+    assembly: XmlSchemaAssembly,
     namespaceMap: Record<string, string>,
-    entrySchemaFile?: string,
   ): Record<string, IFieldTypeInfo> {
     const origTypeQName = field.originalField?.typeQName ?? field.typeQName;
     if (!origTypeQName) {
       return {};
     }
 
-    const baseType = XmlSchemaDocumentUtilService.lookupSchemaTypeOrBuiltIn(collection, origTypeQName, entrySchemaFile);
+    const baseType = assembly.lookupTypeOrBuiltIn(origTypeQName);
     if (!baseType) {
       return {};
     }
 
-    const derivedTypes = XmlSchemaTypesService.getExtensionsAndRestrictions(baseType, collection, entrySchemaFile);
+    const derivedTypes = XmlSchemaTypesService.getExtensionsAndRestrictions(baseType, assembly);
 
     const results: Record<string, IFieldTypeInfo> = {};
 
@@ -842,10 +744,9 @@ export class XmlSchemaTypesService {
 
   private static resolveElementTypeInfo(
     element: XmlSchemaElement,
-    collection?: XmlSchemaCollection,
-    entrySchemaFile?: string,
+    assembly: XmlSchemaAssembly,
   ): Omit<IFieldSubstituteInfo, 'qname' | 'displayName'> {
-    const schemaType = XmlSchemaDocumentUtilService.resolveElementSchemaType(element, collection, entrySchemaFile);
+    const schemaType = assembly.resolveElementSchemaType(element);
     let type = Types.AnyType;
     let typeQName: QName | null = null;
     let namedTypeFragmentRefs: string[] = [];
@@ -864,7 +765,7 @@ export class XmlSchemaTypesService {
       }
     } else if (schemaType instanceof XmlSchemaSimpleType) {
       typeQName = schemaType.getQName();
-      type = XmlSchemaTypesService.resolveSimpleTypeToEnum(schemaType, collection, entrySchemaFile);
+      type = XmlSchemaTypesService.resolveSimpleTypeToEnum(schemaType, assembly);
     }
 
     return { type, typeQName, namedTypeFragmentRefs };
@@ -898,11 +799,7 @@ export class XmlSchemaTypesService {
     if (prefix && nsURI === undefined) return undefined;
     const qname = new QName(nsURI, localPart);
 
-    const element = XmlSchemaDocumentUtilService.lookupSchemaElement(
-      xmlDoc.xmlSchemaCollection,
-      qname,
-      xmlDoc.definition?.entrySchemaFile,
-    );
+    const element = xmlDoc.assembly.lookupElement(qname);
     // An abstract element is never a valid substitute; the scoped lookup may find one where the saved mapping
     // named a concrete element of another schema.
     if (!element || element.isAbstract()) return undefined;
@@ -913,24 +810,17 @@ export class XmlSchemaTypesService {
     return {
       qname: wireName,
       displayName: wireName.getLocalPart()!,
-      ...XmlSchemaTypesService.resolveElementTypeInfo(
-        element,
-        xmlDoc.xmlSchemaCollection,
-        xmlDoc.definition?.entrySchemaFile,
-      ),
+      ...XmlSchemaTypesService.resolveElementTypeInfo(element, xmlDoc.assembly),
     };
   }
 
   private static resolveElementForSubstitution(
     el: XmlSchemaElement,
-    collection: XmlSchemaCollection,
-    entrySchemaFile?: string,
+    assembly: XmlSchemaAssembly,
   ): XmlSchemaElement | undefined {
     const elQName = el.getQName();
     if (!elQName?.toString()) return undefined;
-    return (
-      (entrySchemaFile && XmlSchemaDocumentUtilService.lookupSchemaElement(collection, elQName, entrySchemaFile)) || el
-    );
+    return (assembly.entrySchemaFile && assembly.lookupElement(elQName)) || el;
   }
 
   private static tryAddSubstitutionMember(
@@ -959,20 +849,15 @@ export class XmlSchemaTypesService {
    * only `Puppy` is returned — abstract members are traversed but excluded from results.
    *
    * @param headElement - The head element of the substitution group
-   * @param collection - XML Schema collection containing the schemas
-   * @param entrySchemaFile - Optional entry schema file to resolve candidates in entry-first scope
+   * @param assembly - The assembly whose collection is searched and through which candidates are resolved
    * @returns Array of concrete elements that are direct or transitive members of the substitution group
    */
-  static getSubstitutionGroupMembers(
-    headElement: XmlSchemaElement,
-    collection: XmlSchemaCollection,
-    entrySchemaFile?: string,
-  ): XmlSchemaElement[] {
+  static getSubstitutionGroupMembers(headElement: XmlSchemaElement, assembly: XmlSchemaAssembly): XmlSchemaElement[] {
     const headQNameString = headElement.getQName()?.toString();
     if (!headQNameString) return [];
 
-    const allElements = XmlSchemaTypesService.collectAllElements(collection)
-      .map((el) => XmlSchemaTypesService.resolveElementForSubstitution(el, collection, entrySchemaFile))
+    const allElements = XmlSchemaTypesService.collectAllElements(assembly.collection)
+      .map((el) => XmlSchemaTypesService.resolveElementForSubstitution(el, assembly))
       .filter((el): el is XmlSchemaElement => el !== undefined);
     const frontier = new Set<string>([headQNameString]);
     const results: XmlSchemaElement[] = [];
@@ -1016,14 +901,9 @@ export class XmlSchemaTypesService {
     parentField: IParentType,
     elementName: string,
     elementNamespace: string,
-    collection: XmlSchemaCollection,
-    entrySchemaFile?: string,
+    assembly: XmlSchemaAssembly,
   ): { headField: IField; info: IFieldSubstituteInfo } | undefined {
-    const substituteElement = XmlSchemaDocumentUtilService.lookupSchemaElement(
-      collection,
-      new QName(elementNamespace, elementName),
-      entrySchemaFile,
-    );
+    const substituteElement = assembly.lookupElement(new QName(elementNamespace, elementName));
     if (!substituteElement) return undefined;
 
     const wireName = substituteElement.getWireName();
@@ -1055,12 +935,12 @@ export class XmlSchemaTypesService {
           info: {
             qname: wireName,
             displayName: wireName.getLocalPart()!,
-            ...XmlSchemaTypesService.resolveElementTypeInfo(substituteElement, collection, entrySchemaFile),
+            ...XmlSchemaTypesService.resolveElementTypeInfo(substituteElement, assembly),
           },
         };
       }
 
-      current = XmlSchemaDocumentUtilService.lookupSchemaElement(collection, headQName, entrySchemaFile);
+      current = assembly.lookupElement(headQName);
     }
 
     return undefined;
@@ -1078,29 +958,24 @@ export class XmlSchemaTypesService {
    * identify the head element.
    *
    * @param field - The field to get substitution candidates for
-   * @param collection - XML Schema collection for element lookups
+   * @param assembly - The assembly of the field's owner document
    * @param namespaceMap - Namespace prefix to URI mapping
    * @returns Record keyed by `nsPrefix:localName` of substitution candidates, or `{}` when none found
    */
   static getFieldSubstitutionCandidates(
     field: IField,
-    collection: XmlSchemaCollection,
+    assembly: XmlSchemaAssembly,
     namespaceMap: Record<string, string>,
-    entrySchemaFile?: string,
   ): Record<string, IFieldSubstituteInfo> {
     const isSubstituted = field.typeOverride === FieldOverrideVariant.SUBSTITUTION;
     if (isSubstituted && !field.originalField) return {};
     const headName = isSubstituted ? field.originalField!.name : field.name;
     const headNamespaceURI = isSubstituted ? field.originalField!.namespaceURI : field.namespaceURI;
 
-    const headElement = XmlSchemaDocumentUtilService.lookupSchemaElement(
-      collection,
-      new QName(headNamespaceURI, headName),
-      entrySchemaFile,
-    );
+    const headElement = assembly.lookupElement(new QName(headNamespaceURI, headName));
     if (!headElement) return {};
 
-    const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement, collection, entrySchemaFile);
+    const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement, assembly);
     if (members.length === 0) return {};
 
     const results: Record<string, IFieldSubstituteInfo> = {};
@@ -1112,7 +987,7 @@ export class XmlSchemaTypesService {
       results[key] = {
         qname: wireName,
         displayName: wireName.getLocalPart()!,
-        ...XmlSchemaTypesService.resolveElementTypeInfo(el, collection, entrySchemaFile),
+        ...XmlSchemaTypesService.resolveElementTypeInfo(el, assembly),
       };
     }
     return results;

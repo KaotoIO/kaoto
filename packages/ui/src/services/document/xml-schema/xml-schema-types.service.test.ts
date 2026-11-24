@@ -20,6 +20,7 @@ import { QName } from '../../../xml-schema-ts/QName';
 import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { DocumentUtilService } from '../document-util.service';
 import { JsonSchemaDocument, JsonSchemaField } from '../json-schema/json-schema-document.model';
+import { XmlSchemaAssembly } from './xml-schema-assembly.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
@@ -48,7 +49,9 @@ describe('XmlSchemaTypesService', () => {
         return qName.getLocalPart() === 'TypeA' ? typeA : typeB;
       });
 
-      expect(XmlSchemaTypesService.resolveSimpleTypeToEnum(typeA, collection)).toBe(Types.AnyType);
+      expect(XmlSchemaTypesService.resolveSimpleTypeToEnum(typeA, new XmlSchemaAssembly(collection))).toBe(
+        Types.AnyType,
+      );
       expect(getTypeByQName).toHaveBeenCalledTimes(2);
     });
   });
@@ -186,7 +189,7 @@ describe('XmlSchemaTypesService', () => {
       const isExtension = XmlSchemaTypesService.isExtensionOrRestriction(
         derivedType!,
         baseType!,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
       );
 
       expect(isExtension).toBe(true);
@@ -218,7 +221,7 @@ describe('XmlSchemaTypesService', () => {
       const isRestriction = XmlSchemaTypesService.isExtensionOrRestriction(
         derivedType!,
         baseType!,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
       );
 
       expect(isRestriction).toBe(true);
@@ -250,7 +253,7 @@ describe('XmlSchemaTypesService', () => {
       const isRestriction = XmlSchemaTypesService.isExtensionOrRestriction(
         derivedType!,
         baseType!,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
       );
 
       expect(isRestriction).toBe(true);
@@ -267,7 +270,11 @@ describe('XmlSchemaTypesService', () => {
         return;
       }
 
-      const isRelated = XmlSchemaTypesService.isExtensionOrRestriction(type1, type2, doc.xmlSchemaCollection);
+      const isRelated = XmlSchemaTypesService.isExtensionOrRestriction(
+        type1,
+        type2,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
+      );
 
       expect(isRelated).toBe(false);
     });
@@ -281,7 +288,11 @@ describe('XmlSchemaTypesService', () => {
         return;
       }
 
-      const isSame = XmlSchemaTypesService.isExtensionOrRestriction(type, type, doc.xmlSchemaCollection);
+      const isSame = XmlSchemaTypesService.isExtensionOrRestriction(
+        type,
+        type,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
+      );
 
       expect(isSame).toBe(true);
     });
@@ -311,7 +322,7 @@ describe('XmlSchemaTypesService', () => {
 
       const derivedFromMessage = XmlSchemaTypesService.getExtensionsAndRestrictions(
         messageType!,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
       );
 
       expect(Array.isArray(derivedFromMessage)).toBe(true);
@@ -319,7 +330,7 @@ describe('XmlSchemaTypesService', () => {
       const isBaseRequestDerived = XmlSchemaTypesService.isExtensionOrRestriction(
         baseRequestType!,
         messageType!,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
       );
       expect(isBaseRequestDerived).toBe(true);
     });
@@ -333,7 +344,10 @@ describe('XmlSchemaTypesService', () => {
         return;
       }
 
-      const derivedTypes = XmlSchemaTypesService.getExtensionsAndRestrictions(baseType, doc.xmlSchemaCollection);
+      const derivedTypes = XmlSchemaTypesService.getExtensionsAndRestrictions(
+        baseType,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
+      );
 
       expect(derivedTypes.every((t) => t !== baseType)).toBe(true);
     });
@@ -519,7 +533,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -535,7 +549,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -550,7 +564,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -576,7 +590,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
       const displayNames = Object.values(candidates).map((c) => c.displayName);
@@ -801,7 +815,7 @@ describe('XmlSchemaTypesService', () => {
       const isRestriction = XmlSchemaTypesService.isExtensionOrRestriction(
         derivedStringType!,
         baseStringType!,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
       );
 
       expect(isRestriction).toBe(true);
@@ -832,7 +846,7 @@ describe('XmlSchemaTypesService', () => {
       const isExtension = XmlSchemaTypesService.isExtensionOrRestriction(
         complexExtendingSimple!,
         extendedValueType!,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
       );
 
       expect(isExtension).toBe(true);
@@ -856,7 +870,10 @@ describe('XmlSchemaTypesService', () => {
       );
       expect(headElement).toBeDefined();
 
-      const members = XmlSchemaTypesService.getSubstitutionGroupMembers(headElement!, doc.xmlSchemaCollection);
+      const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
+        headElement!,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
+      );
 
       expect(members).toHaveLength(4);
       const names = members.map((el) => el.getName());
@@ -871,7 +888,10 @@ describe('XmlSchemaTypesService', () => {
       );
       expect(felineElement).toBeDefined();
 
-      const members = XmlSchemaTypesService.getSubstitutionGroupMembers(felineElement!, doc.xmlSchemaCollection);
+      const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
+        felineElement!,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
+      );
 
       expect(members).toHaveLength(1);
       expect(members[0].getName()).toBe('Kitten');
@@ -884,7 +904,10 @@ describe('XmlSchemaTypesService', () => {
       );
       expect(catElement).toBeDefined();
 
-      const members = XmlSchemaTypesService.getSubstitutionGroupMembers(catElement!, doc.xmlSchemaCollection);
+      const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
+        catElement!,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
+      );
 
       expect(members).toEqual([]);
     });
@@ -903,7 +926,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -950,7 +973,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -988,7 +1011,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -1005,7 +1028,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -1026,7 +1049,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
         abstractAnimalField,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         {},
       );
 
@@ -1044,7 +1067,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -1062,7 +1085,7 @@ describe('XmlSchemaTypesService', () => {
 
       const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -1080,7 +1103,7 @@ describe('XmlSchemaTypesService', () => {
       const namespaceMap: Record<string, string> = {};
       const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
         field,
-        doc.xmlSchemaCollection,
+        new XmlSchemaAssembly(doc.xmlSchemaCollection),
         namespaceMap,
       );
 
@@ -1140,9 +1163,8 @@ describe('XmlSchemaTypesService', () => {
 
         const candidates = XmlSchemaTypesService.getFieldSubstitutionCandidates(
           head,
-          doc.xmlSchemaCollection,
+          new XmlSchemaAssembly(doc.xmlSchemaCollection, 'A.xsd'),
           { t: NS },
-          'A.xsd',
         );
 
         expect(Object.keys(candidates)).toEqual(['t:M']);
@@ -1170,8 +1192,7 @@ describe('XmlSchemaTypesService', () => {
           doc.fields[0],
           'M',
           NS,
-          doc.xmlSchemaCollection,
-          'A.xsd',
+          new XmlSchemaAssembly(doc.xmlSchemaCollection, 'A.xsd'),
         );
 
         expect(found?.headField.name).toBe('H');
@@ -1236,18 +1257,14 @@ describe('XmlSchemaTypesService', () => {
         TYPE_BINDING_COLLISION_NS,
       );
       expect(result.validationStatus).not.toBe('error');
+      expect(result.document?.assembly.entrySchemaFile).toBe(ENTRY);
       return result.document as XmlSchemaDocument;
     };
     const candidatesOf = (doc: XmlSchemaDocument, headName: string) => {
       const head = new XmlSchemaField(doc, headName, false);
       head.namespaceURI = NS;
       head.typeOverride = FieldOverrideVariant.NONE;
-      return XmlSchemaTypesService.getFieldSubstitutionCandidates(
-        head,
-        doc.xmlSchemaCollection,
-        TYPE_BINDING_COLLISION_NS,
-        ENTRY,
-      );
+      return XmlSchemaTypesService.getFieldSubstitutionCandidates(head, doc.assembly, TYPE_BINDING_COLLISION_NS);
     };
 
     it.each(memberVariants)(
@@ -1265,13 +1282,7 @@ describe('XmlSchemaTypesService', () => {
       (member, unrelated, order) => {
         const doc = createDoc(unrelated, order);
 
-        const found = XmlSchemaTypesService.findSubstitutionGroupHead(
-          doc.fields[0],
-          member,
-          NS,
-          doc.xmlSchemaCollection,
-          ENTRY,
-        );
+        const found = XmlSchemaTypesService.findSubstitutionGroupHead(doc.fields[0], member, NS, doc.assembly);
 
         expect(found?.headField.name).toBe('H');
         expect(found?.info.type).toBe(Types.Container);
@@ -1307,19 +1318,49 @@ describe('XmlSchemaTypesService', () => {
         const doc = createDoc(unrelated, order);
 
         const candidate = candidatesOf(doc, 'HC')['t:MSC'];
-        const found = XmlSchemaTypesService.findSubstitutionGroupHead(
-          doc.fields[0],
-          'MSC',
-          NS,
-          doc.xmlSchemaCollection,
-          ENTRY,
-        );
+        const found = XmlSchemaTypesService.findSubstitutionGroupHead(doc.fields[0], 'MSC', NS, doc.assembly);
 
         expect(candidate?.type).toBe(Types.Integer);
         expect(found?.headField.name).toBe('HC');
         expect(found?.info.type).toBe(Types.Integer);
       },
     );
+
+    it.each(['before', 'after'] as Order[])(
+      'getExtensionsAndRestrictions() should resolve candidate types through the assembly only with an entry (%s)',
+      (order) => {
+        const doc = createDoc('OtherSimpleKind', order);
+        const base = doc.assembly.lookupType(new QName(NS, 'Base'))!;
+        const withEntry = vi.spyOn(doc.assembly, 'lookupType');
+        const noEntry = new XmlSchemaAssembly(doc.xmlSchemaCollection);
+        const withoutEntry = vi.spyOn(noEntry, 'lookupType');
+
+        const scoped = XmlSchemaTypesService.getExtensionsAndRestrictions(base, doc.assembly);
+        const unscoped = XmlSchemaTypesService.getExtensionsAndRestrictions(base, noEntry);
+
+        expect(withEntry).toHaveBeenCalledWith(new QName(NS, 'CT'));
+        expect(scoped.map((t) => t.getParent()?.getSourceURI())).toEqual(['Types.xsd']);
+        expect(withoutEntry).not.toHaveBeenCalled();
+        const firstCT = doc.xmlSchemaCollection.getTypeByQName(new QName(NS, 'CT'));
+        expect(unscoped).toEqual(order === 'after' ? [firstCT] : []);
+      },
+    );
+
+    it('getSubstitutionGroupMembers() should resolve member elements through the assembly only with an entry', () => {
+      const doc = createDoc('OtherSimpleKind', 'before');
+      const head = doc.assembly.lookupElement(new QName(NS, 'H'))!;
+      const withEntry = vi.spyOn(doc.assembly, 'lookupElement');
+      const noEntry = new XmlSchemaAssembly(doc.xmlSchemaCollection);
+      const withoutEntry = vi.spyOn(noEntry, 'lookupElement');
+
+      const scoped = XmlSchemaTypesService.getSubstitutionGroupMembers(head, doc.assembly);
+      const unscoped = XmlSchemaTypesService.getSubstitutionGroupMembers(head, noEntry);
+
+      expect(withEntry).toHaveBeenCalledWith(new QName(NS, 'M'));
+      expect(withoutEntry).not.toHaveBeenCalled();
+      expect(unscoped.map((el) => el.getName())).toEqual(scoped.map((el) => el.getName()));
+      expect(scoped.map((el) => el.getName())).toEqual(['M', 'MS', 'MU']);
+    });
 
     it.todo('getFieldSubstitutionCandidates() should give MU the CT2 of MemberTypes.xsd (membership rule of #4483)');
     it.todo(
@@ -1569,8 +1610,12 @@ describe('XmlSchemaTypesService', () => {
 
         // Without the cycle guard this would throw RangeError.
         // With the guard it terminates and returns false (typeA is not derived from typeC).
-        expect(() => XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).not.toThrow();
-        expect(XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).toBe(false);
+        expect(() =>
+          XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, new XmlSchemaAssembly(collection)),
+        ).not.toThrow();
+        expect(XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, new XmlSchemaAssembly(collection))).toBe(
+          false,
+        );
       });
 
       it('should not throw (cycle guard) when simpleType derivation chain forms a cycle', () => {
@@ -1599,8 +1644,12 @@ describe('XmlSchemaTypesService', () => {
           return null;
         });
 
-        expect(() => XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).not.toThrow();
-        expect(XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, collection)).toBe(false);
+        expect(() =>
+          XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, new XmlSchemaAssembly(collection)),
+        ).not.toThrow();
+        expect(XmlSchemaTypesService.isExtensionOrRestriction(typeA, typeC, new XmlSchemaAssembly(collection))).toBe(
+          false,
+        );
       });
 
       it('should scope type lookup through entrySchemaFile when an unrelated schema declares the same QName', () => {
@@ -1642,13 +1691,18 @@ describe('XmlSchemaTypesService', () => {
           XmlSchemaTypesService.isExtensionOrRestriction(
             derivedType!,
             entryBaseType!,
-            collection,
-            'SimpleTypeInheritance.xsd',
+            new XmlSchemaAssembly(collection, 'SimpleTypeInheritance.xsd'),
           ),
         ).toBe(true);
 
         // Without entrySchemaFile — the collection-wide lookup hits the unrelated declaration.
-        expect(XmlSchemaTypesService.isExtensionOrRestriction(derivedType!, entryBaseType!, collection)).toBe(false);
+        expect(
+          XmlSchemaTypesService.isExtensionOrRestriction(
+            derivedType!,
+            entryBaseType!,
+            new XmlSchemaAssembly(collection),
+          ),
+        ).toBe(false);
       });
 
       it('should resolve and check candidate compatibility against entry-scoped declaration when same QName exists in unrelated schema', () => {
@@ -1705,9 +1759,8 @@ describe('XmlSchemaTypesService', () => {
         const namespaceMap: Record<string, string> = { tns: ns };
         const candidates = XmlSchemaTypesService.getTypeOverrideCandidatesForField(
           field,
-          doc.xmlSchemaCollection,
+          new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd'),
           namespaceMap,
-          'Entry.xsd',
         );
 
         // In Entry.xsd, DerivedStringType extends BaseStringType -> must be offered
@@ -1737,17 +1790,14 @@ describe('XmlSchemaTypesService', () => {
         );
         const result = XmlSchemaDocumentService.createXmlSchemaDocument(def);
         const doc = result.document as XmlSchemaDocument;
-        const headElement = XmlSchemaDocumentUtilService.lookupSchemaElement(
-          doc.xmlSchemaCollection,
+        const headElement = new XmlSchemaAssembly(doc.xmlSchemaCollection, 'FieldSubstitution.xsd').lookupElement(
           new QName(ns, 'AbstractAnimal'),
-          'FieldSubstitution.xsd',
         );
 
         expect(headElement).toBeDefined();
         const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
           headElement!,
-          doc.xmlSchemaCollection,
-          'FieldSubstitution.xsd',
+          new XmlSchemaAssembly(doc.xmlSchemaCollection, 'FieldSubstitution.xsd'),
         );
 
         const catMember = members.find((m) => m.getWireName()?.getLocalPart() === 'Cat');
@@ -1781,14 +1831,13 @@ describe('XmlSchemaTypesService', () => {
           'Entry.xsd',
         );
         const doc = XmlSchemaDocumentService.createXmlSchemaDocument(def).document as XmlSchemaDocument;
-        const head = XmlSchemaDocumentUtilService.lookupSchemaElement(
-          doc.xmlSchemaCollection,
-          new QName(ns, 'Head'),
-          'Entry.xsd',
-        );
+        const head = new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd').lookupElement(new QName(ns, 'Head'));
         expect(head).toBeDefined();
 
-        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(head!, doc.xmlSchemaCollection, 'Entry.xsd');
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
+          head!,
+          new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd'),
+        );
         expect(members.find((m) => m.getWireName()?.getLocalPart() === 'Member')).toBeUndefined();
       });
 
@@ -1817,14 +1866,13 @@ describe('XmlSchemaTypesService', () => {
           'Entry.xsd',
         );
         const doc = XmlSchemaDocumentService.createXmlSchemaDocument(def).document as XmlSchemaDocument;
-        const head = XmlSchemaDocumentUtilService.lookupSchemaElement(
-          doc.xmlSchemaCollection,
-          new QName(ns, 'Head'),
-          'Entry.xsd',
-        );
+        const head = new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd').lookupElement(new QName(ns, 'Head'));
         expect(head).toBeDefined();
 
-        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(head!, doc.xmlSchemaCollection, 'Entry.xsd');
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
+          head!,
+          new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd'),
+        );
         expect(members.find((m) => m.getWireName()?.getLocalPart() === 'Member')).toBeDefined();
       });
 
@@ -1853,14 +1901,13 @@ describe('XmlSchemaTypesService', () => {
           'Entry.xsd',
         );
         const doc = XmlSchemaDocumentService.createXmlSchemaDocument(def).document as XmlSchemaDocument;
-        const head = XmlSchemaDocumentUtilService.lookupSchemaElement(
-          doc.xmlSchemaCollection,
-          new QName(ns, 'Head'),
-          'Entry.xsd',
-        );
+        const head = new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd').lookupElement(new QName(ns, 'Head'));
         expect(head).toBeDefined();
 
-        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(head!, doc.xmlSchemaCollection, 'Entry.xsd');
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
+          head!,
+          new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd'),
+        );
         expect(members).toHaveLength(0);
       });
 
@@ -1884,14 +1931,13 @@ describe('XmlSchemaTypesService', () => {
           'Entry.xsd',
         );
         const doc = XmlSchemaDocumentService.createXmlSchemaDocument(def).document as XmlSchemaDocument;
-        const head = XmlSchemaDocumentUtilService.lookupSchemaElement(
-          doc.xmlSchemaCollection,
-          new QName(ns, 'Head'),
-          'Entry.xsd',
-        );
+        const head = new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd').lookupElement(new QName(ns, 'Head'));
         expect(head).toBeDefined();
 
-        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(head!, doc.xmlSchemaCollection, 'Entry.xsd');
+        const members = XmlSchemaTypesService.getSubstitutionGroupMembers(
+          head!,
+          new XmlSchemaAssembly(doc.xmlSchemaCollection, 'Entry.xsd'),
+        );
         expect(members.filter((m) => m.getWireName()?.getLocalPart() === 'Member')).toHaveLength(1);
       });
     });
