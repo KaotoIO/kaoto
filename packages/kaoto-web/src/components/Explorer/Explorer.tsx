@@ -105,6 +105,19 @@ function insertNewEntry(nodes: ExplorerFile[], entry: NewEntry): ExplorerFile[] 
 const folderAndParents = (folderPath: string): string[] =>
   folderPath ? folderPath.split('/').map((_, index, segments) => segments.slice(0, index + 1).join('/')) : [];
 
+/** The folder that holds the path, '' for the root */
+const folderOf = (path: string): string => path.slice(0, Math.max(path.lastIndexOf('/'), 0));
+
+/** The expanded folders with the folder and all its parents expanded as well */
+const expandFolderAndParents = (
+  expandedFolders: Record<string, boolean>,
+  entries: readonly FileEntry[],
+  folderPath: string,
+): Record<string, boolean> => {
+  const keys = folderAndParents(folderPath).flatMap((path) => entries.find((entry) => entry.path === path)?.key ?? []);
+  return { ...expandedFolders, ...Object.fromEntries(keys.map((key) => [key, true])) };
+};
+
 /** The key labelled "delete" on a Mac keyboard sends Backspace */
 const DELETE_KEYS: ReadonlySet<string> = new Set(['Delete', 'Backspace']);
 
@@ -223,6 +236,17 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
   const loading = useFilesUiStore((state) => state.status === 'loading');
   const error = useFilesUiStore((state) => state.error);
   const tree = useMemo(() => buildTree(entries), [entries]);
+
+  /**
+   * Unfolds the folders down to a file whenever another file opens, also from outside the tree: the Create new file
+   * dialog, the URL or a reload. Only then, so that a folder of the open file the user collapses stays collapsed.
+   */
+  const [revealedId, setRevealedId] = useState(selectedId);
+  if (revealedId !== selectedId) {
+    setRevealedId(selectedId);
+    const openPath = entries.find(({ key }) => key === selectedId)?.path;
+    if (openPath) setExpandedFolders((previous) => expandFolderAndParents(previous, entries, folderOf(openPath)));
+  }
   const filtered = useMemo(() => filterFiles(tree, query), [tree, query]);
 
   const [newEntry, setNewEntry] = useState<NewEntry>();
@@ -279,7 +303,6 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
 
   /** The folder a new entry goes into: the last focused tree item's, else the open file's, else the root */
   const targetFolderPath = (): string => {
-    const folderOf = (path: string) => path.slice(0, Math.max(path.lastIndexOf('/'), 0));
     const lastFocused = lastFocusedNodeRef.current;
     if (lastFocused === ROOT_TARGET) return '';
     // A folder that was deleted since is gone from the entries; a renamed one keeps its key and is found
@@ -294,10 +317,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
     const folderPath = targetFolderPath();
     // The search would hide the new entry
     setSearchText('');
-    const folderKeys = folderAndParents(folderPath).flatMap(
-      (path) => entries.find((entry) => entry.path === path)?.key ?? [],
-    );
-    setExpandedFolders((previous) => ({ ...previous, ...Object.fromEntries(folderKeys.map((key) => [key, true])) }));
+    setExpandedFolders((previous) => expandFolderAndParents(previous, entries, folderPath));
     setNewEntry((previous) => ({ kind, folderPath, key: (previous?.key ?? 0) + 1, opener }));
   };
 
