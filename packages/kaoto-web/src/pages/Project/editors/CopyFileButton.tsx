@@ -1,6 +1,6 @@
 import { Copy } from '@carbon/icons-react';
 import { IconButton } from '@carbon/react';
-import { FunctionComponent, useEffect, useRef, useState } from 'react';
+import { ComponentProps, FunctionComponent, useEffect, useRef, useState } from 'react';
 
 type CopyState = 'idle' | 'copied' | 'failed';
 
@@ -17,10 +17,12 @@ const FEEDBACK_MS = 2000;
 interface CopyFileButtonProps {
   /** The content of the open file */
   content: string;
+  /** Where the tooltip opens; the rightmost button of the header bar opens it towards the left */
+  align?: ComponentProps<typeof IconButton>['align'];
 }
 
 /** Copies the content of the open file to the clipboard, and tells in its label for a moment that it did */
-export const CopyFileButton: FunctionComponent<CopyFileButtonProps> = ({ content }) => {
+export const CopyFileButton: FunctionComponent<CopyFileButtonProps> = ({ content, align = 'bottom-end' }) => {
   const [state, setState] = useState<CopyState>('idle');
   /** Sets the label back once the feedback is shown long enough */
   const resetTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -57,14 +59,13 @@ export const CopyFileButton: FunctionComponent<CopyFileButtonProps> = ({ content
   };
 
   return (
-    // The rightmost button of the header bar: its tooltip opens towards the left, inside the window. It stays open on a
-    // click, so that it shows how the copy went.
+    // The tooltip stays open on a click, so that it shows how the copy went
     <IconButton
       label={LABELS[state]}
       onClick={handleCopy}
       kind="ghost"
       size="sm"
-      align="bottom-end"
+      align={align}
       closeOnActivation={false}
     >
       <Copy />

@@ -3,7 +3,8 @@ import '@patternfly/react-core/dist/styles/base-no-reset.css';
 import './IntegrationShell.scss';
 
 import { InlineNotification } from '@carbon/react';
-import { FunctionComponent, useEffect, useState } from 'react';
+import { RouteVisualizationHandle, RouteVisualizationToolsState } from '@kaoto/kaoto/components';
+import { FunctionComponent, useEffect, useRef, useState } from 'react';
 import { Navigate } from 'react-router';
 
 import { LoadingState } from '../../components/LoadingState/LoadingState';
@@ -13,6 +14,7 @@ import { getFileType } from '../../services/files/stored-file';
 import { useFilesUiStore, useFilesUiStoreApi } from '../../store/files/use-files-ui-store';
 import { editorKindFor } from './editors/editor-registry';
 import { EditorHeader } from './editors/EditorHeader';
+import { ExportImageButton } from './editors/ExportImageButton';
 import { RouteFileEditor } from './editors/RouteFileEditor';
 import { TextFileEditor } from './editors/TextFileEditor';
 import { viewIconFor } from './editors/view-icon';
@@ -43,6 +45,12 @@ const IntegrationShell: FunctionComponent = () => {
   const [saveError, setSaveError] = useState<{ key: string; error: Error }>();
   /** The content last written for a file; the shown content stays the one read when the file opened */
   const [stored, setStored] = useState<{ key: string; content: string }>();
+  /** The tools of the canvas of a route file, for the header bar, and whether they can be used */
+  const canvasToolsRef = useRef<RouteVisualizationHandle>(null);
+  const [canvasToolsState, setCanvasToolsState] = useState<RouteVisualizationToolsState>({
+    canExport: false,
+    isExportingImage: false,
+  });
 
   // Reset view mode to Design when opening a different file — not when the files change or the file moves.
   const openKey = openFile?.key;
@@ -88,12 +96,21 @@ const IntegrationShell: FunctionComponent = () => {
 
   const viewMode = header?.viewMode ?? 'design';
   const editorKind = shown && editorKindFor(getFileType(shown.path));
+  const hasCanvas = editorKind === 'route';
 
   let body;
   if (shown && editorKind === 'text') {
     body = <TextFileEditor key={shown.key} file={shown} onSave={storeCode} />;
   } else if (shown && editorKind) {
-    body = <RouteFileEditor file={shown} view={viewMode} onSave={storeCode} />;
+    body = (
+      <RouteFileEditor
+        file={shown}
+        view={viewMode}
+        onSave={storeCode}
+        toolsRef={canvasToolsRef}
+        onToolsStateChange={setCanvasToolsState}
+      />
+    );
   } else if (readError) {
     body = <p className="cs--integration-shell__empty">{`The file could not be read (${readError.message})`}</p>;
   } else if (status !== 'loading' && !openFile) {
@@ -113,6 +130,18 @@ const IntegrationShell: FunctionComponent = () => {
           icon={viewIconFor(editorKind, viewMode)}
           path={shown.path}
           content={stored?.key === shown.key ? stored.content : shown.content}
+          tools={
+            // Every file shows the tools, those of the canvas disabled for a file without one. The state may still be
+            // that of the canvas of a route opened before.
+            <ExportImageButton
+              canExport={hasCanvas && canvasToolsState.canExport}
+              isExporting={hasCanvas && canvasToolsState.isExportingImage}
+              onExport={() => {
+                canvasToolsRef.current?.exportImage();
+              }}
+              align="bottom-end"
+            />
+          }
         />
       )}
       {currentSaveError && (
