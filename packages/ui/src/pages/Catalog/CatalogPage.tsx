@@ -39,11 +39,7 @@ export const CatalogPage: FunctionComponent = () => {
   }, []);
 
   if (status === 'loading') {
-    return (
-      <Loading small description="Fetching catalogs">
-        Fetching catalogs
-      </Loading>
-    );
+    return <Loading small>Fetching catalogs</Loading>;
   } else if (status === 'error') {
     return <LoadDefaultCatalog errorMessage={errorMessage} />;
   }
