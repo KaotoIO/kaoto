@@ -11,6 +11,7 @@ import { fetchStarterTemplate, resolveStarterTemplate } from '../../services/tem
 import { FileEntry } from '../../store/files/files-ui-state';
 import { useFilesUiStore, useFilesUiStoreApi } from '../../store/files/use-files-ui-store';
 import { KaotoModal } from '../KaotoModal/KaotoModal';
+import { LoadingInlineState } from '../LoadingState/LoadingInlineState';
 import { FILE_KINDS, FileKind } from './file-kinds';
 import { FileKindTiles } from './FileKindTiles';
 
@@ -105,7 +106,22 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
           <Button kind="secondary" onClick={cancel}>
             Cancel
           </Button>
-          <Button kind="primary" type="submit" form={FORM_ID} disabled={!canCreate}>
+          <Button
+            kind="primary"
+            type="submit"
+            form={FORM_ID}
+            disabled={!canCreate}
+            // The button text already tells that the file is being created, so the spinner is hidden from assistive tech
+            renderIcon={
+              creating
+                ? () => (
+                    <span aria-hidden="true">
+                      <LoadingInlineState compact />
+                    </span>
+                  )
+                : undefined
+            }
+          >
             {creating ? 'Creating…' : 'Create'}
           </Button>
         </>
