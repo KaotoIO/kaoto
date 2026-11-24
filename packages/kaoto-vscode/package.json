@@ -1283,6 +1283,9 @@
             ],
             "markdownDescription": "Select the executor type for running Camel integrations.\n\n**JBang**: Traditional approach using JBang CLI (requires JBang installation).\n\n**Camel Launcher**: (experimental) New approach using standalone Camel Launcher (no JBang required, automatically downloaded).",
             "default": "jbang",
+            "tags": [
+              "usesOnlineServices"
+            ],
             "order": 1
           },
           "kaoto.executor.runArguments": {
@@ -1315,7 +1318,7 @@
           },
           "kaoto.executor.redHatMavenRepository": {
             "type": "string",
-            "markdownDescription": "Define Red Hat Maven Repository, which is used automatically in case the catalog selected in `#kaoto.runtimeCatalogName#` uses Red Hat productized Camel version (e.g. `4.8.0.redhat-00017`).",
+            "markdownDescription": "Define Red Hat Maven Repository, which is used automatically in case the selected runtime catalog (`#kaoto.runtimeCatalogName#`, or the default catalog when unset) uses Red Hat productized Camel version (e.g. `4.8.0.redhat-00017`). The default catalog is the latest Red Hat build of Camel Main, or the latest Camel Main if the catalogs have no Red Hat build.",
             "default": "https://maven.repository.redhat.com/ga/",
             "order": 4
           },
@@ -1332,7 +1335,7 @@
               "type": "string"
             },
             "additionalProperties": false,
-            "markdownDescription": "User defined arguments to be applied at every deploy (See [Camel Kubernetes plugin](https://camel.apache.org/manual/camel-jbang-kubernetes.html)). In case of spaces, the values needs to be enclosed with quotes.\n\n**User settings take priority:** If you define `--camel-version`, your value will override the extension's default from the catalog selected in `#kaoto.runtimeCatalogName#`. Warnings will be shown in the output when conflicts are detected.\n\nBeware that `--disable-auto`, which is provided by default, requires Camel 4.11+.",
+            "markdownDescription": "User defined arguments to be applied at every deploy (See [Camel Kubernetes plugin](https://camel.apache.org/manual/camel-jbang-kubernetes.html)). In case of spaces, the values needs to be enclosed with quotes.\n\n**User settings take priority:** If you define `--camel-version`, your value will override the extension's default from the selected runtime catalog (`#kaoto.runtimeCatalogName#`, or the default catalog when unset). The default catalog is the latest Red Hat build of Camel Main, or the latest Camel Main if the catalogs have no Red Hat build. Warnings will be shown in the output when conflicts are detected.\n\nBeware that `--disable-auto`, which is provided by default, requires Camel 4.11+.",
             "default": [
               "--cluster-type=openshift",
               "--disable-auto",
