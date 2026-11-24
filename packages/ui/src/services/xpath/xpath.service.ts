@@ -372,16 +372,6 @@ export class XPathService {
     return answer;
   }
 
-  private static handleMultiStepContextItem(
-    pathNode: PathExprNode,
-    isRelative: boolean,
-    contextPath?: PathExpression,
-  ): PathExpression {
-    const answer = new PathExpression(isRelative ? contextPath : undefined, isRelative);
-    XPathService.addSegmentsFromSteps(answer, pathNode.steps, 1);
-    return answer;
-  }
-
   private static handleContextItemPath(
     pathNode: PathExprNode,
     isRelative: boolean,
@@ -390,36 +380,10 @@ export class XPathService {
     if (pathNode.steps.length === 1) {
       return XPathService.handleSingleContextItem(contextPath);
     }
-    return XPathService.handleMultiStepContextItem(pathNode, isRelative, contextPath);
-  }
-
-  private static handleFunctionCallPath(
-    pathNode: PathExprNode,
-    isRelative: boolean,
-    contextPath?: PathExpression,
-  ): PathExpression {
-    const answer = new PathExpression(isRelative ? contextPath : undefined, isRelative);
-    XPathService.addSegmentsFromStepsWithParentRefs(answer, pathNode.steps, 1);
-    return answer;
+    return XPathService.handleSimplePath(pathNode, isRelative, contextPath, 1);
   }
 
   private static addSegmentsFromSteps(answer: PathExpression, steps: StepExprNode[], startIndex: number): void {
-    for (let i = startIndex; i < steps.length; i++) {
-      const stepNode = steps[i];
-      if (stepNode.nodeTest) {
-        const segment = XPathService.extractSegmentFromStepExpr(stepNode);
-        if (segment) {
-          answer.pathSegments.push(segment);
-        }
-      }
-    }
-  }
-
-  private static addSegmentsFromStepsWithParentRefs(
-    answer: PathExpression,
-    steps: StepExprNode[],
-    startIndex: number,
-  ): void {
     for (let i = startIndex; i < steps.length; i++) {
       const stepNode = steps[i];
       if (stepNode.reverseStep?.isParentReference) {
@@ -433,24 +397,18 @@ export class XPathService {
     }
   }
 
+  /**
+   * Builds a path from the steps of a path expression, starting at `startIndex`: 1 skips a leading `.` or function
+   * call step, which names no field.
+   */
   private static handleSimplePath(
     pathNode: PathExprNode,
     isRelative: boolean,
     contextPath?: PathExpression,
+    startIndex = 0,
   ): PathExpression {
     const answer = new PathExpression(isRelative ? contextPath : undefined, isRelative);
-    for (const stepNode of pathNode.steps) {
-      if (stepNode.reverseStep?.isParentReference) {
-        answer.pathSegments.push(new PathSegment('..', false));
-        continue;
-      }
-      if (stepNode.nodeTest) {
-        const segment = XPathService.extractSegmentFromStepExpr(stepNode);
-        if (segment) {
-          answer.pathSegments.push(segment);
-        }
-      }
-    }
+    XPathService.addSegmentsFromSteps(answer, pathNode.steps, startIndex);
     return answer;
   }
 
@@ -478,7 +436,7 @@ export class XPathService {
 
     const isFunctionCall = firstStep.filterExpr.primary.type === XPathNodeType.FunctionCall;
     if (isFunctionCall && pathNode.steps.length > 1) {
-      return XPathService.handleFunctionCallPath(pathNode, isRelative, contextPath);
+      return XPathService.handleSimplePath(pathNode, isRelative, contextPath, 1);
     }
 
     return XPathService.handleSimplePath(pathNode, isRelative, contextPath);
@@ -748,12 +706,16 @@ export class XPathService {
   }
 
   /**
-   * Converts a relative path to an absolute path by resolving context paths
+   * Converts a relative path to an absolute path by resolving context paths, and normalizes its `..` steps.
+   * A relative path without a context path is relative to the document root. An absolute path without `..`
+   * steps is returned as is.
    * @param relativePath PathExpression to convert to absolute
    * @returns absolute PathExpression
    */
   static toAbsolutePath(relativePath: PathExpression): PathExpression {
-    if (!relativePath.isRelative || !relativePath.contextPath) return relativePath;
+    if (!relativePath.isRelative && !relativePath.pathSegments.some((segment) => segment.name === '..')) {
+      return relativePath;
+    }
 
     const answer = new PathExpression();
     answer.documentReferenceName = relativePath.documentReferenceName;

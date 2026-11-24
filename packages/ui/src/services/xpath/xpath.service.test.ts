@@ -601,6 +601,17 @@ describe('XPathService', () => {
       expect(paths[0].pathSegments[1].name).toBe('Name');
     });
 
+    it.each([
+      { expression: '$param1/Item/../Name', documentReferenceName: 'param1' },
+      { expression: './Item/../Name', documentReferenceName: undefined },
+    ])('should keep the parent reference in $expression', ({ expression, documentReferenceName }) => {
+      const paths = XPathService.extractFieldPaths(expression);
+
+      expect(paths).toHaveLength(1);
+      expect(paths[0].documentReferenceName).toBe(documentReferenceName);
+      expect(paths[0].pathSegments.map((segment) => segment.name)).toEqual(['Item', '..', 'Name']);
+    });
+
     it('should extract field path with ContextItemExpr (.)', () => {
       const contextPath = new PathExpression();
       contextPath.pathSegments = [new PathSegment('Org', false), new PathSegment('Person'), new PathSegment('Email')];
@@ -953,6 +964,30 @@ describe('XPathService', () => {
       const result = XPathService.toAbsolutePath(absolutePath);
       expect(result).toBe(absolutePath);
       expect(result.pathSegments).toHaveLength(2);
+    });
+
+    it('should normalize the parent references of an absolute path', () => {
+      const absolutePath = new PathExpression();
+      absolutePath.documentReferenceName = 'param1';
+      absolutePath.pathSegments.push(new PathSegment('Root'), new PathSegment('Item'), new PathSegment('..'));
+
+      const result = XPathService.toAbsolutePath(absolutePath);
+
+      expect(result).not.toBe(absolutePath);
+      expect(result.isRelative).toBe(false);
+      expect(result.documentReferenceName).toBe('param1');
+      expect(result.pathSegments.map((segment) => segment.name)).toEqual(['Root']);
+    });
+
+    it('should resolve a relative path without a context path from the document root', () => {
+      const relativePath = new PathExpression(undefined, true);
+      relativePath.pathSegments.push(new PathSegment('Root'), new PathSegment('..'), new PathSegment('Other'));
+
+      const absolutePath = XPathService.toAbsolutePath(relativePath);
+
+      expect(absolutePath).not.toBe(relativePath);
+      expect(absolutePath.isRelative).toBe(false);
+      expect(absolutePath.pathSegments.map((segment) => segment.name)).toEqual(['Other']);
     });
 
     it('should convert relative path with parent references', () => {

@@ -708,6 +708,232 @@ describe('MappingService', () => {
     });
   });
 
+  describe('paths inside a for-each', () => {
+    let shipOrderItem: FieldItem;
+    let itemForEach: ForEachItem;
+    let itemItem: FieldItem;
+    let titleSelector: ValueSelector;
+    let paramDoc: IDocument;
+
+    const getField = (parent: { fields: IField[] }, name: string) => parent.fields.find((f) => f.name === name)!;
+    const removeField = (parent: { fields: IField[] }, name: string) => {
+      parent.fields.splice(parent.fields.indexOf(getField(parent, name)), 1);
+    };
+
+    /** Builds `<for-each select=outerSelect><for-each select=nestedSelect><Item><Title>Title` under `ShipOrder`. */
+    const addNestedLoop = (outerSelect: string, nestedSelect: string) => {
+      const outerForEach = new ForEachItem(shipOrderItem);
+      outerForEach.expression = outerSelect;
+      const nestedForEach = new ForEachItem(outerForEach);
+      nestedForEach.expression = nestedSelect;
+      const nestedItem = new FieldItem(nestedForEach, itemItem.field);
+      const nestedTitle = new FieldItem(nestedItem, getField(itemItem.field, 'Title'));
+      const nestedTitleSelector = new ValueOfSelector(nestedTitle, ValueOfType.VALUE);
+      nestedTitleSelector.expression = 'Title';
+      nestedTitle.children = [nestedTitleSelector];
+      nestedItem.children = [nestedTitle];
+      nestedForEach.children = [nestedItem];
+      outerForEach.children = [nestedForEach];
+      shipOrderItem.children.push(outerForEach);
+      return { outerForEach, nestedForEach, nestedTitleSelector };
+    };
+
+    beforeEach(() => {
+      shipOrderItem = tree.children[0] as FieldItem;
+      itemForEach = shipOrderItem.children[3] as ForEachItem;
+      itemItem = itemForEach.children[0] as FieldItem;
+      titleSelector = itemItem.children[0].children[0] as ValueSelector;
+      paramDoc = paramsMap.get('sourceParam1')!;
+    });
+
+    it('should keep an absolute path when the source body still has its field', () => {
+      titleSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+
+      MappingService.removeStaleMappingsForDocument(tree, TestUtil.createSourceOrderDoc());
+
+      expect(itemItem.children[0].children).toContain(titleSelector);
+    });
+
+    it('should remove an absolute path when its source body field is gone', () => {
+      titleSelector.expression = '/ns0:ShipOrder/ns0:OrderPerson';
+      removeField(sourceDoc.fields[0], 'OrderPerson');
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      expect(itemItem.children[0].children).not.toContain(titleSelector);
+    });
+
+    it('should keep and remove a relative path against the loop context', () => {
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+      expect(itemItem.children[0].children).toContain(titleSelector);
+
+      removeField(getField(sourceDoc.fields[0], 'Item'), 'Title');
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+      expect(itemItem.children[0].children).not.toContain(titleSelector);
+    });
+
+    it('should resolve a $param path against the parameter, not the source body', () => {
+      titleSelector.expression = '$sourceParam1/ns0:ShipOrder/ns0:OrderPerson';
+      removeField(sourceDoc.fields[0], 'OrderPerson');
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+      expect(itemItem.children[0].children).toContain(titleSelector);
+
+      removeField(paramDoc.fields[0], 'OrderPerson');
+      MappingService.removeStaleMappingsForDocument(tree, paramDoc);
+      expect(itemItem.children[0].children).not.toContain(titleSelector);
+    });
+
+    describe.each([
+      { kind: 'relative', paramSelect: '$sourceParam1/ns0:ShipOrder', nestedSelect: 'Item' },
+      { kind: '.', paramSelect: '$sourceParam1/ns0:ShipOrder/Item', nestedSelect: '.' },
+    ])('a $kind loop nested in a $param loop', ({ paramSelect, nestedSelect }) => {
+      let paramForEach: ForEachItem;
+      let nestedForEach: ForEachItem;
+      let nestedTitleSelector: ValueOfSelector;
+
+      beforeEach(() => {
+        shipOrderItem.children = [];
+        ({ outerForEach: paramForEach, nestedForEach, nestedTitleSelector } = addNestedLoop(paramSelect, nestedSelect));
+      });
+
+      it('should resolve its context against the parameter', () => {
+        const contextPath = nestedForEach.contextPath!;
+        expect(contextPath.isRelative).toBe(false);
+        expect(contextPath.documentReferenceName).toBe('sourceParam1');
+        expect(XPathService.toXPathString(contextPath)).toBe('$sourceParam1/ns0:ShipOrder/Item');
+      });
+
+      it('should be kept when the source body is updated', () => {
+        removeField(sourceDoc.fields[0], 'Item');
+
+        MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+        expect(paramForEach.children).toEqual([nestedForEach]);
+      });
+
+      it('should be kept when the source body mappings are removed', () => {
+        MappingService.removeAllMappingsForDocument(tree, DocumentType.SOURCE_BODY, sourceDoc.documentId);
+
+        expect(paramForEach.children).toEqual([nestedForEach]);
+        expect(nestedForEach.children[0].children[0].children).toEqual([nestedTitleSelector]);
+      });
+
+      it('should be removed when its field is gone from the parameter', () => {
+        removeField(paramDoc.fields[0], 'Item');
+
+        MappingService.removeStaleMappingsForDocument(tree, paramDoc);
+
+        expect(paramForEach.children).not.toContain(nestedForEach);
+      });
+
+      it('should be removed with the parameter', () => {
+        MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'sourceParam1');
+
+        expect(shipOrderItem.children).toHaveLength(0);
+      });
+
+      it('should resolve its body against the parameter', () => {
+        const resolved = MappingService.resolveSourceFields(nestedTitleSelector, paramsMap, sourceDoc);
+
+        expect(resolved).toHaveLength(1);
+        expect(resolved[0].document).toBe(paramDoc);
+        expect(resolved[0].field).toBe(getField(getField(paramDoc.fields[0], 'Item'), 'Title'));
+      });
+    });
+
+    it.each([
+      { select: '../ns0:OrderPerson', context: '/ns0:ShipOrder/ns0:OrderPerson' },
+      { select: '/ns0:ShipOrder/Item/../ns0:OrderPerson', context: '/ns0:ShipOrder/ns0:OrderPerson' },
+      {
+        select: '$sourceParam1/ns0:ShipOrder/Item/../ns0:OrderPerson',
+        context: '$sourceParam1/ns0:ShipOrder/ns0:OrderPerson',
+      },
+    ])('should normalize .. in the loop select $select', ({ select, context }) => {
+      const siblingForEach = new ForEachItem(itemItem);
+      siblingForEach.expression = select;
+      itemItem.children = [siblingForEach];
+
+      const contextPath = siblingForEach.contextPath!;
+      expect(contextPath.isRelative).toBe(false);
+      expect(XPathService.toXPathString(contextPath)).toBe(context);
+    });
+
+    describe('a relative loop nested in a $variable loop', () => {
+      let variable: VariableItem;
+      let outerForEach: ForEachItem;
+      let nestedForEach: ForEachItem;
+      let nestedTitleSelector: ValueOfSelector;
+
+      beforeEach(() => {
+        shipOrderItem.children = [];
+        variable = MappingService.addVariable(shipOrderItem, 'order', '$sourceParam1');
+        ({ outerForEach, nestedForEach, nestedTitleSelector } = addNestedLoop('$order/ns0:ShipOrder', 'Item'));
+      });
+
+      it('should resolve its context and body against the variable', () => {
+        expect(XPathService.toXPathString(nestedForEach.contextPath!)).toBe('$order/ns0:ShipOrder/Item');
+        expect(MappingService.resolveSourceFields(nestedTitleSelector, paramsMap, sourceDoc)).toEqual([]);
+      });
+
+      it('should keep its relative select and body when the variable is renamed', () => {
+        MappingService.renameVariableReferences(variable, 'renamed');
+
+        expect(outerForEach.expression).toBe('$renamed/ns0:ShipOrder');
+        expect(nestedForEach.expression).toBe('Item');
+        expect(nestedTitleSelector.expression).toBe('Title');
+      });
+    });
+
+    it.each([
+      {
+        kind: '.',
+        addTarget: () => {
+          const dotForEach = new ForEachItem(itemItem);
+          dotForEach.expression = '.';
+          const titleItem = new FieldItem(dotForEach, getField(itemItem.field, 'Title'));
+          dotForEach.children = [titleItem];
+          itemItem.children = [dotForEach];
+          return titleItem;
+        },
+      },
+      {
+        kind: 'current-group()',
+        addTarget: () => {
+          const groupItem = new ForEachGroupItem(shipOrderItem);
+          groupItem.expression = '/ns0:ShipOrder/Item';
+          groupItem.groupingExpression = 'Title';
+          const groupForEach = new ForEachItem(groupItem);
+          groupForEach.expression = 'current-group()';
+          const groupedItem = new FieldItem(groupForEach, itemItem.field);
+          const titleItem = new FieldItem(groupedItem, getField(itemItem.field, 'Title'));
+          groupedItem.children = [titleItem];
+          groupForEach.children = [groupedItem];
+          groupItem.children = [groupForEach];
+          shipOrderItem.children = [groupItem];
+          return titleItem;
+        },
+      },
+      {
+        kind: 'nested single-path',
+        addTarget: () => {
+          shipOrderItem.children = [];
+          const titleItem = addNestedLoop('/ns0:ShipOrder', 'Item').nestedTitleSelector.parent as FieldItem;
+          titleItem.children = [];
+          return titleItem;
+        },
+      },
+    ])('should write a path relative to the context of a $kind loop', ({ addTarget }) => {
+      const titleItem = addTarget();
+
+      expect(XPathService.toXPathString(titleItem.contextPath!)).toBe('/ns0:ShipOrder/Item');
+
+      MappingService.mapToField(getField(getField(sourceDoc.fields[0], 'Item'), 'Title'), titleItem);
+
+      expect(titleItem.children.map((child) => (child as ValueOfSelector).expression)).toEqual(['Title']);
+    });
+  });
+
   describe('removeStaleMappingsForDocument() with isUserCreated FieldItem', () => {
     it('should retain isUserCreated FieldItem even when it has no children', () => {
       const parentItem = tree.children[0] as FieldItem;

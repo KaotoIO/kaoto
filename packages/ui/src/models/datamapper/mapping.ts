@@ -292,15 +292,15 @@ export class OtherwiseItem extends InstructionItem {
   }
 }
 
-const extractContextPath = (item: ForEachItem | ForEachGroupItem) => {
-  const answer = XPathService.extractFieldPaths(item.expression)[0];
-  if (answer) {
-    const pathExpr = new PathExpression(item.parent.contextPath, answer.isRelative);
-    pathExpr.pathSegments = answer.pathSegments;
-    pathExpr.documentReferenceName = answer.documentReferenceName;
-    return pathExpr;
-  }
-  return item.parent.contextPath;
+/**
+ * Resolves a loop's context to an absolute path (document and steps): the loop's own `select` is read in its
+ * parent's context and its `..` steps are normalized, so a path in the loop body resolves against it once.
+ * A `select` that names no field path, such as `current-group()` or an empty one, keeps the parent's context.
+ */
+const resolveContextPath = (item: ForEachItem | ForEachGroupItem) => {
+  const parentContextPath = item.parent.contextPath;
+  const selectPath = XPathService.extractFieldPaths(item.expression, parentContextPath)[0];
+  return selectPath ? XPathService.toAbsolutePath(selectPath) : parentContextPath;
 };
 
 /**
@@ -317,7 +317,7 @@ export class ForEachItem extends InstructionItem implements IExpressionHolder {
   expression = '';
 
   get contextPath(): PathExpression | undefined {
-    return extractContextPath(this);
+    return resolveContextPath(this);
   }
 
   sortItems: SortItem[] = [];
@@ -367,7 +367,7 @@ export class ForEachGroupItem extends InstructionItem implements IExpressionHold
   groupingExpression = '';
 
   get contextPath(): PathExpression | undefined {
-    return extractContextPath(this);
+    return resolveContextPath(this);
   }
 
   sortItems: SortItem[] = [];
