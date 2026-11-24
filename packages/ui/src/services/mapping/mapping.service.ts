@@ -24,7 +24,7 @@ import {
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
-import { PathExpression } from '../../models/datamapper/xpath';
+import { PathExpression, PathSegment } from '../../models/datamapper/xpath';
 import { DocumentService } from '../document/document.service';
 import { XmlSchemaField } from '../document/xml-schema/xml-schema-document.model';
 import { ensureNamespaceRegistered } from '../namespace-util';
@@ -357,7 +357,7 @@ export class MappingService {
           (document.documentType === DocumentType.PARAM &&
             absolutePath.documentReferenceName === document.getReferenceId(namespaces))
         ) {
-          const referredField = DocumentService.getFieldFromPathSegments(
+          const referredField = MappingService.getReferredField(
             expressionItem.mappingTree.namespaceMap,
             document,
             absolutePath.pathSegments,
@@ -998,7 +998,7 @@ export class MappingService {
       }
       const document = DocumentService.resolveSourceDocument(absolutePath, namespaces, sourceBody, sourceParameterMap);
       if (!document) continue;
-      const result = DocumentService.getFieldFromPathSegments(namespaces, document, absolutePath.pathSegments);
+      const result = MappingService.getReferredField(namespaces, document, absolutePath.pathSegments);
       if (result && 'parent' in result) {
         results.push({ field: result, document, path });
       }
@@ -1021,6 +1021,20 @@ export class MappingService {
       console.debug('XPath field path extraction failed:', error);
       return [];
     }
+  }
+
+  /**
+   * The field an absolute source path refers to. A wildcard step selects nodes no single field stands for,
+   * so a path through one refers to the field before the wildcard.
+   */
+  private static getReferredField(
+    namespaces: { [p: string]: string },
+    document: IDocument,
+    pathSegments: PathSegment[],
+  ): IDocument | IField | undefined {
+    const wildcardIndex = pathSegments.findIndex((segment) => segment.isWildcard);
+    const fieldSegments = wildcardIndex === -1 ? pathSegments : pathSegments.slice(0, wildcardIndex);
+    return DocumentService.getFieldFromPathSegments(namespaces, document, fieldSegments);
   }
 
   /**

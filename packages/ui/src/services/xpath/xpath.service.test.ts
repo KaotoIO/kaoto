@@ -35,6 +35,13 @@ describe('XPathService', () => {
       expect(XPathService.isSimplePath('@id treat as attribute()')).toBe(true);
     });
 
+    it.each([['@*'], ['ns0:ShipTo/@*'], ['*'], ['ns0:*'], ['*:Name']])(
+      'should return false for %s, whose wildcard selects several nodes',
+      (expression) => {
+        expect(XPathService.isSimplePath(expression)).toBe(false);
+      },
+    );
+
     it('should reject explicit non-child axes', () => {
       expect(XPathService.isSimplePath('ancestor::x')).toBe(false);
       expect(XPathService.isSimplePath('descendant::x')).toBe(false);
@@ -514,6 +521,22 @@ describe('XPathService', () => {
         expect.arrayContaining([['aaa'], ['bbb'], ['ccc']]),
       );
       expect(paths).toHaveLength(3);
+    });
+
+    it.each([
+      ['/ns0:ShipOrder/@*', ['ShipOrder', '@*']],
+      ['/ns0:ShipOrder/attribute::*', ['ShipOrder', '@*']],
+      ['/ns0:ShipOrder/*', ['ShipOrder', '*']],
+      ['/ns0:ShipOrder/ns0:*', ['ShipOrder', '*']],
+      ['/ns0:ShipOrder/*:ShipTo', ['ShipOrder', '*']],
+      ['/ns0:ShipOrder/*/Name', ['ShipOrder', '*', 'Name']],
+    ])('should keep the wildcard of %s as a step', (expression, expected) => {
+      const [path] = XPathService.extractFieldPaths(expression);
+
+      expect(path.pathSegments.map(({ name, isAttribute }) => (isAttribute ? `@${name}` : name))).toEqual(expected);
+      expect(path.pathSegments.map((segment) => segment.isWildcard)).toEqual(
+        expected.map((name) => name.includes('*')),
+      );
     });
 
     it('should extract field paths from AST', () => {
@@ -1010,6 +1033,20 @@ describe('XPathService', () => {
       expect(absolutePath.pathSegments.map((segment) => segment.name)).toEqual(['Other']);
     });
 
+    it.each([
+      ['/ns0:ShipOrder/*', 'ShipTo/Name', ['ShipOrder', '*', 'ShipTo', 'Name']],
+      ['/ns0:ShipOrder/*', '../ShipTo', ['ShipOrder', 'ShipTo']],
+      ['/ns0:Orders/*/ns0:Item', '../../ns0:Header', ['Orders', 'Header']],
+      ['/ns0:ShipOrder', 'Item/*/../Title', ['ShipOrder', 'Item', 'Title']],
+    ])('should join %s and %s through the wildcard step', (context, expression, expected) => {
+      const [contextPath] = XPathService.extractFieldPaths(context);
+      const [relativePath] = XPathService.extractFieldPaths(expression, contextPath);
+
+      const absolutePath = XPathService.toAbsolutePath(relativePath);
+
+      expect(absolutePath.pathSegments.map((segment) => segment.name)).toEqual(expected);
+    });
+
     it('should convert relative path with parent references', () => {
       const contextPath = new PathExpression();
       contextPath.pathSegments.push(new PathSegment('Root'), new PathSegment('Parent'), new PathSegment('Current'));
@@ -1113,6 +1150,25 @@ describe('XPathService', () => {
       expect(result.documentReferenceName).toBeUndefined();
       expect(result.pathSegments).toHaveLength(1);
       expect(result.pathSegments[0].name).toBe('Title');
+    });
+
+    it.each([
+      ['/ShipOrder/*', ['ShipOrder'], '..'],
+      ['/ShipOrder/*', ['ShipOrder', 'ShipTo'], '../ShipTo'],
+      ['/ShipOrder/*/Name', ['ShipOrder', 'OrderPerson'], '../../OrderPerson'],
+      ['/ShipOrder/*/Name', ['ShipOrder', '@OrderId'], '../../@OrderId'],
+    ])('should step out of the context %s to reach %j', (context, fieldNames, expected) => {
+      const [contextPath] = XPathService.extractFieldPaths(context);
+      const source = fieldNames
+        .slice(1)
+        .reduce(
+          (field, name) => field.fields.find((f) => (f.isAttribute ? `@${f.name}` : f.name) === name)!,
+          bodyDoc.fields[0],
+        );
+
+      const result = XPathService.toPathExpression({}, source, contextPath);
+
+      expect(XPathService.toXPathString(result)).toBe(expected);
     });
 
     it('should generate absolute path when source and context are from different documents', () => {

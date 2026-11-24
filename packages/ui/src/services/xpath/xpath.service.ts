@@ -102,9 +102,20 @@ export class XPathService {
       (step) =>
         (!step.axis || step.axis === 'child' || step.axis === 'attribute') &&
         (!step.reverseStep || step.reverseStep.isParentReference) &&
+        !XPathService.isWildcardStep(step) &&
         XPathService.hasOnlyAllowedPredicates(step) &&
         XPathService.hasValidFilterExpr(step),
     );
+  }
+
+  /**
+   * Whether the step tests names with a wildcard: `*`, `@*`, `ns:*` or `*:name`. The parser leaves the local
+   * name of such a step empty; a `*` in the name or the prefix is recognized as well.
+   */
+  static isWildcardStep(step: StepExprNode): boolean {
+    if (!step.nodeTest) return false;
+    const { prefix, localName } = step.nodeTest;
+    return !localName || localName === PathSegment.WILDCARD || prefix === PathSegment.WILDCARD;
   }
 
   /**
@@ -455,7 +466,7 @@ export class XPathService {
     const predicates = stepNode.predicates.map((predNode) => XPathService.extractPredicate(predNode));
 
     return new PathSegment(
-      stepNode.nodeTest.localName,
+      stepNode.nodeTest.localName || PathSegment.WILDCARD,
       stepNode.isAttribute,
       stepNode.nodeTest.prefix || '',
       predicates,

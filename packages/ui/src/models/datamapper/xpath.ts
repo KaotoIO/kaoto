@@ -39,12 +39,20 @@ export class PathExpression {
 }
 
 export class PathSegment {
+  /** The name or prefix of a wildcard step: `*`, `@*`, `ns:*`, `*:name`. */
+  static readonly WILDCARD = '*';
+
   constructor(
     public readonly name: string,
     public readonly isAttribute: boolean = false,
     public readonly prefix: string = '',
     public readonly predicates: Predicate[] = [],
   ) {}
+
+  /** Whether the step selects nodes by a wildcard, so no single field stands for it. */
+  get isWildcard(): boolean {
+    return this.name === PathSegment.WILDCARD || this.prefix === PathSegment.WILDCARD;
+  }
 }
 
 export class Predicate {
