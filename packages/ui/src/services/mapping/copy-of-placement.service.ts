@@ -32,7 +32,7 @@ import { MappingService } from './mapping.service';
  * - `other`: anything else (wildcard, `node()`, union, variable, function, attribute step,
  *   unmatched path), a separate node. The serializer places it by what it writes: with the attributes
  *   when it returns attributes ({@link CopyOfPlacementService.getAttributeOutputBucket}), otherwise by its
- *   anchor fields, or last when it has none.
+ *   anchor fields, or last when it has none. The canvas draws it in the same group.
  */
 export type CopyOfClassification = { kind: 'empty' } | { kind: 'other' } | { kind: 'child'; field: IField };
 
@@ -288,8 +288,9 @@ export class CopyOfPlacementService {
 
   /**
    * Every child field a copy-of returns, in written order: what it is anchored on when the target's
-   * `xs:sequence` places it among its siblings. The serializer sorts by the earliest of them in schema order
-   * and the canvas renders the copy-of at the same place, so the two agree.
+   * `xs:sequence` places it among its siblings. For a copy-of that writes only children, the serializer sorts
+   * by the earliest of them in schema order and the canvas renders the copy-of at the same place, so the two
+   * agree. A copy-of that writes attributes is placed by {@link getAttributeOutputBucket} instead, on both sides.
    */
   static getAnchorFields(selector: CopyOfSelector): IField[] {
     const contextField = CopyOfPlacementService.getContextField(selector.parent);

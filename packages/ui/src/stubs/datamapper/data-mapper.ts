@@ -83,6 +83,9 @@ export function getShipOrderXsd(): string {
 export function getShipOrderSingleItemXsd(): string {
   return readStubFile('./xml/ShipOrderSingleItem.xsd');
 }
+export function getAttributesAroundWrappersXsd(): string {
+  return readStubFile('./xml/AttributesAroundWrappers.xsd');
+}
 export function getCartXsd(): string {
   return readStubFile('./xml/Cart.xsd');
 }

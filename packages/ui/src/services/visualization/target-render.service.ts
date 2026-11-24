@@ -34,8 +34,10 @@ import { VisualizationUtilService } from './visualization-util.service';
  * Meant to be the single owner of what the DataMapper target tree renders. Today it owns the
  * decisions that depend on optional guards being see-through: which `xsl:if` guards are absorbed
  * into their field's row, and, because absorption changes paths, the target path every mapping
- * line ends on. Row paths are still built by node creation, so for a selected wrapper member the
- * two can differ; moving them here is a follow-up.
+ * line ends on. It also records where each `xsl:copy-of` is drawn, including what it writes, so a
+ * commit that moves it between the attribute rows and the element rows is noticed. Row paths are
+ * still built by node creation, so for a selected wrapper member the two can differ; moving them
+ * here is a follow-up.
  *
  * Decisions are made once per structural snapshot of the mapping tree, never per keystroke, and are
  * recorded in a {@link TargetRenderIndex} that node creation, mapping links and row actions all
@@ -222,10 +224,11 @@ export class TargetRenderService {
   }
 
   /**
-   * Whether an edit to `item` changed a see-through decision recorded in `renderIndex`, so the caller
-   * must refresh the tree structurally now. It re-evaluates the guards whose decision can depend on
-   * `item`: `item` itself, every guard on its ancestor chain (a guard depends on its field's
-   * selector), and for a `for-each`/`for-each-group` the guards in its body (relative tests resolve
+   * Whether an edit to `item` changed a decision recorded in `renderIndex`, so the caller must refresh
+   * the tree structurally now: a see-through guard, or where a copy-of is drawn, including what it
+   * writes. It re-evaluates the decisions that can depend on `item`: `item` itself, every guard on its
+   * ancestor chain (a guard depends on its field's selector), and for a
+   * `for-each`/`for-each-group` the guards and copy-ofs in its body (relative tests and `.` resolve
    * against the loop's `select`). Every other input of a decision changes only through paths that
    * already refresh structurally.
    * @param item - the mapping item an edit or drop just changed
@@ -285,6 +288,7 @@ export class TargetRenderService {
       field: CopyOfPlacementService.getInlineField(selector),
       anchor: anchorFields[0],
       leads: CopyOfPlacementService.isLeadingCopyOf(selector),
+      outputKind: CopyOfPlacementService.getOutputKind(selector),
     };
   }
 
@@ -293,7 +297,12 @@ export class TargetRenderService {
       const snapshot = renderIndex.getCopyOfPlacement(item);
       if (!snapshot) return renderIndex.hasSnapshot;
       const live = TargetRenderService.getCopyOfPlacement(item);
-      return snapshot.field !== live.field || snapshot.anchor !== live.anchor || snapshot.leads !== live.leads;
+      return (
+        snapshot.field !== live.field ||
+        snapshot.anchor !== live.anchor ||
+        snapshot.leads !== live.leads ||
+        snapshot.outputKind !== live.outputKind
+      );
     }
     if (!(item instanceof IfItem)) return false;
     const isSeeThrough = !!TargetRenderService.computeSeeThroughField(item, renderIndex.sourceContext);

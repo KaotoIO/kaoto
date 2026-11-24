@@ -16,6 +16,7 @@ import {
 } from './mapping';
 import { NodePath, variableNodePath } from './nodepath';
 import { Types } from './types';
+import { XPathOutputKind } from './xpath';
 
 /**
  * Base interface for all visualization nodes in the DataMapper tree.
@@ -77,18 +78,6 @@ export interface ISourceDocumentContext {
   sourceBody: IDocument;
 }
 
-/**
- * The see-through decisions for one structural snapshot of the {@link MappingTree}: which `xsl:if`
- * guards are absorbed into their field's row, and the target path the mapping lines of each item
- * end on.
- *
- * Built once per structural snapshot by {@link TargetRenderService.buildIndex} and read by node
- * creation, mapping links and row actions, so they all agree on which guards are see-through. Row
- * paths are still built by node creation, so for a selected wrapper member the recorded path can
- * differ from the row's. Keystrokes don't produce a new snapshot, so while the user types, lines
- * follow the live expression but end on the snapshot's paths. Values are resolved when the index is
- * built, because mapping items are shared with the live tree and mutated in place.
- */
 /** Where a `xsl:copy-of` was drawn in a render snapshot. */
 export interface CopyOfRenderPlacement {
   /** The field row the copy-of sits on, or `undefined` when it is a node of its own. */
@@ -101,8 +90,26 @@ export interface CopyOfRenderPlacement {
   anchor: IField | undefined;
   /** Whether it renders and serializes before its siblings. */
   leads: boolean;
+  /**
+   * What the copy-of writes, which decides whether it is drawn with the attribute rows, after them, or with the
+   * element rows. Compared by value: even `EMPTY` versus `CHILDREN` matters, because it can turn an enclosing
+   * instruction from one that writes only attributes into one that writes both.
+   */
+  outputKind: XPathOutputKind;
 }
 
+/**
+ * The render decisions for one structural snapshot of the {@link MappingTree}: which `xsl:if`
+ * guards are absorbed into their field's row, where each `xsl:copy-of` was drawn, and the target
+ * path the mapping lines of each item end on.
+ *
+ * Built once per structural snapshot by {@link TargetRenderService.buildIndex} and read by node
+ * creation, mapping links and row actions, so they all agree on which guards are see-through. Row
+ * paths are still built by node creation, so for a selected wrapper member the recorded path can
+ * differ from the row's. Keystrokes don't produce a new snapshot, so while the user types, lines
+ * follow the live expression but end on the snapshot's paths. Values are resolved when the index is
+ * built, because mapping items are shared with the live tree and mutated in place.
+ */
 export class TargetRenderIndex {
   /** An index without a snapshot, for code that runs without a `DataMapperProvider`, such as unit tests. */
   static readonly EMPTY = new TargetRenderIndex(new Map(), new Map(), undefined);
@@ -112,8 +119,8 @@ export class TargetRenderIndex {
    * @param targetPaths - the target path the lines of each item end on, for every item that has a
    *   row or anchors inline selectors
    * @param sourceContext - a live handle on the source documents the decisions were made with, not a copy
-   * @param copyOfPlacements - where each `xsl:copy-of` was drawn: the field row it is 1-to-1 with, if any,
-   *   and whether it leads its siblings. Compared with the live expression to tell when an edit moved it.
+   * @param copyOfPlacements - the {@link CopyOfRenderPlacement} of each `xsl:copy-of`, compared with the
+   *   live expression to tell when an edit moved it.
    * @param generation - increases with every index {@link TargetRenderService.buildIndex} builds, so a
    *   newer snapshot can be told from an older one by a number, which store state can hold cheaply;
    *   `0` for {@link EMPTY}
