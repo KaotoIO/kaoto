@@ -90,13 +90,17 @@ describe('CreateFileModal', () => {
     expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
   });
 
-  it('describes each file type on its tile', () => {
+  it('describes the file type that is chosen below the tiles', async () => {
+    const user = userEvent.setup();
     renderModal();
+    expect(screen.getByTestId('file-kind-description')).toHaveTextContent(
+      'Define an Apache Camel integration route using YAML DSL',
+    );
 
-    // Without the stylesheet (css: false) label and description are inline spans, so jsdom joins them without a
-    // space; in the browser they are flex items and get one.
-    expect(fileType('Kamelet')).toHaveAccessibleName(
-      /^Kamelet\s*Reusable Camel route template with a well-defined interface$/,
+    await user.click(fileType('Kamelet'));
+
+    expect(screen.getByTestId('file-kind-description')).toHaveTextContent(
+      'Reusable Camel route template with a well-defined interface',
     );
   });
 

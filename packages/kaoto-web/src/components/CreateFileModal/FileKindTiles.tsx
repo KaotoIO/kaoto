@@ -1,4 +1,4 @@
-import { RadioTile, TileGroup } from '@carbon/react';
+import { RadioTile, TileGroup, Tooltip } from '@carbon/react';
 import { FunctionComponent } from 'react';
 
 import { FileKind } from './file-kinds';
@@ -19,36 +19,40 @@ export const FileKindTiles: FunctionComponent<FileKindTilesProps> = ({ kinds, se
   };
 
   return (
-    <TileGroup
-      legend="File type"
-      name="file-type"
-      className="cds--tile-group cs--create-file-modal__types"
-      disabled={disabled}
-      valueSelected={selected.id}
-      onChange={handleChange}
-    >
-      {kinds.map((kind) => {
-        const Icon = kind.icon;
-        return (
-          <RadioTile
-            key={kind.id}
-            id={`cs--create-file-kind-${kind.id}`}
-            value={kind.id}
-            className="cs--create-file-modal__type"
-          >
-            <span className="cs--create-file-modal__type-content">
-              <Icon
-                className={`cs--create-file-modal__type-icon cs--create-file-modal__type-icon--${kind.id}`}
-                aria-hidden
-              />
-              <span className="cs--create-file-modal__type-text">
-                <span className="cs--create-file-modal__type-label">{kind.label}</span>
-                <span className="cs--create-file-modal__type-description">{kind.description}</span>
-              </span>
-            </span>
-          </RadioTile>
-        );
-      })}
-    </TileGroup>
+    <div className="cs--create-file-modal__kinds">
+      <TileGroup
+        legend="File type"
+        name="file-type"
+        className="cds--tile-group cs--create-file-modal__types"
+        disabled={disabled}
+        valueSelected={selected.id}
+        onChange={handleChange}
+      >
+        {kinds.map((kind) => {
+          const Icon = kind.icon;
+          return (
+            <RadioTile
+              key={kind.id}
+              id={`cs--create-file-kind-${kind.id}`}
+              value={kind.id}
+              className="cs--create-file-modal__type"
+            >
+              <Tooltip description={kind.description} align="bottom" className="cs--create-file-modal__type-tooltip">
+                <span className="cs--create-file-modal__type-content">
+                  <Icon
+                    className={`cs--create-file-modal__type-icon cs--create-file-modal__type-icon--${kind.id}`}
+                    aria-hidden
+                  />
+                  <span className="cs--create-file-modal__type-label">{kind.label}</span>
+                </span>
+              </Tooltip>
+            </RadioTile>
+          );
+        })}
+      </TileGroup>
+      <p className="cs--create-file-modal__type-description" data-testid="file-kind-description">
+        {selected.description}
+      </p>
+    </div>
   );
 };

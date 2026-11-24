@@ -16,20 +16,27 @@ describe('FileKindTiles', () => {
   const renderTiles = (props: Partial<Parameters<typeof FileKindTiles>[0]> = {}) =>
     render(<FileKindTiles kinds={FILE_KINDS} selected={routeYaml} onChange={onChange} {...props} />);
 
-  it('shows a tile with label and description for every file type', () => {
+  it('shows a tile named by its label for every file type', () => {
     renderTiles();
 
     expect(screen.getByRole('group', { name: 'File type' })).toBeInTheDocument();
     expect(screen.getAllByRole('radio')).toHaveLength(FILE_KINDS.length);
-    // Without the stylesheet (css: false) label and description are inline spans, so jsdom joins them without a
-    // space; in the browser they are flex items and get one.
     for (const kind of FILE_KINDS) {
-      expect(
-        screen.getByRole('radio', {
-          name: (name) => name.startsWith(kind.label) && name.endsWith(kind.description),
-        }),
-      ).toBeInTheDocument();
+      expect(screen.getByRole('radio', { name: kind.label })).toBeInTheDocument();
     }
+  });
+
+  it('gives every tile the description of its file type as a tooltip', () => {
+    renderTiles();
+
+    const tooltips = screen.getAllByRole('tooltip', { hidden: true });
+    expect(tooltips.map((tooltip) => tooltip.textContent)).toEqual(FILE_KINDS.map((kind) => kind.description));
+  });
+
+  it('describes the selected file type below the tiles', () => {
+    renderTiles({ selected: routeXml });
+
+    expect(screen.getByTestId('file-kind-description')).toHaveTextContent(routeXml.description);
   });
 
   it('shows only the file types it is given', () => {
