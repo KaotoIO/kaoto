@@ -77,6 +77,11 @@
       "matchPackageNames": ["monaco-editor", "monaco-yaml", "@monaco-editor/react"]
     },
     {
+      "description": "html-to-image 1.11.12 and 1.11.13 copy an SVG as a whole, without writing the computed styles of its elements inline, so the image export draws the canvas without its styles and the route group black (#2162). Stay on 1.11.11, but let later releases through: html-to-image.test.ts in packages/ui checks them",
+      "matchPackageNames": ["html-to-image"],
+      "allowedVersions": "!/^1\\.11\\.1[23]$/"
+    },
+    {
       "description": "msw-storybook-addon depends on the msw major through a peer dependency",
       "groupName": "msw",
       "matchPackageNames": ["msw", "msw-storybook-addon"]
