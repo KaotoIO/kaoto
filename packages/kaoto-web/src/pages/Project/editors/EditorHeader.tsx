@@ -2,7 +2,7 @@ import './EditorHeader.scss';
 
 import { CarbonIconType, Redo, Undo } from '@carbon/icons-react';
 import { IconButton } from '@carbon/react';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, ReactNode } from 'react';
 
 import { useUndoRedo } from '../../../hooks/useUndoRedo';
 import { CopyFileButton } from './CopyFileButton';
@@ -14,6 +14,8 @@ interface EditorHeaderProps {
   path: string;
   /** Content of the open file, which the header copies to the clipboard */
   content: string;
+  /** Further tools for the kind of the file, after the copy button; the last one opens its tooltip towards the left */
+  tools?: ReactNode;
 }
 
 const fileNameOf = (path: string): string => path.split('/').pop() ?? path;
@@ -23,7 +25,7 @@ const fileNameOf = (path: string): string => path.split('/').pop() ?? path;
  * on the right undo and redo followed by the tools for the file (copy to the clipboard), as in the toolbar of the
  * Kaoto editor
  */
-export const EditorHeader: FunctionComponent<EditorHeaderProps> = ({ icon: Icon, path, content }) => {
+export const EditorHeader: FunctionComponent<EditorHeaderProps> = ({ icon: Icon, path, content, tools }) => {
   const { undo, redo, canUndo, canRedo } = useUndoRedo();
 
   return (
@@ -40,7 +42,8 @@ export const EditorHeader: FunctionComponent<EditorHeaderProps> = ({ icon: Icon,
           </IconButton>
         </div>
         <div className="cs--editor-header__group">
-          <CopyFileButton content={content} />
+          <CopyFileButton content={content} align={tools ? 'bottom' : 'bottom-end'} />
+          {tools}
         </div>
       </div>
     </div>
