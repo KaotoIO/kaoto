@@ -1,5 +1,5 @@
 import type { XmlSchemaAttributeGroup } from '../attribute/XmlSchemaAttributeGroup';
-import type { QName } from '../QName';
+import { QNameMap } from '../utils/ObjectMap';
 import type { XmlSchema } from '../XmlSchema';
 import type { XmlSchemaGroup } from '../XmlSchemaGroup';
 import type { XmlSchemaObject } from '../XmlSchemaObject';
@@ -12,9 +12,9 @@ import { XmlSchemaExternal } from './XmlSchemaExternal';
  * Consortium (W3C) redefine element.
  */
 export class XmlSchemaRedefine extends XmlSchemaExternal {
-  private readonly attributeGroups = new Map<QName, XmlSchemaAttributeGroup>();
-  private readonly groups = new Map<QName, XmlSchemaGroup>();
-  private readonly schemaTypes = new Map<QName, XmlSchemaType>();
+  private readonly attributeGroups = new QNameMap<XmlSchemaAttributeGroup>();
+  private readonly groups = new QNameMap<XmlSchemaGroup>();
+  private readonly schemaTypes = new QNameMap<XmlSchemaType>();
 
   private readonly items: XmlSchemaObject[] = [];
 
