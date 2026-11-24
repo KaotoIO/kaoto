@@ -56,6 +56,22 @@ describe('RouteFileEditor', () => {
     expect(canvas()).not.toBeVisible();
   });
 
+  it('keeps the hotkeys of the canvas on in the design view', () => {
+    renderEditor('design');
+
+    expect(canvas()).toHaveAttribute('data-hotkeys-disabled', 'false');
+  });
+
+  it('turns the hotkeys of the hidden canvas off in the code view, so Delete does not remove its selected step', () => {
+    const { rerender } = renderEditor('design');
+
+    rerender('code');
+    expect(canvas()).toHaveAttribute('data-hotkeys-disabled', 'true');
+
+    rerender('design');
+    expect(canvas()).toHaveAttribute('data-hotkeys-disabled', 'false');
+  });
+
   it('shows the stored code in the code view', () => {
     renderEditor('code');
 

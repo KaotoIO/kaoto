@@ -55,6 +55,11 @@ interface CanvasProps {
    * graph stays mounted, so it is back as it was when the block is lifted.
    */
   blocked?: boolean;
+  /**
+   * Turns the page-wide hotkeys of the canvas off (Delete and Backspace), for a host that keeps the canvas mounted
+   * while it is not shown. The graph itself stays as it is.
+   */
+  hotkeysDisabled?: boolean;
 }
 
 const SETTLED_EMPTY_STATE = 'settledEmptyStateVisible';
@@ -84,6 +89,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
   contextToolbar,
   applyCollapseOnUpdate = false,
   blocked = false,
+  hotkeysDisabled = false,
   children,
 }) => {
   const settingsAdapter = useContext(SettingsContext);
@@ -144,7 +150,7 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const selectedVizNode = useSelectedVizNode(selectedIds);
   // While a model resolves, the canvas still shows the previous one, where the selected step's path may name another step
-  useDeleteHotkey(isModelResolving || blocked ? undefined : selectedVizNode, clearSelection);
+  useDeleteHotkey(isModelResolving || blocked || hotkeysDisabled ? undefined : selectedVizNode, clearSelection);
 
   const handleSelection = useCallback<SelectionEventListener>(
     (ids) => {
