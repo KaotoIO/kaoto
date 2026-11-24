@@ -7,7 +7,7 @@ import { PageLayout } from '../../layouts/PageLayout';
 
 const Dashboard = () => {
   return (
-    <PageLayout className="cs--dashboard" fallback={<p>Loading dashboard page...</p>}>
+    <PageLayout className="cs--dashboard">
       <PageLayout.Header>
         <PageHeader title="Dashboard" />
       </PageLayout.Header>

@@ -7,7 +7,7 @@ const NotFound = () => {
   const location = useLocation();
 
   return (
-    <PageLayout className="cs--not-found" fallback={<p>Loading not found page...</p>}>
+    <PageLayout className="cs--not-found">
       <CommonHeader
         title="Page not found"
         paragraphs={[
