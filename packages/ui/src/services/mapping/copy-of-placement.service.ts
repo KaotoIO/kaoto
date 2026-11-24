@@ -330,8 +330,7 @@ export class CopyOfPlacementService {
   private static isChildNameTest(step: StepExprNode): boolean {
     if (step.filterExpr || step.reverseStep || step.isAttribute) return false;
     if (step.axis && step.axis !== 'child') return false;
-    const localName = step.nodeTest?.localName;
-    return !!localName && localName !== '*';
+    return !!step.nodeTest && !XPathService.isWildcardStep(step);
   }
 
   /** `.` selects the iterated item of the nearest `xsl:for-each`, so classify that loop's `select`. */

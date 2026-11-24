@@ -358,7 +358,8 @@ export class WrapperAutoDetectionService {
    * evaluates every step from the document root. So inside a `for-each` over `Item`, `Note` selects
    * the current item's note and is optional, while `$cart/Cart/Item/Note` selects the notes of all
    * items and is not. A path that selects the context node or one of its ancestors always finds it,
-   * and a path that climbs with `..` after a child step is not analysed; neither is optional.
+   * and a path that climbs with `..` after a child step is not analysed; neither is optional. Nor is a path
+   * through a wildcard, which selects several nodes.
    *
    * A schemaless document root has no real occurrence semantics despite `minOccurs` defaulting to 0,
    * so it is never treated as optional.
@@ -367,6 +368,7 @@ export class WrapperAutoDetectionService {
    */
   static isOptionalSourcePath(sourceField: PrimitiveDocument | IField, path: PathExpression): boolean {
     if (sourceField instanceof PrimitiveDocument || sourceField.minOccurs !== 0) return false;
+    if (XPathService.toAbsolutePath(path).pathSegments.some((segment) => segment.isWildcard)) return false;
     const evaluatedStepCount = WrapperAutoDetectionService.countEvaluatedSteps(path);
     return !!evaluatedStepCount && !WrapperAutoDetectionService.hasRepeatingStep(sourceField, evaluatedStepCount);
   }

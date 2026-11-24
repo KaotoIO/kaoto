@@ -528,6 +528,26 @@ describe('MappingService', () => {
       expect(orderIdItem.children).toContain(selector);
     });
 
+    it.each([['/ns0:ShipOrder/@*'], ['/ns0:ShipOrder/*'], ['/ns0:ShipOrder/ns0:*']])(
+      'should keep a copy-of of %s, drawn from ShipOrder, until ShipOrder itself is removed',
+      (expression) => {
+        const shipOrderItem = tree.children[0] as FieldItem;
+        const copyOf = new CopyOfSelector(shipOrderItem);
+        copyOf.expression = expression;
+        shipOrderItem.children.push(copyOf);
+
+        MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+        expect(shipOrderItem.children).toContain(copyOf);
+        expect(MappingService.resolveSourceFields(copyOf, paramsMap, sourceDoc).map(({ field }) => field.name)).toEqual(
+          ['ShipOrder'],
+        );
+
+        sourceDoc.fields.splice(0, 1);
+        MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+        expect(shipOrderItem.children).not.toContain(copyOf);
+      },
+    );
+
     it('should not remove mappings when unrelated field is removed', () => {
       expect(tree.children[0].children).toHaveLength(4);
       const shipToCountryField = targetDoc.fields[0].fields[2].fields[3];
@@ -931,6 +951,95 @@ describe('MappingService', () => {
       MappingService.mapToField(getField(getField(sourceDoc.fields[0], 'Item'), 'Title'), titleItem);
 
       expect(titleItem.children.map((child) => (child as ValueOfSelector).expression)).toEqual(['Title']);
+    });
+  });
+
+  describe('source paths under a for-each', () => {
+    let shipOrderItem: FieldItem;
+
+    const addForEach = (parent: FieldItem | ForEachItem, expression: string) => {
+      const forEach = new ForEachItem(parent);
+      forEach.expression = expression;
+      parent.children.push(forEach);
+      return forEach;
+    };
+
+    const addValueOf = (parent: ForEachItem, expression: string) => {
+      const valueOf = new ValueOfSelector(parent);
+      valueOf.expression = expression;
+      parent.children.push(valueOf);
+      return valueOf;
+    };
+
+    const resolveNames = (selector: ValueOfSelector | CopyOfSelector) =>
+      MappingService.resolveSourceFields(selector, paramsMap, sourceDoc).map(({ field }) => field.name);
+
+    beforeEach(() => {
+      shipOrderItem = tree.children[0] as FieldItem;
+    });
+
+    it('should draw a copy-of under a wildcard loop from the field before the wildcard', () => {
+      const forEach = addForEach(shipOrderItem, '/ns0:ShipOrder/*');
+      const copyOf = new CopyOfSelector(forEach);
+      copyOf.expression = 'ShipTo/@*';
+      forEach.children.push(copyOf);
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      // `ShipTo` is read under each child of ShipOrder, so ShipOrder's own ShipTo must not be drawn from.
+      expect(forEach.children).toContain(copyOf);
+      expect(resolveNames(copyOf)).toEqual(['ShipOrder']);
+    });
+
+    it('should remove a stale absolute copy-of under a wildcard loop', () => {
+      const forEach = addForEach(shipOrderItem, '/ns0:ShipOrder/*');
+      const copyOf = new CopyOfSelector(forEach);
+      copyOf.expression = '/ns0:Removed/@*';
+      forEach.children.push(copyOf);
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      // An absolute path ignores the loop, so it must not resolve to ShipOrder through the loop's wildcard.
+      expect(forEach.children).not.toContain(copyOf);
+    });
+
+    it('should resolve and generate paths of a relative loop nested in a wildcard loop', () => {
+      const itemLoop = addForEach(addForEach(shipOrderItem, '/ns0:ShipOrder/*'), 'Item');
+      const valueOf = addValueOf(itemLoop, '../../ns0:OrderPerson');
+      const orderPerson = sourceDoc.fields[0].fields.find((field) => field.name === 'OrderPerson')!;
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      expect(itemLoop.children).toContain(valueOf);
+      expect(resolveNames(valueOf)).toEqual(['OrderPerson']);
+      const generated = XPathService.toPathExpression(tree.namespaceMap, orderPerson, itemLoop.contextPath);
+      expect(XPathService.toXPathString(generated)).toBe('../../ns0:OrderPerson');
+    });
+
+    it('should resolve and generate paths of a loop with a step after the wildcard', () => {
+      const nameLoop = addForEach(shipOrderItem, '/ns0:ShipOrder/*/Name');
+      const valueOf = addValueOf(nameLoop, '../../@OrderId');
+      const orderId = sourceDoc.fields[0].fields.find((field) => field.name === 'OrderId')!;
+
+      MappingService.removeStaleMappingsForDocument(tree, sourceDoc);
+
+      expect(nameLoop.children).toContain(valueOf);
+      expect(resolveNames(valueOf)).toEqual(['OrderId']);
+      const generated = XPathService.toPathExpression(tree.namespaceMap, orderId, nameLoop.contextPath);
+      expect(XPathService.toXPathString(generated)).toBe('../../@OrderId');
+    });
+
+    it('should step back out of a wildcard in a relative path', () => {
+      const valueOf = addValueOf(addForEach(shipOrderItem, '/ns0:ShipOrder'), 'Item/*/../Title');
+
+      expect(resolveNames(valueOf)).toEqual(['Title']);
+    });
+
+    it('should read an absolute loop nested in a wildcard loop on its own', () => {
+      const shipToLoop = addForEach(addForEach(shipOrderItem, '/ns0:ShipOrder/*'), '/ns0:ShipOrder/ShipTo');
+      const valueOf = addValueOf(shipToLoop, 'Name');
+
+      expect(resolveNames(valueOf)).toEqual(['Name']);
     });
   });
 

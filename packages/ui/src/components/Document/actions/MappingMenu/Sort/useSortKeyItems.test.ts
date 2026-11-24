@@ -19,17 +19,13 @@ describe('useSortKeyItems', () => {
     wrapper = createDataMapperContextWrapper(createDataMapperContext({ sourceBodyDocument: sourceDoc, mappingTree }));
   });
 
-  it('should return empty items when expression is empty', () => {
+  it.each([
+    ['the expression is empty', ''],
+    ['the expression cannot be resolved to a field', '/NonExistent/Path'],
+    ['the expression selects a wildcard, whose items are no single field', '/ShipOrder/*'],
+  ])('should return empty items when %s', (_description, expression) => {
     const forEachItem = new ForEachItem(mappingTree);
-    forEachItem.expression = '';
-
-    const { result } = renderHook(() => useSortKeyItems(forEachItem), { wrapper });
-    expect(result.current).toEqual([]);
-  });
-
-  it('should return empty items when expression cannot be resolved to a field', () => {
-    const forEachItem = new ForEachItem(mappingTree);
-    forEachItem.expression = '/NonExistent/Path';
+    forEachItem.expression = expression;
 
     const { result } = renderHook(() => useSortKeyItems(forEachItem), { wrapper });
     expect(result.current).toEqual([]);

@@ -1089,6 +1089,17 @@ describe('WrapperAutoDetectionService', () => {
         ).toBe(false);
       });
 
+      it('should not treat a path through a wildcard as optional', () => {
+        const shipToSource = findChild(sourceDoc.fields[0], 'ShipTo');
+        shipToSource.minOccurs = 0;
+        const wildcardContext = parsePath('/ns0:ShipOrder/ShipTo/*');
+
+        // `Name` under `ShipTo/*` resolves to the optional, non-repeating ShipTo, but selects several nodes.
+        expect(WrapperAutoDetectionService.isOptionalSourcePath(shipToSource, parsePath('Name', wildcardContext))).toBe(
+          false,
+        );
+      });
+
       it('should evaluate a relative path from its context and an absolute path from the document root', () => {
         expect(WrapperAutoDetectionService.isOptionalSourcePath(noteSource, parsePath('Note', itemContext))).toBe(true);
         expect(WrapperAutoDetectionService.isOptionalSourcePath(noteSource, parsePath('./Note', itemContext))).toBe(
