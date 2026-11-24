@@ -14,6 +14,7 @@ import { useIntegrationHeader } from '../../context/IntegrationHeaderContext';
 import { useFiles } from '../../hooks/useFiles';
 import { filePathFromSplat } from '../../routes/file-url';
 import { getFileType } from '../../services/files/stored-file';
+import { DocumentationButton } from './editors/DocumentationButton';
 import { editorKindFor } from './editors/editor-registry';
 import { EditorHeader } from './editors/EditorHeader';
 import { ExportImageButton } from './editors/ExportImageButton';
@@ -120,14 +121,22 @@ const IntegrationShell: FunctionComponent = () => {
           tools={
             // Every file shows the tools, those of the canvas disabled for a file without one. The state may still be
             // that of the canvas of a route opened before.
-            <ExportImageButton
-              canExport={hasCanvas && canvasToolsState.canExport}
-              isExporting={hasCanvas && canvasToolsState.isExportingImage}
-              onExport={() => {
-                canvasToolsRef.current?.exportImage();
-              }}
-              align="bottom-end"
-            />
+            <>
+              <ExportImageButton
+                canExport={hasCanvas && canvasToolsState.canExport}
+                isExporting={hasCanvas && canvasToolsState.isExportingImage}
+                onExport={() => {
+                  canvasToolsRef.current?.exportImage();
+                }}
+              />
+              <DocumentationButton
+                disabled={!hasCanvas}
+                onOpen={() => {
+                  canvasToolsRef.current?.openDocumentation();
+                }}
+                align="bottom-end"
+              />
+            </>
           }
         />
       )}

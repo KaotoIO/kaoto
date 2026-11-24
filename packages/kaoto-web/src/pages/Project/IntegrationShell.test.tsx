@@ -150,6 +150,24 @@ describe('IntegrationShell', () => {
       });
     });
 
+    describe('Generate route documentation', () => {
+      it.each<ViewMode>(['design', 'code'])('opens the documentation of the route in the %s view', async (viewMode) => {
+        const user = userEvent.setup();
+        renderWithContext('main-flow', viewMode);
+
+        await user.click(await screen.findByRole('button', { name: 'Generate route documentation' }));
+
+        expect(routeVisualization.tools.openDocumentation).toHaveBeenCalledTimes(1);
+      });
+
+      it('is disabled for a file that has no canvas', async () => {
+        renderWithContext('schema');
+
+        expect(await screen.findByRole('heading', { level: 2, name: 'schema.xsd' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Generate route documentation' })).toBeDisabled();
+      });
+    });
+
     it('copies the content of the open file, with an edit made on the canvas', async () => {
       const user = userEvent.setup();
       const writeText = vi.spyOn(navigator.clipboard, 'writeText');
