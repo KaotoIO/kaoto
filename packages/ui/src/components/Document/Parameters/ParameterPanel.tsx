@@ -64,10 +64,11 @@ export const ParameterPanel: FunctionComponent<ParameterPanelProps> = ({
     return parameterTree.flatten(documentExpansionState);
   }, [parameterTree, documentExpansionState]);
 
-  // Recalculate connection ports when flattened nodes change (expand/collapse)
+  // Recalculate connection ports when flattened nodes change (expand/collapse) or the tree is rebuilt, for example
+  // when a schema is attached again: its fields get new IDs, so the node paths change while the node count may not
   useEffect(() => {
     syncConnectionPorts();
-  }, [flattenedNodes.length, syncConnectionPorts]);
+  }, [flattenedNodes.length, parameterTree, syncConnectionPorts]);
 
   const hasSchema = !parameterNodeData.isPrimitive;
   const [isExpanded, setIsExpanded] = useState(hasSchema);

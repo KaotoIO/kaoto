@@ -1,7 +1,18 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { VirtuosoMockContext } from 'react-virtuoso';
 
+import { useDataMapper } from '../../hooks/useDataMapper';
+import {
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentInitializationModel,
+  DocumentType,
+} from '../../models/datamapper/document';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
+import { XmlSchemaDocumentService } from '../../services/document/xml-schema/xml-schema-document.service';
+import { useDocumentTreeStore } from '../../store/document-tree.store';
+import { getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { SourcePanel } from './SourcePanel';
 
 // Mock ResizeObserver and RAF are already handled globally in vitest-setup.ts
@@ -30,6 +41,73 @@ describe('SourcePanel', () => {
     expect(screen.queryByTestId('add-parameter-button')).toBeFalsy();
     expect(screen.queryByTestId('attach-schema-sourceBody-Body-button')).toBeFalsy();
     expect(screen.queryByTestId('detach-schema-sourceBody-Body-button')).toBeFalsy();
+  });
+
+  describe.each([
+    { documentType: DocumentType.SOURCE_BODY, documentId: 'Body', documentNodeId: 'doc-sourceBody-Body' },
+    { documentType: DocumentType.PARAM, documentId: 'order', documentNodeId: 'doc-param-order' },
+  ])('when the $documentType schema is attached again', ({ documentType, documentId, documentNodeId }) => {
+    const getStoredPortPaths = () =>
+      Object.keys(useDocumentTreeStore.getState().nodesConnectionPorts[documentNodeId]?.nodes ?? {}).sort();
+    const getRenderedPortPaths = () =>
+      Array.from(
+        document.querySelectorAll<HTMLElement>(
+          `[data-connection-port="true"][data-document-node-id="${documentNodeId}"]:not([data-edge])`,
+        ),
+        (port) => port.dataset.nodePath,
+      ).sort();
+
+    it('should key the connection ports by the new node paths', async () => {
+      const definition = new DocumentDefinition(documentType, DocumentDefinitionType.XML_SCHEMA, documentId, {
+        'ShipOrder.xsd': getShipOrderXsd(),
+      });
+      const isParameter = documentType === DocumentType.PARAM;
+      const documentInitializationModel = new DocumentInitializationModel(
+        isParameter ? { [documentId]: definition } : {},
+        isParameter ? undefined : definition,
+      );
+      let dataMapper!: ReturnType<typeof useDataMapper>;
+      const CaptureDataMapper = () => {
+        dataMapper = useDataMapper();
+        return null;
+      };
+      render(
+        <DataMapperProvider documentInitializationModel={documentInitializationModel}>
+          <MappingLinksProvider>
+            <VirtuosoMockContext.Provider value={{ viewportHeight: 600, itemHeight: 40 }}>
+              <SourcePanel />
+              <CaptureDataMapper />
+            </VirtuosoMockContext.Provider>
+          </MappingLinksProvider>
+        </DataMapperProvider>,
+      );
+      await waitFor(() => {
+        expect(getRenderedPortPaths().length).toBeGreaterThan(1);
+        expect(getStoredPortPaths()).toEqual(getRenderedPortPaths());
+      });
+      const previousPortPaths = getStoredPortPaths();
+
+      // A schema attached again is parsed anew: its fields get new IDs, so the node paths change, not their count.
+      act(() => {
+        const previousDocument = isParameter
+          ? dataMapper.sourceParameterMap.get(documentId)!
+          : dataMapper.sourceBodyDocument;
+        const { document: reattachedDocument } = XmlSchemaDocumentService.createXmlSchemaDocument(
+          previousDocument.definition,
+        );
+        dataMapper.updateDocument(
+          reattachedDocument!,
+          previousDocument.definition,
+          previousDocument.getReferenceId(dataMapper.mappingTree.namespaceMap),
+        );
+      });
+
+      await waitFor(() => {
+        expect(getRenderedPortPaths()).not.toEqual(previousPortPaths);
+        expect(getRenderedPortPaths()).toHaveLength(previousPortPaths.length);
+        expect(getStoredPortPaths()).toEqual(getRenderedPortPaths());
+      });
+    });
   });
 
   it('should trigger handleLayoutChange when panel is toggled', async () => {
