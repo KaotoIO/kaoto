@@ -332,7 +332,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
   };
 
   /**
-   * The element to focus once the Create New File modal is closed. The modal unmounts on close, so focus goes back by
+   * The element to focus once the Create New File modal is cancelled. The modal unmounts on close, so focus goes back by
    * hand: to the button that opened it, or to the toolbar button when that one is gone, as the empty-state button is
    * once a file exists. An object, so that every close focuses again.
    */
@@ -342,6 +342,25 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
     const { opener } = focusAfterCreate;
     (opener?.isConnected ? opener : addButtonRef.current)?.focus();
   }, [focusAfterCreate]);
+
+  /**
+   * Focuses the file the modal created, where the tree shows it selected, or the button that opened the modal when it
+   * was cancelled. The search is cleared and the folders of the file are unfolded, so that its tree item shows.
+   */
+  const handleCreateModalClose = (created?: FileEntry) => {
+    setIsCreateOpen(false);
+    if (!created) {
+      setFocusAfterCreate({ opener: createOpenerRef.current });
+      return;
+    }
+    setSearchText('');
+    // Unfolded here and not left to `revealedId`: the router opens the file in a transition, which renders after the
+    // focus moves. The entries come from the store, as the folders of the file may be newer than this render's.
+    setExpandedFolders((previous) =>
+      expandFolderAndParents(previous, store.getState().entries, folderOf(created.path)),
+    );
+    setFocusNode({ nodeId: created.key });
+  };
 
   /**
    * Asks to delete a node. The confirmation names its full path, so that the user can tell entries of the same name
@@ -481,14 +500,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
           </FeatureFlags>
         )}
       </div>
-      {isCreateOpen && (
-        <CreateFileModal
-          onClose={() => {
-            setIsCreateOpen(false);
-            setFocusAfterCreate({ opener: createOpenerRef.current });
-          }}
-        />
-      )}
+      {isCreateOpen && <CreateFileModal onClose={handleCreateModalClose} />}
       {toDelete && (
         <DeleteConfirmModal
           heading={toDelete.node.children ? 'Delete folder?' : 'Delete file?'}

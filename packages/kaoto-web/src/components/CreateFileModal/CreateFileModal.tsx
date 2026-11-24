@@ -8,6 +8,7 @@ import { CATALOG_URL } from '../../catalog-url';
 import { fileUrl } from '../../routes/file-url';
 import { buildFilePath } from '../../services/files/file-path';
 import { fetchStarterTemplate, resolveStarterTemplate } from '../../services/templates/starter-templates';
+import { FileEntry } from '../../store/files/files-ui-state';
 import { useFilesUiStore, useFilesUiStoreApi } from '../../store/files/use-files-ui-store';
 import { KaotoModal } from '../KaotoModal/KaotoModal';
 import { FILE_KINDS, FileKind } from './file-kinds';
@@ -16,7 +17,8 @@ import { FileKindTiles } from './FileKindTiles';
 const FORM_ID = 'cs--create-file-form';
 
 interface CreateFileModalProps {
-  onClose: () => void;
+  /** Called when the modal closes, with the file it created, or without one when it was cancelled */
+  onClose: (created?: FileEntry) => void;
 }
 
 /**
@@ -45,9 +47,13 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
     };
   }, []);
 
-  const close = () => {
+  const close = (created?: FileEntry) => {
     closedRef.current = true;
-    onClose();
+    onClose(created);
+  };
+
+  const cancel = () => {
+    close();
   };
 
   const result = buildFilePath(folder, name, kind.extension);
@@ -70,7 +76,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
       const created = await store.getState().addFile(path, resolveStarterTemplate(template, fileName));
       // Cancelled while storing: the file is kept, it is already in the store and shows in the Explorer
       if (closedRef.current) return;
-      close();
+      close(created);
       void navigate(fileUrl(created.path));
     } catch (error) {
       if (closedRef.current) return;
@@ -87,7 +93,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
   return (
     <KaotoModal
       title="Create new file"
-      onClose={close}
+      onClose={cancel}
       size="sm"
       hasForm
       preventCloseOnClickOutside
@@ -96,7 +102,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
       data-testid="create-file-modal"
       footer={
         <>
-          <Button kind="secondary" onClick={close}>
+          <Button kind="secondary" onClick={cancel}>
             Cancel
           </Button>
           <Button kind="primary" type="submit" form={FORM_ID} disabled={!canCreate}>

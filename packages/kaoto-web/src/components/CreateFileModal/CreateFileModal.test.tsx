@@ -171,7 +171,7 @@ describe('CreateFileModal', () => {
     await user.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
-      expect(onClose).toHaveBeenCalled();
+      expect(onClose).toHaveBeenCalledWith(expect.objectContaining({ path: 'routes/orders.camel.yaml' }));
     });
     const [file] = await storedFiles();
     expect(file.path).toBe('routes/orders.camel.yaml');
@@ -301,7 +301,7 @@ describe('CreateFileModal', () => {
     await user.type(screen.getByLabelText('File name'), 'orders');
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
 
-    expect(onClose).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledWith(undefined);
     expect(await storedFiles()).toEqual([]);
   });
 
@@ -312,7 +312,7 @@ describe('CreateFileModal', () => {
     await user.click(fileType('Camel Route YAML'));
     await user.keyboard('{Escape}');
 
-    expect(onClose).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalledWith(undefined);
   });
 
   it('creates no file when it is cancelled while the template is loading', async () => {
