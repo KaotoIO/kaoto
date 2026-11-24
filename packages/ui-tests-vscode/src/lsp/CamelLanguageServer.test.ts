@@ -29,9 +29,10 @@ describe('Camel Language Server', function () {
 
 	const WORKSPACE_FOLDER = path.join(__dirname, '../../test Fixture with speci@l chars');
 	/** Its files have a typo in an option name each, which the server reports as an unknown option */
-	const FIXTURE_FOLDER = path.join(WORKSPACE_FOLDER, 'camel-language-server');
-	const ROUTE_FILE = 'unknown-option.camel.yaml';
-	const PROPERTIES_FILE = 'application.properties';
+	const FIXTURE_FOLDER = 'camel-language-server';
+	/** Paths in the workspace folder, which has more application.properties files in other folders */
+	const ROUTE_FILE = `${FIXTURE_FOLDER}/unknown-option.camel.yaml`;
+	const PROPERTIES_FILE = `${FIXTURE_FOLDER}/application.properties`;
 	const UNKNOWN_OPTION = 'Unknown option';
 	const LSP_ENABLED_SETTING_ID = 'kaoto.lsp.enabled';
 
@@ -63,14 +64,14 @@ describe('Camel Language Server', function () {
 		// selected Kaoto catalog through Maven
 		this.timeout(300_000);
 		// opens the route in the Kaoto editor; ExTester waits until its tab shows
-		await VSBrowser.instance.openResources(path.join(FIXTURE_FOLDER, ROUTE_FILE));
+		await VSBrowser.instance.openResources(path.join(WORKSPACE_FOLDER, ROUTE_FILE));
 		await waitForCamelLanguageServer(driver, 180_000);
 		await waitForCamelLanguageServerDiagnostic(driver, ROUTE_FILE, UNKNOWN_OPTION, 60_000);
 	});
 
 	it('shows the diagnostics of the server for application properties', async function () {
 		this.timeout(150_000);
-		await VSBrowser.instance.openResources(path.join(FIXTURE_FOLDER, PROPERTIES_FILE));
+		await VSBrowser.instance.openResources(path.join(WORKSPACE_FOLDER, PROPERTIES_FILE));
 		await waitForCamelLanguageServer(driver, 30_000);
 		await waitForCamelLanguageServerDiagnostic(driver, PROPERTIES_FILE, UNKNOWN_OPTION, 60_000);
 	});
