@@ -26,9 +26,34 @@
     }
   }
 
+  // The tooltip and its trigger around the icon and the label fill the tile, so it opens wherever the tile is hovered
+  &__type-tooltip {
+    display: flex;
+    inline-size: 100%;
+
+    .cds--tooltip-trigger__wrapper {
+      flex: 1;
+    }
+  }
+
+  // In a modal Carbon stacks every tooltip container on its own at the same z-index
+  // (`.cds--body--with-modal-open .cds--modal .cds--tooltip`), so the tiles after this one would paint over its open
+  // tooltip. Without that the tooltip stacks in the modal, above all tiles; four classes outrank Carbon's three.
+  & &__types .cds--tooltip.cs--create-file-modal__type-tooltip {
+    z-index: auto;
+  }
+
   &__type {
     block-size: 100%;
     min-block-size: 0;
+
+    // The padding sits in the content, so that the tooltip opens wherever the tile is hovered
+    padding: 0;
+
+    // The selection shows in the frame and the tint of the tile, not in a check mark
+    .cds--tile__checkmark {
+      display: none;
+    }
 
     // White cards on the tint of the modal, framed and rounded like the fields; Carbon's hover and selection still
     // apply
@@ -53,10 +78,9 @@
 
   &__type-content {
     display: flex;
+    align-items: center;
     gap: $spacing-04;
-
-    // Leave room for the selection indicator in the top right corner of the tile
-    padding-inline-end: $spacing-06;
+    padding: $spacing-04;
   }
 
   &__type-icon {
@@ -82,21 +106,17 @@
     }
   }
 
-  &__type-text {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-02;
-  }
-
   &__type-label {
     @include type-style('heading-compact-01');
 
     color: $text-primary;
   }
 
+  // The description of the selected type, below the tiles
   &__type-description {
     @include type-style('body-compact-01');
 
+    margin-block-start: $spacing-03;
     color: $text-secondary;
   }
 }
