@@ -276,7 +276,7 @@ describe('Explorer', () => {
     expect(screen.getByRole('button', { name: 'Create a file' })).toHaveFocus();
   });
 
-  it('focuses the toolbar button after a file is created from the empty state', async () => {
+  it('focuses the created file after a file is created from the empty state', async () => {
     resetTestIndexedDB();
     stubStarterTemplates();
     try {
@@ -289,9 +289,50 @@ describe('Explorer', () => {
       await user.type(screen.getByLabelText('File name'), 'orders');
       await user.click(screen.getByRole('button', { name: 'Create' }));
 
-      expect(await screen.findByRole('treeitem', { name: /orders\.camel\.yaml/ })).toBeInTheDocument();
+      const file = await screen.findByRole('treeitem', { name: /orders\.camel\.yaml/ });
       expect(screen.queryByRole('button', { name: 'Create your first file…' })).not.toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Create a file' })).toHaveFocus();
+      await waitFor(() => expect(file).toHaveFocus());
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('focuses a file created in a nested folder through the dialog, with its folders unfolded', async () => {
+    stubStarterTemplates();
+    try {
+      const user = userEvent.setup();
+      renderWithNavigation();
+      await screen.findByTestId('explorer-folder-integrations');
+
+      await user.click(screen.getByRole('button', { name: 'Create a file' }));
+      await user.type(screen.getByLabelText('File name'), 'inbound');
+      await user.type(screen.getByLabelText('Folder path (optional)'), 'orders/new');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      const file = await screen.findByTestId('explorer-file-orders/new/inbound.camel.yaml');
+      await waitFor(() => expect(file).toHaveFocus());
+      expect(screen.getByTestId('explorer-folder-orders')).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('explorer-folder-orders/new')).toHaveAttribute('aria-expanded', 'true');
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('clears the search to focus a file created through the dialog that it would hide', async () => {
+    stubStarterTemplates();
+    try {
+      const user = userEvent.setup();
+      renderWithNavigation();
+      await screen.findByTestId('explorer-folder-integrations');
+      await user.type(screen.getByRole('searchbox'), 'main');
+
+      await user.click(screen.getByRole('button', { name: 'Create a file' }));
+      await user.type(screen.getByLabelText('File name'), 'inbound');
+      await user.click(screen.getByRole('button', { name: 'Create' }));
+
+      const file = await screen.findByTestId('explorer-file-inbound.camel.yaml');
+      await waitFor(() => expect(file).toHaveFocus());
+      expect(screen.getByRole('searchbox')).toHaveValue('');
     } finally {
       vi.unstubAllGlobals();
     }
