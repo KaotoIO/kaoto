@@ -23,7 +23,7 @@ export const RootLayout = () => {
       <div className="cs--page-layout">
         <Nav />
         <Content id="main-content" className="cs--content">
-          <Suspense fallback={<LoadingState />}>
+          <Suspense fallback={<LoadingState withOverlay />}>
             <Outlet />
           </Suspense>
         </Content>
