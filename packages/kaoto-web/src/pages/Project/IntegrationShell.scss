@@ -47,6 +47,14 @@
   }
 }
 
+// The catalog loaders of the canvas render here until it is ready, as `fullPage` loaders sized for the viewport. In this
+// flex row they would shrink to their content and be taller than the body: fill the body instead, so that the spinner
+// is centered both ways.
+.cs--integration-shell__design > .loading {
+  flex: 1;
+  min-block-size: 0;
+}
+
 .cs--integration-shell__canvas {
   flex: 1;
   inline-size: 100%;
