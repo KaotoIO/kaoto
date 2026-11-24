@@ -260,6 +260,12 @@ export function getSchemaTestXsd(): string {
 export function getRestrictionComplexXsd(): string {
   return readStubFile('./xml/RestrictionComplex.xsd');
 }
+export function getAttributeRefXsd(): string {
+  return readStubFile('./xml/AttributeRef.xsd');
+}
+export function getAttributeRefNoNsXsd(): string {
+  return readStubFile('./xml/AttributeRefNoNs.xsd');
+}
 export function getProhibitedComponentsXsd(): string {
   return readStubFile('./xml/ProhibitedComponents.xsd');
 }

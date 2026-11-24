@@ -63,6 +63,7 @@ import {
 } from '../../stubs/datamapper/cardinality-test-helpers';
 import {
   getAdtInXsd,
+  getAttributeRefXsd,
   getCamelSpringXsd,
   getChoiceRepeatingAbstractCatXslt,
   getChoiceRepeatingAbstractXsd,
@@ -2888,5 +2889,65 @@ describe('MappingActionService', () => {
         expect(dogItem.children.some((child) => child instanceof ValueOfSelector)).toBe(true);
       });
     });
+  });
+});
+
+describe('MappingActionService attribute reference fields', () => {
+  const NS = 'urn:ar';
+  const createDoc = (documentType: DocumentType) =>
+    XmlSchemaDocumentService.createXmlSchemaDocument(
+      new DocumentDefinition(
+        documentType,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'AttributeRef.xsd': getAttributeRefXsd() },
+        { namespaceUri: NS, name: 'Root' },
+      ),
+    ).document as XmlSchemaDocument;
+  const findChild = (nodes: NodeData[], name: string, isAttribute: boolean) =>
+    nodes.find(
+      (node) => node instanceof FieldNodeData && node.field.name === name && node.field.isAttribute === isAttribute,
+    );
+  const collectItems = (items: MappingItem[]): MappingItem[] =>
+    items.flatMap((item) => [item, ...collectItems(item.children)]);
+
+  const engage = (sourceName: string, sourceIsAttribute: boolean, targetName: string, targetIsAttribute: boolean) => {
+    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    const sourceDocNode = new DocumentNodeData(createDoc(DocumentType.SOURCE_BODY));
+    const targetDocNode = new TargetDocumentNodeData(createDoc(DocumentType.TARGET_BODY), tree);
+    const sourceRoot = VisualizationService.generateStructuredDocumentChildren(sourceDocNode)[0];
+    const targetRoot = VisualizationService.generateStructuredDocumentChildren(targetDocNode)[0];
+    const source = findChild(
+      VisualizationService.generateNonDocumentNodeDataChildren(sourceRoot),
+      sourceName,
+      sourceIsAttribute,
+    );
+    const target = findChild(
+      VisualizationService.generateNonDocumentNodeDataChildren(targetRoot),
+      targetName,
+      targetIsAttribute,
+    );
+    expect(source).toBeDefined();
+    expect(target).toBeDefined();
+
+    MappingActionService.engageMapping(tree, source as FieldNodeData, target as TargetNodeData);
+    return collectItems(tree.children);
+  };
+
+  it('should create a value-of when an attribute-ref source is dropped on a terminal target', () => {
+    const items = engage('code', true, 'text', false);
+
+    const selectors = items.filter((item) => item instanceof ValueOfSelector);
+    expect(selectors).toHaveLength(1);
+    expect((selectors[0] as ValueOfSelector).expression).toContain('@');
+    expect((selectors[0] as ValueOfSelector).expression).not.toContain('node()');
+    expect(items.some((item) => item instanceof CopyOfSelector)).toBe(false);
+  });
+
+  it('should create a value-of when a terminal source is dropped on an attribute-ref target', () => {
+    const items = engage('text', false, 'code', true);
+
+    expect(items.filter((item) => item instanceof ValueOfSelector)).toHaveLength(1);
+    expect(items.some((item) => item instanceof CopyOfSelector)).toBe(false);
   });
 });

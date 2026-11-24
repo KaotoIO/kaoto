@@ -8,11 +8,12 @@ import {
   RootElementOption,
 } from '../../../models/datamapper/document';
 import { ReportMessage } from '../../../models/datamapper/schema';
-import { NS_XML_SCHEMA_INSTANCE } from '../../../models/datamapper/standard-namespaces';
+import { NS_XML, NS_XML_SCHEMA, NS_XML_SCHEMA_INSTANCE } from '../../../models/datamapper/standard-namespaces';
 import { Types } from '../../../models/datamapper/types';
 import {
   getAnnotatedFieldsXsd,
   getAnonymousGlobalElementRefLargeXsd,
+  getAttributeRefXsd,
   getCamelSpringXsd,
   getCommonTypesXsd,
   getElementRefXsd,
@@ -1479,7 +1480,11 @@ describe('XmlSchemaDocumentService', () => {
 
     const document = result.document as XmlSchemaDocument;
     for (const name of ['TypeA01', 'TypeB01', 'TypeC01', 'TypeD01', 'TypeE01', 'TypeF01']) {
-      expect(document.namedTypeFragments[XmlSchemaDocumentUtilService.buildElementFragmentKey('', name)]).toBeDefined();
+      expect(
+        document.namedTypeFragments[
+          XmlSchemaDocumentUtilService.buildElementFragmentKey('AnonymousGlobalElementRefLarge.xsd', '', name)
+        ],
+      ).toBeDefined();
     }
 
     const bigContainerFragment =
@@ -1600,7 +1605,7 @@ describe('XmlSchemaDocumentService', () => {
 
         const holderOption = create(files).rootElementOptions?.find((o) => o.name === 'BaseHolder');
         const baseHolder = create(files, holderOption);
-        expect(childNames(baseHolder, rootField(baseHolder))).toEqual(['ag1', 'g2']);
+        expect(childNames(baseHolder, rootField(baseHolder))).toEqual(['ag2', 'g2']);
       },
     );
 
@@ -2466,11 +2471,18 @@ describe('XmlSchemaDocumentService', () => {
       };
       const fragmentChildren = (doc: XmlSchemaDocument, key: string) =>
         doc.namedTypeFragments[key].fields.map((f) => f.name);
+      const SIBLING_ORDERS: Array<[string, string[]]> = [
+        [
+          'unrelated file attached first',
+          ['Unrelated.xsd', 'UnrelatedLeaf.xsd', 'Main.xsd', 'Orders.xsd', 'Common.xsd'],
+        ],
+        [
+          'unrelated file attached last',
+          ['Main.xsd', 'Orders.xsd', 'Common.xsd', 'Unrelated.xsd', 'UnrelatedLeaf.xsd'],
+        ],
+      ];
 
-      describe.each([
-        ['unrelated file attached first', ['Unrelated.xsd', 'Main.xsd', 'Orders.xsd', 'Common.xsd']],
-        ['unrelated file attached last', ['Main.xsd', 'Orders.xsd', 'Common.xsd', 'Unrelated.xsd']],
-      ])('sibling include, %s', (_label, order) => {
+      describe.each(SIBLING_ORDERS)('sibling include, %s', (_label, order) => {
         it("should resolve the Address of a sibling include from the entry's assembly", () => {
           const doc = createDoc(order, 'Main.xsd', 'Root');
 
@@ -2504,6 +2516,110 @@ describe('XmlSchemaDocumentService', () => {
           expect(attributeS.namedTypeFragmentRefs).toEqual([`ProbeA.xsd#{${NS}}S`]);
           expect(fragmentChildren(doc as XmlSchemaDocument, `ProbeB.xsd#{${NS}}U`)).toEqual(['fromB']);
           expect(fragmentChildren(doc as XmlSchemaDocument, `ProbeA.xsd#{${NS}}U`)).toEqual(['fromA']);
+        });
+      });
+
+      describe('element, attribute group and attribute references', () => {
+        const ORDER_TYPE = `Orders.xsd#{${NS}}OrderType`;
+        const parseOrder = (doc: XmlSchemaDocument) =>
+          doc.xmlSchemaCollection.getUserSchemas().map((schema) => schema.getSourceURI());
+        const fragmentField = (doc: XmlSchemaDocument, key: string, name: string, isAttribute = false) =>
+          doc.namedTypeFragments[key].fields.find((f) => f.name === name && f.isAttribute === isAttribute);
+        const expectRefsFromCommon = (doc: XmlSchemaDocument) => {
+          const addressEl = fragmentField(doc, ORDER_TYPE, 'AddressEl');
+          expect(addressEl?.namedTypeFragmentRefs).toEqual([`Common.xsd#__elem:${NS}:AddressEl`]);
+          expect(addressEl?.description).toBe('Address element of Common');
+          expect(addressEl?.nillable).toBe(true);
+
+          expect(fragmentField(doc, ORDER_TYPE, 'commonAttr', true)).toBeDefined();
+          expect(fragmentField(doc, ORDER_TYPE, 'foreignAttr', true)).toBeUndefined();
+
+          const addrCode = fragmentField(doc, ORDER_TYPE, 'addrCode', true);
+          expect(addrCode?.type).toBe(Types.Integer);
+          expect(addrCode?.typeQName?.toString()).toBe(`{${NS_XML_SCHEMA}}int`);
+          expect(addrCode?.defaultValue).toBe('1');
+          expect(addrCode?.description).toBe('Address code of Common');
+        };
+
+        describe.each(SIBLING_ORDERS)('%s', (label, order) => {
+          const createSiblingDoc = () => {
+            const doc = createDoc(order, 'Main.xsd', 'Root') as XmlSchemaDocument;
+            const parsed = parseOrder(doc);
+            expect(parsed.indexOf('Unrelated.xsd') < parsed.indexOf('Common.xsd')).toBe(label.endsWith('first'));
+            return doc;
+          };
+
+          it("should resolve the element, attribute group and attribute refs of a sibling include from the entry's assembly", () => {
+            expectRefsFromCommon(createSiblingDoc());
+          });
+
+          it("should apply the prohibited attributes of an attribute group ref from the entry's assembly", () => {
+            const doc = createSiblingDoc();
+
+            const attributes = doc.namedTypeFragments[`Orders.xsd#{${NS}}RestrictedAB`].fields
+              .filter((f) => f.isAttribute)
+              .map((f) => f.name);
+
+            expect(attributes).toEqual(['b']);
+          });
+
+          it('should give each file declaring the same anonymous-typed global element its own fragment', () => {
+            const doc = createSiblingDoc();
+
+            expect(fragmentChildren(doc, `Common.xsd#__elem:${NS}:AddressEl`)).toEqual(['commonLine']);
+            expect(fragmentChildren(doc, `Unrelated.xsd#__elem:${NS}:AddressEl`)).toEqual(['foreignElLine']);
+            expect(
+              doc.namedTypeFragments[XmlSchemaDocumentUtilService.buildElementFragmentKey('', NS, 'AddressEl')],
+            ).toBeUndefined();
+          });
+
+          it('should keep the children of a local anonymous-typed element named like a global element', () => {
+            const local = fragmentField(createSiblingDoc(), `Orders.xsd#{${NS}}LocalHolder`, 'AddressEl');
+
+            expect(local?.fields.map((f) => f.name)).toEqual(['localLine']);
+            expect(local?.namedTypeFragmentRefs).toEqual([]);
+          });
+        });
+
+        it('should keep the resolved refs when the unrelated file is attached after the document is created', () => {
+          const doc = createDoc(['Main.xsd', 'Orders.xsd', 'Common.xsd'], 'Main.xsd', 'Root') as XmlSchemaDocument;
+
+          XmlSchemaDocumentService.addSchemaFiles(doc, {
+            'Unrelated.xsd': getXmlStubFile(`${STUB_DIR}/Unrelated.xsd`),
+            'UnrelatedLeaf.xsd': getXmlStubFile(`${STUB_DIR}/UnrelatedLeaf.xsd`),
+          });
+
+          expect(parseOrder(doc)).toContain('Unrelated.xsd');
+          expectRefsFromCommon(doc);
+        });
+
+        it('should resolve the refs against the new entry after the root element changes', () => {
+          const files = ['MainA.xsd', 'MainB.xsd', 'Orders.xsd', 'CommonA.xsd', 'CommonB.xsd'];
+          const docA = createDoc(files, 'MainA.xsd', 'RootA') as XmlSchemaDocument;
+
+          const addressElA = fragmentField(docA, ORDER_TYPE, 'AddressEl');
+          expect(addressElA?.namedTypeFragmentRefs).toEqual([`CommonA.xsd#__elem:${NS}:AddressEl`]);
+          expect(addressElA?.description).toBe('Address element of CommonA');
+          expect(addressElA?.nillable).toBe(true);
+          expect(fragmentField(docA, ORDER_TYPE, 'attrA', true)).toBeDefined();
+          expect(fragmentField(docA, ORDER_TYPE, 'addrCode', true)?.type).toBe(Types.String);
+
+          const docB = XmlSchemaDocumentService.updateRootElement(docA, {
+            namespaceUri: NS,
+            name: 'RootB',
+            entrySchemaFile: 'MainB.xsd',
+          });
+
+          const addressElB = fragmentField(docB, ORDER_TYPE, 'AddressEl');
+          expect(addressElB?.namedTypeFragmentRefs).toEqual([`CommonB.xsd#__elem:${NS}:AddressEl`]);
+          expect(addressElB?.description).toBe('Address element of CommonB');
+          expect(addressElB?.nillable).toBe(false);
+          expect(fragmentChildren(docB, `CommonB.xsd#__elem:${NS}:AddressEl`)).toEqual(['lineB']);
+          expect(fragmentField(docB, ORDER_TYPE, 'attrB', true)).toBeDefined();
+          expect(fragmentField(docB, ORDER_TYPE, 'attrA', true)).toBeUndefined();
+          const addrCodeB = fragmentField(docB, ORDER_TYPE, 'addrCode', true);
+          expect(addrCodeB?.type).toBe(Types.Integer);
+          expect(addrCodeB?.defaultValue).toBe('2');
         });
       });
     });
@@ -2583,5 +2699,86 @@ describe('XmlSchemaDocumentService', () => {
         },
       );
     });
+  });
+});
+
+describe('XmlSchemaDocumentService attribute references', () => {
+  const NS = 'urn:ar';
+  const createRoot = (name: string) => {
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+      new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        'doc',
+        { 'AttributeRef.xsd': getAttributeRefXsd() },
+        { namespaceUri: NS, name },
+      ),
+    );
+    expect(result.validationStatus).toBe('success');
+    const root = result.document?.fields[0];
+    if (!root) throw new Error(`${name} field not found`);
+    return root;
+  };
+  const attributeOf = (field: IField, name: string) => field.fields.find((f) => f.isAttribute && f.name === name);
+
+  it('should take the type, default value and documentation of the referenced global attribute', () => {
+    const code = attributeOf(createRoot('Root'), 'code');
+
+    expect(code?.type).toBe(Types.String);
+    expect(code?.typeQName?.toString()).toBe(`{${NS}}CodeType`);
+    expect(code?.namedTypeFragmentRefs).toEqual([`AttributeRef.xsd#{${NS}}CodeType`]);
+    expect(code?.defaultValue).toBe('g');
+    expect(code?.description).toBe('Global code');
+    expect(code?.namespaceURI).toBe(NS);
+    expect(code?.namespacePrefix).toBe('ar');
+    expect(code?.minOccurs).toBe(0);
+  });
+
+  it('should keep the use of the reference and take the fixed value of the global attribute', () => {
+    const count = attributeOf(createRoot('Root'), 'count');
+
+    expect(count?.type).toBe(Types.Integer);
+    expect(count?.defaultValue).toBe('7');
+    expect(count?.minOccurs).toBe(1);
+  });
+
+  it('should prefer the default value and documentation declared on the reference', () => {
+    const code = attributeOf(createRoot('Local'), 'code');
+
+    expect(code?.type).toBe(Types.String);
+    expect(code?.defaultValue).toBe('l');
+    expect(code?.description).toBe('Local code');
+    expect(code?.namespaceURI).toBe(NS);
+    expect(code?.namespacePrefix).toBe('loc');
+  });
+
+  it('should keep an empty fixed value declared on the reference over the default of the global attribute', () => {
+    const code = attributeOf(createRoot('EmptyValues'), 'code');
+
+    expect(code?.defaultValue).toBe('');
+    expect(code?.description).toBe('Global code');
+  });
+
+  it('should keep an empty default value declared on an element', () => {
+    const note = createRoot('EmptyValues').fields.find((f) => !f.isAttribute && f.name === 'note');
+
+    expect(note?.defaultValue).toBe('');
+  });
+
+  it('should take the default value and documentation of a global attribute with an inline simple type', () => {
+    const inlineCode = attributeOf(createRoot('Root'), 'inlineCode');
+
+    expect(inlineCode?.type).toBe(Types.AnyType);
+    expect(inlineCode?.defaultValue).toBe('i');
+    expect(inlineCode?.description).toBe('Global inline code');
+  });
+
+  it('should keep a reference whose global attribute is not loaded', () => {
+    const lang = attributeOf(createRoot('Root'), 'lang');
+
+    expect(lang?.namespaceURI).toBe(NS_XML);
+    expect(lang?.type).toBe(Types.AnyType);
+    expect(lang?.defaultValue).toBeFalsy();
+    expect(lang?.description).toBeUndefined();
   });
 });

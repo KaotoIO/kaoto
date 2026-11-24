@@ -22,7 +22,6 @@ import {
   XmlSchemaGroupParticle,
   XmlSchemaGroupRef,
   XmlSchemaParticle,
-  XmlSchemaRef,
   XmlSchemaSequence,
   XmlSchemaSequenceMember,
   XmlSchemaSimpleContentExtension,
@@ -126,7 +125,6 @@ export class XmlSchemaDocumentService {
     }
 
     const document = new XmlSchemaDocument(resolvedDefinition, collection, rootElement);
-    document.dependencyEdges = analysis.edges;
 
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
     XmlSchemaDocumentService.populateElement(document, document.fields, document.rootElement!);
@@ -365,7 +363,6 @@ export class XmlSchemaDocumentService {
       throw new Error(loadResult.error.message);
     }
 
-    document.dependencyEdges = analysis.edges;
     XmlSchemaDocumentService.populateNamedTypeFragments(document);
     XmlSchemaDocumentService.rebuildAbstractWrapperChildren(document);
   }
@@ -559,7 +556,6 @@ export class XmlSchemaDocumentService {
     };
 
     const newDocument = new XmlSchemaDocument(definition, document.xmlSchemaCollection, newRootElement);
-    newDocument.dependencyEdges = document.dependencyEdges;
 
     XmlSchemaDocumentService.populateNamedTypeFragments(newDocument);
     XmlSchemaDocumentService.populateElement(newDocument, newDocument.fields, newDocument.rootElement!);
@@ -629,56 +625,16 @@ export class XmlSchemaDocumentService {
     }
   }
 
-  private static createReachableSchemaFilter(
-    collection: XmlSchemaCollection,
-    entrySchemaFile: string,
-    edges: DependencyEdge[],
-  ): (s: XmlSchema) => boolean {
-    const effectiveNamespaces = XmlSchemaAnalysisService.collectEffectiveNamespaces(
-      entrySchemaFile,
-      edges,
-      XmlSchemaDocumentUtilService.collectSyntacticNamespaces(collection),
-    );
-
-    // The map keys are exactly the files reachable from the entry.
-    return (s: XmlSchema) => {
-      const uri = s.getSourceURI();
-      return !!uri && !!effectiveNamespaces.get(uri)?.has(s.getLogicalTargetNamespace() || '');
-    };
-  }
-
   /**
    * Populates all named type definitions (complexType and simpleType) from the schema into namedTypeFragments.
-   * Type definitions are keyed by their scoped key (`${sourceURI}#${typeQName}`), so same-QName types of different
-   * files do not compete for a key.
-   *
-   * Schemas in the reachable assembly of entrySchemaFile are populated first because the fragments of global elements
-   * with an anonymous complex type are keyed by the element QName only (`__elem:` keys), and the first one registered
-   * wins.
+   * Type definitions are keyed by their scoped key (`${sourceURI}#${typeQName}`), and the fragments of global elements
+   * with an anonymous complex type by their scoped element key (`${sourceURI}#__elem:...`), so same-QName components
+   * of different files do not compete for a key and the population order decides nothing.
    *
    * @param document - The document whose schema collection will be traversed and whose namedTypeFragments will be populated.
-   *   Its `dependencyEdges` are used when present, otherwise they are derived from `definitionFiles`.
    */
   static populateNamedTypeFragments(document: XmlSchemaDocument) {
-    const schemas = document.xmlSchemaCollection.getUserSchemas();
-    const entrySchemaFile = document.definition.entrySchemaFile;
-    const definitionFiles = document.definition.definitionFiles;
-
-    if (entrySchemaFile && definitionFiles) {
-      const isReachable = XmlSchemaDocumentService.createReachableSchemaFilter(
-        document.xmlSchemaCollection,
-        entrySchemaFile,
-        document.dependencyEdges ?? XmlSchemaAnalysisService.analyze(definitionFiles).edges,
-      );
-
-      XmlSchemaDocumentService.populateFragmentsForSchemas(document, schemas.filter(isReachable));
-      XmlSchemaDocumentService.populateFragmentsForSchemas(
-        document,
-        schemas.filter((s) => !isReachable(s)),
-      );
-    } else {
-      XmlSchemaDocumentService.populateFragmentsForSchemas(document, schemas);
-    }
+    XmlSchemaDocumentService.populateFragmentsForSchemas(document, document.xmlSchemaCollection.getUserSchemas());
   }
 
   private static populateSimpleTypeContent(
@@ -701,7 +657,8 @@ export class XmlSchemaDocumentService {
   /**
    * Populates an XML element as an {@link XmlSchemaField} into the given fields array.
    * Skips concrete elements that already exist in fields (by name, namespace, and isAttribute). Resolves element
-   * references and delegates to schema type handling to populate child fields and type metadata.
+   * references entry first through the document's {@link XmlSchemaAssembly}, not through the target the parsed
+   * reference caches, and delegates to schema type handling to populate child fields and type metadata.
    *
    * Per the XSD spec, `abstract` is only valid on global element declarations — element
    * references (`<xs:element ref="..."/>`) cannot carry it. Therefore abstract detection
@@ -715,10 +672,10 @@ export class XmlSchemaDocumentService {
    */
   static populateElement(parent: XmlSchemaParentType, fields: XmlSchemaField[], element: XmlSchemaElement) {
     const name = element.getWireName()!.getLocalPart()!;
-    const refTarget = element.getRef().getTarget();
+    const ownerDoc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
+    const refTarget = ownerDoc.assembly.lookupElement(element.getRef().getTargetQName());
     const resolvedElement = refTarget ?? element;
     const namespaceURI = resolvedElement.getWireName()!.getNamespaceURI();
-    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
 
     if (resolvedElement.isAbstract()) {
       XmlSchemaDocumentService.populateAbstractElement(parent, fields, element, resolvedElement);
@@ -732,7 +689,7 @@ export class XmlSchemaDocumentService {
     const field: XmlSchemaField = new XmlSchemaField(parent, name, false);
     field.namespaceURI = namespaceURI;
     field.namespacePrefix = resolvedElement.getWireName()!.getPrefix();
-    field.defaultValue = resolvedElement.defaultValue || resolvedElement.fixedValue;
+    field.defaultValue = resolvedElement.defaultValue ?? resolvedElement.fixedValue;
     field.nillable = resolvedElement.isNillable();
     field.minOccurs = element.getMinOccurs();
     field.maxOccurs = element.getMaxOccurs();
@@ -760,11 +717,7 @@ export class XmlSchemaDocumentService {
     element: XmlSchemaElement,
     schemaType: XmlSchemaComplexType,
   ): string {
-    const wireName = element.getWireName()!;
-    const fragmentKey = XmlSchemaDocumentUtilService.buildElementFragmentKey(
-      wireName.getNamespaceURI(),
-      wireName.getLocalPart()!,
-    );
+    const fragmentKey = XmlSchemaDocumentUtilService.buildElementFragmentKeyOf(element);
 
     if (!document.namedTypeFragments[fragmentKey]) {
       const fragmentFields: XmlSchemaField[] = [];
@@ -927,6 +880,12 @@ export class XmlSchemaDocumentService {
    * optional use cases by setting minOccurs and maxOccurs accordingly. A `use="prohibited"` attribute is not a
    * field, and neither is an attribute whose key is in `excludedAttributes`: a derived restriction prohibits it,
    * so the restricted type does not inherit it.
+   *
+   * An attribute reference (`<xs:attribute ref="..."/>`) resolves the global attribute entry first through the
+   * document's {@link XmlSchemaAssembly}. Name, namespace, prefix and `use` come from the reference; the named type
+   * comes from the global attribute (an inline simple type gives `AnyType`, as on any attribute); a default or fixed
+   * value and documentation come from the reference when it declares them, otherwise from the global attribute. A
+   * reference whose global attribute is not loaded keeps the reference's own properties.
    * @param parent - The parent document or field that owns the fields array
    * @param fields - The target array to append the new field to
    * @param attr - The XML schema attribute to convert into a field
@@ -940,7 +899,7 @@ export class XmlSchemaDocumentService {
   ) {
     const name = attr.getWireName()!.getLocalPart()!;
     const namespaceURI = attr.getWireName()!.getNamespaceURI();
-    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const ownerDoc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
 
     if (fields.some((f) => f.name === name && f.isAttribute && f.namespaceURI === namespaceURI)) {
       return;
@@ -955,8 +914,14 @@ export class XmlSchemaDocumentService {
     const field = new XmlSchemaField(parent, name, true);
     field.namespaceURI = namespaceURI;
     field.namespacePrefix = attr.getWireName()!.getPrefix();
-    field.defaultValue = attr.getDefaultValue() || attr.getFixedValue();
-    const attrSchemaTypeQName = attr.getSchemaTypeName();
+    const globalAttr = attr.isRef() ? ownerDoc.assembly.lookupAttribute(attr.getTargetQName()) : null;
+    field.defaultValue =
+      attr.getDefaultValue() ??
+      attr.getFixedValue() ??
+      globalAttr?.getDefaultValue() ??
+      globalAttr?.getFixedValue() ??
+      null;
+    const attrSchemaTypeQName = (globalAttr ?? attr).getSchemaTypeName();
     const attrSchemaType = attrSchemaTypeQName && ownerDoc.assembly.lookupType(attrSchemaTypeQName);
     field.type =
       attrSchemaType instanceof XmlSchemaSimpleType
@@ -965,7 +930,9 @@ export class XmlSchemaDocumentService {
             attrSchemaTypeQName?.getLocalPart() || null,
             attrSchemaTypeQName?.getNamespaceURI() || null,
           );
-    field.description = XmlSchemaDocumentService.extractDocumentationFromAnnotated(attr);
+    field.description =
+      XmlSchemaDocumentService.extractDocumentationFromAnnotated(attr) ??
+      (globalAttr ? XmlSchemaDocumentService.extractDocumentationFromAnnotated(globalAttr) : undefined);
     fields.push(field);
 
     ownerDoc.totalFieldCount++;
@@ -993,8 +960,9 @@ export class XmlSchemaDocumentService {
     visitedGroups: Set<XmlSchemaAttributeGroup> = new Set(),
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
-    const ref: XmlSchemaRef<XmlSchemaAttributeGroup> = groupRef.getRef();
-    XmlSchemaDocumentService.populateAttributeGroup(parent, fields, ref.getTarget(), visitedGroups, excludedAttributes);
+    const ownerDoc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
+    const group = ownerDoc.assembly.lookupAttributeGroup(groupRef.getRef().getTargetQName());
+    XmlSchemaDocumentService.populateAttributeGroup(parent, fields, group, visitedGroups, excludedAttributes);
   }
 
   private static populateAttributeGroupMember(
@@ -1034,6 +1002,7 @@ export class XmlSchemaDocumentService {
   }
 
   private static collectProhibitedAttributeKeys(
+    assembly: XmlSchemaAssembly,
     attributes: XmlSchemaAttributeGroupMember[],
     prohibited: Set<string> = new Set(),
     visitedGroups: Set<XmlSchemaAttributeGroup> = new Set(),
@@ -1045,20 +1014,29 @@ export class XmlSchemaDocumentService {
         }
         continue;
       }
-      const group = member instanceof XmlSchemaAttributeGroupRef ? member.getRef().getTarget() : member;
+      const group =
+        member instanceof XmlSchemaAttributeGroupRef
+          ? assembly.lookupAttributeGroup(member.getRef().getTargetQName())
+          : member;
       if (group instanceof XmlSchemaAttributeGroup && !visitedGroups.has(group)) {
         visitedGroups.add(group);
-        XmlSchemaDocumentService.collectProhibitedAttributeKeys(group.getAttributes(), prohibited, visitedGroups);
+        XmlSchemaDocumentService.collectProhibitedAttributeKeys(
+          assembly,
+          group.getAttributes(),
+          prohibited,
+          visitedGroups,
+        );
       }
     }
     return prohibited;
   }
 
   private static mergeExcludedAttributes(
+    assembly: XmlSchemaAssembly,
     excludedAttributes: ReadonlySet<string>,
     attributes: XmlSchemaAttributeGroupMember[],
   ): ReadonlySet<string> {
-    const prohibited = XmlSchemaDocumentService.collectProhibitedAttributeKeys(attributes);
+    const prohibited = XmlSchemaDocumentService.collectProhibitedAttributeKeys(assembly, attributes);
     if (prohibited.size === 0) {
       return excludedAttributes;
     }
@@ -1128,7 +1106,7 @@ export class XmlSchemaDocumentService {
     choice: XmlSchemaChoice,
     visitedGroupRefs?: Set<string>,
   ) {
-    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const ownerDoc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
     const choiceField = new XmlSchemaField(parent, '__choice__', false);
     choiceField.wrapperKind = 'choice';
     choiceField.minOccurs = choice.getMinOccurs();
@@ -1154,7 +1132,7 @@ export class XmlSchemaDocumentService {
     visitedGroupRefs?: Set<string>,
   ) {
     if (XmlSchemaDocumentService.isExcludedParticle(sequence)) return;
-    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const ownerDoc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
     const seqField = new XmlSchemaField(parent, '__sequence__', false);
     seqField.wrapperKind = 'sequence';
     seqField.minOccurs = sequence.getMinOccurs();
@@ -1189,7 +1167,7 @@ export class XmlSchemaDocumentService {
     element: XmlSchemaElement,
     resolvedElement: XmlSchemaElement,
   ) {
-    const ownerDoc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const ownerDoc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
     const displayName = resolvedElement.getWireName()!.getLocalPart()!;
     const namespaceURI = resolvedElement.getWireName()!.getNamespaceURI();
     let name = displayName;
@@ -1230,7 +1208,7 @@ export class XmlSchemaDocumentService {
     if (visitedGroupRefs.has(key)) return;
     visitedGroupRefs.add(key);
 
-    const doc = ('ownerDocument' in parent ? parent.ownerDocument : parent) as XmlSchemaDocument;
+    const doc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
     const group = doc.assembly.lookupGroup(groupRefQName);
     if (group) {
       XmlSchemaDocumentService.populateGroup(parent, fields, group, visitedGroupRefs);
@@ -1562,7 +1540,11 @@ export class XmlSchemaDocumentService {
       parent,
       restriction.getBaseTypeName(),
       visited,
-      XmlSchemaDocumentService.mergeExcludedAttributes(excludedAttributes, restriction.getAttributes()),
+      XmlSchemaDocumentService.mergeExcludedAttributes(
+        document.assembly,
+        excludedAttributes,
+        restriction.getAttributes(),
+      ),
     );
   }
 
@@ -1714,7 +1696,11 @@ export class XmlSchemaDocumentService {
         parent,
         userDefinedBaseType,
         visited,
-        XmlSchemaDocumentService.mergeExcludedAttributes(excludedAttributes, restriction.getAttributes()),
+        XmlSchemaDocumentService.mergeExcludedAttributes(
+          document.assembly,
+          excludedAttributes,
+          restriction.getAttributes(),
+        ),
       );
     }
   }

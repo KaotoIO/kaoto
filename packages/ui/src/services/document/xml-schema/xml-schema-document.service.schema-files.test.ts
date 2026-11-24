@@ -68,7 +68,7 @@ describe('XmlSchemaDocumentService / schema file management', () => {
       expect(additionalType).toBeDefined();
     });
 
-    it('should compute the dependency edges from the merged file set', () => {
+    it('should populate the type fragments of a file that depends on an attached file', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
         DocumentDefinitionType.XML_SCHEMA,
@@ -76,13 +76,10 @@ describe('XmlSchemaDocumentService / schema file management', () => {
         { 'Main.xsd': getXmlStubFile('add-schema-files/Main.xsd') },
       );
       const document = XmlSchemaDocumentService.createXmlSchemaDocument(definition).document as XmlSchemaDocument;
-      expect(document.dependencyEdges).toEqual([]);
-
       FieldOverrideService.addSchemaFilesForTypeOverride(document, {
         'Extension.xsd': getXmlStubFile('add-schema-files/Extension.xsd'),
       });
 
-      expect(document.dependencyEdges?.map((edge) => [edge.from, edge.to])).toEqual([['Extension.xsd', 'Main.xsd']]);
       expect(document.namedTypeFragments['Extension.xsd#{urn:ext}ExtendedType']).toBeDefined();
     });
 

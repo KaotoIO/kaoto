@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ar="urn:ar" targetNamespace="urn:ar">
+  <xs:simpleType name="CodeType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="ShortCodeType">
+    <xs:restriction base="ar:CodeType">
+      <xs:maxLength value="3"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="CountType">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  <xs:attribute name="code" type="ar:CodeType" default="g">
+    <xs:annotation>
+      <xs:documentation>Global code</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="count" type="xs:int" fixed="7"/>
+  <xs:attribute name="inlineCode" default="i">
+    <xs:annotation>
+      <xs:documentation>Global inline code</xs:documentation>
+    </xs:annotation>
+    <xs:simpleType>
+      <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+  </xs:attribute>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="text" type="xs:string"/>
+        <xs:element name="container">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="inner" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute ref="ar:code"/>
+      <xs:attribute ref="ar:count" use="required"/>
+      <xs:attribute ref="ar:inlineCode"/>
+      <xs:attribute ref="xml:lang"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Local">
+    <xs:complexType>
+      <xs:attribute xmlns:loc="urn:ar" ref="loc:code" default="l">
+        <xs:annotation>
+          <xs:documentation>Local code</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="EmptyValues">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="note" type="xs:string" default=""/>
+      </xs:sequence>
+      <xs:attribute ref="ar:code" fixed=""/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

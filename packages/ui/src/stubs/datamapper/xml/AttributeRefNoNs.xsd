@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:simpleType name="CodeType">
+    <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="CountType">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  <xs:attribute name="code" type="CodeType"/>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:attribute ref="code"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

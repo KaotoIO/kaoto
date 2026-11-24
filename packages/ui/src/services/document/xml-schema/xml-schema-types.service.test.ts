@@ -952,6 +952,9 @@ describe('XmlSchemaTypesService', () => {
             key === 'sub:Kitten' && info.qname.getLocalPart() === 'Kitten' && info.type === Types.Container,
         ),
       ).toBe(true);
+      const fishKey = `FieldSubstitution.xsd#__elem:${SUBSTITUTION_NS}:Fish`;
+      expect(candidates['sub:Fish'].namedTypeFragmentRefs).toEqual([fishKey]);
+      expect(doc.namedTypeFragments[fishKey]).toBeDefined();
     });
 
     it('should return Cat, Dog, Fish and transitive Kitten candidates for substituted field', () => {

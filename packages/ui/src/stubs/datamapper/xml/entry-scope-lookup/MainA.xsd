@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:t" targetNamespace="urn:t">
+  <xs:include schemaLocation="Orders.xsd"/>
+  <xs:include schemaLocation="CommonA.xsd"/>
+  <xs:element name="RootA">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="order" type="tns:OrderType"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

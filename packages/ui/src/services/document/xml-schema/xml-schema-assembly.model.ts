@@ -1,6 +1,8 @@
 import { NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
 import {
   XmlSchema,
+  XmlSchemaAttribute,
+  XmlSchemaAttributeGroup,
   XmlSchemaCollection,
   XmlSchemaElement,
   XmlSchemaGroup,
@@ -72,6 +74,36 @@ export class XmlSchemaAssembly {
     return (
       this.findInEntry((schema) => schema.getGroupByQName(groupQName, true)) ??
       this.collection.getGroupByQName(groupQName) ??
+      null
+    );
+  }
+
+  /**
+   * Looks up a global attribute by QName, entry first, then in the whole collection.
+   *
+   * @param attributeQName - The qualified name of the attribute to find
+   * @returns The schema attribute, or null if it is not declared anywhere
+   */
+  lookupAttribute(attributeQName: QName | null): XmlSchemaAttribute | null {
+    if (!attributeQName) return null;
+    return (
+      this.findInEntry((schema) => schema.getAttributeByQName(attributeQName, true)) ??
+      this.collection.getAttributeByQName(attributeQName) ??
+      null
+    );
+  }
+
+  /**
+   * Looks up a global attribute group by QName, entry first, then in the whole collection.
+   *
+   * @param groupQName - The qualified name of the attribute group to find
+   * @returns The attribute group, or null if it is not declared anywhere
+   */
+  lookupAttributeGroup(groupQName: QName | null): XmlSchemaAttributeGroup | null {
+    if (!groupQName) return null;
+    return (
+      this.findInEntry((schema) => schema.getAttributeGroupByQName(groupQName, true)) ??
+      this.collection.getAttributeGroupByQName(groupQName) ??
       null
     );
   }

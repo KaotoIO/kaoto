@@ -7,9 +7,12 @@ import {
   PrimitiveDocument,
   Types,
 } from '../../models/datamapper';
+import { IFieldTypeOverride } from '../../models/datamapper/metadata';
 import { NS_XML_SCHEMA } from '../../models/datamapper/standard-namespaces';
 import { FieldOverrideVariant } from '../../models/datamapper/types';
 import {
+  getAttributeRefNoNsXsd,
+  getAttributeRefXsd,
   getFieldSubstitutionNoNsXsd,
   getFieldSubstitutionXsd,
   getImportedTypesXsd,
@@ -19,6 +22,7 @@ import {
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { QName } from '../../xml-schema-ts/QName';
+import { DocumentUtilService } from './document-util.service';
 import { FieldOverrideService } from './field-override.service';
 import { JsonSchemaDocument } from './json-schema/json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema/json-schema-document.service';
@@ -343,6 +347,64 @@ describe('FieldOverrideService', () => {
     });
   });
 
+  describe('attribute reference fields', () => {
+    const NS_AR = 'urn:ar';
+    const namespaceMap = { xs: NS_XML_SCHEMA, ar: NS_AR };
+    const createCodeField = () => {
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'doc',
+          { 'AttributeRef.xsd': getAttributeRefXsd() },
+          { namespaceUri: NS_AR, name: 'Root' },
+        ),
+      ).document as XmlSchemaDocument;
+      const code = doc.fields[0].fields.find((f) => f.isAttribute && f.name === 'code');
+      if (!code) throw new Error('code attribute not found');
+      return code;
+    };
+
+    it("should offer the derivations of the referenced attribute's type", () => {
+      const code = createCodeField();
+
+      const candidates = FieldOverrideService.getSafeOverrideCandidates(code, namespaceMap);
+
+      expect(Object.keys(candidates)).toContain('ar:ShortCodeType');
+      expect(Object.keys(candidates)).not.toContain('ar:CountType');
+    });
+
+    it('should reload a saved SAFE override with a type not derived from the referenced type as FORCE', () => {
+      const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+        new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          'doc',
+          { 'AttributeRefNoNs.xsd': getAttributeRefNoNsXsd() },
+          { namespaceUri: '', name: 'Root' },
+        ),
+      ).document as XmlSchemaDocument;
+      const override: IFieldTypeOverride = {
+        schemaPath: '/Root/@code',
+        type: 'CountType',
+        originalType: 'CodeType',
+        variant: FieldOverrideVariant.SAFE,
+      };
+
+      const applied = DocumentUtilService.processTypeOverride(
+        doc,
+        override,
+        { xs: NS_XML_SCHEMA },
+        XmlSchemaTypesService.parseTypeOverride,
+      );
+
+      expect(applied).toBe(true);
+      const code = doc.fields[0].fields.find((f) => f.isAttribute && f.name === 'code');
+      expect(code?.typeOverride).toBe(FieldOverrideVariant.FORCE);
+      expect(doc.definition.fieldTypeOverrides?.[0].variant).toBe(FieldOverrideVariant.SAFE);
+    });
+  });
+
   describe('getAllOverrideCandidates()', () => {
     it('should return all built-in and user-defined types for XML Schema documents', async () => {
       const definition = new DocumentDefinition(
@@ -565,7 +627,6 @@ describe('FieldOverrideService', () => {
         );
         const document = result.document as XmlSchemaDocument;
         const definitionFiles = document.definition.definitionFiles;
-        const dependencyEdges = document.dependencyEdges;
         const rejected = getXmlStubFile('chameleon-include/include-pair/Host.xsd').replace('Inc.xsd', 'missing.xsd');
 
         expect(() => {
@@ -573,7 +634,6 @@ describe('FieldOverrideService', () => {
         }).toThrow('Missing required schema: "missing.xsd" referenced by "a/common.xsd" via xs:include');
 
         expect(document.definition.definitionFiles).toEqual(definitionFiles);
-        expect(document.dependencyEdges).toBe(dependencyEdges);
         expect(() =>
           document.xmlSchemaCollection.getSchemaResolver().resolveEntity(null, 'a/common.xsd', null),
         ).toThrow('Schema not found');
