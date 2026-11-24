@@ -131,13 +131,13 @@ export async function waitForCamelLanguageServer(driver: WebDriver, timeout: num
  * shows up, the error also gives the state of the Camel Language Server, see describeCamelLanguageServer.
  *
  * @param driver The WebDriver instance.
- * @param fileName Name of the file, see getProblems.
+ * @param file Path of the file in the workspace folder, see getProblems.
  * @param message Text of the diagnostic, such as "Unknown option".
  * @param timeout Time to wait in ms.
  */
-export async function waitForCamelLanguageServerDiagnostic(driver: WebDriver, fileName: string, message: string, timeout: number): Promise<void> {
+export async function waitForCamelLanguageServerDiagnostic(driver: WebDriver, file: string, message: string, timeout: number): Promise<void> {
 	try {
-		await waitForProblem(driver, fileName, message, timeout);
+		await waitForProblem(driver, file, message, timeout);
 	} catch (error) {
 		throw new Error(`${(error as Error).message}. ${await describeCamelLanguageServer()}`, { cause: error });
 	}
