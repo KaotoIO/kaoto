@@ -36,6 +36,10 @@
       stroke: var(--cs-on-accent);
       stroke-width: 1px;
     }
+
+    .cds--btn--ghost:disabled svg {
+      stroke: var(--cs-on-accent-disabled);
+    }
   }
 
   // In the dark theme the tooltips are light: a border and a shadow set them apart from light content below the bar,

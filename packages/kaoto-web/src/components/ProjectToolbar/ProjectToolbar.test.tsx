@@ -27,14 +27,6 @@ describe('ProjectToolbar', () => {
     expect(screen.getByTestId(testId)).toBeInTheDocument();
   });
 
-  it.each([
-    ['Undo', /undo/i],
-    ['Redo', /redo/i],
-  ])('renders the %s button as disabled', (_label, name) => {
-    renderComponent();
-    expect(screen.getByRole('button', { name })).toBeDisabled();
-  });
-
   describe('with an active integration', () => {
     const ViewModeProvider = ({ current, children }: { current: string; children: React.ReactNode }) => {
       const [viewMode, setViewMode] = useState<ViewMode>('design');

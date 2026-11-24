@@ -1,3 +1,4 @@
+@use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
 @use '../../../styles/kaoto-theme' as kaoto;
 @use '../../../styles/panel-header' as panel;
@@ -23,4 +24,12 @@
 
 .cs--editor-header__title {
   @include panel.panel-heading;
+}
+
+// Undo and redo sit on the right
+.cs--editor-header__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: $spacing-01;
+  margin-inline-start: auto;
 }
