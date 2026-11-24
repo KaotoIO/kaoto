@@ -58,8 +58,8 @@ const renderModal = () =>
     </StrictMode>,
   );
 
-/** The tile of the type; "Citrus Test" must not match "Citrus Test XML" */
-const fileType = (name: string) => screen.getByRole('radio', { name: new RegExp(`^${name}(?! XML)`) });
+/** The tile of the type, found by its label */
+const fileType = (name: string) => screen.getByRole('radio', { name: new RegExp(`^${name}`) });
 
 describe('CreateFileModal', () => {
   beforeEach(() => {
@@ -78,7 +78,7 @@ describe('CreateFileModal', () => {
     expect(screen.getByRole('heading', { name: 'Create new file' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'File type' })).toBeInTheDocument();
     expect(fileType('Camel Route YAML')).toBeChecked();
-    for (const type of ['Camel Route XML', 'Kamelet', 'Citrus Test', 'Citrus Test XML']) {
+    for (const type of ['Camel Route XML', 'Kamelet', 'Citrus Test YAML', 'Citrus Test XML']) {
       expect(fileType(type)).not.toBeChecked();
     }
     expect(screen.queryByRole('radio', { name: /^Pipe/ })).not.toBeInTheDocument();
@@ -108,7 +108,7 @@ describe('CreateFileModal', () => {
     ['Camel Route YAML', 'orders.camel.yaml'],
     ['Camel Route XML', 'orders.camel.xml'],
     ['Kamelet', 'orders.kamelet.yaml'],
-    ['Citrus Test', 'orders.citrus.yaml'],
+    ['Citrus Test YAML', 'orders.citrus.yaml'],
     ['Citrus Test XML', 'orders.citrus.xml'],
   ])('shows the path of a %s', async (type, path) => {
     const user = userEvent.setup();
@@ -234,7 +234,7 @@ describe('CreateFileModal', () => {
     const user = userEvent.setup();
     renderModal();
 
-    await user.click(fileType('Citrus Test'));
+    await user.click(fileType('Citrus Test YAML'));
     await user.type(screen.getByLabelText('File name'), 'orders{Enter}');
 
     await waitFor(() => {
@@ -358,7 +358,7 @@ describe('CreateFileModal', () => {
     await user.click(screen.getByRole('button', { name: 'Create' }));
     await screen.findByRole('button', { name: 'Creating…' });
 
-    for (const type of ['Camel Route YAML', 'Camel Route XML', 'Kamelet', 'Citrus Test']) {
+    for (const type of ['Camel Route YAML', 'Camel Route XML', 'Kamelet', 'Citrus Test YAML']) {
       expect(fileType(type)).toBeDisabled();
     }
     expect(screen.getByLabelText('File name')).toBeDisabled();

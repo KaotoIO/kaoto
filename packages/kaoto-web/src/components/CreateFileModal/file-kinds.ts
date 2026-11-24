@@ -35,7 +35,7 @@ export const FILE_KINDS: FileKind[] = [
   },
   {
     id: 'citrus-test',
-    label: 'Citrus Test',
+    label: 'Citrus Test YAML',
     description: 'Integration test using the Citrus testing framework',
     icon: Chemistry,
     extension: '.citrus.yaml',
