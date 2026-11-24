@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { describe, expect, it } from 'vitest';
 
@@ -68,6 +68,20 @@ describe('ProjectLayout', () => {
     renderLayout(<RuntimeConsumer />);
 
     expect(screen.getByTestId('runtime-consumer')).toBeInTheDocument();
+    expect(await screen.findByTestId('explorer-empty')).toBeInTheDocument();
+  });
+
+  it('shares the width of the explorer with the toolbar, also while it is resized', async () => {
+    renderLayout();
+    const layout = screen.getByTestId('project-layout');
+    expect(layout.style.getPropertyValue('--cs-explorer-inline-size')).toBe('240px');
+
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Resize explorer panel' }), { clientX: 100 });
+    fireEvent.mouseMove(document, { clientX: 160 });
+    fireEvent.mouseUp(document);
+
+    expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '300px' });
+    expect(layout.style.getPropertyValue('--cs-explorer-inline-size')).toBe('300px');
     expect(await screen.findByTestId('explorer-empty')).toBeInTheDocument();
   });
 });

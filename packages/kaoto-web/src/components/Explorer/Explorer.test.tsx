@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { useEffect } from 'react';
 import { MemoryRouter, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -18,6 +19,7 @@ import { resetTestIndexedDB } from '../../test/indexed-db';
 import { buildTree, toFolderId } from './build-tree';
 import { Explorer } from './Explorer';
 import { filterFiles } from './filterFiles';
+import { useExplorerWidth } from './useExplorerWidth';
 
 const TREE = buildTree(TEST_FILES);
 
@@ -28,11 +30,17 @@ const expectStoredAt = async (id: string, path: string) => {
   if (path !== pathOf(id)) expect(paths).not.toContain(pathOf(id));
 };
 
+/** The Explorer with its width held the way the project layout holds it */
+const ResizableExplorer = () => {
+  const { width, handleResizerMouseDown } = useExplorerWidth();
+  return <Explorer width={width} onResizerMouseDown={handleResizerMouseDown} />;
+};
+
 const renderComponent = () =>
   render(
     <MemoryRouter initialEntries={['/workspace']}>
       <Routes>
-        <Route path="/workspace" element={withFiles(<Explorer />)} />
+        <Route path="/workspace" element={withFiles(<ResizableExplorer />)} />
       </Routes>
     </MemoryRouter>,
   );
@@ -50,7 +58,7 @@ const renderWithNavigation = (children?: React.ReactNode, initialPath = '/worksp
           path="/workspace"
           element={withFiles(
             <>
-              <Explorer />
+              <ResizableExplorer />
               {children}
               <Outlet />
             </>,
@@ -341,7 +349,10 @@ describe('Explorer', () => {
     // NavCapture is rendered inside the shared router so navigate(-1) works in context.
     let navigateFn: ReturnType<typeof useNavigate> = () => {};
     const NavCapture = () => {
-      navigateFn = useNavigate();
+      const navigate = useNavigate();
+      useEffect(() => {
+        navigateFn = navigate;
+      }, [navigate]);
       return null;
     };
     const user = userEvent.setup();

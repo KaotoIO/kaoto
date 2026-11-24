@@ -22,16 +22,17 @@ export const ProjectToolbar: FunctionComponent = () => {
 
   return (
     <div className="cs--project-toolbar" data-testid="project-toolbar">
-      <AppMenuDropdown />
-      <div className="cs--project-toolbar__controls">
-        <IconButton label="Undo" disabled={!canUndo} onClick={undo} kind="ghost" size="sm">
-          <Undo />
-        </IconButton>
-        <IconButton label="Redo" disabled={!canRedo} onClick={redo} kind="ghost" size="sm">
-          <Redo />
-        </IconButton>
+      <div className="cs--project-toolbar__start">
+        <AppMenuDropdown />
+        <div className="cs--project-toolbar__controls">
+          <IconButton label="Undo" disabled={!canUndo} onClick={undo} kind="ghost" size="sm">
+            <Undo />
+          </IconButton>
+          <IconButton label="Redo" disabled={!canRedo} onClick={redo} kind="ghost" size="sm">
+            <Redo />
+          </IconButton>
+        </div>
       </div>
-      <SelectedRuntime />
       {integrationHeader && integrationHeader.current !== '' && (
         <ContentSwitcher
           size="sm"
@@ -46,6 +47,9 @@ export const ProjectToolbar: FunctionComponent = () => {
           <Switch name="code" text="Code" disabled={isTextFile} data-testid="view-mode-code" />
         </ContentSwitcher>
       )}
+      <div className="cs--project-toolbar__end">
+        <SelectedRuntime />
+      </div>
     </div>
   );
 };

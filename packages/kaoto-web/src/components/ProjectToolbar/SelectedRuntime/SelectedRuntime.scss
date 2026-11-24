@@ -6,15 +6,9 @@
 .cs--selected-runtime {
   padding-inline: $spacing-05;
 
-  // ≥ $layout-compact: full width, never shrink
-  flex-shrink: 0;
-
-  // $layout-minimal–$layout-compact: allow shrinking with ellipsis
-  @media (width < bp.$layout-compact) {
-    flex-shrink: 1;
-    min-inline-size: 0;
-    overflow: hidden;
-  }
+  // Shrinks with an ellipsis when the toolbar has no room for the full name
+  flex-shrink: 1;
+  min-inline-size: 0;
 
   // < $layout-minimal: hide entirely so the switcher always has room
   @media (width < bp.$layout-minimal) {
@@ -25,24 +19,24 @@
 .selected-runtime-label {
   @include type-style('label-02');
 
+  // ToggletipLabel renders as <span> (inline); block is required for text-overflow
+  display: block;
+  min-inline-size: 0;
+  overflow: hidden;
   color: $text-secondary;
+  text-overflow: ellipsis;
   white-space: nowrap;
-
-  // ToggletipLabel renders as <span> (inline); block is required for text-overflow.
-  // Only clip with ellipsis in the narrow range where shrinking is allowed.
-  @media (width < bp.$layout-compact) {
-    display: block;
-    min-inline-size: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
 }
 
 .selected-runtime-toggletip {
   display: flex;
   align-items: center;
+  min-inline-size: 0;
 
-  @media (width < bp.$layout-compact) {
-    min-inline-size: 0;
+  // Carbon makes the info button as wide as its container; with a label that can shrink, the two would share the room
+  // and the name would shorten long before it has to. The button keeps the size of its icon instead.
+  .cds--toggletip-button {
+    flex: none;
+    inline-size: auto;
   }
 }
