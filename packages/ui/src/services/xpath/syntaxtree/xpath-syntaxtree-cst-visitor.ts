@@ -32,22 +32,7 @@ import {
 import { XPathUtil } from './xpath-syntaxtree-util';
 
 // Type aliases to reduce cognitive complexity and improve readability
-type ArithmeticResult =
-  | ArithmeticExprNode
-  | PathExprNode
-  | LiteralNode
-  | VarRefNode
-  | FunctionCallNode
-  | ParenthesizedExprNode
-  | CombineExprNode
-  | AtomicExprNode
-  | undefined;
-
-type LogicalResult = ExprSingleNode | undefined;
-
-/** What visiting a `UnionExpr`/`IntersectExceptExpr` layer yields: the combination, or — when the
- * layer carries no operator — the single path it wraps, possibly under an atomic operator. */
-type CombineResult = CombineExprNode | PathExprNode | AtomicExprNode | undefined;
+type ExprSingleResult = ExprSingleNode | undefined;
 
 /**
  * Configuration for processing binary expressions (arithmetic or logical).
@@ -902,15 +887,17 @@ export class CstVisitor {
    * Visits a UnionExpr CST node.
    * Handles operations: `|`, `union`
    * Example: `/a | /b` — both operands are real sources, so both render a mapping line.
+   * @returns the combination, or — when the layer carries no operator — the single path it wraps, possibly
+   * under an atomic operator
    */
-  private static visitUnionExpr(node: CstElement): CombineResult {
+  private static visitUnionExpr(node: CstElement): ExprSingleResult {
     const operators = CstVisitor.extractCombineOperators(node, [
       { key: 'Pipe', value: CombineOperator.Union },
       { key: 'Union', value: CombineOperator.Union },
     ]);
     let operatorIndex = 0;
 
-    return CstVisitor.visitBinaryExpr<CombineResult, CombineOperator>(node, {
+    return CstVisitor.visitBinaryExpr<ExprSingleResult, CombineOperator>(node, {
       operandPath: ['IntersectExceptExpr'],
       extractOperator: () => operators[operatorIndex++],
       visitOperand: (operand) => CstVisitor.visitIntersectExceptExpr(operand),
@@ -922,15 +909,17 @@ export class CstVisitor {
    * Visits an IntersectExceptExpr CST node.
    * Handles operations: `intersect`, `except`
    * Example: `a intersect b` or the mixed chain `b intersect c except d`
+   * @returns the combination, or — when the layer carries no operator — the single path it wraps, possibly
+   * under an atomic operator
    */
-  private static visitIntersectExceptExpr(node: CstElement): CombineResult {
+  private static visitIntersectExceptExpr(node: CstElement): ExprSingleResult {
     const operators = CstVisitor.extractCombineOperators(node, [
       { key: 'Intersect', value: CombineOperator.Intersect },
       { key: 'Except', value: CombineOperator.Except },
     ]);
     let operatorIndex = 0;
 
-    return CstVisitor.visitBinaryExpr<CombineResult, CombineOperator>(node, {
+    return CstVisitor.visitBinaryExpr<ExprSingleResult, CombineOperator>(node, {
       operandPath: ['InstanceofExpr'],
       extractOperator: () => operators[operatorIndex++],
       visitOperand: (operand) => CstVisitor.visitInstanceofExpr(operand),
@@ -986,10 +975,10 @@ export class CstVisitor {
    */
   private static createCombineNode(
     cstNode: CstElement,
-    left: CombineResult,
-    right: CombineResult,
+    left: ExprSingleResult,
+    right: ExprSingleResult,
     operator: CombineOperator | undefined,
-  ): CombineResult {
+  ): ExprSingleResult {
     if (!operator || !left || !right) return left;
 
     const combineNode: CombineExprNode = {
@@ -1010,13 +999,13 @@ export class CstVisitor {
    * Handles operations: *, div, idiv, mod
    * Example: `price * quantity` or `count mod 10`
    */
-  private static visitMultiplicativeExpr(node: CstElement): ArithmeticResult {
+  private static visitMultiplicativeExpr(node: CstElement): ExprSingleResult {
     // Extract all operators in order for mixed multiplicative operators
     // For "a * b div c", this gives [Multiply, Div] in correct order
     const operators = CstVisitor.extractArithmeticOperators(node);
     let operatorIndex = 0;
 
-    return CstVisitor.visitBinaryExpr<ArithmeticResult, ArithmeticOperator>(node, {
+    return CstVisitor.visitBinaryExpr<ExprSingleResult, ArithmeticOperator>(node, {
       operandPath: ['UnionExpr'],
       extractOperator: () => operators[operatorIndex++],
       visitOperand: (operand) => CstVisitor.visitUnionExpr(operand),
@@ -1036,10 +1025,10 @@ export class CstVisitor {
    */
   private static createArithmeticNode(
     cstNode: CstElement,
-    left: ArithmeticResult,
-    right: ArithmeticResult,
+    left: ExprSingleResult,
+    right: ExprSingleResult,
     operator: ArithmeticOperator | undefined,
-  ): ArithmeticResult {
+  ): ExprSingleResult {
     if (!operator || !left || !right) return left;
 
     const arithmeticNode: ArithmeticExprNode = {
@@ -1060,13 +1049,13 @@ export class CstVisitor {
    * Handles operations: +, -
    * Example: `price + tax` or `total - discount`
    */
-  private static visitAdditiveExpr(node: CstElement): ArithmeticResult {
+  private static visitAdditiveExpr(node: CstElement): ExprSingleResult {
     // Extract all operators in order to handle mixed operators correctly
     // For "a - b + c", this gives [Minus, Plus] so each pair gets the right operator
     const operators = CstVisitor.extractArithmeticOperators(node);
     let operatorIndex = 0;
 
-    return CstVisitor.visitBinaryExpr<ArithmeticResult, ArithmeticOperator>(node, {
+    return CstVisitor.visitBinaryExpr<ExprSingleResult, ArithmeticOperator>(node, {
       operandPath: ['MultiplicativeExpr'],
       extractOperator: () => operators[operatorIndex++],
       visitOperand: (operand) => CstVisitor.visitMultiplicativeExpr(operand),
@@ -1086,10 +1075,10 @@ export class CstVisitor {
    */
   private static createLogicalNode(
     cstNode: CstElement,
-    left: LogicalResult,
-    right: LogicalResult,
+    left: ExprSingleResult,
+    right: ExprSingleResult,
     operator: LogicalOperator,
-  ): LogicalResult {
+  ): ExprSingleResult {
     if (!left || !right) return left;
 
     const logicalNode: LogicalExprNode = {
@@ -1109,8 +1098,8 @@ export class CstVisitor {
    * Visits an AndExpr CST node.
    * Handles logical AND operations: `condition1 and condition2`
    */
-  private static visitAndExpr(node: CstElement): LogicalResult {
-    return CstVisitor.visitBinaryExpr<LogicalResult, LogicalOperator>(node, {
+  private static visitAndExpr(node: CstElement): ExprSingleResult {
+    return CstVisitor.visitBinaryExpr<ExprSingleResult, LogicalOperator>(node, {
       operandPath: ['ComparisonExpr'],
       extractOperator: () => LogicalOperator.And,
       visitOperand: (operand) => CstVisitor.processComparisonExpr(operand),
@@ -1122,8 +1111,8 @@ export class CstVisitor {
    * Visits an OrExpr CST node.
    * Handles logical OR operations: `condition1 or condition2`
    */
-  private static visitOrExpr(node: CstElement): LogicalResult {
-    return CstVisitor.visitBinaryExpr<LogicalResult, LogicalOperator>(node, {
+  private static visitOrExpr(node: CstElement): ExprSingleResult {
+    return CstVisitor.visitBinaryExpr<ExprSingleResult, LogicalOperator>(node, {
       operandPath: ['AndExpr'],
       extractOperator: () => LogicalOperator.Or,
       visitOperand: (operand) => CstVisitor.visitAndExpr(operand),

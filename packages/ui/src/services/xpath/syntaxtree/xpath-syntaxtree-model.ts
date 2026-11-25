@@ -325,25 +325,9 @@ export interface ComparisonExprNode extends XPathNode {
  */
 export interface ArithmeticExprNode extends XPathNode {
   type: XPathNodeType.ArithmeticExpr;
-  left:
-    | PathExprNode
-    | LiteralNode
-    | VarRefNode
-    | ArithmeticExprNode
-    | FunctionCallNode
-    | ParenthesizedExprNode
-    | CombineExprNode
-    | AtomicExprNode;
+  left: ExprSingleNode;
   operator: ArithmeticOperator;
-  right:
-    | PathExprNode
-    | LiteralNode
-    | VarRefNode
-    | ArithmeticExprNode
-    | FunctionCallNode
-    | ParenthesizedExprNode
-    | CombineExprNode
-    | AtomicExprNode;
+  right: ExprSingleNode;
 }
 
 /**
@@ -375,23 +359,9 @@ export interface LogicalExprNode extends XPathNode {
  */
 export interface CombineExprNode extends XPathNode {
   type: XPathNodeType.CombineExpr;
-  left:
-    | PathExprNode
-    | LiteralNode
-    | VarRefNode
-    | CombineExprNode
-    | FunctionCallNode
-    | ParenthesizedExprNode
-    | AtomicExprNode;
+  left: ExprSingleNode;
   operator: CombineOperator;
-  right:
-    | PathExprNode
-    | LiteralNode
-    | VarRefNode
-    | CombineExprNode
-    | FunctionCallNode
-    | ParenthesizedExprNode
-    | AtomicExprNode;
+  right: ExprSingleNode;
 }
 
 /**
@@ -416,3 +386,42 @@ export interface UnsupportedExprNode extends XPathNode {
   type: XPathNodeType.UnsupportedExpr;
   keyword: 'for' | 'some' | 'every';
 }
+
+/**
+ * Checks that a node map has one entry per {@link XPathNodeType} member and that each entry's `type` is that
+ * member. A missing member or a mismatched interface fails the constraint at compile time.
+ */
+export type CompleteXPathNodeMap<T extends { [K in XPathNodeType]: XPathNode & { type: K } }> = T;
+
+/**
+ * The node interface of every {@link XPathNodeType} member. A new node type must be added here, which makes the
+ * child walk (`XPathUtil.getChildren`) fail to compile until it has a case for it; a type that is also an
+ * {@link ExprSingleNode} member needs a result-walk case (`XPathUtil.getResultExpressions`) too.
+ */
+export type XPathNodeMap = CompleteXPathNodeMap<{
+  [XPathNodeType.PathExpr]: PathExprNode;
+  [XPathNodeType.StepExpr]: StepExprNode;
+  [XPathNodeType.FilterExpr]: FilterExprNode;
+  [XPathNodeType.FunctionCall]: FunctionCallNode;
+  [XPathNodeType.VarRef]: VarRefNode;
+  [XPathNodeType.Literal]: LiteralNode;
+  [XPathNodeType.ContextItemExpr]: ContextItemExprNode;
+  [XPathNodeType.Predicate]: PredicateNode;
+  [XPathNodeType.ComparisonExpr]: ComparisonExprNode;
+  [XPathNodeType.ArithmeticExpr]: ArithmeticExprNode;
+  [XPathNodeType.LogicalExpr]: LogicalExprNode;
+  [XPathNodeType.NameTest]: NameTestNode;
+  [XPathNodeType.ReverseStep]: ReverseStepNode;
+  [XPathNodeType.ParenthesizedExpr]: ParenthesizedExprNode;
+  [XPathNodeType.Expr]: ExprNode;
+  [XPathNodeType.IfExpr]: IfExprNode;
+  [XPathNodeType.CombineExpr]: CombineExprNode;
+  [XPathNodeType.AtomicExpr]: AtomicExprNode;
+  [XPathNodeType.UnsupportedExpr]: UnsupportedExprNode;
+}>;
+
+/**
+ * Any syntax tree node, as a closed union that narrows on `type`. {@link XPathNode} stays the common shape and
+ * the type of `parent`.
+ */
+export type XPathSyntaxNode = XPathNodeMap[XPathNodeType];

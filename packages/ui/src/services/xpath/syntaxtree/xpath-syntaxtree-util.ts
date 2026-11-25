@@ -1,27 +1,26 @@
 import {
-  ArithmeticExprNode,
-  AtomicExprNode,
   CombineExprNode,
   CombineOperator,
-  ComparisonExprNode,
   ExprNode,
   ExprSingleNode,
-  FilterExprNode,
-  FunctionCallNode,
-  IfExprNode,
-  LogicalExprNode,
   ParenthesizedExprNode,
   PathExprNode,
-  PredicateNode,
-  ReverseStepNode,
   SourceRange,
-  StepExprNode,
   XPathNode,
+  XPathNodeMap,
   XPathNodeType,
+  XPathSyntaxNode,
 } from './xpath-syntaxtree-model';
 
 /**
  * Utility functions for working with XPath syntax tree nodes.
+ *
+ * The syntax tree stays faithful to the expression and keeps every child the parser models; readers don't
+ * prune it. Two walks read it and each decides what to follow: the child walk ({@link XPathUtil.getChildren},
+ * behind {@link XPathUtil.getAllNodesOfType} and {@link XPathUtil.findNodeAtPosition}) follows every child,
+ * i.e. what an expression reads; the result walk ({@link XPathUtil.getResultExpressions}) follows only the parts
+ * that contribute nodes to the result, i.e. what it writes. Every node type has a child-walk case; every
+ * {@link ExprSingleNode} type also has a result-walk case.
  */
 export class XPathUtil {
   /**
@@ -51,131 +50,68 @@ export class XPathUtil {
     };
   }
 
-  private static traversePathExpr(node: PathExprNode, callback: (node: XPathNode) => void): void {
-    for (const step of node.steps) {
-      this.traverseNode(step, callback);
-    }
-  }
-
-  private static traverseStepExpr(node: StepExprNode, callback: (node: XPathNode) => void): void {
-    if (node.nodeTest) this.traverseNode(node.nodeTest, callback);
-    for (const predicate of node.predicates) {
-      this.traverseNode(predicate, callback);
-    }
-    if (node.filterExpr) this.traverseNode(node.filterExpr, callback);
-    if (node.reverseStep) this.traverseNode(node.reverseStep, callback);
-  }
-
-  private static traverseFilterExpr(node: FilterExprNode, callback: (node: XPathNode) => void): void {
-    this.traverseNode(node.primary, callback);
-    for (const predicate of node.predicates) {
-      this.traverseNode(predicate, callback);
-    }
-  }
-
-  private static traverseFunctionCall(node: FunctionCallNode, callback: (node: XPathNode) => void): void {
-    for (const arg of node.arguments) {
-      this.traverseNode(arg, callback);
-    }
-  }
-
-  private static traversePredicate(node: PredicateNode, callback: (node: XPathNode) => void): void {
-    this.traverseNode(node.expr, callback);
-  }
-
-  private static traverseComparisonExpr(node: ComparisonExprNode, callback: (node: XPathNode) => void): void {
-    this.traverseNode(node.left, callback);
-    if (node.right) this.traverseNode(node.right, callback);
-  }
-
-  private static traverseExpr(node: ExprNode, callback: (node: XPathNode) => void): void {
-    for (const expr of node.expressions) {
-      this.traverseNode(expr, callback);
-    }
-  }
-
-  private static traverseParenthesizedExpr(node: ParenthesizedExprNode, callback: (node: XPathNode) => void): void {
-    if (node.expr) this.traverseNode(node.expr, callback);
-  }
-
-  private static traverseReverseStep(node: ReverseStepNode, callback: (node: XPathNode) => void): void {
-    if (node.nodeTest) this.traverseNode(node.nodeTest, callback);
-  }
-
-  private static traverseIfExpr(node: IfExprNode, callback: (node: XPathNode) => void): void {
-    if (node.condition) this.traverseNode(node.condition, callback);
-    if (node.thenExpr) this.traverseNode(node.thenExpr, callback);
-    if (node.elseExpr) this.traverseNode(node.elseExpr, callback);
-  }
-
-  private static traverseArithmeticExpr(node: ArithmeticExprNode, callback: (node: XPathNode) => void): void {
-    this.traverseNode(node.left, callback);
-    this.traverseNode(node.right, callback);
-  }
-
-  private static traverseLogicalExpr(node: LogicalExprNode, callback: (node: XPathNode) => void): void {
-    this.traverseNode(node.left, callback);
-    this.traverseNode(node.right, callback);
-  }
-
-  private static traverseCombineExpr(node: CombineExprNode, callback: (node: XPathNode) => void): void {
-    this.traverseNode(node.left, callback);
-    this.traverseNode(node.right, callback);
-  }
-
-  private static traverseAtomicExpr(node: AtomicExprNode, callback: (node: XPathNode) => void): void {
-    for (const operand of node.operands) {
-      this.traverseNode(operand, callback);
-    }
-  }
-
-  private static traverseNode(node: XPathNode, callback: (node: XPathNode) => void): void {
-    callback(node);
-
+  /**
+   * Every child syntax node of `node`, in written order, which `findNodeAtPosition` tie-breaking and
+   * `getAllNodesOfType` result order rely on. There is one case per node type and no `default`, so a node type
+   * without a case fails to compile. The returned array is always a new one, so changing it doesn't change the
+   * node's child lists.
+   * @param node - the node whose children to return
+   * @returns the children, or an empty array for a leaf
+   */
+  static getChildren(node: XPathSyntaxNode): XPathSyntaxNode[] {
     switch (node.type) {
       case XPathNodeType.PathExpr:
-        this.traversePathExpr(node as PathExprNode, callback);
-        break;
+        return [...node.steps];
       case XPathNodeType.StepExpr:
-        this.traverseStepExpr(node as StepExprNode, callback);
-        break;
+        return [
+          ...XPathUtil.present(node.reverseStep, node.nodeTest),
+          ...node.predicates,
+          ...XPathUtil.present(node.filterExpr),
+        ];
       case XPathNodeType.FilterExpr:
-        this.traverseFilterExpr(node as FilterExprNode, callback);
-        break;
+        return [node.primary, ...node.predicates];
       case XPathNodeType.FunctionCall:
-        this.traverseFunctionCall(node as FunctionCallNode, callback);
-        break;
+        return [...node.arguments];
       case XPathNodeType.Predicate:
-        this.traversePredicate(node as PredicateNode, callback);
-        break;
+        return [node.expr];
       case XPathNodeType.ComparisonExpr:
-        this.traverseComparisonExpr(node as ComparisonExprNode, callback);
-        break;
+        return XPathUtil.present(node.left, node.right);
       case XPathNodeType.Expr:
-        this.traverseExpr(node as ExprNode, callback);
-        break;
+        return [...node.expressions];
       case XPathNodeType.ParenthesizedExpr:
-        this.traverseParenthesizedExpr(node as ParenthesizedExprNode, callback);
-        break;
-      case XPathNodeType.IfExpr:
-        this.traverseIfExpr(node as IfExprNode, callback);
-        break;
-      case XPathNodeType.ArithmeticExpr:
-        this.traverseArithmeticExpr(node as ArithmeticExprNode, callback);
-        break;
-      case XPathNodeType.LogicalExpr:
-        this.traverseLogicalExpr(node as LogicalExprNode, callback);
-        break;
-      case XPathNodeType.CombineExpr:
-        this.traverseCombineExpr(node as CombineExprNode, callback);
-        break;
+        return XPathUtil.present(node.expr);
       case XPathNodeType.ReverseStep:
-        this.traverseReverseStep(node as ReverseStepNode, callback);
-        break;
+        return XPathUtil.present(node.nodeTest);
+      case XPathNodeType.IfExpr:
+        return XPathUtil.present(node.condition, node.thenExpr, node.elseExpr);
+      case XPathNodeType.ArithmeticExpr:
+      case XPathNodeType.LogicalExpr:
+      case XPathNodeType.CombineExpr:
+        return [node.left, node.right];
       case XPathNodeType.AtomicExpr:
-        this.traverseAtomicExpr(node as AtomicExprNode, callback);
-        break;
+        return [...node.operands];
+      case XPathNodeType.NameTest:
+      case XPathNodeType.Literal:
+      case XPathNodeType.VarRef:
+      case XPathNodeType.ContextItemExpr:
+      case XPathNodeType.UnsupportedExpr:
+        return [];
     }
+  }
+
+  private static present(...nodes: (XPathSyntaxNode | null | undefined)[]): XPathSyntaxNode[] {
+    return nodes.filter((node): node is XPathSyntaxNode => !!node);
+  }
+
+  private static traverseNode(node: XPathSyntaxNode, callback: (node: XPathSyntaxNode) => void): void {
+    callback(node);
+    for (const child of XPathUtil.getChildren(node)) {
+      XPathUtil.traverseNode(child, callback);
+    }
+  }
+
+  private static isNodeOfType<K extends XPathNodeType>(node: XPathSyntaxNode, type: K): node is XPathNodeMap[K] {
+    return node.type === type;
   }
 
   /**
@@ -185,12 +121,12 @@ export class XPathUtil {
    * @param offset Character offset in the source XPath expression
    * @returns The deepest node containing the offset, or undefined if offset is out of range
    */
-  static findNodeAtPosition(root: XPathNode, offset: number): XPathNode | undefined {
+  static findNodeAtPosition(root: XPathSyntaxNode, offset: number): XPathSyntaxNode | undefined {
     if (offset < root.range.start.offset || offset > root.range.end.offset) {
       return undefined;
     }
 
-    let deepestNode: XPathNode = root;
+    let deepestNode: XPathSyntaxNode = root;
 
     this.traverseNode(root, (node) => {
       if (offset >= node.range.start.offset && offset <= node.range.end.offset) {
@@ -213,12 +149,12 @@ export class XPathUtil {
    * @param type Type of nodes to collect
    * @returns Array of all nodes matching the specified type
    */
-  static getAllNodesOfType<T extends XPathNode>(root: XPathNode, type: XPathNodeType): T[] {
-    const results: T[] = [];
+  static getAllNodesOfType<K extends XPathNodeType>(root: XPathSyntaxNode, type: K): XPathNodeMap[K][] {
+    const results: XPathNodeMap[K][] = [];
 
     this.traverseNode(root, (node) => {
-      if (node.type === type) {
-        results.push(node as T);
+      if (XPathUtil.isNodeOfType(node, type)) {
+        results.push(node);
       }
     });
 
@@ -272,7 +208,14 @@ export class XPathUtil {
         const primary = XPathUtil.getParenthesizedPrimary(node);
         return primary ? XPathUtil.getResultExpressions(primary) : [node];
       }
-      default:
+      case XPathNodeType.ComparisonExpr:
+      case XPathNodeType.ArithmeticExpr:
+      case XPathNodeType.LogicalExpr:
+      case XPathNodeType.Literal:
+      case XPathNodeType.FunctionCall:
+      case XPathNodeType.VarRef:
+      case XPathNodeType.AtomicExpr:
+      case XPathNodeType.UnsupportedExpr:
         return [node];
     }
   }

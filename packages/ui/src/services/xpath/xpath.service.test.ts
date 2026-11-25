@@ -9,7 +9,7 @@ import {
 import { Predicate, PredicateOperator, XPathOutputKind } from '../../models/datamapper/xpath';
 import { getCartXsd, getShipOrderXsd } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
-import { LiteralNode, XPathNodeType } from './syntaxtree/xpath-syntaxtree-model';
+import { XPathNodeType } from './syntaxtree/xpath-syntaxtree-model';
 import { XPathUtil } from './syntaxtree/xpath-syntaxtree-util';
 import { XPathService } from './xpath.service';
 
@@ -254,7 +254,7 @@ describe('XPathService', () => {
       expect(result.lexErrors).toHaveLength(0);
       expect(result.parseErrors).toHaveLength(0);
       expect(result.exprNode).toBeDefined();
-      let literals = XPathUtil.getAllNodesOfType<LiteralNode>(result.exprNode!, XPathNodeType.Literal);
+      let literals = XPathUtil.getAllNodesOfType(result.exprNode!, XPathNodeType.Literal);
       expect(literals).toHaveLength(1);
       expect(literals[0].value).toBe(128);
       expect(literals[0].literalType).toBe('integer');
@@ -263,7 +263,7 @@ describe('XPathService', () => {
       expect(result.lexErrors).toHaveLength(0);
       expect(result.parseErrors).toHaveLength(0);
       expect(result.exprNode).toBeDefined();
-      literals = XPathUtil.getAllNodesOfType<LiteralNode>(result.exprNode!, XPathNodeType.Literal);
+      literals = XPathUtil.getAllNodesOfType(result.exprNode!, XPathNodeType.Literal);
       expect(literals).toHaveLength(1);
       expect(literals[0].value).toEqual(0.1);
       expect(literals[0].literalType).toBe('decimal');
@@ -272,7 +272,7 @@ describe('XPathService', () => {
       expect(result.lexErrors).toHaveLength(0);
       expect(result.parseErrors).toHaveLength(0);
       expect(result.exprNode).toBeDefined();
-      literals = XPathUtil.getAllNodesOfType<LiteralNode>(result.exprNode!, XPathNodeType.Literal);
+      literals = XPathUtil.getAllNodesOfType(result.exprNode!, XPathNodeType.Literal);
       expect(literals).toHaveLength(1);
       expect(literals[0].value).toBe(4268.22752e11);
       expect(literals[0].literalType).toBe('double');

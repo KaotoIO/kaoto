@@ -323,7 +323,7 @@ export class XPathService {
   }
 
   private static extractFieldPathsFromExprNode(astNode: ExprNode, contextPath?: PathExpression): PathExpression[] {
-    const pathExprNodes = XPathUtil.getAllNodesOfType<PathExprNode>(astNode, XPathNodeType.PathExpr);
+    const pathExprNodes = XPathUtil.getAllNodesOfType(astNode, XPathNodeType.PathExpr);
     const paths: PathExpression[] = [];
 
     for (const pathNode of pathExprNodes) {
@@ -505,10 +505,7 @@ export class XPathService {
   }
 
   private static extractPredicate(predicateNode: PredicateNode): Predicate {
-    const comparisonNodes = XPathUtil.getAllNodesOfType<ComparisonExprNode>(
-      predicateNode,
-      XPathNodeType.ComparisonExpr,
-    );
+    const comparisonNodes = XPathUtil.getAllNodesOfType(predicateNode, XPathNodeType.ComparisonExpr);
 
     if (comparisonNodes.length > 0) {
       const compNode = comparisonNodes[0];
