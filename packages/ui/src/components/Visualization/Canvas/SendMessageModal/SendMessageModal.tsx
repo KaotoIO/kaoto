@@ -10,6 +10,8 @@ import {
   ModalHeader,
   RadioButton,
   RadioButtonGroup,
+  Select,
+  SelectItem,
   TextArea,
   TextInput,
 } from '@carbon/react';
@@ -63,6 +65,14 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   const sendMessage = modalContext?.sendMessage;
   const isSending = modalContext?.isSending ?? false;
   const error = modalContext?.error ?? null;
+  const availableTargets = modalContext?.runtime
+    ? modalContext.runtime.targets.filter(
+        (target) => target.routeId === options?.endpoint && target.state === 'Started',
+      )
+    : options?.targets;
+  const [selectedTargetId, setSelectedTargetId] = useState('');
+  const hasValidTarget =
+    availableTargets === undefined || availableTargets.some((target) => target.id === selectedTargetId);
 
   const { headers: headersCatalog } = useCamelHeaders(isOpen);
 
@@ -102,6 +112,7 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
   if (previousInputs.isOpen !== isOpen || previousInputs.options !== options) {
     setPreviousInputs({ isOpen, options });
     if (isOpen) {
+      setSelectedTargetId(options?.targets?.length === 1 ? options.targets[0].id : '');
       setBodyType('text');
       setBody(options?.initialBody ?? '');
       setFileBody(null);
@@ -234,7 +245,14 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
 
   // Submit handler
   const handleSubmit = useCallback(async () => {
-    if (!options?.endpoint || hasInvalidHeaders || isImportingMessage || (bodyType === 'file' && !fileBody)) return;
+    if (
+      !hasValidTarget ||
+      !options?.endpoint ||
+      hasInvalidHeaders ||
+      isImportingMessage ||
+      (bodyType === 'file' && !fileBody)
+    )
+      return;
 
     const headersRecord: Record<string, string> = {};
     headers.forEach((h) => {
@@ -254,12 +272,24 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
 
     if (sendMessage) {
       try {
-        await sendMessage(payload);
+        await sendMessage(payload, availableTargets === undefined ? undefined : selectedTargetId);
       } catch {
         // error handled in provider
       }
     }
-  }, [options, headers, bodyType, body, fileBody, sendMessage, hasInvalidHeaders, isImportingMessage]);
+  }, [
+    options,
+    headers,
+    bodyType,
+    body,
+    fileBody,
+    sendMessage,
+    hasInvalidHeaders,
+    isImportingMessage,
+    hasValidTarget,
+    availableTargets,
+    selectedTargetId,
+  ]);
 
   const modalTitle = options?.title ?? `Send a test message to ${options?.endpoint ?? 'endpoint'}`;
   const modalSubtitle = options?.subtitle ?? 'It goes to the endpoint the route starts from, in the running app.';
@@ -276,6 +306,27 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
       <ModalHeader title={modalTitle} />
       <ModalBody>
         <p className="send-message-modal__subtitle">{modalSubtitle}</p>
+        {availableTargets !== undefined && (
+          <Select
+            id="send-message-target"
+            className="send-message-modal__section"
+            labelText="Target runtime"
+            value={hasValidTarget ? selectedTargetId : ''}
+            disabled={isSending}
+            onChange={(event) => {
+              setSelectedTargetId(event.target.value);
+            }}
+          >
+            <SelectItem value="" text={availableTargets.length ? 'Select a runtime' : 'No started runtime available'} />
+            {availableTargets.map((target) => (
+              <SelectItem
+                key={target.id}
+                value={target.id}
+                text={`${target.label} (PID ${target.pid ?? 'unavailable'})`}
+              />
+            ))}
+          </Select>
+        )}
 
         {isOpen && (
           <MessageTemplateActions
@@ -492,6 +543,7 @@ export const SendMessageModal: FunctionComponent<SendMessageModalProps> = ({
           kind="primary"
           onClick={handleSubmit}
           disabled={
+            !hasValidTarget ||
             isSending ||
             isImportingMessage ||
             !options?.endpoint ||

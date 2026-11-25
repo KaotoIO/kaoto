@@ -136,7 +136,16 @@ export const SendMessageToolbar: StoryObj<CanvasStoryArgs> = {
   render: CanvasFromEntity,
   decorators: [
     (Story) => (
-      <SendMessageModalProvider>
+      <SendMessageModalProvider
+        runtime={{
+          targets: [
+            { id: 'demo-runtime', routeId: 'send-message-demo', label: 'Demo runtime', pid: 1234, state: 'Started' },
+          ],
+          send: async () => {
+            await new Promise((resolve) => setTimeout(resolve, 500));
+          },
+        }}
+      >
         <Story />
         <SendMessageModal />
       </SendMessageModalProvider>
@@ -150,6 +159,18 @@ export const SendMessageToolbar: StoryObj<CanvasStoryArgs> = {
       },
     }),
   },
+};
+
+export const SendMessageStopped: StoryObj<CanvasStoryArgs> = {
+  ...SendMessageToolbar,
+  decorators: [
+    (Story) => (
+      <SendMessageModalProvider runtime={{ targets: [], send: async () => {} }}>
+        <Story />
+        <SendMessageModal />
+      </SendMessageModalProvider>
+    ),
+  ],
 };
 
 export const PipeVisualization: StoryObj<CanvasStoryArgs> = {
