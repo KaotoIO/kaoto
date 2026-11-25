@@ -1,4 +1,4 @@
-import { CstElement, CstNode, IToken } from 'chevrotain';
+import { CstElement, CstNode, CstNodeLocation } from 'chevrotain';
 
 import { PredicateOperator } from '../../../models/datamapper/xpath';
 import {
@@ -42,7 +42,7 @@ interface BinaryExpressionConfig<TNode, TOperator> {
   operandPath: string[];
   extractOperator: (node: CstElement) => TOperator | undefined;
   visitOperand: (operand: CstElement) => TNode;
-  createNode: (cstNode: CstElement, left: TNode, right: TNode, operator: TOperator | undefined) => TNode;
+  createNode: (range: SourceRange, left: TNode, right: TNode, operator: TOperator | undefined) => TNode;
 }
 
 /**
@@ -114,65 +114,49 @@ export class CstVisitor {
     }
   }
 
-  private static createRangeFromToken(token: IToken): SourceRange {
-    return XPathUtil.createRange(
-      token.startLine ?? 1,
-      token.startColumn ?? 1,
-      token.startOffset ?? 0,
-      token.endLine,
-      token.endColumn,
-      token.endOffset,
-    );
+  /**
+   * The range a parser element was read from: a token's own position, or a CST node's `location`. The parser
+   * tracks full positions, so only an element without tokens (an empty CST node, whose offsets are `-1`) or a
+   * hand-built CST without positions has none.
+   * @param element - a token or a CST node
+   * @returns the range, or `undefined` when the element has no valid start offset
+   */
+  private static getSourceRange(element: CstElement): SourceRange | undefined {
+    const position: CstNodeLocation | undefined = 'image' in element ? element : element.location;
+    if (position && position.startOffset >= 0) {
+      return XPathUtil.createRange(
+        position.startLine ?? 1,
+        position.startColumn ?? 1,
+        position.startOffset,
+        position.endLine,
+        position.endColumn,
+        position.endOffset,
+      );
+    }
+    return undefined;
+  }
+
+  /**
+   * One range from the start of the first element to the end of the last one, for a node that has no CST node
+   * of its own, such as one link of an operator chain or a predicate with its brackets. Elements without a
+   * position are skipped. When none has one, which only a hand-built CST without positions can cause, the
+   * range is the `0-0` default.
+   * @param elements - parser elements in written order
+   * @returns the range spanning the elements
+   */
+  private static createRangeSpanning(elements: readonly CstElement[]): SourceRange {
+    let spanning: SourceRange | undefined;
+    for (const element of elements) {
+      const range = CstVisitor.getSourceRange(element);
+      if (range) {
+        spanning = spanning ? { start: spanning.start, end: range.end } : range;
+      }
+    }
+    return spanning ?? XPathUtil.createRange(1, 1, 0);
   }
 
   private static createRangeFromNode(node: CstElement): SourceRange {
-    if ('image' in node) {
-      return CstVisitor.createRangeFromToken(node);
-    }
-
-    if ('children' in node) {
-      const children = Object.values(node.children).flat();
-      if (children.length > 0) {
-        const firstToken = CstVisitor.getFirstToken(children[0]);
-        const lastToken = CstVisitor.getLastToken(children[children.length - 1]);
-        if (firstToken && lastToken) {
-          return XPathUtil.createRange(
-            firstToken.startLine ?? 1,
-            firstToken.startColumn ?? 1,
-            firstToken.startOffset ?? 0,
-            lastToken.endLine,
-            lastToken.endColumn,
-            lastToken.endOffset,
-          );
-        }
-      }
-    }
-
-    return XPathUtil.createRange(1, 1, 0);
-  }
-
-  private static getFirstToken(node: CstElement): IToken | undefined {
-    if ('image' in node) return node;
-    if ('children' in node) {
-      const children = Object.values(node.children).flat();
-      for (const child of children) {
-        const token = CstVisitor.getFirstToken(child);
-        if (token) return token;
-      }
-    }
-    return undefined;
-  }
-
-  private static getLastToken(node: CstElement): IToken | undefined {
-    if ('image' in node) return node;
-    if ('children' in node) {
-      const children = Object.values(node.children).flat().reverse();
-      for (const child of children) {
-        const token = CstVisitor.getLastToken(child);
-        if (token) return token;
-      }
-    }
-    return undefined;
+    return CstVisitor.createRangeSpanning([node]);
   }
 
   /**
@@ -518,7 +502,7 @@ export class CstVisitor {
     if (contextItem && 'image' in contextItem) {
       return {
         type: XPathNodeType.ContextItemExpr,
-        range: CstVisitor.createRangeFromToken(contextItem),
+        range: CstVisitor.createRangeFromNode(contextItem),
       };
     }
 
@@ -542,7 +526,7 @@ export class CstVisitor {
       const value = image.replace(/^['"](.*)['"]/, '$1');
       return {
         type: XPathNodeType.Literal,
-        range: CstVisitor.createRangeFromToken(stringLiteral),
+        range: CstVisitor.createRangeFromNode(stringLiteral),
         value,
         literalType: 'string',
       };
@@ -554,7 +538,7 @@ export class CstVisitor {
       if (integerLiteral && 'image' in integerLiteral) {
         return {
           type: XPathNodeType.Literal,
-          range: CstVisitor.createRangeFromToken(integerLiteral),
+          range: CstVisitor.createRangeFromNode(integerLiteral),
           value: Number.parseInt(integerLiteral.image, 10),
           literalType: 'integer',
         };
@@ -564,7 +548,7 @@ export class CstVisitor {
       if (decimalLiteral && 'image' in decimalLiteral) {
         return {
           type: XPathNodeType.Literal,
-          range: CstVisitor.createRangeFromToken(decimalLiteral),
+          range: CstVisitor.createRangeFromNode(decimalLiteral),
           value: Number.parseFloat(decimalLiteral.image),
           literalType: 'decimal',
         };
@@ -574,7 +558,7 @@ export class CstVisitor {
       if (doubleLiteral && 'image' in doubleLiteral) {
         return {
           type: XPathNodeType.Literal,
-          range: CstVisitor.createRangeFromToken(doubleLiteral),
+          range: CstVisitor.createRangeFromNode(doubleLiteral),
           value: Number.parseFloat(doubleLiteral.image),
           literalType: 'double',
         };
@@ -706,13 +690,15 @@ export class CstVisitor {
 
     const predicates: PredicateNode[] = [];
     const exprs = predicatesCst['Expr'];
+    const openBrackets = predicatesCst['LSquare'];
+    const closeBrackets = predicatesCst['RSquare'];
 
-    for (const expr of exprs) {
+    for (const [i, expr] of exprs.entries()) {
       if ('children' in expr) {
         const exprNode = CstVisitor.visitExpr(expr);
         const predicateNode: PredicateNode = {
           type: XPathNodeType.Predicate,
-          range: CstVisitor.createRangeFromNode(expr),
+          range: CstVisitor.createRangeSpanning([openBrackets[i], closeBrackets[i]]),
           expr: exprNode,
         };
         exprNode.parent = predicateNode;
@@ -851,7 +837,12 @@ export class CstVisitor {
         result = operand;
       } else if (result) {
         const operator = config.extractOperator(cstNode);
-        result = config.createNode(cstNode, result, operand, operator);
+        result = config.createNode(
+          CstVisitor.createRangeSpanning([operands[0], operands[i]]),
+          result,
+          operand,
+          operator,
+        );
       }
     }
 
@@ -901,7 +892,7 @@ export class CstVisitor {
       operandPath: ['IntersectExceptExpr'],
       extractOperator: () => operators[operatorIndex++],
       visitOperand: (operand) => CstVisitor.visitIntersectExceptExpr(operand),
-      createNode: (cstNode, left, right, operator) => CstVisitor.createCombineNode(cstNode, left, right, operator),
+      createNode: (range, left, right, operator) => CstVisitor.createCombineNode(range, left, right, operator),
     });
   }
 
@@ -923,7 +914,7 @@ export class CstVisitor {
       operandPath: ['InstanceofExpr'],
       extractOperator: () => operators[operatorIndex++],
       visitOperand: (operand) => CstVisitor.visitInstanceofExpr(operand),
-      createNode: (cstNode, left, right, operator) => CstVisitor.createCombineNode(cstNode, left, right, operator),
+      createNode: (range, left, right, operator) => CstVisitor.createCombineNode(range, left, right, operator),
     });
   }
 
@@ -968,13 +959,13 @@ export class CstVisitor {
    * Creates a {@link CombineExprNode} with proper parent references.
    * Returns the left operand when the operator or either side is missing, matching
    * {@link createArithmeticNode} — a layer with no operator collapses to what it wraps.
-   * @param cstNode - The CST node for source range information
+   * @param range - The source range from the first to the last operand of this link of the chain
    * @param left - Left operand of the combining expression
    * @param right - Right operand of the combining expression
    * @param operator - `|`/`union`, `intersect` or `except`
    */
   private static createCombineNode(
-    cstNode: CstElement,
+    range: SourceRange,
     left: ExprSingleResult,
     right: ExprSingleResult,
     operator: CombineOperator | undefined,
@@ -983,7 +974,7 @@ export class CstVisitor {
 
     const combineNode: CombineExprNode = {
       type: XPathNodeType.CombineExpr,
-      range: CstVisitor.createRangeFromNode(cstNode),
+      range,
       left,
       operator,
       right,
@@ -1009,7 +1000,7 @@ export class CstVisitor {
       operandPath: ['UnionExpr'],
       extractOperator: () => operators[operatorIndex++],
       visitOperand: (operand) => CstVisitor.visitUnionExpr(operand),
-      createNode: (cstNode, left, right, operator) => CstVisitor.createArithmeticNode(cstNode, left, right, operator),
+      createNode: (range, left, right, operator) => CstVisitor.createArithmeticNode(range, left, right, operator),
     });
   }
 
@@ -1017,14 +1008,14 @@ export class CstVisitor {
    * Creates an ArithmeticExprNode with proper parent references.
    * Returns left operand if operator or either operand is missing.
    *
-   * @param cstNode - The CST node for source range information
+   * @param range - The source range from the first to the last operand of this link of the chain
    * @param left - Left operand of the arithmetic expression
    * @param right - Right operand of the arithmetic expression
    * @param operator - The arithmetic operator (+, -, *, div, idiv, mod)
    * @returns The created ArithmeticExprNode, or left operand if operator/right is missing
    */
   private static createArithmeticNode(
-    cstNode: CstElement,
+    range: SourceRange,
     left: ExprSingleResult,
     right: ExprSingleResult,
     operator: ArithmeticOperator | undefined,
@@ -1033,7 +1024,7 @@ export class CstVisitor {
 
     const arithmeticNode: ArithmeticExprNode = {
       type: XPathNodeType.ArithmeticExpr,
-      range: CstVisitor.createRangeFromNode(cstNode),
+      range,
       left,
       operator,
       right,
@@ -1059,7 +1050,7 @@ export class CstVisitor {
       operandPath: ['MultiplicativeExpr'],
       extractOperator: () => operators[operatorIndex++],
       visitOperand: (operand) => CstVisitor.visitMultiplicativeExpr(operand),
-      createNode: (cstNode, left, right, operator) => CstVisitor.createArithmeticNode(cstNode, left, right, operator),
+      createNode: (range, left, right, operator) => CstVisitor.createArithmeticNode(range, left, right, operator),
     });
   }
 
@@ -1067,14 +1058,14 @@ export class CstVisitor {
    * Creates a LogicalExprNode with proper parent references.
    * Returns left operand if either operand is missing.
    *
-   * @param cstNode - The CST node for source range information
+   * @param range - The source range from the first to the last operand of this link of the chain
    * @param left - Left operand of the logical expression
    * @param right - Right operand of the logical expression
    * @param operator - The logical operator (And or Or)
    * @returns The created LogicalExprNode, or left operand if right is missing
    */
   private static createLogicalNode(
-    cstNode: CstElement,
+    range: SourceRange,
     left: ExprSingleResult,
     right: ExprSingleResult,
     operator: LogicalOperator,
@@ -1083,7 +1074,7 @@ export class CstVisitor {
 
     const logicalNode: LogicalExprNode = {
       type: XPathNodeType.LogicalExpr,
-      range: CstVisitor.createRangeFromNode(cstNode),
+      range,
       left,
       operator,
       right,
@@ -1103,7 +1094,7 @@ export class CstVisitor {
       operandPath: ['ComparisonExpr'],
       extractOperator: () => LogicalOperator.And,
       visitOperand: (operand) => CstVisitor.processComparisonExpr(operand),
-      createNode: (cstNode, left, right) => CstVisitor.createLogicalNode(cstNode, left, right, LogicalOperator.And),
+      createNode: (range, left, right) => CstVisitor.createLogicalNode(range, left, right, LogicalOperator.And),
     });
   }
 
@@ -1116,7 +1107,7 @@ export class CstVisitor {
       operandPath: ['AndExpr'],
       extractOperator: () => LogicalOperator.Or,
       visitOperand: (operand) => CstVisitor.visitAndExpr(operand),
-      createNode: (cstNode, left, right) => CstVisitor.createLogicalNode(cstNode, left, right, LogicalOperator.Or),
+      createNode: (range, left, right) => CstVisitor.createLogicalNode(range, left, right, LogicalOperator.Or),
     });
   }
 

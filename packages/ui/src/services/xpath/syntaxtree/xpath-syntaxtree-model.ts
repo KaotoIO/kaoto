@@ -3,6 +3,9 @@ import { PredicateOperator } from '../../../models/datamapper/xpath';
 /**
  * Location information for a node in the source XPath expression.
  * Tracks line, column, and character offset for both start and end positions.
+ *
+ * `end` points at the last character of the node, not past it, for offset, line and column alike, so the written
+ * text is `source.slice(start.offset, end.offset + 1)`. Offsets are 0-based; lines and columns are 1-based.
  */
 export interface SourceRange {
   start: {
