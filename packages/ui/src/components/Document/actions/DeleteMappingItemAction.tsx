@@ -19,7 +19,9 @@ export const DeleteMappingItemAction: FunctionComponent<DeleteItemProps> = ({ no
   }, [nodeData, onDelete]);
 
   const displayName = nodeData instanceof VariableNodeData ? nodeData.displayTitle : nodeData.title;
-  const title = `Delete ${displayName} mapping`;
+  const title = MappingActionService.getDeletableInlineValueOf(nodeData)
+    ? `Delete value of ${displayName}`
+    : `Delete ${displayName} mapping`;
   const warningMessage =
     nodeData.mapping instanceof InstructionItem &&
     nodeData.mapping.children.length > 0 &&

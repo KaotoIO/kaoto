@@ -67,10 +67,12 @@ export const FieldNodeTitle: FunctionComponent<FieldNodeTitleProps> = ({ classNa
   });
 
   const inlineCopyOf = VisualizationUtilService.getInlineContainerCopyOf(nodeData);
+  const inlineValueOf = VisualizationUtilService.getInlineContainerValueOf(nodeData);
 
   return (
     <div className={clsx('node-title-container', { 'node-title-container__abstract': isAbstractWrapper })}>
       {inlineCopyOf && <Label data-testid="field-copy-of-label">{inlineCopyOf.name}</Label>}
+      {inlineValueOf && <Label data-testid="field-value-of-label">{inlineValueOf.name}</Label>}
       {isChoiceWrapper && <Label>choice</Label>}
       {isSelectedChoiceWrapper && (
         <Label color="green" icon={<Checkmark />}>

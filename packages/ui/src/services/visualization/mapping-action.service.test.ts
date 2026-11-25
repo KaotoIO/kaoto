@@ -63,6 +63,7 @@ import {
 } from '../../stubs/datamapper/cardinality-test-helpers';
 import {
   getAdtInXsd,
+  getCamelSpringXsd,
   getChoiceRepeatingAbstractCatXslt,
   getChoiceRepeatingAbstractXsd,
   getChoiceRepeatingContainerMemberXsd,
@@ -113,10 +114,12 @@ describe('MappingActionService', () => {
       it('should apply value-of selector on a container field', () => {
         expect(tree.children).toHaveLength(0);
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
+        useDocumentTreeStore.getState().clearXPathInputFocusRequest();
         MappingActionService.applyValueOfSelector(docChildren[0] as TargetNodeData);
 
         expect(tree.children).toHaveLength(1);
         expect(tree.children[0].children[0] instanceof ValueSelector).toBeTruthy();
+        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(tree.children[0].nodePath.toString());
       });
 
       it('should apply value-of selector on primitive target body', () => {
@@ -147,10 +150,7 @@ describe('MappingActionService', () => {
         const shipOrderFieldItem = tree.children[0] as FieldItem;
         expect(shipOrderFieldItem.children.filter((child) => child instanceof CopyOfSelector)).toHaveLength(1);
         expect(shipOrderFieldItem.children.filter((child) => child instanceof ValueOfSelector)).toHaveLength(1);
-        const valueOfSelector = shipOrderFieldItem.children.find(
-          (child) => child instanceof ValueOfSelector,
-        ) as ValueOfSelector;
-        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(valueOfSelector.nodePath.toString());
+        expect(useDocumentTreeStore.getState().targetXPathInputForFocus).toBe(shipOrderFieldItem.nodePath.toString());
       });
 
       it('should create VALUE ValueSelector for element field', () => {
@@ -320,7 +320,7 @@ describe('MappingActionService', () => {
         expect(copyOfAction!.isDisabled!(updatedShipOrderChildren[0] as TargetNodeData)).toBe(true);
       });
 
-      it('should NOT disable ValueSelector when only copy-of exists', () => {
+      it('should not disable ValueSelector when only copy-of exists', () => {
         const docChildren = VisualizationService.generateStructuredDocumentChildren(targetDocNode);
         const shipOrderChildren = VisualizationService.generateNonDocumentNodeDataChildren(docChildren[0]);
         MappingActionService.applyCopyOfSelector(shipOrderChildren[0] as TargetNodeData);
@@ -580,14 +580,14 @@ describe('MappingActionService', () => {
         expectValueSelectorAllowed(findJsonRow(shipOrderJsonRows, 'Item'), false);
       });
 
-      it('should not offer a second value-of on a container that already holds one, and keep the existing one deletable', () => {
+      it('should not offer a second value-of on a container that already holds one, and keep the field deletable', () => {
         MappingSerializerService.deserialize(getShipOrderValueOfInContainerXslt(), targetDoc, tree, paramsMap);
         const shipToRow = childrenOf(rootRows(targetDoc, tree)[0]).find((r) => r.title === 'ShipTo');
         if (!(shipToRow instanceof FieldItemNodeData)) throw new Error('Mapped ShipTo row not found');
 
         expectValueSelectorAllowed(shipToRow, false);
-        const valueOfRow = findMappingRow(childrenOf(shipToRow), ValueOfSelector);
-        expect(MappingActionRegistryService.getAllowedActions(valueOfRow)).toContain(MappingActionKind.Delete);
+        expect(MappingActionService.hasValueOfSelector(shipToRow)).toBe(true);
+        expect(MappingActionRegistryService.getAllowedActions(shipToRow)).toContain(MappingActionKind.Delete);
       });
 
       describe('condition rows', () => {
@@ -2232,18 +2232,82 @@ describe('MappingActionService', () => {
         expect(adt.adtTree.children).toEqual([]);
       });
 
-      it('should remove the guard together with the emptied field when deleting the value-of row of a guarded field', () => {
+      it('should remove the guard together with the field when deleting a guarded field with an inline value-of', () => {
         const adt = setUpAdtIn();
         const { ifItem, pidFieldItem } = addGuardedPid(adt.hl7Item);
         const valueOf = new ValueOfSelector(pidFieldItem);
         valueOf.expression = '/HL7/PID';
         pidFieldItem.children.push(valueOf);
-        const { pidNode, selectorNode } = renderPidSelectorNode(adt.renderHl7Children(), valueOf);
+        const pidNode = adt
+          .renderHl7Children()
+          .find((node) => node instanceof FieldItemNodeData && node.field.name === 'PID') as FieldItemNodeData;
         expect(pidNode.autoOptionalIfItem).toBe(ifItem);
 
-        MappingActionService.deleteMappingItem(selectorNode);
+        MappingActionService.deleteMappingItem(pidNode);
 
         expect(adt.adtTree.children).toEqual([]);
+      });
+
+      it('should delete only the inline value-of of a container that has other content, then the rest', () => {
+        const shipOrderItem = tree.children[0] as FieldItem;
+        const forEachItem = shipOrderItem.children[0];
+        const valueOf = new ValueOfSelector(shipOrderItem);
+        valueOf.expression = '/ns0:ShipOrder/OrderId';
+        shipOrderItem.children.push(valueOf);
+        const shipOrderRow = () => documentRows(targetDoc, tree)[0] as FieldItemNodeData;
+        expect(MappingActionService.getDeletableInlineValueOf(shipOrderRow())).toBe(valueOf);
+
+        MappingActionService.deleteMappingItem(shipOrderRow());
+
+        expect(shipOrderItem.children).toEqual([forEachItem]);
+        expect(MappingActionService.getDeletableInlineValueOf(shipOrderRow())).toBeUndefined();
+      });
+
+      it('should delete only the inline value-of of a nested container, keeping its mapped child', () => {
+        const shipOrderItem = tree.children[0] as FieldItem;
+        const shipToField = childField(targetDoc.fields[0], 'ShipTo');
+        const shipToItem = new FieldItem(shipOrderItem, shipToField);
+        shipOrderItem.children.push(shipToItem);
+        const valueOf = new ValueOfSelector(shipToItem);
+        valueOf.expression = '/ns0:ShipOrder/ShipTo';
+        shipToItem.children.push(valueOf);
+        const nameItem = new FieldItem(shipToItem, childField(shipToField, 'Name'));
+        shipToItem.children.push(nameItem);
+        const shipToRow = () => rowNamed(documentRows(targetDoc, tree)[0], 'ShipTo') as FieldItemNodeData;
+        expect(MappingActionService.getDeletableInlineValueOf(shipToRow())).toBe(valueOf);
+
+        MappingActionService.deleteMappingItem(shipToRow());
+
+        expect(shipToItem.children).toEqual([nameItem]);
+        expect(shipOrderItem.children).toContain(shipToItem);
+        expect(MappingActionService.getDeletableInlineValueOf(shipToRow())).toBeUndefined();
+
+        MappingActionService.deleteMappingItem(shipToRow());
+
+        expect(shipOrderItem.children).not.toContain(shipToItem);
+      });
+
+      it('should keep a visible guard when deleting only the inline value-of of a guarded container', () => {
+        const adt = setUpAdtIn();
+        const { ifItem, pidFieldItem } = addGuardedPid(adt.hl7Item);
+        const valueOf = new ValueOfSelector(pidFieldItem);
+        valueOf.expression = '/HL7/PID';
+        pidFieldItem.children.push(valueOf);
+        const field01Item = new FieldItem(pidFieldItem, childField(pidFieldItem.field, 'field_01'));
+        pidFieldItem.children.push(field01Item);
+        const ifRow = adt
+          .renderHl7Children()
+          .find((node) => node instanceof MappingNodeData && node.mapping === ifItem) as MappingNodeData;
+        const pidRow = VisualizationService.generateNonDocumentNodeDataChildren(ifRow).find(
+          (node) => node instanceof FieldItemNodeData && node.field.name === 'PID',
+        ) as FieldItemNodeData;
+        expect(pidRow.autoOptionalIfItem).toBeUndefined();
+
+        MappingActionService.deleteMappingItem(pidRow);
+
+        expect(pidFieldItem.children).toEqual([field01Item]);
+        expect(ifItem.children).toEqual([pidFieldItem]);
+        expect(adt.hl7Item.children).toEqual([ifItem]);
       });
 
       it('should keep a guarded field of a for-each body without its guard when deleting its row', () => {
@@ -2529,6 +2593,45 @@ describe('MappingActionService', () => {
           item.apply(freshAddMappingNode, { onUpdate, openModal });
         }).not.toThrow();
       }
+    });
+  });
+
+  describe('dropping an optional container onto an empty value-of', () => {
+    const NS = 'http://camel.apache.org/schema/spring';
+    const rootElement = { namespaceUri: NS, name: 'aggregate' };
+    const collectIfItems = (item: MappingItem): IfItem[] =>
+      item.children.flatMap((c) => [...(c instanceof IfItem ? [c] : []), ...collectIfItems(c)]);
+
+    it('should guard the target with an optional if', () => {
+      const sourceDoc = parseXsdDocument(
+        DocumentType.SOURCE_BODY,
+        'camel-spring.xsd',
+        getCamelSpringXsd(),
+        rootElement,
+      );
+      const doc = parseXsdDocument(DocumentType.TARGET_BODY, 'camel-spring.xsd', getCamelSpringXsd(), rootElement);
+      const localTree = createTargetTree(doc, { ns0: NS });
+      const aggregateItem = new FieldItem(localTree, doc.fields[0]);
+      localTree.children.push(aggregateItem);
+
+      const policyRow = () => rowNamed(documentRows(doc, localTree)[0], 'optimisticLockRetryPolicy') as TargetNodeData;
+      MappingActionService.applyValueOfSelector(policyRow());
+      const sourcePolicyRow = rowNamed(documentRows(sourceDoc)[0], 'optimisticLockRetryPolicy') as FieldNodeData;
+
+      const policyFieldItem = aggregateItem.children.find(
+        (c): c is FieldItem => c instanceof FieldItem && c.field.name === 'optimisticLockRetryPolicy',
+      )!;
+      const valueOf = policyFieldItem.children.find((c): c is ValueOfSelector => c instanceof ValueOfSelector)!;
+
+      const structural = MappingActionService.engageMapping(localTree, sourcePolicyRow, policyRow());
+
+      expect(structural).toBe(true);
+      const ifItems = collectIfItems(aggregateItem);
+      expect(ifItems).toHaveLength(1);
+      expect(ifItems[0].expression).toBe('/ns0:aggregate/ns0:optimisticLockRetryPolicy');
+      expect(ifItems[0].children).toEqual([policyFieldItem]);
+      expect(policyFieldItem.children).toEqual([valueOf]);
+      expect(valueOf.expression).toBe('/ns0:aggregate/ns0:optimisticLockRetryPolicy');
     });
   });
 

@@ -1,13 +1,6 @@
 import { IField, IParentType } from '../../models/datamapper/document';
 import { FieldCardinality } from '../../models/datamapper/field-cardinality';
-import {
-  CopyOfSelector,
-  FieldItem,
-  MappingItem,
-  ValueOfSelector,
-  ValueOfType,
-  ValueSelector,
-} from '../../models/datamapper/mapping';
+import { CopyOfSelector, FieldItem, MappingItem, ValueOfSelector } from '../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   AddMappingNodeData,
@@ -290,17 +283,39 @@ export class VisualizationUtilService {
   }
 
   /**
+   * Returns the inline {@link ValueOfSelector} for a {@link FieldItemNodeData} whose mapping is a
+   * {@link FieldItem} with child fields, or `undefined` if there is none. Used by {@link FieldNodeTitle}
+   * to render the "value" badge on container fields, to tell it apart from the inline "copy" badge.
+   */
+  static getInlineContainerValueOf(nodeData: NodeData): ValueOfSelector | undefined {
+    if (!(nodeData instanceof FieldItemNodeData)) return undefined;
+    return nodeData.mapping.children.find(VisualizationUtilService.isContainerValueOf);
+  }
+
+  /**
+   * Whether `item` is a {@link ValueOfSelector} directly under a {@link FieldItem} whose field has
+   * children, i.e. a text mapping on a container rather than on a leaf.
+   */
+  static isContainerValueOf(item: MappingItem): item is ValueOfSelector {
+    return (
+      item instanceof ValueOfSelector &&
+      item.parent instanceof FieldItem &&
+      DocumentService.hasChildren(item.parent.field)
+    );
+  }
+
+  /**
    * Whether `item` is a selector edited inline in its parent's row rather than rendered as a row of
-   * its own. A value-of on a field with child fields and every copy-of get their own row.
+   * its own. A row never needs two inputs because of where each selector lives. A value-of is a child of
+   * the {@link FieldItem} and is drawn on that field's row. A copy-of drawn inline on a field's row is held
+   * by that field's parent, in place of a FieldItem for the field, while a copy-of nested in the FieldItem
+   * is drawn on a child row or as its own row, so it can sit next to the value-of.
    * Lives here rather than in {@link VisualizationService} so that services which must not depend on
    * the tree builder, such as {@link TargetRenderService}, can ask the same question.
    * @param item - the mapping item to test
    */
-  static isInlineValueSelector(item: MappingItem): item is ValueSelector {
-    if (item instanceof CopyOfSelector) return false;
-    if (!(item instanceof ValueOfSelector)) return false;
-    if (item.valueType === ValueOfType.ATTRIBUTE) return true;
-    return !(item.parent instanceof FieldItem && DocumentService.hasChildren(item.parent.field));
+  static isInlineValueSelector(item: MappingItem): item is ValueOfSelector {
+    return item instanceof ValueOfSelector;
   }
 
   /**

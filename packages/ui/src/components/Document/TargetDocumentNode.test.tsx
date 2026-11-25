@@ -13,10 +13,18 @@ import {
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { FieldItem, IfItem, MappingItem, MappingTree, VariableItem } from '../../models/datamapper/mapping';
+import {
+  CopyOfSelector,
+  FieldItem,
+  IfItem,
+  MappingItem,
+  MappingTree,
+  VariableItem,
+} from '../../models/datamapper/mapping';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import {
   AddMappingNodeData,
+  CopyOfFieldNodeData,
   DocumentNodeData,
   FieldItemNodeData,
   MappingNodeData,
@@ -905,6 +913,25 @@ describe('TargetDocumentNode', () => {
 
         expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
         expect(orderPerson.context.refreshMappingTree).not.toHaveBeenCalled();
+      });
+
+      it('should not add a value-of on an inline copy-of row', () => {
+        const { document, mappingTree } = createShipOrderTree();
+        mappingTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+        const shipOrderFieldItem = new FieldItem(mappingTree, document.fields[0]);
+        mappingTree.children.push(shipOrderFieldItem);
+        const copyOf = new CopyOfSelector(shipOrderFieldItem);
+        copyOf.expression = '/ns0:ShipOrder/ShipTo';
+        shipOrderFieldItem.children.push(copyOf);
+        const { documentNodeData, tree } = parseTargetTree(document, mappingTree);
+        const shipToNode = findTreeNode(tree.root, byTitle('ShipTo'));
+        expect(shipToNode.nodeData).toBeInstanceOf(CopyOfFieldNodeData);
+        const shipTo = renderRow(shipToNode, documentNodeData);
+
+        fireEvent.doubleClick(within(shipTo.row).getByText('ShipTo'));
+
+        expect(applyValueOfSelectorSpy).not.toHaveBeenCalled();
+        expect(shipTo.context.refreshMappingTree).not.toHaveBeenCalled();
       });
 
       it('should judge unexpanded named-type rows beyond the parse frontier, and ignore the expand chevron', () => {
