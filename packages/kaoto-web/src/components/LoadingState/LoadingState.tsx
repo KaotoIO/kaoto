@@ -23,7 +23,8 @@ interface LoadingStateProps {
 
 /**
  * Carbon spinner with an optional message. Twin of `Loading` in `packages/ui/src/components/Loading`, which this
- * package does not import on purpose: keep the markup and the styles of both in sync.
+ * package does not import on purpose: keep the markup and the styles of both in sync. The class names carry the
+ * `cs--` prefix, since both stylesheets are global and `RouteVisualization` brings in the unprefixed ones of `ui`.
  */
 export const LoadingState: FunctionComponent<PropsWithChildren<LoadingStateProps>> = ({
   description = 'Loading',
@@ -38,9 +39,9 @@ export const LoadingState: FunctionComponent<PropsWithChildren<LoadingStateProps
   }
 
   return (
-    <div className={fullPage ? 'loading loading--full-page' : 'loading'} data-testid={dataTestId}>
+    <div className={fullPage ? 'cs--loading cs--loading--full-page' : 'cs--loading'} data-testid={dataTestId}>
       <CarbonLoading small={small} description={description} withOverlay={false} />
-      {children ? <p className="loading__message">{children}</p> : null}
+      {children ? <p className="cs--loading__message">{children}</p> : null}
     </div>
   );
 };

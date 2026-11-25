@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { lazy, ReactElement } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { describe, expect, it } from 'vitest';
@@ -51,8 +51,8 @@ describe('RootLayout', () => {
       </MemoryRouter>,
     );
 
-    const spinner = await screen.findByRole('img', { name: 'Loading' });
-    expect(screen.getByRole('main')).toContainElement(spinner);
-    expect(spinner.closest('.cds--loading-overlay')).toBeInTheDocument();
+    const overlay = await screen.findByRole('dialog', { name: 'Loading' });
+    expect(screen.getByRole('main')).toContainElement(overlay);
+    expect(within(overlay).getByRole('img', { name: 'Loading' })).toBeInTheDocument();
   });
 });

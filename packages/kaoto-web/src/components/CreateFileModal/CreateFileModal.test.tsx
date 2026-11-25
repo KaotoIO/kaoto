@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { StrictMode } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
@@ -364,7 +364,8 @@ describe('CreateFileModal', () => {
     expect(screen.getByLabelText('File name')).toBeDisabled();
     expect(screen.getByLabelText('Folder path (optional)')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Creating…' })).toBeDisabled();
-    expect(document.querySelector('.cds--inline-loading')).toBeInTheDocument();
+    // The spinner is decorative (hidden from assistive tech): the button text already says what is going on
+    expect(within(screen.getByRole('button', { name: 'Creating…' })).getByRole('img', { hidden: true })).toBeVisible();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeEnabled();
 
     await act(async () => {

@@ -17,6 +17,17 @@ import { FileKindTiles } from './FileKindTiles';
 
 const FORM_ID = 'cs--create-file-form';
 
+/**
+ * The spinner in the icon slot of the Create button. Carbon renders `renderIcon` as a component, so it is defined
+ * once here: a new function on every render would be a new component type, which remounts the spinner.
+ * It is hidden from assistive tech, since the button text already tells that the file is being created.
+ */
+const CreatingSpinner: FunctionComponent = () => (
+  <span aria-hidden="true">
+    <LoadingInlineState compact />
+  </span>
+);
+
 interface CreateFileModalProps {
   /** Called when the modal closes, with the file it created, or without one when it was cancelled */
   onClose: (created?: FileEntry) => void;
@@ -111,16 +122,7 @@ export const CreateFileModal: FunctionComponent<CreateFileModalProps> = ({ onClo
             type="submit"
             form={FORM_ID}
             disabled={!canCreate}
-            // The button text already tells that the file is being created, so the spinner is hidden from assistive tech
-            renderIcon={
-              creating
-                ? () => (
-                    <span aria-hidden="true">
-                      <LoadingInlineState compact />
-                    </span>
-                  )
-                : undefined
-            }
+            renderIcon={creating ? CreatingSpinner : undefined}
           >
             {creating ? 'Creating…' : 'Create'}
           </Button>
