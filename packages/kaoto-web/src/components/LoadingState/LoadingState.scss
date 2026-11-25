@@ -2,8 +2,9 @@
 @use '@carbon/react/scss/theme' as *;
 @use '@carbon/react/scss/type' as *;
 
-// Twin of packages/ui/src/components/Loading/Loading.scss, keep both in sync.
-.loading {
+// Twin of packages/ui/src/components/Loading/Loading.scss, keep both in sync. The class names carry the `cs--` prefix,
+// since both stylesheets are global and RouteVisualization brings in the unprefixed ones of the ui package.
+.cs--loading {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -27,7 +28,7 @@
   }
 }
 
-.loading-inline {
+.cs--loading-inline {
   display: flex;
   align-items: center;
   justify-content: center;

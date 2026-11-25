@@ -20,7 +20,7 @@ export const LoadingInlineState: FunctionComponent<LoadingInlineStateProps> = ({
   compact = false,
 }) => {
   return (
-    <div className={compact ? 'loading-inline loading-inline--compact' : 'loading-inline'}>
+    <div className={compact ? 'cs--loading-inline cs--loading-inline--compact' : 'cs--loading-inline'}>
       <InlineLoading description={description} iconDescription={iconDescription} />
     </div>
   );
