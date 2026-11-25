@@ -105,7 +105,8 @@ export class XmlSchemaDocumentUtilService {
    * `DataMapperMetadataService.inferLegacyRootElementChoice` derives the root choice, with its entry, for legacy
    * metadata.
    * Candidates are the schemas with no incoming include, import or redefine edge, in attach order. When a root
-   * element choice is given, the first candidate whose reachable assembly declares that element wins. If there is no
+   * element choice is given, the first candidate whose reachable assembly (through its includes, imports and
+   * redefines) declares that element wins. If there is no
    * such candidate (or no choice), the first candidate wins; when every file is referenced (e.g. circular includes)
    * the first attached file is used.
    *
@@ -128,7 +129,7 @@ export class XmlSchemaDocumentUtilService {
     if (rootElementChoice) {
       const qName = new QName(rootElementChoice.namespaceUri, rootElementChoice.name);
       const reaching = candidates.find((candidate) =>
-        collection.getXmlSchema(candidate).some((schema) => schema.getElementByQName(qName, true)),
+        new XmlSchemaAssembly(collection, candidate).findElementInEntry(qName),
       );
       if (reaching) return reaching;
     }

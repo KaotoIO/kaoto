@@ -1,5 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-  <xs:redefine schemaLocation="B.xsd"/>
+  <xs:redefine schemaLocation="B.xsd">
+    <xs:group name="G">
+      <xs:sequence>
+        <xs:group ref="G"/>
+        <xs:element name="ga" type="xs:string"/>
+      </xs:sequence>
+    </xs:group>
+    <xs:complexType name="T">
+      <xs:complexContent>
+        <xs:extension base="T">
+          <xs:sequence>
+            <xs:element name="ta" type="xs:string"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+    <xs:attributeGroup name="AG">
+      <xs:attributeGroup ref="AG"/>
+      <xs:attribute name="aga" type="xs:string"/>
+    </xs:attributeGroup>
+    <xs:simpleType name="S">
+      <xs:restriction base="S">
+        <xs:maxLength value="5"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:redefine>
   <xs:element name="RootA" type="xs:string"/>
+  <xs:element name="CycleA">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group ref="G"/>
+        <xs:element name="t" type="T"/>
+        <xs:element name="s" type="S"/>
+      </xs:sequence>
+      <xs:attributeGroup ref="AG"/>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

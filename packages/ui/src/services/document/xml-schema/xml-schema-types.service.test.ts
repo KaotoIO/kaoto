@@ -13,7 +13,13 @@ import {
   TestUtil,
   TYPE_BINDING_COLLISION_NS,
 } from '../../../stubs/datamapper/data-mapper';
-import { XmlSchema, XmlSchemaCollection, XmlSchemaComplexType, XmlSchemaSimpleType } from '../../../xml-schema-ts';
+import {
+  XmlSchema,
+  XmlSchemaCollection,
+  XmlSchemaComplexType,
+  XmlSchemaSimpleType,
+  XmlSchemaType,
+} from '../../../xml-schema-ts';
 import { XmlSchemaComplexContent } from '../../../xml-schema-ts/complex/XmlSchemaComplexContent';
 import { XmlSchemaComplexContentExtension } from '../../../xml-schema-ts/complex/XmlSchemaComplexContentExtension';
 import { QName } from '../../../xml-schema-ts/QName';
@@ -26,8 +32,27 @@ import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 import { XmlSchemaTypesService } from './xml-schema-types.service';
 
+const REDEFINE_ORDERS = [
+  ['base.xsd', 'implementation.xsd'],
+  ['implementation.xsd', 'base.xsd'],
+];
+const SHADOWING_ORDERS = [
+  ['implementation.xsd', 'base.xsd', 'other.xsd'],
+  ['other.xsd', 'implementation.xsd', 'base.xsd'],
+];
+
 describe('XmlSchemaTypesService', () => {
   describe('resolveSimpleTypeToEnum()', () => {
+    it.each(SHADOWING_ORDERS)(
+      'should follow a redefined simple type to the base chain of the redefined schema, attach order %s, %s, %s',
+      (...order) => {
+        const doc = TestUtil.createRedefineDoc('redefine/shadowing', order);
+        const redefined = doc.assembly.lookupType(new QName('urn:x', 'S')) as XmlSchemaSimpleType;
+
+        expect(XmlSchemaTypesService.resolveSimpleTypeToEnum(redefined, doc.assembly)).toBe(Types.String);
+      },
+    );
+
     it('should stop safely when simple type restrictions form a cycle', () => {
       const namespaceURI = 'http://www.example.com/CYCLIC-TYPES';
       const schema = new XmlSchema(namespaceURI);
@@ -53,6 +78,17 @@ describe('XmlSchemaTypesService', () => {
         Types.AnyType,
       );
       expect(getTypeByQName).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not resolve a restriction without a base type name', () => {
+      const schema = new XmlSchema('urn:test');
+      const type = new XmlSchemaSimpleType(schema, true);
+      type.setName('Inline');
+      type.setContent(new XmlSchemaSimpleTypeRestriction());
+
+      expect(
+        XmlSchemaTypesService.resolveSimpleTypeToEnum(type, new XmlSchemaAssembly(new XmlSchemaCollection())),
+      ).toBe(Types.AnyType);
     });
   });
 
@@ -165,6 +201,17 @@ describe('XmlSchemaTypesService', () => {
   });
 
   describe('isExtensionOrRestriction()', () => {
+    it.each(REDEFINE_ORDERS)(
+      'should see an ancestor of the base through a type that redefines itself, attach order %s, %s',
+      (...order) => {
+        const doc = TestUtil.createRedefineDoc('redefine/derived-base', order);
+        const redefined = doc.assembly.lookupType(new QName('urn:x', 'T')) as XmlSchemaType;
+        const ancestor = doc.assembly.lookupType(new QName('urn:x', 'U')) as XmlSchemaType;
+
+        expect(XmlSchemaTypesService.isExtensionOrRestriction(redefined, ancestor, doc.assembly)).toBe(true);
+      },
+    );
+
     it('should return true for extension relationship', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
@@ -368,7 +415,7 @@ describe('XmlSchemaTypesService', () => {
 
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
-      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
+      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.assembly, namespaceMap);
 
       expect(Object.keys(userTypes).length).toBeGreaterThan(0);
       expect(Object.values(userTypes).every((t) => !t.isBuiltIn)).toBe(true);
@@ -392,7 +439,7 @@ describe('XmlSchemaTypesService', () => {
 
       const namespaceMap = { myprefix: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
-      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
+      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.assembly, namespaceMap);
 
       expect(Object.keys(userTypes).length).toBeGreaterThan(0);
       expect(Object.keys(userTypes).every((k) => k.startsWith('myprefix:') || !k.includes(':'))).toBe(true);
@@ -411,7 +458,7 @@ describe('XmlSchemaTypesService', () => {
       const doc = result.document as XmlSchemaDocument;
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
-      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
+      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.assembly, namespaceMap);
       const displayNames = Object.values(userTypes).map((t) => t.displayName);
 
       expect(displayNames).not.toContain('Message');
@@ -483,6 +530,41 @@ describe('XmlSchemaTypesService', () => {
   });
 
   describe('getAllXmlSchemaTypes()', () => {
+    it.each(REDEFINE_ORDERS)('should list a redefined type as its redefinition, attach order %s, %s', (...order) => {
+      const namespaceMap = { x: 'urn:x', xs: NS_XML_SCHEMA };
+      const complexTypes = XmlSchemaTypesService.getAllXmlSchemaTypes(
+        TestUtil.createRedefineDoc('redefine/complex-type', order),
+        namespaceMap,
+      );
+      const simpleTypes = XmlSchemaTypesService.getAllXmlSchemaTypes(
+        TestUtil.createRedefineDoc('redefine/simple-type', order),
+        namespaceMap,
+      );
+
+      expect(complexTypes['T']?.baseQName?.toString()).toBe(new QName('', 'T').toString());
+      expect(complexTypes['T']?.derivation).toBe(TypeDerivation.EXTENSION);
+      expect(simpleTypes['x:S']?.baseQName?.toString()).toBe(new QName('urn:x', 'S').toString());
+      expect(simpleTypes['x:S']?.derivation).toBe(TypeDerivation.RESTRICTION);
+    });
+
+    it.each(['before', 'after'] as const)(
+      "should hold the entry's copy behind a QName that an unrelated file also declares (%s)",
+      (order) => {
+        const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+          TestUtil.createTypeBindingCollisionDefinition('OtherSimpleKind', order),
+          TYPE_BINDING_COLLISION_NS,
+        );
+        const allTypes = XmlSchemaTypesService.getAllXmlSchemaTypes(
+          result.document as XmlSchemaDocument,
+          TYPE_BINDING_COLLISION_NS,
+        );
+
+        expect(allTypes['t:Code']?.baseQName?.getLocalPart()).toBe('int');
+        expect(allTypes['t:CT']?.baseQName?.getLocalPart()).toBe('Base');
+        expect(allTypes['t:CT2']?.baseQName).toBeUndefined();
+      },
+    );
+
     it('should return both built-in and user-defined types', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
@@ -659,7 +741,7 @@ describe('XmlSchemaTypesService', () => {
       const doc = result.document as XmlSchemaDocument;
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
-      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
+      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.assembly, namespaceMap);
 
       const concreteRequest = Object.values(userTypes).find((t) => t.displayName === 'ConcreteRequest');
       expect(concreteRequest).toBeDefined();
@@ -680,7 +762,7 @@ describe('XmlSchemaTypesService', () => {
       const doc = result.document as XmlSchemaDocument;
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
-      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
+      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.assembly, namespaceMap);
 
       const concreteRequest = Object.values(userTypes).find((t) => t.displayName === 'ConcreteRequest');
       expect(concreteRequest).toBeDefined();
@@ -700,7 +782,7 @@ describe('XmlSchemaTypesService', () => {
       const doc = result.document as XmlSchemaDocument;
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
-      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
+      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.assembly, namespaceMap);
 
       const simpleResponse = Object.values(userTypes).find((t) => t.displayName === 'SimpleResponse');
       expect(simpleResponse).toBeDefined();
@@ -721,7 +803,7 @@ describe('XmlSchemaTypesService', () => {
       const doc = result.document as XmlSchemaDocument;
       const namespaceMap = { ns0: 'http://www.example.com/TEST', xs: NS_XML_SCHEMA };
 
-      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.xmlSchemaCollection, namespaceMap);
+      const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(doc.assembly, namespaceMap);
 
       const shortString = Object.values(userTypes).find((t) => t.displayName === 'ShortString');
       expect(shortString).toBeDefined();
@@ -1373,6 +1455,18 @@ describe('XmlSchemaTypesService', () => {
   });
 
   describe('determineOverrideVariant()', () => {
+    it.each(REDEFINE_ORDERS)(
+      'should return SAFE from an ancestor of the base to a type that redefines itself, attach order %s, %s',
+      (...order) => {
+        const doc = TestUtil.createRedefineDoc('redefine/derived-base', order);
+        const field = doc.fields[0].fields.find((child) => child.name === 'u') as XmlSchemaField;
+
+        expect(
+          XmlSchemaTypesService.determineOverrideVariant(field, Types.Container, new QName('urn:x', 'T'), 'urn:x'),
+        ).toBe(FieldOverrideVariant.SAFE);
+      },
+    );
+
     it('should return SAFE for compatible container type override', () => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,

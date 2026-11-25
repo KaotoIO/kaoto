@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:redefine schemaLocation="ord-base.xsd">
+    <xs:group name="OrdElements">
+      <xs:sequence>
+        <xs:group ref="x:OrdElements"/>
+        <xs:element name="CustomOrd" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:group>
+    <xs:attributeGroup name="OrdAttributes">
+      <xs:attributeGroup ref="x:OrdAttributes"/>
+      <xs:attribute name="customId" type="xs:string"/>
+    </xs:attributeGroup>
+  </xs:redefine>
+</xs:schema>

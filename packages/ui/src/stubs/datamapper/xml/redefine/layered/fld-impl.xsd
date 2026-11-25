@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:redefine schemaLocation="fld-base.xsd">
+    <xs:simpleType name="Code_t">
+      <xs:restriction base="x:Code_t">
+        <xs:maxInclusive value="99"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:redefine>
+</xs:schema>

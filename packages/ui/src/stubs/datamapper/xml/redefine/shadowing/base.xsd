@@ -13,5 +13,14 @@
   <xs:simpleType name="S">
     <xs:restriction base="xs:string"/>
   </xs:simpleType>
+  <xs:group name="BG">
+    <xs:sequence>
+      <xs:element name="bg1" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:attribute name="ba" type="xs:int"/>
+  <xs:attributeGroup name="BAG">
+    <xs:attribute name="bag1" type="xs:string"/>
+  </xs:attributeGroup>
   <xs:element name="BaseRoot" type="x:T"/>
 </xs:schema>

@@ -12,7 +12,12 @@
       <xs:sequence>
         <xs:element name="bt" type="x:BT"/>
         <xs:element name="s" type="x:S"/>
+        <xs:group ref="x:BG"/>
+        <xs:element name="str" type="xs:string"/>
+        <xs:element name="num" type="xs:int"/>
       </xs:sequence>
+      <xs:attribute ref="x:ba"/>
+      <xs:attributeGroup ref="x:BAG"/>
     </xs:complexType>
   </xs:element>
 </xs:schema>

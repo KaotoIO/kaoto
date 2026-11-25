@@ -1,7 +1,18 @@
 import { BODY_DOCUMENT_ID, DocumentDefinition, DocumentDefinitionType, DocumentType } from '../../../models/datamapper';
 import { NS_XML_SCHEMA } from '../../../models/datamapper/standard-namespaces';
 import { TestUtil, TYPE_BINDING_COLLISION_NS } from '../../../stubs/datamapper/data-mapper';
+import {
+  XmlSchemaAttributeGroup,
+  XmlSchemaAttributeGroupRef,
+  XmlSchemaComplexContentExtension,
+  XmlSchemaComplexType,
+  XmlSchemaGroup,
+  XmlSchemaGroupRef,
+  XmlSchemaSequence,
+} from '../../../xml-schema-ts';
+import { XmlSchemaRedefine } from '../../../xml-schema-ts/external/XmlSchemaRedefine';
 import { QName } from '../../../xml-schema-ts/QName';
+import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { XmlSchema } from '../../../xml-schema-ts/XmlSchema';
 import { XmlSchemaCollection } from '../../../xml-schema-ts/XmlSchemaCollection';
 import { XmlSchemaAssembly } from './xml-schema-assembly.model';
@@ -220,12 +231,142 @@ describe('XmlSchemaAssembly', () => {
       const { document } = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
 
       const spy = vi.spyOn(XmlSchema.prototype, 'getElementByQName');
-      const found = document!.assembly.lookupElement(new QName('', 'Missing'));
+      const found = document!.assembly.findElementInEntry(new QName('', 'Missing'));
 
       expect(found).toBeNull();
       // 2^12 paths reach the leaf; one visit per schema keeps it near files x edges.
-      expect(spy.mock.calls.length).toBeLessThan(Object.keys(files).length ** 2 * 4);
+      const visited = spy.mock.contexts.map((schema) => (schema as XmlSchema).getSourceURI());
+      expect(visited).toHaveLength(Object.keys(files).length);
+      expect(new Set(visited)).toEqual(new Set(Object.keys(files)));
+      expect(spy.mock.calls.every(([, deep]) => deep === false)).toBe(true);
       spy.mockRestore();
+    });
+  });
+
+  describe('with xs:redefine', () => {
+    const x = (localPart: string) => new QName('urn:x', localPart);
+    const BASE_FIRST = ['base.xsd', 'implementation.xsd'];
+    const schemaOf = (doc: XmlSchemaDocument, file: string) => doc.xmlSchemaCollection.getXmlSchema(file)[0];
+    const redefineOf = (doc: XmlSchemaDocument) =>
+      schemaOf(doc, 'implementation.xsd')
+        .getExternals()
+        .find((external) => external instanceof XmlSchemaRedefine) as XmlSchemaRedefine;
+
+    it('should find components declared only in the redefined schema before same-QName ones of an unrelated file', () => {
+      for (const order of [
+        ['implementation.xsd', 'base.xsd', 'other.xsd'],
+        ['other.xsd', 'implementation.xsd', 'base.xsd'],
+      ]) {
+        const { assembly } = TestUtil.createRedefineDoc('redefine/shadowing', order);
+
+        expect(sourceOf(assembly.lookupType(x('BT')))).toBe('base.xsd');
+        expect(sourceOf(assembly.lookupGroup(x('BG')))).toBe('base.xsd');
+        expect(sourceOf(assembly.lookupAttribute(x('ba')))).toBe('base.xsd');
+        expect(sourceOf(assembly.lookupAttributeGroup(x('BAG')))).toBe('base.xsd');
+        expect(sourceOf(assembly.findElementInEntry(x('BaseRoot')))).toBe('base.xsd');
+      }
+    });
+
+    it('should find a redefined simple type before the base reached through an earlier include', () => {
+      for (const order of [
+        ['base.xsd', 'inc.xsd', 'implementation.xsd'],
+        ['implementation.xsd', 'inc.xsd', 'base.xsd'],
+      ]) {
+        const doc = TestUtil.createRedefineDoc('redefine/include-before-redefine', order);
+
+        expect(doc.assembly.lookupType(x('S'))).toBe(redefineOf(doc).getSchemaTypes().get(x('S')));
+      }
+    });
+
+    it.each([true, false])(
+      'should resolve a self-reference one layer down, and through the entry any other reference to the redefinition (with entry: %s)',
+      (withEntry) => {
+        const doc = TestUtil.createRedefineDoc('redefine/same-namespace', BASE_FIRST);
+        const assembly = withEntry ? doc.assembly : new XmlSchemaAssembly(doc.xmlSchemaCollection);
+        const base = schemaOf(doc, 'base.xsd');
+        const redefine = redefineOf(doc);
+        const redefinedGroup = redefine.getGroups().get(x('G')) as XmlSchemaGroup;
+        const redefinedAttributeGroup = redefine.getAttributeGroups().get(x('AG')) as XmlSchemaAttributeGroup;
+        const redefinedType = redefine.getSchemaTypes().get(x('T')) as XmlSchemaComplexType;
+        const holder = base.getSchemaTypes().get(x('H')) as XmlSchemaComplexType;
+
+        const selfGroupRef = (redefinedGroup.getParticle() as XmlSchemaSequence).getItems()[0] as XmlSchemaGroupRef;
+        const otherGroupRef = (holder.getParticle() as XmlSchemaSequence).getItems()[0] as XmlSchemaGroupRef;
+        const selfAttributeGroupRef = redefinedAttributeGroup.getAttributes()[0] as XmlSchemaAttributeGroupRef;
+        const otherAttributeGroupRef = holder.getAttributes()[0] as XmlSchemaAttributeGroupRef;
+        const selfDerivation = redefinedType.getContentModel()?.getContent() as XmlSchemaComplexContentExtension;
+
+        expect(assembly.resolveGroupRef(selfGroupRef)).toBe(base.getGroups().get(x('G')));
+        expect(assembly.resolveAttributeGroupRef(selfAttributeGroupRef)).toBe(base.getAttributeGroups().get(x('AG')));
+        expect(assembly.resolveDerivationBase(selfDerivation)).toBe(base.getSchemaTypes().get(x('T')));
+        expect(assembly.resolveDerivationBaseOrBuiltIn(selfDerivation)).toBe(base.getSchemaTypes().get(x('T')));
+        if (withEntry) {
+          expect(assembly.resolveGroupRef(otherGroupRef)).toBe(redefinedGroup);
+          expect(assembly.resolveAttributeGroupRef(otherAttributeGroupRef)).toBe(redefinedAttributeGroup);
+        }
+      },
+    );
+
+    it('should resolve a self-reference to null when the redefined schema is missing', () => {
+      const doc = TestUtil.createRedefineDoc('redefine/same-namespace', BASE_FIRST);
+      const redefine = redefineOf(doc);
+      const redefinedGroup = redefine.getGroups().get(x('G')) as XmlSchemaGroup;
+      const selfGroupRef = (redefinedGroup.getParticle() as XmlSchemaSequence).getItems()[0] as XmlSchemaGroupRef;
+      redefine.schema = null;
+
+      expect(doc.assembly.resolveGroupRef(selfGroupRef)).toBeNull();
+    });
+
+    it('should terminate lookups and self-references in mutually redefining files', () => {
+      const doc = TestUtil.createRedefineDoc('redefine/cycle', ['A.xsd', 'B.xsd'], 'A.xsd');
+      const typeOfA = doc.assembly.lookupType(new QName('', 'T')) as XmlSchemaComplexType;
+      const derivation = typeOfA.getContentModel()?.getContent() as XmlSchemaComplexContentExtension;
+
+      expect(sourceOf(typeOfA)).toBe('A.xsd');
+      expect(sourceOf(doc.assembly.resolveDerivationBase(derivation))).toBe('B.xsd');
+      expect(doc.assembly.lookupType(new QName('', 'Missing'))).toBeNull();
+    });
+
+    it('should resolve a reference without a QName to null', () => {
+      const doc = TestUtil.createRedefineDoc('redefine/same-namespace', BASE_FIRST);
+      const { assembly } = doc;
+      const attributeGroupRef = new XmlSchemaAttributeGroupRef(schemaOf(doc, 'base.xsd'));
+
+      expect(assembly.resolveGroupRef(new XmlSchemaGroupRef())).toBeNull();
+      expect(assembly.resolveAttributeGroupRef(attributeGroupRef)).toBeNull();
+      expect(assembly.resolveDerivationBase(new XmlSchemaSimpleTypeRestriction())).toBeNull();
+      expect(assembly.resolveDerivationBaseOrBuiltIn(new XmlSchemaSimpleTypeRestriction())).toBeNull();
+      expect(assembly.lookupGroup(x('Missing'))).toBeNull();
+    });
+
+    it('should not take a redefined complex type without a content model for a self-derivation (invalid set)', () => {
+      const wrap = (body: string) =>
+        `<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x">${body}</xs:schema>`;
+      const collection = new XmlSchemaCollection();
+      loadFiles(collection, {
+        'base.xsd': wrap('<xs:complexType name="T"><xs:sequence/></xs:complexType>'),
+        'implementation.xsd': wrap(
+          '<xs:redefine schemaLocation="base.xsd"><xs:complexType name="T"><xs:sequence/></xs:complexType></xs:redefine>' +
+            '<xs:complexType name="D"><xs:complexContent><xs:extension base="x:T"/></xs:complexContent></xs:complexType>',
+        ),
+      });
+      const implementation = collection.getXmlSchema('implementation.xsd')[0];
+      const derived = implementation.getSchemaTypes().get(x('D')) as XmlSchemaComplexType;
+      const derivation = derived.getContentModel()?.getContent() as XmlSchemaComplexContentExtension;
+
+      expect(new XmlSchemaAssembly(collection, 'implementation.xsd').resolveDerivationBase(derivation)).toBe(
+        implementation.getSchemaTypes().get(x('T')),
+      );
+    });
+
+    it('should not find an element outside the entry, nor without an entry', () => {
+      const doc = TestUtil.createRedefineDoc('redefine/shadowing', ['implementation.xsd', 'base.xsd', 'other.xsd']);
+
+      expect(sourceOf(doc.assembly.lookupElement(x('OtherRoot')))).toBe('other.xsd');
+      expect(doc.assembly.findElementInEntry(x('OtherRoot'))).toBeNull();
+      expect(doc.assembly.findElementInEntry(x('Missing'))).toBeNull();
+      expect(doc.assembly.findElementInEntry(null)).toBeNull();
+      expect(new XmlSchemaAssembly(doc.xmlSchemaCollection).findElementInEntry(x('Root'))).toBeNull();
     });
   });
 });

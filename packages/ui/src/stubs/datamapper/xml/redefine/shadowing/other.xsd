@@ -8,5 +8,15 @@
   <xs:simpleType name="S">
     <xs:restriction base="xs:int"/>
   </xs:simpleType>
+  <xs:group name="BG">
+    <xs:sequence>
+      <xs:element name="og1" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:attribute name="ba" type="xs:boolean"/>
+  <xs:attributeGroup name="BAG">
+    <xs:attribute name="oag1" type="xs:string"/>
+  </xs:attributeGroup>
   <xs:element name="BaseRoot" type="xs:string"/>
+  <xs:element name="OtherRoot" type="xs:string"/>
 </xs:schema>

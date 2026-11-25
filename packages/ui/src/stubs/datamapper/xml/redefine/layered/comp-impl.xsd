@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:redefine schemaLocation="comp-base.xsd">
+    <xs:group name="PtyElements">
+      <xs:sequence>
+        <xs:group ref="x:PtyElements"/>
+        <xs:element name="CustomSub" type="xs:string" minOccurs="0"/>
+      </xs:sequence>
+    </xs:group>
+    <xs:attributeGroup name="PtyAttributes">
+      <xs:attributeGroup ref="x:PtyAttributes"/>
+      <xs:attribute name="customCode" type="xs:string"/>
+    </xs:attributeGroup>
+  </xs:redefine>
+</xs:schema>

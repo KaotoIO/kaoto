@@ -4,6 +4,7 @@
     <xs:sequence>
       <xs:element name="a" type="xs:string"/>
     </xs:sequence>
+    <xs:attribute name="ba" type="xs:string"/>
   </xs:complexType>
   <xs:element name="BaseRoot" type="T"/>
 </xs:schema>

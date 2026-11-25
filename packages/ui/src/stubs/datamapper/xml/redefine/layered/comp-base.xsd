@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:include schemaLocation="fld-impl.xsd"/>
+  <xs:group name="PtyElements">
+    <xs:sequence>
+      <xs:element name="Sub" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="PtyAttributes">
+    <xs:attribute name="code" type="x:Code_t"/>
+  </xs:attributeGroup>
+  <xs:complexType name="Pty_Block_t">
+    <xs:sequence>
+      <xs:group ref="x:PtyElements"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="x:PtyAttributes"/>
+  </xs:complexType>
+  <xs:complexType name="Abstract_message_t"/>
+  <xs:element name="Message" type="x:Abstract_message_t" abstract="true"/>
+  <xs:element name="Envelope">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="x:Message"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

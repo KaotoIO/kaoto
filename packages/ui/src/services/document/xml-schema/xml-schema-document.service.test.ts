@@ -48,6 +48,7 @@ import { XmlSchemaAssembly } from './xml-schema-assembly.model';
 import { XmlSchemaDocument, XmlSchemaField } from './xml-schema-document.model';
 import { XmlSchemaDocumentService } from './xml-schema-document.service';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
+import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 describe('XmlSchemaDocumentService', () => {
   it('should retain the original definition when changing the root element', () => {
@@ -1592,22 +1593,23 @@ describe('XmlSchemaDocumentService', () => {
       expect(namespaceMap).toEqual({ x: 'urn:x' });
     });
 
-    it.each(['redefine/same-namespace', 'redefine/chameleon'])(
-      'should resolve a root declared in the redefined schema in the redefining assembly (%s)',
-      (dir) => {
-        const files = stubFiles(dir, ['base.xsd', 'implementation.xsd']);
-        const option = create(files).rootElementOptions?.find((o) => o.name === 'BaseRoot');
-        expect(option?.entrySchemaFile).toBe('implementation.xsd');
+    it.each(
+      ['redefine/same-namespace', 'redefine/chameleon'].flatMap((dir) => BOTH_ORDERS.map((order) => [dir, ...order])),
+    )('should resolve roots of both files in the redefining assembly (%s), attach order %s, %s', (dir, ...order) => {
+      const files = stubFiles(dir, order);
+      const optionOf = (name: string) => create(files).rootElementOptions?.find((o) => o.name === name);
+      expect(optionOf('BaseRoot')?.entrySchemaFile).toBe('implementation.xsd');
 
-        const baseRoot = create(files, option);
-        expect(baseRoot.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}BaseRoot');
-        expect(childNames(baseRoot, rootField(baseRoot))).toEqual(['b']);
+      const baseRoot = create(files, optionOf('BaseRoot'));
+      expect(baseRoot.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}BaseRoot');
+      expect(childNames(baseRoot, rootField(baseRoot))).toEqual(['a', 'b']);
 
-        const holderOption = create(files).rootElementOptions?.find((o) => o.name === 'BaseHolder');
-        const baseHolder = create(files, holderOption);
-        expect(childNames(baseHolder, rootField(baseHolder))).toEqual(['ag2', 'g2']);
-      },
-    );
+      const baseHolder = create(files, optionOf('BaseHolder'));
+      expect(childNames(baseHolder, rootField(baseHolder))).toEqual(['ag1', 'ag2', 'g1', 'g2']);
+
+      const root = create(files, optionOf('Root'));
+      expect(childNames(root, rootField(root))).toEqual(['a', 'b']);
+    });
 
     it.each([
       ['redefine/same-namespace', 'urn:x', ['urn:x']],
@@ -1635,7 +1637,7 @@ describe('XmlSchemaDocumentService', () => {
       const result = create(stubFiles('redefine/complex-type', order), { namespaceUri: '', name: 'Root' });
 
       expect(result.validationStatus).toBe('success');
-      expect(childNames(result, rootField(result))).toEqual(['b']);
+      expect(childNames(result, rootField(result))).toEqual(['ba', 'ra', 'a', 'b']);
     });
 
     const shadowingWarningOf: Record<string, ReportMessage> = {
@@ -1650,7 +1652,7 @@ describe('XmlSchemaDocumentService', () => {
     };
 
     it.each([[['implementation.xsd', 'base.xsd', 'other.xsd']], [['other.xsd', 'implementation.xsd', 'base.xsd']]])(
-      'should resolve components declared only in the redefined schema through the collection, attach order %j',
+      'should resolve components declared only in the redefined schema through the redefine, attach order %j',
       (order) => {
         const files = stubFiles('redefine/shadowing', order);
         const root = create(files, { namespaceUri: 'urn:x', name: 'Root', entrySchemaFile: 'implementation.xsd' });
@@ -1665,10 +1667,232 @@ describe('XmlSchemaDocumentService', () => {
           order.filter((file) => file in shadowingWarningOf).map((file) => shadowingWarningOf[file]),
         );
         expect(baseRoot.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}BaseRoot');
-        const rootChildren = rootField(root)?.fields ?? [];
-        expect(childNames(root, rootChildren[0])).toEqual(['fromOther']);
-        expect(rootChildren[1]?.type).toBe(Types.Integer);
-        expect(childNames(baseRoot, rootField(baseRoot))).toEqual([]);
+        const child = (name: string) => rootField(root)?.fields.find((field) => field.name === name);
+        expect(childNames(root, rootField(root))).toEqual(['ba', 'bag1', 'bt', 's', 'bg1', 'str', 'num']);
+        expect(child('ba')?.type).toBe(Types.Integer);
+        expect(childNames(root, child('bt'))).toEqual(['fromBase']);
+        expect(child('s')?.type).toBe(Types.String);
+        expect(childNames(baseRoot, rootField(baseRoot))).toEqual(['a']);
+      },
+    );
+
+    const entryRoot = (namespaceUri: string, name: string, entrySchemaFile = 'implementation.xsd') => ({
+      namespaceUri,
+      name,
+      entrySchemaFile,
+    });
+
+    const fieldOf = (field: IField | undefined, name: string) => field?.fields.find((child) => child.name === name);
+
+    it.each(['Parties', 'BaseParties'].flatMap((name) => BOTH_ORDERS.map((order) => [name, ...order])))(
+      'should expand the base group at the self-reference of the #4200 reproducer (%s), attach order %s, %s',
+      (name, ...order) => {
+        const result = create(stubFiles('redefine/group-reproducer', order), entryRoot('', name));
+
+        expect(result.validationStatus).toBe('success');
+        expect(childNames(result, fieldOf(rootField(result), 'Party'))).toEqual([
+          'Sub',
+          'ReltdPty',
+          'AltPty',
+          'PtyRtg',
+        ]);
+      },
+    );
+
+    it.each(BOTH_ORDERS)(
+      'should give a redefined simple type its own fragment and the type of its base chain, attach order %s, %s',
+      (...order) => {
+        const result = create(stubFiles('redefine/simple-type', order), entryRoot('urn:x', 'BaseHolder'));
+        const document = result.document as XmlSchemaDocument;
+        const holder = rootField(result);
+        const attribute = fieldOf(holder, 'a') as IField;
+        const element = fieldOf(holder, 'e') as IField;
+        const key = XmlSchemaDocumentUtilService.buildTypeFragmentKey('implementation.xsd', new QName('urn:x', 'S'));
+
+        expect(attribute.namedTypeFragmentRefs).toEqual([key]);
+        expect(document.namedTypeFragments[key]?.type).toBe(Types.Integer);
+        DocumentUtilService.resolveTypeFragment(attribute);
+        expect(attribute.type).toBe(Types.Integer);
+        expect(element.type).toBe(Types.Integer);
+
+        const override = XmlSchemaTypesService.parseTypeOverride('x:S', { x: 'urn:x' }, fieldOf(holder, 'o') as IField);
+        expect(override.namedTypeFragmentRefs).toEqual([key]);
+      },
+    );
+
+    it.each(BOTH_ORDERS)(
+      'should keep the base attributes of a simpleContent type that redefines itself, attach order %s, %s',
+      (...order) => {
+        const files = stubFiles('redefine/simple-content', order);
+        const extension = create(files, entryRoot('urn:x', 'SCRoot'));
+        const restriction = create(files, entryRoot('urn:x', 'SRRoot'));
+
+        expect(childNames(extension, rootField(extension))).toEqual(['x', 'z', 'y']);
+        expect(childNames(restriction, rootField(restriction))).toEqual(['x']);
+      },
+    );
+
+    it.each(BOTH_ORDERS)(
+      'should apply a prohibition reached through a redefinition one layer down, attach order %s, %s',
+      (...order) => {
+        const files = stubFiles('redefine/prohibited', order);
+        const attributeGroup = create(files, entryRoot('urn:x', 'AGRoot'));
+        const restriction = create(files, entryRoot('urn:x', 'RRoot'));
+
+        expect(childNames(attributeGroup, rootField(attributeGroup))).toEqual(['c', 'b']);
+        expect(childNames(restriction, rootField(restriction))).toEqual(['b']);
+      },
+    );
+
+    it.each(BOTH_ORDERS)(
+      'should expand the base group at a self-reference nested in a choice, attach order %s, %s',
+      (...order) => {
+        const result = create(stubFiles('redefine/nested-choice', order), entryRoot('urn:x', 'NRoot'));
+        const choice = rootField(result)?.fields[0];
+
+        expect(childNames(result, rootField(result))).toEqual(['__choice__']);
+        expect(childNames(result, choice)).toEqual(['__sequence__', 'r1']);
+        expect(childNames(result, choice?.fields[0])).toEqual(['g1a']);
+      },
+    );
+
+    const anonymousSelfReferences: Record<string, [string, string, string]> = {
+      Root2: ['w', 'r2', 'g2a'],
+      Root3: ['v', 'r3', 'g3a'],
+    };
+
+    it.each(Object.keys(anonymousSelfReferences).flatMap((name) => BOTH_ORDERS.map((order) => [name, ...order])))(
+      'should expand the base group at a self-reference inside a local anonymous type (%s), attach order %s, %s',
+      (name, ...order) => {
+        const [local, sibling, base] = anonymousSelfReferences[name];
+        const result = create(stubFiles('redefine/nested-anonymous', order), entryRoot('urn:x', name));
+
+        expect(childNames(result, rootField(result))).toEqual([local, sibling]);
+        expect(childNames(result, fieldOf(rootField(result), local))).toEqual([base]);
+      },
+    );
+
+    it.each(BOTH_ORDERS)(
+      'should stop genuinely circular groups next to a self-reference (invalid set, best effort), attach order %s, %s',
+      (...order) => {
+        const files = stubFiles('redefine/group-cycle', order);
+        const redefined = create(files, entryRoot('urn:x', 'GRoot'));
+        const plain = create(files, entryRoot('urn:x', 'ARoot'));
+
+        expect(childNames(redefined, rootField(redefined))).toEqual(['g', 'h', 'r']);
+        expect(childNames(plain, rootField(plain))).toEqual(['a', 'b']);
+      },
+    );
+
+    it.each([
+      ['A.xsd', 'B.xsd'],
+      ['B.xsd', 'A.xsd'],
+    ])(
+      'should terminate for self-references across mutually redefining files (invalid set, best effort), attach order %s, %s',
+      (...order) => {
+        const files = stubFiles('redefine/cycle', order);
+        for (const [name, entry, expected] of [
+          ['CycleA', 'A.xsd', ['agb', 'aga', 'gb', 'ga', 't', 's']],
+          ['CycleB', 'B.xsd', ['aga', 'agb', 'ga', 'gb', 't', 's']],
+        ] as const) {
+          const result = create(files, entryRoot('', name, entry));
+
+          expect(result.validationStatus).toBe('warning');
+          expect(result.warnings?.map((warning) => warning.message)).toEqual(
+            expect.arrayContaining([expect.stringContaining('Circular xs:redefine detected:')]),
+          );
+          expect(childNames(result, rootField(result))).toEqual(expected);
+        }
+      },
+    );
+
+    it.each([
+      ['B.xsd', 'R.xsd', 'C.xsd'],
+      ['C.xsd', 'R.xsd', 'B.xsd'],
+    ])('should expand chained redefines one layer per self-reference, attach order %s, %s, %s', (...order) => {
+      const files = stubFiles('redefine/chain', order);
+      const typeRoot = create(files, entryRoot('urn:x', 'TRoot', 'C.xsd'));
+      const groupRoot = create(files, entryRoot('urn:x', 'GRoot', 'C.xsd'));
+
+      expect(childNames(typeRoot, rootField(typeRoot))).toEqual(['b', 'r', 'c']);
+      expect(childNames(groupRoot, rootField(groupRoot))).toEqual(['gb', 'gr', 'gc']);
+    });
+
+    it.each(BOTH_ORDERS)(
+      'should show the base and the custom content of a FIXML-style customization, attach order %s, %s',
+      (...order) => {
+        const result = create(stubFiles('redefine/fixml-style', order), entryRoot('urn:x', 'NewOrdSingle'));
+
+        expect(childNames(result, rootField(result))).toEqual(['v', 'customAttr', 'ClOrdID', 'CustomField']);
+      },
+    );
+
+    it.each(BOTH_ORDERS)(
+      'should keep schema order when the self-reference is not the first particle, attach order %s, %s',
+      (...order) => {
+        const result = create(stubFiles('redefine/group-position', order), entryRoot('urn:x', 'Root'));
+
+        expect(childNames(result, rootField(result))).toEqual([
+          'head',
+          'pre',
+          'g1',
+          'g2',
+          'post',
+          'first',
+          'l1',
+          'tail',
+        ]);
+      },
+    );
+
+    const childIn = (result: ReturnType<typeof create>, field: IField | undefined, name: string) =>
+      [
+        ...(field?.fields ?? []),
+        ...(field?.namedTypeFragmentRefs ?? []).flatMap(
+          (ref) => result.document?.namedTypeFragments[ref]?.fields ?? [],
+        ),
+      ].find((child) => child.name === name);
+
+    const LAYERED_FILES = [
+      'main.xsd',
+      'ord-impl.xsd',
+      'ord-base.xsd',
+      'qte-impl.xsd',
+      'qte-base.xsd',
+      'comp-impl.xsd',
+      'comp-base.xsd',
+      'fld-impl.xsd',
+      'fld-base.xsd',
+    ];
+
+    it.each([[LAYERED_FILES], [[...LAYERED_FILES].reverse()]])(
+      'should apply redefinitions of every layer reached through includes of redefined files, attach order %j',
+      (order) => {
+        const result = create(stubFiles('redefine/layered', order), entryRoot('urn:x', 'Envelope', 'main.xsd'));
+        const message = childIn(result, rootField(result), 'Message');
+        const ord = childIn(result, message, 'Ord');
+        const codeKey = XmlSchemaDocumentUtilService.buildTypeFragmentKey('fld-impl.xsd', new QName('urn:x', 'Code_t'));
+
+        expect(result.validationStatus).toBe('success');
+        expect(childNames(result, message).sort()).toEqual(['Ord', 'Qte']);
+        expect(childNames(result, ord)).toEqual(['id', 'customId', 'Pty', 'CustomOrd']);
+        for (const pty of [childIn(result, ord, 'Pty'), childIn(result, childIn(result, message, 'Qte'), 'Pty')]) {
+          expect(childNames(result, pty)).toEqual(['code', 'customCode', 'Sub', 'CustomSub']);
+          expect(childIn(result, pty, 'code')?.namedTypeFragmentRefs).toEqual([codeKey]);
+        }
+      },
+    );
+
+    it.each([
+      ['segments.xsd', 'ADT.xsd', 'custom.xsd'],
+      ['custom.xsd', 'ADT.xsd', 'segments.xsd'],
+    ])(
+      'should extend a segment type reached through an element ref of an included message, attach order %s, %s, %s',
+      (...order) => {
+        const result = create(stubFiles('redefine/hl7-style', order), entryRoot('urn:x', 'ADT', 'custom.xsd'));
+
+        expect(childNames(result, rootField(result))).toEqual(['PID']);
+        expect(childNames(result, childIn(result, rootField(result), 'PID'))).toEqual(['PID.1', 'PID.40']);
       },
     );
 
@@ -1677,6 +1901,7 @@ describe('XmlSchemaDocumentService', () => {
 
       expect(result.validationStatus).toBe('success');
       expect(result.document?.rootElement?.getQName()?.toString()).toBe('{urn:x}Root');
+      expect(childNames(result, rootField(result))).toEqual(['c', 'r']);
     });
 
     it('should load a chameleon include chain back into the including namespace', () => {
@@ -2287,34 +2512,6 @@ describe('XmlSchemaDocumentService', () => {
       expect(names).toContain('attrX');
       expect(names).toContain('attrP');
       expect(names).toContain('attrQ');
-    });
-
-    it.each([
-      ['base.xsd', 'implementation.xsd'],
-      ['implementation.xsd', 'base.xsd'],
-    ])('should resolve the xs:redefine reproducer without crashing, attach order %s, %s', (...order) => {
-      const definition = new DocumentDefinition(
-        DocumentType.SOURCE_BODY,
-        DocumentDefinitionType.XML_SCHEMA,
-        'redefine-doc',
-        Object.fromEntries(order.map((name) => [name, getXmlStubFile(`redefine/group-reproducer/${name}`)])),
-        { namespaceUri: '', name: 'Parties', entrySchemaFile: 'implementation.xsd' },
-        undefined,
-        undefined,
-        undefined,
-        'implementation.xsd',
-      );
-
-      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
-      expect(result.validationStatus).toBe('success');
-      expect(result.document?.rootElement?.getName()).toBe('Parties');
-      const partiesField = result.document?.fields[0];
-      expect(partiesField?.name).toBe('Parties');
-      const partyField = partiesField?.fields[0];
-      expect(partyField?.name).toBe('Party');
-      // The self-referencing group ref inside the redefinition is cut by the group-ref guard, so only the
-      // redefinition's own particles are listed; the base particle `Sub` is not expanded.
-      expect(partyField?.fields.map((f) => f.name)).toEqual(['ReltdPty', 'AltPty', 'PtyRtg']);
     });
 
     it('should re-infer entrySchemaFile when the persisted file is missing from definitionFiles', () => {

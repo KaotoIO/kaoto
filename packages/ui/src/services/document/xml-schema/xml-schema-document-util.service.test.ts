@@ -17,6 +17,7 @@ import {
   getRootDeclaredXsd,
   getSimpleTypeInheritanceXsd,
   getSimpleTypeRestrictionXsd,
+  getXmlStubFile,
   TestUtil,
 } from '../../../stubs/datamapper/data-mapper';
 import { XmlSchema, XmlSchemaElement } from '../../../xml-schema-ts';
@@ -1589,6 +1590,25 @@ describe('XmlSchemaDocumentUtilService', () => {
       XmlSchemaDocumentService.loadSchemaFiles(collection, analysis, files);
       return analysis.edges;
     };
+
+    it('should infer the redefining file for a root declared only in the file it redefines', () => {
+      const collection = new XmlSchemaCollection();
+      const files = Object.fromEntries(
+        ['other.xsd', 'implementation.xsd', 'base.xsd'].map((name) => [
+          name,
+          getXmlStubFile(`redefine/redefine-only/${name}`),
+        ]),
+      );
+      collection.getSchemaResolver().addFiles(files);
+      const edges = loadFiles(collection, files);
+
+      const entry = XmlSchemaDocumentUtilService.inferEntrySchemaFile(collection, files, edges, {
+        namespaceUri: 'urn:x',
+        name: 'BaseRoot',
+      });
+
+      expect(entry).toBe('implementation.xsd');
+    });
 
     it('should return undefined when definitionFiles is empty', () => {
       const collection = new XmlSchemaCollection();

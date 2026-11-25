@@ -158,6 +158,29 @@ const XS_INT_CANDIDATE = {
 
 describe('FieldOverrideService', () => {
   describe('getSafeOverrideCandidates()', () => {
+    const redefineNamespaceMap = { x: 'urn:x', xs: NS_XML_SCHEMA };
+    const childOf = (doc: XmlSchemaDocument, name: string) =>
+      doc.fields[0].fields.find((child) => child.name === name) as XmlSchemaField;
+    const safeCandidateKeys = (doc: XmlSchemaDocument, name: string) =>
+      Object.keys(FieldOverrideService.getSafeOverrideCandidates(childOf(doc, name), redefineNamespaceMap));
+
+    it.each([
+      ['base.xsd', 'implementation.xsd'],
+      ['implementation.xsd', 'base.xsd'],
+    ])('should offer a type that redefines itself for an ancestor of its base, attach order %s, %s', (...order) => {
+      expect(safeCandidateKeys(TestUtil.createRedefineDoc('redefine/derived-base', order), 'u')).toContain('x:T');
+    });
+
+    it.each([
+      ['implementation.xsd', 'base.xsd', 'other.xsd'],
+      ['other.xsd', 'implementation.xsd', 'base.xsd'],
+    ])('should offer a redefined simple type for the base of its chain only, attach order %s, %s, %s', (...order) => {
+      const doc = TestUtil.createRedefineDoc('redefine/shadowing', order);
+
+      expect(safeCandidateKeys(doc, 'str')).toContain('x:S');
+      expect(safeCandidateKeys(doc, 'num')).not.toContain('x:S');
+    });
+
     it('should return only xs:int restrictions for the capacity field', () => {
       const doc = createSubstitutionZooDoc();
       const capacityField = findFieldByName(doc.fields, 'capacity');

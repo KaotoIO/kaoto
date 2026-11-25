@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:complexType name="ABC">
+    <xs:attribute name="a" type="xs:string"/>
+    <xs:attribute name="b" type="xs:string"/>
+    <xs:attribute name="c" type="xs:string"/>
+  </xs:complexType>
+  <xs:attributeGroup name="AG">
+    <xs:attribute name="a" use="prohibited"/>
+  </xs:attributeGroup>
+  <xs:complexType name="AGR">
+    <xs:complexContent>
+      <xs:restriction base="x:ABC">
+        <xs:attributeGroup ref="x:AG"/>
+      </xs:restriction>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="R">
+    <xs:attribute name="a" type="xs:string"/>
+    <xs:attribute name="b" type="xs:string"/>
+  </xs:complexType>
+  <xs:element name="AGRoot" type="x:AGR"/>
+  <xs:element name="RRoot" type="x:R"/>
+</xs:schema>
