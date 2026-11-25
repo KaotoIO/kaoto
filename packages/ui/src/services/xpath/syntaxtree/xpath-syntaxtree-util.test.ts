@@ -1,6 +1,7 @@
 import { afterAll, expectTypeOf } from 'vitest';
 
 import { NODE_SHAPE_EXPRESSIONS, tokenCoverageExpressions } from '../../../stubs/datamapper/xpath-expressions';
+import { XPath2Parser } from '../2.0/xpath-2.0-parser';
 import { XPathService } from '../xpath.service';
 import {
   CompleteXPathNodeMap,
@@ -165,11 +166,116 @@ describe('XPathUtil', () => {
       expect(ast).toBeDefined();
       if (!ast) return;
 
-      const node = XPathUtil.findNodeAtPosition(ast, 7);
-      expect(node).toBeDefined();
-      if (node?.type === XPathNodeType.NameTest) {
-        expect((node as NameTestNode).localName).toBe('child');
+      expect(XPathUtil.findNodeAtPosition(ast, 7)).toMatchObject({ type: XPathNodeType.NameTest, localName: 'child' });
+    });
+
+    it('should return the name test rather than its step with the same range', () => {
+      expect(XPathUtil.findNodeAtPosition(parseRoot('a/b'), 2)).toMatchObject({
+        type: XPathNodeType.NameTest,
+        localName: 'b',
+      });
+    });
+
+    it('should return the variable reference rather than its filter and step with the same range', () => {
+      const root = parseRoot('$v');
+
+      expect(XPathUtil.findNodeAtPosition(root, 1)).toBe(XPathUtil.getAllNodesOfType(root, XPathNodeType.VarRef)[0]);
+    });
+
+    it('should reach a right operand through its parent chain', () => {
+      const root = parseRoot('a + b');
+      const arithmetic = XPathUtil.getAllNodesOfType(root, XPathNodeType.ArithmeticExpr)[0];
+      const node = XPathUtil.findNodeAtPosition(root, 4);
+
+      expect(node && XPathUtil.getParentChain(node)).toContain(arithmetic.right);
+    });
+
+    it('should return the operator node for an offset on the operator', () => {
+      const root = parseRoot('a + b');
+
+      expect(XPathUtil.findNodeAtPosition(root, 2)).toBe(
+        XPathUtil.getAllNodesOfType(root, XPathNodeType.ArithmeticExpr)[0],
+      );
+    });
+  });
+
+  describe('source ranges', () => {
+    const LOCAL_EXPRESSIONS = [
+      'abc + def',
+      'a + b + c',
+      '$ns:v',
+      'ns:ab',
+      '@ab',
+      '../a',
+      'x/parent::a',
+      'x[1]',
+      '$v',
+      'for $i in /a/b return $i/c',
+      'some $x in /a satisfies $x',
+      'if (a) then b else c',
+      '  a + b  ',
+      'a[1][2]',
+      'child::a/descendant::b',
+      'p:a/@q:b',
+      '$p:v/a',
+      'for $a in $x, $b in $y return $a',
+      'some $a in $x, $b in $y satisfies $a',
+    ];
+
+    const getExpressions = () => [
+      ...getCorpus(),
+      ...LOCAL_EXPRESSIONS.map((expression) => ({ expression, root: parseRoot(expression) })),
+    ];
+
+    const sliceOf = (expression: string, node: XPathSyntaxNode) =>
+      expression.slice(node.range.start.offset, node.range.end.offset + 1);
+
+    const collectRangeMismatches = (
+      expression: string,
+      node: XPathSyntaxNode,
+      tokens: { starts: Set<number>; ends: Set<number | undefined> },
+      mismatches: string[],
+    ): void => {
+      const { start, end } = node.range;
+      const slice = sliceOf(expression, node);
+      if (!tokens.starts.has(start.offset) || !tokens.ends.has(end.offset)) {
+        mismatches.push(`${expression} → ${node.type} "${slice}" is not on token boundaries`);
       }
+      if (slice !== slice.trim()) mismatches.push(`${expression} → ${node.type} "${slice}" has outer whitespace`);
+
+      let previous: XPathSyntaxNode | undefined;
+      for (const child of XPathUtil.getChildren(node)) {
+        if (child.range.start.offset < start.offset || child.range.end.offset > end.offset) {
+          mismatches.push(`${expression} → ${child.type} "${sliceOf(expression, child)}" is outside ${node.type}`);
+        }
+        if (previous && child.range.start.offset <= previous.range.end.offset) {
+          mismatches.push(`${expression} → ${child.type} "${sliceOf(expression, child)}" overlaps ${previous.type}`);
+        }
+        previous = child;
+        collectRangeMismatches(expression, child, tokens, mismatches);
+      }
+    };
+
+    it('should cover the whole expression with the root', () => {
+      const mismatches = getExpressions()
+        .filter(({ expression, root }) => sliceOf(expression, root) !== expression.trim())
+        .map(({ expression, root }) => `${expression} → "${sliceOf(expression, root)}"`);
+
+      expect(mismatches).toEqual([]);
+    });
+
+    it('should keep every node on token boundaries, inside its parent and apart from its siblings', () => {
+      const mismatches: string[] = [];
+      for (const { expression, root } of getExpressions()) {
+        const lexed = XPath2Parser.lexer.tokenize(expression).tokens;
+        const tokens = {
+          starts: new Set(lexed.map((token) => token.startOffset)),
+          ends: new Set(lexed.map((token) => token.endOffset)),
+        };
+        collectRangeMismatches(expression, root, tokens, mismatches);
+      }
+
+      expect(mismatches).toEqual([]);
     });
   });
 

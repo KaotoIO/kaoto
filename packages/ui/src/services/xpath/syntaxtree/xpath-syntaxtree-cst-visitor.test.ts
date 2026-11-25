@@ -482,6 +482,46 @@ describe('CstVisitor', () => {
         expect(arithmeticExpr.range.start.line).toBeGreaterThan(0);
         expect(arithmeticExpr.range.start.column).toBeGreaterThan(0);
       });
+
+      it.each<[string, XPathNodeType, number, string]>([
+        ['abc + def', XPathNodeType.ArithmeticExpr, 0, 'abc + def'],
+        ['a + b + c', XPathNodeType.ArithmeticExpr, 1, 'a + b'],
+        ['$ns:v', XPathNodeType.VarRef, 0, '$ns:v'],
+        ['ns:ab', XPathNodeType.NameTest, 0, 'ns:ab'],
+        ['@ab', XPathNodeType.StepExpr, 0, '@ab'],
+        ['../a', XPathNodeType.StepExpr, 0, '..'],
+        ['x/parent::a', XPathNodeType.StepExpr, 1, 'parent::a'],
+        ['x[1]', XPathNodeType.Predicate, 0, '[1]'],
+        ['$v', XPathNodeType.FilterExpr, 0, '$v'],
+        ['for $i in /a/b return $i/c', XPathNodeType.UnsupportedExpr, 0, 'for $i in /a/b return $i/c'],
+        ['some $x in /a satisfies $x', XPathNodeType.UnsupportedExpr, 0, 'some $x in /a satisfies $x'],
+        ['if (a) then b else c', XPathNodeType.IfExpr, 0, 'if (a) then b else c'],
+      ])('should give %s a %s node #%i that covers "%s"', (expression, type, index, expected) => {
+        const root = CstVisitor.visit(XPathService.parse(expression).cst);
+        const { range } = XPathUtil.getAllNodesOfType(root, type)[index];
+
+        expect(expression.slice(range.start.offset, range.end.offset + 1)).toBe(expected);
+      });
+
+      it.each<[string, CstNode]>([
+        ['without a location', { name: 'Expr', children: {} }],
+        [
+          'with an empty location',
+          {
+            name: 'Expr',
+            children: {},
+            location: { startOffset: -1, startLine: -1, startColumn: -1, endOffset: -1, endLine: -1, endColumn: -1 },
+          },
+        ],
+      ])('should give a CST node %s the default range', (_desc, cstNode) => {
+        expect(CstVisitor.visit(cstNode).range).toEqual(XPathUtil.createRange(1, 1, 0));
+      });
+
+      it('should default the line and column of a CST location that has only a start offset', () => {
+        const cstNode: CstNode = { name: 'Expr', children: {}, location: { startOffset: 3 } };
+
+        expect(CstVisitor.visit(cstNode).range).toEqual(XPathUtil.createRange(1, 1, 3));
+      });
     });
   });
 });
@@ -553,11 +593,7 @@ describe('Edge cases and error handling', () => {
     expect(ast).toBeDefined();
   });
 
-  it.each([
-    ['empty node for range creation', 'a'],
-    ['node without valid tokens (getFirstToken/getLastToken)', 'test'],
-    ['invalid path expression in comparison', 'true()'],
-  ])('should handle %s', (_desc, xpath) => {
+  it.each([['invalid path expression in comparison', 'true()']])('should handle %s', (_desc, xpath) => {
     const ast = XPathService.parse(xpath).exprNode;
     expect(ast).toBeDefined();
   });

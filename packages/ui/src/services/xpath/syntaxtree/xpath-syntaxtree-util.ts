@@ -17,10 +17,11 @@ import {
  *
  * The syntax tree stays faithful to the expression and keeps every child the parser models; readers don't
  * prune it. Two walks read it and each decides what to follow: the child walk ({@link XPathUtil.getChildren},
- * behind {@link XPathUtil.getAllNodesOfType} and {@link XPathUtil.findNodeAtPosition}) follows every child,
- * i.e. what an expression reads; the result walk ({@link XPathUtil.getResultExpressions}) follows only the parts
- * that contribute nodes to the result, i.e. what it writes. Every node type has a child-walk case; every
- * {@link ExprSingleNode} type also has a result-walk case.
+ * behind {@link XPathUtil.getAllNodesOfType}) follows every child, i.e. what an expression reads; the result walk
+ * ({@link XPathUtil.getResultExpressions}) follows only the parts that contribute nodes to the result, i.e. what
+ * it writes. Every node type has a child-walk case; every {@link ExprSingleNode} type also has a result-walk case.
+ * {@link XPathUtil.findNodeAtPosition} uses {@link XPathUtil.getChildren} too, but follows only the child that
+ * contains the offset.
  */
 export class XPathUtil {
   /**
@@ -52,7 +53,7 @@ export class XPathUtil {
 
   /**
    * Every child syntax node of `node`, in written order, which `findNodeAtPosition` tie-breaking and
-   * `getAllNodesOfType` result order rely on. There is one case per node type, so a node type without a case
+   * `getAllNodesOfType` result order relies on. There is one case per node type, so a node type without a case
    * fails to compile. The returned array is always a new one, so changing it doesn't change the node's child
    * lists.
    * @param node - the node whose children to return
@@ -128,29 +129,25 @@ export class XPathUtil {
   /**
    * Finds the deepest node in the syntax tree that contains the given character offset.
    * Useful for implementing features like hover information or autocomplete in editors.
+   *
+   * It walks down from `root` into the child that contains the offset until no child does. Siblings don't
+   * overlap, so at most one child contains it. A child with the same range as its parent is entered, so a step
+   * and its name test resolve to the name test. Offsets are inclusive, see {@link SourceRange}.
    * @param root Root node of the syntax tree
    * @param offset Character offset in the source XPath expression
    * @returns The deepest node containing the offset, or undefined if offset is out of range
    */
   static findNodeAtPosition(root: XPathSyntaxNode, offset: number): XPathSyntaxNode | undefined {
-    if (offset < root.range.start.offset || offset > root.range.end.offset) {
+    if (!XPathUtil.containsOffset(root, offset)) {
       return undefined;
     }
 
-    let deepestNode: XPathSyntaxNode = root;
+    const child = XPathUtil.getChildren(root).find((candidate) => XPathUtil.containsOffset(candidate, offset));
+    return child ? XPathUtil.findNodeAtPosition(child, offset) : root;
+  }
 
-    this.traverseNode(root, (node) => {
-      if (offset >= node.range.start.offset && offset <= node.range.end.offset) {
-        if (
-          node.range.end.offset - node.range.start.offset <
-          deepestNode.range.end.offset - deepestNode.range.start.offset
-        ) {
-          deepestNode = node;
-        }
-      }
-    });
-
-    return deepestNode;
+  private static containsOffset(node: XPathSyntaxNode, offset: number): boolean {
+    return node.range.start.offset <= offset && offset <= node.range.end.offset;
   }
 
   /**
