@@ -456,5 +456,27 @@ describe('useArrowKeyNavigation', () => {
       fire('arrowright');
       expect(document.activeElement).toBe(doFinally);
     });
+
+    it('should order routeConfiguration placeholders as: intercept → interceptFrom → interceptSendToEndpoint → onException → onCompletion', () => {
+      pathContainer = document.createElement('div');
+      const properties = ['intercept', 'interceptFrom', 'interceptSendToEndpoint', 'onException', 'onCompletion'];
+      const placeholders = properties.map((property) =>
+        makeNode('placeholder-node', `placeholder-node__routeConfiguration.${property}`),
+      );
+
+      // DOM order intentionally different from navigation order
+      for (const n of [placeholders[4], placeholders[2], placeholders[0], placeholders[3], placeholders[1]]) {
+        pathContainer.appendChild(n);
+      }
+      document.body.appendChild(pathContainer);
+
+      const fire = setupHook();
+
+      placeholders[0].focus();
+      for (const expected of placeholders.slice(1)) {
+        fire('arrowright');
+        expect(document.activeElement).toBe(expected);
+      }
+    });
   });
 });
