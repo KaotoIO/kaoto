@@ -1,8 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { BODY_DOCUMENT_ID, DocumentDefinitionType, DocumentType } from '../../../models/datamapper/document';
-import { ForEachItem, MappingTree, ValueOfSelector } from '../../../models/datamapper/mapping';
-import { MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
+import { FieldItem, ForEachItem, MappingTree, ValueOfSelector } from '../../../models/datamapper/mapping';
+import { FieldItemNodeData, MappingNodeData, TargetDocumentNodeData } from '../../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
@@ -62,5 +62,35 @@ describe('DeleteMappingItemAction', () => {
     const confirmBtn = screen.getByTestId('delete-mapping-confirm-btn');
     fireEvent.click(confirmBtn);
     expect(onDeleteMock.mock.calls).toHaveLength(1);
+  });
+
+  it('should say it deletes only the value when the row shows an inline value-of next to other content', async () => {
+    const targetDoc = TestUtil.createTargetOrderDoc();
+    const tree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+    const shipOrderItem = new FieldItem(tree, targetDoc.fields[0]);
+    tree.children.push(shipOrderItem);
+    const docData = new TargetDocumentNodeData(targetDoc, tree);
+    const nodeData = new FieldItemNodeData(docData, shipOrderItem);
+    const renderAction = () =>
+      render(
+        <DataMapperProvider>
+          <MappingLinksProvider>
+            <DeleteMappingItemAction nodeData={nodeData} onDelete={vi.fn()} />
+          </MappingLinksProvider>
+        </DataMapperProvider>,
+      );
+
+    shipOrderItem.children.push(new ValueOfSelector(shipOrderItem));
+    const first = renderAction();
+    expect((await screen.findByTestId('delete-mapping-btn')).getAttribute('title') ?? '').toContain(
+      'Delete ShipOrder mapping',
+    );
+    first.unmount();
+
+    shipOrderItem.children.push(new FieldItem(shipOrderItem, targetDoc.fields[0].fields[0]));
+    renderAction();
+    expect((await screen.findByTestId('delete-mapping-btn')).getAttribute('title') ?? '').toContain(
+      'Delete value of ShipOrder',
+    );
   });
 });

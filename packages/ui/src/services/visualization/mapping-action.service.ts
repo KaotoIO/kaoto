@@ -64,22 +64,54 @@ export class MappingActionService {
    * @param nodeData - The target node to inspect.
    */
   static hasValueSelector(nodeData: TargetNodeData) {
-    return nodeData.mapping?.children.some((c) => c instanceof ValueSelector) ?? false;
+    return MappingActionService.hasChildOfType(nodeData.mapping, ValueSelector);
   }
 
   static hasValueOfSelector(nodeData: TargetNodeData) {
-    return nodeData.mapping?.children.some((c) => c instanceof ValueOfSelector) ?? false;
+    return MappingActionService.hasChildOfType(nodeData.mapping, ValueOfSelector);
+  }
+
+  private static findChildOfType<T extends MappingItem>(
+    mapping: MappingParentType | undefined,
+    type: abstract new (...args: never[]) => T,
+  ): T | undefined {
+    return mapping?.children.find((c): c is T => c instanceof type);
+  }
+
+  private static hasChildOfType(
+    mapping: MappingParentType | undefined,
+    type: abstract new (...args: never[]) => MappingItem,
+  ): boolean {
+    return MappingActionService.findChildOfType(mapping, type) !== undefined;
+  }
+
+  /**
+   * The inline value-of that a delete on this row removes on its own: the one drawn on a container's row,
+   * when the field holds other content too. When the value-of is the field's only content there is nothing
+   * to keep, so the whole mapping, and the hidden optional guard with it, is deleted instead.
+   * @param nodeData - The target node a delete was requested on.
+   */
+  static getDeletableInlineValueOf(nodeData: TargetNodeData): ValueOfSelector | undefined {
+    const valueOf = VisualizationUtilService.getInlineContainerValueOf(nodeData);
+    return valueOf && valueOf.parent.children.length > 1 ? valueOf : undefined;
   }
 
   /**
    * Removes the mapping item associated with the node from the mapping tree. A see-through optional
    * guard the row absorbed is removed first ({@link removeOptionalGuard}), so deleting a mapping never
    * leaves its guard behind as an empty `if`; an `if` that is visible is the user's own and is kept.
-   * No-op if the node has no mapping.
+   * When the row shows an inline value-of on a container that has other content, only that value-of is
+   * removed (see {@link getDeletableInlineValueOf}); deleting again removes the rest. No-op if the node
+   * has no mapping.
    * @param nodeData - The target node whose mapping should be deleted.
    */
   static deleteMappingItem(nodeData: TargetNodeData) {
     if (!nodeData.mapping) return;
+    const valueOf = MappingActionService.getDeletableInlineValueOf(nodeData);
+    if (valueOf) {
+      MappingService.deleteMappingItem(valueOf);
+      return;
+    }
     const guardOwner = TargetRenderService.findGuardOwner(nodeData, nodeData.mapping);
     if (guardOwner) MappingActionService.removeOptionalGuard(guardOwner);
     MappingService.deleteMappingItem(nodeData.mapping);
@@ -456,16 +488,10 @@ export class MappingActionService {
         ? MappingActionService.getOrCreateFieldItem(nodeData)
         : nodeData.mapping;
     if (!mapping) return;
-    if (mapping.children.some((c: MappingItem) => c instanceof ValueOfSelector)) return;
+    if (MappingActionService.hasChildOfType(mapping, ValueOfSelector)) return;
     const valueSelector = MappingService.createValueOfSelector(mapping);
     mapping.children.push(valueSelector);
-    MappingActionService.requestValueOfSelectorFocus(mapping, valueSelector);
-  }
-
-  private static requestValueOfSelectorFocus(mapping: MappingParentType, valueSelector: ValueOfSelector) {
-    const focusTarget =
-      mapping instanceof FieldItem && DocumentService.hasChildren(mapping.field) ? valueSelector : mapping;
-    useDocumentTreeStore.getState().requestXPathInputFocus(focusTarget.nodePath.toString());
+    useDocumentTreeStore.getState().requestXPathInputFocus(mapping.nodePath.toString());
   }
 
   static applyCopyOfSelector(nodeData: TargetNodeData) {
@@ -659,6 +685,24 @@ export class MappingActionService {
 
     if (!sourceHasChildren && !targetHasChildren && !anyTypeInvolved) {
       return { handled: false, structural: false };
+    }
+
+    /*
+     * A container that already has a value-of is a text mapping, so a drop fills that value-of, which
+     * appends when it is not empty, rather than turning the field into a copy-of next to it. It still
+     * goes through the optional guard, as an optional source dropped onto an empty value-of is a fresh mapping.
+     * This comes before the xs:anyType branch so that source cannot add a copy-of next to the value-of either.
+     */
+    const valueOf = targetNode.mapping?.children.find(VisualizationUtilService.isContainerValueOf);
+    if (valueOf && targetNode.mapping && (sourceHasChildren || anyTypeInvolved)) {
+      const wrapOrGuardChanged = MappingActionService.applyFieldMappingWithGuard(
+        targetNode.mapping,
+        sourceFieldFromNode,
+        () => {
+          MappingService.mapToCondition(valueOf, sourceFieldFromNode);
+        },
+      );
+      return { handled: true, structural: wrapOrGuardChanged };
     }
 
     const structural = !targetNode.mapping;

@@ -423,9 +423,11 @@ export enum ValueOfType {
  * - {@link ValueOfSelector} — `xsl:value-of` and `xsl:text`
  * - {@link CopyOfSelector} — `xsl:copy-of`
  *
- * A ValueSelector may render either inline on its parent field row or as a
- * dedicated tree node in the target visualization. The rendering mode is
- * determined by each subclass's `valueType` property.
+ * Where a selector is drawn follows from where it lives, so a row never needs two inputs. A
+ * {@link ValueOfSelector} is a child of its {@link FieldItem} and is always drawn inline on that
+ * FieldItem's row. A {@link CopyOfSelector} gets its own row, or is drawn on a field's row when
+ * `CopyOfPlacementService.classifyItem` finds that it copies that field. A container can therefore
+ * hold both a value-of and a nested copy-of.
  */
 export abstract class ValueSelector extends MappingItem implements IExpressionHolder {
   constructor(
@@ -476,6 +478,9 @@ export class ValueOfSelector extends ValueSelector {
  * Leaf node that copies a subtree via `xsl:copy-of`. It is always a standalone child of the item
  * that contains it; whether it is drawn on a field row or as a node of its own is decided by
  * `CopyOfPlacementService.classifyItem` from its expression, and the model is never rewritten for it.
+ * A copy-of drawn inline on a field's row is held by that field's parent, in place of a
+ * {@link FieldItem} for the field. A copy-of nested in a FieldItem is drawn on a child row or as its
+ * own row, so it can sit next to that FieldItem's inline value-of.
  */
 export class CopyOfSelector extends ValueSelector {
   constructor(public parent: MappingParentType) {

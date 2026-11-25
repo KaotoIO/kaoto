@@ -131,7 +131,16 @@ export class MappingLinksService {
     const answer = [] as IMappingLink[];
     for (const child of item.children) {
       if (child instanceof ValueSelector && MappingLinksService.isDrawnOnParentRow(item, child)) {
-        answer.push(...MappingLinksService.doExtractMappingLinks(child, targetNodePath, context, lineStyle));
+        // A value-of on a container supplies its text, not its subtree, so it never takes the container's style.
+        const isContainerValueOf = VisualizationUtilService.isContainerValueOf(child);
+        answer.push(
+          ...MappingLinksService.doExtractMappingLinks(
+            child,
+            targetNodePath,
+            context,
+            isContainerValueOf ? undefined : lineStyle,
+          ),
+        );
       } else {
         const inheritedLineStyle = child instanceof ValueOfSelector ? undefined : childLineStyle;
         answer.push(...MappingLinksService.collectMappingLinks(child, context, inheritedLineStyle));

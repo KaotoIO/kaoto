@@ -8,7 +8,14 @@ import {
   DocumentType,
   PrimitiveDocument,
 } from '../../../models/datamapper/document';
-import { CopyOfSelector, FieldItem, IfItem, MappingTree, UnknownMappingItem } from '../../../models/datamapper/mapping';
+import {
+  CopyOfSelector,
+  FieldItem,
+  IfItem,
+  MappingTree,
+  UnknownMappingItem,
+  ValueOfSelector,
+} from '../../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   ChoiceFieldNodeData,
@@ -423,6 +430,40 @@ describe('NodeTitle', () => {
       render(<NodeTitle nodeData={fieldNodeData} isDocument={false} rank={0} />);
 
       expect(screen.queryByTestId('field-copy-of-label')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('value-of label on FieldNodeTitle', () => {
+    const createFieldItemNodeData = (fieldName: string | undefined, withValueOf: boolean) => {
+      const targetDoc = TestUtil.createTargetOrderDoc();
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      const targetDocNodeData = new TargetDocumentNodeData(targetDoc, tree);
+      const shipOrder = targetDoc.fields[0];
+      const field = fieldName ? shipOrder.fields.find((f) => f.name === fieldName)! : shipOrder;
+      const fieldItem = new FieldItem(tree, field);
+      tree.children.push(fieldItem);
+      if (withValueOf) fieldItem.children.push(new ValueOfSelector(fieldItem));
+      return new FieldItemNodeData(targetDocNodeData, fieldItem);
+    };
+
+    it('should show the value label on a container field that holds a value-of', () => {
+      render(<NodeTitle nodeData={createFieldItemNodeData(undefined, true)} isDocument={false} rank={0} />);
+
+      const badge = screen.getByTestId('field-value-of-label');
+      expect(badge).toBeInTheDocument();
+      expect(badge).toHaveTextContent('value');
+    });
+
+    it('should NOT show the value label on a container field without a value-of', () => {
+      render(<NodeTitle nodeData={createFieldItemNodeData(undefined, false)} isDocument={false} rank={0} />);
+
+      expect(screen.queryByTestId('field-value-of-label')).not.toBeInTheDocument();
+    });
+
+    it('should NOT show the value label on a leaf field that holds a value-of', () => {
+      render(<NodeTitle nodeData={createFieldItemNodeData('OrderPerson', true)} isDocument={false} rank={0} />);
+
+      expect(screen.queryByTestId('field-value-of-label')).not.toBeInTheDocument();
     });
   });
 });
