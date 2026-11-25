@@ -18,6 +18,9 @@
 
   &--full-page {
     box-sizing: border-box;
+
+    // As wide as its container also when that is a flex row, where it would shrink to its content and sit at the start
+    inline-size: 100%;
     min-block-size: 100vh;
   }
 
