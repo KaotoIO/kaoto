@@ -621,6 +621,35 @@ export class TestUtil {
   }
 
   /**
+   * A source document from an `xs:redefine` stub directory, attached in the given order, with an explicit entry
+   * schema file. Throws only when the set does not load, so a set with a cycle warning still returns its document.
+   *
+   * @param dir - The stub directory, e.g. `redefine/shadowing`
+   * @param order - The file names in attach order
+   * @param entrySchemaFile - The entry schema file
+   */
+  static createRedefineDoc(dir: string, order: string[], entrySchemaFile = 'implementation.xsd') {
+    const files = Object.fromEntries(order.map((name) => [name, getXmlStubFile(`${dir}/${name}`)]));
+    const result = XmlSchemaDocumentService.createXmlSchemaDocument(
+      new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        files,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        entrySchemaFile,
+      ),
+    );
+    if (!result.document) {
+      throw new Error(result.errors?.map((e) => e.message).join('; ') || 'Failed to create document');
+    }
+    return result.document;
+  }
+
+  /**
    * The `type-binding-collision` stub set with entry `Entry.xsd` and root `{urn:t}R`, plus one unrelated file that
    * declares the same QNames. `order` is the attach order: `before` makes the unrelated file parse before
    * `Entry.xsd`, `after` makes it parse after.

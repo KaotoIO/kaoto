@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:include schemaLocation="inc.xsd"/>
+  <xs:redefine schemaLocation="base.xsd">
+    <xs:simpleType name="S">
+      <xs:restriction base="x:S">
+        <xs:maxInclusive value="9"/>
+      </xs:restriction>
+    </xs:simpleType>
+  </xs:redefine>
+  <xs:element name="Root" type="x:S"/>
+</xs:schema>

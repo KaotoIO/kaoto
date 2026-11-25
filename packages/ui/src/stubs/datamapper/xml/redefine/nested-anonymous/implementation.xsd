@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:redefine schemaLocation="base.xsd">
+    <xs:group name="G2">
+      <xs:sequence>
+        <xs:element name="w">
+          <xs:complexType>
+            <xs:complexContent>
+              <xs:extension base="xs:anyType">
+                <xs:sequence>
+                  <xs:group ref="x:G2"/>
+                </xs:sequence>
+              </xs:extension>
+            </xs:complexContent>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="r2" type="xs:string"/>
+      </xs:sequence>
+    </xs:group>
+    <xs:group name="G3">
+      <xs:sequence>
+        <xs:element name="v">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:group ref="x:G3"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="r3" type="xs:string"/>
+      </xs:sequence>
+    </xs:group>
+  </xs:redefine>
+  <xs:element name="Root2">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group ref="x:G2"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Root3">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:group ref="x:G3"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

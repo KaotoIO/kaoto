@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:simpleType name="S">
+    <xs:restriction base="xs:int"/>
+  </xs:simpleType>
+  <xs:element name="BaseHolder">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="e" type="x:S"/>
+        <xs:element name="o" type="xs:string"/>
+      </xs:sequence>
+      <xs:attribute name="a" type="x:S"/>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

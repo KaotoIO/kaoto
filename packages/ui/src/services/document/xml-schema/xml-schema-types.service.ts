@@ -24,7 +24,7 @@ import { XmlSchemaSimpleContent } from '../../../xml-schema-ts/simple/XmlSchemaS
 import { XmlSchemaSimpleTypeRestriction } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeRestriction';
 import { ensureNamespaceRegistered, formatQNameWithPrefix, parseQNameString } from '../../namespace-util';
 import { DocumentUtilService } from '../document-util.service';
-import { XmlSchemaAssembly } from './xml-schema-assembly.model';
+import { XmlSchemaAssembly, XmlSchemaDerivation } from './xml-schema-assembly.model';
 import { XmlSchemaDocument } from './xml-schema-document.model';
 import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service';
 import { mapXmlSchemaTypeToEnum, XML_SCHEMA_BUILT_IN_TYPES } from './xml-schema-type-mapping';
@@ -321,14 +321,16 @@ export class XmlSchemaTypesService {
     while (true) {
       if (visited.has(current)) return Types.Container;
       visited.add(current);
-      const baseInfo = XmlSchemaTypesService.doGetBaseTypeAndDerivationFromSimpleType(current);
-      if (!baseInfo) return Types.Container;
+      const restriction = current.getContent();
+      if (!(restriction instanceof XmlSchemaSimpleTypeRestriction)) return Types.Container;
+      const baseTypeName = restriction.getBaseTypeName();
+      if (!baseTypeName) return Types.Container;
       const baseType = XmlSchemaTypesService.mapTypeStringToEnum(
-        baseInfo.baseTypeName.getNamespaceURI() || '',
-        baseInfo.baseTypeName.getLocalPart() || '',
+        baseTypeName.getNamespaceURI() || '',
+        baseTypeName.getLocalPart() || '',
       );
       if (baseType !== Types.Container) return baseType;
-      const next = assembly.lookupTypeOrBuiltIn(baseInfo.baseTypeName);
+      const next = assembly.resolveDerivationBaseOrBuiltIn(restriction);
       if (!(next instanceof XmlSchemaSimpleType)) return Types.Container;
       current = next;
     }
@@ -452,7 +454,7 @@ export class XmlSchemaTypesService {
       return false;
     }
 
-    return XmlSchemaTypesService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, assembly, visited);
+    return XmlSchemaTypesService.checkBaseTypeMatch(content, baseType, assembly, visited);
   }
 
   /**
@@ -475,18 +477,16 @@ export class XmlSchemaTypesService {
     const content = derivedType.getContent();
     if (!(content instanceof XmlSchemaSimpleTypeRestriction)) return false;
 
-    return XmlSchemaTypesService.checkBaseTypeMatch(content.getBaseTypeName(), baseType, assembly, visited);
+    return XmlSchemaTypesService.checkBaseTypeMatch(content, baseType, assembly, visited);
   }
 
   private static checkBaseTypeMatch(
-    baseTypeName: QName | null,
+    derivation: XmlSchemaDerivation,
     targetBaseType: XmlSchemaType,
     assembly: XmlSchemaAssembly,
     visited?: Set<XmlSchemaType>,
   ): boolean {
-    if (!baseTypeName) return false;
-
-    const baseSchemaType = assembly.lookupTypeOrBuiltIn(baseTypeName);
+    const baseSchemaType = assembly.resolveDerivationBaseOrBuiltIn(derivation);
     if (baseSchemaType === targetBaseType) return true;
     if (!baseSchemaType) return false;
 
@@ -592,13 +592,17 @@ export class XmlSchemaTypesService {
    * Retrieves all complexTypes and simpleTypes defined in the user schemas,
    * formatted as type override candidates with proper namespace prefixes.
    *
-   * @param collection - XML Schema collection containing the schemas
+   * Every attached file is enumerated, but the component behind each QName is the one the assembly's entry resolves,
+   * the same one an applied override resolves to, so a redefined type is listed as its redefinition.
+   *
+   * @param assembly - The assembly whose collection is enumerated and whose entry decides the component behind each
+   *   enumerated QName
    * @param namespaceMap - Namespace prefix to URI mapping for qualified name generation
    * @returns Record of type override candidates for all user-defined types
    *
    * @example
    * ```typescript
-   * const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(collection, namespaceMap);
+   * const userTypes = XmlSchemaTypesService.getAllUserDefinedTypes(document.assembly, namespaceMap);
    * // Returns {
    * //   'tns:Order': { displayName: 'Order', typeString: 'tns:Order', type: Types.Container, ... },
    * //   'tns:Customer': { displayName: 'Customer', typeString: 'tns:Customer', type: Types.Container, ... },
@@ -606,13 +610,15 @@ export class XmlSchemaTypesService {
    * ```
    */
   static getAllUserDefinedTypes(
-    collection: XmlSchemaCollection,
+    assembly: XmlSchemaAssembly,
     namespaceMap: Record<string, string>,
   ): Record<string, IFieldTypeInfo> {
     const results: Record<string, IFieldTypeInfo> = {};
 
-    for (const schema of collection.getUserSchemas()) {
-      for (const type of schema.getSchemaTypes().values()) {
+    for (const schema of assembly.collection.getUserSchemas()) {
+      for (const enumeratedType of schema.getSchemaTypes().values()) {
+        const typeQName = enumeratedType.getQName();
+        const type = (typeQName && assembly.entrySchemaFile && assembly.lookupType(typeQName)) || enumeratedType;
         if (type instanceof XmlSchemaComplexType && type.isAbstract()) continue;
         const typeInfo = XmlSchemaTypesService.createTypeInfoFromSchemaType(type, true);
         if (typeInfo) {
@@ -649,7 +655,7 @@ export class XmlSchemaTypesService {
       return {};
     }
     const builtIn = XmlSchemaTypesService.getAllBuiltInTypes(namespaceMap);
-    const userDefined = XmlSchemaTypesService.getAllUserDefinedTypes(document.xmlSchemaCollection, namespaceMap);
+    const userDefined = XmlSchemaTypesService.getAllUserDefinedTypes(document.assembly, namespaceMap);
     return { ...builtIn, ...userDefined };
   }
 

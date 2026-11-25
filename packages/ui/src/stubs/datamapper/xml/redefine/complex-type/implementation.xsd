@@ -7,6 +7,7 @@
           <xs:sequence>
             <xs:element name="b" type="xs:string"/>
           </xs:sequence>
+          <xs:attribute name="ra" type="xs:string"/>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>

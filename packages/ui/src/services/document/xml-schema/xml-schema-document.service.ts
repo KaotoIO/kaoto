@@ -31,6 +31,7 @@ import {
   XmlSchemaUse,
 } from '../../../xml-schema-ts';
 import { XmlSchemaDocumentation } from '../../../xml-schema-ts/annotation/XmlSchemaDocumentation';
+import { XmlSchemaRedefine } from '../../../xml-schema-ts/external/XmlSchemaRedefine';
 import { QName } from '../../../xml-schema-ts/QName';
 import { XmlSchemaSimpleTypeContent } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeContent';
 import { XmlSchemaSimpleTypeList } from '../../../xml-schema-ts/simple/XmlSchemaSimpleTypeList';
@@ -40,7 +41,7 @@ import { XmlSchemaAnnotated } from '../../../xml-schema-ts/XmlSchemaAnnotated';
 import { parseQNameString } from '../../namespace-util';
 import { DocumentUtilService } from '../document-util.service';
 import { DependencyEdge, XmlSchemaAnalysisService } from './xml-schema-analysis.service';
-import { XmlSchemaAssembly } from './xml-schema-assembly.model';
+import { XmlSchemaAssembly, XmlSchemaDerivation } from './xml-schema-assembly.model';
 import type {
   CreateXmlSchemaDocumentResult,
   XmlSchemaParentType,
@@ -51,6 +52,49 @@ import { XmlSchemaDocumentUtilService } from './xml-schema-document-util.service
 import { XmlSchemaTypesService } from './xml-schema-types.service';
 
 const REGEX_BASE_URI = /baseUri="([^"]+)"/;
+
+type DerivationRole =
+  | 'complexAttributes'
+  | 'complexElements'
+  | 'restrictionAttributes'
+  | 'simpleAttributes'
+  | 'simpleElements'
+  | 'simpleRestriction';
+
+/**
+ * The base of a derivation, resolved once where the derivation is read and passed down the walk. `qName` is the base
+ * type name as written in the schema. `type` is the user-defined type it resolves to in the document's assembly (one
+ * layer down for a type that redefines itself) and always declares `qName`. `type` is null for a built-in base
+ * (`xs:*`), which has no user-defined declaration, and for a base declared nowhere; the field type then comes from
+ * `qName` alone.
+ */
+type ResolvedBase = { qName: QName; type: XmlSchemaType | null };
+
+/**
+ * The base types already walked in one derivation walk, per role, so the attribute and the element walks guard
+ * independently. Keyed by the resolved base type rather than its QName: a type that redefines itself resolves its base
+ * one layer down to a different object and expands, while a real derivation cycle meets the same object again.
+ */
+class DerivationVisits {
+  private readonly visits = new Map<XmlSchemaType, Set<DerivationRole>>();
+
+  /**
+   * @param role - The walk that is about to descend into the base type
+   * @param baseType - The resolved base type; null for a built-in or unresolved base, which is never guarded
+   * @returns false if the base type was already walked for this role
+   */
+  enter(role: DerivationRole, baseType: XmlSchemaType | null): boolean {
+    if (!baseType) return true;
+    let roles = this.visits.get(baseType);
+    if (!roles) {
+      roles = new Set();
+      this.visits.set(baseType, roles);
+    }
+    if (roles.has(role)) return false;
+    roles.add(role);
+    return true;
+  }
+}
 
 /**
  * The collection of XML schema handling logic. {@link createXmlSchemaDocument} consumes XML schema
@@ -605,9 +649,18 @@ export class XmlSchemaDocumentService {
     XmlSchemaDocumentService.populateParticle(document, fields, schemaType.getParticle());
   }
 
+  private static *namedTypesOf(schema: XmlSchema): Generator<[QName, XmlSchemaType]> {
+    yield* schema.getSchemaTypes().entries();
+    for (const external of schema.getExternals()) {
+      if (!(external instanceof XmlSchemaRedefine)) continue;
+      for (const [typeQName, schemaType] of external.getSchemaTypes().entries()) {
+        if (schemaType instanceof XmlSchemaSimpleType) yield [typeQName, schemaType];
+      }
+    }
+  }
+
   private static populateNamedTypeFragmentsForSchema(document: XmlSchemaDocument, schema: XmlSchema) {
-    const schemaTypes = schema.getSchemaTypes();
-    for (const [typeQName, schemaType] of schemaTypes.entries()) {
+    for (const [typeQName, schemaType] of XmlSchemaDocumentService.namedTypesOf(schema)) {
       if (schemaType instanceof XmlSchemaSimpleType) {
         XmlSchemaDocumentService.populateSimpleNamedTypeFragment(document, typeQName, schemaType);
       } else if (schemaType instanceof XmlSchemaComplexType) {
@@ -626,7 +679,8 @@ export class XmlSchemaDocumentService {
   }
 
   /**
-   * Populates all named type definitions (complexType and simpleType) from the schema into namedTypeFragments.
+   * Populates all named type definitions (complexType and simpleType) from the schema into namedTypeFragments,
+   * including the simple types redefined in an `xs:redefine` (complex ones are registered on the redefining schema).
    * Type definitions are keyed by their scoped key (`${sourceURI}#${typeQName}`), and the fragments of global elements
    * with an anonymous complex type by their scoped element key (`${sourceURI}#__elem:...`), so same-QName components
    * of different files do not compete for a key and the population order decides nothing.
@@ -641,11 +695,15 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     typeFragment: XmlSchemaField | XmlSchemaTypeFragment,
     content: XmlSchemaSimpleTypeContent,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
   ) {
     if (content instanceof XmlSchemaSimpleTypeRestriction) {
-      const baseTypeQName = content.getBaseTypeName();
-      XmlSchemaDocumentService.populateSimpleContentRestrictionBaseType(document, typeFragment, baseTypeQName, visited);
+      XmlSchemaDocumentService.populateSimpleContentRestrictionBaseType(
+        document,
+        typeFragment,
+        XmlSchemaDocumentService.resolveBase(document, content),
+        visited,
+      );
       // TODO collect&store restrictions to somewhere in the XmlSchemaField
     } else if (content instanceof XmlSchemaSimpleTypeList) {
       // TODO
@@ -961,7 +1019,7 @@ export class XmlSchemaDocumentService {
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const ownerDoc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
-    const group = ownerDoc.assembly.lookupAttributeGroup(groupRef.getRef().getTargetQName());
+    const group = ownerDoc.assembly.resolveAttributeGroupRef(groupRef);
     XmlSchemaDocumentService.populateAttributeGroup(parent, fields, group, visitedGroups, excludedAttributes);
   }
 
@@ -1014,10 +1072,7 @@ export class XmlSchemaDocumentService {
         }
         continue;
       }
-      const group =
-        member instanceof XmlSchemaAttributeGroupRef
-          ? assembly.lookupAttributeGroup(member.getRef().getTargetQName())
-          : member;
+      const group = member instanceof XmlSchemaAttributeGroupRef ? assembly.resolveAttributeGroupRef(member) : member;
       if (group instanceof XmlSchemaAttributeGroup && !visitedGroups.has(group)) {
         visitedGroups.add(group);
         XmlSchemaDocumentService.collectProhibitedAttributeKeys(
@@ -1051,7 +1106,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     particle: XmlSchemaParticle | null,
-    visitedGroupRefs?: Set<string>,
+    visitedGroupRefs?: Set<XmlSchemaGroup>,
   ) {
     if (particle == null || XmlSchemaDocumentService.isExcludedParticle(particle)) {
       return;
@@ -1075,7 +1130,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     groupParticle: XmlSchemaGroupParticle | null,
-    visitedGroupRefs?: Set<string>,
+    visitedGroupRefs?: Set<XmlSchemaGroup>,
   ) {
     if (groupParticle == null) {
       return;
@@ -1104,7 +1159,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     choice: XmlSchemaChoice,
-    visitedGroupRefs?: Set<string>,
+    visitedGroupRefs?: Set<XmlSchemaGroup>,
   ) {
     const ownerDoc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
     const choiceField = new XmlSchemaField(parent, '__choice__', false);
@@ -1129,7 +1184,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     sequence: XmlSchemaSequence,
-    visitedGroupRefs?: Set<string>,
+    visitedGroupRefs?: Set<XmlSchemaGroup>,
   ) {
     if (XmlSchemaDocumentService.isExcludedParticle(sequence)) return;
     const ownerDoc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
@@ -1198,30 +1253,26 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     groupRef: XmlSchemaGroupRef,
-    visitedGroupRefs?: Set<string>,
+    visitedGroupRefs?: Set<XmlSchemaGroup>,
   ) {
-    const groupRefQName = groupRef.getRefName();
-    if (!groupRefQName || XmlSchemaDocumentService.isExcludedParticle(groupRef)) return;
-
-    const key = groupRefQName.toString();
-    visitedGroupRefs ??= new Set();
-    if (visitedGroupRefs.has(key)) return;
-    visitedGroupRefs.add(key);
+    if (!groupRef.getRefName() || XmlSchemaDocumentService.isExcludedParticle(groupRef)) return;
 
     const doc = DocumentUtilService.getOwnerDocument<XmlSchemaDocument>(parent);
-    const group = doc.assembly.lookupGroup(groupRefQName);
-    if (group) {
-      XmlSchemaDocumentService.populateGroup(parent, fields, group, visitedGroupRefs);
-    }
+    const group = doc.assembly.resolveGroupRef(groupRef);
+    visitedGroupRefs ??= new Set();
+    if (!group || visitedGroupRefs.has(group)) return;
+    visitedGroupRefs.add(group);
 
-    visitedGroupRefs.delete(key);
+    XmlSchemaDocumentService.populateGroup(parent, fields, group, visitedGroupRefs);
+
+    visitedGroupRefs.delete(group);
   }
 
   private static populateSequenceMember(
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     member: XmlSchemaSequenceMember,
-    visitedGroupRefs?: Set<string>,
+    visitedGroupRefs?: Set<XmlSchemaGroup>,
   ) {
     if (member instanceof XmlSchemaGroupRef) {
       XmlSchemaDocumentService.populateGroupRef(parent, fields, member, visitedGroupRefs);
@@ -1236,7 +1287,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     member: XmlSchemaAllMember,
-    visitedGroupRefs?: Set<string>,
+    visitedGroupRefs?: Set<XmlSchemaGroup>,
   ) {
     if (member instanceof XmlSchemaParticle) {
       XmlSchemaDocumentService.populateParticle(parent, fields, member, visitedGroupRefs);
@@ -1247,7 +1298,7 @@ export class XmlSchemaDocumentService {
     parent: XmlSchemaParentType,
     fields: XmlSchemaField[],
     group: XmlSchemaGroup,
-    visitedGroupRefs?: Set<string>,
+    visitedGroupRefs?: Set<XmlSchemaGroup>,
   ) {
     XmlSchemaDocumentService.populateParticle(parent, fields, group.getParticle(), visitedGroupRefs);
   }
@@ -1256,7 +1307,7 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     contentModel: XmlSchemaContentModel | null,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
   ) {
     if (!contentModel) return;
     const content = contentModel.getContent();
@@ -1275,7 +1326,7 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     contentModel: XmlSchemaContentModel | null,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     if (!contentModel) return;
@@ -1307,7 +1358,7 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     contentModel: XmlSchemaContentModel | null,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
   ) {
     if (!contentModel) return;
     const content = contentModel.getContent();
@@ -1320,33 +1371,31 @@ export class XmlSchemaDocumentService {
     }
   }
 
-  private static resolveBaseType(
+  private static resolveBase(document: XmlSchemaDocument, derivation: XmlSchemaDerivation): ResolvedBase | null {
+    const qName = derivation.getBaseTypeName();
+    return qName ? { qName, type: document.assembly.resolveDerivationBase(derivation) } : null;
+  }
+
+  private static applyBaseFieldType(
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
-    baseTypeQName: QName | null,
+    base: ResolvedBase,
   ): XmlSchemaType | null {
-    if (!baseTypeQName) return null;
-
-    const baseType = document.assembly.lookupType(baseTypeQName);
-
     if (!parent.type) {
       parent.type =
-        baseType instanceof XmlSchemaSimpleType
-          ? XmlSchemaTypesService.resolveSimpleTypeToEnum(baseType, document.assembly)
-          : XmlSchemaDocumentUtilService.getFieldTypeFromName(
-              baseTypeQName.getLocalPart(),
-              baseTypeQName.getNamespaceURI(),
-            );
+        base.type instanceof XmlSchemaSimpleType
+          ? XmlSchemaTypesService.resolveSimpleTypeToEnum(base.type, document.assembly)
+          : XmlSchemaDocumentUtilService.getFieldTypeFromName(base.qName.getLocalPart(), base.qName.getNamespaceURI());
     }
 
-    return baseType;
+    return base.type;
   }
 
   private static populateSimpleExtensionBaseAttributes(
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     userDefinedBaseType: XmlSchemaSimpleType,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
   ) {
     const simpleBase = userDefinedBaseType;
     const simpleContent = simpleBase.getContent();
@@ -1362,7 +1411,7 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     userDefinedBaseType: XmlSchemaComplexType,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const complexBase = userDefinedBaseType;
@@ -1392,16 +1441,13 @@ export class XmlSchemaDocumentService {
   private static populateExtensionBaseAttributes(
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
-    baseTypeQName: QName | null,
-    visited: Set<string> = new Set(),
+    base: ResolvedBase | null,
+    visited: DerivationVisits = new DerivationVisits(),
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
-    if (!baseTypeQName) return;
-    const key = `simpleattr#${baseTypeQName.toString()}`;
-    if (visited.has(key)) return;
-    visited.add(key);
+    if (!base || !visited.enter('simpleAttributes', base.type)) return;
 
-    const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(document, parent, baseTypeQName);
+    const userDefinedBaseType = XmlSchemaDocumentService.applyBaseFieldType(document, parent, base);
     if (!userDefinedBaseType) return;
 
     if (userDefinedBaseType instanceof XmlSchemaSimpleType) {
@@ -1420,15 +1466,12 @@ export class XmlSchemaDocumentService {
   private static populateExtensionBaseElements(
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
-    baseTypeQName: QName | null,
-    visited: Set<string> = new Set(),
+    base: ResolvedBase | null,
+    visited: DerivationVisits = new DerivationVisits(),
   ) {
-    if (!baseTypeQName) return;
-    const key = `simpleelem#${baseTypeQName.toString()}`;
-    if (visited.has(key)) return;
-    visited.add(key);
+    if (!base || !visited.enter('simpleElements', base.type)) return;
 
-    const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(document, parent, baseTypeQName);
+    const userDefinedBaseType = XmlSchemaDocumentService.applyBaseFieldType(document, parent, base);
     if (!userDefinedBaseType) return;
 
     if (userDefinedBaseType instanceof XmlSchemaComplexType) {
@@ -1447,16 +1490,13 @@ export class XmlSchemaDocumentService {
   private static populateSimpleContentRestrictionBaseType(
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
-    baseTypeQName: QName | null,
-    visited: Set<string> = new Set(),
+    base: ResolvedBase | null,
+    visited: DerivationVisits = new DerivationVisits(),
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
-    if (!baseTypeQName) return;
-    const key = `simplerestrict#${baseTypeQName.toString()}`;
-    if (visited.has(key)) return;
-    visited.add(key);
+    if (!base || !visited.enter('simpleRestriction', base.type)) return;
 
-    const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(document, parent, baseTypeQName);
+    const userDefinedBaseType = XmlSchemaDocumentService.applyBaseFieldType(document, parent, base);
     if (!userDefinedBaseType) return;
 
     if (userDefinedBaseType instanceof XmlSchemaComplexType) {
@@ -1501,13 +1541,13 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaSimpleContentExtension,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     XmlSchemaDocumentService.populateExtensionBaseAttributes(
       document,
       parent,
-      extension.getBaseTypeName(),
+      XmlSchemaDocumentService.resolveBase(document, extension),
       visited,
       excludedAttributes,
     );
@@ -1528,7 +1568,7 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     restriction: XmlSchemaSimpleContentRestriction,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const parentForAttribute = 'parent' in parent ? parent : document;
@@ -1538,7 +1578,7 @@ export class XmlSchemaDocumentService {
     XmlSchemaDocumentService.populateSimpleContentRestrictionBaseType(
       document,
       parent,
-      restriction.getBaseTypeName(),
+      XmlSchemaDocumentService.resolveBase(document, restriction),
       visited,
       XmlSchemaDocumentService.mergeExcludedAttributes(
         document.assembly,
@@ -1567,7 +1607,7 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaComplexContentExtension,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
   ) {
     XmlSchemaDocumentService.populateComplexContentExtensionAttributes(document, parent, extension, visited);
     XmlSchemaDocumentService.populateComplexContentExtensionElements(document, parent, extension, visited);
@@ -1577,16 +1617,13 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaComplexContentExtension,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
-    const baseTypeQName = extension.getBaseTypeName();
-    const isCyclic = baseTypeQName ? visited.has(`attr#${baseTypeQName.toString()}`) : false;
+    const base = XmlSchemaDocumentService.resolveBase(document, extension);
 
-    if (!isCyclic) {
-      if (baseTypeQName) visited.add(`attr#${baseTypeQName.toString()}`);
-      const baseType = baseTypeQName ? document.assembly.lookupType(baseTypeQName) : null;
-      const baseHasContentModel = baseType instanceof XmlSchemaComplexType && baseType.getContentModel();
+    if (base && visited.enter('complexAttributes', base.type)) {
+      const baseHasContentModel = base.type instanceof XmlSchemaComplexType && base.type.getContentModel();
 
       if (baseHasContentModel) {
         XmlSchemaDocumentService.populateContentModelAttributes(
@@ -1597,13 +1634,7 @@ export class XmlSchemaDocumentService {
           excludedAttributes,
         );
       } else {
-        XmlSchemaDocumentService.populateExtensionBaseAttributes(
-          document,
-          parent,
-          baseTypeQName,
-          visited,
-          excludedAttributes,
-        );
+        XmlSchemaDocumentService.populateExtensionBaseAttributes(document, parent, base, visited, excludedAttributes);
       }
     }
 
@@ -1618,7 +1649,7 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     extension: XmlSchemaComplexContentExtension,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
   ) {
     // A cycle that leads back to an extension still being processed would emit its particle a second time.
     let inProgress = XmlSchemaDocumentService.extensionsInProgress.get(parent);
@@ -1629,18 +1660,15 @@ export class XmlSchemaDocumentService {
     if (inProgress.has(extension)) return;
     inProgress.add(extension);
     try {
-      const baseTypeQName = extension.getBaseTypeName();
-      const isCyclic = baseTypeQName ? visited.has(`elem#${baseTypeQName.toString()}`) : false;
+      const base = XmlSchemaDocumentService.resolveBase(document, extension);
 
-      if (!isCyclic && baseTypeQName) {
-        visited.add(`elem#${baseTypeQName.toString()}`);
-        const baseType = document.assembly.lookupType(baseTypeQName);
-        const baseHasContentModel = baseType instanceof XmlSchemaComplexType && baseType.getContentModel();
+      if (base && visited.enter('complexElements', base.type)) {
+        const baseHasContentModel = base.type instanceof XmlSchemaComplexType && base.type.getContentModel();
 
         if (baseHasContentModel) {
           XmlSchemaDocumentService.populateContentModelElements(document, parent, baseHasContentModel, visited);
         } else {
-          XmlSchemaDocumentService.populateExtensionBaseElements(document, parent, baseTypeQName, visited);
+          XmlSchemaDocumentService.populateExtensionBaseElements(document, parent, base, visited);
         }
       }
 
@@ -1663,7 +1691,7 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     restriction: XmlSchemaComplexContentRestriction,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
   ) {
     XmlSchemaDocumentService.populateComplexContentRestrictionAttributes(document, parent, restriction, visited);
     const parentForParticle = 'parent' in parent ? parent : document;
@@ -1674,13 +1702,11 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     restriction: XmlSchemaComplexContentRestriction,
-    visited: Set<string> = new Set(),
+    visited: DerivationVisits = new DerivationVisits(),
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
-    const baseTypeQName = restriction.getBaseTypeName();
-    const visitedKey = baseTypeQName && `restrictattr#${baseTypeQName.toString()}`;
-    const isCyclic = !!visitedKey && visited.has(visitedKey);
-    if (visitedKey) visited.add(visitedKey);
+    const base = XmlSchemaDocumentService.resolveBase(document, restriction);
+    const isCyclic = !!base && !visited.enter('restrictionAttributes', base.type);
 
     // Always populate the restriction's own attributes, even when the base chain is cyclic.
     const parentForAttribute = 'parent' in parent ? parent : document;
@@ -1689,7 +1715,7 @@ export class XmlSchemaDocumentService {
     }
 
     if (isCyclic) return;
-    const userDefinedBaseType = XmlSchemaDocumentService.resolveBaseType(document, parent, baseTypeQName);
+    const userDefinedBaseType = base ? XmlSchemaDocumentService.applyBaseFieldType(document, parent, base) : null;
     if (userDefinedBaseType instanceof XmlSchemaComplexType) {
       XmlSchemaDocumentService.populateComplexBaseAttributes(
         document,
@@ -1709,7 +1735,7 @@ export class XmlSchemaDocumentService {
     document: XmlSchemaDocument,
     parent: XmlSchemaField | XmlSchemaTypeFragment,
     complexBase: XmlSchemaComplexType,
-    visited: Set<string>,
+    visited: DerivationVisits,
     excludedAttributes: ReadonlySet<string> = XmlSchemaDocumentService.NO_EXCLUDED_ATTRIBUTES,
   ) {
     const contentModel = complexBase.getContentModel();

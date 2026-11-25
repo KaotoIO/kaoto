@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:include schemaLocation="comp-impl.xsd"/>
+  <xs:group name="OrdElements">
+    <xs:sequence>
+      <xs:element name="Pty" type="x:Pty_Block_t" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="OrdAttributes">
+    <xs:attribute name="id" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:complexType name="Ord_message_t">
+    <xs:complexContent>
+      <xs:extension base="x:Abstract_message_t">
+        <xs:sequence>
+          <xs:group ref="x:OrdElements"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="x:OrdAttributes"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="Ord" type="x:Ord_message_t" substitutionGroup="x:Message"/>
+</xs:schema>

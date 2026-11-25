@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:redefine schemaLocation="base.xsd">
+    <xs:group name="NewOrdSingleElements">
+      <xs:sequence>
+        <xs:group ref="x:NewOrdSingleElements"/>
+        <xs:element name="CustomField" type="xs:string"/>
+      </xs:sequence>
+    </xs:group>
+    <xs:attributeGroup name="NewOrdSingleAttributes">
+      <xs:attributeGroup ref="x:NewOrdSingleAttributes"/>
+      <xs:attribute name="customAttr" type="xs:string"/>
+    </xs:attributeGroup>
+  </xs:redefine>
+</xs:schema>

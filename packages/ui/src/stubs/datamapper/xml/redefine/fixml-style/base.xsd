@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:complexType name="Abstract_message_t"/>
+  <xs:group name="NewOrdSingleElements">
+    <xs:sequence>
+      <xs:element name="ClOrdID" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:attributeGroup name="NewOrdSingleAttributes">
+    <xs:attribute name="v" type="xs:string"/>
+  </xs:attributeGroup>
+  <xs:complexType name="NewOrdSingle_message_t">
+    <xs:complexContent>
+      <xs:extension base="x:Abstract_message_t">
+        <xs:sequence>
+          <xs:group ref="x:NewOrdSingleElements"/>
+        </xs:sequence>
+        <xs:attributeGroup ref="x:NewOrdSingleAttributes"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:element name="NewOrdSingle" type="x:NewOrdSingle_message_t"/>
+</xs:schema>

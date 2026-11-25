@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:redefine schemaLocation="base.xsd">
+    <xs:attributeGroup name="AG">
+      <xs:attributeGroup ref="x:AG"/>
+      <xs:attribute name="c" type="xs:string"/>
+    </xs:attributeGroup>
+    <xs:complexType name="R">
+      <xs:complexContent>
+        <xs:restriction base="x:R">
+          <xs:attribute name="a" use="prohibited"/>
+        </xs:restriction>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:redefine>
+</xs:schema>

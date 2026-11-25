@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:include schemaLocation="ADT.xsd"/>
+  <xs:redefine schemaLocation="segments.xsd">
+    <xs:complexType name="PID.CONTENT">
+      <xs:complexContent>
+        <xs:extension base="x:PID.CONTENT">
+          <xs:sequence>
+            <xs:element ref="x:PID.40" minOccurs="0"/>
+          </xs:sequence>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:redefine>
+  <xs:element name="PID.40" type="xs:string"/>
+</xs:schema>

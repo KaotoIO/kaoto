@@ -8,4 +8,17 @@
       <xs:element name="Sub" type="PtysSubGrp_Block_t" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
   </xs:group>
+  <xs:element name="BaseParties">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Party" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:group ref="PartiesElements"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

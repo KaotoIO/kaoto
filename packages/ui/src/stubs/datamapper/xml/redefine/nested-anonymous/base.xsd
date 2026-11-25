@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:x="urn:x" targetNamespace="urn:x" elementFormDefault="qualified">
+  <xs:group name="G2">
+    <xs:sequence>
+      <xs:element name="g2a" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+  <xs:group name="G3">
+    <xs:sequence>
+      <xs:element name="g3a" type="xs:string"/>
+    </xs:sequence>
+  </xs:group>
+</xs:schema>
