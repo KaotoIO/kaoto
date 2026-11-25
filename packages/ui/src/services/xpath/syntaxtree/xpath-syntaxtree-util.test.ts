@@ -20,7 +20,8 @@ type WithoutLiteral = Omit<XPathNodeMap, XPathNodeType.Literal>;
 // Compiled by the UI typecheck, never executed. The node map must have one entry per node type.
 function checkNodeMapTypes(root: ExprNode) {
   // @ts-expect-error a node map without Literal is incomplete
-  expectTypeOf<CompleteXPathNodeMap<WithoutLiteral>>().not.toBeNever();
+  type IncompleteNodeMap = CompleteXPathNodeMap<WithoutLiteral>;
+  expectTypeOf<IncompleteNodeMap>().toBeObject();
   expectTypeOf<XPathSyntaxNode['type']>().toEqualTypeOf<XPathNodeType>();
   expectTypeOf(XPathUtil.getAllNodesOfType(root, XPathNodeType.PathExpr)).toEqualTypeOf<PathExprNode[]>();
 }
@@ -348,6 +349,12 @@ describe('XPathUtil', () => {
       expect(children).not.toBe(path.steps);
     });
 
+    it('should throw for a node type it has no case for', () => {
+      const forged = { type: 'Forged' } as unknown as XPathSyntaxNode;
+
+      expect(() => XPathUtil.getChildren(forged)).toThrow('Unexpected XPath syntax node type: Forged');
+    });
+
     it('should walk every child a node holds', () => {
       const childWalkRoots = Object.values(CHILD_WALK).map(({ expression }) => ({
         expression,
@@ -442,6 +449,12 @@ describe('XPathUtil', () => {
     };
     const resultsOf = (expression: string) =>
       XPathUtil.getResultExpressions(XPathService.parse(expression).exprNode).map(describeLeaf);
+
+    it('should throw for a node type it has no case for', () => {
+      const forged = { type: 'Forged' } as unknown as ExprSingleNode;
+
+      expect(() => XPathUtil.getResultExpressions(forged)).toThrow('Unexpected XPath syntax node type: Forged');
+    });
 
     it.each([
       ['a comma sequence', 'a, b', ['a', 'b']],

@@ -52,9 +52,9 @@ export class XPathUtil {
 
   /**
    * Every child syntax node of `node`, in written order, which `findNodeAtPosition` tie-breaking and
-   * `getAllNodesOfType` result order rely on. There is one case per node type and no `default`, so a node type
-   * without a case fails to compile. The returned array is always a new one, so changing it doesn't change the
-   * node's child lists.
+   * `getAllNodesOfType` result order rely on. There is one case per node type, so a node type without a case
+   * fails to compile. The returned array is always a new one, so changing it doesn't change the node's child
+   * lists.
    * @param node - the node whose children to return
    * @returns the children, or an empty array for a leaf
    */
@@ -96,7 +96,18 @@ export class XPathUtil {
       case XPathNodeType.ContextItemExpr:
       case XPathNodeType.UnsupportedExpr:
         return [];
+      default:
+        return XPathUtil.unexpectedNode(node);
     }
+  }
+
+  /**
+   * The `default` of an exhaustive switch over node types: a node type without a case is not assignable to the
+   * parameter, so the build fails naming that type. At runtime it throws for a node that got past the type system.
+   * @param node - the node no case matched, `never` when every node type has a case
+   */
+  private static unexpectedNode(node: { type: never }): never {
+    throw new Error(`Unexpected XPath syntax node type: ${String(node.type)}`);
   }
 
   private static present(...nodes: (XPathSyntaxNode | null | undefined)[]): XPathSyntaxNode[] {
@@ -217,6 +228,8 @@ export class XPathUtil {
       case XPathNodeType.AtomicExpr:
       case XPathNodeType.UnsupportedExpr:
         return [node];
+      default:
+        return XPathUtil.unexpectedNode(node);
     }
   }
 
