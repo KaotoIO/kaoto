@@ -12,14 +12,20 @@ import { CanvasNode } from '../components/Visualization/Canvas/canvas.models';
  *   choice:       steps(branch-placeholder) → when → otherwise
  *   doTry:        steps → doCatch → doFinally
  *   circuitBreaker: steps → onFallback
+ *   routeConfiguration: intercept → interceptFrom → interceptSendToEndpoint → onException → onCompletion
  */
 const SEGMENT_ORDER: Record<string, number> = {
   steps: 0,
+  intercept: 0,
   when: 1,
   doCatch: 1,
   onFallback: 1,
+  interceptFrom: 1,
   otherwise: 2,
   doFinally: 2,
+  interceptSendToEndpoint: 2,
+  onException: 3,
+  onCompletion: 4,
 };
 
 /**
