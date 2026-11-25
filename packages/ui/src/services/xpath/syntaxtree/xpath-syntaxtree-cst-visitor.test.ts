@@ -1,6 +1,11 @@
 import { CstElement, CstNode } from 'chevrotain';
 
 import { PredicateOperator } from '../../../models/datamapper/xpath';
+import {
+  containedOperatorExpressions,
+  isParsableXPath,
+  nestedOperatorExpressions,
+} from '../../../stubs/datamapper/xpath-expressions';
 import { XPathService } from '../xpath.service';
 import { CstVisitor } from './xpath-syntaxtree-cst-visitor';
 import {
@@ -17,7 +22,6 @@ import {
   ParenthesizedExprNode,
   PathExprNode,
   UnsupportedExprNode,
-  XPathNode,
   XPathNodeType,
 } from './xpath-syntaxtree-model';
 import { XPathUtil } from './xpath-syntaxtree-util';
@@ -494,7 +498,7 @@ describe('Logical expressions in if-then-else', () => {
     expect(logicalNodes.length).toBeGreaterThan(0);
 
     // Verify that path expressions from logical expression are found via traversal
-    const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+    const pathNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.PathExpr);
     const pathNames = pathNodes
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -512,7 +516,7 @@ describe('Nested expressions (edge cases)', () => {
     if (!ast) return;
 
     // Verify all paths are found via recursive traversal
-    const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+    const pathNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.PathExpr);
     const pathNames = pathNodes
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -531,7 +535,7 @@ describe('Functions with operator arguments', () => {
     if (!ast) return;
 
     // Verify paths are extracted from arithmetic expression in function argument
-    const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+    const pathNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.PathExpr);
     const pathNames = pathNodes
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -646,7 +650,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astExpr = XPathService.parse(xpathExpr).exprNode;
     expect(astExpr).toBeDefined();
 
-    const pathNodesExpr = XPathUtil.getAllNodesOfType<PathExprNode>(astExpr!, XPathNodeType.PathExpr);
+    const pathNodesExpr = XPathUtil.getAllNodesOfType(astExpr!, XPathNodeType.PathExpr);
     expect(pathNodesExpr.length).toBeGreaterThan(0);
   });
 
@@ -656,7 +660,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astFunc = XPathService.parse(xpathFunc).exprNode;
     expect(astFunc).toBeDefined();
 
-    const pathNodesFunc = XPathUtil.getAllNodesOfType<PathExprNode>(astFunc!, XPathNodeType.PathExpr);
+    const pathNodesFunc = XPathUtil.getAllNodesOfType(astFunc!, XPathNodeType.PathExpr);
     const pathNamesFunc = pathNodesFunc
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -678,7 +682,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astCtx = XPathService.parse(xpathCtx).exprNode;
     expect(astCtx).toBeDefined();
 
-    const pathNodesCtx = XPathUtil.getAllNodesOfType<PathExprNode>(astCtx!, XPathNodeType.PathExpr);
+    const pathNodesCtx = XPathUtil.getAllNodesOfType(astCtx!, XPathNodeType.PathExpr);
     expect(pathNodesCtx.length).toBeGreaterThan(0);
   });
 
@@ -723,7 +727,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astIf = XPathService.parse(xpathIf).exprNode;
     expect(astIf).toBeDefined();
 
-    const pathNodesIf = XPathUtil.getAllNodesOfType<PathExprNode>(astIf!, XPathNodeType.PathExpr);
+    const pathNodesIf = XPathUtil.getAllNodesOfType(astIf!, XPathNodeType.PathExpr);
     expect(pathNodesIf.length).toBeGreaterThan(0);
   });
 
@@ -733,7 +737,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astAdd = XPathService.parse(xpathAdd).exprNode;
     expect(astAdd).toBeDefined();
 
-    const pathNodesAdd = XPathUtil.getAllNodesOfType<PathExprNode>(astAdd!, XPathNodeType.PathExpr);
+    const pathNodesAdd = XPathUtil.getAllNodesOfType(astAdd!, XPathNodeType.PathExpr);
     expect(pathNodesAdd).toHaveLength(2);
   });
 
@@ -743,7 +747,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astNested1 = XPathService.parse(xpathNested1).exprNode;
     expect(astNested1).toBeDefined();
 
-    const pathNodesNested1 = XPathUtil.getAllNodesOfType<PathExprNode>(astNested1!, XPathNodeType.PathExpr);
+    const pathNodesNested1 = XPathUtil.getAllNodesOfType(astNested1!, XPathNodeType.PathExpr);
     const pathNamesNested1 = pathNodesNested1
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -775,7 +779,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astNested3 = XPathService.parse(xpathNested3).exprNode;
     expect(astNested3).toBeDefined();
 
-    const pathNodesNested3 = XPathUtil.getAllNodesOfType<PathExprNode>(astNested3!, XPathNodeType.PathExpr);
+    const pathNodesNested3 = XPathUtil.getAllNodesOfType(astNested3!, XPathNodeType.PathExpr);
     const pathNamesNested3 = pathNodesNested3
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -792,7 +796,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astNested4 = XPathService.parse(xpathNested4).exprNode;
     expect(astNested4).toBeDefined();
 
-    const pathNodesNested4 = XPathUtil.getAllNodesOfType<PathExprNode>(astNested4!, XPathNodeType.PathExpr);
+    const pathNodesNested4 = XPathUtil.getAllNodesOfType(astNested4!, XPathNodeType.PathExpr);
     const pathNamesNested4 = pathNodesNested4
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -808,7 +812,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astPath = XPathService.parse(xpathPath).exprNode;
     expect(astPath).toBeDefined();
 
-    const pathNodesPath = XPathUtil.getAllNodesOfType<PathExprNode>(astPath!, XPathNodeType.PathExpr);
+    const pathNodesPath = XPathUtil.getAllNodesOfType(astPath!, XPathNodeType.PathExpr);
     expect(pathNodesPath).toHaveLength(1);
     expect(pathNodesPath[0].steps).toHaveLength(2);
   });
@@ -819,7 +823,7 @@ describe('extractAllPathExprsFromCST edge cases', () => {
     const astGeneric = XPathService.parse(xpathGeneric).exprNode;
     expect(astGeneric).toBeDefined();
 
-    const pathNodesGeneric = XPathUtil.getAllNodesOfType<PathExprNode>(astGeneric!, XPathNodeType.PathExpr);
+    const pathNodesGeneric = XPathUtil.getAllNodesOfType(astGeneric!, XPathNodeType.PathExpr);
     expect(pathNodesGeneric.length).toBeGreaterThan(0);
   });
 });
@@ -913,7 +917,7 @@ describe('Direct method testing for processSingleArithmeticOperand coverage', ()
     expect(ast).toBeDefined();
     if (!ast) return;
 
-    const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+    const pathNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.PathExpr);
     const pathNames = pathNodes
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -930,7 +934,7 @@ describe('Direct method testing for processSingleArithmeticOperand coverage', ()
     expect(ast).toBeDefined();
     if (!ast) return;
 
-    const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+    const pathNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.PathExpr);
     expect(pathNodes.length).toBeGreaterThan(0);
   });
 
@@ -941,7 +945,7 @@ describe('Direct method testing for processSingleArithmeticOperand coverage', ()
     expect(ast).toBeDefined();
     if (!ast) return;
 
-    const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+    const pathNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.PathExpr);
     const pathNames = pathNodes
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -973,7 +977,7 @@ describe('Refactored helper methods coverage', () => {
     expect(ast).toBeDefined();
     if (!ast) return;
 
-    const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+    const pathNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.PathExpr);
     expect(pathNodes).toHaveLength(1);
     expect(pathNodes[0].steps).toHaveLength(1);
     expect(pathNodes[0].steps[0].nodeTest?.localName).toBe('simpleField');
@@ -990,7 +994,7 @@ describe('Refactored helper methods coverage', () => {
     expect(expr.type).toBe(XPathNodeType.ArithmeticExpr);
 
     // Verify all three path expressions are found
-    const pathNodes = XPathUtil.getAllNodesOfType<PathExprNode>(ast, XPathNodeType.PathExpr);
+    const pathNodes = XPathUtil.getAllNodesOfType(ast, XPathNodeType.PathExpr);
     const pathNames = pathNodes
       .filter((node: PathExprNode) => node.steps.length > 0 && node.steps[0].nodeTest?.type === XPathNodeType.NameTest)
       .map((node: PathExprNode) => (node.steps[0].nodeTest as NameTestNode).localName);
@@ -1198,31 +1202,9 @@ describe('Operators and comparison operands', () => {
 
 /**
  * Every name, literal and operator token the parser reads must reach a node of the syntax tree that
- * `XPathUtil.getAllNodesOfType` can find. The expressions nest every operator family into every other, on both
- * sides and with and without parentheses, and put each one into the containers that have dropped operands before.
+ * `XPathUtil.getAllNodesOfType` can find.
  */
 describe('Syntax tree token coverage', () => {
-  const BINARY_FAMILIES = [
-    ...['+', '-', '*', 'div', 'idiv', 'mod', 'and', 'or', '|', 'union', 'intersect', 'except', 'to'],
-    ...['=', '!=', '<', '<=', '>', '>=', 'eq', 'ne', 'lt', 'le', 'gt', 'ge', 'is', '<<', '>>'],
-  ].map((operator) => (x: string, y: string) => `${x} ${operator} ${y}`);
-  const ATOMIC_FAMILIES = [
-    (x: string) => `-${x}`,
-    (x: string) => `+${x}`,
-    (x: string) => `${x} cast as xs:string`,
-    (x: string) => `${x} castable as xs:string`,
-    (x: string) => `${x} instance of xs:string`,
-  ];
-  const INNER = [...BINARY_FAMILIES.map((family) => family('a', 'b')), ...ATOMIC_FAMILIES.map((family) => family('a'))];
-  const CONTAINERS = [
-    (x: string) => x,
-    (x: string) => `string(${x})`,
-    (x: string) => `n[${x}]`,
-    (x: string) => `if (${x}) then e else f`,
-    (x: string) => `if (e) then ${x} else f`,
-    (x: string) => `(${x})`,
-    (x: string) => `${x}, e`,
-  ];
   const OPERATOR_TOKENS = new Set([
     ...['Plus', 'Minus', 'Asterisk', 'Div', 'Idiv', 'Mod', 'And', 'Or', 'Union', 'Pipe', 'Intersect', 'Except', 'To'],
     ...['Equal', 'NotEqual', 'LessThan', 'LessThanEqual', 'GreaterThan', 'GreaterThanEqual', 'Eq', 'Ne', 'Lt', 'Le'],
@@ -1238,27 +1220,6 @@ describe('Syntax tree token coverage', () => {
     XPathNodeType.AtomicExpr,
   ];
   const LEAF_NODES = [XPathNodeType.NameTest, XPathNodeType.Literal, XPathNodeType.VarRef];
-
-  const parses = (xpath: string) => {
-    const parsed = XPathService.parse(xpath);
-    return parsed.lexErrors.length === 0 && parsed.parseErrors.length === 0;
-  };
-
-  const nested = (): string[] => {
-    const expressions: string[] = [];
-    for (const inner of INNER) {
-      for (const family of BINARY_FAMILIES) {
-        expressions.push(family(inner, 'c'), family('c', inner), family(`(${inner})`, 'c'), family('c', `(${inner})`));
-      }
-      for (const family of ATOMIC_FAMILIES) {
-        expressions.push(family(`(${inner})`));
-      }
-    }
-    for (const family of BINARY_FAMILIES) {
-      expressions.push(family('c', "'x'"), family('1', 'c'));
-    }
-    return expressions.filter(parses);
-  };
 
   const collectTokens = (element: CstElement, rules: string[], leaves: number[], operators: string[]) => {
     if (!('children' in element)) {
@@ -1283,8 +1244,8 @@ describe('Syntax tree token coverage', () => {
     collectTokens(parsed.cst as CstNode, [], leaves, operators);
 
     const root = CstVisitor.visit(parsed.cst);
-    const leafNodes = LEAF_NODES.flatMap((type) => XPathUtil.getAllNodesOfType<XPathNode>(root, type));
-    const operatorNodes = OPERATOR_NODES.flatMap((type) => XPathUtil.getAllNodesOfType<XPathNode>(root, type));
+    const leafNodes = LEAF_NODES.flatMap((type) => XPathUtil.getAllNodesOfType(root, type));
+    const operatorNodes = OPERATOR_NODES.flatMap((type) => XPathUtil.getAllNodesOfType(root, type));
     const lost = leaves.filter(
       (offset) => !leafNodes.some((node) => node.range.start.offset <= offset && offset <= node.range.end.offset),
     );
@@ -1294,20 +1255,17 @@ describe('Syntax tree token coverage', () => {
   };
 
   it('should keep every token of every nested operator', () => {
-    const expressions = [...nested(), ...nested().map((expression) => `string(${expression})`)];
+    const nested = nestedOperatorExpressions();
+    const expressions = [...nested, ...nested.map((expression) => `string(${expression})`)];
 
     expect(expressions.length).toBeGreaterThan(3000);
     expect(expressions.map(findDrops).filter((drop) => drop !== undefined)).toEqual([]);
   });
 
   it('should keep every token of every operator in every container', () => {
-    const base = [
-      ...BINARY_FAMILIES.map((family) => family('a', 'b')),
-      ...ATOMIC_FAMILIES.map((family) => family('a')),
-    ];
-    const expressions = base.flatMap((expression) => CONTAINERS.map((container) => container(expression)));
+    const expressions = containedOperatorExpressions();
 
-    expect(expressions.filter((expression) => !parses(expression))).toEqual([]);
+    expect(expressions.filter((expression) => !isParsableXPath(expression))).toEqual([]);
     expect(expressions.map(findDrops).filter((drop) => drop !== undefined)).toEqual([]);
   });
 });
