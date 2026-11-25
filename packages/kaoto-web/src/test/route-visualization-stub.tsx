@@ -1,18 +1,21 @@
+import type { RouteVisualizationToolsState } from '@kaoto/kaoto/components';
 import * as KaotoComponentsModule from '@kaoto/kaoto/components';
 import { act } from '@testing-library/react';
-import { useEffect } from 'react';
+import { useEffect, useImperativeHandle } from 'react';
 import { vi } from 'vitest';
 
 /**
  * Replaces the canvas of `@kaoto/kaoto` with a stub that shows the code it was given (`data-code`) and counts its
- * mounts. Undo it with `vi.restoreAllMocks()`.
+ * mounts. Its tools for the host are spies. Undo it with `vi.restoreAllMocks()`.
  */
 export const stubRouteVisualization = () => {
   let mounts = 0;
-  const RouteVisualizationStub: typeof KaotoComponentsModule.RouteVisualization = ({ code }) => {
+  const tools = { exportImage: vi.fn(), openDocumentation: vi.fn() };
+  const RouteVisualizationStub: typeof KaotoComponentsModule.RouteVisualization = ({ code, ref }) => {
     useEffect(() => {
       mounts++;
     }, []);
+    useImperativeHandle(ref, () => tools, []);
     return <div data-testid="route-visualization" data-code={code} />;
   };
   const spy = vi.spyOn(KaotoComponentsModule, 'RouteVisualization').mockImplementation(RouteVisualizationStub);
@@ -21,6 +24,14 @@ export const stubRouteVisualization = () => {
     spy,
     /** How often the canvas was mounted */
     mountCount: () => mounts,
+    /** The tools the canvas hands to the host through its ref */
+    tools,
+    /** Reports the state of the tools through the callback the canvas got last, as the canvas does when it changes */
+    reportToolsState: (state: RouteVisualizationToolsState) => {
+      act(() => {
+        spy.mock.lastCall![0].onToolsStateChange?.(state);
+      });
+    },
     /** Reports `code` through the code change callback the canvas got last, as if the user edited the route on it */
     editOnCanvas: (code: string) => {
       act(() => {

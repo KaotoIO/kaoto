@@ -1,5 +1,5 @@
-import { RouteVisualization } from '@kaoto/kaoto/components';
-import { FunctionComponent, useState } from 'react';
+import { RouteVisualization, RouteVisualizationHandle, RouteVisualizationToolsState } from '@kaoto/kaoto/components';
+import { FunctionComponent, Ref, useState } from 'react';
 
 import { CATALOG_URL } from '../../../catalog-url';
 import { ViewMode } from '../../../context/IntegrationHeaderContext';
@@ -13,6 +13,10 @@ interface RouteFileEditorProps {
   file: RouteFile;
   view: ViewMode;
   onSave: (fileId: string, code: string) => void;
+  /** The tools of the canvas for the header bar, such as the image export */
+  toolsRef?: Ref<RouteVisualizationHandle>;
+  /** Tells whether the tools of `toolsRef` can be used, whenever that changes */
+  onToolsStateChange?: (state: RouteVisualizationToolsState) => void;
 }
 
 /** The code of a route and the file it belongs to, so that a late save of one file cannot land in another */
@@ -49,7 +53,13 @@ const RouteCodeView: FunctionComponent<{
  * providers inside RouteVisualization and download the whole Camel catalog again. Both views share the code of the
  * open file; edits from either side are saved.
  */
-export const RouteFileEditor: FunctionComponent<RouteFileEditorProps> = ({ file, view, onSave }) => {
+export const RouteFileEditor: FunctionComponent<RouteFileEditorProps> = ({
+  file,
+  view,
+  onSave,
+  toolsRef,
+  onToolsStateChange,
+}) => {
   const [routeCode, setRouteCode] = useState<RouteCode>({ fileId: file.id, code: file.content });
   if (routeCode.fileId !== file.id) {
     // Adjust state while rendering (https://react.dev/learn/you-might-not-need-an-effect)
@@ -80,6 +90,8 @@ export const RouteFileEditor: FunctionComponent<RouteFileEditorProps> = ({ file,
           testingCatalogName=""
           code={code}
           codeChange={handleCanvasChange}
+          ref={toolsRef}
+          onToolsStateChange={onToolsStateChange}
         />
       </div>
       {view === 'code' && <RouteCodeView key={file.id} file={file} initialCode={code} onCommit={handleCodeCommit} />}

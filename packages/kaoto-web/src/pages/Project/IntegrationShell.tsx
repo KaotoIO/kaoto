@@ -3,7 +3,8 @@ import '@patternfly/react-core/dist/styles/base-no-reset.css';
 import './IntegrationShell.scss';
 
 import { InlineNotification } from '@carbon/react';
-import { FunctionComponent, useEffect, useMemo, useState } from 'react';
+import { RouteVisualizationHandle, RouteVisualizationToolsState } from '@kaoto/kaoto/components';
+import { FunctionComponent, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useLocation, useParams } from 'react-router';
 
 import { buildTree } from '../../components/Explorer/build-tree';
@@ -13,8 +14,10 @@ import { useIntegrationHeader } from '../../context/IntegrationHeaderContext';
 import { useFiles } from '../../hooks/useFiles';
 import { filePathFromSplat } from '../../routes/file-url';
 import { getFileType } from '../../services/files/stored-file';
+import { DocumentationButton } from './editors/DocumentationButton';
 import { editorKindFor } from './editors/editor-registry';
 import { EditorHeader } from './editors/EditorHeader';
+import { ExportImageButton } from './editors/ExportImageButton';
 import { RouteFileEditor } from './editors/RouteFileEditor';
 import { TextFileEditor } from './editors/TextFileEditor';
 import { viewIconFor } from './editors/view-icon';
@@ -39,6 +42,12 @@ const IntegrationShell: FunctionComponent = () => {
   const file = path ? files.find((candidate) => candidate.path === path) : undefined;
   /** Tagged with its file, so that it is not shown for another file */
   const [saveError, setSaveError] = useState<{ fileId: string; error: Error }>();
+  /** The tools of the canvas of a route file, for the header bar, and whether they can be used */
+  const canvasToolsRef = useRef<RouteVisualizationHandle>(null);
+  const [canvasToolsState, setCanvasToolsState] = useState<RouteVisualizationToolsState>({
+    canExport: false,
+    isExportingImage: false,
+  });
 
   // Reset view mode to Design when opening a different file — not when the files change or the open file is renamed.
   useEffect(() => {
@@ -81,6 +90,7 @@ const IntegrationShell: FunctionComponent = () => {
   const viewMode = header?.viewMode ?? 'design';
   const openFile = loading ? undefined : file;
   const editorKind = openFile && editorKindFor(getFileType(openFile.path));
+  const hasCanvas = editorKind === 'route';
 
   let body;
   if (loading) {
@@ -90,13 +100,45 @@ const IntegrationShell: FunctionComponent = () => {
   } else if (editorKind === 'text') {
     body = <TextFileEditor key={openFile.id} file={openFile} onSave={storeCode} />;
   } else {
-    body = <RouteFileEditor file={openFile} view={viewMode} onSave={storeCode} />;
+    body = (
+      <RouteFileEditor
+        file={openFile}
+        view={viewMode}
+        onSave={storeCode}
+        toolsRef={canvasToolsRef}
+        onToolsStateChange={setCanvasToolsState}
+      />
+    );
   }
 
   return (
     <div className="cs--integration-shell" data-testid="integration-shell">
       {openFile && editorKind && (
-        <EditorHeader icon={viewIconFor(editorKind, viewMode)} path={openFile.path} content={openFile.content} />
+        <EditorHeader
+          icon={viewIconFor(editorKind, viewMode)}
+          path={openFile.path}
+          content={openFile.content}
+          tools={
+            // Every file shows the tools, those of the canvas disabled for a file without one. The state may still be
+            // that of the canvas of a route opened before.
+            <>
+              <ExportImageButton
+                canExport={hasCanvas && canvasToolsState.canExport}
+                isExporting={hasCanvas && canvasToolsState.isExportingImage}
+                onExport={() => {
+                  canvasToolsRef.current?.exportImage();
+                }}
+              />
+              <DocumentationButton
+                disabled={!hasCanvas}
+                onOpen={() => {
+                  canvasToolsRef.current?.openDocumentation();
+                }}
+                align="bottom-end"
+              />
+            </>
+          }
+        />
       )}
       {currentSaveError && (
         <InlineNotification

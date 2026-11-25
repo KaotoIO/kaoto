@@ -3,7 +3,7 @@ import '../../styles/patternfly-carbon-compat.scss';
 
 import { SuggestionRegistryProvider } from '@kaoto/forms';
 import { VisualizationProvider } from '@patternfly/react-topology';
-import { FunctionComponent, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import { FunctionComponent, Ref, useContext, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 
 import { NodeInteractionAddonProvider } from '../../components/registers/interactions/node-interaction-addon.provider';
 import {
@@ -30,6 +30,13 @@ import {
 } from '../../providers';
 import { ActionConfirmationModalContextProvider } from '../../providers/action-confirmation-modal.provider';
 import { EventNotifier } from '../../utils';
+import {
+  RouteVisualizationHandle,
+  RouteVisualizationTools,
+  RouteVisualizationToolsState,
+} from './RouteVisualizationTools';
+
+export type { RouteVisualizationHandle, RouteVisualizationToolsState } from './RouteVisualizationTools';
 
 /**
  * The DataMapper launcher is left out: it navigates to the DataMapper page of the Kaoto web app, which the hosts of
@@ -57,7 +64,9 @@ const Viz: FunctionComponent<{
   runtimeCatalogName: string;
   testingCatalogName: string;
   className?: string;
-}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, className = '' }) => {
+  toolsRef?: Ref<RouteVisualizationHandle>;
+  onToolsStateChange?: (state: RouteVisualizationToolsState) => void;
+}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, className = '', toolsRef, onToolsStateChange }) => {
   const controller = useMemo(() => ControllerService.createController(), []);
 
   return (
@@ -87,6 +96,8 @@ const Viz: FunctionComponent<{
                                   {/* Asks before deleting a step with children, a route or a group */}
                                   <ActionConfirmationModalContextProvider>
                                     <VisibleFlowsVisualization className={className} />
+                                    {/* Exports the image and the documentation for the toolbar of the host */}
+                                    <RouteVisualizationTools ref={toolsRef} onStateChange={onToolsStateChange} />
                                   </ActionConfirmationModalContextProvider>
                                 </CatalogModalProvider>
                               </SuggestionRegistryProvider>
@@ -113,7 +124,11 @@ export const RouteVisualization: FunctionComponent<{
   code: string;
   codeChange: (code: string) => void;
   className?: string;
-}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, code, codeChange, className }) => {
+  /** The tools of the canvas for the toolbar of the host: export the flows as an image, open the documentation */
+  ref?: Ref<RouteVisualizationHandle>;
+  /** Tells the host whether the tools of `ref` can be used, whenever that changes */
+  onToolsStateChange?: (state: RouteVisualizationToolsState) => void;
+}> = ({ catalogUrl, runtimeCatalogName, testingCatalogName, code, codeChange, className, ref, onToolsStateChange }) => {
   const eventNotifier = EventNotifier.getInstance();
   /** The code the entities currently represent, either parsed from `code` or serialized from a canvas edit */
   const entitiesCodeRef = useRef<string | undefined>(undefined);
@@ -140,6 +155,8 @@ export const RouteVisualization: FunctionComponent<{
       runtimeCatalogName={runtimeCatalogName}
       testingCatalogName={testingCatalogName}
       className={className}
+      toolsRef={ref}
+      onToolsStateChange={onToolsStateChange}
     />
   );
 };

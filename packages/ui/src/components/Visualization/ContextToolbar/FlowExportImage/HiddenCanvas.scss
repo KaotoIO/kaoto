@@ -6,5 +6,9 @@
   height: 100vh;
   pointer-events: none;
   opacity: 0;
+
+  // A host may hide the canvas with `visibility: hidden` while the export runs, as kaoto-web does when it switches to
+  // the Code view. The hidden canvas would inherit it and export an empty image; opacity keeps it out of sight instead.
+  visibility: visible;
   z-index: -1;
 }

@@ -1,0 +1,16 @@
+@use '@carbon/react/scss/motion' as *;
+
+// Turns like Carbon's own loading spinner
+.cs--export-image-button__spinner {
+  animation: export-image-button-spin $duration-slow-02 linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+@keyframes export-image-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
