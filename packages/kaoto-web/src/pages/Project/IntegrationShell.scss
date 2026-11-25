@@ -38,6 +38,12 @@
     inset: 0;
     display: flex;
     visibility: hidden;
+
+    // A descendant can set `visibility: visible` and show itself again, as PatternFly's open drawer does with the
+    // properties panel of the selected step. `!important` keeps everything in here hidden against such rules.
+    * {
+      visibility: hidden !important;
+    }
   }
 }
 
