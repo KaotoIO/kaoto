@@ -90,16 +90,16 @@ describe('IntegrationShell', () => {
       ['main-flow', 'design', 'main-flow.camel.yaml'],
       ['main-flow', 'code', 'main-flow.camel.yaml'],
       ['schema', 'design', 'schema.xsd'],
-    ])('shows the name of the open file %s in the %s view', async (fileId, viewMode, name) => {
+    ])('shows the open file %s as a tab in the %s view', async (fileId, viewMode, name) => {
       renderWithContext(fileId, viewMode);
 
-      expect(await screen.findByRole('heading', { level: 2, name })).toBeInTheDocument();
+      expect(await screen.findByRole('tab', { name, selected: true })).toBeInTheDocument();
     });
 
     it('shows no header bar while the files are loading', async () => {
       renderWithContext('main-flow');
 
-      expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+      expect(screen.queryByRole('tab')).not.toBeInTheDocument();
       await screen.findByTestId('route-visualization');
     });
 
@@ -107,7 +107,17 @@ describe('IntegrationShell', () => {
       renderWithContext('missing-file');
 
       expect(await screen.findByText('The file does not exist')).toBeInTheDocument();
-      expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+      expect(screen.queryByRole('tab')).not.toBeInTheDocument();
+    });
+
+    it('closes the open file and leads to the workspace', async () => {
+      const user = userEvent.setup();
+      renderWithContext('main-flow');
+      await screen.findByTestId('route-visualization');
+
+      await user.click(screen.getByRole('button', { name: 'Close main-flow.camel.yaml' }));
+
+      expect(await screen.findByTestId('workspace-page')).toBeInTheDocument();
     });
 
     it('copies the content of the open file, with an edit made on the canvas', async () => {

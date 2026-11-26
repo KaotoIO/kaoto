@@ -1,0 +1,29 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '../../../styles/kaoto-theme' as kaoto;
+@use '../../../styles/panel-header' as panel;
+
+// The icon, the name and the close button in a row; the name shortens with an ellipsis when the header is narrow
+.cs--editor-tab,
+.cs--editor-tab__label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-03;
+  min-inline-size: 0;
+}
+
+.cs--editor-tab__icon {
+  flex-shrink: 0;
+  color: $icon-secondary;
+
+  // As bold as the icons of the Explorer header buttons
+  @include kaoto.kaoto-theme {
+    color: var(--cs-on-accent);
+    stroke: var(--cs-on-accent);
+    stroke-width: 1px;
+  }
+}
+
+.cs--editor-tab__name {
+  @include panel.panel-heading;
+}
