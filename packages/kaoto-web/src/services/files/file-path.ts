@@ -56,10 +56,13 @@ export const buildChildPath = (
   return { path: folderPath ? `${folderPath}/${checked.trimmedName}` : checked.trimmedName };
 };
 
+/** The folder that holds the path, `''` for the root */
+export const parentFolderOf = (path: string): string => path.slice(0, Math.max(path.lastIndexOf('/'), 0));
+
 /**
  * The path of a file renamed to a new name in the same folder.
  *
  * The name is taken as typed, extension included, since renaming may change the type of the file.
  */
 export const buildRenamedPath = (path: string, name: string): { path: string } | { error: string } =>
-  buildChildPath(path.slice(0, Math.max(path.lastIndexOf('/'), 0)), name, 'file');
+  buildChildPath(parentFolderOf(path), name, 'file');
