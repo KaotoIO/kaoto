@@ -31,6 +31,19 @@ At the start of each task, decide whether wiki context is needed. If needed, che
 - **Prettier**: see [`.prettierrc`](.prettierrc) for the authoritative config. Key settings: `semi: true`, `singleQuote: true`, `printWidth: 120`, `tabWidth: 2`, `trailingComma: 'all'`.
 - **Style lint**: see [`.stylelintrc`](.stylelintrc) for CSS/SCSS rules.
 
+### Naming
+
+Name everything so that its purpose is clear from the name alone. This covers functions, methods, classes, components, hooks, effects, state and its setter, refs, props, context, store actions and selectors, constants and variables. A reader should not need the body or the call site to know what something is for.
+
+- **Say what comes back.** A function that returns keys says so: `getFolderKeysOnPath`, not `getFolders` or `getFolderList`.
+- **No action verbs for pure functions.** `expandFolderAndParents` sounds as if it expands something, but it only returns a new value. Use `get…` or `with…` for results, and keep verbs for code that acts.
+- **Say what it is for.** `getFolderPathForNewEntry` instead of `targetFolderPath`.
+- **Keep domain words to one meaning.** If `path` means a `/`-separated string, a function that returns a list of keys does not have `Path` in its name.
+- **Name state after what it holds, not after an action.** `entryToFocus` instead of `focusNode`; `entryToDelete` instead of `toDelete`. Booleans start with `is`, `has` or `can`.
+- **Name effects.** Pass a named function, `useEffect(function focusEntryAfterDialogCloses() { … })`, or move the effect into a custom hook with a telling name. An effect whose purpose cannot be named is often one that should not be an effect.
+- **Name hooks after what they give the component**, for example `useExplorerWidth` returns the width and its resize handler.
+- **If a name needs "and", split the code.** Computing the folders to expand and storing them are two functions.
+
 ---
 
 ## Commands
