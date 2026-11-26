@@ -60,6 +60,7 @@ function addStepEntries(entries: OverlayEntry[], nodeId: string, path: string, r
 }
 
 interface OverlayResources {
+  bus: IEventBus;
   store: OverlayStore;
   owner: OverlayOwner;
   scope: OverlayScope;
@@ -81,8 +82,6 @@ export function useTestResultOverlays(
     [entities],
   );
 
-  const active = citrusEntities.length > 0 && !!bus;
-
   const { nodes } = model;
 
   const modelRevision = useMemo(() => {
@@ -90,7 +89,7 @@ export function useTestResultOverlays(
   }, [nodes]);
 
   const resources = useMemo((): OverlayResources | null => {
-    if (!active) return null;
+    if (!bus || citrusEntities.length === 0) return null;
 
     const scope: OverlayScope = {
       canvasId: 'designer',
@@ -103,8 +102,8 @@ export function useTestResultOverlays(
     const store = createOverlayStore(snapshot);
     const owner = store.getState().createOwner();
 
-    return owner ? { store, owner, scope } : null;
-  }, [active, citrusEntities, modelRevision, model]);
+    return owner ? { bus, store, owner, scope } : null;
+  }, [bus, citrusEntities, modelRevision, model]);
 
   useEffect(() => {
     if (!resources) return;
@@ -145,44 +144,44 @@ export function useTestResultOverlays(
     return entries;
   }, []);
 
-  const loadTestReports = useCallback(() => {
-    if (!resources || !bus) return;
+  const loadTestReports = useCallback(
+    ({ bus, owner, scope }: OverlayResources) => {
+      generationRef.current += 1;
+      const generation = generationRef.current;
 
-    generationRef.current += 1;
-    const generation = generationRef.current;
-    const { owner, scope } = resources;
+      for (const entity of citrusEntities) {
+        void requestTestReport(bus, entity.id)
+          .then((report) => {
+            if (generation !== generationRef.current) return;
 
-    for (const entity of citrusEntities) {
-      void requestTestReport(bus, entity.id)
-        .then((report) => {
-          if (generation !== generationRef.current) return;
-
-          if (report) {
-            const entries = buildEntries(entity, report);
-            owner.replaceLayer(scope, `${TEST_RESULTS_LAYER}-${entity.id}`, entries);
-          } else {
+            if (report) {
+              const entries = buildEntries(entity, report);
+              owner.replaceLayer(scope, `${TEST_RESULTS_LAYER}-${entity.id}`, entries);
+            } else {
+              owner.clearLayer(scope, `${TEST_RESULTS_LAYER}-${entity.id}`);
+            }
+          })
+          .catch(() => {
+            if (generation !== generationRef.current) return;
             owner.clearLayer(scope, `${TEST_RESULTS_LAYER}-${entity.id}`);
-          }
-        })
-        .catch(() => {
-          if (generation !== generationRef.current) return;
-          owner.clearLayer(scope, `${TEST_RESULTS_LAYER}-${entity.id}`);
-        });
-    }
-  }, [resources, bus, citrusEntities, buildEntries]);
+          });
+      }
+    },
+    [citrusEntities, buildEntries],
+  );
 
   useEffect(() => {
     if (resources) {
-      loadTestReports();
+      loadTestReports(resources);
     }
   }, [resources, loadTestReports]);
 
   useEffect(() => {
-    if (!resources || !bus) return;
+    if (!resources) return;
 
+    const { bus, owner, scope } = resources;
     const clearTestReports = () => {
       generationRef.current += 1;
-      const { owner, scope } = resources;
       for (const entity of citrusEntities) {
         owner.clearLayer(scope, `${TEST_RESULTS_LAYER}-${entity.id}`);
       }
@@ -192,13 +191,13 @@ export function useTestResultOverlays(
       clearTestReports();
     });
     const unsubReady = bus.on('host:testReport:ready', () => {
-      loadTestReports();
+      loadTestReports(resources);
     });
     return () => {
       unsubStart();
       unsubReady();
     };
-  }, [resources, bus, loadTestReports, citrusEntities]);
+  }, [resources, loadTestReports, citrusEntities]);
 
   return overlaySource;
 }
