@@ -32,6 +32,7 @@ const fixtureModules = import.meta.glob<Record<string, unknown>>(
     '!./create-mock-entities-context.ts',
     '!./mock-random-values.ts',
     '!./read-file-as-string.ts',
+    '!./route-link-nodes.ts',
     '!./route-visualization-controller.ts',
     '!./test-load-catalog.ts',
   ],

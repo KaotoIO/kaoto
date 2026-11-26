@@ -1,0 +1,14 @@
+.agent-step-link {
+  pointer-events: none;
+
+  &__body {
+    fill: none;
+    stroke: var(--pf-topology__edge--Stroke);
+    stroke-width: 1;
+    stroke-dasharray: 5, 5;
+  }
+
+  &__port {
+    fill: var(--pf-topology__edge--Stroke);
+  }
+}

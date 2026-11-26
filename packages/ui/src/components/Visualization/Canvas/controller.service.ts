@@ -1,6 +1,5 @@
 import {
   ComponentFactory,
-  DagreGroupsLayout,
   Graph,
   GraphElement,
   Layout,
@@ -17,6 +16,7 @@ import { CustomGraphWithSelection } from '../Custom/Graph/CustomGraph';
 import { PlaceholderNode } from '../Custom/Node/PlaceholderNode';
 import { TopologyNode } from '../Custom/Node/TopologyNode';
 import { LayoutType } from './canvas.models';
+import { LabelledEdgesDagreGroupsLayout } from './labelled-edges-dagre-layout';
 
 export class ControllerService {
   static createController(): Visualization {
@@ -38,7 +38,7 @@ export class ControllerService {
   static baselineLayoutFactory(type: string, graph: Graph): Layout | undefined {
     const isHorizontal = type === LayoutType.DagreHorizontal;
 
-    return new DagreGroupsLayout(graph, {
+    return new LabelledEdgesDagreGroupsLayout(graph, {
       rankdir: isHorizontal ? LEFT_TO_RIGHT : TOP_TO_BOTTOM,
       nodeDistance: isHorizontal ? 30 : 40,
       ranker: 'network-simplex',

@@ -1,7 +1,7 @@
 import { EdgeStyle } from '@patternfly/react-topology';
 
 import { IVisualizationNode } from '../../../models/visualization/base-visual-entity';
-import { collectTopologyEndpoints } from '../Topology/topology-endpoints';
+import { collectTopologyEndpoints, getAiToolEdgeId, getAiToolTagFromKey } from '../Topology/topology-endpoints';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, CanvasNodeData, CanvasNodesAndEdges } from './canvas.models';
 
@@ -84,6 +84,8 @@ export class FlowService {
 
     const routeNodeIds = new Set(this.nodes.map((node) => node.id));
     const { consumersByEndpoint, outgoingByEntity } = await collectTopologyEndpoints(vizNodes);
+    /** The `ai-tool` edges, one per agent route and tool route, with the tags they share */
+    const aiToolEdges = new Map<string, CanvasEdge>();
 
     outgoingByEntity.forEach((endpoints, producerId) => {
       if (!routeNodeIds.has(producerId)) {
@@ -91,16 +93,19 @@ export class FlowService {
       }
       endpoints.forEach((endpoint) => {
         const consumerIds = consumersByEndpoint.get(endpoint);
+        const aiToolTag = getAiToolTagFromKey(endpoint);
 
         // The endpoint is consumed somewhere in this file (possibly only by the producer itself).
         // Don't treat it as external; emit edges to any non-self consumer.
         if (consumerIds && consumerIds.length > 0) {
           consumerIds.forEach((consumerId) => {
-            if (consumerId === producerId) {
+            if (consumerId === producerId || !routeNodeIds.has(consumerId)) {
               return;
             }
-            if (routeNodeIds.has(consumerId)) {
+            if (aiToolTag === undefined) {
               this.edges.push(this.getTopologyEdge(producerId, consumerId));
+            } else {
+              this.addAiToolTag(aiToolEdges, producerId, consumerId, aiToolTag);
             }
           });
         }
@@ -108,6 +113,26 @@ export class FlowService {
     });
 
     return { nodes: this.nodes, edges: this.edges };
+  }
+
+  /**
+   * Adds a tag to the edge from an agent route to an `ai-tool` route, creating the edge for their first shared tag.
+   * The model decides at run time which of the tools it calls, so the edge is dashed.
+   */
+  private static addAiToolTag(edges: Map<string, CanvasEdge>, source: string, target: string, tag: string): void {
+    const id = getAiToolEdgeId(source, target);
+    const existingEdge = edges.get(id);
+    if (existingEdge) {
+      existingEdge.label = `${existingEdge.label}, ${tag}`;
+      return;
+    }
+
+    const edge = this.getTopologyEdge(source, target);
+    edge.id = id;
+    edge.edgeStyle = EdgeStyle.dashed;
+    edge.label = tag;
+    edges.set(edge.id, edge);
+    this.edges.push(edge);
   }
 
   private static getCanvasNode(vizNodeParam: IVisualizationNode): CanvasNode {

@@ -1,0 +1,24 @@
+.topology-edge {
+  /* The link drawn by TaskEdge, without its background */
+  /* stylelint-disable-next-line selector-class-pattern */
+  &--dashed > path:not(.pf-topology__edge__background) {
+    stroke-dasharray: 5, 5;
+  }
+
+  &__tag {
+    &__background {
+      fill: var(--pf-t--global--background--color--primary--default);
+      stroke: var(--pf-topology__edge--Stroke);
+      stroke-dasharray: 5, 5;
+    }
+
+    &__icon {
+      fill: var(--pf-t--global--icon--color--subtle);
+    }
+
+    &__label {
+      fill: var(--pf-t--global--text--color--regular);
+      font-size: var(--pf-t--global--font--size--xs);
+    }
+  }
+}

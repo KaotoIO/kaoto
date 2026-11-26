@@ -1,12 +1,14 @@
-import { FunctionComponent, ReactNode, useContext, useMemo, useState } from 'react';
+import { useVisualizationController } from '@patternfly/react-topology';
+import { FunctionComponent, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 
 import { useVisibleVizNodes } from '../../hooks/use-visible-viz-nodes';
 import { BaseVisualEntity } from '../../models/visualization/base-visual-entity';
 import { KaotoResourceContext, ResourceParseState } from '../../providers/kaoto-resource.provider';
 import { VisibleFlowsContext } from '../../providers/visible-flows.provider';
+import { EventNotifier } from '../../utils';
 import { Canvas } from './Canvas';
 import { EmptyCanvas } from './Canvas/EmptyCanvas';
-import { buildDesignerCanvasModel } from './designer-canvas-model';
+import { applyAiToolEdges, buildDesignerCanvasModel, getAiToolEdges, getAiToolEdgesKey } from './designer-canvas-model';
 import { BrokenFileEmptyState } from './EmptyState';
 import { VisualizationShell } from './VisualizationShell';
 
@@ -33,6 +35,21 @@ export const DesignerVisualization: FunctionComponent<DesignerVisualizationProps
   const isFileBroken = kaotoResourceContext?.parseState === ResourceParseState.Error;
 
   const { nodes, edges } = useMemo(() => buildDesignerCanvasModel(vizNodes), [vizNodes]);
+  /*
+   * A step edited in the side panel keeps its node, whose definition the form changes in place, so the nodes do not
+   * change, but the tags of the step may: the links from the agent routes to their tools are read again whenever the
+   * source changes, and replaced in the canvas when they differ, leaving the step selected.
+   */
+  const controller = useVisualizationController();
+  useEffect(() => {
+    let aiToolEdgesKey = getAiToolEdgesKey(vizNodes);
+    return EventNotifier.getInstance().subscribe('entities:updated', () => {
+      const key = getAiToolEdgesKey(vizNodes);
+      if (key === aiToolEdgesKey) return;
+      aiToolEdgesKey = key;
+      applyAiToolEdges(controller, getAiToolEdges(vizNodes));
+    });
+  }, [controller, vizNodes]);
 
   /*
    * The number of entities of the model that is drawn. While the next model resolves, the canvas still shows the

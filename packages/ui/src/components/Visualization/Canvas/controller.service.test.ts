@@ -1,4 +1,4 @@
-import { DagreGroupsLayout, ModelKind, Visualization } from '@patternfly/react-topology';
+import { ModelKind, Visualization } from '@patternfly/react-topology';
 
 import { CustomGroupWithSelection } from '../Custom';
 import { CustomEdge } from '../Custom/Edge/CustomEdge';
@@ -8,6 +8,7 @@ import { TopologyNode } from '../Custom/Node/TopologyNode';
 import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { ControllerService } from './controller.service';
+import { LabelledEdgesDagreGroupsLayout } from './labelled-edges-dagre-layout';
 
 describe('ControllerService', () => {
   it('should not enable setFitToScreenOnLayout when creating the controller', () => {
@@ -97,9 +98,9 @@ describe('ControllerService', () => {
   });
 
   it.each([
-    [LayoutType.DagreVertical, DagreGroupsLayout],
-    [LayoutType.DagreHorizontal, DagreGroupsLayout],
-    ['unknown' as LayoutType, DagreGroupsLayout],
+    [LayoutType.DagreVertical, LabelledEdgesDagreGroupsLayout],
+    [LayoutType.DagreHorizontal, LabelledEdgesDagreGroupsLayout],
+    ['unknown' as LayoutType, LabelledEdgesDagreGroupsLayout],
   ] as const)('baselineLayoutFactory [%s]', (type, layout) => {
     const newController = ControllerService.createController();
     newController.fromModel(

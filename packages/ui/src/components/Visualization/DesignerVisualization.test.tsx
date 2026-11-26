@@ -1,5 +1,5 @@
-import { isNode, Model, Visualization, VisualizationProvider } from '@patternfly/react-topology';
-import { render, screen, waitFor } from '@testing-library/react';
+import { isNode, Model, SELECTION_EVENT, Visualization, VisualizationProvider } from '@patternfly/react-topology';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import type { MockInstance } from 'vitest';
 
@@ -10,6 +10,7 @@ import { VisualFlowsApi } from '../../models/visualization/flows/support/flows-v
 import { KaotoResourceContext, ResourceParseState } from '../../providers/kaoto-resource.provider';
 import { TestProvidersWrapper, TestRuntimeProviderWrapper } from '../../stubs';
 import { camelRouteJson } from '../../stubs/camel-route';
+import { EventNotifier } from '../../utils';
 import { COLLAPSE_STATE } from './Canvas/collapse-handler-state';
 import { ControllerService } from './Canvas/controller.service';
 import { buildDesignerCanvasModel } from './designer-canvas-model';
@@ -198,6 +199,48 @@ describe('DesignerVisualization', () => {
     expect(container.querySelector('#canvas-main')).toBe(root);
     expect(container.querySelector('[data-kind="graph"]')).toBe(graph);
     expect(fromModelSpy).toHaveBeenLastCalledWith(expect.anything(), false);
+  });
+
+  it('draws the links to the tools again when the tags of an agent step are edited in place, keeping the selection', async () => {
+    const agent = new CamelRouteVisualEntity({
+      route: {
+        id: 'agent',
+        from: { uri: 'direct:agent', steps: [{ to: { uri: 'openai', parameters: { tags: 'support' } } }] },
+      },
+    });
+    const tool = (id: string, tags: string) =>
+      new CamelRouteVisualEntity({
+        route: { id, from: { uri: 'ai-tool', parameters: { toolName: id, tags }, steps: [] } },
+      });
+    const entities = [agent, tool('support-tool', 'support'), tool('billing-tool', 'billing')];
+    const linkedTools = () => getDrawnIds().edgeIds.filter((id) => id.endsWith('(ai-tool)'));
+
+    await renderWithVisibleFlows(<DesignerVisualization entities={entities} />, {
+      agent: true,
+      'support-tool': true,
+      'billing-tool': true,
+    });
+    await waitFor(() => {
+      expect(linkedTools()).toEqual([expect.stringContaining('support-tool')]);
+    });
+
+    /* The side panel changes the definition of the step in place and updates the source, without new entities */
+    const fireEventSpy = vi.spyOn(controller, 'fireEvent');
+    const agentVizNode = getDrawnModel()
+      .nodes!.map((node) => node.data?.vizNode as IVisualizationNode | undefined)
+      .find((vizNode) => vizNode?.data.path === 'route.from.steps.0.to')!;
+    const definition = agentVizNode.data.definition as { parameters: { tags: string } };
+    definition.parameters.tags = 'billing';
+    agentVizNode.updateModel(definition);
+    act(() => {
+      EventNotifier.getInstance().next('entities:updated', '');
+    });
+
+    await waitFor(() => {
+      expect(linkedTools()).toEqual([expect.stringContaining('billing-tool')]);
+    });
+    /* The step stays selected, so the side panel that edits it stays open */
+    expect(fireEventSpy).not.toHaveBeenCalledWith(SELECTION_EVENT, expect.anything());
   });
 
   describe('when the last document did not parse', () => {

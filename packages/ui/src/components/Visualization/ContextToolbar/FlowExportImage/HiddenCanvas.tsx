@@ -12,9 +12,9 @@ import { toBlob } from 'html-to-image';
 import { FunctionComponent, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { IVisualizationNode } from '../../../../models/visualization/base-visual-entity';
-import { CanvasEdge, CanvasNode, LayoutType } from '../../Canvas/canvas.models';
+import { LayoutType } from '../../Canvas/canvas.models';
 import { ControllerService } from '../../Canvas/controller.service';
-import { FlowService } from '../../Canvas/flow.service';
+import { buildDesignerCanvasModel } from '../../designer-canvas-model';
 
 interface HiddenCanvasProps {
   vizNodes: IVisualizationNode[];
@@ -51,20 +51,8 @@ export const HiddenCanvas: FunctionComponent<HiddenCanvasProps> = ({
   });
 
   useEffect(() => {
-    const nodes: CanvasNode[] = [];
-    const edges: CanvasEdge[] = [];
-
-    vizNodes.forEach((vizNode) => {
-      const { nodes: childNodes, edges: childEdges } = FlowService.getFlowDiagram(
-        vizNode.getId() ?? vizNode.id,
-        vizNode,
-        {
-          removePlaceholder: true,
-        },
-      );
-      nodes.push(...childNodes);
-      edges.push(...childEdges);
-    });
+    /* The routes, and the links from their agents to their tools, without the placeholders */
+    const { nodes, edges } = buildDesignerCanvasModel(vizNodes, { removePlaceholder: true });
 
     const model: Model = {
       nodes,
