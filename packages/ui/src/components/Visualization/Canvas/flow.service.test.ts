@@ -1,3 +1,4 @@
+import { EdgeStyle } from '@patternfly/react-topology';
 import { beforeEach, vi } from 'vitest';
 
 import { DynamicCatalogRegistry } from '../../../dynamic-catalog';
@@ -259,6 +260,116 @@ describe('FlowService', () => {
         type: 'topology-edge',
         source: 'route-producer',
         target: 'route-consumer',
+        edgeStyle: EdgeStyle.solid,
+      });
+      expect(edges[0].label).toBeUndefined();
+    });
+
+    describe('ai-tool routes', () => {
+      const getToolRoute = (id: string, tags?: string) =>
+        new CamelRouteVisualEntity({
+          route: {
+            id,
+            from: {
+              uri: 'ai-tool',
+              parameters: { toolName: id, description: `Tool ${id}`, ...(tags === undefined ? {} : { tags }) },
+              steps: [{ setBody: { constant: '{}' } }],
+            },
+          },
+        }).toVizNode();
+
+      const getAgentRoute = (id: string, ...agentSteps: Array<{ uri: string; tags: string }>) =>
+        new CamelRouteVisualEntity({
+          route: {
+            id,
+            from: {
+              uri: 'platform-http',
+              parameters: { path: '/support' },
+              steps: agentSteps.map(({ uri, tags }) => ({ to: { uri, parameters: { tags } } })),
+            },
+          },
+        }).toVizNode();
+
+      it('links an agent step to every ai-tool route sharing one of its tags with a dashed, labelled edge', async () => {
+        const agentRoute = await getAgentRoute('support-assistant', { uri: 'openai', tags: 'support' });
+        const lookupCustomer = await getToolRoute('lookupCustomer', 'support');
+        const refundOrder = await getToolRoute('refundOrder', 'support');
+
+        const { edges } = await FlowService.getTopologyFlowDiagram([agentRoute, lookupCustomer, refundOrder]);
+
+        expect(edges).toEqual([
+          expect.objectContaining({
+            id: 'support-assistant >>> lookupCustomer (ai-tool)',
+            type: 'topology-edge',
+            source: 'support-assistant',
+            target: 'lookupCustomer',
+            edgeStyle: EdgeStyle.dashed,
+            label: 'support',
+          }),
+          expect.objectContaining({
+            id: 'support-assistant >>> refundOrder (ai-tool)',
+            type: 'topology-edge',
+            source: 'support-assistant',
+            target: 'refundOrder',
+            edgeStyle: EdgeStyle.dashed,
+            label: 'support',
+          }),
+        ]);
+      });
+
+      it('draws a single edge labelled with every shared tag', async () => {
+        const agentRoute = await getAgentRoute(
+          'assistant',
+          { uri: 'langchain4j-agent', tags: 'support, billing' },
+          { uri: 'spring-ai-chat', tags: 'orders,support' },
+        );
+        const toolRoute = await getToolRoute('tool', 'orders,billing,support,other');
+
+        const { edges } = await FlowService.getTopologyFlowDiagram([agentRoute, toolRoute]);
+
+        expect(edges).toHaveLength(1);
+        expect(edges[0]).toMatchObject({
+          source: 'assistant',
+          target: 'tool',
+          edgeStyle: EdgeStyle.dashed,
+          label: 'support, billing, orders',
+        });
+      });
+
+      it('does not link routes without a shared tag', async () => {
+        const agentRoute = await getAgentRoute('assistant', { uri: 'openai', tags: 'support' });
+        const otherTool = await getToolRoute('other-tool', 'billing');
+        const untaggedTool = await getToolRoute('untagged-tool');
+
+        const { edges } = await FlowService.getTopologyFlowDiagram([agentRoute, otherTool, untaggedTool]);
+
+        expect(edges).toEqual([]);
+      });
+
+      it('does not link tags given as property placeholders', async () => {
+        const agentRoute = await getAgentRoute('assistant', { uri: 'openai', tags: '{{tools.tags}}' });
+        const toolRoute = await getToolRoute('tool', '{{tools.tags}}');
+
+        const { edges } = await FlowService.getTopologyFlowDiagram([agentRoute, toolRoute]);
+
+        expect(edges).toEqual([]);
+      });
+
+      it('does not link an ai-tool route to its own agent step', async () => {
+        const toolRoute = await new CamelRouteVisualEntity({
+          route: {
+            id: 'tool',
+            from: {
+              uri: 'ai-tool',
+              parameters: { toolName: 'tool', tags: 'support' },
+              steps: [{ to: { uri: 'openai', parameters: { tags: 'support' } } }],
+            },
+          },
+        }).toVizNode();
+
+        const { edges } = await FlowService.getTopologyFlowDiagram([toolRoute]);
+
+        expect(edges).toEqual([]);
       });
     });
   });

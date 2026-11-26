@@ -84,6 +84,16 @@ describe('buildDesignerOverlayTargetSnapshot', () => {
     ]);
   });
 
+  it('excludes the links from the agent routes to their tools', () => {
+    const model = buildDesignerCanvasModel([createFlow('route-1')]);
+    model.edges.push({ id: 'ai-link', type: 'topology-edge', source: 'route-1|log-1', target: 'route-1|route-1' });
+
+    expect(buildDesignerOverlayTargetSnapshot(scope, model, []).targets).not.toContainEqual({
+      kind: 'edge',
+      id: 'ai-link',
+    });
+  });
+
   it('retains duplicate node, edge, and route identities for ambiguity reporting', () => {
     const model = buildDesignerCanvasModel([createFlow('route-1')]);
     model.nodes.push({ ...model.nodes[0] });
