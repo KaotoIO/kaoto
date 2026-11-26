@@ -308,6 +308,57 @@ describe('useTestResultOverlays', () => {
     const rootHighlight = entriesAfterReload.find((e) => e.id === 'test-hl-test|root');
     expect(rootHighlight?.tone).toBe('error');
   });
+  it('ignores a report that resolves after a new test run started', async () => {
+    let resolveReport: (report: TestReportEntry) => void = () => {};
+    const getTestReport = vi.fn().mockReturnValue(
+      new Promise<TestReportEntry>((resolve) => {
+        resolveReport = resolve;
+      }),
+    );
+    const bus = createMockBus();
+    const { model, entities, wrapper } = setup({ getTestReport, bus });
+
+    const { result } = renderHook(() => useTestResultOverlays(model, entities), { wrapper });
+
+    await waitFor(() => {
+      expect(getTestReport).toHaveBeenCalledTimes(1);
+    });
+
+    act(() => {
+      bus.fire('host:testRun:started', null);
+    });
+    await act(async () => {
+      resolveReport(successReport);
+    });
+
+    expect(result.current!.store.getState().layers.flatMap((l) => l.entries)).toHaveLength(0);
+  });
+
+  it('ignores a report failure that arrives after a new test run started', async () => {
+    let rejectReport: (error: Error) => void = () => {};
+    const getTestReport = vi.fn().mockReturnValue(
+      new Promise<TestReportEntry>((_resolve, reject) => {
+        rejectReport = reject;
+      }),
+    );
+    const bus = createMockBus();
+    const { model, entities, wrapper } = setup({ getTestReport, bus });
+
+    const { result } = renderHook(() => useTestResultOverlays(model, entities), { wrapper });
+
+    await waitFor(() => {
+      expect(getTestReport).toHaveBeenCalledTimes(1);
+    });
+
+    act(() => {
+      bus.fire('host:testRun:started', null);
+    });
+    await act(async () => {
+      rejectReport(new Error('Network error'));
+    });
+
+    expect(result.current!.store.getState().layers.flatMap((l) => l.entries)).toHaveLength(0);
+  });
 
   it('subscribes and unsubscribes bus events on mount/unmount', () => {
     const bus = createMockBus();
