@@ -18,8 +18,8 @@ import { DeleteConfirmModal } from '../DeleteConfirmModal/DeleteConfirmModal';
 import { ErrorState } from '../ErrorState/ErrorState';
 import { buildTree } from './build-tree';
 import { ExplorerFile } from './explorer-file';
-import { ExplorerActions } from './ExplorerEntry';
-import { ExplorerTree } from './ExplorerTree';
+import { ExplorerActions, NEW_ENTRY_ROW_ID } from './ExplorerEntry';
+import { ExplorerTree, ExplorerTreeHandle } from './ExplorerTree';
 import { getFolderKeysOnPath } from './folder-keys-on-path';
 import { getFolderPathForNewEntry, ROOT_TARGET } from './folder-path-for-new-entry';
 import { CreatedEntry, NewEntryKind } from './NewEntryField';
@@ -29,7 +29,10 @@ interface NewEntry {
   kind: NewEntryKind;
   /** The folder it is created in, empty for the root */
   folderPath: string;
-  /** Changes with every start, so that a new start mounts a new field */
+  /**
+   * Unique while the Explorer is mounted, also after the field closed, so that a new start mounts a new field and a
+   * late report of an earlier field never matches the field open now
+   */
   key: number;
   /** The button that started creating, to focus again when creating is cancelled with Escape */
   opener: HTMLElement;
@@ -52,7 +55,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ onResizerMouseDown 
   /** The entry the delete confirmation asks about, with its path taken when it was asked for */
   const [toDelete, setToDelete] = useState<{ node: ExplorerFile; path: string }>();
   const [renamingId, setRenamingId] = useState<string>();
-  const treeRef = useRef<HTMLDivElement>(null);
+  const treeHandleRef = useRef<ExplorerTreeHandle>(null);
   const addButtonRef = useRef<HTMLButtonElement>(null);
   /** The button that opened the Create New File modal */
   const createOpenerRef = useRef<HTMLElement | null>(null);
@@ -84,6 +87,17 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ onResizerMouseDown 
   }
 
   const [newEntry, setNewEntry] = useState<NewEntry>();
+  /**
+   * The name fields open now, read when a store finishes: by then the field that started it may have unmounted, or
+   * another field may have taken its place, which the late report must not close
+   */
+  const openFieldsRef = useRef<{ renamingId?: string; newEntryKey?: number }>({});
+  useEffect(
+    function rememberOpenFields() {
+      openFieldsRef.current = { renamingId, newEntryKey: newEntry?.key };
+    },
+    [renamingId, newEntry],
+  );
   const renaming = renamingId ? entries.find((entry) => entry.key === renamingId) : undefined;
   const renamingPath = renaming?.path;
   const rows = useMemo(
@@ -126,16 +140,27 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ onResizerMouseDown 
   const [focusNode, setFocusNode] = useState<{ nodeId: string }>();
   useEffect(() => {
     if (!focusNode) return;
-    const target =
-      document.getElementById(focusNode.nodeId) ??
-      treeRef.current?.querySelector<HTMLElement>('[role="treeitem"]') ??
-      addButtonRef.current;
-    target?.focus();
+    const tree = treeHandleRef.current;
+    if (tree?.focusRow(focusNode.nodeId) || tree?.focusFirstRow()) return;
+    addButtonRef.current?.focus();
   }, [focusNode]);
 
+  /**
+   * Scrolls the name field of a new entry, or of the entry being renamed, into view: only the rows in view are
+   * rendered, and the field focuses itself once it is.
+   */
+  useEffect(
+    function scrollNameFieldIntoView() {
+      const fieldRowId = newEntry ? NEW_ENTRY_ROW_ID : renamingId;
+      if (fieldRowId) treeHandleRef.current?.scrollToRow(fieldRowId);
+    },
+    [newEntry, renamingId],
+  );
+
   /** A renamed entry keeps its key, so it stays expanded and is focused again by the same id */
-  const finishRename = (byKeyboard: boolean) => {
-    if (byKeyboard && renamingId) setFocusNode({ nodeId: renamingId });
+  const finishRename = (entryKey: string, byKeyboard: boolean) => {
+    if (openFieldsRef.current.renamingId !== entryKey) return;
+    if (byKeyboard) setFocusNode({ nodeId: entryKey });
     setRenamingId(undefined);
   };
 
@@ -144,16 +169,20 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ onResizerMouseDown 
     setIsCreateOpen(true);
   };
 
+  /** The key of the last new entry started, see NewEntry.key */
+  const newEntryKeyRef = useRef(0);
   const startCreate = (kind: NewEntryKind, event: React.MouseEvent<HTMLElement>) => {
     const opener = event.currentTarget;
     const folderPath = getFolderPathForNewEntry(entries, lastFocusedNodeRef.current, selectedId);
     // The search would hide the new entry
     setSearchText('');
     expandFolders(getFolderKeysOnPath(entries, folderPath));
-    setNewEntry((previous) => ({ kind, folderPath, key: (previous?.key ?? 0) + 1, opener }));
+    newEntryKeyRef.current += 1;
+    setNewEntry({ kind, folderPath, key: newEntryKeyRef.current, opener });
   };
 
-  const finishCreate = (byKeyboard: boolean, created: CreatedEntry | undefined) => {
+  const finishCreate = (fieldKey: number, byKeyboard: boolean, created: CreatedEntry | undefined) => {
+    if (openFieldsRef.current.newEntryKey !== fieldKey) return;
     setNewEntry(undefined);
     if (!created) {
       if (byKeyboard) newEntry?.opener.focus();
@@ -277,7 +306,6 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ onResizerMouseDown 
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
       <div
         className="cs--explorer__tree"
-        ref={treeRef}
         data-testid="explorer-tree"
         onMouseDown={(event) => {
           if (!(event.target as HTMLElement).closest('[role="treeitem"]')) {
@@ -309,6 +337,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ onResizerMouseDown 
         )}
         {!loading && !error && (tree.length > 0 || newEntry) && (
           <ExplorerTree
+            ref={treeHandleRef}
             rows={rows}
             openFileKey={selectedId}
             focusedRowId={focusedRowId}

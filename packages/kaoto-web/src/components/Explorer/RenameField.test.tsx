@@ -178,7 +178,7 @@ describe('RenameField', () => {
     expect(rename).toHaveBeenCalledTimes(1);
   });
 
-  it('does not report a rename that finishes after the field was replaced', async () => {
+  it('reports a rename that finishes after the field was unmounted', async () => {
     let release: () => void = () => undefined;
     const realRename = indexedDbStorage.moveFile.bind(indexedDbStorage);
     const rename = vi.spyOn(indexedDbStorage, 'moveFile').mockImplementation(async (path, newPath) => {
@@ -197,7 +197,7 @@ describe('RenameField', () => {
     await waitFor(() => {
       expect(rename).toHaveBeenCalled();
     });
-    // Another file's field takes this one's place while the rename is still running
+    // The renamed file sorts out of the rendered rows while the rename is still running
     unmount();
     await act(async () => {
       release();
@@ -206,7 +206,7 @@ describe('RenameField', () => {
     await waitFor(async () => {
       await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
     });
-    expect(onDone).not.toHaveBeenCalled();
+    expect(onDone).toHaveBeenCalledWith(false);
   });
 
   it('leaves Enter and Escape to an IME composition', async () => {

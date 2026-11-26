@@ -58,13 +58,25 @@
 }
 
 .cs--explorer__tree {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  min-block-size: 0;
   overflow-y: auto;
   padding-block: $spacing-01;
+
+  // The tree's own space above and below the rows scrolls with them, see .cs--explorer__tree-edge
+  &:has(> .cs--explorer__tree-rows) {
+    padding-block: 0;
+  }
 }
 
-// The rows of our own tree. Each row is indented by its depth, see ExplorerEntry: --cs-explorer-row-depth
+// The rows of our own tree. Each row is indented by its depth, see ExplorerEntry: --cs-explorer-row-depth. The tree
+// takes the height left, and its virtual list scrolls in it, so that only the rows in view are rendered
 .cs--explorer__tree-rows {
+  flex: 1;
+  min-block-size: 0;
+
   // Per level, and where a row of the root starts its chevron
   --cs-explorer-indent: #{$spacing-05};
   --cs-explorer-row-start: #{$spacing-02};
@@ -76,6 +88,10 @@
     // The rows are inset by this much instead
     --cs-explorer-row-start: 0px;
   }
+}
+
+.cs--explorer__tree-edge {
+  block-size: $spacing-01;
 }
 
 .cs--explorer__row {

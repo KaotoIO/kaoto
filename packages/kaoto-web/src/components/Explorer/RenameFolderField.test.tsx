@@ -139,7 +139,8 @@ describe('RenameFolderField', () => {
     unmount();
     finishRename();
 
-    await waitFor(() => {});
-    expect(onDone).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(onDone).toHaveBeenCalledWith(true);
+    });
   });
 });

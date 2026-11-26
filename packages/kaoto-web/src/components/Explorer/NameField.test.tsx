@@ -206,7 +206,7 @@ describe('NameField', () => {
     expect(commit).toHaveBeenCalledTimes(1);
   });
 
-  it('does not report a commit that finishes after the field was unmounted', async () => {
+  it('reports a commit that finishes after the field was unmounted, e.g. when its row left the rendered rows', async () => {
     let release: () => void = () => undefined;
     commit.mockImplementation(
       () =>
@@ -224,7 +224,7 @@ describe('NameField', () => {
       release();
     });
 
-    expect(onDone).not.toHaveBeenCalled();
+    expect(onDone).toHaveBeenCalledWith(true);
   });
 
   it('leaves Enter and Escape to an IME composition', () => {
