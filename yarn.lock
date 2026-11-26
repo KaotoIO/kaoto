@@ -2846,6 +2846,7 @@ __metadata:
     stylelint-use-logical-spec: "npm:^6.0.0"
     typescript: "npm:^6.0.0"
     typescript-eslint: "npm:^8.71.0"
+    usehooks-ts: "npm:^3.0.0"
     vite: "npm:^8.3.0"
     vite-plugin-dts: "npm:^5.1.1"
     vite-plugin-static-copy: "npm:^4.1.1"
