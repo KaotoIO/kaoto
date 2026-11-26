@@ -13,19 +13,25 @@ import { CanvasNode } from '../components/Visualization/Canvas/canvas.models';
  *   doTry:        steps → doCatch → doFinally
  *   circuitBreaker: steps → onFallback
  *   routeConfiguration: intercept → interceptFrom → interceptSendToEndpoint → onException → onCompletion
+ *   pipe / kamelet binding: source → steps → sink
+ *
+ * The ranks share a single space, so `steps` has to stay between `source` and `sink` as well as
+ * ahead of the branch properties it is a sibling of.
  */
 const SEGMENT_ORDER: Record<string, number> = {
-  steps: 0,
-  intercept: 0,
-  when: 1,
-  doCatch: 1,
-  onFallback: 1,
-  interceptFrom: 1,
-  otherwise: 2,
-  doFinally: 2,
-  interceptSendToEndpoint: 2,
-  onException: 3,
-  onCompletion: 4,
+  source: 0,
+  steps: 1,
+  intercept: 1,
+  when: 2,
+  doCatch: 2,
+  onFallback: 2,
+  interceptFrom: 2,
+  otherwise: 3,
+  doFinally: 3,
+  interceptSendToEndpoint: 3,
+  onException: 4,
+  onCompletion: 5,
+  sink: 6,
 };
 
 /**
