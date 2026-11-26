@@ -27,6 +27,8 @@ const NS_P = 'urn:p';
 export const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
 export const NS_CHOICE_ABSTRACT = 'http://www.example.com/CHOICE_ABSTRACT';
 export const NOTIFICATION = { namespaceUri: NS_CHOICE_ABSTRACT, name: 'Notification' };
+export const NS_HL7_V2 = 'urn:hl7-org:v2xml';
+export const ORM_O01 = { namespaceUri: NS_HL7_V2, name: 'ORM_O01' };
 
 export const parseXsdDocument = (
   documentType: DocumentType,

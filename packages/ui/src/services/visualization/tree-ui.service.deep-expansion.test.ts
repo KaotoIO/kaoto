@@ -6,7 +6,7 @@ import {
   IDocument,
   IField,
 } from '../../models/datamapper/document';
-import { DocumentTree, FlattenedNode } from '../../models/datamapper/document-tree';
+import { FlattenedNode } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { MappingItem, MappingTree } from '../../models/datamapper/mapping';
 import {
@@ -18,6 +18,12 @@ import {
 import { MappingService } from '../../services/mapping/mapping.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import { getFieldSubstitutionXsd, getWideDeepXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
+import {
+  expandChain,
+  parseChild,
+  refreshTargetMappingTree,
+  resetDocumentTrees,
+} from '../../stubs/datamapper/document-tree-test-helpers';
 import { processTreeNode } from '../../utils';
 import { FieldOverrideService } from '../document/field-override.service';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
@@ -52,13 +58,6 @@ function findField(parent: IDocument | IField, name: string, ...descendantNames:
   return field;
 }
 
-function parseChild(node: DocumentTreeNode, title: string): DocumentTreeNode {
-  if (!node.isParsed) TreeParsingService.parseTreeNode(node);
-  const child = node.children.find((candidate) => candidate.nodeData.title === title);
-  if (!child) throw new Error(`No row titled '${title}' under ${node.path}`);
-  return child;
-}
-
 function findVisibleRow(rows: FlattenedNode[], mapping: MappingItem | undefined): FlattenedNode {
   const row = rows.find(
     ({ treeNode }) => treeNode.nodeData instanceof MappingNodeData && treeNode.nodeData.mapping === mapping,
@@ -90,33 +89,13 @@ function createGuardedDeepLeaf() {
   return { leafItem, selector, guard, createTargetTree };
 }
 
-function expandChain(tree: DocumentTree, titles: string[]): DocumentTreeNode {
-  const documentId = tree.documentNodeId;
-  let chainRow = tree.contentRoots[0];
-  for (const title of titles) {
-    chainRow = parseChild(chainRow, title);
-    if (!useDocumentTreeStore.getState().isExpanded(documentId, chainRow.path)) {
-      TreeUIService.toggleNode(documentId, chainRow.path);
-    }
-  }
-  return chainRow;
-}
-
 describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
   beforeEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (TreeUIService as any).trees.clear();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (TreeUIService as any).fieldItemSnapshots.clear();
-    useDocumentTreeStore.setState({ expansionState: {}, expansionStateArray: {} });
+    resetDocumentTrees();
   });
 
   afterEach(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (TreeUIService as any).trees.clear();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (TreeUIService as any).fieldItemSnapshots.clear();
-    useDocumentTreeStore.setState({ expansionState: {}, expansionStateArray: {} });
+    resetDocumentTrees();
   });
 
   /**
@@ -921,5 +900,39 @@ describe('TreeUIService — deep expansion preservation (issue #3811)', () => {
     expect(ifRow.treeNode.parent?.path).toBe(l4Row.path);
     expect(useDocumentTreeStore.getState().isExpanded(documentId, ifRow.path)).toBe(false);
     expect(() => findVisibleRow(visibleRows, leafItem)).toThrow();
+  });
+
+  /**
+   * Regression for #4158. Every `updateDocument` call (a choice or abstract selection, a type override) runs
+   * `removeStaleMappingsForDocument` before the tree is rebuilt. When that cleanup replaced each FieldItem with a
+   * new instance, the snapshot diff saw the mapped ancestors as removed and re-created, could no longer derive the
+   * old paths of the rows below them, and dropped their expansion keys. Rows below the parse frontier then came
+   * back collapsed, in any document that already had a mapping.
+   */
+  it('should keep below-frontier rows expanded across the stale-mapping cleanup of a document update', () => {
+    const targetDoc = createWideDeepTargetDoc();
+    let mappingTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+    // An existing mapping elsewhere in the document makes the root row a FieldItem.
+    const wideDeepItem = MappingService.createFieldItem(mappingTree, findField(targetDoc, 'WideDeep'));
+    const wideItem = MappingService.createFieldItem(wideDeepItem, findField(wideDeepItem.field, 'wide_01'));
+    const leafItem = MappingService.createFieldItem(wideItem, findField(wideItem.field, 'w01_c01'));
+    leafItem.children.push(MappingService.createValueOfSelector(leafItem));
+
+    const tree1 = TreeUIService.createTree(new TargetDocumentNodeData(targetDoc, mappingTree));
+    const documentId = tree1.documentNodeId;
+    expandChain(tree1, ['deep_chain', 'L2', 'L3', 'L4']);
+
+    mappingTree = refreshTargetMappingTree(mappingTree, targetDoc, { isDocumentUpdate: true });
+    const tree2 = TreeUIService.createTree(new TargetDocumentNodeData(targetDoc, mappingTree));
+
+    const deepChain = parseChild(tree2.contentRoots[0], 'deep_chain');
+    const l2 = parseChild(deepChain, 'L2');
+    const l3 = parseChild(l2, 'L3');
+    const l4 = parseChild(l3, 'L4');
+    const store = useDocumentTreeStore.getState();
+    expect(store.isExpanded(documentId, deepChain.path)).toBe(true);
+    expect(store.isExpanded(documentId, l2.path)).toBe(true);
+    expect(store.isExpanded(documentId, l3.path)).toBe(true);
+    expect(store.isExpanded(documentId, l4.path)).toBe(true);
   });
 });

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  A trimmed copy of the HL7 v2.5 ORM_O01 message structure (issue #4158).
+  It keeps the shape that matters: wide MSH and PATIENT segments ahead of the orders, so the
+  ORDER_CHOICE row sits below the initial parse frontier (INITIAL_FIELD_COUNTS), a repeating ORDER
+  group, a deeper ORDER_DETAIL group and the ORDER_CHOICE group whose content is an xs:choice of
+  order segments. The choice itself is not repeating, so a target-side selection is document level. OBR.4 is a composite (CE) with children.
+-->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="urn:hl7-org:v2xml"
+            targetNamespace="urn:hl7-org:v2xml"
+            elementFormDefault="qualified">
+
+  <xsd:complexType name="CE">
+    <xsd:sequence>
+      <xsd:element name="CE.1" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="CE.2" type="xsd:string" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="HD">
+    <xsd:sequence>
+      <xsd:element name="HD.1" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="HD.2" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="HD.3" type="xsd:string" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="MSH">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="MSH.1" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.2" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.3" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.4" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.5" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.6" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.7" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.8" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.9" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.10" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.11" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.12" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.13" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.14" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.15" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.16" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.17" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.18" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.19" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.20" type="HD" minOccurs="0"/>
+        <xsd:element name="MSH.21" type="HD" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="PID">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="PID.1" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.2" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.3" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.4" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.5" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.6" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.7" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.8" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.9" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.10" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.11" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.12" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.13" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.14" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.15" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.16" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.17" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.18" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.19" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="PID.20" type="xsd:string" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="ORM_O01.PATIENT.CONTENT">
+    <xsd:sequence>
+      <xsd:element ref="PID"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="ORM_O01.PATIENT" type="ORM_O01.PATIENT.CONTENT"/>
+
+  <xsd:element name="ORC">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ORC.1" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="NTE">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="NTE.1" type="xsd:string" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="OBR">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="OBR.1" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="OBR.2" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="OBR.3" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="OBR.4" type="CE"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="RQD">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="RQD.1" type="xsd:string" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="RXO">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="RXO.1" type="CE"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="ORM_O01.ORDER_CHOICE.CONTENT">
+    <xsd:choice>
+      <xsd:element ref="OBR"/>
+      <xsd:element ref="RQD"/>
+      <xsd:element ref="RXO"/>
+    </xsd:choice>
+  </xsd:complexType>
+  <xsd:element name="ORM_O01.ORDER_CHOICE" type="ORM_O01.ORDER_CHOICE.CONTENT"/>
+
+  <xsd:complexType name="ORM_O01.ORDER_DETAIL.CONTENT">
+    <xsd:sequence>
+      <xsd:element ref="ORM_O01.ORDER_CHOICE"/>
+      <xsd:element ref="NTE" minOccurs="0" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="ORM_O01.ORDER_DETAIL" type="ORM_O01.ORDER_DETAIL.CONTENT"/>
+
+  <xsd:complexType name="ORM_O01.ORDER.CONTENT">
+    <xsd:sequence>
+      <xsd:element ref="ORC"/>
+      <xsd:element ref="ORM_O01.ORDER_DETAIL" minOccurs="0"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="ORM_O01.ORDER" type="ORM_O01.ORDER.CONTENT"/>
+
+  <xsd:complexType name="ORM_O01.CONTENT">
+    <xsd:sequence>
+      <xsd:element ref="MSH"/>
+      <xsd:element ref="ORM_O01.PATIENT" minOccurs="0"/>
+      <xsd:element ref="ORM_O01.ORDER" maxOccurs="unbounded"/>
+    </xsd:sequence>
+  </xsd:complexType>
+  <xsd:element name="ORM_O01" type="ORM_O01.CONTENT"/>
+</xsd:schema>

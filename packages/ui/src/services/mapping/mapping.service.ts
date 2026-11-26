@@ -288,7 +288,7 @@ export class MappingService {
       if (child instanceof FieldItem) {
         compatibleField = DocumentService.getCompatibleField(document, child.field);
         if (compatibleField) {
-          child = MappingService.updateFieldItemField(child, compatibleField);
+          MappingService.rebindFieldItemField(child, compatibleField);
         }
       }
       if (
@@ -305,9 +305,30 @@ export class MappingService {
     }, [] as MappingItem[]);
   }
 
+  /**
+   * Points a FieldItem at the field that matches it in an updated document, keeping the item itself. The target
+   * tree keys each mapped row and its expansion state on the item's id, and `TreeUIService` tells created and
+   * removed items apart by identity, so replacing the item on every document update would collapse its row and
+   * everything below it, and would drop what only the item carries, such as its comment.
+   * @param item - the field item to rebind
+   * @param field - the matching field of the updated document
+   */
+  private static rebindFieldItemField(item: FieldItem, field: IField): void {
+    item.field = field;
+    item.name = field.id;
+  }
+
+  /**
+   * Replaces a FieldItem with a new one for another field, such as the member a wrapper selection picks. The new
+   * item takes over the children, the user-created flag and the comment.
+   * @param item - the field item to replace
+   * @param newField - the field the new item maps
+   * @returns the new field item, already in the item's place under its parent
+   */
   static updateFieldItemField(item: FieldItem, newField: IField): FieldItem {
     const updated = new FieldItem(item.parent, newField);
     updated.isUserCreated = item.isUserCreated;
+    updated.comment = item.comment;
     MappingService.adaptChildren(item, updated);
     item.parent.children = item.parent.children.map((child) => (child === item ? updated : child));
     return updated;
