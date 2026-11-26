@@ -21,9 +21,17 @@
   background-color: $background;
   border-block-end: 1px solid $border-subtle;
 
-  // One bar with the header above it
+  // The lower part of the header card (see Nav.scss), inset by the padding of the layout like the cards below it. That
+  // padding is then already behind the toolbar, and its border is in front of the columns, so the editor starts after
+  // the Explorer and the gap, less the border.
   @include kaoto.kaoto-theme {
-    border-block-end-color: var(--cs-tint-strong);
+    --cs-editor-start: calc(var(--cs-explorer-inline-size, 0px) + var(--cs-project-layout-gap, 0px) - 1px);
+
+    margin-inline: $spacing-03; // the padding of the layout
+    border: 1px solid $border-subtle;
+    border-block-start: none;
+    border-end-start-radius: kaoto.$card-radius;
+    border-end-end-radius: kaoto.$card-radius;
     background-color: var(--cs-tint);
   }
 }

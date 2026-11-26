@@ -12,11 +12,87 @@
   display: block;
 }
 
-// One bar with the project toolbar below it
+// The header floats as a card on the page background, like the Explorer and the editor. On a project page it forms one
+// card with the project toolbar below it (see ProjectToolbar.scss), elsewhere it is a card of its own. It clips its
+// content to the rounded corners, e.g. the highlight of the menu button.
 .cds--header {
   @include kaoto.kaoto-theme {
-    border-block-end: none;
+    inset-block-start: $spacing-03;
+    inset-inline: $spacing-03;
+    inline-size: auto;
+    overflow: hidden;
+    border: 1px solid $border-subtle;
+    border-radius: kaoto.$card-radius;
     background-color: var(--cs-tint);
+  }
+}
+
+// The project toolbar continues the card below the header
+body:has(.cs--project-toolbar) .cds--header {
+  @include kaoto.kaoto-theme {
+    border-block-end: none;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+}
+
+// The menu button is inset and rounded like the rows of the Explorer, instead of Carbon's square cell at the edge of the
+// header. Hovered, and while the side navigation is open, it shows the tint of an open entry instead of Carbon's white
+// layer. Its focus ring shows for the keyboard only, not after a click.
+.cds--header__menu-toggle {
+  @include kaoto.kaoto-theme {
+    inline-size: $spacing-08;
+    block-size: $spacing-08;
+    margin-inline: $spacing-02;
+    border: none;
+    border-radius: kaoto.$control-radius;
+
+    &:hover,
+    &.cds--header__action--active {
+      background-color: var(--cs-tint-strong);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $focus;
+      outline-offset: -2px;
+    }
+  }
+}
+
+// The content starts below the header card
+.cs--content {
+  @include kaoto.kaoto-theme {
+    /* stylelint-disable-next-line carbon/layout-use -- the height of the header and the gap above it */
+    margin-block-start: calc(#{$spacing-09} + #{$spacing-03});
+  }
+}
+
+// The side navigation floats as a card over the content, below the header card, and moves nothing aside. On a project
+// page the header card also holds the project toolbar, so the navigation starts below that.
+.cds--side-nav.cds--side-nav--expanded {
+  @include kaoto.kaoto-theme {
+    /* stylelint-disable-next-line carbon/layout-use -- below the header card: its height and a gap above and below */
+    inset-block: calc(#{$spacing-09} + 2 * #{$spacing-03}) $spacing-03;
+    inset-inline-start: $spacing-03;
+    block-size: auto;
+    overflow: hidden;
+    border: 1px solid $border-subtle;
+    border-radius: kaoto.$card-radius;
+    background-color: var(--cs-tint);
+    box-shadow: 0 2px 6px $shadow;
+  }
+}
+
+body:has(.cs--project-toolbar) .cds--side-nav.cds--side-nav--expanded {
+  @include kaoto.kaoto-theme {
+    /* stylelint-disable-next-line carbon/layout-use -- below the header card with the project toolbar */
+    inset-block-start: calc(#{$spacing-09} + #{$spacing-08} + 2 * #{$spacing-03});
+  }
+}
+
+.cds--side-nav--expanded ~ .cds--content {
+  @include kaoto.kaoto-theme {
+    margin-inline-start: 0;
   }
 }
 
