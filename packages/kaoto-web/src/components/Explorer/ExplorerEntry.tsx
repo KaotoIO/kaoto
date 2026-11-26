@@ -17,8 +17,10 @@ export interface ExplorerActions {
   /** Starts renaming the file or folder with the tree node id */
   requestRename: (nodeId: string) => void;
   requestDelete: (node: ExplorerFile) => void;
-  finishRename: (byKeyboard: boolean) => void;
-  finishCreate: (byKeyboard: boolean, created: CreatedEntry | undefined) => void;
+  /** Closes the rename field of the entry with the key, unless another field has taken its place */
+  finishRename: (entryKey: string, byKeyboard: boolean) => void;
+  /** Closes the new entry field with the key, unless another field has taken its place */
+  finishCreate: (fieldKey: number, byKeyboard: boolean, created: CreatedEntry | undefined) => void;
 }
 
 interface ExplorerEntryProps {
@@ -85,7 +87,13 @@ export const ExplorerEntry: FunctionComponent<ExplorerEntryProps> = ({
       >
         <EntryIcon row={row} />
         <span className="cs--explorer__row-label">
-          <NewEntryField kind={row.entryKind} folderPath={row.folderPath} onDone={actions.finishCreate} />
+          <NewEntryField
+            kind={row.entryKind}
+            folderPath={row.folderPath}
+            onDone={(byKeyboard, created) => {
+              actions.finishCreate(row.key, byKeyboard, created);
+            }}
+          />
         </span>
       </div>
     );
@@ -118,11 +126,14 @@ export const ExplorerEntry: FunctionComponent<ExplorerEntryProps> = ({
 
   let label: ReactNode;
   if (renaming?.key === node.id) {
+    const finishRename = (byKeyboard: boolean) => {
+      actions.finishRename(renaming.key, byKeyboard);
+    };
     label =
       renaming.kind === 'folder' ? (
-        <RenameFolderField folder={renaming} onDone={actions.finishRename} />
+        <RenameFolderField folder={renaming} onDone={finishRename} />
       ) : (
-        <RenameField file={renaming} onDone={actions.finishRename} />
+        <RenameField file={renaming} onDone={finishRename} />
       );
   } else {
     label = (

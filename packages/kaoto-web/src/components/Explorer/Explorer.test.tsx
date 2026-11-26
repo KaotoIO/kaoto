@@ -17,6 +17,7 @@ import {
   withFiles,
 } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
+import { VirtuosoTestViewport } from '../../test/virtuoso';
 import { buildTree } from './build-tree';
 import { Explorer } from './Explorer';
 import { filterFiles } from './filterFiles';
@@ -33,7 +34,12 @@ const expectStoredAt = async (id: string, path: string) => {
 /** Stands in for the handler the project layout passes; the resizing itself is tested with `usePanelResizer` */
 const onResizerMouseDown = vi.fn();
 
-const ExplorerUnderTest = () => <Explorer onResizerMouseDown={onResizerMouseDown} />;
+/** The Explorer in a viewport of the given height; the default shows every row of the test projects */
+const ExplorerUnderTest = ({ viewportHeight }: { viewportHeight?: number }) => (
+  <VirtuosoTestViewport viewportHeight={viewportHeight}>
+    <Explorer onResizerMouseDown={onResizerMouseDown} />
+  </VirtuosoTestViewport>
+);
 
 /** Serves the starter template of a Camel Route YAML from the catalog, as the Create new file dialog loads it */
 const stubStarterTemplates = () =>
@@ -53,11 +59,11 @@ const stubStarterTemplates = () =>
     }),
   );
 
-const renderComponent = () =>
+const renderComponent = (viewportHeight?: number) =>
   render(
     <MemoryRouter initialEntries={['/workspace']}>
       <Routes>
-        <Route path="/workspace" element={withFiles(<ExplorerUnderTest />)} />
+        <Route path="/workspace" element={withFiles(<ExplorerUnderTest viewportHeight={viewportHeight} />)} />
       </Routes>
     </MemoryRouter>,
   );
@@ -1147,6 +1153,67 @@ describe('Explorer', () => {
     });
   });
 
+  describe('with more rows than fit in view', () => {
+    /** 30 folders, each with a file, and two files at the root after them */
+    const LONG_PROJECT = [
+      ...Array.from({ length: 30 }, (_, index) => ({
+        path: `folder-${String(index).padStart(2, '0')}/notes.txt`,
+        content: '',
+      })),
+      { path: 'aaa.txt', content: '' },
+      { path: 'bbb.txt', content: '' },
+    ];
+
+    /** The Explorer with room for three rows of 32px only */
+    const renderLongExplorer = async () => {
+      resetTestIndexedDB();
+      await storeTestFiles(LONG_PROJECT);
+      renderComponent(96);
+      await screen.findByTestId('explorer-folder-folder-00');
+    };
+
+    it('opens the name field of a new file in view when its place is out of view', async () => {
+      const user = userEvent.setup();
+      await renderLongExplorer();
+      // The new file goes to the root, after the 30 folders
+      expect(screen.queryByTestId('explorer-file-aaa.txt')).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'New file' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('explorer-new-input')).toHaveFocus();
+      });
+    });
+
+    it('keeps the focus on a renamed folder that moves out of view', async () => {
+      const user = userEvent.setup();
+      await renderLongExplorer();
+      act(() => {
+        screen.getByTestId('explorer-folder-folder-00').focus();
+      });
+      // One key at a time: End scrolls first, and its row is focused once it is rendered
+      for (const [key, focused] of [
+        ['{End}', 'explorer-file-bbb.txt'],
+        ['{ArrowUp}', 'explorer-file-aaa.txt'],
+        ['{ArrowUp}', 'explorer-folder-folder-29'],
+      ]) {
+        await user.keyboard(key);
+        await waitFor(() => {
+          expect(screen.getByTestId(focused)).toHaveFocus();
+        });
+      }
+      // The top of the tree is out of the rendered range now
+      expect(screen.queryByTestId('explorer-folder-folder-00')).not.toBeInTheDocument();
+
+      // The new name sorts the folder to the top
+      await user.keyboard('{F2}{Control>}a{/Control}a-folder{Enter}');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('explorer-folder-a-folder')).toHaveFocus();
+      });
+    });
+  });
+
   describe('creating inline', () => {
     const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
 
@@ -1241,6 +1308,71 @@ describe('Explorer', () => {
       expect(await screen.findByTestId('explorer-folder-schemas')).toBeInTheDocument();
     });
 
+    it('keeps the next new folder field open when the previous one is stored after it opened', async () => {
+      let finishStoring!: () => void;
+      const storing = new Promise<void>((resolve) => {
+        finishStoring = resolve;
+      });
+      const createFolder = indexedDbStorage.createFolder.bind(indexedDbStorage);
+      vi.spyOn(indexedDbStorage, 'createFolder').mockImplementationOnce(async (...args) => {
+        await storing;
+        return createFolder(...args);
+      });
+      const user = userEvent.setup();
+      renderComponent();
+      await screen.findByTestId('explorer-folder-integrations');
+
+      await user.click(screen.getByRole('button', { name: 'New folder' }));
+      await user.keyboard('schemas{Enter}');
+      // The next field takes the place of the first one while its folder is still being stored
+      await user.click(screen.getByRole('button', { name: 'New folder' }));
+      const next = nameInput();
+      await act(async () => {
+        finishStoring();
+        await storing;
+      });
+
+      await waitFor(async () => {
+        expect(await storedFolders()).toContain('schemas');
+      });
+      expect(nameInput()).toBe(next);
+    });
+
+    it('keeps a later new folder field open when an earlier one is stored after two more fields opened', async () => {
+      let finishStoring!: () => void;
+      const storing = new Promise<void>((resolve) => {
+        finishStoring = resolve;
+      });
+      const createFolder = indexedDbStorage.createFolder.bind(indexedDbStorage);
+      vi.spyOn(indexedDbStorage, 'createFolder').mockImplementationOnce(async (...args) => {
+        await storing;
+        return createFolder(...args);
+      });
+      const user = userEvent.setup();
+      renderComponent();
+      await screen.findByTestId('explorer-folder-integrations');
+
+      // The first folder is still being stored while a second one is created and a third one is started
+      await user.click(screen.getByRole('button', { name: 'New folder' }));
+      await user.keyboard('schemas{Enter}');
+      await user.click(screen.getByRole('button', { name: 'New folder' }));
+      await user.keyboard('maps{Enter}');
+      await waitFor(async () => {
+        expect(await storedFolders()).toContain('maps');
+      });
+      await user.click(screen.getByRole('button', { name: 'New folder' }));
+      await user.keyboard('drafts');
+      await act(async () => {
+        finishStoring();
+        await storing;
+      });
+
+      await waitFor(async () => {
+        expect(await storedFolders()).toContain('schemas');
+      });
+      expect(nameInput()).toHaveValue('drafts');
+    });
+
     it('still opens a new file when its folder is collapsed while the file is stored', async () => {
       serveCatalog();
       const serveFile = vi.mocked(fetch).getMockImplementation()!;
@@ -1283,7 +1415,8 @@ describe('Explorer', () => {
       expect(folder).toHaveAttribute('aria-expanded', 'true');
       // The rows are flat: the name field is the first row in the folder, one level deeper
       const newEntryRow = screen.getByTestId('explorer-new-entry');
-      expect(folder.nextElementSibling).toBe(newEntryRow);
+      const treeItems = screen.getAllByRole('treeitem');
+      expect(treeItems.indexOf(newEntryRow)).toBe(treeItems.indexOf(folder) + 1);
       expect(newEntryRow).toHaveAttribute('aria-level', String(Number(folder.getAttribute('aria-level')) + 1));
       expect(newEntryRow).toContainElement(nameInput());
       await user.keyboard('xslt{Enter}');

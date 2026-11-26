@@ -1,12 +1,14 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { createRef } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { withFiles } from '../../test/files';
 import { resetTestIndexedDB } from '../../test/indexed-db';
+import { VirtuosoTestViewport } from '../../test/virtuoso';
 import { ExplorerFile } from './explorer-file';
 import { ExplorerActions } from './ExplorerEntry';
-import { ExplorerTree } from './ExplorerTree';
+import { ExplorerTree, ExplorerTreeHandle } from './ExplorerTree';
 import { ExplorerRow } from './visible-rows';
 
 const file = (id: string): ExplorerFile => ({
@@ -56,7 +58,7 @@ const treeElement = (
   );
 
 const renderTree = (rows: ExplorerRow[] = ROWS, openFileKey?: string, focusedRowId?: string) =>
-  render(treeElement(rows, { openFileKey, focusedRowId }));
+  render(treeElement(rows, { openFileKey, focusedRowId }), { wrapper: VirtuosoTestViewport });
 
 const item = (id: string) => document.getElementById(id)!;
 /** Focuses the row the way a click or Tab does, with React's update applied */
@@ -192,20 +194,18 @@ describe('ExplorerTree', () => {
   });
 
   it.each(['{Enter}', ' ', '{ArrowRight}', '{ArrowLeft}', '{ArrowDown}'])(
-    'ignores %j pressed on the tree itself, outside the rows',
+    'ignores %j pressed beside the rows, after a click on the free space of the tree',
     async (key) => {
       const user = userEvent.setup();
       renderTree();
-      const tree = screen.getByRole('tree');
-      act(() => {
-        tree.focus();
-      });
+      const freeSpace = screen.getByTestId('virtuoso-scroller');
+      await user.click(freeSpace);
 
       await user.keyboard(key);
 
       expect(actions.openFile).not.toHaveBeenCalled();
       expect(actions.toggleFolder).not.toHaveBeenCalled();
-      expect(tree).toHaveFocus();
+      expect(freeSpace).toHaveFocus();
     },
   );
 
@@ -253,5 +253,171 @@ describe('ExplorerTree', () => {
 
     expect(screen.queryAllByRole('treeitem')).toEqual([]);
     expect(actions.toggleFolder).not.toHaveBeenCalled();
+  });
+
+  describe('with more rows than fit in view', () => {
+    /** 20 files at the root, of which only the first few are rendered */
+    const MANY_ROWS: ExplorerRow[] = Array.from({ length: 20 }, (_, index) => ({
+      kind: 'file' as const,
+      node: file(`file-${index}`),
+      depth: 0,
+      positionInSet: index + 1,
+      setSize: 20,
+    }));
+
+    const renderLongTree = (openFileKey?: string) => {
+      const handle = createRef<ExplorerTreeHandle>();
+      const rendered = render(
+        withFiles(
+          <ExplorerTree
+            ref={handle}
+            rows={MANY_ROWS}
+            openFileKey={openFileKey}
+            focusedRowId={undefined}
+            onRowFocus={onRowFocus}
+            query=""
+            renaming={undefined}
+            actions={actions}
+          />,
+        ),
+        {
+          wrapper: ({ children }) => (
+            <VirtuosoTestViewport viewportHeight={64} itemHeight={32}>
+              {children}
+            </VirtuosoTestViewport>
+          ),
+        },
+      );
+      return { ...rendered, handle };
+    };
+
+    const tree = () => screen.getByRole('tree');
+    /** Every element in the tree that Tab stops at, the tree itself included */
+    const focusables = () =>
+      [tree(), ...tree().querySelectorAll<HTMLElement>('*')].filter((element) => element.tabIndex === 0);
+
+    it.each([
+      { openFile: 'file-0', where: 'rendered', tabStop: () => item('file-0') },
+      { openFile: 'file-19', where: 'not rendered', tabStop: tree },
+    ])('can be reached by Tab exactly once while the tab stop row is $where', ({ openFile, tabStop }) => {
+      renderLongTree(openFile);
+
+      expect(focusables()).toEqual([tabStop()]);
+    });
+
+    it('renders only the rows in view and a small overscan', () => {
+      renderLongTree();
+
+      expect(document.getElementById('file-19')).toBeNull();
+    });
+
+    it('moves the focus to a row out of view with End, and back with Home', async () => {
+      renderLongTree();
+      focusRow('file-0');
+
+      fireEvent.keyDown(item('file-0'), { key: 'End' });
+      await waitFor(() => {
+        expect(document.getElementById('file-19')).toHaveFocus();
+      });
+
+      fireEvent.keyDown(item('file-19'), { key: 'Home' });
+      await waitFor(() => {
+        expect(document.getElementById('file-0')).toHaveFocus();
+      });
+    });
+
+    it('moves down past the rendered rows with ArrowDown', async () => {
+      renderLongTree();
+      // The 64px view and the overscan render file-0 to file-11
+      expect(document.getElementById('file-13')).toBeNull();
+      focusRow('file-10');
+
+      for (const from of ['file-10', 'file-11', 'file-12']) {
+        await waitFor(() => {
+          expect(document.getElementById(from)).toHaveFocus();
+        });
+        fireEvent.keyDown(item(from), { key: 'ArrowDown' });
+      }
+
+      await waitFor(() => {
+        expect(document.getElementById('file-13')).toHaveFocus();
+      });
+    });
+
+    it('takes no tab stop of its own while the name field of a new entry is the only row', () => {
+      render(
+        withFiles(
+          <ExplorerTree
+            rows={[
+              { kind: 'new-entry', entryKind: 'file', folderPath: '', depth: 0, positionInSet: 1, setSize: 1, key: 1 },
+            ]}
+            openFileKey={undefined}
+            focusedRowId={undefined}
+            onRowFocus={onRowFocus}
+            query=""
+            renaming={undefined}
+            actions={actions}
+          />,
+        ),
+        { wrapper: VirtuosoTestViewport },
+      );
+
+      expect(focusables()).toEqual([screen.getByRole('textbox')]);
+    });
+
+    it('hands the focus on to the tab stop row when it is not rendered', async () => {
+      renderLongTree('file-19');
+
+      act(() => {
+        tree().focus();
+      });
+
+      await waitFor(() => {
+        expect(document.getElementById('file-19')).toHaveFocus();
+      });
+    });
+
+    it('focuses a row that is not rendered through focusRow', async () => {
+      const { handle } = renderLongTree();
+
+      let found = false;
+      act(() => {
+        found = handle.current!.focusRow('file-15');
+      });
+
+      expect(found).toBe(true);
+      await waitFor(() => {
+        expect(document.getElementById('file-15')).toHaveFocus();
+      });
+    });
+
+    it('focuses the first entry row through focusFirstRow, after scrolling to it', async () => {
+      const { handle } = renderLongTree();
+      focusRow('file-0');
+      fireEvent.keyDown(item('file-0'), { key: 'End' });
+      await waitFor(() => {
+        expect(document.getElementById('file-19')).toHaveFocus();
+      });
+
+      let found = false;
+      act(() => {
+        found = handle.current!.focusFirstRow();
+      });
+
+      expect(found).toBe(true);
+      await waitFor(() => {
+        expect(document.getElementById('file-0')).toHaveFocus();
+      });
+    });
+
+    it('reports a row that does not exist from focusRow, without moving the focus', () => {
+      const { handle } = renderLongTree();
+      focusRow('file-0');
+
+      const found = handle.current!.focusRow('nope');
+
+      expect(found).toBe(false);
+      expect(item('file-0')).toHaveFocus();
+    });
   });
 });

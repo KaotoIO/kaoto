@@ -54,9 +54,8 @@ export const NameField: FunctionComponent<NameFieldProps> = ({
   const [attempted, setAttempted] = useState(false);
   const [committing, setCommitting] = useState(false);
   /**
-   * Set once the field is finished: stored, cancelled, or replaced by another entry's field. Anything that comes in
-   * late is ignored then: the blur of a field about to unmount, or a store that finishes after another entry's field
-   * took this one's place (which must not close that field).
+   * Set once the field is finished, stored or cancelled, or once it unmounted. Anything that comes in late is ignored
+   * then, e.g. the blur of a field about to unmount. A store that finishes is the one exception, see submit.
    */
   const closed = useRef(false);
   useEffect(() => {
@@ -106,7 +105,10 @@ export const NameField: FunctionComponent<NameFieldProps> = ({
     setCommitting(true);
     try {
       await commit(result.path);
-      finish(byKeyboard);
+      // Reported even when the field has unmounted by now, e.g. as the stored entry sorts out of the rendered rows:
+      // the Explorer still closes the field, and ignores the report when another field has taken its place
+      closed.current = true;
+      onDone(byKeyboard);
     } catch (commitError) {
       setFailure(commitError instanceof Error ? commitError.message : String(commitError));
       setAttempted(true);
