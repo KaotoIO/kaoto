@@ -1,4 +1,5 @@
 @use '@carbon/react/scss/spacing' as *;
+@use '../../../styles/kaoto-theme' as kaoto;
 @use '../../../styles/panel-header' as panel;
 
 .cs--editor-header {
@@ -6,6 +7,18 @@
 
   // The tabs sit on the left
   justify-content: flex-start;
+
+  // The tabs take the full height of the bar and the first one starts at its edge; the bar stays as high as before
+  @include kaoto.kaoto-theme {
+    align-items: stretch;
+    min-block-size: $spacing-08;
+    padding-block: 0;
+    padding-inline-start: 0;
+
+    .cs--editor-header__actions {
+      align-self: center;
+    }
+  }
 }
 
 // The tabs of the open files; they shorten their names before the actions on the right give way
