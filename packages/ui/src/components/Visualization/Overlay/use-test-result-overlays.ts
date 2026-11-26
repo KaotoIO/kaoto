@@ -1,11 +1,11 @@
 import { useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 
+import { IEventBus } from '../../../host-bridge/contracts';
 import { HostBridgeContext } from '../../../host-bridge/react/context';
 import { TestReportEntry } from '../../../models';
 import { BaseVisualEntity } from '../../../models/visualization/base-visual-entity';
 import { CitrusTestVisualEntity } from '../../../models/visualization/flows';
 import { CitrusTestReportService } from '../../../models/visualization/flows/support/citrus-test-report.service';
-import { MetadataContext } from '../../../providers/metadata.provider';
 import { createOverlayStore, OverlayOwner, OverlayStore } from '../../../store/overlay.store';
 import { CanvasNodesAndEdges } from '../Canvas/canvas.models';
 import { buildDesignerOverlayTargetSnapshot } from './designer-overlay-targets';
@@ -65,12 +65,15 @@ interface OverlayResources {
   scope: OverlayScope;
 }
 
+async function requestTestReport(bus: IEventBus, name: string): Promise<TestReportEntry | undefined> {
+  const { report } = await bus.request('editor:testReport:get', { name });
+  return report ? (report as unknown as TestReportEntry) : undefined;
+}
+
 export function useTestResultOverlays(
   model: CanvasNodesAndEdges,
   entities: BaseVisualEntity[],
 ): CanvasOverlaySource | undefined {
-  const metadataApi = useContext(MetadataContext);
-  const getTestReport = metadataApi?.getTestReport;
   const bus = useContext(HostBridgeContext);
 
   const citrusEntities = useMemo(
@@ -78,7 +81,7 @@ export function useTestResultOverlays(
     [entities],
   );
 
-  const active = citrusEntities.length > 0 && !!getTestReport;
+  const active = citrusEntities.length > 0 && !!bus;
 
   const { nodes } = model;
 
@@ -143,14 +146,14 @@ export function useTestResultOverlays(
   }, []);
 
   const loadTestReports = useCallback(() => {
-    if (!resources || !getTestReport) return;
+    if (!resources || !bus) return;
 
     generationRef.current += 1;
     const generation = generationRef.current;
     const { owner, scope } = resources;
 
     for (const entity of citrusEntities) {
-      void getTestReport(entity.id)
+      void requestTestReport(bus, entity.id)
         .then((report) => {
           if (generation !== generationRef.current) return;
 
@@ -166,7 +169,7 @@ export function useTestResultOverlays(
           owner.clearLayer(scope, `${TEST_RESULTS_LAYER}-${entity.id}`);
         });
     }
-  }, [resources, getTestReport, citrusEntities, buildEntries]);
+  }, [resources, bus, citrusEntities, buildEntries]);
 
   useEffect(() => {
     if (resources) {
