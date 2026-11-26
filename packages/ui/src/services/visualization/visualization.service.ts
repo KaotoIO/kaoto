@@ -43,9 +43,11 @@ import {
 } from '../../models/datamapper/visualization';
 import { DocumentService } from '../document/document.service';
 import { DocumentUtilService } from '../document/document-util.service';
+import { FROM_JSON_SOURCE_SUFFIX } from '../document/json-schema/json-schema-document.model';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { MappingService } from '../mapping/mapping.service';
+import { TO_JSON_TARGET_VARIABLE } from '../mapping/mapping-serializer-json-addon';
 import { VisualizationUtilService } from './visualization-util.service';
 
 interface WrapperSpec {
@@ -166,6 +168,8 @@ const SEQUENCE_WRAPPER: WrapperSpec = {
 // Regex patterns for DnD ID generation
 const FORWARD_SLASH_REGEX = /\//g;
 const COLON_REGEX = /:/g;
+
+const CAMEL_RESERVED_PARAMETER_NAMES: ReadonlySet<string> = new Set(['exchange', 'in', 'out']);
 
 /**
  * Static utility service for the DataMapper visualization layer.
@@ -1041,8 +1045,18 @@ export class VisualizationService {
   }
 
   /**
-   * Validates against QName format (via `xml-name-validator`) and uniqueness
-   * within the existing source parameter map.
+   * Validates a new parameter name. A DataMapper parameter is passed to the stylesheet by the Camel XSLT
+   * component from a Camel variable, message header or exchange property of the same name, so the name
+   * must be valid on both sides:
+   * - no `:`: a prefixed name passed from Camel reaches Saxon as a local name with no namespace, so it
+   *   never matches the `xsl:param`;
+   * - an XML `NCName` (`xml-name-validator` {@link qname} once `:` is excluded), so `$name` is an XPath
+   *   variable reference;
+   * - not `exchange`, `in` or `out`, which the XSLT component always sets itself;
+   * - not ending with `-x` and not `mapped-xml`: a JSON parameter `<p>` gets a global `<p>-x` variable and
+   *   a JSON target a global `mapped-xml` variable, so the stylesheet would declare the name twice.
+   *
+   * Names already loaded from saved metadata or an `xsl:param` are not re-checked.
    * @param name - the parameter name to validate
    * @param sourceParameterMap - existing parameters to check for duplicates
    * @returns validation result with status and optional error message
@@ -1054,11 +1068,29 @@ export class VisualizationService {
     if (sourceParameterMap.has(name)) {
       return { status: NameValidationStatus.ERROR, error: `Parameter '${name}' already exists` };
     }
+    if (name.includes(':')) {
+      return { status: NameValidationStatus.ERROR, error: `Invalid parameter name '${name}': it must not contain ':'` };
+    }
     if (!qname(name)) {
       return {
         status: NameValidationStatus.ERROR,
-        error: `Invalid parameter name '${name}': it must be a valid QName`,
+        error: `Invalid parameter name '${name}': use letters, digits, '_', '-' or '.', starting with a letter or '_'`,
       };
+    }
+    if (CAMEL_RESERVED_PARAMETER_NAMES.has(name)) {
+      return {
+        status: NameValidationStatus.ERROR,
+        error: `Parameter name '${name}' is reserved for Camel internal use`,
+      };
+    }
+    if (name.endsWith(FROM_JSON_SOURCE_SUFFIX)) {
+      return {
+        status: NameValidationStatus.ERROR,
+        error: `Parameter name '${name}' cannot end with '${FROM_JSON_SOURCE_SUFFIX}' (reserved for internal use)`,
+      };
+    }
+    if (name === TO_JSON_TARGET_VARIABLE) {
+      return { status: NameValidationStatus.ERROR, error: `Parameter name '${name}' is reserved for internal use` };
     }
     return { status: NameValidationStatus.SUCCESS };
   }

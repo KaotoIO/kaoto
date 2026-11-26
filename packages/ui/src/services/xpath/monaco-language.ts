@@ -2,6 +2,7 @@ import * as monaco from 'monaco-editor';
 
 import { IFunctionArgumentDefinition, IFunctionDefinition } from '../../models/datamapper/mapping';
 import { XPathService } from './xpath.service';
+import { NCNAME } from './xpath-name';
 
 export const xpathLanguageID = 'xpath';
 
@@ -88,7 +89,7 @@ function buildFunctionHoverContent(fn: IFunctionDefinition): monaco.IMarkdownStr
 export const monacoXPathLanguageMetadata: MonacoXPathLanguageMetadata = {
   id: xpathLanguageID,
   languageConfiguration: {
-    wordPattern: /\d[\w.]*|[a-zA-Z_][\w-]*/,
+    wordPattern: new RegExp(String.raw`\d[\w.]*|${NCNAME.source}`),
     brackets: [
       ['[', ']'],
       ['(', ')'],

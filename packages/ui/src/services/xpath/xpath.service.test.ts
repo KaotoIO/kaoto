@@ -92,6 +92,10 @@ describe('XPathService', () => {
       expect(XPathService.isSimplePath('/intersect')).toBe(true);
       expect(XPathService.isSimplePath('/ns0:Root/union')).toBe(true);
     });
+
+    it('should read a step name starting with _ whole', () => {
+      expect(XPathService.isSimplePath('/_a')).toBe(true);
+    });
   });
   describe('getOutputKind()', () => {
     it.each([
@@ -178,6 +182,10 @@ describe('XPathService', () => {
 
     it('should give CHILDREN for an unparsable expression', () => {
       expect(XPathService.getOutputKind('/ns0:ShipOrder/(')).toBe(XPathOutputKind.CHILDREN);
+    });
+
+    it('should classify an attribute starting with _ as attributes', () => {
+      expect(XPathService.getOutputKind('@_id')).toBe(XPathOutputKind.ATTRIBUTES);
     });
   });
 
@@ -449,14 +457,12 @@ describe('XPathService', () => {
       expect(result.hasErrors()).toBeFalsy();
     });
 
-    it('should not get error with empty function call', () => {
-      const result = XPathService.validate('upper-case()');
-      expect(result.hasErrors()).toBeFalsy();
-    });
-
-    it('should not get error with path in function call', () => {
-      const result = XPathService.validate('upper-case(/aaa/bbb/ccc)');
-      expect(result.hasErrors()).toBeFalsy();
+    it.each([
+      ['an empty function call', 'upper-case()'],
+      ['a path in a function call', 'upper-case(/aaa/bbb/ccc)'],
+      ['names starting with _', '/_a/@_b'],
+    ])('should not get error with %s', (_description, expression) => {
+      expect(XPathService.validate(expression).hasErrors()).toBeFalsy();
     });
 
     it('should warn on empty expression', () => {
@@ -867,6 +873,15 @@ describe('XPathService', () => {
         expect(paths[1].documentReferenceName).toBe('vip');
         expect(paths[1].pathSegments).toHaveLength(0);
       });
+    });
+
+    it('should read element and attribute names starting with _ whole', () => {
+      const paths = XPathService.extractFieldPaths('/_a/@_b');
+      expect(paths).toHaveLength(1);
+      expect(paths[0].pathSegments.map((segment) => [segment.name, segment.isAttribute])).toEqual([
+        ['_a', false],
+        ['_b', true],
+      ]);
     });
   });
 

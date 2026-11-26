@@ -721,6 +721,9 @@ describe('VisualizationService', () => {
   });
 
   describe('validateParameterName()', () => {
+    const ALLOWED_CHARACTERS_ERROR = (name: string) =>
+      `Invalid parameter name '${name}': use letters, digits, '_', '-' or '.', starting with a letter or '_'`;
+
     it('should accept a valid name', () => {
       const result = VisualizationService.validateParameterName('myParam', new Map());
       expect(result.status).toEqual(NameValidationStatus.SUCCESS);
@@ -740,16 +743,48 @@ describe('VisualizationService', () => {
       expect(result.error).toContain("'existingParam' already exists");
     });
 
-    it('should reject invalid QName', () => {
+    it('should reject a name that is not an NCName', () => {
       const result = VisualizationService.validateParameterName('123invalid', new Map());
       expect(result.status).toEqual(NameValidationStatus.ERROR);
-      expect(result.error).toContain('valid QName');
+      expect(result.error).toEqual(ALLOWED_CHARACTERS_ERROR('123invalid'));
     });
 
     it('should reject name with spaces', () => {
       const result = VisualizationService.validateParameterName('my param', new Map());
       expect(result.status).toEqual(NameValidationStatus.ERROR);
-      expect(result.error).toContain('valid QName');
+      expect(result.error).toEqual(ALLOWED_CHARACTERS_ERROR('my param'));
+    });
+
+    it.each([
+      'myParam',
+      'primitive',
+      'cart',
+      '_p',
+      'caf\u00E9',
+      'a.b-c',
+      'inx',
+      'In',
+      'x',
+      'a-xy',
+      'ax',
+      'mapped-xmlx',
+    ])('should accept %s', (name) => {
+      expect(VisualizationService.validateParameterName(name, new Map()).status).toEqual(NameValidationStatus.SUCCESS);
+    });
+
+    it.each([
+      ['1a', ALLOWED_CHARACTERS_ERROR('1a')],
+      ['ns:a', "Invalid parameter name 'ns:a': it must not contain ':'"],
+      ['in', "Parameter name 'in' is reserved for Camel internal use"],
+      ['out', "Parameter name 'out' is reserved for Camel internal use"],
+      ['exchange', "Parameter name 'exchange' is reserved for Camel internal use"],
+      ['a-x', "Parameter name 'a-x' cannot end with '-x' (reserved for internal use)"],
+      ['cart-x', "Parameter name 'cart-x' cannot end with '-x' (reserved for internal use)"],
+      ['mapped-xml', "Parameter name 'mapped-xml' is reserved for internal use"],
+    ])('should reject %s', (name, error) => {
+      const result = VisualizationService.validateParameterName(name, new Map());
+      expect(result.status).toEqual(NameValidationStatus.ERROR);
+      expect(result.error).toEqual(error);
     });
   });
 

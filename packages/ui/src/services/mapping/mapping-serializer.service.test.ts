@@ -64,6 +64,7 @@ import {
   getVariableTemplateXslt,
   getWhitespaceTextNodeXslt,
   getX12850ForEachXslt,
+  getXmlStubFile,
   getXslTextNodeXslt,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
@@ -845,6 +846,21 @@ describe('MappingSerializerService', () => {
       const item2 = mappingTree.children[0].children[1] as FieldItem;
       expect(item2.children).toHaveLength(4);
       expect(item1.id).not.toEqual(item2.id);
+    });
+
+    it('should load a parameter whose name is reserved for new parameters, with its mapping', () => {
+      const paramMap = new Map<string, IDocument>();
+      let mappingTree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      ({ mappingTree } = MappingSerializerService.deserialize(
+        getXmlStubFile('ParamReservedName.xsl'),
+        targetDoc,
+        mappingTree,
+        paramMap,
+      ));
+      expect(paramMap.has('in')).toBe(true);
+      const orderPerson = mappingTree.children[0].children[0] as FieldItem;
+      const selector = orderPerson.children[0] as ValueSelector;
+      expect(selector.expression).toBe('$in/a');
     });
   });
 

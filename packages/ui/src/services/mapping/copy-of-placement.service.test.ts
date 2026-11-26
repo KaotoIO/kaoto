@@ -22,7 +22,7 @@ import {
   WhenItem,
 } from '../../models/datamapper/mapping';
 import { XPathOutputKind } from '../../models/datamapper/xpath';
-import { getCopyOfSequenceOrderXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
+import { getCopyOfSequenceOrderXsd, getXmlStubFile, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { CopyOfPlacementService } from './copy-of-placement.service';
 
@@ -463,5 +463,34 @@ describe('CopyOfPlacementService.getAttributeOutputBucket', () => {
     const item = create(newShipOrder());
 
     expect(CopyOfPlacementService.getAttributeOutputBucket(item)).toBe(expected);
+  });
+});
+
+describe('CopyOfPlacementService with the UnderscoreNames schema', () => {
+  const newRoot = () => {
+    const doc = XmlSchemaDocumentService.createXmlSchemaDocument(
+      new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.XML_SCHEMA, BODY_DOCUMENT_ID, {
+        'UnderscoreNames.xsd': getXmlStubFile('UnderscoreNames.xsd'),
+      }),
+    ).document!;
+    const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+    tree.targetDocument = doc;
+    return new FieldItem(tree, doc.fields[0]);
+  };
+
+  it('should place a copy-of of an element starting with _ on that element, not on the one without _', () => {
+    const root = newRoot();
+    const underscoreItem = new FieldItem(root, root.field.fields.find((f) => f.name === '_item')!);
+    const item = new FieldItem(root, root.field.fields.find((f) => f.name === 'item')!);
+    root.children.push(underscoreItem, item);
+    const copyOf = new CopyOfSelector(underscoreItem);
+    copyOf.expression = '/Root/_item';
+
+    expect(CopyOfPlacementService.selectsElementOf(copyOf, underscoreItem)).toBe(true);
+    expect(CopyOfPlacementService.selectsElementOf(copyOf, item)).toBe(false);
+    const rootCopyOf = new CopyOfSelector(root);
+    rootCopyOf.expression = '/Root/_item';
+    expect(CopyOfPlacementService.getAnchorFields(rootCopyOf).map((f) => f.name)).toEqual(['_item']);
+    expect(CopyOfPlacementService.getInlineField(rootCopyOf)).toBe(underscoreItem.field);
   });
 });
