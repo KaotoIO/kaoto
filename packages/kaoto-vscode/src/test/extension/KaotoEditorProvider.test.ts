@@ -837,21 +837,76 @@ suite('Native Kaoto text document provider', () => {
 		}
 	});
 
-	test('forwards TestReportEvents to the webview session', async () => {
-		await open();
+	/** Opens an editor for a file on disk, as test runs are reported by file system path. */
+	async function openTestFileOnDisk(fileName: string) {
+		const uri = vscode.Uri.joinPath(diskRoot, fileName);
+		await vscode.workspace.fs.writeFile(uri, new TextEncoder().encode('original'));
+		const testDocument = await vscode.workspace.openTextDocument(uri);
+		const editor = editorFixture();
+		subscriptions.push({ dispose: () => editor.dispose() });
+		await provider.resolveCustomTextEditor(testDocument, editor.panel, cancellation.token);
+		await editor.connect();
+		return { editor, filePath: testDocument.uri.fsPath, ...collectTestRunEvents(editor) };
+	}
+	function collectTestRunEvents(editor: ReturnType<typeof editorFixture>) {
 		const started: unknown[] = [];
 		const ready: unknown[] = [];
-		fixture.bus.on('host:testRun:started', (payload) => started.push(payload));
-		fixture.bus.on('host:testReport:ready', (payload) => ready.push(payload));
+		editor.bus.on('host:testRun:started', (payload) => started.push(payload));
+		editor.bus.on('host:testReport:ready', (payload) => ready.push(payload));
+		return { started, ready };
+	}
 
-		TestReportEvents.instance.fireTestRunStarted([]);
-		await fixture.flush();
+	test('forwards TestReportEvents to the editor of the test file that ran', async () => {
+		const { editor, filePath, started, ready } = await openTestFileOnDisk('a-test.yaml');
+
+		TestReportEvents.instance.fireTestRunStarted([filePath]);
+		await editor.flush();
 		equal(started.length, 1);
 		equal(ready.length, 0);
 
-		TestReportEvents.instance.fireTestReportReady([]);
-		await fixture.flush();
+		TestReportEvents.instance.fireTestReportReady([filePath]);
+		await editor.flush();
 		equal(ready.length, 1);
+	});
+
+	test('forwards TestReportEvents of a folder run to every editor of a test file in it', async () => {
+		const first = await openTestFileOnDisk('a-test.yaml');
+		const second = await openTestFileOnDisk('b-test.yaml');
+
+		TestReportEvents.instance.fireTestRunStarted([first.filePath, second.filePath]);
+		TestReportEvents.instance.fireTestReportReady([first.filePath, second.filePath]);
+		await first.editor.flush();
+
+		equal(first.started.length, 1);
+		equal(first.ready.length, 1);
+		equal(second.started.length, 1);
+		equal(second.ready.length, 1);
+	});
+
+	test('does not forward TestReportEvents to the editor of another test file', async () => {
+		const ran = await openTestFileOnDisk('a-test.yaml');
+		const other = await openTestFileOnDisk('b-test.yaml');
+
+		TestReportEvents.instance.fireTestRunStarted([ran.filePath]);
+		TestReportEvents.instance.fireTestReportReady([ran.filePath]);
+		await ran.editor.flush();
+
+		equal(ran.started.length, 1);
+		equal(ran.ready.length, 1);
+		equal(other.started.length, 0);
+		equal(other.ready.length, 0);
+	});
+
+	test('does not forward TestReportEvents to the editor of a document that is not on disk', async () => {
+		await open();
+		const { started, ready } = collectTestRunEvents(fixture);
+
+		TestReportEvents.instance.fireTestRunStarted([document.uri.fsPath]);
+		TestReportEvents.instance.fireTestReportReady([document.uri.fsPath]);
+		await fixture.flush();
+
+		equal(started.length, 0);
+		equal(ready.length, 0);
 	});
 
 	test('resolves editor:testReport:get via the already-registered command', async () => {
