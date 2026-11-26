@@ -169,7 +169,12 @@ describe('useArrowKeyNavigation', () => {
         );
         // Paint order differs from model order and changes again during navigation.
         [...ordered].reverse().forEach(({ wrapper }) => pathContainer.appendChild(wrapper));
-        const fire = setupHook(ordered.map(({ wrapper }) => ({ id: wrapper.dataset.id! })));
+        const fire = setupHook(
+          ordered.map(({ wrapper }, index) => {
+            const flowStart = ordered[index - (index % paths.length)].wrapper.dataset.id!;
+            return { id: wrapper.dataset.id!, parentNode: wrapper.dataset.id === flowStart ? undefined : flowStart };
+          }),
+        );
         const forward = key === 'arrowdown' || key === 'arrowright';
         const expected = forward ? ordered : [...ordered].reverse();
         canvasRoot.focus();
@@ -287,13 +292,57 @@ describe('useArrowKeyNavigation', () => {
       );
       [...ordered].reverse().forEach(({ wrapper }) => pathContainer.appendChild(wrapper));
 
-      const fire = setupHook(ordered.map(({ wrapper }) => ({ id: wrapper.dataset.id! })));
+      const fire = setupHook(
+        ordered.map(({ wrapper }, index) => {
+          const id = wrapper.dataset.id!;
+          return index % 3 === 0
+            ? { id, group: true }
+            : { id, parentNode: ordered[index - (index % 3)].wrapper.dataset.id! };
+        }),
+      );
 
       canvasRoot.focus();
       for (const { node } of ordered) {
         fire('arrowdown');
         expect(node).toHaveFocus();
       }
+    });
+
+    it('should keep the root group ahead of its children when the flow name contains a pipe (Citrus)', () => {
+      container.remove();
+      pathContainer = document.createElement('div');
+      canvasRoot.appendChild(pathContainer);
+      const testName = 'smoke|login';
+      const rootId = `${testName}|${testName}`;
+      const entries = [
+        { cls: 'custom-group', path: testName, id: rootId },
+        { cls: 'custom-node', path: 'actions.0.createVariables', id: `${testName}|actions.0.createVariables` },
+        { cls: 'custom-node', path: 'actions.1.print', id: `${testName}|actions.1.print` },
+      ].map(({ cls, path, id }) => {
+        const node = makeNode(cls, `${cls}__${path}`);
+        const wrapper = document.createElement('div');
+        wrapper.dataset.id = id;
+        wrapper.appendChild(node);
+        return { node, wrapper, id };
+      });
+      // Paint order is the reverse of the navigation order.
+      [...entries].reverse().forEach(({ wrapper }) => pathContainer.appendChild(wrapper));
+
+      // FlowService emits a group after its children.
+      const fire = setupHook([
+        ...entries.slice(1).map(({ id }) => ({ id, parentNode: rootId })),
+        { id: rootId, group: true },
+      ]);
+
+      canvasRoot.focus();
+      for (const { node } of entries) {
+        fire('arrowright');
+        expect(node).toHaveFocus();
+      }
+
+      fire('arrowleft');
+      fire('arrowleft');
+      expect(entries[0].node).toHaveFocus();
     });
 
     it('should make the root group of a flow whose id is not a path the first stop (Pipe, Citrus)', () => {

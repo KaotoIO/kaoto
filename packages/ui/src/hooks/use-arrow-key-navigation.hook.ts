@@ -103,13 +103,23 @@ export function useArrowKeyNavigation(nodes?: readonly Pick<CanvasNode, 'id' | '
     const routes = new Map<string, number>();
     const order = new Map<string, number>();
     const rootGroups = new Set<string>();
+    const parentById = new Map(nodes?.map(({ id, parentNode }) => [id, parentNode]));
+    // Canvas ids are `{scope}|{local id}` where both parts can contain pipes, so the id can't be split reliably.
+    // The flow root, reached by following `parentNode`, identifies the route instead.
+    const getFlowRootId = (id: string): string => {
+      let rootId = id;
+      let parentId = parentById.get(rootId);
+      while (parentId && parentById.has(parentId)) {
+        rootId = parentId;
+        parentId = parentById.get(rootId);
+      }
+      return rootId;
+    };
     nodes?.forEach(({ id, group, parentNode }) => {
       if (group && !parentNode) rootGroups.add(id);
-      // FlowService prefixes each path with its entity scope; the scope can itself contain pipes.
-      const separator = id.lastIndexOf('|');
-      const scope = separator === -1 ? id : id.slice(0, separator);
-      const routeOrder = routes.get(scope) ?? routes.size;
-      routes.set(scope, routeOrder);
+      const flowRootId = getFlowRootId(id);
+      const routeOrder = routes.get(flowRootId) ?? routes.size;
+      routes.set(flowRootId, routeOrder);
       order.set(id, routeOrder);
     });
     return { routeOrderByNodeId: order, rootGroupIds: rootGroups };
