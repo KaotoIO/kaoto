@@ -42,3 +42,36 @@
 .canvas-layout-icon-vertical {
   transform: rotate(90deg);
 }
+
+// The canvas root takes the keyboard focus, but it also holds the toolbar. Instead of the browser outline around both,
+// keyboard focus draws a ring around the graph area, like the focus indicator of the steps and groups: a dashed brand
+// line with some clearance and rounded corners. It sits on the container of the graph area, outside the drawer, which
+// would clip it. A host can set two custom properties on any element around the canvas:
+// - --canvas-focus-offset, the distance of the ring from the graph area: positive outside (the default, 6px), negative
+//   inside, for a host that gives the canvas no room around it, e.g. kaoto-web's editor
+// - --canvas-focus-radius, the corner radius of the ring (the default follows the 16px corners of the graph area)
+#canvas-main {
+  --canvas-focus-width: 2px;
+
+  /* stylelint-disable-next-line selector-class-pattern */
+  .pf-topology-container {
+    position: relative;
+  }
+
+  &:focus-visible {
+    outline: none;
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    .pf-topology-container::after {
+      content: '';
+      position: absolute;
+
+      // Above PatternFly's drawer content (z-index 100), which covers the ring when it is drawn inside
+      z-index: 101;
+      inset: calc(-1 * var(--canvas-focus-offset, 6px));
+      border: var(--canvas-focus-width) dashed var(--pf-t--global--color--brand--default);
+      border-radius: var(--canvas-focus-radius, 22px);
+      pointer-events: none;
+    }
+  }
+}
