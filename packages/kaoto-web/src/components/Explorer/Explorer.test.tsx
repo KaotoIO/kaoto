@@ -198,7 +198,7 @@ describe('Explorer', () => {
 
     for (const folderId of ['integrations', 'integrations/routes', 'integrations/routes/async']) {
       const folderNode = await screen.findByTestId(`explorer-folder-${folderId}`);
-      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+      await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
     }
 
     expect(screen.getByTestId(`explorer-file-${pathOf('kafka-consumer')}`)).toHaveTextContent(
@@ -212,7 +212,7 @@ describe('Explorer', () => {
     renderWithNavigation(<LocationDisplay />);
 
     const folderNode = await screen.findByTestId('explorer-folder-integrations');
-    await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+    await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
     await user.click(screen.getByTestId(`explorer-file-${pathOf(id)}`));
 
     expect(screen.getByTestId('location')).toHaveTextContent(fileUrl(pathOf(id)));
@@ -226,7 +226,7 @@ describe('Explorer', () => {
       renderWithNavigation(<LocationDisplay />);
 
       const folderNode = await screen.findByTestId('explorer-folder-integrations');
-      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+      await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
       await user.click(screen.getByTestId(`explorer-file-${pathOf(id)}`));
 
       expect(screen.getByTestId('location')).toHaveTextContent(fileUrl(pathOf(id)));
@@ -394,7 +394,7 @@ describe('Explorer', () => {
     renderWithNavigation(<LocationDisplay />);
 
     const folderNode = await screen.findByTestId('explorer-folder-integrations');
-    await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+    await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
     expect(folderNode).toHaveAttribute('aria-expanded', 'true');
 
     await user.click(screen.getByText('main-flow.camel.yaml'));
@@ -407,7 +407,7 @@ describe('Explorer', () => {
     renderWithNavigation();
 
     const folderNode = await screen.findByTestId('explorer-folder-integrations');
-    await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+    await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
 
     await user.click(screen.getByText('main-flow.camel.yaml'));
     expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveAttribute('aria-selected', 'true');
@@ -432,7 +432,7 @@ describe('Explorer', () => {
 
     // Expand the Integrations folder and click main-flow
     const folderNode = await screen.findByTestId('explorer-folder-integrations');
-    await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+    await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
     await user.click(screen.getByText('main-flow.camel.yaml'));
     expect(screen.getByTestId(`explorer-file-${pathOf('main-flow')}`)).toHaveAttribute('aria-selected', 'true');
 
@@ -449,6 +449,17 @@ describe('Explorer', () => {
     expect(screen.getByTestId(`explorer-file-${pathOf('error-handler')}`)).toHaveAttribute('aria-selected', 'false');
   });
 
+  it('makes the row focused last the one Tab comes back to', async () => {
+    renderComponent();
+    const folder = await screen.findByTestId('explorer-folder-resources');
+
+    act(() => {
+      folder.focus();
+    });
+
+    expect(screen.getAllByRole('treeitem').filter((row) => row.tabIndex === 0)).toEqual([folder]);
+  });
+
   describe('opening files', () => {
     const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
 
@@ -457,7 +468,7 @@ describe('Explorer', () => {
       renderWithNavigation(<LocationDisplay />);
 
       const folderNode = await screen.findByTestId('explorer-folder-resources');
-      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+      await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
       await user.click(screen.getByTestId(`explorer-file-${pathOf('schema')}`));
 
       expect(screen.getByTestId('location')).toHaveTextContent(fileUrl(pathOf('schema')));
@@ -496,7 +507,7 @@ describe('Explorer', () => {
       const routes = await screen.findByTestId('explorer-folder-integrations/routes');
       await waitFor(() => expect(routes).toHaveAttribute('aria-expanded', 'true'));
 
-      await user.click(routes.querySelector('.cds--tree-parent-node__toggle')!);
+      await user.click(routes.querySelector('[data-testid^="explorer-toggle-"]')!);
 
       expect(routes).toHaveAttribute('aria-expanded', 'false');
     });
@@ -516,9 +527,11 @@ describe('Explorer', () => {
   describe('deleting', () => {
     const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
 
+    /** Expands the folder unless it is expanded already, e.g. as the folder of the open file */
     const expandFolder = async (user: ReturnType<typeof userEvent.setup>, folderPath: string) => {
       const folderNode = await screen.findByTestId(`explorer-folder-${folderPath}`);
-      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+      if (folderNode.getAttribute('aria-expanded') === 'true') return;
+      await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
     };
 
     it('keeps the row buttons out of the names of the tree items and the tab order', async () => {
@@ -572,7 +585,7 @@ describe('Explorer', () => {
       renderComponent();
       await expandFolder(user, 'integrations');
       const routes = await screen.findByTestId('explorer-folder-integrations/routes');
-      await user.click(routes.querySelector('.cds--tree-parent-node__toggle')!);
+      await user.click(routes.querySelector('[data-testid^="explorer-toggle-"]')!);
 
       await user.click(screen.getByTestId(`explorer-delete-integrations/routes`));
 
@@ -767,9 +780,11 @@ describe('Explorer', () => {
   describe('renaming', () => {
     const LocationDisplay = () => <div data-testid="location">{useLocation().pathname}</div>;
 
+    /** Expands the integrations folder unless it is expanded already, e.g. as the folder of the open file */
     const expandIntegrations = async (user: ReturnType<typeof userEvent.setup>) => {
       const folderNode = await screen.findByTestId('explorer-folder-integrations');
-      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+      if (folderNode.getAttribute('aria-expanded') === 'true') return;
+      await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
     };
 
     const startRenaming = async (user: ReturnType<typeof userEvent.setup>, id = 'main-flow') => {
@@ -855,7 +870,7 @@ describe('Explorer', () => {
         renderWithNavigation(<LocationDisplay />, fileUrl(pathOf('rest-api')));
         await expandIntegrations(user);
         const routes = screen.getByTestId('explorer-folder-integrations/routes');
-        await user.click(routes.querySelector('.cds--tree-parent-node__toggle')!);
+        await user.click(routes.querySelector('[data-testid^="explorer-toggle-"]')!);
 
         await renameFolder(user, 'integrations/routes', 'api');
 
@@ -919,6 +934,25 @@ describe('Explorer', () => {
       });
       expect(await storedPaths()).not.toContain(pathOf('main-flow'));
       expect(input).not.toBeInTheDocument();
+    });
+
+    it('finishes renaming when the folder of the file is collapsed while the name is stored', async () => {
+      const user = userEvent.setup();
+      renderComponent();
+      await expandIntegrations(user);
+      const field = await startRenaming(user);
+      await user.clear(field);
+      await user.type(field, 'orders.camel.yaml');
+
+      // Clicking the chevron leaves the field, which stores the name, and collapses the folder at once
+      await user.click(screen.getByTestId('explorer-toggle-integrations'));
+
+      await waitFor(async () => {
+        await expectStoredAt('main-flow', 'integrations/orders.camel.yaml');
+      });
+      await expandIntegrations(user);
+      expect(screen.queryByRole('textbox', { name: 'Rename file' })).not.toBeInTheDocument();
+      expect(screen.getByTestId('explorer-file-integrations/orders.camel.yaml')).toBeInTheDocument();
     });
 
     it('keeps the renamed file open', async () => {
@@ -1207,6 +1241,37 @@ describe('Explorer', () => {
       expect(await screen.findByTestId('explorer-folder-schemas')).toBeInTheDocument();
     });
 
+    it('still opens a new file when its folder is collapsed while the file is stored', async () => {
+      serveCatalog();
+      const serveFile = vi.mocked(fetch).getMockImplementation()!;
+      let deliverTemplate!: () => void;
+      const templateHeldBack = new Promise<void>((resolve) => {
+        deliverTemplate = resolve;
+      });
+      vi.mocked(fetch).mockImplementation(async (url) => {
+        if (String(url).endsWith('/camel-route-yaml-hash.yaml')) await templateHeldBack;
+        return serveFile(url);
+      });
+      const user = userEvent.setup();
+      renderWithNavigation(<LocationDisplay />);
+      const folder = await screen.findByTestId('explorer-folder-resources');
+      act(() => {
+        folder.focus();
+      });
+      await user.click(screen.getByRole('button', { name: 'New file' }));
+      await user.keyboard('orders.camel.yaml');
+
+      // Clicking the chevron leaves the field, which stores the name, and collapses the folder at once
+      await user.click(screen.getByTestId('explorer-toggle-resources'));
+      deliverTemplate();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('location').textContent).toBe(fileUrl('resources/orders.camel.yaml'));
+      });
+      await user.click(screen.getByTestId('explorer-toggle-resources'));
+      expect(screen.queryByTestId('explorer-new-entry')).not.toBeInTheDocument();
+    });
+
     it('creates the entry in the focused folder and expands it', async () => {
       const user = userEvent.setup();
       renderComponent();
@@ -1216,7 +1281,11 @@ describe('Explorer', () => {
       await user.click(screen.getByRole('button', { name: 'New folder' }));
 
       expect(folder).toHaveAttribute('aria-expanded', 'true');
-      expect(folder).toContainElement(nameInput());
+      // The rows are flat: the name field is the first row in the folder, one level deeper
+      const newEntryRow = screen.getByTestId('explorer-new-entry');
+      expect(folder.nextElementSibling).toBe(newEntryRow);
+      expect(newEntryRow).toHaveAttribute('aria-level', String(Number(folder.getAttribute('aria-level')) + 1));
+      expect(newEntryRow).toContainElement(nameInput());
       await user.keyboard('xslt{Enter}');
       await waitFor(async () => {
         expect(await storedFolders()).toContain('resources/xslt');
@@ -1227,7 +1296,7 @@ describe('Explorer', () => {
       const user = userEvent.setup();
       renderComponent();
       const folderNode = await screen.findByTestId('explorer-folder-integrations');
-      await user.click(folderNode.querySelector('.cds--tree-parent-node__toggle')!);
+      await user.click(folderNode.querySelector('[data-testid^="explorer-toggle-"]')!);
       screen.getByTestId(`explorer-file-${pathOf('main-flow')}`).focus();
 
       await user.click(screen.getByRole('button', { name: 'New file' }));
