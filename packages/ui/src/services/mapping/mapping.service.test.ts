@@ -24,6 +24,7 @@ import {
 } from '../../models/datamapper/mapping';
 import { TargetRenderIndex } from '../../models/datamapper/visualization';
 import { mockRandomValues } from '../../stubs';
+import { findField } from '../../stubs/datamapper/cardinality-test-helpers';
 import {
   getAnnotatedFieldsXsd,
   getCartToShipOrderJsonXslt,
@@ -1692,6 +1693,49 @@ describe('MappingService', () => {
 
       expect(ifItem.children).toHaveLength(0);
       expect(shipOrderItem.children).toContain(ifItem);
+    });
+
+    // A user-created FieldItem is one the user placed: a choice member or abstract substitute they selected, or a
+    // collection instance from "Add Mapping" or "Duplicate". Deleting what is under it must not take it away, as
+    // the stale-mapping cleanup keeps it too (#4158).
+    describe('with a user-created FieldItem', () => {
+      function createUserCreatedItemWithMappedTitle() {
+        const shipOrderItem = tree.children[0] as FieldItem;
+        const itemField = findField(targetDoc, 'Item');
+        const userItem = MappingService.createFieldItem(shipOrderItem, itemField);
+        userItem.isUserCreated = true;
+        const titleItem = MappingService.createFieldItem(userItem, findField(itemField, 'Title'));
+        const valueOf = MappingService.createValueOfSelector(titleItem);
+        titleItem.children.push(valueOf);
+        return { shipOrderItem, userItem, titleItem, valueOf };
+      }
+
+      it('should keep the user-created FieldItem when the last mapping under it is deleted', () => {
+        const { shipOrderItem, userItem, titleItem, valueOf } = createUserCreatedItemWithMappedTitle();
+
+        MappingService.deleteMappingItem(valueOf);
+
+        // The emptied Title is cleaned up as before; the cascade stops at the item the user placed.
+        expect(userItem.children.includes(titleItem)).toBe(false);
+        expect(shipOrderItem.children.includes(userItem)).toBe(true);
+      });
+
+      it('should keep the user-created FieldItem when the last field under it is deleted', () => {
+        const { shipOrderItem, userItem, titleItem } = createUserCreatedItemWithMappedTitle();
+
+        MappingService.deleteMappingItem(titleItem);
+
+        expect(userItem.children).toHaveLength(0);
+        expect(shipOrderItem.children.includes(userItem)).toBe(true);
+      });
+
+      it('should delete the user-created FieldItem itself when it is the item deleted', () => {
+        const { shipOrderItem, userItem } = createUserCreatedItemWithMappedTitle();
+
+        MappingService.deleteMappingItem(userItem);
+
+        expect(shipOrderItem.children.includes(userItem)).toBe(false);
+      });
     });
 
     it('should delete only the targeted field when the guard holds more than one child', () => {

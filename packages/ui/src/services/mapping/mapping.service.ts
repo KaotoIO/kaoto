@@ -1355,9 +1355,10 @@ export class MappingService {
    * {@link FieldItem} ancestor (walking through any enclosing instructions, such as an `xsl:if`),
    * {@link CopyOfSelector} directly under {@link MappingTree} (primitive target body), or
    * user-created {@link FieldItem}s, removes the item and recursively cleans up empty
-   * {@link FieldItem} ancestors (see {@link deleteFromParent}). A see-through optional guard is not
-   * handled here: `MappingActionService.deleteMappingItem` removes the guard the deleted row absorbed
-   * before calling this, and an `xsl:if` that is visible is the user's own and is kept.
+   * {@link FieldItem} ancestors up to the first user-created one (see {@link deleteFromParent}).
+   * A see-through optional guard is not handled here: `MappingActionService.deleteMappingItem`
+   * removes the guard the deleted row absorbed before calling this, and an `xsl:if` that is
+   * visible is the user's own and is kept.
    * @param item - the mapping item to delete
    */
   static deleteMappingItem(item: MappingParentType) {
@@ -1393,13 +1394,16 @@ export class MappingService {
     // one sitting directly under an instruction is a deliberate branch member and must survive.
     // That includes a user `xsl:if`, `when` or `for-each`; a see-through guard never gets here,
     // because the row-based delete unwraps it before the mapping is deleted.
+    // A user-created FieldItem survives being emptied too: it is a choice member or abstract substitute the user
+    // selected, or a collection instance the user added, and the stale-mapping cleanup keeps it for the same reason.
     const isParentFieldItem = parent instanceof FieldItem;
+    const isParentUserCreated = isParentFieldItem && parent.isUserCreated;
     const hasFieldItemAncestor =
       parent instanceof MappingItem && (parent.parent instanceof FieldItem || parent.parent instanceof MappingTree);
     const areNoChildren = parent.children.length === 0;
     // An emptied `xsl:if` is not cascaded into here, since it is the user's own. A see-through
     // guard is removed by `MappingActionService.deleteMappingItem` before this runs.
-    if (areNoChildren && isParentFieldItem && hasFieldItemAncestor) {
+    if (areNoChildren && isParentFieldItem && !isParentUserCreated && hasFieldItemAncestor) {
       MappingService.deleteFromParent(parent);
     }
   }
