@@ -577,12 +577,16 @@ export class DocumentService {
    * Returns true if `xsl:copy-of` can write into a target document of the given definition type.
    * A JSON document is written through its XML representation (`map`, `array`, `string`, ...), where
    * the JSON key is a `key` attribute rather than a qualified element name, so a copied source node
-   * cannot stand for one of its fields.
+   * cannot stand for one of its fields. A primitive document always receives a primitive value, so a
+   * copy-of there would write an XML fragment as text.
    * @param targetDefinitionType - The definition type of the target document
-   * @returns false for JSON Schema documents, true otherwise
+   * @returns false for JSON Schema and primitive documents, true otherwise
    */
   static isCopyOfSupported(targetDefinitionType: DocumentDefinitionType): boolean {
-    return targetDefinitionType !== DocumentDefinitionType.JSON_SCHEMA;
+    return (
+      targetDefinitionType !== DocumentDefinitionType.JSON_SCHEMA &&
+      targetDefinitionType !== DocumentDefinitionType.Primitive
+    );
   }
 
   /**

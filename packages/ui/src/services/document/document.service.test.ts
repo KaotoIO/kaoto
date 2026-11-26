@@ -863,7 +863,7 @@ describe('DocumentService', () => {
   describe('isCopyOfSupported()', () => {
     it.each([
       [DocumentDefinitionType.XML_SCHEMA, true],
-      [DocumentDefinitionType.Primitive, true],
+      [DocumentDefinitionType.Primitive, false],
       [DocumentDefinitionType.JSON_SCHEMA, false],
     ])('should answer %s with %s', (definitionType, expected) => {
       expect(DocumentService.isCopyOfSupported(definitionType)).toBe(expected);
