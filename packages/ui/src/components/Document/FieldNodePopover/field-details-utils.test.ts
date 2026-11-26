@@ -1,5 +1,5 @@
 import { DocumentType, IField } from '../../../models/datamapper/document';
-import { CopyOfSelector, FieldItem, MappingTree } from '../../../models/datamapper/mapping';
+import { CopyOfSelector, FieldItem, IfItem, MappingTree } from '../../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
   AddMappingNodeData,
@@ -8,6 +8,7 @@ import {
   DocumentNodeData,
   FieldItemNodeData,
   FieldNodeData,
+  NodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
@@ -16,6 +17,7 @@ import {
 import { FieldOverrideService } from '../../../services/document/field-override.service';
 import { WrapperSelectionService } from '../../../services/document/wrapper-selection.service';
 import { MappingSerializerService } from '../../../services/mapping/mapping-serializer.service';
+import { ChoiceFieldService } from '../../../services/visualization/choice-field.service';
 import { MappingActionService } from '../../../services/visualization/mapping-action.service';
 import {
   createTargetTree,
@@ -46,7 +48,6 @@ import { createGuardedCsvRows } from '../../../stubs/datamapper/target-render-te
 import { QName } from '../../../xml-schema-ts/QName';
 import {
   formatTypeQName,
-  getEffectiveMaxOccurs,
   getOptionalGuardExplanation,
   isFieldNode,
   OPTIONAL_GUARD_LABEL,
@@ -55,6 +56,27 @@ import {
 
 const abstractDoc = (documentType: DocumentType) =>
   parseXsdDocument(documentType, 'ChoiceRepeatingAbstract.xsd', getChoiceRepeatingAbstractXsd());
+
+const occurrenceRows = (field: IField, nodeData?: NodeData): Record<string, string> =>
+  Object.fromEntries(
+    prepareFieldDetails(field, {}, nodeData)
+      .filter((row) => row.label.endsWith('Occurs'))
+      .map((row) => [row.label, row.value]),
+  );
+
+const expectOccurrenceRows = (
+  field: IField,
+  nodeData: NodeData | undefined,
+  own: string | [string, string],
+  effective?: [string, string],
+) => {
+  const rows = occurrenceRows(field, nodeData);
+  const [min, max] = Array.isArray(own) ? own : [undefined, own];
+  if (min !== undefined) expect(rows['Min Occurs']).toBe(min);
+  expect(rows['Max Occurs']).toBe(max);
+  expect(rows['Effective Min Occurs']).toBe(effective?.[0]);
+  expect(rows['Effective Max Occurs']).toBe(effective?.[1]);
+};
 
 const selectedRepeatingChoiceMemberRow = (): ChoiceFieldNodeData => {
   const doc = abstractDoc(DocumentType.SOURCE_BODY);
@@ -138,24 +160,24 @@ describe('field-details-utils', () => {
     });
   });
 
-  describe('getEffectiveMaxOccurs', () => {
-    it('should return field.maxOccurs when nodeData is undefined (case 1)', () => {
+  describe('prepareFieldDetails occurrence rows', () => {
+    it('should show the own maxOccurs and no Effective rows when nodeData is undefined', () => {
       const shipOrderDoc = TestUtil.createSourceOrderDoc();
       const field = { ...shipOrderDoc.fields[0], maxOccurs: 5 } as unknown as IField;
 
-      expect(getEffectiveMaxOccurs(field, undefined)).toBe(5);
+      expectOccurrenceRows(field, undefined, '5');
     });
 
-    it('should return field.maxOccurs for a plain FieldNodeData', () => {
+    it('should show the own maxOccurs and no Effective rows for a plain FieldNodeData', () => {
       const shipOrderDoc = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(shipOrderDoc);
       const field = shipOrderDoc.fields[0];
       const fieldNodeData = new FieldNodeData(documentNodeData, field);
 
-      expect(getEffectiveMaxOccurs(field, fieldNodeData)).toBe(field.maxOccurs);
+      expectOccurrenceRows(field, fieldNodeData, String(field.maxOccurs));
     });
 
-    it('should return the repeating wrapper maxOccurs for a FieldItemNodeData with a repeating wrapperField', () => {
+    it('should show the effective occurrence for a FieldItemNodeData with a repeating wrapperField', () => {
       const doc = abstractDoc(DocumentType.TARGET_BODY);
       const container = findField(doc, 'RequiredMemberInOptionalChoice');
       const choice = findField(container, '__choice__');
@@ -173,17 +195,17 @@ describe('field-details-utils', () => {
         'for the mapped Required',
       ) as FieldItemNodeData;
       expect(requiredRow.wrapperField).toBe(choice);
-      expect(getEffectiveMaxOccurs(requiredField, requiredRow)).toBe('unbounded');
+      expectOccurrenceRows(requiredField, requiredRow, '1', ['0', 'unbounded']);
     });
 
-    it('should return the repeating choice maxOccurs for a selected ChoiceFieldNodeData', () => {
+    it('should show the effective occurrence for a selected ChoiceFieldNodeData', () => {
       const memberRow = selectedRepeatingChoiceMemberRow();
 
       expect(memberRow.field.maxOccurs).toBe(1);
-      expect(getEffectiveMaxOccurs(memberRow.field, memberRow)).toBe('unbounded');
+      expectOccurrenceRows(memberRow.field, memberRow, '1', ['0', 'unbounded']);
     });
 
-    it('should return the repeating abstract wrapper maxOccurs for a selected AbstractFieldNodeData', () => {
+    it('should show the referencing particle bounds and the effective occurrence for a selected AbstractFieldNodeData', () => {
       const doc = parseXsdDocument(DocumentType.SOURCE_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd());
       const wrapper = findField(doc, 'AbstractAnimal');
       FieldOverrideService.applyFieldSubstitution(wrapper, 'ns0:Dog', { ns0: NS_SUBSTITUTION });
@@ -191,10 +213,10 @@ describe('field-details-utils', () => {
       const dogRow = rowNamed(documentRows(doc)[0], 'Dog') as AbstractFieldNodeData;
       expect(dogRow).toBeInstanceOf(AbstractFieldNodeData);
       expect(dogRow.abstractField).toBe(wrapper);
-      expect(getEffectiveMaxOccurs(dogRow.field, dogRow)).toBe('unbounded');
+      expectOccurrenceRows(dogRow.field, dogRow, 'unbounded', ['0', 'unbounded']);
     });
 
-    it('should return field.maxOccurs for an unselected ChoiceFieldNodeData (no choiceField set)', () => {
+    it('should show the own maxOccurs and no Effective rows for an unselected ChoiceFieldNodeData', () => {
       const shipOrderDoc = TestUtil.createSourceOrderDoc();
       const documentNodeData = new DocumentNodeData(shipOrderDoc);
       const wrapperField = {
@@ -205,54 +227,38 @@ describe('field-details-utils', () => {
       const choiceNode = new ChoiceFieldNodeData(documentNodeData, wrapperField);
       // choiceNode.choiceField is undefined (unselected)
 
-      expect(getEffectiveMaxOccurs(wrapperField, choiceNode)).toBe('unbounded');
+      expectOccurrenceRows(wrapperField, choiceNode, 'unbounded');
     });
 
-    it('should inherit maxOccurs from a repeating choice for a source child of a sequence branch', () => {
-      // choice(unbounded) > sequence(1) > key(1): on the source side the child is a plain
-      // FieldNodeData with no wrapperField/choiceField back-reference, so the effective maxOccurs
-      // must be resolved by walking up the transparent sequence compositor to the repeating choice —
-      // keeping the popover's Max Occurs in agreement with the collection indicator icon.
-      const shipOrderDoc = TestUtil.createSourceOrderDoc();
-      const documentNodeData = new DocumentNodeData(shipOrderDoc);
-      const choiceWrapper = {
-        ...shipOrderDoc.fields[0],
-        maxOccurs: 'unbounded',
-        wrapperKind: 'choice',
-      } as unknown as IField;
-      const sequenceField = {
-        ...shipOrderDoc.fields[0],
-        maxOccurs: 1,
-        wrapperKind: 'sequence',
-        parent: choiceWrapper,
-      } as unknown as IField;
-      const keyField = { ...shipOrderDoc.fields[0], maxOccurs: 1, parent: sequenceField } as unknown as IField;
-      const keyNode = new FieldNodeData(documentNodeData, keyField);
+    it('should show the effective occurrence for a source child of a sequence branch in a repeating choice', () => {
+      const doc = abstractDoc(DocumentType.SOURCE_BODY);
+      const keyField = findField(findField(doc, 'SequenceInRepeatingChoice'), 'Key');
+      const keyRow = new FieldNodeData(rowNamed(documentRows(doc)[0], 'SequenceInRepeatingChoice'), keyField);
 
-      expect(getEffectiveMaxOccurs(keyField, keyNode)).toBe('unbounded');
+      expectOccurrenceRows(keyField, keyRow, '1', ['0', 'unbounded']);
     });
 
     describe('a repeating member of a non-repeating choice', () => {
-      it('should return the member maxOccurs right after selection', () => {
+      it('should show the effective occurrence right after selection', () => {
         const { doc, tree } = selectFirstChoiceMember('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
         const itemRow = rowNamed(documentRows(doc, tree)[0], 'Item') as TargetChoiceFieldNodeData;
 
         expect(itemRow).toBeInstanceOf(TargetChoiceFieldNodeData);
         expect(itemRow.choiceField?.maxOccurs).toBe(1);
-        expect(getEffectiveMaxOccurs(itemRow.field, itemRow)).toBe('unbounded');
+        expectOccurrenceRows(itemRow.field, itemRow, 'unbounded', ['0', 'unbounded']);
       });
 
-      it('should return the member maxOccurs after "Wrap with for-each"', () => {
+      it('should show the effective occurrence after "Wrap with for-each"', () => {
         const { doc, tree } = selectFirstChoiceMember('ChoiceRepeatingMember.xsd', getChoiceRepeatingMemberXsd());
         MappingActionService.applyForEach(rowNamed(documentRows(doc, tree)[0], 'Item') as TargetFieldNodeData);
 
         const wrappedItemRow = rowNamed(forEachRow(documentRows(doc, tree)[0]), 'Item') as FieldItemNodeData;
         expect(wrappedItemRow).toBeInstanceOf(FieldItemNodeData);
         expect(wrappedItemRow.wrapperField?.maxOccurs).toBe(1);
-        expect(getEffectiveMaxOccurs(wrappedItemRow.field, wrappedItemRow)).toBe('unbounded');
+        expectOccurrenceRows(wrappedItemRow.field, wrappedItemRow, 'unbounded', ['0', 'unbounded']);
       });
 
-      it('should return the own maxOccurs of a mapped child of the selected member', () => {
+      it('should show the own maxOccurs and no Effective rows for a mapped child of the selected member', () => {
         const { doc, tree } = selectFirstChoiceMember(
           'ChoiceRepeatingContainerMember.xsd',
           getChoiceRepeatingContainerMemberXsd(),
@@ -268,12 +274,12 @@ describe('field-details-utils', () => {
         expect(nameRow).toBeInstanceOf(FieldItemNodeData);
         expect(nameRow.parent).toBeInstanceOf(TargetChoiceFieldNodeData);
         expect(nameRow.wrapperField).toBeUndefined();
-        expect(getEffectiveMaxOccurs(nameField, nameRow)).toBe(1);
+        expectOccurrenceRows(nameField, nameRow, '1');
       });
     });
 
     describe('a non-repeating wrapper nested in a repeating compositor', () => {
-      it('should return the compositor maxOccurs for a mapped row whose wrapperField does not repeat', () => {
+      it('should show the effective occurrence for a mapped row whose wrapperField does not repeat', () => {
         const doc = abstractDoc(DocumentType.TARGET_BODY);
         const container = findField(doc, 'AbstractInSequenceInChoice');
         const choice = findField(container, '__choice__');
@@ -292,10 +298,10 @@ describe('field-details-utils', () => {
         ) as FieldItemNodeData;
         expect(catRow.wrapperField?.wrapperKind).toBe('abstract');
         expect(catRow.wrapperField?.maxOccurs).toBe(1);
-        expect(getEffectiveMaxOccurs(catField, catRow)).toBe('unbounded');
+        expectOccurrenceRows(catField, catRow, '1', ['0', 'unbounded']);
       });
 
-      it('should return the repeating choice maxOccurs for a selected member of a non-repeating abstract wrapper', () => {
+      it('should show the effective occurrence for a selected member of a non-repeating abstract wrapper', () => {
         const doc = parseXsdDocument(
           DocumentType.TARGET_BODY,
           'ChoiceWithAbstract.xsd',
@@ -313,12 +319,12 @@ describe('field-details-utils', () => {
         selectedRow.abstractField = abstractMessage;
 
         expect(abstractMessage.maxOccurs).toBe(1);
-        expect(getEffectiveMaxOccurs(emailField, selectedRow)).toBe('unbounded');
+        expectOccurrenceRows(emailField, selectedRow, '1', ['0', 'unbounded']);
       });
     });
 
     describe('a repeating abstract wrapper that is not the row back-reference', () => {
-      it('should return the abstract wrapper maxOccurs for the target member rows of a loaded mapping', () => {
+      it('should show the effective occurrence for the target member rows of a loaded mapping', () => {
         const doc = abstractDoc(DocumentType.TARGET_BODY);
         const tree = createTargetTree(doc, { ns0: NS_POC });
         MappingSerializerService.deserialize(
@@ -335,11 +341,11 @@ describe('field-details-utils', () => {
         expect(catRow).toBeInstanceOf(FieldItemNodeData);
         expect(catRow.wrapperField?.maxOccurs).toBe(1);
         expect(dogRow).toBeInstanceOf(TargetFieldNodeData);
-        expect(getEffectiveMaxOccurs(catRow.field, catRow)).toBe('unbounded');
-        expect(getEffectiveMaxOccurs(dogRow.field, dogRow)).toBe('unbounded');
+        expectOccurrenceRows(catRow.field, catRow, 'unbounded', ['0', 'unbounded']);
+        expectOccurrenceRows(dogRow.field, dogRow, 'unbounded', ['0', 'unbounded']);
       });
 
-      it('should return the abstract wrapper maxOccurs for a source candidate row of the unselected wrapper', () => {
+      it('should show the effective occurrence for a source candidate row of the unselected wrapper', () => {
         const doc = parseXsdDocument(DocumentType.SOURCE_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd());
         const wrapperRow = descendantRow(
           documentRows(doc)[0],
@@ -349,20 +355,20 @@ describe('field-details-utils', () => {
         const dogRow = rowNamed(wrapperRow, 'Dog') as FieldNodeData;
 
         expect(dogRow.field.maxOccurs).toBe(1);
-        expect(getEffectiveMaxOccurs(dogRow.field, dogRow)).toBe('unbounded');
+        expectOccurrenceRows(dogRow.field, dogRow, 'unbounded', ['0', 'unbounded']);
       });
     });
 
-    it('should return the outer maxOccurs when two nested levels repeat', () => {
+    it('should show the product of the bounds when two nested levels repeat', () => {
       const doc = abstractDoc(DocumentType.SOURCE_BODY);
       const aField = findField(findField(findField(doc, 'NestedRepeat'), '__choice__'), 'A');
       const aRow = new FieldNodeData(rowNamed(documentRows(doc)[0], 'NestedRepeat'), aField);
 
       expect(aField.parent).toHaveProperty('maxOccurs', 3);
-      expect(getEffectiveMaxOccurs(aField, aRow)).toBe('unbounded');
+      expectOccurrenceRows(aField, aRow, '1', ['0', 'unbounded']);
     });
 
-    it('should return the repeating choice maxOccurs for a copy-of row under a non-repeating abstract wrapper', () => {
+    it('should show the effective occurrence for a copy-of row under a non-repeating abstract wrapper', () => {
       const doc = parseXsdDocument(
         DocumentType.TARGET_BODY,
         'ChoiceWithAbstract.xsd',
@@ -380,7 +386,124 @@ describe('field-details-utils', () => {
       const copyOfRow = new CopyOfFieldNodeData(new TargetDocumentNodeData(doc, tree), copyOf, emailField);
 
       expect(emailField.maxOccurs).toBe(1);
-      expect(getEffectiveMaxOccurs(emailField, copyOfRow)).toBe('unbounded');
+      expectOccurrenceRows(emailField, copyOfRow, '1', ['0', 'unbounded']);
+    });
+
+    describe('fixture rows', () => {
+      const memberOf = (documentType: DocumentType, containerName: string, fieldName: string) =>
+        findField(findField(abstractDoc(documentType), containerName), fieldName);
+
+      it.each<[string, string, string, [string, string], [string, string] | undefined]>([
+        ['a repeating choice', 'BoundedChoice', '__choice__', ['1', '3'], undefined],
+        ['a member under a bounded reference to the head', 'BoundedAbstract', 'Dog', ['1', '3'], ['0', '3']],
+        [
+          'the single member of a substitution group in a repeating choice',
+          'SingleMemberAbstract',
+          'Tree',
+          ['1', '1'],
+          ['1', '2'],
+        ],
+        [
+          'a bounded child of a bounded sequence in a bounded choice',
+          'RequiredSingleChoice',
+          'Twice',
+          ['2', '2'],
+          ['4', '12'],
+        ],
+        ['the only alternative of a repeating choice', 'RepeatingSingleChoice', 'Once', ['1', '1'], ['1', '3']],
+        [
+          'the only alternative of an optional choice',
+          'OptionalSingleChoice',
+          'Lone',
+          ['1', 'unbounded'],
+          ['0', 'unbounded'],
+        ],
+        [
+          'the only alternative of a choice, with equal values in separate objects',
+          'AbstractInChoice',
+          'Animal',
+          ['1', 'unbounded'],
+          undefined,
+        ],
+        ['a member under an optional reference to the head', 'OptionalAbstract', 'Dog', ['0', '1'], undefined],
+      ])('should show the rows of %s', (_description, containerName, fieldName, own, effective) => {
+        expectOccurrenceRows(memberOf(DocumentType.SOURCE_BODY, containerName, fieldName), undefined, own, effective);
+      });
+
+      it('should show the own minimum of the referencing particle for a substitution member', () => {
+        const dog = memberOf(DocumentType.SOURCE_BODY, 'OptionalAbstract', 'Dog');
+        expect(dog.minOccurs).toBe(1);
+        expect(occurrenceRows(dog)['Min Occurs']).toBe('0');
+      });
+
+      it('should show both Effective rows when only the maximum differs', () => {
+        const rows = occurrenceRows(memberOf(DocumentType.SOURCE_BODY, 'RepeatingSingleChoice', 'Once'));
+        expect(rows['Min Occurs']).toBe(rows['Effective Min Occurs']);
+        expect(rows['Effective Max Occurs']).toBe('3');
+      });
+
+      it('should show the same rows for an unselected and a selected source member', () => {
+        const doc = abstractDoc(DocumentType.SOURCE_BODY);
+        const container = findField(doc, 'BoundedChoice');
+        const choice = findField(container, '__choice__');
+        const bounded = findField(choice, 'Bounded');
+        const unselectedRow = new FieldNodeData(rowNamed(documentRows(doc)[0], 'BoundedChoice'), bounded);
+        expectOccurrenceRows(bounded, unselectedRow, ['1', '5'], ['0', '15']);
+
+        WrapperSelectionService.setChoiceSelection(doc, choice, 0, { ns0: NS_POC });
+        const selectedRow = rowNamed(rowNamed(documentRows(doc)[0], 'BoundedChoice'), 'Bounded');
+        expect(selectedRow).toBeInstanceOf(ChoiceFieldNodeData);
+        expectOccurrenceRows((selectedRow as ChoiceFieldNodeData).field, selectedRow, ['1', '5'], ['0', '15']);
+      });
+
+      it('should show the same rows for a member selected on the target', () => {
+        const doc = abstractDoc(DocumentType.TARGET_BODY);
+        const tree = createTargetTree(doc, { ns0: NS_POC });
+        const choice = findField(findField(doc, 'BoundedChoice'), '__choice__');
+        const choiceRow = rowWhere(
+          rowNamed(documentRows(doc, tree)[0], 'BoundedChoice'),
+          (row) => row instanceof TargetChoiceFieldNodeData,
+          'for the choice',
+        );
+        ChoiceFieldService.dispatchChoiceSelection(choiceRow, choice, { memberIndex: 0 }, tree.namespaceMap, true);
+
+        const boundedRow = descendantRow(
+          rowNamed(documentRows(doc, tree)[0], 'BoundedChoice'),
+          (row) => row instanceof FieldItemNodeData && row.field.name === 'Bounded',
+          'for the selected Bounded',
+        ) as FieldItemNodeData;
+        expectOccurrenceRows(boundedRow.field, boundedRow, ['1', '5'], ['0', '15']);
+      });
+
+      it('should show the Effective rows before the optional guard row', () => {
+        const doc = abstractDoc(DocumentType.TARGET_BODY);
+        const container = findField(doc, 'OptionalMemberInRequiredChoice');
+        const optionalField = findField(container, 'Optional');
+        const tree = createTargetTree(doc, { ns0: NS_POC });
+        const rootItem = new FieldItem(tree, doc.fields[0]);
+        tree.children.push(rootItem);
+        const containerItem = new FieldItem(rootItem, container);
+        rootItem.children.push(containerItem);
+        containerItem.children.push(new FieldItem(containerItem, optionalField));
+        const optionalRow = descendantRow(
+          rowNamed(documentRows(doc, tree)[0], 'OptionalMemberInRequiredChoice'),
+          (row) => row instanceof FieldItemNodeData && row.field === optionalField,
+          'for the mapped Optional',
+        ) as FieldItemNodeData;
+        const guard = new IfItem(containerItem);
+        guard.expression = '/ns0:Source/ns0:Optional';
+        optionalRow.autoOptionalIfItem = guard;
+
+        const labels = prepareFieldDetails(optionalField, {}, optionalRow).map(({ label }) => label);
+
+        expect(labels.slice(labels.indexOf('Min Occurs'), labels.indexOf(OPTIONAL_GUARD_LABEL) + 1)).toEqual([
+          'Min Occurs',
+          'Max Occurs',
+          'Effective Min Occurs',
+          'Effective Max Occurs',
+          OPTIONAL_GUARD_LABEL,
+        ]);
+      });
     });
   });
 
@@ -395,13 +518,15 @@ describe('field-details-utils', () => {
   });
 
   describe('prepareFieldDetails', () => {
-    it('should explain a see-through optional guard in the row after Max Occurs', () => {
+    it('should explain a see-through optional guard in the row after the last occurrence row', () => {
       const { guardedOptional } = createGuardedCsvRows();
 
       const details = prepareFieldDetails(guardedOptional.field, {}, guardedOptional);
 
       const labels = details.map(({ label }) => label);
-      expect(labels.indexOf(OPTIONAL_GUARD_LABEL)).toEqual(labels.indexOf('Max Occurs') + 1);
+      const occurrenceLabels = labels.filter((label) => label.endsWith('Occurs'));
+      const lastOccurrenceRow = labels.indexOf(occurrenceLabels[occurrenceLabels.length - 1]);
+      expect(labels.indexOf(OPTIONAL_GUARD_LABEL)).toEqual(lastOccurrenceRow + 1);
       expect(details).toContainEqual({
         label: OPTIONAL_GUARD_LABEL,
         value: getOptionalGuardExplanation('/CSV/STATUS'),
@@ -582,13 +707,15 @@ describe('field-details-utils', () => {
       expect(result.find((item) => item.label === 'Max Occurs')).toBeUndefined();
     });
 
-    it('should show inherited maxOccurs from choice wrapper for a selected collection choice member', () => {
+    it('should show the own and the effective occurrence for a selected collection choice member', () => {
       const memberRow = selectedRepeatingChoiceMemberRow();
 
       const result = prepareFieldDetails(memberRow.field, {}, memberRow);
 
       expect(memberRow.field.maxOccurs).toBe(1);
-      expect(result).toContainEqual({ label: 'Max Occurs', value: 'unbounded' });
+      expect(result).toContainEqual({ label: 'Max Occurs', value: '1' });
+      expect(result).toContainEqual({ label: 'Effective Min Occurs', value: '0' });
+      expect(result).toContainEqual({ label: 'Effective Max Occurs', value: 'unbounded' });
     });
 
     it('should show field maxOccurs unchanged when nodeData is not provided', () => {

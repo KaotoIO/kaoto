@@ -1,6 +1,6 @@
 import { IField } from '../../models/datamapper/document';
 import { IWrapperCandidate } from '../../models/datamapper/field-action';
-import { FieldCardinality } from '../../models/datamapper/field-cardinality';
+import { Occurrence } from '../../models/datamapper/field-cardinality';
 import { FieldItem } from '../../models/datamapper/mapping';
 import { DocumentService } from '../document/document.service';
 import { FieldOverrideService } from '../document/field-override.service';
@@ -113,7 +113,7 @@ export class FieldCandidateService extends WrapperBaseService {
 
   private static shouldSkipField(child: IField, forEachContext: boolean): boolean {
     if (!forEachContext) return false;
-    return child.wrapperKind !== 'choice' && child.wrapperKind !== 'abstract' && !FieldCardinality.isCollection(child);
+    return child.wrapperKind !== 'choice' && child.wrapperKind !== 'abstract' && !Occurrence.isCollection(child);
   }
 
   private static isSlotExhausted(child: IField, existingFieldItems: FieldItem[]): boolean {

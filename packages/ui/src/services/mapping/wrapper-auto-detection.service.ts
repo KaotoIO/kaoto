@@ -1,5 +1,5 @@
 import { IDocument, IField, IParentType, PrimitiveDocument } from '../../models/datamapper/document';
-import { FieldCardinality } from '../../models/datamapper/field-cardinality';
+import { Occurrence } from '../../models/datamapper/field-cardinality';
 import {
   CopyOfSelector,
   FieldItem,
@@ -129,7 +129,7 @@ export class WrapperAutoDetectionService {
     namespaceMap: Record<string, string>,
   ): boolean {
     if (wrapperField.selectedMemberQName) return false;
-    if (FieldCardinality.isCollection(wrapperField)) return false;
+    if (Occurrence.isCollection(wrapperField)) return false;
     if (!WrapperAutoDetectionService.isUniqueInWrapper(candidateField, wrapperField)) return false;
     if (WrapperAutoDetectionService.hasConditionalWrapper(mappingItem)) return false;
     if (WrapperAutoDetectionService.hasExistingSubstitutionMetadata(wrapperField, targetDocument, namespaceMap))
@@ -160,7 +160,7 @@ export class WrapperAutoDetectionService {
     namespaceMap: Record<string, string>,
   ): boolean {
     if (wrapperField.selectedMemberIndex !== undefined) return false;
-    if (FieldCardinality.isCollection(wrapperField)) return false;
+    if (Occurrence.isCollection(wrapperField)) return false;
     if (!WrapperAutoDetectionService.isUniqueInWrapper(memberField, wrapperField)) return false;
     if (WrapperAutoDetectionService.hasConditionalWrapper(mappingItem)) return false;
     if (WrapperAutoDetectionService.hasExistingChoiceMetadata(wrapperField, targetDocument, namespaceMap)) return false;
@@ -194,7 +194,7 @@ export class WrapperAutoDetectionService {
     const field = fieldItem.field;
     if (field.typeOverride !== FieldOverrideVariant.SUBSTITUTION) return;
     if (!field.originalField) return;
-    if (FieldCardinality.isCollection(field)) return;
+    if (Occurrence.isCollection(field)) return;
     if (WrapperAutoDetectionService.hasConditionalWrapper(fieldItem)) return;
 
     ensureNamespaceRegistered(field.namespaceURI, namespaceMap, field.namespacePrefix ?? undefined);

@@ -31,31 +31,25 @@ import { WrapperSelectionService } from '../document/wrapper-selection.service';
  */
 export class VisualizationUtilService {
   /**
-   * Returns the cardinality a tree row effectively has, for deciding whether the row repeats.
-   *
-   * The maximum is the `maxOccurs` of the outermost repeating choice, sequence or abstract wrapper between the
-   * field and its nearest real element ({@link DocumentService.getOutermostRepeatingWrapper}), or the field's
-   * own `maxOccurs` when no wrapper repeats. It is that level's bound, not the product of the nested bounds:
-   * for `choice(3) > A(5)` it is 3. The minimum is always the field's own. Only the field's ancestor chain is read, so the
-   * answer is the same for every node class that shows the field, whichever wrapper back-reference it carries.
-   * This is the one place that builds a {@link FieldCardinality} instance for a row.
+   * Returns the cardinality of the field a tree row shows, with its own and its effective occurrence. It delegates
+   * to {@link DocumentService.getCardinality}, which reads only the field's ancestor chain, so the answer is the
+   * same for every node class that shows the field, whichever wrapper back-reference it carries.
    * @param nodeData - The node to resolve.
-   * @returns the effective cardinality, or `undefined` for a node that shows no field
+   * @returns the cardinality, or `undefined` for a node that shows no field
    */
-  static getEffectiveCardinality(nodeData: NodeData): FieldCardinality | undefined {
+  static getCardinality(nodeData: NodeData): FieldCardinality | undefined {
     const field = VisualizationUtilService.getField(nodeData);
     if (!field) return undefined;
-    const outermost = DocumentService.getOutermostRepeatingWrapper(field);
-    return new FieldCardinality(field.minOccurs, (outermost ?? field).maxOccurs);
+    return DocumentService.getCardinality(field);
   }
 
   /**
-   * Returns `true` if the row repeats, as resolved by {@link getEffectiveCardinality}. Drives the collection
-   * icon, the collection-gated mapping actions and the automatic `for-each` on a field-to-field drop.
+   * Returns `true` if the row repeats ({@link FieldCardinality.isRepeating}). Drives the collection icon, the
+   * collection-gated mapping actions and the automatic `for-each` on a field-to-field drop.
    * @param nodeData - The node to test.
    */
   static isCollectionField(nodeData: NodeData): boolean {
-    return VisualizationUtilService.getEffectiveCardinality(nodeData)?.isCollection ?? false;
+    return VisualizationUtilService.getCardinality(nodeData)?.isRepeating ?? false;
   }
 
   /**

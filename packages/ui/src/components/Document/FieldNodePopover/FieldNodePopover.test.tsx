@@ -2,11 +2,12 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
-import { IField } from '../../../models/datamapper/document';
+import { DocumentType, IField } from '../../../models/datamapper/document';
 import { DocumentNodeData, FieldNodeData } from '../../../models/datamapper/visualization';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
-import { TestUtil } from '../../../stubs/datamapper/data-mapper';
+import { findField, parseXsdDocument } from '../../../stubs/datamapper/cardinality-test-helpers';
+import { getChoiceRepeatingAbstractXsd, TestUtil } from '../../../stubs/datamapper/data-mapper';
 import { FieldNodePopover } from './FieldNodePopover';
 
 describe('FieldNodePopover', () => {
@@ -78,6 +79,27 @@ describe('FieldNodePopover', () => {
       expect(screen.getByText('Min Occurs:')).toBeInTheDocument();
     });
     expect(screen.getByText('Max Occurs:')).toBeInTheDocument();
+  });
+
+  it('should display the effective occurrence of a bounded member of a repeating choice', async () => {
+    const user = userEvent.setup();
+    const doc = parseXsdDocument(
+      DocumentType.SOURCE_BODY,
+      'ChoiceRepeatingAbstract.xsd',
+      getChoiceRepeatingAbstractXsd(),
+    );
+    const bounded = findField(findField(doc, 'BoundedChoice'), 'Bounded');
+    const boundedNodeData = new FieldNodeData(new DocumentNodeData(doc), bounded);
+
+    render(<FieldNodePopover nodeData={boundedNodeData} />, { wrapper });
+
+    await user.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Effective Min Occurs:')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Effective Max Occurs:')).toBeInTheDocument();
+    expect(screen.getByText('15')).toBeInTheDocument();
   });
 
   it('should not display popover when enabled is false', () => {

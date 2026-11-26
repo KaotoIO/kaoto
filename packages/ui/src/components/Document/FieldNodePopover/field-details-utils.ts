@@ -6,7 +6,8 @@ import {
   FieldNodeData,
   NodeData,
 } from '../../../models/datamapper/visualization';
-import { VisualizationUtilService } from '../../../services/visualization/visualization-util.service';
+import { DocumentService } from '../../../services/document/document.service';
+import { MaxOccursType } from '../../../xml-schema-ts/constants';
 import { QName } from '../../../xml-schema-ts/QName';
 import { getOverrideDisplayInfo } from '../actions/FieldOverride/override-util';
 
@@ -48,40 +49,35 @@ export const formatTypeQName = (typeQName: QName | null): string => {
   return namespaceURI ? `${localPart} (${namespaceURI})` : localPart;
 };
 
-/**
- * Returns the effective maxOccurs for display in the field details popover.
- *
- * The popover reads the same cardinality as the collection icon and the collection-gated mapping actions,
- * so the Max Occurs row never contradicts them on the same row.
- *
- * Resolution order:
- *
- * 1. **No `nodeData`** — returns `field.maxOccurs`.
- *
- * 2. **A node that shows a field** — returns the `maxOccurs` of
- *    {@link VisualizationUtilService.getEffectiveCardinality}: that of the outermost repeating
- *    choice, sequence or abstract wrapper between the field and its nearest real element, or the field's own
- *    `maxOccurs` when no wrapper repeats. Only the field's ancestor chain is read, so a wrapper back-reference
- *    on the node (`wrapperField`, `choiceField`, `abstractField`) or the parent row never changes the value.
- *
- * 3. **A node that shows no field** — returns `field.maxOccurs`. The popover renders nothing for such a node.
- *
- * @param field    - The `IField` associated with the popover node. Its `maxOccurs` is used only when `nodeData` is
- *                   absent or shows no field.
- * @param nodeData - Optional visualization node; when absent the raw field value is used.
- */
-export const getEffectiveMaxOccurs = (field: IField, nodeData?: NodeData): IField['maxOccurs'] => {
-  const effectiveCardinality = nodeData ? VisualizationUtilService.getEffectiveCardinality(nodeData) : undefined;
-  return effectiveCardinality?.maxOccurs ?? field.maxOccurs;
-};
+const formatOccurs = (value: MaxOccursType | null | undefined): string | null =>
+  value === null || value === undefined ? null : String(value);
 
+/**
+ * Builds the rows of the field details popover.
+ *
+ * Min Occurs and Max Occurs show the field's own occurrence. Effective Min Occurs and Effective Max Occurs show
+ * how often the field can occur in its nearest real ancestor element, and are shown together whenever either
+ * value differs from the own one. Both come from {@link DocumentService.getCardinality}, the same resolver the
+ * collection icon, the collection-gated mapping actions and the automatic `for-each` read, so the popover never
+ * contradicts them. They depend only on the field, never on the node class that shows it.
+ * @param field - The field the popover describes
+ * @param namespaceMap - Prefix to namespace URI map, used to display overrides
+ * @param nodeData - The node the popover belongs to; only used for the optional guard row
+ * @returns the label/value rows to display, without the rows that have no value
+ */
 export const prepareFieldDetails = (
   field: IField,
   namespaceMap: Record<string, string> = {},
   nodeData?: NodeData,
 ): LabelValuePair[] => {
   const overrideDisplay = getOverrideDisplayInfo(field, namespaceMap);
-  const effectiveMaxOccurs = getEffectiveMaxOccurs(field, nodeData);
+  const { own, effective } = DocumentService.getCardinality(field);
+  const ownMinOccurs = formatOccurs(own.minOccurs);
+  const ownMaxOccurs = formatOccurs(own.maxOccurs);
+  const showEffective =
+    ownMinOccurs !== null &&
+    ownMaxOccurs !== null &&
+    (own.minOccurs !== effective.minOccurs || own.maxOccurs !== effective.maxOccurs);
   const optionalGuard =
     nodeData instanceof FieldItemNodeData || nodeData instanceof CopyOfFieldNodeData
       ? nodeData.autoOptionalIfItem
@@ -90,14 +86,10 @@ export const prepareFieldDetails = (
   const rows = [
     { label: 'Category', value: field.type },
     { label: 'Type', value: formatTypeQName(field.typeQName) },
-    {
-      label: 'Min Occurs',
-      value: field.minOccurs !== null && field.minOccurs !== undefined ? String(field.minOccurs) : null,
-    },
-    {
-      label: 'Max Occurs',
-      value: effectiveMaxOccurs !== null && effectiveMaxOccurs !== undefined ? String(effectiveMaxOccurs) : null,
-    },
+    { label: 'Min Occurs', value: ownMinOccurs },
+    { label: 'Max Occurs', value: ownMaxOccurs },
+    { label: 'Effective Min Occurs', value: showEffective ? formatOccurs(effective.minOccurs) : null },
+    { label: 'Effective Max Occurs', value: showEffective ? formatOccurs(effective.maxOccurs) : null },
     {
       label: OPTIONAL_GUARD_LABEL,
       value: optionalGuard ? getOptionalGuardExplanation(optionalGuard.expression) : null,

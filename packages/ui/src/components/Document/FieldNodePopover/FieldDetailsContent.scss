@@ -10,6 +10,7 @@
   &__cell {
     display: table-cell;
     padding: 0.25rem;
+    overflow-wrap: anywhere;
   }
 
   &__cell--title {
