@@ -3,6 +3,7 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  PrimitiveDocument,
 } from '../../models/datamapper/document';
 import {
   ChooseItem,
@@ -25,6 +26,7 @@ import {
   TargetNodeData,
 } from '../../models/datamapper/visualization';
 import { getCopyOfSequenceOrderXsd } from '../../stubs/datamapper/data-mapper';
+import { appendIf } from '../../stubs/datamapper/target-row-test-helpers';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
 import { CopyOfPlacementService } from '../mapping/copy-of-placement.service';
 import { MappingService } from '../mapping/mapping.service';
@@ -502,5 +504,35 @@ describe('MappingActionService — copy-of review regressions', () => {
     expect(shipTo.comment).toBe('keep me');
     expect(root.children).not.toContain(copyOf);
     expect(fieldItem.parent).toBe(shipTo);
+  });
+
+  describe('primitive target body', () => {
+    const createPrimitiveTarget = () => {
+      const primitiveDoc = new PrimitiveDocument(
+        new DocumentDefinition(DocumentType.TARGET_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
+      );
+      const primitiveTree = new MappingTree(
+        primitiveDoc.documentType,
+        primitiveDoc.documentId,
+        DocumentDefinitionType.Primitive,
+      );
+      return { primitiveTree, primitiveDocNode: new TargetDocumentNodeData(primitiveDoc, primitiveTree) };
+    };
+
+    it('should not offer copy-of on the primitive target document', () => {
+      const { primitiveDocNode } = createPrimitiveTarget();
+
+      expect(MappingActionRegistryService.getAllowedActions(primitiveDocNode)).not.toContain(
+        MappingActionKind.CopyOfSelector,
+      );
+    });
+
+    it('should not offer copy-of on an if row directly under the primitive target body', () => {
+      const { primitiveTree, primitiveDocNode } = createPrimitiveTarget();
+      const ifItem = appendIf(primitiveTree);
+      const ifNode = new MappingNodeData(primitiveDocNode, ifItem);
+
+      expect(MappingActionRegistryService.getAllowedActions(ifNode)).not.toContain(MappingActionKind.CopyOfSelector);
+    });
   });
 });
