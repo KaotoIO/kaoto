@@ -1,8 +1,21 @@
 import { Types } from '../models/datamapper';
-import { TestUtil } from '../stubs/datamapper/data-mapper';
+import {
+  BODY_DOCUMENT_ID,
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentType,
+  IDocument,
+  IField,
+} from '../models/datamapper/document';
+import { MappingTree, ValueOfSelector } from '../models/datamapper/mapping';
+import { NS_XML_SCHEMA_INSTANCE } from '../models/datamapper/standard-namespaces';
+import { getAttributesAroundWrappersXsd, TestUtil } from '../stubs/datamapper/data-mapper';
 import { QName } from '../xml-schema-ts/QName';
 import { XmlSchemaField } from './document/xml-schema/xml-schema-document.model';
+import { XmlSchemaDocumentService } from './document/xml-schema/xml-schema-document.service';
+import { MappingService } from './mapping/mapping.service';
 import { SchemaPathSegment, SchemaPathService } from './schema-path.service';
+import { XPathService } from './xpath/xpath.service';
 
 describe('SchemaPathService', () => {
   const namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
@@ -299,7 +312,7 @@ describe('SchemaPathService', () => {
 
       const original = SchemaPathService.buildOriginal(field, namespaceMap);
 
-      expect(original).toBe('/ns0:ShipOrder/ns0:@AbstractAnimal');
+      expect(original).toBe('/ns0:ShipOrder/@ns0:AbstractAnimal');
     });
 
     it('should produce {abstract:N} for abstract ancestor in the path', () => {
@@ -438,6 +451,85 @@ describe('SchemaPathService', () => {
       const keyField = seqField.fields[0];
       const path = SchemaPathService.formatDisplayPath(keyField, namespaceMap);
       expect(path).toBe('/ns0:ShipOrder/{choice:0}/key');
+    });
+  });
+
+  describe('namespace-qualified attributes', () => {
+    const attributesNs = 'io.kaoto.datamapper.test.attributes';
+
+    function createAttributesAroundWrappersDoc(): IDocument {
+      const definition = new DocumentDefinition(
+        DocumentType.SOURCE_BODY,
+        DocumentDefinitionType.XML_SCHEMA,
+        BODY_DOCUMENT_ID,
+        { 'AttributesAroundWrappers.xsd': getAttributesAroundWrappersXsd() },
+        { namespaceUri: attributesNs, name: 'Holder' },
+      );
+      const result = XmlSchemaDocumentService.createXmlSchemaDocument(definition);
+      expect(result.validationStatus).toBe('success');
+      return result.document!;
+    }
+
+    function findNilField(parent: IField): IField {
+      const nil = parent.fields.find((f) => f.isAttribute && f.name === 'nil')!;
+      expect(nil.namespaceURI).toBe(NS_XML_SCHEMA_INSTANCE);
+      return nil;
+    }
+
+    function findChild(parent: IDocument | IField, name: string): IField {
+      return parent.fields.find((f) => f.name === name)!;
+    }
+
+    const cases: {
+      name: string;
+      createDoc: () => IDocument;
+      nsMap: Record<string, string>;
+      path: string[];
+      expected: string;
+    }[] = [
+      {
+        name: 'a target namespace',
+        createDoc: createAttributesAroundWrappersDoc,
+        nsMap: { ns0: attributesNs },
+        path: ['Holder', 'NillableInline'],
+        expected: '/ns0:Holder/ns0:NillableInline/@xsi:nil',
+      },
+      {
+        name: 'no target namespace',
+        createDoc: () => TestUtil.createNamedTypesBeyondFrontierDoc(),
+        nsMap: {},
+        path: ['Customer', 'Details', 'Address'],
+        expected: '/Customer/Details/Address/@xsi:nil',
+      },
+    ];
+
+    function resolveNilField(doc: IDocument, path: string[]): IField {
+      const element = path.reduce<IDocument | IField>((parent, name) => findChild(parent, name), doc) as IField;
+      return findNilField(element);
+    }
+
+    it.each(cases)('should build and resolve the schema path of xsi:nil in a schema with $name', (testCase) => {
+      const doc = testCase.createDoc();
+      const nil = resolveNilField(doc, testCase.path);
+      const nsMap = { ...testCase.nsMap };
+
+      const schemaPath = SchemaPathService.build(nil, nsMap);
+
+      expect(schemaPath).toBe(testCase.expected);
+      expect(SchemaPathService.navigateToField(doc, schemaPath, nsMap)).toBe(nil);
+    });
+
+    it.each(cases)('should map from xsi:nil in a schema with $name as @xsi:nil', (testCase) => {
+      const doc = testCase.createDoc();
+      const tree = new MappingTree(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID, DocumentDefinitionType.XML_SCHEMA);
+      tree.namespaceMap = { ...testCase.nsMap };
+
+      MappingService.mapToDocument(tree, resolveNilField(doc, testCase.path));
+
+      const selector = tree.children[0] as ValueOfSelector;
+      expect(selector.expression).toBe(testCase.expected);
+      expect(tree.namespaceMap['xsi']).toBe(NS_XML_SCHEMA_INSTANCE);
+      expect(XPathService.parse(selector.expression).parseErrors).toHaveLength(0);
     });
   });
 });

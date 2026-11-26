@@ -889,7 +889,27 @@ describe('XPathService', () => {
       const pe = new PathExpression();
       pe.pathSegments.push(new PathSegment('attr', true, 'ns0'));
       const xpath = XPathService.toXPathString(pe);
-      expect(xpath).toBe('/ns0:@attr');
+      expect(xpath).toBe('/@ns0:attr');
+    });
+
+    it('should generate XPath with attribute without namespace prefix', () => {
+      const pe = new PathExpression();
+      pe.pathSegments.push(new PathSegment('Root', false, 'ns0'));
+      pe.pathSegments.push(new PathSegment('attr', true));
+      expect(XPathService.toXPathString(pe)).toBe('/ns0:Root/@attr');
+    });
+
+    it.each(['/ns0:Root/ns0:opt/@xsi:nil', '/Root/opt/@xsi:nil', '/Root/@ns0:code', '$param/ns0:Root/@ns0:code'])(
+      'should round trip namespace-qualified attribute path %s',
+      (xpath) => {
+        const [path] = XPathService.extractFieldPaths(xpath);
+        expect(XPathService.toXPathString(path)).toBe(xpath);
+      },
+    );
+
+    it('should write an attribute:: axis step with namespace prefix as @prefix:name', () => {
+      const [path] = XPathService.extractFieldPaths('/Root/attribute::xsi:nil');
+      expect(XPathService.toXPathString(path)).toBe('/Root/@xsi:nil');
     });
 
     it('should generate context item expression for empty relative path', () => {

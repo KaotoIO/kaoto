@@ -717,8 +717,8 @@ export class XPathService {
   }
 
   private static segmentToXPathString(segment: PathSegment): string {
-    const nameLocalPart = segment.isAttribute ? `@${segment.name}` : segment.name;
-    const namePart = segment.prefix ? `${segment.prefix}:${nameLocalPart}` : nameLocalPart;
+    const qName = segment.prefix ? `${segment.prefix}:${segment.name}` : segment.name;
+    const namePart = segment.isAttribute ? `@${qName}` : qName;
 
     const predicatesPart = segment.predicates.reduce((acc, predicate) => {
       const prefix = acc ? `${acc} and ` : '';
