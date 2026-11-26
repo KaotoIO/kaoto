@@ -20,7 +20,6 @@ import { resetTestIndexedDB } from '../../test/indexed-db';
 import { buildTree } from './build-tree';
 import { Explorer } from './Explorer';
 import { filterFiles } from './filterFiles';
-import { useExplorerWidth } from './useExplorerWidth';
 
 const TREE = buildTree(TEST_FILES.map(({ id, path }) => ({ key: id, kind: 'file' as const, path })));
 
@@ -31,11 +30,10 @@ const expectStoredAt = async (id: string, path: string) => {
   if (path !== pathOf(id)) expect(paths).not.toContain(pathOf(id));
 };
 
-/** The Explorer with its width held the way the project layout holds it */
-const ResizableExplorer = () => {
-  const { width, handleResizerMouseDown } = useExplorerWidth();
-  return <Explorer width={width} onResizerMouseDown={handleResizerMouseDown} />;
-};
+/** Stands in for the handler the project layout passes; the resizing itself is tested with `usePanelResizer` */
+const onResizerMouseDown = vi.fn();
+
+const ExplorerUnderTest = () => <Explorer onResizerMouseDown={onResizerMouseDown} />;
 
 /** Serves the starter template of a Camel Route YAML from the catalog, as the Create new file dialog loads it */
 const stubStarterTemplates = () =>
@@ -59,7 +57,7 @@ const renderComponent = () =>
   render(
     <MemoryRouter initialEntries={['/workspace']}>
       <Routes>
-        <Route path="/workspace" element={withFiles(<ResizableExplorer />)} />
+        <Route path="/workspace" element={withFiles(<ExplorerUnderTest />)} />
       </Routes>
     </MemoryRouter>,
   );
@@ -83,7 +81,7 @@ const renderWithNavigation = (children?: React.ReactNode, initialPath = '/worksp
           path="/workspace"
           element={withFiles(
             <>
-              <ResizableExplorer />
+              <ExplorerUnderTest />
               {children}
               <Outlet />
             </>,
@@ -505,38 +503,13 @@ describe('Explorer', () => {
   });
 
   describe('resizing', () => {
-    const drag = (fromX: number, toX: number) => {
-      fireEvent.mouseDown(screen.getByRole('button', { name: 'Resize explorer panel' }), { clientX: fromX });
-      fireEvent.mouseMove(document, { clientX: toX });
-    };
-
-    it('grows the panel following the mouse', () => {
+    it('passes a press on the resize handle to onResizerMouseDown', () => {
       renderComponent();
 
-      drag(100, 160);
+      fireEvent.mouseDown(screen.getByRole('button', { name: 'Resize explorer panel' }), { clientX: 100 });
 
-      expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '300px' });
-    });
-
-    it('clamps the panel to the minimum and maximum widths', () => {
-      renderComponent();
-
-      drag(100, -1000);
-      expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '160px' });
-
-      fireEvent.mouseUp(document);
-      drag(100, 1000);
-      expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '480px' });
-    });
-
-    it('stops resizing after the mouse is released', () => {
-      renderComponent();
-
-      drag(100, 160);
-      fireEvent.mouseUp(document);
-      fireEvent.mouseMove(document, { clientX: 300 });
-
-      expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '300px' });
+      expect(onResizerMouseDown).toHaveBeenCalledTimes(1);
+      expect(onResizerMouseDown).toHaveBeenCalledWith(expect.objectContaining({ clientX: 100 }));
     });
   });
 

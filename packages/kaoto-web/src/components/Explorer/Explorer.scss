@@ -5,7 +5,8 @@
 @use '../../styles/panel-header' as panel;
 
 .cs--explorer {
-  // inline-size is set via inline style (resizable)
+  // Set on the project layout and changed while the panel is resized, see useExplorerWidth
+  inline-size: var(--cs-explorer-inline-size);
   position: relative;
   flex-shrink: 0;
   block-size: 100%;
