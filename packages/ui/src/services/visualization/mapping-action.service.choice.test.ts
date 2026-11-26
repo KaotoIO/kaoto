@@ -11,6 +11,7 @@ import {
   IfItem,
   MappingTree,
   OtherwiseItem,
+  ValueOfSelector,
   ValueSelector,
 } from '../../models/datamapper/mapping';
 import { Types } from '../../models/datamapper/types';
@@ -677,22 +678,36 @@ describe('dispatchChoiceSelection / clearChoiceSelectionOnField — target-side 
       expect(replaced.isUserCreated).toBe(true);
     });
 
-    it('should re-parent children when replacing existing FieldItem', () => {
+    it('should discard the outgoing member’s children when switching to another member', () => {
       const { mappingTree, fieldNode, choiceField, memberA, memberB } = createChoiceTargetSetup();
-      const existingItem = new FieldItem(mappingTree, choiceField);
+      const existingItem = new FieldItem(mappingTree, memberA);
       existingItem.isUserCreated = true;
-      const childItem = new FieldItem(existingItem, memberA);
-      existingItem.children.push(childItem);
+      existingItem.children.push(new ValueOfSelector(existingItem));
       mappingTree.children.push(existingItem);
       fieldNode.mapping = existingItem;
 
       ChoiceFieldService.dispatchChoiceSelection(fieldNode, choiceField, { memberIndex: 1 }, {}, true);
 
+      expect(mappingTree.children).toHaveLength(1);
       const replaced = mappingTree.children[0] as FieldItem;
       expect(replaced.field).toBe(memberB);
       expect(replaced.isUserCreated).toBe(true);
-      expect(replaced.children).toHaveLength(1);
-      expect(replaced.children[0].parent).toBe(replaced);
+      expect(replaced.children).toHaveLength(0);
+    });
+
+    it('should keep the children when re-selecting the current member', () => {
+      const { mappingTree, fieldNode, choiceField, memberA } = createChoiceTargetSetup();
+      const existingItem = new FieldItem(mappingTree, memberA);
+      existingItem.isUserCreated = true;
+      const valueSelector = new ValueOfSelector(existingItem);
+      existingItem.children.push(valueSelector);
+      mappingTree.children.push(existingItem);
+      fieldNode.mapping = existingItem;
+
+      ChoiceFieldService.dispatchChoiceSelection(fieldNode, choiceField, { memberIndex: 0 }, {}, true);
+
+      expect(mappingTree.children).toEqual([existingItem]);
+      expect(existingItem.children).toEqual([valueSelector]);
     });
   });
 

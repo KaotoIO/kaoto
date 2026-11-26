@@ -9,13 +9,17 @@ import {
   IField,
   RootElementOption,
 } from '../../models/datamapper/document';
-import { FieldItem, MappingTree, ValueOfSelector } from '../../models/datamapper/mapping';
+import { IMemberSelection } from '../../models/datamapper/field-action';
+import { FieldItem, IfItem, MappingTree, ValueOfSelector } from '../../models/datamapper/mapping';
 import { TargetDocumentNodeData, TargetFieldNodeData } from '../../models/datamapper/visualization';
 import { getChoiceWithAbstractXsd, TestUtil } from '../../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from '../document/document-util.service';
+import { FieldOverrideService } from '../document/field-override.service';
 import { XmlSchemaDocumentService } from '../document/xml-schema/xml-schema-document.service';
+import { MappingService } from '../mapping/mapping.service';
 import { MappingSerializerService } from '../mapping/mapping-serializer.service';
 import { AbstractFieldService } from './abstract-field.service';
+import { ChoiceFieldService } from './choice-field.service';
 
 const NS_CHOICE_ABSTRACT = 'http://www.example.com/CHOICE_ABSTRACT';
 const NOTIFICATION_ROOT: RootElementOption = { namespaceUri: NS_CHOICE_ABSTRACT, name: 'Notification' };
@@ -36,11 +40,13 @@ function createTargetDoc(): IDocument {
   return result.document;
 }
 
-function findAbstractWrapper(targetDoc: IDocument): IField {
+function findChoiceWrapper(targetDoc: IDocument): IField {
   const short = targetDoc.fields[0].fields.find((f) => f.name === 'Short');
-  const choiceWrapper = short!.fields.find((f) => f.wrapperKind === 'choice' && f.maxOccurs === 1);
-  const abstractWrapper = choiceWrapper!.fields.find((f) => f.wrapperKind === 'abstract');
-  return abstractWrapper!;
+  return short!.fields.find((f) => f.wrapperKind === 'choice' && f.maxOccurs === 1)!;
+}
+
+function findAbstractWrapper(targetDoc: IDocument): IField {
+  return findChoiceWrapper(targetDoc).fields.find((f) => f.wrapperKind === 'abstract')!;
 }
 
 function substitute(nodeData: TargetFieldNodeData, wrapper: IField, qname: string) {
@@ -48,18 +54,15 @@ function substitute(nodeData: TargetFieldNodeData, wrapper: IField, qname: strin
 }
 
 /**
- * Pins what a selection move does today, ahead of the wrapper-selection refactoring. Changing a
- * target wrapper's selected member re-parents the outgoing member's mapped children onto the
- * incoming one with no compatibility check, so the serialized XSLT can carry an element the
- * selected member does not declare.
+ * Changing a target wrapper's selected member must not carry the outgoing member's mapped
+ * children onto the incoming one: they were mapped against fields the incoming member need not
+ * declare, and they serialize, so the XSLT would gain a schema-invalid element carrying data.
  *
- * The control tests are permanent: they assert the fixture is capable of showing that at all —
- * `Email_t` declaring `subject` where `SMS_t` does not — which is what makes the third test's
- * result meaningful rather than merely green. The `defect` block records the broken behaviour on
- * purpose and **inverts when the re-parent is fixed**, and the issue that fixes it enumerates this
- * file, so a red test here is the planned outcome rather than a regression.
+ * The control tests assert the fixture is capable of showing that at all — `Email_t` declaring
+ * `subject` where `SMS_t` does not — which is what makes the member-change tests meaningful
+ * rather than merely green.
  */
-describe('selection move re-parents the outgoing member’s children', () => {
+describe('selection move and the outgoing member’s children', () => {
   describe('controls — permanent assertions, true before and after any fix', () => {
     it('should declare subject on Email_t only, and phoneNumber on SMS_t only', () => {
       const targetDoc = createTargetDoc();
@@ -78,68 +81,168 @@ describe('selection move re-parents the outgoing member’s children', () => {
     });
 
     it('should hold a subject child under the Email FieldItem after the mapping step', () => {
-      const targetDoc = createTargetDoc();
-      const mappingTree = new MappingTree(
-        targetDoc.documentType,
-        targetDoc.documentId,
-        DocumentDefinitionType.XML_SCHEMA,
-      );
-      const docNode = new TargetDocumentNodeData(targetDoc, mappingTree);
-      const abstractWrapper = findAbstractWrapper(targetDoc);
-      const wrapperNode = new TargetFieldNodeData(docNode, abstractWrapper);
+      const { mappingTree, wrapperNode, abstractWrapper } = createSetup();
 
-      substitute(wrapperNode, abstractWrapper, 'ns0:Email');
+      const emailItem = selectEmailWithMappedSubject(mappingTree, wrapperNode, abstractWrapper);
 
-      const emailItem = findFieldItem(mappingTree, 'Email');
-      expect(emailItem).toBeDefined();
-
-      const subjectField = DocumentUtilService.resolveTypeFragment(emailItem!.field).fields.find(
-        (f) => f.name === 'subject',
-      );
-      const subjectItem = new FieldItem(emailItem!, subjectField!);
-      subjectItem.children.push(new ValueOfSelector(subjectItem));
-      emailItem!.children.push(subjectItem);
-
-      expect(emailItem!.children).toHaveLength(1);
-      expect((emailItem!.children[0] as FieldItem).field.name).toBe('subject');
+      expect(emailItem.children).toHaveLength(1);
+      expect((emailItem.children[0] as FieldItem).field.name).toBe('subject');
     });
   });
 
-  describe('defect — inverts when DecoupleSelection: S6 lands', () => {
-    it('should emit subject inside SMS after substituting Email with SMS', () => {
-      const targetDoc = createTargetDoc();
-      const mappingTree = new MappingTree(
-        targetDoc.documentType,
-        targetDoc.documentId,
-        DocumentDefinitionType.XML_SCHEMA,
-      );
-      const docNode = new TargetDocumentNodeData(targetDoc, mappingTree);
-      const abstractWrapper = findAbstractWrapper(targetDoc);
-      const wrapperNode = new TargetFieldNodeData(docNode, abstractWrapper);
+  describe('member change discards the outgoing member’s children', () => {
+    it('should not emit subject inside SMS after substituting Email with SMS', () => {
+      const { mappingTree, wrapperNode, abstractWrapper } = createSetup();
+      const emailItem = selectEmailWithMappedSubject(mappingTree, wrapperNode, abstractWrapper);
 
-      substitute(wrapperNode, abstractWrapper, 'ns0:Email');
-      const emailItem = findFieldItem(mappingTree, 'Email')!;
-      const subjectField = DocumentUtilService.resolveTypeFragment(emailItem.field).fields.find(
-        (f) => f.name === 'subject',
-      );
-      const subjectItem = new FieldItem(emailItem, subjectField!);
-      subjectItem.children.push(new ValueOfSelector(subjectItem));
-      emailItem.children.push(subjectItem);
-
-      const before = MappingSerializerService.serialize(mappingTree, TestUtil.createParameterMap());
+      const before = serialize(mappingTree);
       expect(before).toMatch(/<[^>]*Email[^>]*>\s*<[^>]*subject/);
-      expect(before).not.toMatch(/<[^>]*SMS[^>]*>\s*<[^>]*subject/);
 
       wrapperNode.mapping = emailItem;
       substitute(wrapperNode, abstractWrapper, 'ns0:SMS');
 
-      const xslt = MappingSerializerService.serialize(mappingTree, TestUtil.createParameterMap());
+      const smsItem = findFieldItem(mappingTree, 'SMS');
+      expect(smsItem).toBeDefined();
+      expect(smsItem!.children).toHaveLength(0);
+      expect(findFieldItem(mappingTree, 'Email')).toBeUndefined();
 
-      expect(xslt).toMatch(/<[^>]*SMS[^>]*>\s*<[^>]*subject/);
-      expect(xslt).not.toMatch(/<[^>]*Email[^>]*>\s*<[^>]*subject/);
+      const xslt = serialize(mappingTree);
+      expect(xslt).not.toMatch(/subject/);
+    });
+
+    it('should keep subject and its mapping when re-selecting Email', () => {
+      const { mappingTree, wrapperNode, abstractWrapper } = createSetup();
+      const emailItem = selectEmailWithMappedSubject(mappingTree, wrapperNode, abstractWrapper);
+      const subjectItem = emailItem.children[0];
+
+      wrapperNode.mapping = emailItem;
+      substitute(wrapperNode, abstractWrapper, 'ns0:Email');
+
+      expect(findFieldItem(mappingTree, 'Email')).toBe(emailItem);
+      expect(emailItem.children).toEqual([subjectItem]);
+      expect(subjectItem.children[0]).toBeInstanceOf(ValueOfSelector);
+    });
+
+    it('should keep the SMS FieldItem through the stale-mapping reconcile when Email was not user-created', () => {
+      const { targetDoc, mappingTree, wrapperNode, abstractWrapper } = createSetup();
+      const emailItem = selectEmailWithMappedSubject(mappingTree, wrapperNode, abstractWrapper);
+      emailItem.isUserCreated = false;
+
+      wrapperNode.mapping = emailItem;
+      substitute(wrapperNode, abstractWrapper, 'ns0:SMS');
+      MappingService.removeStaleMappingsForDocument(mappingTree, targetDoc);
+
+      const smsItem = findFieldItem(mappingTree, 'SMS');
+      expect(smsItem).toBeDefined();
+      expect(smsItem!.isUserCreated).toBe(true);
+      expect(smsItem!.children).toHaveLength(0);
+    });
+
+    it('should keep the enclosing xsl:if and discard only the outgoing member’s children', () => {
+      const { mappingTree, wrapperNode, abstractWrapper } = createSetup();
+      const ifItem = new IfItem(mappingTree);
+      mappingTree.children.push(ifItem);
+      const emailField = abstractWrapper.fields.find((f) => f.name === 'Email')!;
+      const emailItem = new FieldItem(ifItem, emailField);
+      ifItem.children.push(emailItem);
+      addMappedChild(emailItem, 'subject');
+
+      FieldOverrideService.applyFieldSubstitution(abstractWrapper, 'ns0:Email', NAMESPACE_MAP);
+      wrapperNode.mapping = emailItem;
+      substitute(wrapperNode, abstractWrapper, 'ns0:SMS');
+
+      expect(mappingTree.children).toEqual([ifItem]);
+      expect(ifItem.children).toHaveLength(1);
+      const smsItem = ifItem.children[0] as FieldItem;
+      expect(smsItem.field.name).toBe('SMS');
+      expect(smsItem.parent).toBe(ifItem);
+      expect(smsItem.children).toHaveLength(0);
+    });
+
+    it('should not emit subject inside SMS after changing the choice from Email to SMS', () => {
+      const { mappingTree, docNode, targetDoc } = createSetup();
+      const { choiceWrapper, choiceNode, abstractIndex } = createChoiceSetup(targetDoc, docNode);
+
+      selectChoice(choiceNode, choiceWrapper, { memberIndex: abstractIndex, substituteQName: 'ns0:Email' });
+      const emailItem = findFieldItem(mappingTree, 'Email')!;
+      addMappedChild(emailItem, 'subject');
+      expect(serialize(mappingTree)).toMatch(/subject/);
+
+      choiceNode.mapping = emailItem;
+      selectChoice(choiceNode, choiceWrapper, { memberIndex: abstractIndex, substituteQName: 'ns0:SMS' });
+
+      expect(findFieldItem(mappingTree, 'Email')).toBeUndefined();
+      const smsItem = findFieldItem(mappingTree, 'SMS');
+      expect(smsItem).toBeDefined();
+      expect(smsItem!.children).toHaveLength(0);
+      expect(serialize(mappingTree)).not.toMatch(/subject/);
+    });
+
+    it('should not emit url inside Email after changing the choice from Webhook to Email', () => {
+      const { mappingTree, docNode, targetDoc } = createSetup();
+      const { choiceWrapper, choiceNode, abstractIndex, webhookIndex } = createChoiceSetup(targetDoc, docNode);
+
+      selectChoice(choiceNode, choiceWrapper, { memberIndex: webhookIndex });
+      const webhookItem = findFieldItem(mappingTree, 'Webhook')!;
+      addMappedChild(webhookItem, 'url');
+      expect(serialize(mappingTree)).toMatch(/url/);
+
+      choiceNode.mapping = webhookItem;
+      selectChoice(choiceNode, choiceWrapper, { memberIndex: abstractIndex, substituteQName: 'ns0:Email' });
+
+      expect(findFieldItem(mappingTree, 'Webhook')).toBeUndefined();
+      const emailItem = findFieldItem(mappingTree, 'Email');
+      expect(emailItem).toBeDefined();
+      expect(emailItem!.children).toHaveLength(0);
+      expect(serialize(mappingTree)).not.toMatch(/url/);
     });
   });
 });
+
+function serialize(mappingTree: MappingTree): string {
+  return MappingSerializerService.serialize(mappingTree, TestUtil.createParameterMap());
+}
+
+function createChoiceSetup(targetDoc: IDocument, docNode: TargetDocumentNodeData) {
+  const choiceWrapper = findChoiceWrapper(targetDoc);
+  const choiceNode = new TargetFieldNodeData(docNode, choiceWrapper);
+  const webhookIndex = choiceWrapper.fields.findIndex((f) => f.name === 'Webhook');
+  const abstractIndex = choiceWrapper.fields.findIndex((f) => f.wrapperKind === 'abstract');
+  return { choiceWrapper, choiceNode, webhookIndex, abstractIndex };
+}
+
+/** Same selection shape the choice menu sends: an abstract member is offered as its concrete substitutes. */
+function selectChoice(choiceNode: TargetFieldNodeData, choiceWrapper: IField, selection: IMemberSelection) {
+  ChoiceFieldService.dispatchChoiceSelection(choiceNode, choiceWrapper, selection, NAMESPACE_MAP, true);
+}
+
+function createSetup() {
+  const targetDoc = createTargetDoc();
+  const mappingTree = new MappingTree(targetDoc.documentType, targetDoc.documentId, DocumentDefinitionType.XML_SCHEMA);
+  const docNode = new TargetDocumentNodeData(targetDoc, mappingTree);
+  const abstractWrapper = findAbstractWrapper(targetDoc);
+  const wrapperNode = new TargetFieldNodeData(docNode, abstractWrapper);
+  return { targetDoc, mappingTree, docNode, abstractWrapper, wrapperNode };
+}
+
+function addMappedChild(parentItem: FieldItem, childName: string): FieldItem {
+  const childField = DocumentUtilService.resolveTypeFragment(parentItem.field).fields.find((f) => f.name === childName);
+  const childItem = new FieldItem(parentItem, childField!);
+  childItem.children.push(new ValueOfSelector(childItem));
+  parentItem.children.push(childItem);
+  return childItem;
+}
+
+function selectEmailWithMappedSubject(
+  mappingTree: MappingTree,
+  wrapperNode: TargetFieldNodeData,
+  abstractWrapper: IField,
+): FieldItem {
+  substitute(wrapperNode, abstractWrapper, 'ns0:Email');
+  const emailItem = findFieldItem(mappingTree, 'Email')!;
+  addMappedChild(emailItem, 'subject');
+  return emailItem;
+}
 
 function findFieldItem(root: MappingTree | FieldItem, name: string): FieldItem | undefined {
   for (const child of root.children) {
