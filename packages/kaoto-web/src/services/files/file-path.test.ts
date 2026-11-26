@@ -1,4 +1,4 @@
-import { buildChildPath, buildFilePath, buildRenamedPath } from './file-path';
+import { buildChildPath, buildFilePath, buildRenamedPath, parentFolderOf } from './file-path';
 
 describe('buildFilePath', () => {
   it.each([
@@ -70,5 +70,16 @@ describe('buildChildPath', () => {
   ] as const)('names the %s in its errors', (kind, empty, separator) => {
     for (const name of ['', '   ', '.', '..']) expect(buildChildPath('routes', name, kind)).toEqual({ error: empty });
     for (const name of ['a/b', 'a\\b']) expect(buildChildPath('routes', name, kind)).toEqual({ error: separator });
+  });
+});
+
+describe('parentFolderOf', () => {
+  it.each([
+    ['orders.camel.yaml', ''],
+    ['routes', ''],
+    ['routes/orders.camel.yaml', 'routes'],
+    ['routes/async/orders.camel.yaml', 'routes/async'],
+  ])('takes the folder of %j as %j', (path, folder) => {
+    expect(parentFolderOf(path)).toBe(folder);
   });
 });

@@ -29,6 +29,7 @@ import { useNavigate } from 'react-router';
 
 import { useActiveFile } from '../../hooks/useActiveFile';
 import { fileUrl } from '../../routes/file-url';
+import { parentFolderOf } from '../../services/files/file-path';
 import { FileEntry } from '../../store/files/files-ui-state';
 import { useFilesUiStore, useFilesUiStoreApi } from '../../store/files/use-files-ui-store';
 import { CreateFileModal } from '../CreateFileModal/CreateFileModal';
@@ -38,6 +39,8 @@ import { buildTree } from './build-tree';
 import { EntryLabel } from './EntryLabel';
 import { ExplorerFile } from './explorer-file';
 import { filterFiles } from './filterFiles';
+import { getFolderKeysOnPath } from './folder-keys-on-path';
+import { getFolderPathForNewEntry, ROOT_TARGET } from './folder-path-for-new-entry';
 import { CreatedEntry, NewEntryField, NewEntryKind } from './NewEntryField';
 import { RenameField } from './RenameField';
 import { RenameFolderField } from './RenameFolderField';
@@ -73,9 +76,6 @@ interface NewEntry {
 /** The id of the tree node that holds the name field of a new file or folder */
 const NEW_ENTRY_ID = 'new-entry:';
 
-/** Stands for the root in the last focused tree item, after a click on the free space of the tree */
-const ROOT_TARGET = 'root:';
-
 /** Puts the node of the new entry into its folder: a folder first among the folders, a file first among the files */
 function insertNewEntry(nodes: ExplorerFile[], entry: NewEntry): ExplorerFile[] {
   const node: ExplorerFile = {
@@ -100,23 +100,6 @@ function insertNewEntry(nodes: ExplorerFile[], entry: NewEntry): ExplorerFile[] 
     return candidate;
   });
 }
-
-/** The folder paths from the outermost folder down to the folder itself */
-const folderAndParents = (folderPath: string): string[] =>
-  folderPath ? folderPath.split('/').map((_, index, segments) => segments.slice(0, index + 1).join('/')) : [];
-
-/** The folder that holds the path, '' for the root */
-const folderOf = (path: string): string => path.slice(0, Math.max(path.lastIndexOf('/'), 0));
-
-/** The expanded folders with the folder and all its parents expanded as well */
-const expandFolderAndParents = (
-  expandedFolders: Record<string, boolean>,
-  entries: readonly FileEntry[],
-  folderPath: string,
-): Record<string, boolean> => {
-  const keys = folderAndParents(folderPath).flatMap((path) => entries.find((entry) => entry.path === path)?.key ?? []);
-  return { ...expandedFolders, ...Object.fromEntries(keys.map((key) => [key, true])) };
-};
 
 /** The key labelled "delete" on a Mac keyboard sends Backspace */
 const DELETE_KEYS: ReadonlySet<string> = new Set(['Delete', 'Backspace']);
@@ -226,6 +209,10 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
   /** The button that opened the Create New File modal */
   const createOpenerRef = useRef<HTMLElement | null>(null);
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
+  /** Expands the folders, leaving the others as they are */
+  const expandFolders = (folderKeys: string[]) => {
+    setExpandedFolders((previous) => ({ ...previous, ...Object.fromEntries(folderKeys.map((key) => [key, true])) }));
+  };
 
   const handleSearch = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -245,7 +232,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
   if (revealedId !== selectedId) {
     setRevealedId(selectedId);
     const openPath = entries.find(({ key }) => key === selectedId)?.path;
-    if (openPath) setExpandedFolders((previous) => expandFolderAndParents(previous, entries, folderOf(openPath)));
+    if (openPath) expandFolders(getFolderKeysOnPath(entries, parentFolderOf(openPath)));
   }
   const filtered = useMemo(() => filterFiles(tree, query), [tree, query]);
 
@@ -301,23 +288,12 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
     setIsCreateOpen(true);
   };
 
-  /** The folder a new entry goes into: the last focused tree item's, else the open file's, else the root */
-  const targetFolderPath = (): string => {
-    const lastFocused = lastFocusedNodeRef.current;
-    if (lastFocused === ROOT_TARGET) return '';
-    // A folder that was deleted since is gone from the entries; a renamed one keeps its key and is found
-    const focused = entries.find(({ key }) => key === lastFocused);
-    if (focused?.kind === 'folder') return focused.path;
-    const file = focused ?? entries.find(({ key }) => key === selectedId);
-    return file ? folderOf(file.path) : '';
-  };
-
   const startCreate = (kind: NewEntryKind, event: React.MouseEvent<HTMLElement>) => {
     const opener = event.currentTarget;
-    const folderPath = targetFolderPath();
+    const folderPath = getFolderPathForNewEntry(entries, lastFocusedNodeRef.current, selectedId);
     // The search would hide the new entry
     setSearchText('');
-    setExpandedFolders((previous) => expandFolderAndParents(previous, entries, folderPath));
+    expandFolders(getFolderKeysOnPath(entries, folderPath));
     setNewEntry((previous) => ({ kind, folderPath, key: (previous?.key ?? 0) + 1, opener }));
   };
 
@@ -356,9 +332,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
     setSearchText('');
     // Unfolded here and not left to `revealedId`: the router opens the file in a transition, which renders after the
     // focus moves. The entries come from the store, as the folders of the file may be newer than this render's.
-    setExpandedFolders((previous) =>
-      expandFolderAndParents(previous, store.getState().entries, folderOf(created.path)),
-    );
+    expandFolders(getFolderKeysOnPath(store.getState().entries, parentFolderOf(created.path)));
     setFocusNode({ nodeId: created.key });
   };
 
