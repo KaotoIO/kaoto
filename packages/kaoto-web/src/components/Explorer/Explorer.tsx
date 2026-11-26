@@ -206,13 +206,14 @@ function renderNodes(nodes: ExplorerFile[], opts: RenderOptions): React.ReactNod
 }
 
 interface ExplorerProps {
-  /** The width of the panel in pixels, see {@link useExplorerWidth} */
-  width: number;
-  /** Starts resizing the panel when its resize handle is pressed */
+  /**
+   * Starts resizing the panel when its resize handle is pressed. The width itself is the CSS variable
+   * `--cs-explorer-inline-size`, see `useExplorerWidth`.
+   */
   onResizerMouseDown: (event: React.MouseEvent) => void;
 }
 
-export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMouseDown }) => {
+export const Explorer: FunctionComponent<ExplorerProps> = ({ onResizerMouseDown }) => {
   const selectedId = useActiveFile().entry?.key;
   const navigate = useNavigate();
   const [searchText, setSearchText] = useState('');
@@ -375,12 +376,7 @@ export const Explorer: FunctionComponent<ExplorerProps> = ({ width, onResizerMou
     node.children ? store.getState().removeFolder(node.id) : store.getState().removeFile(node.id);
 
   return (
-    <aside
-      className="cs--explorer"
-      data-testid="explorer"
-      aria-label="Project explorer"
-      style={{ inlineSize: `${width}px` }}
-    >
+    <aside className="cs--explorer" data-testid="explorer" aria-label="Project explorer">
       {/* Section 1 — Toolbar */}
       <div className="cs--explorer__toolbar">
         <h2 className="cs--explorer__heading">Explorer</h2>

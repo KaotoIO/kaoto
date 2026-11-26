@@ -1,32 +1,56 @@
-import { MouseEvent as ReactMouseEvent, useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { MouseEvent as ReactMouseEvent, RefCallback, useCallback, useRef } from 'react';
 
 interface PanelResizerOptions {
+  /** The CSS custom property that holds the width, e.g. `--cs-explorer-inline-size` */
+  cssVariable: string;
   initialWidth: number;
   minWidth: number;
   maxWidth: number;
 }
 
-/** Tracks the width in pixels of a panel that is resized by dragging its handle, clamped between minWidth and maxWidth */
-export function usePanelResizer({ initialWidth, minWidth, maxWidth }: PanelResizerOptions) {
-  const [width, setWidth] = useState(initialWidth);
-  const startX = useRef<number>(0);
-  const startWidth = useRef<number>(initialWidth);
-  // widthRef mirrors the width state so handleResizerMouseDown can read the
-  // current value in a mousedown handler without taking width as a dependency
-  // (which would recreate the callback on every mousemove during a drag).
-  const widthRef = useRef<number>(initialWidth);
-  useLayoutEffect(() => {
-    widthRef.current = width;
-  });
+interface PanelResizer {
+  /**
+   * Attach to the element that carries the width variable, e.g. a layout around the panel and the elements that line
+   * up with it; it gets the current width as soon as it is attached
+   */
+  widthVariableElementRef: RefCallback<HTMLElement>;
+  /** Starts resizing when the resize handle is pressed */
+  handleResizerMouseDown: (event: ReactMouseEvent) => void;
+}
+
+/**
+ * Resizes a panel by dragging its handle, with the width clamped between minWidth and maxWidth.
+ *
+ * The width lives only in a CSS variable on the attached element, written while dragging, so that a drag renders
+ * nothing in React: whatever needs the width reads the variable in its styles.
+ */
+export function usePanelResizer({ cssVariable, initialWidth, minWidth, maxWidth }: PanelResizerOptions): PanelResizer {
+  const attachedElementRef = useRef<HTMLElement | null>(null);
+  const widthRef = useRef(initialWidth);
+
+  const applyWidth = useCallback(
+    (width: number) => {
+      widthRef.current = width;
+      attachedElementRef.current?.style.setProperty(cssVariable, `${width}px`);
+    },
+    [cssVariable],
+  );
+
+  const widthVariableElementRef = useCallback<RefCallback<HTMLElement>>(
+    (element) => {
+      attachedElementRef.current = element;
+      applyWidth(widthRef.current);
+    },
+    [applyWidth],
+  );
 
   const handleResizerMouseDown = useCallback(
-    (e: ReactMouseEvent) => {
-      startX.current = e.clientX;
-      startWidth.current = widthRef.current;
+    (event: ReactMouseEvent) => {
+      const startX = event.clientX;
+      const startWidth = widthRef.current;
 
-      const onMouseMove = (ev: MouseEvent) => {
-        const delta = ev.clientX - startX.current;
-        setWidth(Math.min(maxWidth, Math.max(minWidth, startWidth.current + delta)));
+      const onMouseMove = (moveEvent: MouseEvent) => {
+        applyWidth(Math.min(maxWidth, Math.max(minWidth, startWidth + moveEvent.clientX - startX)));
       };
       const onMouseUp = () => {
         document.removeEventListener('mousemove', onMouseMove);
@@ -35,8 +59,8 @@ export function usePanelResizer({ initialWidth, minWidth, maxWidth }: PanelResiz
       document.addEventListener('mousemove', onMouseMove);
       document.addEventListener('mouseup', onMouseUp);
     },
-    [minWidth, maxWidth],
+    [applyWidth, minWidth, maxWidth],
   );
 
-  return { width, handleResizerMouseDown };
+  return { widthVariableElementRef, handleResizerMouseDown };
 }

@@ -81,7 +81,6 @@ describe('ProjectLayout', () => {
     fireEvent.mouseMove(document, { clientX: 160 });
     fireEvent.mouseUp(document);
 
-    expect(screen.getByTestId('explorer')).toHaveStyle({ inlineSize: '300px' });
     expect(layout.style.getPropertyValue('--cs-explorer-inline-size')).toBe('300px');
     expect(await screen.findByTestId('explorer-empty')).toBeInTheDocument();
   });
