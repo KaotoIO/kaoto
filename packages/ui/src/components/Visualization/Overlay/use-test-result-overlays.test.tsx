@@ -5,7 +5,6 @@ import { IEventBus, Unsubscribe } from '../../../host-bridge/contracts';
 import { HostBridgeContext } from '../../../host-bridge/react/context';
 import { createVisualizationNode, TestReportEntry } from '../../../models';
 import { CitrusTestVisualEntity } from '../../../models/visualization/flows';
-import { IMetadataApi, MetadataContext } from '../../../providers/metadata.provider';
 import { useTestResultOverlays } from './use-test-result-overlays';
 
 function createMockBus(): IEventBus & { fire(event: string, payload: unknown): void } {
@@ -127,12 +126,13 @@ function setup(options?: {
   const bus = options?.bus ?? createMockBus();
   const getTestReport = options?.getTestReport ?? vi.fn().mockResolvedValue(undefined);
 
-  const metadataApi = { getTestReport } as unknown as IMetadataApi;
+  vi.mocked(bus.request).mockImplementation((async (_request: string, payload: { name: string }) => {
+    const report = await getTestReport(payload.name);
+    return { report: report ?? null };
+  }) as unknown as IEventBus['request']);
 
   const wrapper = ({ children }: PropsWithChildren) => (
-    <HostBridgeContext.Provider value={bus}>
-      <MetadataContext.Provider value={metadataApi}>{children}</MetadataContext.Provider>
-    </HostBridgeContext.Provider>
+    <HostBridgeContext.Provider value={bus}>{children}</HostBridgeContext.Provider>
   );
 
   return { entity, model, entities, bus, getTestReport, wrapper };
@@ -153,21 +153,22 @@ describe('useTestResultOverlays', () => {
     expect(result.current?.store).toBeDefined();
   });
 
-  it('returns undefined when getTestReport is not available', () => {
+  it('returns undefined when there is no host bridge', () => {
     const entity = createTestEntity();
     const model = buildModel(entity);
-    const bus = createMockBus();
 
-    const metadataApi = {} as unknown as IMetadataApi;
-
-    const wrapper = ({ children }: PropsWithChildren) => (
-      <HostBridgeContext.Provider value={bus}>
-        <MetadataContext.Provider value={metadataApi}>{children}</MetadataContext.Provider>
-      </HostBridgeContext.Provider>
-    );
-
-    const { result } = renderHook(() => useTestResultOverlays(model, [entity]), { wrapper });
+    const { result } = renderHook(() => useTestResultOverlays(model, [entity]));
     expect(result.current).toBeUndefined();
+  });
+
+  it('requests the report through the editor:testReport:get bridge request', async () => {
+    const { model, entities, bus, wrapper } = setup({ getTestReport: vi.fn().mockResolvedValue(successReport) });
+
+    renderHook(() => useTestResultOverlays(model, entities), { wrapper });
+
+    await waitFor(() => {
+      expect(bus.request).toHaveBeenCalledWith('editor:testReport:get', { name: 'my-test' });
+    });
   });
 
   it('loads test reports on mount and creates success highlight entries', async () => {
