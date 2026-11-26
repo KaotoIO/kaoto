@@ -1,6 +1,13 @@
 import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogLibrary } from '@kaoto/camel-catalog/types';
-import { action, isNode, Point, SELECTION_EVENT, VisualizationProvider } from '@patternfly/react-topology';
+import {
+  action,
+  isNode,
+  Point,
+  SELECTION_EVENT,
+  VisualizationProvider,
+  VisualizationSurface,
+} from '@patternfly/react-topology';
 import { act, fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import hotkeys from 'hotkeys-js';
@@ -27,6 +34,7 @@ import { useInsertStep } from '../Custom/hooks/insert-step.hook';
 import { useReplaceStep } from '../Custom/hooks/replace-step.hook';
 import { buildDesignerCanvasModel } from '../designer-canvas-model';
 import { Canvas } from './Canvas';
+import { CanvasDefaults } from './canvas.defaults';
 import { LayoutType } from './canvas.models';
 import { COLLAPSE_STATE } from './collapse-handler-state';
 import { ControllerService } from './controller.service';
@@ -686,6 +694,112 @@ describe('Canvas', () => {
     expect(firstDelete).not.toBeInTheDocument();
     const secondDelete = await screen.findByRole('menuitem', { name: 'Delete' });
     expect(secondDelete).not.toBe(firstDelete);
+  });
+  describe('canvas context menu with the keyboard', () => {
+    const renderCanvasWithRoute = async ({ blocked = false, withOtherSurface = false } = {}) => {
+      const camelResource = new CamelRouteResource([camelRouteJson]);
+      await camelResource.initialize();
+      const vizNode = await camelResource.getVisualEntities()[0].toVizNode();
+      const { Provider } = await TestProvidersWrapper({ camelResource });
+
+      render(
+        <ActionConfirmationModalContextProvider>
+          <Provider>
+            <VisualizationProvider controller={ControllerService.createController()}>
+              <Canvas {...getCanvasPropsFromVizNodes([vizNode], 1)} blocked={blocked} />
+            </VisualizationProvider>
+            {/* A second surface built from the same component factory, like the one the image export draws into */}
+            {withOtherSurface && (
+              <VisualizationProvider controller={ControllerService.createController()}>
+                <VisualizationSurface state={{}} />
+              </VisualizationProvider>
+            )}
+          </Provider>
+        </ActionConfirmationModalContextProvider>,
+      );
+
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      return document.getElementById(CanvasDefaults.CANVAS_MAIN_ID)!;
+    };
+
+    it.each([
+      { name: 'Shift+F10', keyEvent: { key: 'F10', shiftKey: true } },
+      { name: 'the ContextMenu key', keyEvent: { key: 'ContextMenu' } },
+    ])('opens the canvas context menu when $name is pressed on the canvas', async ({ keyEvent }) => {
+      const canvas = await renderCanvasWithRoute();
+      canvas.focus();
+
+      expect(fireEvent.keyDown(canvas, keyEvent)).toBe(false);
+
+      expect(await screen.findByTestId('context-menu-item-show-all')).toBeInTheDocument();
+      expect(screen.getByTestId('context-menu-item-hide-all')).toBeInTheDocument();
+    });
+
+    it('does not open the canvas context menu while the canvas is blocked', async () => {
+      // The canvas root is outside the `inert` wrapper, so it still takes the focus and the key
+      const canvas = await renderCanvasWithRoute({ blocked: true });
+      canvas.focus();
+
+      expect(fireEvent.keyDown(canvas, { key: 'F10', shiftKey: true })).toBe(true);
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(screen.queryByTestId('context-menu-item-show-all')).not.toBeInTheDocument();
+    });
+
+    it('opens a single menu when another surface is mounted', async () => {
+      const canvas = await renderCanvasWithRoute({ withOtherSurface: true });
+      canvas.focus();
+
+      fireEvent.keyDown(canvas, { key: 'F10', shiftKey: true });
+
+      expect(await screen.findByTestId('context-menu-item-show-all')).toBeInTheDocument();
+      expect(screen.getAllByTestId('context-menu-item-show-all')).toHaveLength(1);
+    });
+
+    it('does not open the canvas context menu for F10 without Shift', async () => {
+      const canvas = await renderCanvasWithRoute();
+      canvas.focus();
+
+      expect(fireEvent.keyDown(canvas, { key: 'F10' })).toBe(true);
+      await act(async () => {
+        await vi.runAllTimersAsync();
+      });
+
+      expect(screen.queryByTestId('context-menu-item-show-all')).not.toBeInTheDocument();
+    });
+
+    it('leaves the key to the group that has the focus', async () => {
+      await renderCanvasWithRoute();
+      const group = screen.getByTestId('custom-group__route');
+
+      fireEvent.keyDown(group, { key: 'F10', shiftKey: true });
+
+      expect(await screen.findByRole('menuitem', { name: 'Delete' })).toBeInTheDocument();
+      expect(screen.queryByRole('menuitem', { name: 'Show all' })).not.toBeInTheDocument();
+    });
+
+    it('moves the focus into the menu and returns it to the canvas when the menu is closed', async () => {
+      const canvas = await renderCanvasWithRoute();
+      canvas.focus();
+
+      fireEvent.keyDown(canvas, { key: 'ContextMenu' });
+      const firstItem = await screen.findByRole('menuitem', { name: 'Show all' });
+      await waitFor(() => {
+        expect(firstItem).toHaveFocus();
+      });
+
+      fireEvent.keyDown(firstItem, { key: 'Tab' });
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('context-menu-item-show-all')).not.toBeInTheDocument();
+      });
+      expect(canvas).toHaveFocus();
+    });
   });
 
   it('should be able to delete the kamelets', async () => {
