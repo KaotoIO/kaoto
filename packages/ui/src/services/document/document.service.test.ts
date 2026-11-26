@@ -3,9 +3,11 @@ import {
   DocumentDefinition,
   DocumentDefinitionType,
   DocumentType,
+  FieldCardinality,
   IDocument,
   IField,
   IParentType,
+  Occurrence,
   PathSegment,
   PrimitiveDocument,
   RootElementOption,
@@ -25,6 +27,7 @@ import {
   getTestDocumentXsd,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
+import { MaxOccursType } from '../../xml-schema-ts/constants';
 import { DocumentService } from './document.service';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocument } from './json-schema/json-schema-document.model';
@@ -1096,73 +1099,116 @@ describe('DocumentService', () => {
     });
   });
 
-  describe('getOutermostRepeatingWrapper()', () => {
+  describe('getCardinality()', () => {
     const abstractDoc = () =>
       parseXsdDocument(DocumentType.TARGET_BODY, 'ChoiceRepeatingAbstract.xsd', getChoiceRepeatingAbstractXsd());
+    const cardinality = (ownMin: number, ownMax: MaxOccursType, effMin: number, effMax: MaxOccursType) =>
+      new FieldCardinality(new Occurrence(ownMin, ownMax), new Occurrence(effMin, effMax));
 
-    it('should return undefined for a repeating member of a non-repeating choice', () => {
+    it.each<[string, string[], FieldCardinality]>([
+      ['a repeating choice', ['BoundedChoice', '__choice__'], cardinality(1, 3, 1, 3)],
+      ['a bounded member of a repeating choice', ['BoundedChoice', 'Bounded'], cardinality(1, 5, 0, 15)],
+      ['a member of a sequence in a repeating choice', ['NestedRepeat', 'A'], cardinality(1, 1, 0, 'unbounded')],
+      [
+        'an optional member of a required choice',
+        ['OptionalMemberInRequiredChoice', 'Optional'],
+        cardinality(0, 1, 0, 'unbounded'),
+      ],
+      [
+        'a required member of an optional choice',
+        ['RequiredMemberInOptionalChoice', 'Required'],
+        cardinality(1, 1, 0, 'unbounded'),
+      ],
+      [
+        'a sequence child in a repeating choice',
+        ['SequenceInRepeatingChoice', 'Key'],
+        cardinality(1, 1, 0, 'unbounded'),
+      ],
+      ['a sequence child in a single choice', ['SequenceInSingleChoice', 'Key'], cardinality(1, 1, 0, 1)],
+      ['the only alternative of a choice', ['AbstractInChoice', 'Animal'], cardinality(1, 'unbounded', 1, 'unbounded')],
+      [
+        'a member of a repeating abstract wrapper',
+        ['AbstractInChoice', 'Cat'],
+        cardinality(1, 'unbounded', 0, 'unbounded'),
+      ],
+      [
+        'a member of an abstract wrapper in a repeating sequence',
+        ['AbstractInSequenceInChoice', 'Dog'],
+        cardinality(1, 1, 0, 'unbounded'),
+      ],
+      ['a member under a bounded reference to the head', ['BoundedAbstract', 'Dog'], cardinality(1, 3, 0, 3)],
+      ['the single member of a substitution group', ['SingleMemberAbstract', 'Tree'], cardinality(1, 1, 1, 2)],
+      [
+        'a bounded child of a bounded sequence in a bounded choice',
+        ['RequiredSingleChoice', 'Twice'],
+        cardinality(2, 2, 4, 12),
+      ],
+      ['the only alternative of a repeating choice', ['RepeatingSingleChoice', 'Once'], cardinality(1, 1, 1, 3)],
+      ['a member under an optional reference to the head', ['OptionalAbstract', 'Dog'], cardinality(0, 1, 0, 1)],
+      [
+        'the only alternative of an optional choice',
+        ['OptionalSingleChoice', 'Lone'],
+        cardinality(1, 'unbounded', 0, 'unbounded'),
+      ],
+    ])('should resolve %s', (_description, [containerName, fieldName], expected) => {
+      const field = findField(findField(abstractDoc(), containerName), fieldName);
+      expect(DocumentService.getCardinality(field)).toEqual(expected);
+    });
+
+    it('should resolve a repeating member of a non-repeating choice with two alternatives', () => {
       const doc = parseXsdDocument(
         DocumentType.TARGET_BODY,
         'ChoiceRepeatingMember.xsd',
         getChoiceRepeatingMemberXsd(),
       );
-      expect(DocumentService.getOutermostRepeatingWrapper(findField(doc, 'Item'))).toBeUndefined();
+      expect(DocumentService.getCardinality(findField(doc, 'Item'))).toEqual(
+        cardinality(1, 'unbounded', 0, 'unbounded'),
+      );
     });
 
-    it('should pass through a non-repeating choice to stop at the real element above it', () => {
-      const container = findField(abstractDoc(), 'AbstractInChoice');
-      const choice = findField(container, '__choice__');
-      expect(choice.maxOccurs).toBe(1);
-      expect(DocumentService.getOutermostRepeatingWrapper(choice)).toBeUndefined();
-    });
-
-    it('should return a repeating abstract wrapper that the compositor walk stops at', () => {
+    it('should see a repeating abstract wrapper that the schema-level compositor walk stops at', () => {
       const container = findField(abstractDoc(), 'AbstractInChoice');
       const animal = findField(container, 'Animal');
       const cat = findField(animal, 'Cat');
       expect(DocumentService.getEnclosingCollectionCompositor(cat)).toBeUndefined();
-      expect(DocumentService.getOutermostRepeatingWrapper(cat)).toBe(animal);
+      expect(DocumentService.isCollectionField(cat)).toBe(false);
+      expect(DocumentService.getCardinality(cat).isRepeating).toBe(true);
     });
 
-    it('should pass through a non-repeating abstract wrapper to a repeating sequence above it', () => {
-      const container = findField(abstractDoc(), 'AbstractInSequenceInChoice');
-      const sequence = findField(container, '__sequence__');
-      const animal = findField(sequence, 'Animal');
-      expect(animal.maxOccurs).toBe(1);
-      expect(DocumentService.getOutermostRepeatingWrapper(findField(animal, 'Dog'))).toBe(sequence);
-    });
-
-    it('should return the outermost repeating wrapper when two levels repeat', () => {
+    it('should multiply the bounds where the compositor walk returns the nearest repeating sequence', () => {
       const container = findField(abstractDoc(), 'NestedRepeat');
       const choice = findField(container, '__choice__');
       const sequence = findField(choice, '__sequence__');
       expect(sequence.maxOccurs).toBe(3);
       expect(DocumentService.getEnclosingCollectionCompositor(findField(sequence, 'A'))).toBe(sequence);
-      expect(DocumentService.getOutermostRepeatingWrapper(findField(sequence, 'A'))).toBe(choice);
-    });
-
-    it('should return the repeating choice for a member that repeats with its own bound', () => {
-      const container = findField(abstractDoc(), 'BoundedChoice');
-      const choice = findField(container, '__choice__');
-      expect(DocumentService.getOutermostRepeatingWrapper(findField(choice, 'Bounded'))).toBe(choice);
+      expect(DocumentService.getCardinality(findField(sequence, 'A')).effective.maxOccurs).toBe('unbounded');
     });
 
     it('should stop at a real element even when it repeats', () => {
       const shipOrder = TestUtil.createTargetOrderDoc();
-      const title = findField(findField(shipOrder, 'Item'), 'Title');
-      expect(DocumentService.getOutermostRepeatingWrapper(title)).toBeUndefined();
+      const item = findField(shipOrder, 'Item');
+      const title = findField(item, 'Title');
+      expect(item.maxOccurs).toBe('unbounded');
+      expect(DocumentService.getCardinality(title)).toEqual(cardinality(1, 1, 1, 1));
+    });
+
+    it('should use the own occurrence for both values when there is no wrapper parent', () => {
+      const shipOrder = TestUtil.createTargetOrderDoc();
+      const result = DocumentService.getCardinality(findField(shipOrder, 'Item'));
+      expect(result.effective).toBe(result.own);
+      expect(result.isRepeating).toBe(true);
     });
 
     it('should end the walk at a field without a parent', () => {
-      const orphan = { maxOccurs: 1 } as IField;
-      expect(DocumentService.getOutermostRepeatingWrapper(orphan)).toBeUndefined();
+      const orphan = { minOccurs: 0, maxOccurs: 1 } as IField;
+      expect(DocumentService.getCardinality(orphan)).toEqual(cardinality(0, 1, 0, 1));
     });
 
     it('should end the walk at a primitive document, which is its own parent', () => {
       const primitive = new PrimitiveDocument(
         new DocumentDefinition(DocumentType.SOURCE_BODY, DocumentDefinitionType.Primitive, BODY_DOCUMENT_ID),
       );
-      expect(DocumentService.getOutermostRepeatingWrapper(primitive)).toBeUndefined();
+      expect(DocumentService.getCardinality(primitive).isRepeating).toBe(false);
     });
   });
 

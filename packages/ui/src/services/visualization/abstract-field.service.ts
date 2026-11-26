@@ -8,7 +8,7 @@ import {
   IFieldMenuGroup,
   IWrapperCandidate,
 } from '../../models/datamapper/field-action';
-import { FieldCardinality } from '../../models/datamapper/field-cardinality';
+import { Occurrence } from '../../models/datamapper/field-cardinality';
 import { IFieldSubstituteInfo } from '../../models/datamapper/types';
 import {
   FieldItemNodeData,
@@ -125,7 +125,7 @@ export class AbstractFieldService extends WrapperBaseService {
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
-    if (isTargetSide && FieldCardinality.isCollection(wrapperField)) {
+    if (isTargetSide && Occurrence.isCollection(wrapperField)) {
       this.applyPerInstanceAbstractSubstitution(
         nodeData,
         wrapperField,
@@ -149,7 +149,7 @@ export class AbstractFieldService extends WrapperBaseService {
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
-    if (isTargetSide && FieldCardinality.isCollection(wrapperField)) {
+    if (isTargetSide && Occurrence.isCollection(wrapperField)) {
       this.clearPerInstanceWrapperSelection(nodeData as TargetNodeData, wrapperField);
       return;
     }

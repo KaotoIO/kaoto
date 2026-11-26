@@ -17,8 +17,8 @@ interface FieldNodePopoverProps {
 
 /**
  * Component that displays an (i) icon which shows field details in a Popover
- * when clicked. The popover displays field details like minOccurs, maxOccurs,
- * and override information.
+ * when clicked. The popover displays field details like the own and the effective
+ * occurrence, and override information.
  *
  * For non-field nodes (documents, variables, mappings), nothing is rendered.
  */

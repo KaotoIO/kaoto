@@ -10,7 +10,7 @@ import {
   IParentType,
   PrimitiveDocument,
 } from '../../models/datamapper/document';
-import { FieldCardinality } from '../../models/datamapper/field-cardinality';
+import { Occurrence } from '../../models/datamapper/field-cardinality';
 import {
   AttributeOutputBucket,
   CopyOfSelector,
@@ -360,7 +360,7 @@ export class MappingSerializerService {
   }
 
   private static isRepeatingOrderWrapper(field: IField): boolean {
-    return field.wrapperKind !== undefined && FieldCardinality.isCollection(field);
+    return field.wrapperKind !== undefined && Occurrence.isCollection(field);
   }
 
   /**
@@ -967,7 +967,7 @@ export class MappingSerializerService {
     if (existing) return existing;
 
     const substitutionMatch = FieldOverrideService.findSubstitutionGroupHead(parentField, name, namespace);
-    if (substitutionMatch && !FieldCardinality.isCollection(substitutionMatch.headField)) {
+    if (substitutionMatch && !Occurrence.isCollection(substitutionMatch.headField)) {
       DocumentUtilService.applySubstitutionToField(substitutionMatch.headField, substitutionMatch.info);
       return substitutionMatch.headField;
     }

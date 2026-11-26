@@ -9,7 +9,7 @@ import {
   IMemberSelection,
   IWrapperCandidate,
 } from '../../models/datamapper/field-action';
-import { FieldCardinality } from '../../models/datamapper/field-cardinality';
+import { Occurrence } from '../../models/datamapper/field-cardinality';
 import {
   FieldItemNodeData,
   NodeData,
@@ -217,7 +217,7 @@ export class ChoiceFieldService extends WrapperBaseService {
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
-    if (isTargetSide && FieldCardinality.isCollection(wrapper)) {
+    if (isTargetSide && Occurrence.isCollection(wrapper)) {
       this.applyPerInstanceChoiceSelection(nodeData, wrapper, selection, namespaceMap);
       return;
     }
@@ -231,7 +231,7 @@ export class ChoiceFieldService extends WrapperBaseService {
     namespaceMap: Record<string, string>,
     isTargetSide: boolean,
   ): void {
-    if (isTargetSide && FieldCardinality.isCollection(wrapper)) {
+    if (isTargetSide && Occurrence.isCollection(wrapper)) {
       this.clearPerInstanceWrapperSelection(nodeData as TargetNodeData, wrapper);
       return;
     }

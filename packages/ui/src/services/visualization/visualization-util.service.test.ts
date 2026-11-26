@@ -1,5 +1,5 @@
 import { DocumentDefinitionType, DocumentType, IField } from '../../models/datamapper/document';
-import { FieldCardinality } from '../../models/datamapper/field-cardinality';
+import { FieldCardinality, Occurrence } from '../../models/datamapper/field-cardinality';
 import { CopyOfSelector, FieldItem, ForEachItem, MappingTree } from '../../models/datamapper/mapping';
 import {
   AbstractFieldNodeData,
@@ -41,6 +41,7 @@ import {
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import { createGuardedCsvCopyOfRow } from '../../stubs/datamapper/target-render-test-helpers';
+import { MaxOccursType } from '../../xml-schema-ts/constants';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
@@ -243,9 +244,11 @@ describe('VisualizationUtilService', () => {
     });
   });
 
-  describe('getEffectiveCardinality on parsed schemas', () => {
+  describe('getCardinality on parsed schemas', () => {
     const abstractDoc = (documentType: DocumentType) =>
       parseXsdDocument(documentType, 'ChoiceRepeatingAbstract.xsd', getChoiceRepeatingAbstractXsd());
+    const cardinality = (ownMin: number, ownMax: MaxOccursType, effMin: number, effMax: MaxOccursType) =>
+      new FieldCardinality(new Occurrence(ownMin, ownMax), new Occurrence(effMin, effMax));
 
     describe('a repeating member of a non-repeating choice', () => {
       it('should read the selected member as a collection', () => {
@@ -253,7 +256,7 @@ describe('VisualizationUtilService', () => {
         const itemRow = rowNamed(documentRows(doc, tree)[0], 'Item');
 
         expect(VisualizationUtilService.isCollectionField(itemRow)).toBe(true);
-        expect(VisualizationUtilService.getEffectiveCardinality(itemRow)).toEqual(new FieldCardinality(1, 'unbounded'));
+        expect(VisualizationUtilService.getCardinality(itemRow)).toEqual(cardinality(1, 'unbounded', 0, 'unbounded'));
       });
 
       it('should still read the member as a collection after "Wrap with for-each"', () => {
@@ -409,33 +412,33 @@ describe('VisualizationUtilService', () => {
       expect(VisualizationUtilService.isCollectionField(catRow)).toBe(true);
     });
 
-    it('should take the maximum from the outermost repeating wrapper when two levels repeat', () => {
+    it('should multiply the bounds when two levels repeat', () => {
       const doc = abstractDoc(DocumentType.SOURCE_BODY);
       const containerRow = rowNamed(documentRows(doc)[0], 'NestedRepeat');
       const choice = findField(findField(doc, 'NestedRepeat'), '__choice__');
       const aField = findField(choice, 'A');
       const aRow = new FieldNodeData(containerRow, aField);
 
-      expect(VisualizationUtilService.getEffectiveCardinality(aRow)).toEqual(new FieldCardinality(1, 'unbounded'));
+      expect(VisualizationUtilService.getCardinality(aRow)).toEqual(cardinality(1, 1, 0, 'unbounded'));
     });
 
-    it('should take the maximum from the repeating choice over a member bound', () => {
+    it('should multiply a member bound with the repeating choice', () => {
       const doc = abstractDoc(DocumentType.SOURCE_BODY);
       const bounded = findField(findField(doc, 'BoundedChoice'), 'Bounded');
       const boundedRow = new FieldNodeData(rowNamed(documentRows(doc)[0], 'BoundedChoice'), bounded);
 
-      expect(VisualizationUtilService.getEffectiveCardinality(boundedRow)).toEqual(new FieldCardinality(1, 3));
+      expect(VisualizationUtilService.getCardinality(boundedRow)).toEqual(cardinality(1, 5, 0, 15));
     });
 
     it.each([
-      ['OptionalMemberInRequiredChoice', 'Optional', new FieldCardinality(0, 'unbounded')],
-      ['RequiredMemberInOptionalChoice', 'Required', new FieldCardinality(1, 'unbounded')],
-    ])('should keep the own minimum of %s/%s', (containerName, memberName, expected) => {
+      ['OptionalMemberInRequiredChoice', 'Optional', cardinality(0, 1, 0, 'unbounded')],
+      ['RequiredMemberInOptionalChoice', 'Required', cardinality(1, 1, 0, 'unbounded')],
+    ])('should give the own and the effective occurrence of %s/%s', (containerName, memberName, expected) => {
       const doc = abstractDoc(DocumentType.SOURCE_BODY);
       const member = findField(findField(doc, containerName), memberName);
       const memberRow = new FieldNodeData(rowNamed(documentRows(doc)[0], containerName), member);
 
-      expect(VisualizationUtilService.getEffectiveCardinality(memberRow)).toEqual(expected);
+      expect(VisualizationUtilService.getCardinality(memberRow)).toEqual(expected);
     });
 
     describe('copy-of rows', () => {
@@ -456,7 +459,7 @@ describe('VisualizationUtilService', () => {
       it('should read a guarded copy-of row on a repeating field as a collection', () => {
         const row = createGuardedCsvCopyOfRow();
         expect(row.autoOptionalIfItem).toBeDefined();
-        expect(FieldCardinality.isCollection(row.field)).toBe(true);
+        expect(Occurrence.isCollection(row.field)).toBe(true);
         expect(VisualizationUtilService.isCollectionField(row)).toBe(true);
       });
 
@@ -482,7 +485,7 @@ describe('VisualizationUtilService', () => {
     });
 
     it('should return no cardinality for a node without a field', () => {
-      expect(VisualizationUtilService.getEffectiveCardinality(sourceDocNode)).toBeUndefined();
+      expect(VisualizationUtilService.getCardinality(sourceDocNode)).toBeUndefined();
       expect(VisualizationUtilService.isCollectionField(sourceDocNode)).toBe(false);
     });
 

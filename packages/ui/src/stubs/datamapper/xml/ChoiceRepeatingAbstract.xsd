@@ -90,6 +90,51 @@
             </xs:choice>
           </xs:complexType>
         </xs:element>
+        <xs:element name="BoundedAbstract">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="Animal" maxOccurs="3" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SingleMemberAbstract">
+          <xs:complexType>
+            <xs:choice maxOccurs="2">
+              <xs:element ref="Plant" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RequiredSingleChoice">
+          <xs:complexType>
+            <xs:choice minOccurs="2" maxOccurs="2">
+              <xs:sequence maxOccurs="3">
+                <xs:element name="Twice" type="xs:string" minOccurs="2" maxOccurs="2" />
+                <xs:element name="Other" type="xs:string" />
+              </xs:sequence>
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RepeatingSingleChoice">
+          <xs:complexType>
+            <xs:choice maxOccurs="3">
+              <xs:element name="Once" type="xs:string" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="OptionalAbstract">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element ref="Animal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="OptionalSingleChoice">
+          <xs:complexType>
+            <xs:choice minOccurs="0" maxOccurs="3">
+              <xs:element name="Lone" type="xs:string" maxOccurs="unbounded" />
+            </xs:choice>
+          </xs:complexType>
+        </xs:element>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -101,4 +146,6 @@
   </xs:complexType>
   <xs:element name="Cat" type="AnimalType" substitutionGroup="Animal" />
   <xs:element name="Dog" type="AnimalType" substitutionGroup="Animal" />
+  <xs:element name="Plant" type="xs:string" abstract="true" />
+  <xs:element name="Tree" type="xs:string" substitutionGroup="Plant" />
 </xs:schema>

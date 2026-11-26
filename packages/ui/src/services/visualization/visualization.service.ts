@@ -2,7 +2,7 @@ import xmlFormat from 'xml-formatter';
 import { qname } from 'xml-name-validator';
 
 import { IDocument, IField } from '../../models/datamapper/document';
-import { FieldCardinality } from '../../models/datamapper/field-cardinality';
+import { Occurrence } from '../../models/datamapper/field-cardinality';
 import {
   AttributeOutputBucket,
   CopyOfSelector,
@@ -365,7 +365,7 @@ export class VisualizationService {
         nodes.push(VisualizationService.createNodeDataFromMappingItem(ctx.parent as TargetNodeData, item));
       }
     }
-    if (FieldCardinality.isCollection(field)) {
+    if (Occurrence.isCollection(field)) {
       nodes.push(new AddMappingNodeData(ctx.parent as TargetNodeData, field));
     }
     return nodes.length > 0 ? nodes : VisualizationService.generateWrapperRow(ctx, field);

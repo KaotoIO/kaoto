@@ -9,6 +9,7 @@ import {
   IDocument,
   IField,
   IParentType,
+  Occurrence,
   PathSegment,
   PrimitiveDocument,
   RootElementOption,
@@ -17,6 +18,7 @@ import {
 import { NS_XML, STANDARD_NAMESPACE_MAP } from '../../models/datamapper/standard-namespaces';
 import { PathExpression } from '../../models/datamapper/xpath';
 import { IMetadataApi } from '../../providers';
+import { MaxOccursType } from '../../xml-schema-ts/constants';
 import { XPathService } from '../xpath/xpath.service';
 import { DocumentUtilService } from './document-util.service';
 import { JsonSchemaDocumentService } from './json-schema/json-schema-document.service';
@@ -593,9 +595,8 @@ export class DocumentService {
    * {@link isCollectionField}.
    *
    * An abstract wrapper also stops this walk, so it never sees a repeating compositor or abstract wrapper
-   * above one. {@link getOutermostRepeatingWrapper} is the walk that passes through every wrapper kind
-   * and keeps the outermost repeating one; it backs the node-level answer in
-   * `VisualizationUtilService.getEffectiveCardinality`.
+   * above one. {@link getCardinality} is the walk that passes through every wrapper kind and multiplies the
+   * bounds; it backs the node-level answer in `VisualizationUtilService.getCardinality`.
    * @param field - The field whose ancestor compositors to inspect
    * @returns the nearest repeating enclosing choice/sequence compositor, or `undefined`
    */
@@ -604,27 +605,59 @@ export class DocumentService {
     if (!('wrapperKind' in parent) || (parent.wrapperKind !== 'choice' && parent.wrapperKind !== 'sequence')) {
       return undefined;
     }
-    return FieldCardinality.isCollection(parent) ? parent : DocumentService.getEnclosingCollectionCompositor(parent);
+    return Occurrence.isCollection(parent) ? parent : DocumentService.getEnclosingCollectionCompositor(parent);
   }
 
   /**
-   * Walks up through every enclosing wrapper (xs:choice, xs:sequence and abstract element) to the first real
-   * element or document, and returns the outermost one that repeats, or `undefined` when none does.
+   * Resolves the own and the effective occurrence of a field from the field and its wrapper ancestors
+   * (xs:choice, xs:sequence and abstract element) up to the first real element or document. It never reads a
+   * node's wrapper back-reference or the parent row, so every node class that shows the field gets the same
+   * answer.
    *
-   * Unlike {@link getEnclosingCollectionCompositor}, which returns the nearest repeating choice or sequence and
-   * stops at an abstract wrapper, this walk passes through abstract wrappers too. It keeps the outermost
-   * repeating wrapper, so in `choice(unbounded) > sequence(3) > A` it returns the choice.
-   * @param field - The field whose wrapper ancestors to inspect
-   * @returns the outermost repeating wrapper ancestor, or `undefined`
+   * - A field without a wrapper parent: `own` and `effective` are its own bounds.
+   * - A member of an abstract wrapper (substitution group member): `own` is the wrapper's own bounds, those of
+   *   the particle that references the head. `effective` is the wrapper's effective occurrence, with a minimum
+   *   of 0 when the wrapper has two or more members. The wrapper is not counted a second time.
+   * - A child of a choice or sequence wrapper: `own` is its own bounds. The effective maximum is the own maximum
+   *   times the wrapper's effective maximum, `unbounded` if either is. The effective minimum is 0 when the
+   *   wrapper is a choice with two or more alternatives, otherwise the product of the minimums.
+   *
+   * The values are computed over the wrapper fields the document model keeps, so bounds the model does not
+   * keep are not part of them.
+   * @param field - The field to resolve
+   * @returns the field's own and effective occurrence
    */
-  static getOutermostRepeatingWrapper(field: IField): IField | undefined {
-    let outermost: IField | undefined;
-    let parent: IParentType | undefined = field.parent;
-    while (parent && 'wrapperKind' in parent && parent.wrapperKind !== undefined) {
-      if (FieldCardinality.isCollection(parent)) outermost = parent;
-      parent = parent.parent;
+  static getCardinality(field: IField): FieldCardinality {
+    const parent = field.parent;
+    if (!DocumentService.isWrapperParent(parent)) {
+      const own = new Occurrence(field.minOccurs, field.maxOccurs);
+      return new FieldCardinality(own, own);
     }
-    return outermost;
+    const parentCardinality = DocumentService.getCardinality(parent);
+    if (parent.wrapperKind === 'abstract') {
+      if (!DocumentService.hasAlternatives(parent)) return parentCardinality;
+      return new FieldCardinality(parentCardinality.own, new Occurrence(0, parentCardinality.effective.maxOccurs));
+    }
+    const own = new Occurrence(field.minOccurs, field.maxOccurs);
+    const maxOccurs = DocumentService.multiplyMaxOccurs(own.maxOccurs, parentCardinality.effective.maxOccurs);
+    if (parent.wrapperKind === 'choice' && DocumentService.hasAlternatives(parent)) {
+      return new FieldCardinality(own, new Occurrence(0, maxOccurs));
+    }
+    const minOccurs = own.minOccurs * parentCardinality.effective.minOccurs;
+    return new FieldCardinality(own, new Occurrence(minOccurs, maxOccurs));
+  }
+
+  private static isWrapperParent(parent: IParentType | undefined): parent is IField {
+    return parent !== undefined && 'wrapperKind' in parent && parent.wrapperKind !== undefined;
+  }
+
+  private static hasAlternatives(wrapper: IField): boolean {
+    return wrapper.fields.length >= 2;
+  }
+
+  private static multiplyMaxOccurs(left: MaxOccursType, right: MaxOccursType): MaxOccursType {
+    if (left === 'unbounded' || right === 'unbounded') return 'unbounded';
+    return left * right;
   }
 
   /**
@@ -640,18 +673,20 @@ export class DocumentService {
 
   /**
    * Returns true if the field represents a collection: its own `maxOccurs` makes it one (see
-   * {@link FieldCardinality.isCollection}), or it sits inside an enclosing repeating xs:choice / xs:sequence
+   * {@link Occurrence.isCollection}), or it sits inside an enclosing repeating xs:choice / xs:sequence
    * compositor and inherits the repeating nature from it (see {@link getEnclosingCollectionCompositor} for
    * where that inheritance stops). Only the field's own ancestor chain is read, never a node's wrapper
    * back-reference.
    *
-   * This is a schema-level answer. For the question "does this tree row repeat", which the collection icon and
-   * the collection-gated mapping actions ask, use `VisualizationUtilService.getEffectiveCardinality`.
+   * This is a schema-level answer. It stops at an abstract wrapper, so for a member of a repeating abstract
+   * wrapper it can differ from {@link getCardinality}'s `isRepeating`. For the question "does this tree row
+   * repeat", which the collection icon and the collection-gated mapping actions ask, use
+   * `VisualizationUtilService.isCollectionField`.
    * @param field - The field to inspect
    * @returns true if the field is a collection, false otherwise
    */
   static isCollectionField(field: IField) {
-    return FieldCardinality.isCollection(field) || DocumentService.isFieldInsideCollectionChoiceWrapper(field);
+    return Occurrence.isCollection(field) || DocumentService.isFieldInsideCollectionChoiceWrapper(field);
   }
 
   /**
