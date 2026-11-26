@@ -1,8 +1,14 @@
 import { DocumentType, IField } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { MappingTree } from '../../models/datamapper/mapping';
-import { TargetDocumentNodeData } from '../../models/datamapper/visualization';
+import { FieldItem, MappingTree, ValueOfSelector } from '../../models/datamapper/mapping';
+import { MappingActionKind } from '../../models/datamapper/mapping-action';
+import {
+  FieldItemNodeData,
+  TargetChoiceFieldNodeData,
+  TargetDocumentNodeData,
+  TargetNodeData,
+} from '../../models/datamapper/visualization';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 import {
   createTargetTree,
@@ -22,13 +28,17 @@ import {
 import { XmlSchemaDocument } from '../document/xml-schema/xml-schema-document.model';
 import { MappingService } from '../mapping/mapping.service';
 import { ChoiceFieldService } from './choice-field.service';
+import { MappingActionService } from './mapping-action.service';
+import { MappingActionRegistryService } from './mapping-action-registry.service';
 import { TreeUIService } from './tree-ui.service';
+import { VisualizationService } from './visualization.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
 /**
- * Selecting a target choice member in a document that already has mappings must not collapse the rows above
- * it (#4158). The selection is persisted through `updateDocument`, whose stale-mapping cleanup used to replace
- * every FieldItem and so lose the expansion of the rows below any mapped ancestor.
+ * Selecting a target choice member in a document that already has mappings, and mapping under it (#4158).
+ * Selecting must not collapse the rows above the member: the selection is persisted through `updateDocument`,
+ * whose stale-mapping cleanup used to replace every FieldItem and so lose the expansion of the rows below any
+ * mapped ancestor. The last test walks through the whole scenario of the issue.
  *
  * The schema is a trimmed HL7 v2.5 ORM_O01, the one the issue was reported with:
  * ORM_O01 → ORM_O01.ORDER (repeating) → ORM_O01.ORDER_DETAIL → ORM_O01.ORDER_CHOICE
@@ -36,7 +46,7 @@ import { VisualizationUtilService } from './visualization-util.service';
  * Wide segments ahead of the orders put ORDER_DETAIL below the parse frontier, and the choice is not repeating,
  * so selecting OBR is a document-level selection that also creates the FieldItem chain down to OBR.
  */
-describe('TreeUIService — expansion across a target choice selection (#4158)', () => {
+describe('TreeUIService — target choice selection in a document with mappings (#4158)', () => {
   const orderChoiceTitles = ['ORM_O01.ORDER', 'ORM_O01.ORDER_DETAIL', 'ORM_O01.ORDER_CHOICE'];
 
   let targetDoc: XmlSchemaDocument;
@@ -63,6 +73,10 @@ describe('TreeUIService — expansion across a target choice selection (#4158)',
     const orderDetail = parseChild(order, 'ORM_O01.ORDER_DETAIL');
     const orderChoice = parseChild(orderDetail, 'ORM_O01.ORDER_CHOICE');
     return { root, order, orderDetail, orderChoice };
+  }
+
+  function findObrRow() {
+    return parseChild(findOrderChoiceChain().orderChoice, 'OBR');
   }
 
   /** Steps 1–2 of the issue: expand down to the choice and pick OBR in the menu of the choice row. */
@@ -122,5 +136,38 @@ describe('TreeUIService — expansion across a target choice selection (#4158)',
 
     const { root, order, orderDetail, orderChoice } = findOrderChoiceChain();
     expect([root, order, orderDetail, orderChoice].map(isExpanded)).toEqual([true, true, true, true]);
+  });
+
+  it('should keep the expansion, the row kinds and the selection through the whole scenario of the issue', () => {
+    // 1–3. Select OBR: nothing above it collapses.
+    expandAndSelectObr();
+    const { root, order, orderDetail, orderChoice } = findOrderChoiceChain();
+    expect([root, order, orderDetail, orderChoice].map(isExpanded)).toEqual([true, true, true, true]);
+
+    // 4–7. "Add value selector" on a child of OBR: it is an ordinary element, not a choice member. The issue used
+    // OBR.4, a composite; the menu no longer offers a value selector on a field with element children, so the
+    // scenario maps the plain OBR.3.
+    const obr3RowBefore = parseChild(findObrRow(), 'OBR.3');
+    expect(MappingActionRegistryService.getAllowedActions(obr3RowBefore.nodeData as TargetNodeData)).toContain(
+      MappingActionKind.ValueSelector,
+    );
+    MappingActionService.applyValueOfSelector(obr3RowBefore.nodeData as TargetNodeData);
+    refreshTargetTree();
+    const obr3Row = parseChild(findObrRow(), 'OBR.3');
+    expect(obr3Row.nodeData).toBeInstanceOf(FieldItemNodeData);
+    expect(VisualizationUtilService.isChoiceWrapperMember(obr3Row.nodeData)).toBe(false);
+    expect(ChoiceFieldService.resolveInfo(obr3Row.nodeData).effectiveChoiceWrapper).toBeUndefined();
+
+    // 8–10. Delete the empty value-of, drawn inline on the OBR.3 row: OBR keeps the FieldItem that holds its
+    // selection, and with it its children.
+    const obr3Item = (obr3Row.nodeData as FieldItemNodeData).mapping;
+    expect(obr3Item.children.some((child) => child instanceof ValueOfSelector)).toBe(true);
+    MappingActionService.deleteMappingItem(obr3Row.nodeData as TargetNodeData);
+    refreshTargetTree();
+
+    const obrRow = findObrRow();
+    expect((obrRow.nodeData as TargetChoiceFieldNodeData).mapping).toBeInstanceOf(FieldItem);
+    expect(VisualizationService.hasChildren(obrRow.nodeData)).toBe(true);
+    expect(parseChild(obrRow, 'OBR.3')).toBeDefined();
   });
 });
