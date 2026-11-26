@@ -28,8 +28,7 @@ function highlightMatch(name: string, query: string): ReactNode {
 /**
  * The label of an Explorer entry with its buttons: rename and delete.
  *
- * It is a component of its own so that Carbon finds no text in the label and does not wrap a truncated name in its
- * tooltip button, which the buttons cannot be nested in; the name has a `title` for its full text instead.
+ * The name is cut off with an ellipsis when the Explorer is narrow; its `title` shows the full name.
  *
  * The buttons show on hover and are left out of the accessibility tree and the tab order: inside a tree item they would
  * add their names to the item's name and tab stops to every item. Keyboard and screen reader users press F2 or Delete

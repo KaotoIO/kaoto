@@ -1,6 +1,8 @@
 @use 'sass:selector';
+@use '@carbon/react/scss/motion' as *;
 @use '@carbon/react/scss/spacing' as *;
 @use '@carbon/react/scss/theme' as *;
+@use '@carbon/react/scss/type' as *;
 @use '../../styles/kaoto-theme' as kaoto;
 @use '../../styles/panel-header' as panel;
 
@@ -59,90 +61,145 @@
   flex: 1;
   overflow-y: auto;
   padding-block: $spacing-01;
+}
 
-  // Align row backgrounds with the panel ($background), override Carbon's $layer-01 default.
-  // Carbon default per-level indent is $spacing-05 (16px) — reduce to $spacing-03 (8px).
-  .cds--tree-node {
-    background-color: $background;
-    padding-inline-start: $spacing-03;
-  }
+// The rows of our own tree. Each row is indented by its depth, see ExplorerEntry: --cs-explorer-row-depth
+.cs--explorer__tree-rows {
+  // Per level, and where a row of the root starts its chevron
+  --cs-explorer-indent: #{$spacing-05};
+  --cs-explorer-row-start: #{$spacing-02};
 
-  // Scoped under .cs--explorer__tree, so this outranks Carbon's li.class > .class rule.
-  li.cds--tree-node-link-parent > .cds--tree-node__children {
-    padding-inline-start: $spacing-03;
-  }
+  // Files have no chevron: their icon starts where the icon of a folder of the same level starts
+  --cs-explorer-toggle-size: #{$spacing-05};
 
-  .cds--tree-node__label {
-    &:hover,
-    &:focus {
-      background-color: $background-hover;
-    }
-  }
-
-  // Keep the expand chevron close to its folder's icon, so that a subfolder's chevron sits below its parent's icon
-  .cds--tree-parent-node__toggle {
-    inline-size: $spacing-05;
-    margin-inline-start: calc(-1 * #{$spacing-02});
-  }
-
-  // Leaf nodes have no expand chevron: start their icon where a folder's icon starts, so files and folders of one
-  // level line up
-  .cds--tree-leaf-node,
-  .cds--tree-leaf-node.cds--tree-node--with-icon {
-    padding-inline-start: $spacing-06;
-  }
-
-  .cds--tree-leaf-node .cds--tree-node__icon {
-    margin-inline-start: 0;
-  }
-
-  // Folder and file icons take the blue of the Create buttons
-  .cds--tree-node__icon {
-    fill: $icon-interactive;
-  }
-
-  // The rows show the tint of the card; hover, selection and the focus ring are rounded
   @include kaoto.kaoto-theme {
-    .cds--tree-node {
-      border-radius: kaoto.$control-radius;
-      background-color: transparent;
-    }
+    // The rows are inset by this much instead
+    --cs-explorer-row-start: 0px;
+  }
+}
 
-    .cds--tree-node__label {
-      margin-inline-end: $spacing-02;
-      border-radius: kaoto.$control-radius;
-    }
+.cs--explorer__row {
+  @include type-style('body-compact-01');
 
-    // Carbon sets each label's start offset as an inline style, worked out for its own indentation of 24px per
-    // level. The Explorer indents by 16px, so the labels reach 8px per level past the tree and are cut off there,
-    // with the start of their rounded corners and focus ring. These offsets fit the Explorer's indentation and keep
-    // a $spacing-02 gap to the card edge; only !important wins over an inline style.
-    /* stylelint-disable carbon/layout-use -- see above */
-    $level: '.cds--tree > li';
+  --cs-explorer-row-padding: calc(
+    var(--cs-explorer-row-depth) * var(--cs-explorer-indent) + var(--cs-explorer-row-start)
+  );
 
-    @for $depth from 0 through 9 {
-      $folder-offset: $spacing-02 + $depth * $spacing-05;
-      $leaf-offset: $spacing-06 - $spacing-02 + $depth * $spacing-05;
+  position: relative;
+  display: flex;
+  align-items: center;
+  block-size: $spacing-07;
+  /* stylelint-disable-next-line carbon/layout-use -- the indentation depends on the depth of the row */
+  padding-inline-start: var(--cs-explorer-row-padding);
+  color: $text-secondary;
+  cursor: pointer;
 
-      #{$level}.cds--tree-parent-node > .cds--tree-node__label {
-        margin-inline-start: -$folder-offset !important; /* NOSONAR css:S9423 - beats Carbon's inline offset */
-        padding-inline-start: $folder-offset !important; /* NOSONAR css:S9423 - beats Carbon's inline offset */
-      }
+  &:focus {
+    outline: 2px solid $focus;
+    outline-offset: -2px;
+  }
 
-      #{$level}.cds--tree-leaf-node > .cds--tree-node__label {
-        margin-inline-start: -$leaf-offset !important; /* NOSONAR css:S9423 - beats Carbon's inline offset */
-        padding-inline-start: $leaf-offset !important; /* NOSONAR css:S9423 - beats Carbon's inline offset */
-      }
+  &--open {
+    background-color: $layer-selected;
+    color: $text-primary;
+  }
 
-      $level: '#{$level} > ul > li';
-    }
-    /* stylelint-enable carbon/layout-use */
+  // After --open: hovering the open file shows the hover background. Focus shows the outline only, without a
+  // background, so :focus stays out of the hover rules
+  &:hover {
+    background-color: $background-hover;
+    color: $text-primary;
+  }
 
-    .cds--tree-node__label:hover,
-    .cds--tree-node__label:focus,
-    .cds--tree-node--selected > .cds--tree-node__label {
+  &--leaf {
+    --cs-explorer-leaf-padding: calc(var(--cs-explorer-row-padding) + var(--cs-explorer-toggle-size));
+
+    /* stylelint-disable-next-line carbon/layout-use -- the indentation depends on the depth of the row */
+    padding-inline-start: var(--cs-explorer-leaf-padding);
+  }
+
+  // The rows show the tint of the card, rounded and inset; the open file has a bar at its start
+  @include kaoto.kaoto-theme {
+    margin-inline: $spacing-02;
+    border-radius: kaoto.$control-radius;
+
+    /* stylelint-disable-next-line a11y/selector-pseudo-class-focus -- focus shows the outline only, see above */
+    &:hover,
+    &--open {
       background-color: var(--cs-tint-strong);
     }
+
+    &--open::before {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 0;
+      inline-size: $spacing-02;
+      background-color: $interactive;
+      content: '';
+    }
+  }
+}
+
+.cs--explorer__toggle {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  inline-size: var(--cs-explorer-toggle-size);
+  block-size: $spacing-06;
+  padding-inline-start: $spacing-02;
+
+  svg {
+    inline-size: $spacing-04;
+    block-size: $spacing-05;
+    fill: $icon-secondary;
+    transform: rotate(-90deg);
+    transition: transform $duration-fast-02 motion(standard, productive);
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &--expanded svg {
+    transform: rotate(0);
+  }
+}
+
+.cs--explorer__row-icon {
+  flex-shrink: 0;
+  margin-inline: $spacing-02 $spacing-04;
+  fill: $icon-interactive;
+}
+
+/* stylelint-disable-next-line a11y/selector-pseudo-class-focus -- focus shows the outline only, see .cs--explorer__row */
+.cs--explorer__row:hover .cs--explorer__row-icon,
+.cs--explorer__row--open .cs--explorer__row-icon,
+.cs--explorer__row--open .cs--explorer__toggle svg {
+  fill: $icon-primary;
+}
+
+.cs--explorer__row-label {
+  overflow: hidden;
+  flex: 1;
+  min-inline-size: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// The rename and name fields take the row, and their error shows below them. The row keeps room around the field:
+// 7px above and below, and the end of the row free
+.cs--explorer__row:has(.cs--explorer__rename) {
+  --cs-explorer-field-row-padding-block: 7px;
+
+  block-size: auto;
+  min-block-size: $spacing-07;
+  /* stylelint-disable-next-line carbon/layout-use -- 7px is no spacing token */
+  padding-block: var(--cs-explorer-field-row-padding-block);
+  padding-inline-end: $spacing-05;
+
+  .cs--explorer__row-label {
+    overflow: visible;
+    white-space: normal;
   }
 }
 
@@ -234,23 +291,15 @@
   }
 }
 
-.cs--explorer__tree .cds--tree-node__label:hover,
-.cs--explorer__tree .cds--tree-node:focus > .cds--tree-node__label {
+.cs--explorer__row:hover,
+.cs--explorer__row:focus {
   @include show-node-actions;
 }
 
 @media (hover: none) {
-  .cs--explorer__tree .cds--tree-node__label {
+  .cs--explorer__row {
     @include show-node-actions;
   }
-}
-
-// The rename field takes the row, and its error shows below it; the label text around it clips otherwise
-/* stylelint-disable-next-line selector-class-pattern -- Carbon component class name */
-.cs--explorer__tree .cds--tree-node__label__details > :has(.cs--explorer__rename) {
-  overflow: visible;
-  flex: 1;
-  white-space: normal;
 }
 
 .cs--explorer__rename {
