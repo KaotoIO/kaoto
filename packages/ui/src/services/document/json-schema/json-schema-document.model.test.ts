@@ -448,5 +448,29 @@ describe('JsonSchemaField', () => {
 
       expect(person.fields[0].namedTypeFragmentRefs).toEqual(['#/definitions/Address']);
     });
+
+    it('should not add a reference merged into one use of a definition to another use of it', () => {
+      const document = createJsonDocument({
+        type: 'object',
+        definitions: {
+          Address: { type: 'object', properties: { street: { type: 'string' } } },
+          WithHome: {
+            type: 'object',
+            properties: { home: { type: 'object', properties: { floor: { type: 'integer' } } } },
+          },
+          WithHomeAddress: { type: 'object', properties: { home: { $ref: '#/definitions/Address' } } },
+        },
+        properties: {
+          person: { allOf: [{ $ref: '#/definitions/WithHome' }, { $ref: '#/definitions/WithHomeAddress' }] },
+          other: { $ref: '#/definitions/WithHome' },
+        },
+      });
+      expandProperty(expandProperty(document.fields[0], 'person'), 'home');
+
+      const other = expandProperty(document.fields[0], 'other');
+      const otherHome = expandProperty(other, 'home');
+
+      expect(otherHome.fields.map((f) => f.key)).toEqual(['floor']);
+    });
   });
 });

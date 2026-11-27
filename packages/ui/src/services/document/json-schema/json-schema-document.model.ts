@@ -33,6 +33,36 @@ export interface JsonSchemaTypeFragment extends ITypeFragment {
   type?: Types;
   required?: string[];
   fields: JsonSchemaField[];
+  /** See {@link JsonSchemaField.optionalFragmentRefs} */
+  optionalFragmentRefs?: string[];
+}
+
+/** A field or type fragment as far as its `required` properties are concerned */
+interface RequiredHolder {
+  required?: string[];
+  namedTypeFragmentRefs: string[];
+  optionalFragmentRefs?: string[];
+}
+
+/**
+ * The properties a field or type fragment requires: its own `required`, and the `required` of every type fragment it
+ * refers to unconditionally, i.e. not only through an `anyOf` or `oneOf` member (see
+ * {@link JsonSchemaField.optionalFragmentRefs}). Follows the references of those fragments as well, once each.
+ */
+export function bindingRequiredOf(
+  holder: RequiredHolder,
+  fragments: Record<string, RequiredHolder>,
+  visitedRefs: Set<string> = new Set(),
+): string[] {
+  const required = new Set(holder.required ?? []);
+  for (const ref of holder.namedTypeFragmentRefs) {
+    if (holder.optionalFragmentRefs?.includes(ref) || visitedRefs.has(ref)) continue;
+    visitedRefs.add(ref);
+    const fragment = fragments[ref];
+    if (!fragment) continue;
+    for (const name of bindingRequiredOf(fragment, fragments, visitedRefs)) required.add(name);
+  }
+  return [...required];
 }
 
 /**
@@ -451,6 +481,11 @@ export class JsonSchemaField extends BaseField {
   isAttribute = false;
   predicates: Predicate[] = [];
   required: string[] = [];
+  /**
+   * The entries of {@link namedTypeFragmentRefs} reached only through an `anyOf` or `oneOf` member. Their `required`
+   * doesn't apply to this field, as another member may allow the property to be absent.
+   */
+  optionalFragmentRefs: string[] = [];
 
   constructor(
     public parent: JsonSchemaParentType,
@@ -478,7 +513,8 @@ export class JsonSchemaField extends BaseField {
   private createNew(parent: JsonSchemaField) {
     const created = new JsonSchemaField(parent, this.key, this.type);
     this.copyTo(created);
-    created.minOccurs = parent.required.includes(this.key) ? 1 : 0;
+    const parentRequired = bindingRequiredOf(parent, parent.ownerDocument.namedTypeFragments);
+    created.minOccurs = parentRequired.includes(this.key) ? 1 : 0;
     created.maxOccurs = parent.type === Types.Array ? Number.MAX_SAFE_INTEGER : 1;
     return created;
   }
@@ -503,7 +539,7 @@ export class JsonSchemaField extends BaseField {
 
     if (this.defaultValue !== null) existing.defaultValue = this.defaultValue;
     for (const ref of this.namedTypeFragmentRefs) {
-      !existing.namedTypeFragmentRefs.includes(ref) && existing.namedTypeFragmentRefs.push(ref);
+      existing.addFragmentRef(ref, !this.optionalFragmentRefs.includes(ref));
     }
     if (this.wrapperKind !== undefined) existing.wrapperKind = this.wrapperKind;
     if (this.selectedMemberIndex !== undefined) existing.selectedMemberIndex = this.selectedMemberIndex;
@@ -511,6 +547,22 @@ export class JsonSchemaField extends BaseField {
     if (this.description !== undefined) existing.description = this.description;
     for (const child of this.fields) child.adopt(existing);
     return existing;
+  }
+
+  /**
+   * Adds a type fragment ref. A ref that applies unconditionally anywhere in the field applies to it, also when it was
+   * added before as optional.
+   * @param isRequiredBinding - false for a ref reached only through an `anyOf` or `oneOf` member, see
+   *   {@link optionalFragmentRefs}
+   */
+  addFragmentRef(ref: string, isRequiredBinding: boolean): void {
+    const isKnown = this.namedTypeFragmentRefs.includes(ref);
+    if (!isKnown) this.namedTypeFragmentRefs.push(ref);
+    if (isRequiredBinding) {
+      this.optionalFragmentRefs = this.optionalFragmentRefs.filter((optionalRef) => optionalRef !== ref);
+    } else if (!isKnown) {
+      this.optionalFragmentRefs.push(ref);
+    }
   }
 
   copyTo(to: JsonSchemaField) {
@@ -522,7 +574,8 @@ export class JsonSchemaField extends BaseField {
     to.typeQName = this.typeQName;
     to.typeOverride = this.typeOverride;
     to.originalField = this.originalField;
-    to.namedTypeFragmentRefs = this.namedTypeFragmentRefs;
+    to.namedTypeFragmentRefs = [...this.namedTypeFragmentRefs];
+    to.optionalFragmentRefs = [...this.optionalFragmentRefs];
     to.wrapperKind = this.wrapperKind;
     to.selectedMemberIndex = this.selectedMemberIndex;
     to.selectedMemberQName = this.selectedMemberQName;
