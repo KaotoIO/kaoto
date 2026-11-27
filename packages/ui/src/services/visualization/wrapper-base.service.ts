@@ -64,11 +64,17 @@ export class WrapperBaseService {
    * document-level selection (`selectedMemberQName`/`selectedMemberIndex`), this operates
    * on individual FieldItems. New FieldItems are marked `isUserCreated` so they survive
    * stale-mapping cleanup even before child mappings are created.
+   *
+   * Switching an existing FieldItem to a different member discards its children, the same
+   * as clearing the selection would: they were mapped against the outgoing member's fields,
+   * which the incoming member need not declare. Re-selecting the current member keeps them.
    */
   protected static applyTargetSelection(nodeData: TargetNodeData, selectedField: IField): void {
     const existingMapping = nodeData.mapping;
     if (existingMapping instanceof FieldItem) {
-      MappingService.updateFieldItemField(existingMapping, selectedField);
+      if (existingMapping.field === selectedField) return;
+      existingMapping.children = [];
+      MappingService.updateFieldItemField(existingMapping, selectedField).isUserCreated = true;
     } else {
       const parentItem = MappingActionService.getOrCreateFieldItem((nodeData as TargetFieldNodeData).parent);
       const fieldItem = MappingService.createFieldItem(parentItem, selectedField);
