@@ -2,6 +2,7 @@
 @use '@carbon/react/scss/type' as *;
 @use '@carbon/react/scss/breakpoint' as *;
 @use '@carbon/react/scss/theme' as *;
+@use '../styles/kaoto-theme' as kaoto;
 
 @mixin carbon-content-overrides() {
   // These Carbon overrides are pending outcome of issue #19877
@@ -72,6 +73,12 @@
   block-size: calc(100vb - $spacing-09);
   max-block-size: calc(100vb - $spacing-08);
   padding-block-start: $spacing-05;
+
+  // The header floats as a card with a gap above it (see Nav.scss), so the content is shorter by that gap
+  @include kaoto.kaoto-theme {
+    block-size: calc(100vb - #{$spacing-09} - #{$spacing-03});
+    max-block-size: calc(100vb - #{$spacing-08} - #{$spacing-03});
+  }
 
   /*
   This is our main content area for which we should ensure all of our content is displayed

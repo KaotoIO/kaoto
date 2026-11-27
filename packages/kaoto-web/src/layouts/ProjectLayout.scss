@@ -10,10 +10,13 @@
   // Fill the viewport below the Nav header instead (same approach as PageLayout).
   block-size: calc(100vb - #{$spacing-09});
 
-  // The padding and the gap of the body below; the toolbar reads them to start the view switcher where the editor starts
+  // The padding and the gap of the body below; the toolbar reads them to start the view switcher where the editor starts.
+  // The layout starts below the header card, which floats with a gap above it (see Nav.scss).
   @include kaoto.kaoto-theme {
     --cs-project-layout-padding: #{$spacing-03};
     --cs-project-layout-gap: #{$spacing-03};
+
+    block-size: calc(100vb - #{$spacing-09} - #{$spacing-03});
   }
 }
 
