@@ -67,6 +67,11 @@ describe('TreeUIService — target choice selection in a document with mappings 
     return useDocumentTreeStore.getState().isExpanded(tree.documentNodeId, row.path);
   }
 
+  /** Expands `row`, as clicking its chevron does. */
+  function expand(row: DocumentTreeNode) {
+    if (!isExpanded(row)) TreeUIService.toggleNode(tree.documentNodeId, row.path);
+  }
+
   /** The rows from the document root down to ORM_O01.ORDER_CHOICE. */
   function findOrderChoiceChain() {
     const root = tree.contentRoots[0];
@@ -80,11 +85,11 @@ describe('TreeUIService — target choice selection in a document with mappings 
     return parseChild(findOrderChoiceChain().orderChoice, 'OBR');
   }
 
-  /** OBR is still drawn as the selected member, with its children, below rows that stay expanded. */
+  /** OBR is still drawn as the selected member, with its children, and it and the rows above it stay expanded. */
   function expectObrSelectedWithChildren() {
     const { root, order, orderDetail, orderChoice } = findOrderChoiceChain();
-    expect([root, order, orderDetail, orderChoice].map(isExpanded)).toEqual([true, true, true, true]);
     const obrRow = findObrRow();
+    expect([root, order, orderDetail, orderChoice, obrRow].map(isExpanded)).toEqual([true, true, true, true, true]);
     expect(obrRow.nodeData).toBeInstanceOf(TargetChoiceFieldNodeData);
     expect((obrRow.nodeData as TargetChoiceFieldNodeData).choiceField).toBeDefined();
     expect(VisualizationService.hasChildren(obrRow.nodeData)).toBe(true);
@@ -101,6 +106,7 @@ describe('TreeUIService — target choice selection in a document with mappings 
     );
     selectChoiceMember(choiceRow.nodeData, 'OBR', mappingTree.namespaceMap);
     refreshTargetTree({ isDocumentUpdate: true });
+    expand(findObrRow());
   }
 
   /**
@@ -170,6 +176,13 @@ describe('TreeUIService — target choice selection in a document with mappings 
     refreshTargetTree();
 
     expectObrSelectedWithChildren();
+
+    // Mapping OBR.3 again creates the FieldItems under the selection that stayed: nothing collapses either.
+    MappingActionService.applyValueOfSelector(parseChild(findObrRow(), 'OBR.3').nodeData as TargetNodeData);
+    refreshTargetTree();
+
+    expectObrSelectedWithChildren();
+    expect(parseChild(findObrRow(), 'OBR.3').nodeData).toBeInstanceOf(FieldItemNodeData);
   });
 
   it('should keep the expansion and the selection when the mapping of a nested leaf under OBR is deleted', () => {
@@ -186,10 +199,12 @@ describe('TreeUIService — target choice selection in a document with mappings 
     const obr4Row = parseChild(findObrRow(), 'OBR.4');
     expect(obr4Row.nodeData).toBeInstanceOf(FieldItemNodeData);
     expect(VisualizationUtilService.isChoiceWrapperMember(obr4Row.nodeData)).toBe(false);
+    expand(obr4Row);
 
     MappingActionService.deleteMappingItem(parseChild(obr4Row, 'CE.1').nodeData as TargetNodeData);
     refreshTargetTree();
 
     expectObrSelectedWithChildren();
+    expect(isExpanded(parseChild(findObrRow(), 'OBR.4'))).toBe(true);
   });
 });
