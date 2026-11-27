@@ -43,6 +43,7 @@
     "react-is": "^19.0.0",
     "react-router": "^8.0.0",
     "react-virtuoso": "^4.18.1",
+    "usehooks-ts": "^3.0.0",
     "zustand": "^5.0.11"
   },
   "devDependencies": {

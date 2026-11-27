@@ -22,6 +22,7 @@ const renderLayout = (outlet = <div data-testid="outlet-content">Outlet</div>) =
 describe('ProjectLayout', () => {
   beforeEach(() => {
     resetTestIndexedDB();
+    localStorage.clear();
   });
 
   it('provides the stored files to outlet children', async () => {
@@ -82,6 +83,20 @@ describe('ProjectLayout', () => {
     fireEvent.mouseUp(document);
 
     expect(layout.style.getPropertyValue('--cs-explorer-inline-size')).toBe('300px');
+    expect(await screen.findByTestId('explorer-empty')).toBeInTheDocument();
+  });
+
+  it('keeps the width of the explorer for the next visit', async () => {
+    const { unmount } = renderLayout();
+    fireEvent.mouseDown(screen.getByRole('button', { name: 'Resize explorer panel' }), { clientX: 100 });
+    fireEvent.mouseMove(document, { clientX: 180 });
+    fireEvent.mouseUp(document);
+    expect(await screen.findByTestId('explorer-empty')).toBeInTheDocument();
+    unmount();
+
+    renderLayout();
+
+    expect(screen.getByTestId('project-layout').style.getPropertyValue('--cs-explorer-inline-size')).toBe('320px');
     expect(await screen.findByTestId('explorer-empty')).toBeInTheDocument();
   });
 });
