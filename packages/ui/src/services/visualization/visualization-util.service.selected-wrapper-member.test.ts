@@ -1,24 +1,10 @@
-import { DocumentType, IField } from '../../models/datamapper/document';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
+import { FieldItemNodeData, NodeData, TargetNodeData } from '../../models/datamapper/visualization';
 import {
-  FieldItemNodeData,
-  NodeData,
-  TargetAbstractFieldNodeData,
-  TargetChoiceFieldNodeData,
-  TargetNodeData,
-} from '../../models/datamapper/visualization';
-import {
-  createTargetTree,
-  documentRows,
-  NS_HL7_V2,
-  NS_SUBSTITUTION,
-  ORM_O01,
-  parseXsdDocument,
   rowNamed,
-  rowWhere,
+  selectHl7OrderChoiceObr,
+  substituteCarForAbstractVehicle,
 } from '../../stubs/datamapper/cardinality-test-helpers';
-import { getFieldSubstitutionXsd, getHl7OrmOrderChoiceXsd } from '../../stubs/datamapper/data-mapper';
-import { MappingService } from '../mapping/mapping.service';
 import { AbstractFieldService } from './abstract-field.service';
 import { ChoiceFieldService } from './choice-field.service';
 import { MappingActionService } from './mapping-action.service';
@@ -41,33 +27,10 @@ describe('VisualizationUtilService — children of a selected wrapper member (#4
 
   describe('a child of the selected OBR member of the HL7 ORM_O01 ORDER_CHOICE', () => {
     function selectObrAndMapObr3(): NodeData {
-      const doc = parseXsdDocument(
-        DocumentType.TARGET_BODY,
-        'Hl7OrmOrderChoice.xsd',
-        getHl7OrmOrderChoiceXsd(),
-        ORM_O01,
-      );
-      const tree = createTargetTree(doc, { hl7: NS_HL7_V2 });
-      const orderChoiceRow = () =>
-        rowNamed(
-          rowNamed(rowNamed(documentRows(doc, tree)[0], 'ORM_O01.ORDER'), 'ORM_O01.ORDER_DETAIL'),
-          'ORM_O01.ORDER_CHOICE',
-        );
-
-      const choiceRow = rowWhere(orderChoiceRow(), (row) => row instanceof TargetChoiceFieldNodeData, 'for the choice');
-      const choiceWrapper = VisualizationUtilService.getField(choiceRow) as IField;
-      const obrIndex = choiceWrapper.fields.findIndex((member) => member.name === 'OBR');
-      ChoiceFieldService.dispatchChoiceSelection(
-        choiceRow,
-        choiceWrapper,
-        { memberIndex: obrIndex },
-        tree.namespaceMap,
-        true,
-      );
-      MappingService.removeStaleMappingsForDocument(tree, doc);
-
-      addValueSelector(rowNamed(rowNamed(orderChoiceRow(), 'OBR'), 'OBR.3'));
-      return rowNamed(rowNamed(orderChoiceRow(), 'OBR'), 'OBR.3');
+      const { orderChoiceRow } = selectHl7OrderChoiceObr();
+      const obr3Row = () => rowNamed(rowNamed(orderChoiceRow(), 'OBR'), 'OBR.3');
+      addValueSelector(obr3Row());
+      return obr3Row();
     }
 
     it('should not be taken for a choice wrapper member', () => {
@@ -89,46 +52,23 @@ describe('VisualizationUtilService — children of a selected wrapper member (#4
   });
 
   describe('a child of the selected Car substitute of AbstractVehicle', () => {
-    const namespaceMap = { sub: NS_SUBSTITUTION };
-
-    function selectCarAndMapDoors(): NodeData {
-      const doc = parseXsdDocument(DocumentType.TARGET_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd(), {
-        namespaceUri: NS_SUBSTITUTION,
-        name: 'Zoo',
-      });
-      const tree = createTargetTree(doc, namespaceMap);
-      const primaryRow = () => rowNamed(rowNamed(documentRows(doc, tree)[0], 'Equipment'), 'Primary');
-
-      const vehicleRow = rowWhere(
-        primaryRow(),
-        (row) => row instanceof TargetAbstractFieldNodeData,
-        'for AbstractVehicle',
-      );
-      const vehicleWrapper = VisualizationUtilService.getField(vehicleRow) as IField;
-      AbstractFieldService.applyAbstractSubstitution(
-        vehicleRow,
-        vehicleWrapper,
-        'sub:Car',
-        {},
-        vehicleWrapper,
-        tree.namespaceMap,
-        true,
-      );
-      MappingService.removeStaleMappingsForDocument(tree, doc);
-
-      addValueSelector(rowNamed(rowNamed(primaryRow(), 'Car'), 'doors'));
-      return rowNamed(rowNamed(primaryRow(), 'Car'), 'doors');
+    function selectCarAndMapDoors(): { doorsRow: NodeData; namespaceMap: Record<string, string> } {
+      const { tree, primaryRow } = substituteCarForAbstractVehicle();
+      const doorsRow = () => rowNamed(rowNamed(primaryRow(), 'Car'), 'doors');
+      addValueSelector(doorsRow());
+      return { doorsRow: doorsRow(), namespaceMap: tree.namespaceMap };
     }
 
     it('should not be taken for an abstract wrapper member', () => {
-      const doorsRow = selectCarAndMapDoors();
+      const { doorsRow } = selectCarAndMapDoors();
 
       expect(doorsRow).toBeInstanceOf(FieldItemNodeData);
       expect(VisualizationUtilService.isAbstractWrapperMember(doorsRow)).toBe(false);
     });
 
     it('should offer no substitution menu actions', () => {
-      const info = AbstractFieldService.resolveInfo(selectCarAndMapDoors(), namespaceMap);
+      const { doorsRow, namespaceMap } = selectCarAndMapDoors();
+      const info = AbstractFieldService.resolveInfo(doorsRow, namespaceMap);
 
       expect(info.isAbstractWrapper).toBe(false);
       expect(info.isAbstractWrapperMember).toBe(false);

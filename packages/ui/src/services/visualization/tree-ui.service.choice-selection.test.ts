@@ -1,7 +1,7 @@
-import { DocumentType, IField } from '../../models/datamapper/document';
+import { DocumentType } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
-import { FieldItem, MappingTree, ValueOfSelector } from '../../models/datamapper/mapping';
+import { MappingTree, ValueOfSelector } from '../../models/datamapper/mapping';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import {
   FieldItemNodeData,
@@ -16,6 +16,7 @@ import {
   NS_HL7_V2,
   ORM_O01,
   parseXsdDocument,
+  selectChoiceMember,
 } from '../../stubs/datamapper/cardinality-test-helpers';
 import { getHl7OrmOrderChoiceXsd } from '../../stubs/datamapper/data-mapper';
 import {
@@ -79,6 +80,17 @@ describe('TreeUIService — target choice selection in a document with mappings 
     return parseChild(findOrderChoiceChain().orderChoice, 'OBR');
   }
 
+  /** OBR is still drawn as the selected member, with its children, below rows that stay expanded. */
+  function expectObrSelectedWithChildren() {
+    const { root, order, orderDetail, orderChoice } = findOrderChoiceChain();
+    expect([root, order, orderDetail, orderChoice].map(isExpanded)).toEqual([true, true, true, true]);
+    const obrRow = findObrRow();
+    expect(obrRow.nodeData).toBeInstanceOf(TargetChoiceFieldNodeData);
+    expect((obrRow.nodeData as TargetChoiceFieldNodeData).choiceField).toBeDefined();
+    expect(VisualizationService.hasChildren(obrRow.nodeData)).toBe(true);
+    expect(parseChild(obrRow, 'OBR.3')).toBeDefined();
+  }
+
   /** Steps 1–2 of the issue: expand down to the choice and pick OBR in the menu of the choice row. */
   function expandAndSelectObr() {
     const orderChoiceRow = expandChain(tree, orderChoiceTitles);
@@ -87,15 +99,7 @@ describe('TreeUIService — target choice selection in a document with mappings 
       (nodeData) => VisualizationUtilService.getField(nodeData)?.wrapperKind === 'choice',
       'for the choice',
     );
-    const choiceWrapper = VisualizationUtilService.getField(choiceRow.nodeData) as IField;
-    const obrIndex = choiceWrapper.fields.findIndex((member) => member.name === 'OBR');
-    ChoiceFieldService.dispatchChoiceSelection(
-      choiceRow.nodeData,
-      choiceWrapper,
-      { memberIndex: obrIndex },
-      mappingTree.namespaceMap,
-      true,
-    );
+    selectChoiceMember(choiceRow.nodeData, 'OBR', mappingTree.namespaceMap);
     refreshTargetTree({ isDocumentUpdate: true });
   }
 
@@ -158,16 +162,34 @@ describe('TreeUIService — target choice selection in a document with mappings 
     expect(VisualizationUtilService.isChoiceWrapperMember(obr3Row.nodeData)).toBe(false);
     expect(ChoiceFieldService.resolveInfo(obr3Row.nodeData).effectiveChoiceWrapper).toBeUndefined();
 
-    // 8–10. Delete the empty value-of, drawn inline on the OBR.3 row: OBR keeps the FieldItem that holds its
-    // selection, and with it its children.
+    // 8–10. Delete the empty value-of, drawn inline on the OBR.3 row: OBR stays selected, with its children and
+    // its expand button, and nothing above it collapses.
     const obr3Item = (obr3Row.nodeData as FieldItemNodeData).mapping;
     expect(obr3Item.children.some((child) => child instanceof ValueOfSelector)).toBe(true);
     MappingActionService.deleteMappingItem(obr3Row.nodeData as TargetNodeData);
     refreshTargetTree();
 
-    const obrRow = findObrRow();
-    expect((obrRow.nodeData as TargetChoiceFieldNodeData).mapping).toBeInstanceOf(FieldItem);
-    expect(VisualizationService.hasChildren(obrRow.nodeData)).toBe(true);
-    expect(parseChild(obrRow, 'OBR.3')).toBeDefined();
+    expectObrSelectedWithChildren();
+  });
+
+  it('should keep the expansion and the selection when the mapping of a nested leaf under OBR is deleted', () => {
+    expandAndSelectObr();
+
+    // OBR.4 is a composite, so mapping CE.1 puts an OBR.4 FieldItem the user did not create between the mapping
+    // and OBR, and the delete cleans up more than one level.
+    const ce1RowBefore = parseChild(parseChild(findObrRow(), 'OBR.4'), 'CE.1');
+    expect(MappingActionRegistryService.getAllowedActions(ce1RowBefore.nodeData as TargetNodeData)).toContain(
+      MappingActionKind.ValueSelector,
+    );
+    MappingActionService.applyValueOfSelector(ce1RowBefore.nodeData as TargetNodeData);
+    refreshTargetTree();
+    const obr4Row = parseChild(findObrRow(), 'OBR.4');
+    expect(obr4Row.nodeData).toBeInstanceOf(FieldItemNodeData);
+    expect(VisualizationUtilService.isChoiceWrapperMember(obr4Row.nodeData)).toBe(false);
+
+    MappingActionService.deleteMappingItem(parseChild(obr4Row, 'CE.1').nodeData as TargetNodeData);
+    refreshTargetTree();
+
+    expectObrSelectedWithChildren();
   });
 });

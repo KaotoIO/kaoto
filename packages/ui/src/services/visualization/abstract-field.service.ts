@@ -10,12 +10,7 @@ import {
 } from '../../models/datamapper/field-action';
 import { Occurrence } from '../../models/datamapper/field-cardinality';
 import { IFieldSubstituteInfo } from '../../models/datamapper/types';
-import {
-  FieldItemNodeData,
-  NodeData,
-  TargetAbstractFieldNodeData,
-  TargetNodeData,
-} from '../../models/datamapper/visualization';
+import { FieldItemNodeData, NodeData, TargetNodeData } from '../../models/datamapper/visualization';
 import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
@@ -64,7 +59,7 @@ export class AbstractFieldService extends WrapperBaseService {
     } else if (isSelectedSubstitution) {
       abstractWrapperField = nodeData.abstractField;
     } else if (isAbstractWrapperMember && nodeData instanceof FieldItemNodeData) {
-      abstractWrapperField = nodeData.wrapperField ?? (nodeData.parent as TargetAbstractFieldNodeData).field;
+      abstractWrapperField = nodeData.wrapperField ?? VisualizationUtilService.getField(nodeData.parent);
     }
 
     return {

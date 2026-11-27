@@ -54,6 +54,8 @@ interface WrapperSpec {
   setWrapperRef: (node: FieldNodeData, wrapperField: IField) => void;
   isTargetInstance: (node: NodeData) => boolean;
   hasWrapperRef: (node: NodeData) => boolean;
+  /** Whether the target node shows a selection the document holds, so it needs no FieldItem. */
+  isDocumentLevelSelection: (node: NodeData) => boolean;
   isUnconfiguredTarget: (node: NodeData, mappings: MappingItem[] | undefined) => boolean;
 }
 
@@ -96,6 +98,18 @@ interface WrapperMappingItems {
   heldByMovedItems: boolean;
 }
 
+/**
+ * Whether a target wrapper row that shows `member` selected in `wrapperField` counts as configured without a
+ * FieldItem. A selection on a wrapper that is not a collection is held by the document (`.kaoto`), so the selected
+ * member keeps its children when the mappings under it are deleted. Each instance of a collection wrapper is
+ * selected through its own FieldItem (#3464), so there the FieldItem is still required, and a member that is itself
+ * a wrapper waits for its own selection.
+ * @param wrapperField - the wrapper whose member is selected; `undefined` for an unselected wrapper
+ * @param member - the field the row shows
+ */
+const isDocumentLevelSelection = (wrapperField: IField | undefined, member: IField): boolean =>
+  !!wrapperField && !member.wrapperKind && !DocumentService.isCollectionField(wrapperField);
+
 const CHOICE_WRAPPER: WrapperSpec = {
   createSourceNode: (parent, field) => new ChoiceFieldNodeData(parent, field),
   createTargetNode: (parent, field, mapping) => new TargetChoiceFieldNodeData(parent, field, mapping),
@@ -104,10 +118,15 @@ const CHOICE_WRAPPER: WrapperSpec = {
   },
   isTargetInstance: (node) => node instanceof TargetChoiceFieldNodeData,
   hasWrapperRef: (node) => !!(node as TargetChoiceFieldNodeData).choiceField,
+  isDocumentLevelSelection: (node) => {
+    const { choiceField, field } = node as TargetChoiceFieldNodeData;
+    return isDocumentLevelSelection(choiceField, field);
+  },
   isUnconfiguredTarget: (node, mappings) => {
     if (node.isSource) return false;
     if (!(node instanceof TargetChoiceFieldNodeData)) return false;
     if (node.choiceField && node.mapping instanceof FieldItem) return false;
+    if (isDocumentLevelSelection(node.choiceField, node.field)) return false;
     if (!mappings) return true;
     const wrapperField = node.field;
     return !mappings.some(
@@ -129,10 +148,15 @@ const ABSTRACT_WRAPPER: WrapperSpec = {
   },
   isTargetInstance: (node) => node instanceof TargetAbstractFieldNodeData,
   hasWrapperRef: (node) => !!(node as TargetAbstractFieldNodeData).abstractField,
+  isDocumentLevelSelection: (node) => {
+    const { abstractField, field } = node as TargetAbstractFieldNodeData;
+    return isDocumentLevelSelection(abstractField, field);
+  },
   isUnconfiguredTarget: (node, mappings) => {
     if (node.isSource) return false;
     if (!(node instanceof TargetAbstractFieldNodeData)) return false;
     if (node.abstractField && node.mapping instanceof FieldItem) return false;
+    if (isDocumentLevelSelection(node.abstractField, node.field)) return false;
     if (!mappings) return true;
     const wrapperField = node.field;
     return !mappings.some(
@@ -160,6 +184,7 @@ const SEQUENCE_WRAPPER: WrapperSpec = {
   // must keep walking up to the real mapped ancestor rather than treating the sequence's own
   // (nonexistent) mapping as the source of its children's mappings.
   hasWrapperRef: () => false,
+  isDocumentLevelSelection: () => false,
   isUnconfiguredTarget: () => false,
 };
 
@@ -601,17 +626,19 @@ export class VisualizationService {
    * Resolves the child fields to render for a wrapper node (choice or abstract).
    *
    * Target-side gate: unconfigured target wrappers return `[]` — children are
-   * hidden until the user picks a member/substitute via the context menu.
-   * The gate is driven by FieldItem presence ({@link isUnconfiguredTargetWrapper}),
-   * not the IField selection property (`selectedMemberIndex`/`selectedMemberQName`),
-   * because FieldItem is the authoritative target-side mapping state.
+   * hidden until the user picks a member/substitute via the context menu
+   * ({@link isUnconfiguredTargetWrapper}). A wrapper that is not a collection is
+   * configured by the IField selection property (`selectedMemberIndex`/`selectedMemberQName`)
+   * alone, which the document holds, so the selected member keeps its children when the
+   * mappings under it are deleted. Each instance of a collection wrapper is selected
+   * through its own FieldItem, so there the gate is driven by FieldItem presence.
    * The IField property is shared with source-side where the gate does not apply.
    *
    * FieldItem states for wrapper fields:
-   * - Bare schema-driven: no FieldItem exists — wrapper is unconfigured
+   * - Bare schema-driven: no FieldItem exists — wrapper is unconfigured unless the document selects a member
    * - Inside instruction: FieldItem with `field` = wrapper IField
    * - After selection: FieldItem with `field` = selected candidate/member,
-   *   `isUserCreated` preserved from creation
+   *   `isUserCreated` preserved from creation; deleting the mappings under it may remove it
    */
   private static resolveWrapperNodeFields(field: IField): IField[] {
     if (!field.wrapperKind) {
@@ -786,11 +813,14 @@ export class VisualizationService {
    * Returns whether a selected target wrapper node (choice/abstract) is expandable.
    * A FieldItem that exists solely because of the selection but has nothing inside
    * should not show an expand arrow — only schema sub-fields or non-trivial mapping
-   * children (e.g. instructions) justify expansion.
+   * children (e.g. instructions) justify expansion. A selection the document holds
+   * needs no FieldItem, so there the schema sub-fields alone decide.
    */
-  private static selectedWrapperHasChildren(nodeData: TargetFieldNodeData): boolean {
+  private static selectedWrapperHasChildren(nodeData: TargetFieldNodeData, spec: WrapperSpec): boolean {
     const mapping = nodeData.mapping;
-    if (!(mapping instanceof FieldItem)) return false;
+    if (!(mapping instanceof FieldItem)) {
+      return spec.isDocumentLevelSelection(nodeData) && DocumentService.hasChildren(nodeData.field);
+    }
     return (
       DocumentService.hasChildren(nodeData.field) ||
       mapping.children.some((m) => !VisualizationUtilService.isInlineValueSelector(m))
@@ -798,8 +828,9 @@ export class VisualizationService {
   }
 
   private static fieldNodeHasChildren(nodeData: FieldNodeData): boolean {
-    if (VisualizationService.resolveWrapperSpec(nodeData)?.spec.isTargetInstance(nodeData)) {
-      return VisualizationService.selectedWrapperHasChildren(nodeData as TargetFieldNodeData);
+    const spec = VisualizationService.resolveWrapperSpec(nodeData)?.spec;
+    if (spec?.isTargetInstance(nodeData)) {
+      return VisualizationService.selectedWrapperHasChildren(nodeData as TargetFieldNodeData, spec);
     }
     return DocumentService.hasChildren(nodeData.field);
   }

@@ -159,10 +159,12 @@ export class TreeUIService {
   }
 
   /**
-   * Forgets every tree created so far.
+   * Forgets every tree created so far, with the FieldItem snapshots their next builds would diff against: a
+   * forgotten tree has no expansion to carry over.
    */
   static clear(): void {
     this.trees.clear();
+    this.fieldItemSnapshots.clear();
   }
 
   /**

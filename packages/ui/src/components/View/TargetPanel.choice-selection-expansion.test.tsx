@@ -9,19 +9,17 @@ import {
   DocumentDefinitionType,
   DocumentInitializationModel,
   DocumentType,
-  IField,
 } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { DocumentNodeData } from '../../models/datamapper/visualization';
 import { MappingLinksProvider } from '../../providers/data-mapping-links.provider';
 import { DataMapperProvider } from '../../providers/datamapper.provider';
-import { ChoiceFieldService } from '../../services/visualization/choice-field.service';
 import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
-import { NS_HL7_V2, ORM_O01 } from '../../stubs/datamapper/cardinality-test-helpers';
-import { getHl7OrmOrderChoiceXsd } from '../../stubs/datamapper/data-mapper';
+import { ORM_O01, selectChoiceMember } from '../../stubs/datamapper/cardinality-test-helpers';
+import { getHl7OrmOrderChoicePidMappingXslt, getHl7OrmOrderChoiceXsd } from '../../stubs/datamapper/data-mapper';
 import {
   expandChain,
   parseChild,
@@ -33,30 +31,14 @@ import { TargetPanel } from './TargetPanel';
 /**
  * Selecting a target choice member in a document that already has mappings must not collapse the rows above it
  * (#4158), checked through the real DataMapperProvider. The selection is applied exactly as
- * `useChoiceContextMenu` does it: `dispatchChoiceSelection` followed by `updateDocument`. The schema is the
- * trimmed HL7 v2.5 ORM_O01 the issue was reported with, where ORDER_DETAIL sits below the parse frontier.
+ * `useChoiceContextMenu` does it: `dispatchChoiceSelection` followed by `updateDocument`. The schema is the trimmed
+ * HL7 v2.5 ORM_O01 the issue was reported with, where ORDER_DETAIL sits below the parse frontier, and the document
+ * already maps PID, as in the issue (the recording shows its connection port).
  */
 describe('TargetPanel — expansion across a target choice selection (#4158)', () => {
   const TARGET_DOCUMENT_NODE_ID = DocumentNodeData.formatNodeId(DocumentType.TARGET_BODY, BODY_DOCUMENT_ID);
   const VIRTUOSO_MOCK_SIZES = { viewportHeight: 4000, itemHeight: 40 };
   const orderChoiceTitles = ['ORM_O01.ORDER', 'ORM_O01.ORDER_DETAIL', 'ORM_O01.ORDER_CHOICE'];
-
-  /** The document in the issue already maps PID (the recording shows its connection port). */
-  const PID_MAPPING_XSLT = `<?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="3.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:ns0="${NS_HL7_V2}">
-  <xsl:output method="xml" indent="yes"/>
-  <xsl:template match="/">
-    <ns0:ORM_O01>
-      <ns0:ORM_O01.PATIENT>
-        <ns0:PID>
-          <ns0:PID.1>
-            <xsl:value-of select="'1'"/>
-          </ns0:PID.1>
-        </ns0:PID>
-      </ns0:ORM_O01.PATIENT>
-    </ns0:ORM_O01>
-  </xsl:template>
-</xsl:stylesheet>`;
 
   let dataMapper: ReturnType<typeof useDataMapper> | undefined;
 
@@ -83,7 +65,7 @@ describe('TargetPanel — expansion across a target choice selection (#4158)', (
       <VirtuosoMockContext.Provider value={VIRTUOSO_MOCK_SIZES}>
         <DataMapperProvider
           documentInitializationModel={new DocumentInitializationModel({}, sourceDefinition, targetDefinition)}
-          initialXsltFile={PID_MAPPING_XSLT}
+          initialXsltFile={getHl7OrmOrderChoicePidMappingXslt()}
         >
           <MappingLinksProvider>
             <TargetPanelExposingDataMapper />
@@ -130,19 +112,10 @@ describe('TargetPanel — expansion across a target choice selection (#4158)', (
       (nodeData) => VisualizationUtilService.getField(nodeData)?.wrapperKind === 'choice',
       'for the choice',
     );
-    const choiceWrapper = VisualizationUtilService.getField(choiceRow.nodeData) as IField;
-    const obrIndex = choiceWrapper.fields.findIndex((member) => member.name === 'OBR');
-
     act(() => {
       const mapper = dataMapper!;
-      ChoiceFieldService.dispatchChoiceSelection(
-        choiceRow.nodeData,
-        choiceWrapper,
-        { memberIndex: obrIndex },
-        mapper.mappingTree.namespaceMap,
-        true,
-      );
-      const doc = choiceWrapper.ownerDocument;
+      selectChoiceMember(choiceRow.nodeData, 'OBR', mapper.mappingTree.namespaceMap);
+      const doc = mapper.targetBodyDocument;
       mapper.updateDocument(doc, doc.definition, doc.getReferenceId(mapper.mappingTree.namespaceMap));
     });
 

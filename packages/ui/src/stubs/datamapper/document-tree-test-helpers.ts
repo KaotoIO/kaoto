@@ -1,4 +1,4 @@
-import { DocumentDefinitionType, IDocument } from '../../models/datamapper/document';
+import { IDocument } from '../../models/datamapper/document';
 import { DocumentTree } from '../../models/datamapper/document-tree';
 import { DocumentTreeNode } from '../../models/datamapper/document-tree-node';
 import { MappingTree } from '../../models/datamapper/mapping';
@@ -9,13 +9,11 @@ import { TreeUIService } from '../../services/visualization/tree-ui.service';
 import { useDocumentTreeStore } from '../../store/document-tree.store';
 
 /**
- * Forgets every tree `TreeUIService` built, the FieldItem snapshots its next build diffs against, and the
+ * Forgets every tree `TreeUIService` built, with the FieldItem snapshots its next build diffs against, and the
  * expansion state, so a test starts from a first build.
  */
 export const resetDocumentTrees = (): void => {
   TreeUIService.clear();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (TreeUIService as any).fieldItemSnapshots.clear();
   useDocumentTreeStore.setState({ expansionState: {}, expansionStateArray: {} });
 };
 
@@ -65,8 +63,10 @@ export const expandChain = (tree: DocumentTree, titles: string[]): DocumentTreeN
 };
 
 /**
- * Hands the items of `mappingTree` to a new MappingTree, as a structural refresh of the DataMapper provider does.
- * With `isDocumentUpdate`, it first runs the stale-mapping cleanup that `updateDocument` runs before that refresh.
+ * Hands the items of `mappingTree` to a new MappingTree, as a structural refresh of the DataMapper provider does:
+ * the children, the global variables, the namespace map and the target document carry over, and the definition
+ * type stays. With `isDocumentUpdate`, it first runs the stale-mapping cleanup that `updateDocument` runs before
+ * that refresh.
  * @param mappingTree - the current mapping tree
  * @param targetDocument - the target document the mapping tree maps
  * @returns the new mapping tree, holding the same items
@@ -80,12 +80,17 @@ export const refreshTargetMappingTree = (
   const refreshed = new MappingTree(
     targetDocument.documentType,
     targetDocument.documentId,
-    DocumentDefinitionType.XML_SCHEMA,
+    mappingTree.documentDefinitionType,
   );
-  refreshed.namespaceMap = mappingTree.namespaceMap;
   refreshed.children = mappingTree.children.map((child) => {
     child.parent = refreshed;
     return child;
   });
+  refreshed.globalVariables = mappingTree.globalVariables.map((variable) => {
+    variable.parent = refreshed;
+    return variable;
+  });
+  refreshed.namespaceMap = mappingTree.namespaceMap;
+  refreshed.targetDocument = targetDocument;
   return refreshed;
 };

@@ -10,12 +10,7 @@ import {
   IWrapperCandidate,
 } from '../../models/datamapper/field-action';
 import { Occurrence } from '../../models/datamapper/field-cardinality';
-import {
-  FieldItemNodeData,
-  NodeData,
-  TargetChoiceFieldNodeData,
-  TargetNodeData,
-} from '../../models/datamapper/visualization';
+import { FieldItemNodeData, NodeData, TargetNodeData } from '../../models/datamapper/visualization';
 import { DocumentUtilService } from '../document/document-util.service';
 import { FieldOverrideService } from '../document/field-override.service';
 import { WrapperSelectionService } from '../document/wrapper-selection.service';
@@ -73,7 +68,7 @@ export class ChoiceFieldService extends WrapperBaseService {
     const isChoiceWrapperMember = VisualizationUtilService.isChoiceWrapperMember(nodeData);
     const choiceWrapperMemberField =
       isChoiceWrapperMember && nodeData instanceof FieldItemNodeData
-        ? (nodeData.wrapperField ?? ((nodeData.parent as TargetChoiceFieldNodeData).field as IField))
+        ? (nodeData.wrapperField ?? VisualizationUtilService.getField(nodeData.parent))
         : undefined;
     const effectiveChoiceWrapper = isChoiceWrapperMember ? choiceWrapperMemberField : activeChoiceWrapperForMembers;
 

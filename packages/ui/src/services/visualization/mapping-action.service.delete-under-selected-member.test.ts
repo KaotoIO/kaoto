@@ -1,115 +1,127 @@
-import { DocumentType, IField } from '../../models/datamapper/document';
-import { FieldItem, ValueOfSelector } from '../../models/datamapper/mapping';
+import { FieldItem, IfItem, ValueOfSelector } from '../../models/datamapper/mapping';
 import { MappingActionKind } from '../../models/datamapper/mapping-action';
 import {
   FieldItemNodeData,
+  MappingNodeData,
   NodeData,
   TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
-  TargetFieldNodeData,
   TargetNodeData,
 } from '../../models/datamapper/visualization';
 import {
-  createTargetTree,
-  documentRows,
-  NS_HL7_V2,
-  NS_SUBSTITUTION,
-  ORM_O01,
-  parseXsdDocument,
   rowNamed,
   rowsOf,
   rowWhere,
+  selectHl7OrderChoiceObr,
+  substituteCarForAbstractVehicle,
 } from '../../stubs/datamapper/cardinality-test-helpers';
-import { getFieldSubstitutionXsd, getHl7OrmOrderChoiceXsd } from '../../stubs/datamapper/data-mapper';
-import { MappingService } from '../mapping/mapping.service';
-import { AbstractFieldService } from './abstract-field.service';
-import { ChoiceFieldService } from './choice-field.service';
 import { MappingActionService } from './mapping-action.service';
 import { MappingActionRegistryService } from './mapping-action-registry.service';
 import { VisualizationService } from './visualization.service';
 import { VisualizationUtilService } from './visualization-util.service';
 
 /**
- * Deleting the last mapping under a selected choice member or abstract substitute must keep the selection (#4158).
- * The selection is held by a user-created FieldItem; the delete used to cascade through it and remove the whole
- * FieldItem chain, so the selected row was left without a FieldItem and showed no children.
+ * Deleting the mappings under a selected choice member or abstract substitute must keep the selection (#4158).
+ * The delete removes the FieldItems it leaves empty, the one of the selected member included, so the selected
+ * member row is drawn from the selection the document holds, not from a FieldItem.
  */
-describe('MappingActionService — deleting the last mapping under a selected wrapper member (#4158)', () => {
+describe('MappingActionService — deleting the mappings under a selected wrapper member (#4158)', () => {
   /**
-   * "Add value selector" on the row `findRow` returns, then the delete of that empty value selector, as in the issue.
-   * The row must be one the menu offers the action on: a field without element children. The value selector is
-   * drawn inline on the field row, so it is deleted from that row.
+   * "Add value selector" on the row `findRow` returns, as in the issue. The row must be one the menu offers the
+   * action on: a field without element children.
    */
-  function addAndDeleteValueSelector(findRow: () => NodeData) {
+  function addValueSelector(findRow: () => NodeData) {
     const row = findRow() as TargetNodeData;
     expect(MappingActionRegistryService.getAllowedActions(row)).toContain(MappingActionKind.ValueSelector);
     MappingActionService.applyValueOfSelector(row);
 
     const mappedRow = findRow();
     expect(mappedRow).toBeInstanceOf(FieldItemNodeData);
-    const mappedItem = (mappedRow as FieldItemNodeData).mapping;
-    expect(mappedItem.children.some((child) => child instanceof ValueOfSelector)).toBe(true);
-    MappingActionService.deleteMappingItem(mappedRow as TargetNodeData);
+    expect((mappedRow as FieldItemNodeData).mapping.children.some((child) => child instanceof ValueOfSelector)).toBe(
+      true,
+    );
   }
 
-  /** The selected member keeps the FieldItem that holds the selection, and with it the children it shows. */
+  /** The delete of the empty value selector, drawn inline on the field row, so it is deleted from that row. */
+  function deleteValueSelector(findRow: () => NodeData) {
+    MappingActionService.deleteMappingItem(findRow() as TargetNodeData);
+  }
+
+  function addAndDeleteValueSelector(findRow: () => NodeData) {
+    addValueSelector(findRow);
+    deleteValueSelector(findRow);
+  }
+
+  /** The selected member is still drawn as the selection, with the children and the expand button it had. */
   function expectSelectedMemberRow(row: NodeData, childTitles: string[]) {
-    expect((row as TargetFieldNodeData).mapping).toBeInstanceOf(FieldItem);
+    expect(VisualizationUtilService.isUnselectedWrapperField(row)).toBe(false);
     expect(VisualizationService.hasChildren(row)).toBe(true);
     expect(rowsOf(row).map((child) => child.title)).toEqual(childTitles);
   }
 
-  it('should keep the OBR selection of the HL7 ORM_O01 ORDER_CHOICE and its children', () => {
-    const doc = parseXsdDocument(DocumentType.TARGET_BODY, 'Hl7OrmOrderChoice.xsd', getHl7OrmOrderChoiceXsd(), ORM_O01);
-    const tree = createTargetTree(doc, { hl7: NS_HL7_V2 });
-    const orderChoiceRow = () =>
-      rowNamed(
-        rowNamed(rowNamed(documentRows(doc, tree)[0], 'ORM_O01.ORDER'), 'ORM_O01.ORDER_DETAIL'),
-        'ORM_O01.ORDER_CHOICE',
+  describe('the selected OBR member of the HL7 ORM_O01 ORDER_CHOICE', () => {
+    const obrChildTitles = ['OBR.1', 'OBR.2', 'OBR.3', 'OBR.4'];
+
+    it('should keep its children after the mapping of a field under it is deleted', () => {
+      const { orderChoiceRow } = selectHl7OrderChoiceObr();
+
+      addAndDeleteValueSelector(() => rowNamed(rowNamed(orderChoiceRow(), 'OBR'), 'OBR.3'));
+
+      expectSelectedMemberRow(rowNamed(orderChoiceRow(), 'OBR'), obrChildTitles);
+    });
+
+    it('should keep its children after the mapping of a nested leaf is deleted', () => {
+      // OBR.4 is a composite, so mapping CE.1 puts an OBR.4 FieldItem the user did not create between the
+      // mapping and OBR, and the delete cleans up more than one level.
+      const { orderChoiceRow } = selectHl7OrderChoiceObr();
+      const obr4Row = () => rowNamed(rowNamed(orderChoiceRow(), 'OBR'), 'OBR.4');
+      const ce1Row = () => rowNamed(obr4Row(), 'CE.1');
+
+      addValueSelector(ce1Row);
+      expect(obr4Row()).toBeInstanceOf(FieldItemNodeData);
+      expect(VisualizationUtilService.isChoiceWrapperMember(obr4Row())).toBe(false);
+      deleteValueSelector(ce1Row);
+
+      expectSelectedMemberRow(rowNamed(orderChoiceRow(), 'OBR'), obrChildTitles);
+      expect(rowsOf(obr4Row()).map((child) => child.title)).toEqual(['CE.1', 'CE.2']);
+    });
+
+    it('should keep its children after an if wrapped around it is deleted', () => {
+      const { orderChoiceRow } = selectHl7OrderChoiceObr();
+      MappingActionService.applyIf(rowNamed(orderChoiceRow(), 'OBR') as TargetNodeData);
+      const ifRow = rowWhere(
+        orderChoiceRow(),
+        (row) => row instanceof MappingNodeData && row.mapping instanceof IfItem,
+        'for the if',
       );
-    const choiceRow = rowWhere(orderChoiceRow(), (row) => row instanceof TargetChoiceFieldNodeData, 'for the choice');
-    const choiceWrapper = VisualizationUtilService.getField(choiceRow) as IField;
-    const obrIndex = choiceWrapper.fields.findIndex((member) => member.name === 'OBR');
-    ChoiceFieldService.dispatchChoiceSelection(
-      choiceRow,
-      choiceWrapper,
-      { memberIndex: obrIndex },
-      tree.namespaceMap,
-      true,
-    );
-    MappingService.removeStaleMappingsForDocument(tree, doc);
 
-    addAndDeleteValueSelector(() => rowNamed(rowNamed(orderChoiceRow(), 'OBR'), 'OBR.3'));
+      MappingActionService.deleteMappingItem(ifRow as TargetNodeData);
 
-    expectSelectedMemberRow(rowNamed(orderChoiceRow(), 'OBR'), ['OBR.1', 'OBR.2', 'OBR.3', 'OBR.4']);
+      expectSelectedMemberRow(rowNamed(orderChoiceRow(), 'OBR'), obrChildTitles);
+    });
+
+    it('should not write the emptied OBR, while the document keeps it selected', () => {
+      const { tree, orderChoiceRow } = selectHl7OrderChoiceObr();
+
+      addAndDeleteValueSelector(() => rowNamed(rowNamed(orderChoiceRow(), 'OBR'), 'OBR.3'));
+
+      const obrRow = rowNamed(orderChoiceRow(), 'OBR');
+      expect(obrRow).toBeInstanceOf(TargetChoiceFieldNodeData);
+      expect((obrRow as TargetChoiceFieldNodeData).choiceField).toBeDefined();
+      expect((obrRow as TargetChoiceFieldNodeData).mapping).toBeUndefined();
+      expect(tree.children.some((child) => child instanceof FieldItem)).toBe(false);
+    });
   });
 
-  it('should keep the Car substitute of AbstractVehicle and its children', () => {
-    const doc = parseXsdDocument(DocumentType.TARGET_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd(), {
-      namespaceUri: NS_SUBSTITUTION,
-      name: 'Zoo',
+  describe('the selected Car substitute of AbstractVehicle', () => {
+    it('should keep its children after the mapping of a field under it is deleted', () => {
+      const { primaryRow } = substituteCarForAbstractVehicle();
+
+      addAndDeleteValueSelector(() => rowNamed(rowNamed(primaryRow(), 'Car'), 'doors'));
+
+      const carRow = rowNamed(primaryRow(), 'Car');
+      expect(carRow).toBeInstanceOf(TargetAbstractFieldNodeData);
+      expectSelectedMemberRow(carRow, ['model', 'doors']);
     });
-    const tree = createTargetTree(doc, { sub: NS_SUBSTITUTION });
-    const primaryRow = () => rowNamed(rowNamed(documentRows(doc, tree)[0], 'Equipment'), 'Primary');
-    const vehicleRow = rowWhere(
-      primaryRow(),
-      (row) => row instanceof TargetAbstractFieldNodeData,
-      'for AbstractVehicle',
-    );
-    const vehicleWrapper = VisualizationUtilService.getField(vehicleRow) as IField;
-    AbstractFieldService.applyAbstractSubstitution(
-      vehicleRow,
-      vehicleWrapper,
-      'sub:Car',
-      {},
-      vehicleWrapper,
-      tree.namespaceMap,
-      true,
-    );
-    MappingService.removeStaleMappingsForDocument(tree, doc);
-
-    addAndDeleteValueSelector(() => rowNamed(rowNamed(primaryRow(), 'Car'), 'doors'));
-
-    expectSelectedMemberRow(rowNamed(primaryRow(), 'Car'), ['model', 'doors']);
   });
 });
