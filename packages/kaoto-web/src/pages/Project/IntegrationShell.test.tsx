@@ -110,6 +110,59 @@ describe('IntegrationShell', () => {
       expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
     });
 
+    describe('Export as image', () => {
+      it('is disabled until the canvas has something to export', async () => {
+        renderWithContext('main-flow');
+        const button = await screen.findByRole('button', { name: 'Export as image' });
+        expect(button).toBeDisabled();
+
+        routeVisualization.reportToolsState({ canExport: true, isExportingImage: false });
+
+        expect(button).toBeEnabled();
+      });
+
+      it.each<ViewMode>(['design', 'code'])('exports the image of the canvas in the %s view', async (viewMode) => {
+        const user = userEvent.setup();
+        renderWithContext('main-flow', viewMode);
+        await screen.findByRole('button', { name: 'Export as image' });
+        routeVisualization.reportToolsState({ canExport: true, isExportingImage: false });
+
+        await user.click(screen.getByRole('button', { name: 'Export as image' }));
+
+        expect(routeVisualization.tools.exportImage).toHaveBeenCalledTimes(1);
+      });
+
+      it('is disabled while the canvas exports', async () => {
+        renderWithContext('main-flow');
+        await screen.findByRole('button', { name: 'Export as image' });
+
+        routeVisualization.reportToolsState({ canExport: true, isExportingImage: true });
+
+        expect(screen.getByRole('button', { name: 'Export as image' })).toBeDisabled();
+      });
+
+      it('is disabled for a file that has no canvas', async () => {
+        renderWithContext('schema');
+
+        expect(await screen.findByRole('heading', { level: 2, name: 'schema.xsd' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Export as image' })).toBeDisabled();
+      });
+
+      it('is disabled for a file that has no canvas, also right after a route that could be exported', async () => {
+        let navigateTo: (path: string) => void = () => {};
+        renderWithContext('main-flow', 'design', <NavCapture onNavigate={(navigate) => (navigateTo = navigate)} />);
+        await screen.findByRole('button', { name: 'Export as image' });
+        routeVisualization.reportToolsState({ canExport: true, isExportingImage: false });
+
+        act(() => {
+          navigateTo(urlOf('schema'));
+        });
+
+        expect(await screen.findByRole('heading', { level: 2, name: 'schema.xsd' })).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Export as image' })).toBeDisabled();
+      });
+    });
+
     it('copies the content of the open file, with an edit made on the canvas', async () => {
       const user = userEvent.setup();
       const writeText = vi.spyOn(navigator.clipboard, 'writeText');
