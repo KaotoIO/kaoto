@@ -247,7 +247,7 @@ describe('NodeTitle', () => {
     expect(memberText).toHaveClass('node-title__text__choice');
   });
 
-  it('should render abstract wrapper with Label badge and italic member text', () => {
+  it('should render abstract wrapper with Label badge and emphasized member text', () => {
     const shipOrderDoc = TestUtil.createSourceOrderDoc();
     const documentNodeData = new DocumentNodeData(shipOrderDoc);
     const baseField = shipOrderDoc.fields[0];
