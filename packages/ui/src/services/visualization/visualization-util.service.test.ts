@@ -634,6 +634,32 @@ describe('VisualizationUtilService', () => {
     });
   });
 
+  describe('isUnselectedWrapperField', () => {
+    it('should return true for an unselected choice or abstract wrapper', () => {
+      const choiceField = createMockField(sourceDoc.fields[0], { name: '__choice__', wrapperKind: 'choice' });
+      const abstractField = createMockField(sourceDoc.fields[0], { name: 'AbstractAnimal', wrapperKind: 'abstract' });
+      expect(
+        VisualizationUtilService.isUnselectedWrapperField(new TargetChoiceFieldNodeData(targetDocNode, choiceField)),
+      ).toBe(true);
+      expect(
+        VisualizationUtilService.isUnselectedWrapperField(
+          new TargetAbstractFieldNodeData(targetDocNode, abstractField),
+        ),
+      ).toBe(true);
+    });
+
+    it('should return false for a selected choice member and for a regular field', () => {
+      const choiceField = createMockField(sourceDoc.fields[0], { name: '__choice__', wrapperKind: 'choice' });
+      const memberField = createMockField(sourceDoc.fields[0], { name: 'Email', parent: choiceField });
+      const memberNode = new TargetChoiceFieldNodeData(targetDocNode, memberField);
+      memberNode.choiceField = choiceField;
+      expect(VisualizationUtilService.isUnselectedWrapperField(memberNode)).toBe(false);
+      expect(
+        VisualizationUtilService.isUnselectedWrapperField(new FieldNodeData(sourceDocNode, sourceDoc.fields[0])),
+      ).toBe(false);
+    });
+  });
+
   describe('isAbstractWrapperMember', () => {
     it('should return true for FieldItemNodeData under TargetAbstractFieldNodeData', () => {
       const abstractField = createMockField(sourceDoc.fields[0], {
@@ -654,6 +680,21 @@ describe('VisualizationUtilService', () => {
       const fieldItem = new FieldItem(targetDocNode.mappingTree, sourceDoc.fields[0]);
       const fieldItemNode = new FieldItemNodeData(targetDocNode, fieldItem);
       expect(VisualizationUtilService.isAbstractWrapperMember(fieldItemNode)).toBe(false);
+    });
+
+    it('should return false for FieldItemNodeData of a child of the selected substitute (#4158)', () => {
+      const abstractField = createMockField(sourceDoc.fields[0], {
+        name: 'AbstractAnimal',
+        wrapperKind: 'abstract',
+      });
+      const catField = createMockField(sourceDoc.fields[0], { name: 'Cat', parent: abstractField });
+      const nameField = createMockField(sourceDoc.fields[0], { name: 'name', parent: catField });
+      // The selected Cat row: its field is the substitute and abstractField is the wrapper.
+      const catNode = new TargetAbstractFieldNodeData(targetDocNode, catField);
+      catNode.abstractField = abstractField;
+      const nameItem = new FieldItem(targetDocNode.mappingTree, nameField);
+      const nameNode = new FieldItemNodeData(catNode, nameItem);
+      expect(VisualizationUtilService.isAbstractWrapperMember(nameNode)).toBe(false);
     });
 
     it('should return false for regular FieldNodeData', () => {
@@ -691,6 +732,21 @@ describe('VisualizationUtilService', () => {
       const fieldItem = new FieldItem(targetDocNode.mappingTree, sourceDoc.fields[0]);
       const fieldItemNode = new FieldItemNodeData(targetDocNode, fieldItem);
       expect(VisualizationUtilService.isChoiceWrapperMember(fieldItemNode)).toBe(false);
+    });
+
+    it('should return false for FieldItemNodeData of a child of the selected member (#4158)', () => {
+      const choiceField = createMockField(sourceDoc.fields[0], {
+        name: '__choice__',
+        wrapperKind: 'choice',
+      });
+      const obrField = createMockField(sourceDoc.fields[0], { name: 'OBR', parent: choiceField });
+      const obr3Field = createMockField(sourceDoc.fields[0], { name: 'OBR.3', parent: obrField });
+      // The selected OBR row: its field is the member and choiceField is the wrapper.
+      const obrNode = new TargetChoiceFieldNodeData(targetDocNode, obrField);
+      obrNode.choiceField = choiceField;
+      const obr3Item = new FieldItem(targetDocNode.mappingTree, obr3Field);
+      const obr3Node = new FieldItemNodeData(obrNode, obr3Item);
+      expect(VisualizationUtilService.isChoiceWrapperMember(obr3Node)).toBe(false);
     });
 
     it('should return false for regular FieldNodeData', () => {

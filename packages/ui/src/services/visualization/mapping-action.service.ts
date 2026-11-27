@@ -27,8 +27,6 @@ import {
   MappingNodeData,
   SourceNodeDataType,
   SourceVariableNodeData,
-  TargetAbstractFieldNodeData,
-  TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
   TargetFieldNodeData,
   TargetNodeData,
@@ -953,13 +951,10 @@ export class MappingActionService {
     if (nodeData instanceof CopyOfFieldNodeData) return MappingActionService.materializeCopyOfField(nodeData);
     if (nodeData.mapping) return nodeData.mapping as MappingItem;
     const fieldNodeData = nodeData as TargetFieldNodeData;
-    if (fieldNodeData instanceof TargetChoiceFieldNodeData && !fieldNodeData.choiceField) {
-      return MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);
-    }
-    if (fieldNodeData instanceof TargetAbstractFieldNodeData && !fieldNodeData.abstractField) {
-      return MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);
-    }
-    if (fieldNodeData instanceof TargetSequenceFieldNodeData) {
+    if (
+      VisualizationUtilService.isUnselectedWrapperField(fieldNodeData) ||
+      fieldNodeData instanceof TargetSequenceFieldNodeData
+    ) {
       return MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);
     }
     const parentItem = MappingActionService.getOrCreateParentFieldItem(fieldNodeData.parent);

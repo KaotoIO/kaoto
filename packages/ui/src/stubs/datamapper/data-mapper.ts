@@ -380,6 +380,12 @@ export function getConstraintsXsd(): string {
 export function getWideDeepXsd(): string {
   return readStubFile('./xml/WideDeep.xsd');
 }
+export function getHl7OrmOrderChoiceXsd(): string {
+  return readStubFile('./xml/Hl7OrmOrderChoice.xsd');
+}
+export function getHl7OrmOrderChoicePidMappingXslt(): string {
+  return readStubFile('./xml/Hl7OrmOrderChoicePidMapping.xsl');
+}
 export function getNamedTypesBeyondFrontierXsd(): string {
   return readStubFile('./xml/NamedTypesBeyondFrontier.xsd');
 }

@@ -69,6 +69,9 @@ import { TreeParsingService } from './tree-parsing.service';
  * NOTE: `reparseExpandedNodes` runs before `reconcileExpansion` so that the frontier overlay
  * sees nodes that were expanded-but-unparsed.
  */
+/** Whether a FieldItem a target tree rebuild diffs was created or removed since the previous build. */
+type FieldItemTransition = 'create' | 'remove';
+
 export class TreeUIService {
   private static readonly trees: Map<string, DocumentTree> = new Map();
   /**
@@ -159,10 +162,12 @@ export class TreeUIService {
   }
 
   /**
-   * Forgets every tree created so far.
+   * Forgets every tree created so far, with the FieldItem snapshots their next builds would diff against: a
+   * forgotten tree has no expansion to carry over.
    */
   static clear(): void {
     this.trees.clear();
+    this.fieldItemSnapshots.clear();
   }
 
   /**
@@ -362,21 +367,11 @@ export class TreeUIService {
     // Create transition: FieldItem absent in old, present in new. Before the FieldItem existed the
     // field was a TargetFieldNodeData; computeUnmappedPath gives that old path, and the item's
     // snapshot path is the new (mapped) path.
-    TreeUIService.collectUnambiguousTransitions(
-      newItems,
-      oldItems,
-      (snapshotPath, counterpart) => [counterpart, snapshotPath],
-      pathMap,
-    );
+    TreeUIService.collectUnambiguousTransitions(newItems, oldItems, 'create', pathMap);
 
     // Remove transition: FieldItem present in old, absent in new. The item's snapshot path is the
     // old (mapped) path, and computeUnmappedPath gives the reverted TargetFieldNodeData path.
-    TreeUIService.collectUnambiguousTransitions(
-      oldItems,
-      newItems,
-      (snapshotPath, counterpart) => [snapshotPath, counterpart],
-      pathMap,
-    );
+    TreeUIService.collectUnambiguousTransitions(oldItems, newItems, 'remove', pathMap);
 
     for (const [oldPath, newPath] of movedPaths) {
       if (pathMap.has(oldPath) || TreeUIService.isMovedWithAncestor(oldPath, newPath, pathMap)) continue;
@@ -471,14 +466,15 @@ export class TreeUIService {
 
   /**
    * For every FieldItem in `source` that is absent from `other`, derive its (oldPath, newPath)
-   * pair via `resolvePair` and record it in `pathMap` — but only when the reconstructed
-   * counterpart path is claimed by exactly one item (the multi-sibling guard: a collection
-   * mapped/removed multiple times yields an ambiguous path that must be skipped).
+   * pair and record it in `pathMap` — but only when the reconstructed counterpart path is claimed
+   * by exactly one item (the multi-sibling guard: a collection mapped/removed multiple times
+   * yields an ambiguous path that must be skipped). On a `create` the snapshot path is the new
+   * side and the counterpart the old one; on a `remove` it is the other way round.
    */
   private static collectUnambiguousTransitions(
     source: Map<FieldItem, string>,
     other: Map<FieldItem, string>,
-    resolvePair: (snapshotPath: string, counterpart: string) => [oldPath: string, newPath: string],
+    transition: FieldItemTransition,
     pathMap: Map<string, string>,
   ): void {
     // The "counterpart" path (the reconstructed side) is what can collide across siblings; count
@@ -487,7 +483,7 @@ export class TreeUIService {
     const counterpartCounts = new Map<string, number>();
     for (const [item] of source) {
       if (other.has(item)) continue;
-      const counterpart = TreeUIService.computeUnmappedPath(item, other);
+      const counterpart = TreeUIService.computeUnmappedPath(item, other, transition);
       if (counterpart === undefined) continue;
       counterparts.set(item, counterpart);
       counterpartCounts.set(counterpart, (counterpartCounts.get(counterpart) ?? 0) + 1);
@@ -495,7 +491,7 @@ export class TreeUIService {
     for (const [item, snapshotPath] of source) {
       const counterpart = counterparts.get(item);
       if (counterpart === undefined) continue;
-      const [oldPath, newPath] = resolvePair(snapshotPath, counterpart);
+      const [oldPath, newPath] = transition === 'create' ? [counterpart, snapshotPath] : [snapshotPath, counterpart];
       if (oldPath !== newPath && counterpartCounts.get(counterpart) === 1) {
         pathMap.set(oldPath, newPath);
       }
@@ -518,10 +514,10 @@ export class TreeUIService {
    * one path per instance.
    *
    * This is the condition under which the visual path of the member and of the wrapper diverge
-   * from the mapping tree, and it must be applied symmetrically: `collectFieldItems` substitutes
-   * the member's `field.id` for the mapping id on the new side, and `computeUnmappedPath`
-   * substitutes the wrapper's id on the old side. Collection wrappers (`maxOccurs !== 1`) render
-   * each member at its own per-instance path, so neither substitution applies there.
+   * from the mapping tree: `collectFieldItems` substitutes the member's `field.id` for the mapping
+   * id, and `computeUnmappedPath` substitutes the wrapper's id for the row a created member
+   * FieldItem replaces. Collection wrappers (`maxOccurs !== 1`) render each member at its own
+   * per-instance path, so neither substitution applies there.
    */
   private static isNonCollectionSelectedWrapper(node: IParentType): node is IField {
     return TreeUIService.isSelectedWrapper(node) && 'maxOccurs' in node && node.maxOccurs === 1;
@@ -538,21 +534,31 @@ export class TreeUIService {
    * Inside anything else, such as a content-form variable, the field's unmapped row exists
    * independently of `item`, so there is no counterpart.
    *
-   * The segment is the field's id, except for the member of a selected wrapper that collapses onto
-   * one member: before the member was mapped, or after it is removed, the row is the wrapper's.
+   * The segment is the field's id, except for a member FieldItem created under a selected wrapper
+   * that collapses onto one member: selecting the member creates it, and before that the row was
+   * the wrapper's. A removed member FieldItem leaves the member's row in place, since the document
+   * holds the selection, and clearing the selection clears the wrapper too.
    * @param item - the field item that was created or removed
    * @param otherItems - the snapshot in which `item` doesn't exist, mapped to visual paths
+   * @param transition - whether `item` was created or removed
    */
-  private static computeUnmappedPath(item: FieldItem, otherItems: Map<FieldItem, string>): string | undefined {
+  private static computeUnmappedPath(
+    item: FieldItem,
+    otherItems: Map<FieldItem, string>,
+    transition: FieldItemTransition,
+  ): string | undefined {
     let parent: MappingParentType = item.parent;
     while (parent instanceof InstructionItem) {
       parent = parent.parent;
     }
     const fieldParent = item.field.parent;
-    const segment = TreeUIService.isNonCollectionSelectedWrapper(fieldParent) ? fieldParent.id : item.field.id;
+    const segment =
+      transition === 'create' && TreeUIService.isNonCollectionSelectedWrapper(fieldParent)
+        ? fieldParent.id
+        : item.field.id;
     if (parent instanceof MappingTree) return NodePath.childOf(parent.nodePath, segment).toString();
     if (!(parent instanceof FieldItem)) return undefined;
-    const anchorPath = otherItems.get(parent) ?? TreeUIService.computeUnmappedPath(parent, otherItems);
+    const anchorPath = otherItems.get(parent) ?? TreeUIService.computeUnmappedPath(parent, otherItems, transition);
     return anchorPath === undefined ? undefined : `${anchorPath}/${segment}`;
   }
 

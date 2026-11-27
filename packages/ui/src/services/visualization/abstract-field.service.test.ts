@@ -142,7 +142,11 @@ describe('AbstractFieldService', () => {
       const parentNodeData = createTargetDocNodeData();
       const parentTarget = new TargetAbstractFieldNodeData(parentNodeData, abstractField);
       const nodeData = new FieldItemNodeData(parentTarget, fieldItem);
-      vi.spyOn(VisualizationUtilService, 'getField').mockReturnValue(field);
+      vi.spyOn(VisualizationUtilService, 'getField').mockImplementation((node) => {
+        if (node === nodeData) return field;
+        if (node === parentTarget) return abstractField;
+        return undefined;
+      });
       vi.spyOn(VisualizationUtilService, 'isAbstractWrapperMember').mockReturnValue(true);
       vi.spyOn(VisualizationUtilService, 'isAbstractField').mockReturnValue(false);
 

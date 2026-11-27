@@ -59,10 +59,6 @@ export class MappingActionRegistryService {
     return false;
   }
 
-  private static isUnselectedWrapperField(n: TargetNodeData): boolean {
-    return VisualizationUtilService.isUnselectedChoiceField(n) || VisualizationUtilService.isUnselectedAbstractField(n);
-  }
-
   /** A row that is a bare copy-of drawn on a field: it can be wrapped or removed but holds no children. */
   private static isCopyOfRow(n: TargetNodeData): boolean {
     return n instanceof CopyOfFieldNodeData;
@@ -189,7 +185,7 @@ export class MappingActionRegistryService {
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
         if (MappingActionRegistryService.isCopyOfRow(n)) return false;
-        if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
+        if (VisualizationUtilService.isUnselectedWrapperField(n)) return false;
         if (MappingActionRegistryService.isInVariable(n)) return false;
         // Check element-children constraint for both unmapped field nodes (TargetFieldNodeData)
         // and mapped field nodes (FieldItemNodeData). The check must happen before the
@@ -224,7 +220,7 @@ export class MappingActionRegistryService {
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
         if (MappingActionRegistryService.isCopyOfRow(n)) return false;
-        if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
+        if (VisualizationUtilService.isUnselectedWrapperField(n)) return false;
         if (MappingActionRegistryService.isInVariable(n)) return false;
         if (!DocumentService.isCopyOfSupported(n.mappingTree?.documentDefinitionType)) return false;
         if (!VisualizationUtilService.isMappingNode(n)) return true;
@@ -343,7 +339,7 @@ export class MappingActionRegistryService {
         onUpdate();
       },
       isAllowed: (n) =>
-        !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        !VisualizationUtilService.isUnselectedWrapperField(n) &&
         !MappingActionRegistryService.isCopyOfRow(n) &&
         (n instanceof AddMappingNodeData ||
           VisualizationUtilService.isFieldNode(n) ||
@@ -359,7 +355,7 @@ export class MappingActionRegistryService {
         onUpdate();
       },
       isAllowed: (n) =>
-        !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        !VisualizationUtilService.isUnselectedWrapperField(n) &&
         !MappingActionRegistryService.isCopyOfRow(n) &&
         (n instanceof AddMappingNodeData ||
           VisualizationUtilService.isFieldNode(n) ||
@@ -377,7 +373,7 @@ export class MappingActionRegistryService {
       isAllowed: (n) => {
         if (n instanceof AddMappingNodeData) return false;
         if (MappingActionRegistryService.isCopyOfRow(n)) return false;
-        if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
+        if (VisualizationUtilService.isUnselectedWrapperField(n)) return false;
         const nodeTypeAllowed =
           VisualizationUtilService.isFieldNode(n) ||
           MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n);
@@ -395,7 +391,7 @@ export class MappingActionRegistryService {
         onUpdate();
       },
       isAllowed: (n) =>
-        !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        !VisualizationUtilService.isUnselectedWrapperField(n) &&
         !MappingActionRegistryService.isCopyOfRow(n) &&
         (VisualizationUtilService.isFieldNode(n) ||
           MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem)(n)),
@@ -410,7 +406,7 @@ export class MappingActionRegistryService {
         onUpdate();
       },
       isAllowed: (n) =>
-        !MappingActionRegistryService.isUnselectedWrapperField(n) &&
+        !VisualizationUtilService.isUnselectedWrapperField(n) &&
         !MappingActionRegistryService.isCopyOfRow(n) &&
         (VisualizationUtilService.isFieldNode(n) ||
           MappingActionRegistryService.mappingIsOneOf(ForEachItem, ForEachGroupItem, IfItem)(n)),
@@ -426,7 +422,7 @@ export class MappingActionRegistryService {
         if (n instanceof VariableNodeData) return false;
         if (n instanceof TargetDocumentNodeData) return false;
         if (MappingActionRegistryService.isCopyOfRow(n)) return false;
-        if (MappingActionRegistryService.isUnselectedWrapperField(n)) return false;
+        if (VisualizationUtilService.isUnselectedWrapperField(n)) return false;
         if (VisualizationUtilService.isFieldNode(n)) return DocumentService.hasChildren(n.field);
         return (
           VisualizationUtilService.isMappingNode(n) &&

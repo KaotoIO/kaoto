@@ -512,6 +512,39 @@ describe('MappingService', () => {
       expect(tree.children[0].children).toHaveLength(3);
     });
 
+    // A choice or abstract selection and a type override are persisted through updateDocument, which runs this
+    // cleanup. The target tree keys rows and their expansion on FieldItem ids and diffs FieldItems by identity,
+    // so replacing an item collapses its row and everything below it (#4158). Random ids are mocked to a constant
+    // in this file, so the assertions compare instances, not ids, and as booleans: a failing `toBe` on two
+    // FieldItems prints their whole object graph.
+    it('should keep each target FieldItem instance and its comment when the document is unchanged', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const orderIdItem = shipOrderItem.children.find(
+        (child) => child instanceof FieldItem && child.field.name === 'OrderId',
+      ) as FieldItem;
+      shipOrderItem.comment = 'Order header';
+      orderIdItem.comment = 'Order key';
+
+      MappingService.removeStaleMappingsForDocument(tree, targetDoc);
+
+      expect(tree.children[0] === shipOrderItem).toBe(true);
+      expect(shipOrderItem.children.includes(orderIdItem)).toBe(true);
+      expect(orderIdItem.parent === shipOrderItem).toBe(true);
+      expect(shipOrderItem.comment).toBe('Order header');
+      expect(orderIdItem.comment).toBe('Order key');
+    });
+
+    it('should rebind a target FieldItem to the matching field of a re-created document, keeping the item', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const recreatedTargetDoc = TestUtil.createTargetOrderDoc();
+
+      MappingService.removeStaleMappingsForDocument(tree, recreatedTargetDoc);
+
+      expect(tree.children[0] === shipOrderItem).toBe(true);
+      expect(shipOrderItem.field === recreatedTargetDoc.fields[0]).toBe(true);
+      expect(shipOrderItem.name).toBe(recreatedTargetDoc.fields[0].id);
+    });
+
     it('should keep a union mapping when only one of its operands goes stale', () => {
       const shipOrderItem = tree.children[0] as FieldItem;
       const orderIdItem = shipOrderItem.children.find(
@@ -1088,12 +1121,26 @@ describe('MappingService', () => {
 
       MappingService.removeStaleMappingsForDocument(tree, targetDoc);
 
-      // The parent FieldItem may be replaced by updateFieldItemField; resolve it from the tree.
-      const replacedParent = tree.children[0] as FieldItem;
-      // Reference identity: the exact VariableItem instance must still be present, not pruned.
-      expect(replacedParent.children).toContain(variable);
-      // Its parent pointer must be updated to the replacement FieldItem it now lives under.
-      expect(variable.parent).toBe(replacedParent);
+      // Reference identity: the exact VariableItem instance must still be present, not pruned,
+      // under the same parent FieldItem.
+      expect(parentItem.children.includes(variable)).toBe(true);
+      expect(variable.parent === parentItem).toBe(true);
+    });
+  });
+
+  describe('updateFieldItemField()', () => {
+    it('should carry the comment over to the FieldItem that replaces the item', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const orderIdItem = shipOrderItem.children.find(
+        (child) => child instanceof FieldItem && child.field.name === 'OrderId',
+      ) as FieldItem;
+      orderIdItem.comment = 'Order key';
+      const otherField = targetDoc.fields[0].fields[1];
+
+      const updated = MappingService.updateFieldItemField(orderIdItem, otherField);
+
+      expect(updated.field === otherField).toBe(true);
+      expect(updated.comment).toBe('Order key');
     });
   });
 

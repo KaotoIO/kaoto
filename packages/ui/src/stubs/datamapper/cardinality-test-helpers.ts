@@ -13,20 +13,27 @@ import {
   FieldNodeData,
   MappingNodeData,
   NodeData,
+  TargetAbstractFieldNodeData,
   TargetChoiceFieldNodeData,
   TargetDocumentNodeData,
 } from '../../models/datamapper/visualization';
 import { DocumentUtilService } from '../../services/document/document-util.service';
 import { XmlSchemaDocument } from '../../services/document/xml-schema/xml-schema-document.model';
 import { XmlSchemaDocumentService } from '../../services/document/xml-schema/xml-schema-document.service';
+import { MappingService } from '../../services/mapping/mapping.service';
+import { AbstractFieldService } from '../../services/visualization/abstract-field.service';
 import { ChoiceFieldService } from '../../services/visualization/choice-field.service';
 import { VisualizationService } from '../../services/visualization/visualization.service';
+import { VisualizationUtilService } from '../../services/visualization/visualization-util.service';
+import { getFieldSubstitutionXsd, getHl7OrmOrderChoiceXsd } from './data-mapper';
 
 export const NS_POC = 'io.kaoto.datamapper.poc.test';
 const NS_P = 'urn:p';
 export const NS_SUBSTITUTION = 'http://www.example.com/SUBSTITUTION';
 export const NS_CHOICE_ABSTRACT = 'http://www.example.com/CHOICE_ABSTRACT';
 export const NOTIFICATION = { namespaceUri: NS_CHOICE_ABSTRACT, name: 'Notification' };
+export const NS_HL7_V2 = 'urn:hl7-org:v2xml';
+export const ORM_O01 = { namespaceUri: NS_HL7_V2, name: 'ORM_O01' };
 
 export const parseXsdDocument = (
   documentType: DocumentType,
@@ -126,4 +133,75 @@ export const selectFirstChoiceMember = (
     true,
   );
   return { doc, tree };
+};
+
+/**
+ * Selects the member named `memberName` of the choice drawn as `choiceRow`, as the Field Context Menu does.
+ * @param choiceRow - the row of the unselected choice wrapper
+ * @param memberName - the name of the member to select
+ * @param namespaceMap - the namespace map of the target mapping tree
+ */
+export const selectChoiceMember = (
+  choiceRow: NodeData,
+  memberName: string,
+  namespaceMap: Record<string, string>,
+): void => {
+  const choiceWrapper = VisualizationUtilService.getField(choiceRow);
+  const memberIndex = choiceWrapper?.fields.findIndex((member) => member.name === memberName) ?? -1;
+  if (!choiceWrapper || memberIndex < 0) throw new Error(`No choice member named ${memberName}`);
+  ChoiceFieldService.dispatchChoiceSelection(choiceRow, choiceWrapper, { memberIndex }, namespaceMap, true);
+};
+
+/**
+ * Parses the trimmed HL7 v2.5 ORM_O01 target and selects OBR in ORM_O01.ORDER_CHOICE, then runs the
+ * stale-mapping cleanup that `updateDocument` runs when the selection is persisted.
+ * @returns the document, its mapping tree, and a lookup of the ORM_O01.ORDER_CHOICE row in the current rows
+ */
+export const selectHl7OrderChoiceObr = (): {
+  doc: XmlSchemaDocument;
+  tree: MappingTree;
+  orderChoiceRow: () => NodeData;
+} => {
+  const doc = parseXsdDocument(DocumentType.TARGET_BODY, 'Hl7OrmOrderChoice.xsd', getHl7OrmOrderChoiceXsd(), ORM_O01);
+  const tree = createTargetTree(doc, { hl7: NS_HL7_V2 });
+  const orderChoiceRow = () =>
+    rowNamed(
+      rowNamed(rowNamed(documentRows(doc, tree)[0], 'ORM_O01.ORDER'), 'ORM_O01.ORDER_DETAIL'),
+      'ORM_O01.ORDER_CHOICE',
+    );
+  const choiceRow = rowWhere(orderChoiceRow(), (row) => row instanceof TargetChoiceFieldNodeData, 'for the choice');
+  selectChoiceMember(choiceRow, 'OBR', tree.namespaceMap);
+  MappingService.removeStaleMappingsForDocument(tree, doc);
+  return { doc, tree, orderChoiceRow };
+};
+
+/**
+ * Parses `FieldSubstitution.xsd` as the target and substitutes Car for AbstractVehicle under Equipment/Primary,
+ * then runs the stale-mapping cleanup that `updateDocument` runs when the substitution is persisted.
+ * @returns the document, its mapping tree, and a lookup of the Primary row in the current rows
+ */
+export const substituteCarForAbstractVehicle = (): {
+  doc: XmlSchemaDocument;
+  tree: MappingTree;
+  primaryRow: () => NodeData;
+} => {
+  const doc = parseXsdDocument(DocumentType.TARGET_BODY, 'FieldSubstitution.xsd', getFieldSubstitutionXsd(), {
+    namespaceUri: NS_SUBSTITUTION,
+    name: 'Zoo',
+  });
+  const tree = createTargetTree(doc, { sub: NS_SUBSTITUTION });
+  const primaryRow = () => rowNamed(rowNamed(documentRows(doc, tree)[0], 'Equipment'), 'Primary');
+  const vehicleRow = rowWhere(primaryRow(), (row) => row instanceof TargetAbstractFieldNodeData, 'for AbstractVehicle');
+  const vehicleWrapper = VisualizationUtilService.getField(vehicleRow) as IField;
+  AbstractFieldService.applyAbstractSubstitution(
+    vehicleRow,
+    vehicleWrapper,
+    'sub:Car',
+    {},
+    vehicleWrapper,
+    tree.namespaceMap,
+    true,
+  );
+  MappingService.removeStaleMappingsForDocument(tree, doc);
+  return { doc, tree, primaryRow };
 };

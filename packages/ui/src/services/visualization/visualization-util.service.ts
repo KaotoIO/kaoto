@@ -182,20 +182,45 @@ export class VisualizationUtilService {
   }
 
   /**
+   * Returns `true` if the node is a choice or abstract wrapper without a selected member (see
+   * {@link isUnselectedChoiceField} and {@link isUnselectedAbstractField}). Such a wrapper writes no element of
+   * its own.
+   * @param nodeData - The node to test.
+   */
+  static isUnselectedWrapperField(nodeData: NodeData): boolean {
+    return (
+      VisualizationUtilService.isUnselectedChoiceField(nodeData) ||
+      VisualizationUtilService.isUnselectedAbstractField(nodeData)
+    );
+  }
+
+  /**
    * Identifies a per-instance member of a maxOccurs>1 abstract wrapper — a FieldItem
    * that holds an independent substitution selection, as opposed to the document-level
    * `selectedMemberQName` model used for a wrapper that is not a collection. Target-side only by construction:
    * both `FieldItemNodeData` and `TargetAbstractFieldNodeData` are target-only types.
+   *
+   * Only a parent that is the unselected wrapper counts. The row of a selected substitute is an ordinary element,
+   * so a FieldItem under it maps a child of that element.
    */
   static isAbstractWrapperMember(nodeData: NodeData): boolean {
     if (!(nodeData instanceof FieldItemNodeData)) return false;
-    return nodeData.parent instanceof TargetAbstractFieldNodeData || nodeData.wrapperField?.wrapperKind === 'abstract';
+    return (
+      VisualizationUtilService.isUnselectedAbstractField(nodeData.parent) ||
+      nodeData.wrapperField?.wrapperKind === 'abstract'
+    );
   }
 
-  /** Choice-wrapper counterpart of {@link isAbstractWrapperMember}. */
+  /**
+   * Choice-wrapper counterpart of {@link isAbstractWrapperMember}. Only a parent that is the unselected wrapper
+   * counts; a FieldItem under a selected member maps a child of that member.
+   */
   static isChoiceWrapperMember(nodeData: NodeData): boolean {
     if (!(nodeData instanceof FieldItemNodeData)) return false;
-    return nodeData.parent instanceof TargetChoiceFieldNodeData || nodeData.wrapperField?.wrapperKind === 'choice';
+    return (
+      VisualizationUtilService.isUnselectedChoiceField(nodeData.parent) ||
+      nodeData.wrapperField?.wrapperKind === 'choice'
+    );
   }
 
   /**
