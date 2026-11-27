@@ -15,6 +15,7 @@ describe('CodeEditor', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
     delete document.documentElement.dataset.themeSetting;
+    delete document.documentElement.dataset.themeStyle;
   });
 
   it.each([
@@ -51,6 +52,15 @@ describe('CodeEditor', () => {
     render(<CodeEditor path="a.txt" initialContent="" onChange={vi.fn()} />);
 
     expect(screen.getByRole('textbox', { name: 'Code' })).toHaveAttribute('data-theme', theme);
+  });
+
+  it('uses the theme with the background of the canvas in the Kaoto style', () => {
+    document.documentElement.dataset.themeStyle = 'kaoto';
+    document.documentElement.dataset.themeSetting = 'dark';
+
+    render(<CodeEditor path="a.txt" initialContent="" onChange={vi.fn()} />);
+
+    expect(screen.getByRole('textbox', { name: 'Code' })).toHaveAttribute('data-theme', 'kaoto-vs-dark');
   });
 
   it('follows a change of the theme while it is open', () => {
