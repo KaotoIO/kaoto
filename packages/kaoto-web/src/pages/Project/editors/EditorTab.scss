@@ -1,0 +1,48 @@
+@use '@carbon/react/scss/spacing' as *;
+@use '@carbon/react/scss/theme' as *;
+@use '../../../styles/kaoto-theme' as kaoto;
+@use '../../../styles/panel-header' as panel;
+
+// The icon, the name and the close button in a row; the name shortens with an ellipsis when the header is narrow
+.cs--editor-tab,
+.cs--editor-tab__label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-03;
+  min-inline-size: 0;
+}
+
+// The open file's tab has the colour of the canvas and joins it below. The icon, the name and the close button on it
+// use the primary text colour instead of the white of the bar. The first tab follows the rounded corner of the bar.
+.cs--editor-tab {
+  @include kaoto.kaoto-theme {
+    --cs-on-accent: #{$text-primary};
+    --cs-on-accent-hover: color-mix(in srgb, #{$text-primary} 12%, transparent);
+    --cs-on-accent-active: color-mix(in srgb, #{$text-primary} 20%, transparent);
+
+    padding-inline: $spacing-04 $spacing-02;
+    border-start-start-radius: kaoto.$control-radius;
+    border-start-end-radius: kaoto.$control-radius;
+    background-color: var(--cs-canvas);
+
+    &:first-child {
+      border-start-start-radius: calc(#{kaoto.$card-radius} - 1px);
+    }
+  }
+}
+
+.cs--editor-tab__icon {
+  flex-shrink: 0;
+  color: $icon-secondary;
+
+  // As bold as the icons of the Explorer header buttons
+  @include kaoto.kaoto-theme {
+    color: var(--cs-on-accent);
+    stroke: var(--cs-on-accent);
+    stroke-width: 1px;
+  }
+}
+
+.cs--editor-tab__name {
+  @include panel.panel-heading;
+}

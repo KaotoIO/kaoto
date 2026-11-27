@@ -1,29 +1,30 @@
 @use '@carbon/react/scss/spacing' as *;
-@use '@carbon/react/scss/theme' as *;
 @use '../../../styles/kaoto-theme' as kaoto;
 @use '../../../styles/panel-header' as panel;
 
 .cs--editor-header {
   @include panel.panel-header;
 
-  // The icon and the name sit together on the left
+  // The tabs sit on the left
   justify-content: flex-start;
-}
 
-.cs--editor-header__icon {
-  flex-shrink: 0;
-  color: $icon-secondary;
-
-  // As bold as the icons of the Explorer header buttons
+  // The tabs take the full height of the bar and the first one starts at its edge; the bar stays as high as before
   @include kaoto.kaoto-theme {
-    color: var(--cs-on-accent);
-    stroke: var(--cs-on-accent);
-    stroke-width: 1px;
+    align-items: stretch;
+    min-block-size: $spacing-08;
+    padding-block: 0;
+    padding-inline-start: 0;
+
+    .cs--editor-header__actions {
+      align-self: center;
+    }
   }
 }
 
-.cs--editor-header__title {
-  @include panel.panel-heading;
+// The tabs of the open files; they shorten their names before the actions on the right give way
+.cs--editor-header__tabs {
+  display: flex;
+  min-inline-size: 0;
 }
 
 // Undo and redo and the tools for the file sit on the right, in groups set a little apart
