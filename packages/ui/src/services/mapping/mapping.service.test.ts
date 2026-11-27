@@ -361,6 +361,20 @@ describe('MappingService', () => {
       );
       expect(retained).toBeDefined();
     });
+
+    it('should tell a param starting with _ from the param without it', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetDoc.fields[0].fields[0]);
+      const vs = new ValueOfSelector(fieldItem);
+      vs.expression = '$_p/a';
+      fieldItem.children.push(vs);
+
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, 'p');
+      expect(fieldItem.children).toContain(vs);
+
+      MappingService.removeAllMappingsForDocument(tree, DocumentType.PARAM, '_p');
+      expect(fieldItem.children).not.toContain(vs);
+    });
   });
 
   describe('renameParameterInMappings()', () => {
@@ -1948,6 +1962,22 @@ describe('MappingService', () => {
   });
 
   describe('removeVariableReferences()', () => {
+    it('should tell a variable starting with _ from the variable without it', () => {
+      const shipOrderItem = tree.children[0] as FieldItem;
+      const fieldItem = MappingService.createFieldItem(shipOrderItem, targetDoc.fields[0].fields[0]);
+      const foo = MappingService.addVariable(tree, 'foo');
+      const underscoreFoo = MappingService.addVariable(tree, '_foo');
+      const vs = new ValueOfSelector(fieldItem);
+      vs.expression = '$_foo/a';
+      fieldItem.children.push(vs);
+
+      MappingService.removeVariableReferences(foo);
+      expect(fieldItem.children).toContain(vs);
+
+      MappingService.removeVariableReferences(underscoreFoo);
+      expect(fieldItem.children).not.toContain(vs);
+    });
+
     it('should remove ValueSelector referencing the variable and prune empty FieldItem chain', () => {
       const shipOrderItem = tree.children[0] as FieldItem;
       const targetField = targetDoc.fields[0].fields[0]; // first child of ShipOrder

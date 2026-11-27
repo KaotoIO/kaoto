@@ -1,3 +1,4 @@
+import { XPathService } from '../../services/xpath/xpath.service';
 import { TestUtil } from '../../stubs/datamapper/data-mapper';
 import { DocumentDefinitionType, DocumentType, IField } from './document';
 import {
@@ -218,6 +219,17 @@ describe('mapping.ts', () => {
       expect(firstCall?.pathSegments).toEqual(secondCall?.pathSegments);
       expect(firstCall?.isRelative).toBe(secondCall?.isRelative);
       expect(firstCall?.documentReferenceName).toBe(secondCall?.documentReferenceName);
+    });
+
+    it('contextPath should read a select starting with _ whole, so the body resolves against it', () => {
+      const item = new ForEachItem(tree);
+      item.expression = '/Root/_items';
+
+      const contextPath = item.contextPath;
+      expect(contextPath?.pathSegments.map((segment) => segment.name)).toEqual(['Root', '_items']);
+
+      const bodyPath = XPathService.toAbsolutePath(XPathService.extractFieldPaths('_v', contextPath)[0]);
+      expect(bodyPath.pathSegments.map((segment) => segment.name)).toEqual(['Root', '_items', '_v']);
     });
   });
 

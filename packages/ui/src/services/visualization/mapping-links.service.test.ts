@@ -44,6 +44,7 @@ import {
   getX12837PXslt,
   getX12850DfdlXsd,
   getX12850ForEachXslt,
+  getXmlStubFile,
   TestUtil,
 } from '../../stubs/datamapper/data-mapper';
 import {
@@ -392,6 +393,48 @@ describe('MappingLinksService', () => {
       expect(links[5].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Quantity-.*/);
       expect(links[6].sourceNodePath).toMatch('Price');
       expect(links[6].targetNodePath).toMatch(/for-each-.*fx-Item-.*fx-Price-.*/);
+    });
+
+    it('should draw the line from a source field starting with _, not from the field without it', () => {
+      const underscoreXsd = { 'UnderscoreNames.xsd': getXmlStubFile('UnderscoreNames.xsd') };
+      const underscoreSource = XmlSchemaDocumentService.createXmlSchemaDocument(
+        new DocumentDefinition(
+          DocumentType.SOURCE_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          underscoreXsd,
+        ),
+      ).document!;
+      const underscoreTarget = XmlSchemaDocumentService.createXmlSchemaDocument(
+        new DocumentDefinition(
+          DocumentType.TARGET_BODY,
+          DocumentDefinitionType.XML_SCHEMA,
+          BODY_DOCUMENT_ID,
+          underscoreXsd,
+        ),
+      ).document!;
+      const underscoreTree = new MappingTree(
+        underscoreTarget.documentType,
+        underscoreTarget.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      const rootItem = new FieldItem(underscoreTree, underscoreTarget.fields[0]);
+      underscoreTree.children.push(rootItem);
+      const targetId = new FieldItem(rootItem, underscoreTarget.fields[0].fields.find((f) => f.name === '_id')!);
+      rootItem.children.push(targetId);
+      const selector = new ValueOfSelector(targetId);
+      selector.expression = '/Root/_id';
+      targetId.children.push(selector);
+
+      const links = MappingLinksService.extractMappingLinks(
+        underscoreTree,
+        new Map(),
+        underscoreSource,
+        TargetRenderIndex.EMPTY,
+      );
+
+      expect(links).toHaveLength(1);
+      expect(links[0].sourceNodePath).toMatch(/fx-_id-/);
     });
   });
 
@@ -1187,6 +1230,31 @@ describe('MappingLinksService', () => {
   });
 
   describe('variable reference links', () => {
+    it('should draw a $_foo line from variable _foo only, not from foo', () => {
+      const rootField = targetDoc.fields[0];
+      const targetField = rootField.fields[0];
+      const manualTree = new MappingTree(
+        targetDoc.documentType,
+        targetDoc.documentId,
+        DocumentDefinitionType.XML_SCHEMA,
+      );
+      manualTree.namespaceMap = { ns0: 'io.kaoto.datamapper.poc.test' };
+      const foo = new VariableItem(manualTree, 'foo');
+      const underscoreFoo = new VariableItem(manualTree, '_foo');
+      manualTree.children.push(foo, underscoreFoo);
+      const rootItem = new FieldItem(manualTree, rootField);
+      manualTree.children.push(rootItem);
+      const fieldItem = new FieldItem(rootItem, targetField);
+      rootItem.children.push(fieldItem);
+      const vs = new ValueOfSelector(fieldItem);
+      vs.expression = '$_foo';
+      fieldItem.children.push(vs);
+
+      const links = MappingLinksService.extractMappingLinks(manualTree, paramsMap, sourceDoc, TargetRenderIndex.EMPTY);
+      const varLinks = links.filter((l) => l.sourceDocumentNodeId === VARIABLES_DOCUMENT_ID);
+      expect(varLinks.map((l) => l.sourceNodePath)).toEqual([`Var:${VARIABLES_DOCUMENT_ID}://${underscoreFoo.id}`]);
+    });
+
     it('should generate Var:// link for $varName expression', () => {
       const rootField = targetDoc.fields[0];
       const targetField = rootField.fields[0];

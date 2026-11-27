@@ -9,15 +9,11 @@ import {
 } from 'chevrotain';
 
 import { XPathParser, XPathParserResult } from '../xpath-model';
+import { NCNAME } from '../xpath-name';
 
 const fragments: Record<string, RegExp> = {};
-const f = fragments;
 
-fragments['NameStartChar'] = /[a-zA-Z]|\\u2070-\\u218F|\\u2C00-\\u2FEF|\\u3001-\\uD7FF|\\uF900-\\uFDCF|\\uFDF0-\\uFFFD/;
-fragments['NameChar'] = new RegExp(
-  String.raw`(${f.NameStartChar.source})|-|_|\.|\d|\u00B7|[\u0300-\u036F]|[\u203F-\u2040]`,
-);
-fragments['Name'] = new RegExp(`(${f.NameStartChar.source})(${f.NameChar.source})*`);
+fragments['Name'] = NCNAME;
 fragments['StringLiteral'] = /("(""|[^"])*")|('(''|[^'])*')/;
 fragments['Digits'] = /\d+/;
 fragments['DecimalLiteral'] = /(\.\d+)|(\d+\.\d*)/; // NOSONAR typescript:S8786 - alternatives start with distinct characters (. vs digit), quantified sequences have fixed literal boundaries
@@ -33,7 +29,7 @@ function createToken(options: ITokenConfig) {
 
 createToken({
   name: 'WhiteSpace',
-  pattern: /\s+/,
+  pattern: /[ \t\r\n]+/,
   group: Lexer.SKIPPED,
 });
 

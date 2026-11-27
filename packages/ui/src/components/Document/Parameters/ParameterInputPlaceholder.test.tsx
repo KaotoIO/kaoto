@@ -3,6 +3,12 @@ import { FunctionComponent, PropsWithChildren } from 'react';
 import type { Mock, MockInstance } from 'vitest';
 
 import { useDataMapper } from '../../../hooks/useDataMapper';
+import {
+  DocumentDefinition,
+  DocumentDefinitionType,
+  DocumentInitializationModel,
+  DocumentType,
+} from '../../../models/datamapper/document';
 import { DataMapperProvider } from '../../../providers/datamapper.provider';
 import { DocumentService } from '../../../services/document/document.service';
 import { ParameterInputPlaceholder } from './ParameterInputPlaceholder';
@@ -29,6 +35,33 @@ describe('ParameterInputPlaceholder', () => {
   afterEach(() => {
     mockCreatePrimitiveDocument?.mockRestore();
   });
+
+  function renderWithParameters(parameterNames: string[], parameter?: string) {
+    const documentInitializationModel = new DocumentInitializationModel(
+      Object.fromEntries(
+        parameterNames.map((name) => [
+          name,
+          new DocumentDefinition(DocumentType.PARAM, DocumentDefinitionType.Primitive, name),
+        ]),
+      ),
+    );
+    render(
+      <DataMapperProvider documentInitializationModel={documentInitializationModel}>
+        <AlertCapture>
+          <ParameterInputPlaceholder onComplete={mockOnComplete} parameter={parameter} />
+        </AlertCapture>
+      </DataMapperProvider>,
+    );
+  }
+
+  function typeName(name: string) {
+    fireEvent.change(screen.getByTestId('new-parameter-name-input'), { target: { value: name } });
+  }
+
+  function expectRejected(error: string) {
+    expect(screen.getByTestId('new-parameter-name-input-error')).toHaveTextContent(error);
+    expect((screen.getByTestId('new-parameter-submit-btn') as HTMLButtonElement).disabled).toBeTruthy();
+  }
 
   function renderAndSubmit() {
     render(
@@ -95,5 +128,44 @@ describe('ParameterInputPlaceholder', () => {
 
     expect(mockRenameSourceParameter).toHaveBeenCalledWith('oldParam', 'newParam');
     expect(mockOnComplete).toHaveBeenCalled();
+  });
+
+  it('should complete without renaming or creating when a loaded reserved name is submitted unchanged', () => {
+    mockCreatePrimitiveDocument = vi.spyOn(DocumentService, 'createPrimitiveDocument');
+    renderWithParameters(['in'], 'in');
+
+    fireEvent.click(screen.getByTestId('new-parameter-submit-btn'));
+
+    expect(mockOnComplete).toHaveBeenCalled();
+    expect(mockRenameSourceParameter).not.toHaveBeenCalled();
+    expect(mockCreatePrimitiveDocument).not.toHaveBeenCalled();
+  });
+
+  it('should rename a parameter to a different case of its own name', () => {
+    renderWithParameters(['cart'], 'cart');
+
+    typeName('Cart');
+    fireEvent.click(screen.getByTestId('new-parameter-submit-btn'));
+
+    expect(mockRenameSourceParameter).toHaveBeenCalledWith('cart', 'Cart');
+    expect(mockOnComplete).toHaveBeenCalled();
+  });
+
+  it('should reject a rename to another parameter or a reserved name', () => {
+    renderWithParameters(['cart', 'q'], 'q');
+
+    typeName('cart');
+    expectRejected("Parameter 'cart' already exists");
+    typeName('out');
+    expectRejected("Parameter name 'out' is reserved for Camel internal use");
+  });
+
+  it('should reject a new parameter with an existing or a reserved name', () => {
+    renderWithParameters(['cart']);
+
+    typeName('cart');
+    expectRejected("Parameter 'cart' already exists");
+    typeName('exchange');
+    expectRejected("Parameter name 'exchange' is reserved for Camel internal use");
   });
 });

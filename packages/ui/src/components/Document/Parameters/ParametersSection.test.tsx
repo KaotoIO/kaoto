@@ -100,7 +100,7 @@ describe('ParametersSection', () => {
     fireEvent.change(paramNameInput, { target: { value: 'testparam1::' } });
     const invalidError = screen.getByTestId('new-parameter-name-input-error');
     expect(invalidError).toBeInTheDocument();
-    expect(invalidError).toHaveTextContent("Invalid parameter name 'testparam1::': it must be a valid QName");
+    expect(invalidError).toHaveTextContent("Invalid parameter name 'testparam1::': it must not contain ':'");
     let submitButton = screen.getByTestId('new-parameter-submit-btn') as HTMLButtonElement;
     expect(submitButton.disabled).toBeTruthy();
     fireEvent.change(paramNameInput, { target: { value: 'testparam1' } });

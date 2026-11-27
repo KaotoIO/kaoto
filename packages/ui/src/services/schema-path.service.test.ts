@@ -217,6 +217,18 @@ describe('SchemaPathService', () => {
       expect(result).toBeDefined();
       expect(result?.name).toBe('emailAddress');
     });
+
+    it('should navigate to a field starting with _, not to the field without it', () => {
+      const doc = TestUtil.createSourceOrderDoc();
+      const shipOrderField = doc.fields[0];
+      const underscoreId = new XmlSchemaField(shipOrderField, '_id', false);
+      const id = new XmlSchemaField(shipOrderField, 'id', false);
+      shipOrderField.fields.push(id, underscoreId);
+
+      const result = SchemaPathService.navigateToField(doc, '/ns0:ShipOrder/_id', namespaceMap);
+
+      expect(result).toBe(underscoreId);
+    });
   });
 
   describe('navigateToField() with namedTypeFragmentRefs', () => {

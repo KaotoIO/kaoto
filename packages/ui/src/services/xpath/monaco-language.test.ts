@@ -363,4 +363,30 @@ describe('monaco-language', () => {
       }
     });
   });
+
+  describe('wordPattern', () => {
+    const words = (text: string) => {
+      const pattern = monacoXPathLanguageMetadata.languageConfiguration.wordPattern;
+      return Array.from(text.matchAll(new RegExp(pattern?.source ?? '', 'g')), (match) => match[0]);
+    };
+
+    it.each([
+      ['caf\u00E9', ['caf\u00E9']],
+      ['\u6570\u91CF', ['\u6570\u91CF']],
+      ['a.b', ['a.b']],
+      ['\u{10000}a', ['\u{10000}a']],
+      ['/order.count', ['order.count']],
+    ])('should read %s as whole names', (text, expected) => {
+      expect(words(text)).toEqual(expected);
+    });
+
+    it.each([
+      ['_x', ['_x']],
+      ['fn:concat', ['fn', 'concat']],
+      ['$v', ['v']],
+      ['1.5e3', ['1.5e3']],
+    ])('should keep reading %s as before', (text, expected) => {
+      expect(words(text)).toEqual(expected);
+    });
+  });
 });
