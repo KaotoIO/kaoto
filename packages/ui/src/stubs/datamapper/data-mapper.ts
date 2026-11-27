@@ -230,6 +230,13 @@ export function getCustomerJsonSchema(): string {
 export function getOrderJsonSchema(): string {
   return readStubFile('./json/Order.schema.json');
 }
+/** Two files that refer to each other, a circular reference across files */
+export function getCircularAJsonSchema(): string {
+  return readStubFile('./json/CircularA.schema.json');
+}
+export function getCircularBJsonSchema(): string {
+  return readStubFile('./json/CircularB.schema.json');
+}
 export function getFieldsBeyondFrontierJsonSchema(): string {
   return readStubFile('./json/FieldsBeyondFrontier.schema.json');
 }

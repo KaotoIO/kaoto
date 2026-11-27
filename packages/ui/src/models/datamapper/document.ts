@@ -68,6 +68,10 @@ export interface IOriginalFieldState {
    * for named-type fields whose children are re-derived from `namedTypeFragmentRefs` on expansion.
    */
   fields?: IField[];
+  /** Original `required` of a JSON schema field at snapshot time; not set for other formats. */
+  required?: string[];
+  /** Original `optionalFragmentRefs` of a JSON schema field at snapshot time; not set for other formats. */
+  optionalFragmentRefs?: string[];
 }
 
 /**
@@ -139,6 +143,10 @@ export interface IField {
   isAbstractType?: boolean;
   /** Optional description extracted from xs:annotation/xs:documentation for tooltip/help text */
   description?: string;
+  /** The properties a JSON schema field requires by its own declaration; not set for other formats */
+  required?: string[];
+  /** The type fragment refs of a JSON schema field whose `required` doesn't apply to it; not set for other formats */
+  optionalFragmentRefs?: string[];
 
   /**
    * Adopts itself to a passed-in parent {@link IField} as a child. This method is also responsible for inheritance.

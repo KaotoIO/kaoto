@@ -86,13 +86,17 @@ export class DocumentUtilService {
     field.originalField ??= DocumentUtilService.captureOriginalFieldState(field);
     const doc = DocumentUtilService.getOwnerDocument(field);
     const unresolvedRefs: string[] = [];
+    const visitedRefs = new Set<string>();
     for (const ref of field.namedTypeFragmentRefs) {
+      // a fragment adopted before also adopted the fragments it refers to
+      if (visitedRefs.has(ref)) continue;
       const fragment = doc.namedTypeFragments[ref];
       if (!fragment) {
         unresolvedRefs.push(ref);
         continue;
       }
-      unresolvedRefs.push(...DocumentUtilService.adoptTypeFragment(field, fragment));
+      visitedRefs.add(ref);
+      unresolvedRefs.push(...DocumentUtilService.adoptTypeFragment(field, fragment, visitedRefs));
     }
     field.namedTypeFragmentRefs = unresolvedRefs;
     if (
@@ -117,6 +121,8 @@ export class DocumentUtilService {
       namedTypeFragmentRefs: [...field.namedTypeFragmentRefs],
       fields: field.fields.length > 0 ? [...field.fields] : undefined,
       isAbstractType: field.isAbstractType,
+      required: field.required && [...field.required],
+      optionalFragmentRefs: field.optionalFragmentRefs && [...field.optionalFragmentRefs],
     };
   }
 
@@ -125,8 +131,9 @@ export class DocumentUtilService {
    * Recursively resolves and adopts any nested type fragment references from the owner document.
    * @param field - The field to adopt the fragment into
    * @param fragment - The type fragment whose properties and children will be merged into the field
+   * @param visitedRefs - The references already adopted into the field, which are skipped to stop at cyclic references
    */
-  static adoptTypeFragment(field: IField, fragment: ITypeFragment): string[] {
+  static adoptTypeFragment(field: IField, fragment: ITypeFragment, visitedRefs: Set<string> = new Set()): string[] {
     const doc = DocumentUtilService.getOwnerDocument(field);
     const unresolved: string[] = [];
     if (fragment.type) field.type = fragment.type;
@@ -134,12 +141,14 @@ export class DocumentUtilService {
     if (fragment.maxOccurs !== undefined) field.maxOccurs = fragment.maxOccurs;
     for (const f of fragment.fields) f.adopt(field);
     for (const childRef of fragment.namedTypeFragmentRefs) {
+      if (visitedRefs.has(childRef)) continue;
+      visitedRefs.add(childRef);
       const childFragment = doc.namedTypeFragments[childRef];
       if (!childFragment) {
         unresolved.push(childRef);
         continue;
       }
-      unresolved.push(...DocumentUtilService.adoptTypeFragment(field, childFragment));
+      unresolved.push(...DocumentUtilService.adoptTypeFragment(field, childFragment, visitedRefs));
     }
     return unresolved;
   }
@@ -454,6 +463,9 @@ export class DocumentUtilService {
     field.typeOverride = variant;
     field.isAbstractType = undefined;
     field.fields = [];
+    // what the replaced type required doesn't apply to the new one
+    if (field.required) field.required = [];
+    if (field.optionalFragmentRefs) field.optionalFragmentRefs = [];
 
     if (type === Types.Container) {
       field.namedTypeFragmentRefs = [...namedTypeFragmentRefs];
@@ -488,6 +500,10 @@ export class DocumentUtilService {
       field.namespaceURI = field.originalField.namespaceURI;
       field.namespacePrefix = field.originalField.namespacePrefix;
       field.isAbstractType = field.originalField.isAbstractType;
+      if (field.originalField.required) field.required = [...field.originalField.required];
+      if (field.originalField.optionalFragmentRefs) {
+        field.optionalFragmentRefs = [...field.originalField.optionalFragmentRefs];
+      }
     }
     field.typeOverride = FieldOverrideVariant.NONE;
     field.originalField = undefined;

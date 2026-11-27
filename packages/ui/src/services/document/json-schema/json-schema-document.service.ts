@@ -7,6 +7,7 @@ import { DocumentUtilService } from '../document-util.service';
 import type { JsonSchemaAnalysisReport } from './json-schema-analysis.service';
 import { JsonSchemaAnalysisService } from './json-schema-analysis.service';
 import {
+  bindingRequiredOf,
   CreateJsonSchemaDocumentResult,
   JsonSchemaCollection,
   JsonSchemaDocument,
@@ -99,7 +100,7 @@ export class JsonSchemaDocumentService {
       JsonSchemaDocumentService.registerSchemaWithAliases(jsonDocument.schemaCollection, schema);
     }
 
-    const jsonService = new JsonSchemaDocumentService(jsonDocument);
+    const jsonService = new JsonSchemaDocumentService(jsonDocument, primarySchema.identifier);
     jsonService.populateFieldFromSchema(jsonDocument, '', primarySchema);
     jsonService.updateFieldTypes();
 
@@ -255,7 +256,10 @@ export class JsonSchemaDocumentService {
     }
   }
 
-  constructor(private readonly jsonDocument: JsonSchemaDocument) {}
+  constructor(
+    private readonly jsonDocument: JsonSchemaDocument,
+    private readonly primarySchemaIdentifier: string,
+  ) {}
 
   private populateExternalTypeFragment(ref: JsonSchemaReference): void {
     const fullRef = ref.getFullReference();
@@ -266,6 +270,11 @@ export class JsonSchemaDocumentService {
 
     const definition = JsonSchemaDocumentUtilService.resolveJsonSchemaReference(ref);
 
+    if (definition === true) {
+      // allows any value, like an empty definition does
+      this.jsonDocument.namedTypeFragments[fullRef] = { type: Types.AnyType, fields: [], namedTypeFragmentRefs: [] };
+      return;
+    }
     if (!definition || typeof definition === 'boolean') {
       throw new Error(`Cannot resolve definition at ${fullRef}: Path not found or empty definition`);
     }
@@ -277,10 +286,11 @@ export class JsonSchemaDocumentService {
       path: fullRef,
     };
 
-    this.jsonDocument.namedTypeFragments[fullRef] = this.doCreateFragmentFromJSONSchema(
-      this.jsonDocument,
-      defSchemaMeta,
-    );
+    // register the fragment before building it, so that a circular reference back to it finds the key and stays a
+    // lazy reference
+    const fragment: JsonSchemaTypeFragment = { fields: [], namedTypeFragmentRefs: [] };
+    this.jsonDocument.namedTypeFragments[fullRef] = fragment;
+    Object.assign(fragment, this.doCreateFragmentFromJSONSchema(this.jsonDocument, defSchemaMeta));
   }
 
   /**
@@ -301,9 +311,10 @@ export class JsonSchemaDocumentService {
 
     if (schema.$ref) {
       this.handleSchemaRef(field, schema.$ref, schema);
-      this.assignRefTypeQName(field, schema.$ref);
+      // the first declaration names the type: a later $ref doesn't rename a field that has a typeQName already
+      if (field.typeQName === null) this.assignRefTypeQName(field, schema.$ref);
     } else {
-      this.assignTypeMetadata(field, schema);
+      this.assignTypeMetadata(field, schema, fieldType);
     }
 
     this.populateTypeFragmentsFromDefinition(field, schema);
@@ -326,9 +337,13 @@ export class JsonSchemaDocumentService {
   private populateTypeFragmentsFromDefinition(parent: JsonSchemaParentType, schema: JsonSchemaMetadata) {
     const definitions = { ...schema.$defs, ...schema.definitions };
     for (const [definitionName, definitionSchema] of Object.entries(definitions)) {
-      if (typeof definitionSchema === 'boolean' || Object.keys(definitionSchema).length === 0) return;
       const path =
         schema.path + (schema.$defs && definitionName in schema.$defs ? '/$defs/' : '/definitions/') + definitionName;
+      if (typeof definitionSchema === 'boolean' || Object.keys(definitionSchema).length === 0) {
+        // allows any value, like an empty or true definition in another file does
+        this.jsonDocument.namedTypeFragments[path] = { type: Types.AnyType, fields: [], namedTypeFragmentRefs: [] };
+        continue;
+      }
       const definitionSchemaMeta: JsonSchemaMetadata = {
         ...definitionSchema,
         identifier: schema.identifier,
@@ -347,7 +362,10 @@ export class JsonSchemaDocumentService {
 
     // create a temporary field, get it populated with fragment children
     const field: JsonSchemaField = new JsonSchemaField(parent, '', type);
-    field.namedTypeFragmentRefs = schemaMeta.$ref ? [schemaMeta.$ref] : [];
+    if (schemaMeta.$ref) {
+      this.handleSchemaRef(field, schemaMeta.$ref, schemaMeta);
+    }
+    field.required = [...(schemaMeta.required ?? [])];
 
     if (type === Types.Array) {
       this.populateArrayItems(field, schemaMeta);
@@ -359,8 +377,10 @@ export class JsonSchemaDocumentService {
 
     return {
       type: updatedField.type,
+      required: updatedField.required,
       fields: updatedField.fields,
       namedTypeFragmentRefs: updatedField.namedTypeFragmentRefs,
+      optionalFragmentRefs: updatedField.optionalFragmentRefs,
     };
   }
 
@@ -373,12 +393,14 @@ export class JsonSchemaDocumentService {
   private populateArrayItems(field: JsonSchemaField, schema: JsonSchemaMetadata) {
     if (!schema.items) return;
 
-    const itemsSchema: JsonSchemaMetadata = {
-      ...schema,
-      path: schema.path + '/items',
-    };
-    const arrayItems = Array.isArray(schema.items) ? schema.items : [schema.items];
-    arrayItems.forEach((item) => this.populateFieldFromJSONSchemaDefinition(field, itemsSchema, '', item));
+    const itemsPath = schema.path + '/items';
+    if (Array.isArray(schema.items)) {
+      schema.items.forEach((item, index) =>
+        this.populateFieldFromJSONSchemaDefinition(field, { ...schema, path: `${itemsPath}/${index}` }, '', item),
+      );
+    } else {
+      this.populateFieldFromJSONSchemaDefinition(field, { ...schema, path: itemsPath }, '', schema.items);
+    }
 
     field.fields.forEach((field) => {
       // could an array item be required?
@@ -404,13 +426,7 @@ export class JsonSchemaDocumentService {
   ): JsonSchemaField {
     if (typeof schemaDef === 'boolean' || Object.keys(schemaDef).length === 0) {
       // boolean or empty schema means it inherits from the composition, deferring to enrich it with composition
-      const existing = parent.fields.find((f) => f.key === fieldKey && f.type === Types.AnyType);
-      if (existing) return existing;
-
-      const field = new JsonSchemaField(parent, fieldKey, Types.AnyType);
-      parent.fields.push(field);
-      this.jsonDocument.totalFieldCount++;
-      return field;
+      return this.findOrCreateField(parent, fieldKey, Types.AnyType);
     }
 
     return this.populateFieldFromSchema(parent, fieldKey, {
@@ -430,13 +446,12 @@ export class JsonSchemaDocumentService {
   private populateObjectProperties(field: JsonSchemaField, schema: JsonSchemaMetadata) {
     if (!schema.properties) return;
 
-    const propertiesSchema: JsonSchemaMetadata = {
-      ...schema,
-      path: schema.path + '/properties',
-    };
-    Object.entries(schema.properties).forEach(([childName, propSchemaDef]) =>
-      this.populateFieldFromJSONSchemaDefinition(field, propertiesSchema, childName, propSchemaDef),
-    );
+    Object.entries(schema.properties).forEach(([childName, propSchemaDef]) => {
+      // escape the property name as a JSON pointer token, so that a $ref to a definition inside it matches the path
+      const pointerToken = childName.replace(/~/g, '~0').replace(/\//g, '~1');
+      const propertySchema: JsonSchemaMetadata = { ...schema, path: `${schema.path}/properties/${pointerToken}` };
+      this.populateFieldFromJSONSchemaDefinition(field, propertySchema, childName, propSchemaDef);
+    });
 
     field.fields.forEach((subField) => {
       subField.minOccurs = schema.required?.includes(subField.key) ? 1 : 0;
@@ -450,27 +465,42 @@ export class JsonSchemaDocumentService {
    * at this moment. If we want to do something with `not` then it would also need some change here.
    * @param field
    * @param schema
+   * @param isRequiredBinding - whether the `required` of `schema` and its `allOf` members applies to the field; false
+   *   inside an `anyOf` or `oneOf` member, as another member may allow the property to be absent
    */
-  private updateFieldFromComposition(field: JsonSchemaField, schema: JsonSchemaMetadata): JsonSchemaField {
-    const anyOfSchema: JsonSchemaMetadata = { ...schema, path: schema.path + '/anyOf' };
-    const oneOfSchema: JsonSchemaMetadata = { ...schema, path: schema.path + '/oneOf' };
-    const allOfSchema: JsonSchemaMetadata = { ...schema, path: schema.path + '/allOf' };
+  private updateFieldFromComposition(
+    field: JsonSchemaField,
+    schema: JsonSchemaMetadata,
+    isRequiredBinding = true,
+  ): JsonSchemaField {
+    const memberSchema = (keyword: string, index: number): JsonSchemaMetadata => ({
+      ...schema,
+      path: `${schema.path}/${keyword}/${index}`,
+    });
 
     let updated = schema.anyOf?.reduce(
-      (current, compositionSchemaDef) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, anyOfSchema),
+      (current, compositionSchemaDef, index) =>
+        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('anyOf', index), false),
       field,
     );
     updated = schema.oneOf?.reduce(
-      (current, compositionSchemaDef) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, oneOfSchema),
+      (current, compositionSchemaDef, index) =>
+        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, memberSchema('oneOf', index), false),
       updated ?? field,
     );
-    updated = schema.allOf?.reduce(
-      (current, compositionSchemaDef) =>
-        this.doUpdateWithJSONSchemaDefinition(current, compositionSchemaDef, allOfSchema),
-      updated ?? field,
-    );
+    updated = schema.allOf?.reduce((current, compositionSchemaDef, index) => {
+      const updatedByMember = this.doUpdateWithJSONSchemaDefinition(
+        current,
+        compositionSchemaDef,
+        memberSchema('allOf', index),
+        isRequiredBinding,
+      );
+      // unlike anyOf and oneOf, every allOf member applies, so a property it requires is required
+      if (isRequiredBinding && typeof compositionSchemaDef !== 'boolean' && compositionSchemaDef.required) {
+        updatedByMember.required.push(...compositionSchemaDef.required);
+      }
+      return updatedByMember;
+    }, updated ?? field);
     return updated ?? field;
   }
 
@@ -478,11 +508,12 @@ export class JsonSchemaDocumentService {
     field: JsonSchemaField,
     schemaDef: JSONSchema7Definition,
     schemaContext: JsonSchemaMetadata,
+    isRequiredBinding: boolean,
   ): JsonSchemaField {
     if (typeof schemaDef === 'boolean' || Object.keys(schemaDef).length === 0) return field;
 
     if (schemaDef.$ref) {
-      this.handleSchemaRef(field, schemaDef.$ref, schemaContext);
+      this.handleSchemaRef(field, schemaDef.$ref, schemaContext, isRequiredBinding);
     }
 
     const schemaMeta: JsonSchemaMetadata = {
@@ -491,12 +522,12 @@ export class JsonSchemaDocumentService {
       filePath: schemaContext.filePath,
       path: schemaContext.path,
     };
-    schemaDef.definitions && this.populateTypeFragmentsFromDefinition(field, schemaMeta);
+    this.populateTypeFragmentsFromDefinition(field, schemaMeta);
 
     const type = JsonSchemaDocumentUtilService.electFieldTypeFromSchema(schemaMeta);
     const updatedField = this.updateFieldByType(field, type, schemaMeta);
 
-    return this.updateFieldFromComposition(updatedField, schemaMeta);
+    return this.updateFieldFromComposition(updatedField, schemaMeta, isRequiredBinding);
   }
 
   private ensureFieldType(field: JsonSchemaField, type: Types): JsonSchemaField {
@@ -507,18 +538,33 @@ export class JsonSchemaDocumentService {
     return field.copyTo(answer);
   }
 
-  private handleSchemaRef(field: JsonSchemaField, ref: string, schemaContext: JsonSchemaMetadata): void {
+  /**
+   * Registers the type fragment `ref` points to on the field.
+   * @param isRequiredBinding - false for a `$ref` inside an `anyOf` or `oneOf` member: the `required` of the referenced
+   *   definition then doesn't apply to the field, see {@link JsonSchemaField.optionalFragmentRefs}
+   */
+  private handleSchemaRef(
+    field: JsonSchemaField,
+    ref: string,
+    schemaContext: JsonSchemaMetadata,
+    isRequiredBinding = true,
+  ): void {
+    // a local ref points into the root of the file it's declared in, not into the subschema it's declared in; every
+    // schema the document is read from is in its collection, so the file is always found
+    const fileSchema = this.jsonDocument.schemaCollection.getJsonSchema(schemaContext.identifier)!;
     const resolved = JsonSchemaDocumentUtilService.createJsonSchemaReference(
       ref,
-      schemaContext,
+      fileSchema,
       this.jsonDocument.schemaCollection,
     );
 
     if (resolved) {
-      const fullRef = resolved.isExternal() ? resolved.getFullReference() : ref;
-      field.namedTypeFragmentRefs.push(fullRef);
+      // only the local refs of the primary schema are registered as they are, any other under its full reference
+      const isPrimaryLocal = !resolved.isExternal() && schemaContext.identifier === this.primarySchemaIdentifier;
+      const fullRef = isPrimaryLocal ? ref : resolved.getFullReference();
+      field.addFragmentRef(fullRef, isRequiredBinding);
 
-      if (resolved.isExternal() && !this.jsonDocument.namedTypeFragments[fullRef]) {
+      if (!isPrimaryLocal && !this.jsonDocument.namedTypeFragments[fullRef]) {
         this.populateExternalTypeFragment(resolved);
       }
     }
@@ -559,10 +605,13 @@ export class JsonSchemaDocumentService {
     field.typeQName = refQName;
   }
 
-  private assignTypeMetadata(field: JsonSchemaField, schema: JsonSchemaMetadata): void {
-    if (schema.type) {
+  private assignTypeMetadata(field: JsonSchemaField, schema: JsonSchemaMetadata, schemaType: Types): void {
+    // a later declaration of another type doesn't change the field type, so it mustn't change the typeQName either
+    if (schema.type && field.type === schemaType) {
       const typeArray = Array.isArray(schema.type) ? schema.type : [schema.type];
-      const typeString = typeArray[0];
+      // a type list elects its field type by precedence, not by position
+      const typeString =
+        typeArray.find((t) => JsonSchemaTypesService.mapTypeStringToEnum(t) === schemaType) ?? typeArray[0];
       const typeQName = new QName(null, typeString);
       field.typeQName = typeQName;
     }
@@ -600,6 +649,7 @@ export class JsonSchemaDocumentService {
     fragment: JsonSchemaField | JsonSchemaTypeFragment,
   ): JsonSchemaField | JsonSchemaTypeFragment {
     const traversedType = this.traverseFieldType(fragment);
+    this.dropRefsOfOtherTypes(fragment, traversedType);
     let updatedFragment = fragment;
     if (fragment instanceof JsonSchemaField) {
       updatedFragment = this.ensureFieldType(fragment, traversedType);
@@ -616,8 +666,11 @@ export class JsonSchemaDocumentService {
         subField.maxOccurs = Number.MAX_SAFE_INTEGER;
       });
     } else if (updatedFragment.type === Types.Container) {
+      // the referenced definitions are complete now, so their required properties apply; they aren't stored on the
+      // field, as a field type override replaces its refs and the children then take the required of the new ones
+      const required = bindingRequiredOf(updatedFragment, this.jsonDocument.namedTypeFragments);
       updatedFragment.fields.forEach((subField) => {
-        subField.minOccurs = updatedFragment.required?.includes(subField.key) ? 1 : 0;
+        subField.minOccurs = required.includes(subField.key) ? 1 : 0;
         subField.maxOccurs = 1;
       });
     }
@@ -625,12 +678,41 @@ export class JsonSchemaDocumentService {
     return updatedFragment;
   }
 
-  private traverseFieldType(fragment: JsonSchemaField | JsonSchemaTypeFragment): Types {
+  /**
+   * A field or type fragment keeps the type it gets first: a `$ref` to a definition of another type, such as a second
+   * tuple item, would otherwise switch the type when the field is expanded, while its name stays the one of the first
+   * type. A `$ref` to a definition of the same type, or of no type, still adds to it.
+   *
+   * The first type known when the fields are populated wins. The type of a `$ref` is known only afterwards, so in
+   * `anyOf: [{ $ref: '#/definitions/Foo' }, { type: 'string' }]` the field is a string and the ref to `Foo` is dropped.
+   * @param type - the type of `holder`, its own or the one of its first typed ref
+   */
+  private dropRefsOfOtherTypes(holder: JsonSchemaField | JsonSchemaTypeFragment, type: Types): void {
+    if (type === Types.AnyType) return;
+    const isOtherType = (ref: string) => {
+      const referenced = this.jsonDocument.namedTypeFragments[ref];
+      if (!referenced) return false;
+      const referencedType = this.traverseFieldType(referenced);
+      return referencedType !== Types.AnyType && referencedType !== type;
+    };
+    const otherTypeRefs = holder.namedTypeFragmentRefs.filter(isOtherType);
+    if (otherTypeRefs.length === 0) return;
+    holder.namedTypeFragmentRefs = holder.namedTypeFragmentRefs.filter((ref) => !otherTypeRefs.includes(ref));
+    holder.optionalFragmentRefs = holder.optionalFragmentRefs?.filter((ref) => !otherTypeRefs.includes(ref));
+  }
+
+  private traverseFieldType(
+    fragment: JsonSchemaField | JsonSchemaTypeFragment,
+    visitedRefs: Set<string> = new Set(),
+  ): Types {
     if (fragment.type && fragment.type !== Types.AnyType) return fragment.type;
 
     for (const ref of fragment.namedTypeFragmentRefs) {
+      // a $ref cycle without any type declaration in it has no type
+      if (visitedRefs.has(ref)) continue;
+      visitedRefs.add(ref);
       const subFragment = this.jsonDocument.namedTypeFragments[ref];
-      const subType = this.traverseFieldType(subFragment);
+      const subType = this.traverseFieldType(subFragment, visitedRefs);
       if (subType !== Types.AnyType) return subType;
     }
 

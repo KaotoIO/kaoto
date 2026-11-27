@@ -8,6 +8,8 @@ import { FieldOverrideVariant } from '../../../models/datamapper/types';
 import {
   getAccountJsonSchema,
   getCamelYamlDslJsonSchema,
+  getCircularAJsonSchema,
+  getCircularBJsonSchema,
   getCommonTypesJsonSchema,
   getCustomerJsonSchema,
   getMainWithRefJsonSchema,
@@ -15,8 +17,10 @@ import {
   getProductJsonSchema,
 } from '../../../stubs/datamapper/data-mapper';
 import { DocumentUtilService } from '../document-util.service';
-import { JsonSchemaDocument } from './json-schema-document.model';
+import { FieldOverrideService } from '../field-override.service';
+import { JsonSchemaDocument, JsonSchemaField } from './json-schema-document.model';
 import { JsonSchemaDocumentService } from './json-schema-document.service';
+import { JsonSchemaDocumentUtilService } from './json-schema-document-util.service';
 
 function createTestJsonDocument(documentType: DocumentType, documentId: string, content: string): JsonSchemaDocument {
   const definition = new DocumentDefinition(
@@ -537,6 +541,7 @@ describe('JsonSchemaDocumentService', () => {
     const fooField = root.fields.find((f) => f.key === 'foo');
     expect(fooField).toBeDefined();
     expect(fooField!.type).toBe(Types.String);
+    expect(fooField!.typeQName?.getLocalPart()).toBe('string');
   });
 
   it('should refine AnyType to concrete type via composition', () => {
@@ -601,7 +606,7 @@ describe('JsonSchemaDocumentService', () => {
     expect(bField!.type).toBe(Types.Numeric);
   });
 
-  it('should use the first entry of a type array as the field type', () => {
+  it('should take the field type and typeQName from the string entry of a nullable type list', () => {
     const schema: JSONSchema7 = {
       type: 'object',
       properties: {
@@ -719,7 +724,7 @@ describe('JsonSchemaDocumentService', () => {
     it.each<[string, JSONSchema7Definition]>([
       ['boolean', true],
       ['empty', {}],
-    ])('should not register a %s definition as a type fragment', (_kind, definition) => {
+    ])('should register a %s definition as a type fragment of any type', (_kind, definition) => {
       const schema: JSONSchema7 = {
         type: 'object',
         definitions: { Anything: definition },
@@ -727,8 +732,598 @@ describe('JsonSchemaDocumentService', () => {
 
       const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
 
-      expect(doc.namedTypeFragments).toEqual({});
+      expect(doc.namedTypeFragments).toEqual({
+        '#/definitions/Anything': { type: Types.AnyType, fields: [], namedTypeFragmentRefs: [] },
+      });
     });
+  });
+
+  it.each([
+    ['an empty definition', {}],
+    ['a boolean definition', true],
+  ])('should register the definitions that follow %s', (_desc, emptyDefinition) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      definitions: {
+        Empty: emptyDefinition,
+        Real: { type: 'object', properties: { a: { type: 'string' } } },
+      },
+      properties: {
+        x: { $ref: '#/definitions/Real' },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const xField = doc.fields[0].fields.find((f) => f.key === 'x');
+    expect(doc.namedTypeFragments['#/definitions/Real']).toBeDefined();
+    expect(xField!.type).toBe(Types.Container);
+  });
+
+  it.each([
+    ['an empty definition', {}],
+    ['a boolean definition', true],
+  ])('should give a field that refers to %s any type', (_desc, emptyDefinition) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      definitions: { AnyValue: emptyDefinition },
+      properties: { payload: { $ref: '#/definitions/AnyValue' } },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const payload = doc.fields[0].fields.find((f) => f.key === 'payload')!;
+    expect(payload.type).toBe(Types.AnyType);
+    expect(() => DocumentUtilService.resolveTypeFragment(payload)).not.toThrow();
+  });
+
+  it.each([
+    ['a boolean schema', true],
+    ['an empty schema', {}],
+  ])('should not duplicate a typed property redeclared as %s in a composition', (_desc, redeclared) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        a: { type: 'string' },
+      },
+      allOf: [{ properties: { a: redeclared } }],
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const aFields = doc.fields[0].fields.filter((f) => f.key === 'a');
+    expect(aFields).toHaveLength(1);
+    expect(aFields[0].type).toBe(Types.String);
+  });
+
+  it.each([
+    ['allOf', 'definitions'],
+    ['anyOf', 'definitions'],
+    ['oneOf', 'definitions'],
+    ['allOf', '$defs'],
+    ['anyOf', '$defs'],
+    ['oneOf', '$defs'],
+  ] as const)('should resolve a $ref to a definition declared inside %s under %s', (composition, keyword) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      [composition]: [{ type: 'object' }, { [keyword]: { D: { type: 'string' } } }],
+      properties: {
+        x: { $ref: `#/${composition}/1/${keyword}/D` },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const xField = doc.fields[0].fields.find((f) => f.key === 'x');
+    expect(xField!.type).toBe(Types.String);
+  });
+
+  it.each([
+    [
+      'tuple array items',
+      { type: 'array', items: [{ type: 'string' }, { type: 'number' }] } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields[0],
+    ],
+    [
+      'tuple array items with a $ref to another type after a type',
+      {
+        type: 'array',
+        items: [{ type: 'string' }, { $ref: '#/definitions/Num' }],
+        definitions: { Num: { type: 'number' } },
+      } as JSONSchema7,
+      (doc: JsonSchemaDocument) => DocumentUtilService.resolveTypeFragment(doc.fields[0].fields[0]) as JsonSchemaField,
+    ],
+    [
+      'a type list in which another type comes first',
+      { type: 'object', properties: { v: { type: ['null', 'string'] } } } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields.find((f) => f.key === 'v')!,
+    ],
+    [
+      'tuple array items with $refs to two types',
+      {
+        type: 'array',
+        items: [{ $ref: '#/definitions/Str' }, { $ref: '#/definitions/Num' }],
+        definitions: { Str: { type: 'string' }, Num: { type: 'number' } },
+      } as JSONSchema7,
+      (doc: JsonSchemaDocument) => DocumentUtilService.resolveTypeFragment(doc.fields[0].fields[0]) as JsonSchemaField,
+      Types.String,
+      '#/definitions/Str',
+    ],
+    [
+      'an object that also has a $ref',
+      {
+        type: 'object',
+        properties: { addr: { type: 'object', $ref: '#/definitions/Address' } },
+        definitions: { Address: { type: 'object', properties: { street: { type: 'string' } } } },
+      } as JSONSchema7,
+      (doc: JsonSchemaDocument) => doc.fields[0].fields.find((f) => f.key === 'addr')!,
+      Types.Container,
+      '#/definitions/Address',
+    ],
+  ] as [string, JSONSchema7, (doc: JsonSchemaDocument) => JsonSchemaField, Types?, string?][])(
+    'should take the typeQName from the type the field gets for %s',
+    (_desc, schema, getField, type = Types.String, typeQName = 'string') => {
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      const field = getField(doc);
+      expect(field.type).toBe(type);
+      expect(field.typeQName?.getLocalPart()).toBe(typeQName);
+      expect(field.name).toBe(JsonSchemaDocumentUtilService.toXsltTypeName(type));
+    },
+  );
+
+  it.each([
+    [
+      'an untyped anyOf of $refs to an object and a string',
+      {
+        anyOf: [{ $ref: '#/definitions/Model' }, { $ref: '#/definitions/Status' }],
+      },
+      Types.Container,
+    ],
+    ['a $ref to a string definition with an anyOf $ref to a number', { $ref: '#/definitions/Id' }, Types.String],
+  ] as [string, JSONSchema7, Types][])(
+    'should keep the type of a field that gets it from %s when it is expanded',
+    (_desc, valueSchema, type) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        properties: { value: valueSchema },
+        definitions: {
+          Model: { type: 'object', properties: { name: { type: 'string' } } },
+          Status: { type: 'string', enum: ['active', 'inactive'] },
+          Id: { type: 'string', anyOf: [{ $ref: '#/definitions/NumericId' }] },
+          NumericId: { type: 'number' },
+        },
+      };
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      const value = DocumentUtilService.resolveTypeFragment(
+        doc.fields[0].fields.find((f) => f.key === 'value')!,
+      ) as JsonSchemaField;
+
+      expect(value.type).toBe(type);
+      expect(value.name).toBe(JsonSchemaDocumentUtilService.toXsltTypeName(type));
+    },
+  );
+
+  it.each([
+    ['as its own $ref', { $ref: '#/definitions/Address' }, 1],
+    ['through an allOf member', { allOf: [{ $ref: '#/definitions/Address' }] }, 1],
+    ['through an anyOf member, which may not apply', { anyOf: [{ $ref: '#/definitions/Address' }, {}] }, 0],
+    ['through a oneOf member, which may not apply', { oneOf: [{ $ref: '#/definitions/Address' }, {}] }, 0],
+  ] as [string, JSONSchema7, number][])(
+    'should apply the required properties of a definition referenced %s',
+    (_desc, addrSchema, streetMinOccurs) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        properties: { addr: addrSchema },
+        definitions: {
+          Address: {
+            type: 'object',
+            required: ['street'],
+            properties: { street: { type: 'string' }, city: { type: 'string' } },
+          },
+        },
+      };
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+      const addr = doc.fields[0].fields.find((f) => f.key === 'addr')!;
+
+      DocumentUtilService.resolveTypeFragment(addr);
+
+      expect(addr.fields.find((f) => f.key === 'street')!.minOccurs).toBe(streetMinOccurs);
+      expect(addr.fields.find((f) => f.key === 'city')!.minOccurs).toBe(0);
+    },
+  );
+
+  it('should take the required properties of the new definition after a field type override', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: { billing: { $ref: '#/definitions/Address' } },
+      definitions: {
+        Address: { type: 'object', required: ['street'], properties: { street: { type: 'string' } } },
+        PoBox: {
+          type: 'object',
+          required: ['box'],
+          properties: { street: { type: 'string' }, box: { type: 'string' } },
+        },
+      },
+    };
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const billing = doc.fields[0].fields.find((f) => f.key === 'billing')!;
+    const poBox = FieldOverrideService.getAllOverrideCandidates(doc, {})['#/definitions/PoBox'];
+
+    FieldOverrideService.applyFieldTypeOverride(billing, poBox, {}, FieldOverrideVariant.FORCE);
+
+    expect(billing.fields.find((f) => f.key === 'street')!.minOccurs).toBe(0);
+    expect(billing.fields.find((f) => f.key === 'box')!.minOccurs).toBe(1);
+  });
+
+  it.each([
+    [
+      'a definition that requires a property it inherits through its own allOf $ref',
+      { $ref: '#/definitions/Person' },
+      { name: 1 },
+    ],
+    [
+      'an allOf $ref member that adds a required property',
+      { allOf: [{ $ref: '#/definitions/Named' }, { $ref: '#/definitions/RequiresName' }] },
+      { name: 1, nickname: 0 },
+    ],
+    [
+      'an allOf $ref member that adds a required property before the member that declares it',
+      { allOf: [{ $ref: '#/definitions/RequiresName' }, { $ref: '#/definitions/Named' }] },
+      { name: 1, nickname: 0 },
+    ],
+    [
+      'an allOf $ref member that requires a property declared inline',
+      {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+        allOf: [{ $ref: '#/definitions/RequiresName' }],
+      },
+      { name: 1 },
+    ],
+    [
+      'an allOf $ref member that allows any value',
+      {
+        allOf: [
+          { $ref: '#/definitions/Named' },
+          { $ref: '#/definitions/RequiresName' },
+          { $ref: '#/definitions/AnyValue' },
+        ],
+      },
+      { name: 1 },
+    ],
+    [
+      'its own $ref and an anyOf member with the same $ref',
+      { $ref: '#/definitions/Address', anyOf: [{ $ref: '#/definitions/Address' }, { type: 'null' }] },
+      { street: 1 },
+    ],
+    [
+      'a property merged from a definition that refers to a definition only optionally and one that always does',
+      { allOf: [{ $ref: '#/definitions/MaybeHome' }, { $ref: '#/definitions/WithHome' }] },
+      { home: 0 },
+      ['home'],
+      { street: 1 },
+    ],
+  ] as [string, JSONSchema7, Record<string, number>, string[]?, Record<string, number>?][])(
+    'should apply the required properties for %s',
+    (_desc, valueSchema, minOccursByKey, nestedPath = [], nestedMinOccursByKey = {}) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        properties: { value: valueSchema },
+        definitions: {
+          Named: { type: 'object', properties: { name: { type: 'string' }, nickname: { type: 'string' } } },
+          RequiresName: { type: 'object', required: ['name'] },
+          Person: { type: 'object', required: ['name'], allOf: [{ $ref: '#/definitions/Named' }] },
+          Address: { type: 'object', required: ['street'], properties: { street: { type: 'string' } } },
+          MaybeHome: {
+            type: 'object',
+            properties: { home: { anyOf: [{ $ref: '#/definitions/Address' }, { type: 'null' }] } },
+          },
+          WithHome: { type: 'object', properties: { home: { $ref: '#/definitions/Address' } } },
+          AnyValue: {},
+        },
+      };
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+      const value = DocumentUtilService.resolveTypeFragment(
+        doc.fields[0].fields.find((f) => f.key === 'value')!,
+      ) as JsonSchemaField;
+
+      const minOccursOf = (field: JsonSchemaField, keys: string[]) =>
+        Object.fromEntries(keys.map((key) => [key, field.fields.find((f) => f.key === key)!.minOccurs]));
+      expect(minOccursOf(value, Object.keys(minOccursByKey))).toEqual(minOccursByKey);
+      const nested = nestedPath.reduce<JsonSchemaField>(
+        (field, key) =>
+          DocumentUtilService.resolveTypeFragment(field.fields.find((f) => f.key === key)!) as JsonSchemaField,
+        value,
+      );
+      expect(minOccursOf(nested, Object.keys(nestedMinOccursByKey))).toEqual(nestedMinOccursByKey);
+    },
+  );
+
+  it('should create an object with a $ref to a missing definition from its own properties', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        x: { type: 'object', properties: { a: { type: 'string' } }, $ref: '#/definitions/Missing' },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const x = doc.fields[0].fields.find((f) => f.key === 'x')!;
+    expect(x.type).toBe(Types.Container);
+    expect(x.fields.map((f) => f.key)).toEqual(['a']);
+  });
+
+  it('should stop at a $ref cycle between definitions without a type', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        x: { $ref: '#/definitions/X' },
+      },
+      definitions: {
+        X: { $ref: '#/definitions/Y' },
+        Y: { $ref: '#/definitions/X' },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const xField = doc.fields[0].fields.find((f) => f.key === 'x')!;
+
+    DocumentUtilService.resolveTypeFragment(xField);
+
+    expect(xField.type).toBe(Types.AnyType);
+    expect(xField.fields).toEqual([]);
+  });
+
+  it.each([
+    [
+      'a property',
+      { type: 'object', definitions: { D: { type: 'string' } } } as JSONSchema7,
+      '#/properties/p/definitions/D',
+      'p',
+    ],
+    [
+      'a property whose name contains a slash and a tilde',
+      { type: 'object', definitions: { D: { type: 'string' } } } as JSONSchema7,
+      '#/properties/a~1b~0c/definitions/D',
+      'a/b~c',
+    ],
+    [
+      'array items',
+      { type: 'array', items: { type: 'object', definitions: { D: { type: 'string' } } } } as JSONSchema7,
+      '#/properties/p/items/definitions/D',
+      'p',
+    ],
+    [
+      'tuple array items',
+      {
+        type: 'array',
+        items: [{ type: 'object' }, { type: 'object', definitions: { D: { type: 'string' } } }],
+      } as JSONSchema7,
+      '#/properties/p/items/1/definitions/D',
+      'p',
+    ],
+  ])('should resolve a $ref to a definition declared inside %s', (_desc, holder, ref, holderName) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        [holderName]: holder,
+        x: { $ref: ref },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    const xField = doc.fields[0].fields.find((f) => f.key === 'x');
+    expect(xField!.type).toBe(Types.String);
+  });
+
+  it.each([
+    [
+      'only required',
+      { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } }, allOf: [{ required: ['a'] }] },
+      { a: 1, b: 0 },
+    ],
+    [
+      'properties and required',
+      {
+        type: 'object',
+        properties: { b: { type: 'string' } },
+        allOf: [{ properties: { a: { type: 'string' } }, required: ['a'] }],
+      },
+      { a: 1, b: 0 },
+    ],
+    [
+      'required after another member with required',
+      {
+        type: 'object',
+        properties: { a: { type: 'string' }, b: { type: 'string' }, c: { type: 'string' } },
+        allOf: [{ required: ['c'] }, { required: ['a'] }],
+      },
+      { a: 1, b: 0, c: 1 },
+    ],
+  ] as [string, JSONSchema7, Record<string, number>][])(
+    'should make a property required by an allOf member with %s',
+    (_desc, schema, minOccursByKey) => {
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      const minOccurs = Object.fromEntries(
+        Object.keys(minOccursByKey).map((key) => [key, doc.fields[0].fields.find((f) => f.key === key)!.minOccurs]),
+      );
+      expect(minOccurs).toEqual(minOccursByKey);
+    },
+  );
+
+  it.each(['anyOf', 'oneOf'] as const)('should not make a property required by a %s member', (composition) => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: { a: { type: 'string' } },
+      [composition]: [{ required: ['a'] }],
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    expect(doc.fields[0].fields.find((f) => f.key === 'a')!.minOccurs).toBe(0);
+  });
+
+  it.each(['anyOf', 'oneOf'] as const)(
+    'should not make a property required by an allOf inside a member of %s',
+    (composition) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        properties: { a: { type: 'string' } },
+        [composition]: [{ allOf: [{ required: ['a'] }] }, {}],
+      };
+
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      expect(doc.fields[0].fields.find((f) => f.key === 'a')!.minOccurs).toBe(0);
+    },
+  );
+
+  it('should make a property required by an allOf member that refers to a definition requiring it', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: { a: { type: 'string' }, b: { type: 'string' } },
+      allOf: [{ $ref: '#/definitions/NeedsA' }],
+      definitions: { NeedsA: { required: ['a'] } },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+    expect(doc.fields[0].fields.find((f) => f.key === 'a')!.minOccurs).toBe(1);
+    expect(doc.fields[0].fields.find((f) => f.key === 'b')!.minOccurs).toBe(0);
+  });
+
+  it('should make a property required by an allOf member of a referenced definition', () => {
+    const schema: JSONSchema7 = {
+      $ref: '#/definitions/R',
+      definitions: {
+        R: { allOf: [{ $ref: '#/definitions/S' }, { required: ['a'] }] },
+        S: { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } },
+      },
+    };
+
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const root = DocumentUtilService.resolveTypeFragment(doc.fields[0]) as JsonSchemaField;
+
+    expect(root.fields.find((f) => f.key === 'a')!.minOccurs).toBe(1);
+    expect(root.fields.find((f) => f.key === 'b')!.minOccurs).toBe(0);
+  });
+
+  it.each([
+    [
+      'its type comes from a composition',
+      { required: ['a'], anyOf: [{ type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } }] },
+      (doc: JsonSchemaDocument) => doc.fields[0],
+    ],
+    [
+      'its type comes from a $ref in a composition',
+      {
+        required: ['a'],
+        allOf: [{ $ref: '#/definitions/R' }],
+        definitions: { R: { type: 'object', properties: { a: { type: 'string' }, b: { type: 'string' } } } },
+      },
+      (doc: JsonSchemaDocument) => DocumentUtilService.resolveTypeFragment(doc.fields[0]) as JsonSchemaField,
+    ],
+  ] as [string, JSONSchema7, (doc: JsonSchemaDocument) => JsonSchemaField][])(
+    'should keep the required properties of an object when %s',
+    (_desc, schema, getObjectField) => {
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+
+      const objectField = getObjectField(doc);
+
+      expect(objectField.fields.find((f) => f.key === 'a')!.minOccurs).toBe(1);
+      expect(objectField.fields.find((f) => f.key === 'b')!.minOccurs).toBe(0);
+    },
+  );
+
+  it.each([
+    ['declares only its required properties', { required: ['zip'] }, {}],
+    [
+      'declares its properties without required ones',
+      { type: 'object', properties: { zip: { type: 'string' }, street: { type: 'string' } } },
+      { required: ['zip'] },
+    ],
+  ] as [string, JSONSchema7, JSONSchema7][])(
+    'should keep the required properties of a property merged from a definition when the other declaration %s',
+    (_desc, inlineAddr, baseAddrRequired) => {
+      const schema: JSONSchema7 = {
+        type: 'object',
+        properties: {
+          value: { allOf: [{ $ref: '#/definitions/Base' }, { properties: { addr: inlineAddr } }] },
+        },
+        definitions: {
+          Base: {
+            type: 'object',
+            properties: {
+              addr: {
+                type: 'object',
+                properties: { zip: { type: 'string' }, street: { type: 'string' } },
+                ...baseAddrRequired,
+              },
+            },
+          },
+        },
+      };
+      const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+      const value = DocumentUtilService.resolveTypeFragment(
+        doc.fields[0].fields.find((f) => f.key === 'value')!,
+      ) as JsonSchemaField;
+
+      const addr = DocumentUtilService.resolveTypeFragment(
+        value.fields.find((f) => f.key === 'addr')!,
+      ) as JsonSchemaField;
+
+      expect(addr.fields.find((f) => f.key === 'zip')!.minOccurs).toBe(1);
+      expect(addr.fields.find((f) => f.key === 'street')!.minOccurs).toBe(0);
+    },
+  );
+
+  it('should drop the required properties of a field taken from a definition on a field type override', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: { order: { $ref: '#/definitions/Order' } },
+      definitions: {
+        Order: {
+          type: 'object',
+          properties: {
+            customer: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
+          },
+        },
+        Lead: { type: 'object', properties: { id: { type: 'string' } } },
+      },
+    };
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const order = DocumentUtilService.resolveTypeFragment(
+      doc.fields[0].fields.find((f) => f.key === 'order')!,
+    ) as JsonSchemaField;
+    const customer = order.fields.find((f) => f.key === 'customer') as JsonSchemaField;
+    const lead = FieldOverrideService.getAllOverrideCandidates(doc, {})['#/definitions/Lead'];
+
+    FieldOverrideService.applyFieldTypeOverride(customer, lead, {}, FieldOverrideVariant.FORCE);
+
+    expect(customer.fields.find((f) => f.key === 'id')!.minOccurs).toBe(0);
+  });
+
+  it('should restore the required properties of a field when its field type override is removed', () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        customer: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
+      },
+      definitions: { Lead: { type: 'object', properties: { id: { type: 'string' } } } },
+    };
+    const doc = createTestJsonDocument(DocumentType.PARAM, 'test', JSON.stringify(schema));
+    const customer = doc.fields[0].fields.find((f) => f.key === 'customer') as JsonSchemaField;
+    const lead = FieldOverrideService.getAllOverrideCandidates(doc, {})['#/definitions/Lead'];
+    FieldOverrideService.applyFieldTypeOverride(customer, lead, {}, FieldOverrideVariant.FORCE);
+
+    DocumentUtilService.restoreOriginalField(customer);
+
+    expect(customer.required).toEqual(['id']);
   });
 
   describe('Cross-schema reference resolution', () => {
@@ -785,6 +1380,9 @@ describe('JsonSchemaDocumentService', () => {
       const street = billingAddress!.fields.find((f) => f.key === 'street');
       expect(street).toBeDefined();
       expect(street!.type).toBe(Types.String);
+      // Address in CommonTypes.schema.json requires street, city and country
+      expect(street!.minOccurs).toBe(1);
+      expect(billingAddress!.fields.find((f) => f.key === 'state')!.minOccurs).toBe(0);
     });
 
     it('should resolve $id-based URI external $ref', () => {
@@ -823,6 +1421,90 @@ describe('JsonSchemaDocumentService', () => {
 
       expect(amount).toBeDefined();
       expect(amount!.type).toBe(Types.Numeric);
+    });
+
+    it('should give a field that refers to a true definition in another file any type', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'multiTestTrue', {
+        'Main.schema.json': JSON.stringify({
+          type: 'object',
+          properties: { payload: { $ref: 'Other.schema.json#/definitions/AnyValue' } },
+        }),
+        'Other.schema.json': JSON.stringify({ definitions: { AnyValue: true } }),
+      });
+
+      const payload = doc.fields[0].fields.find((f) => f.key === 'payload')!;
+      expect(payload.type).toBe(Types.AnyType);
+    });
+
+    it('should create the document for circular references across files', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'circular', {
+        'CircularA.schema.json': getCircularAJsonSchema(),
+        'CircularB.schema.json': getCircularBJsonSchema(),
+      });
+
+      const bField = doc.fields[0].fields.find((f) => f.key === 'b')!;
+      DocumentUtilService.resolveTypeFragment(bField);
+      const aField = bField.fields.find((f) => f.key === 'a')!;
+      DocumentUtilService.resolveTypeFragment(aField);
+      expect(bField.type).toBe(Types.Container);
+      expect(aField.type).toBe(Types.Container);
+      expect(aField.fields.find((f) => f.key === 'b')).toBeDefined();
+    });
+
+    it('should resolve a local $ref inside an external file against that file', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'localRefInExternal', {
+        'A.json': JSON.stringify({
+          type: 'object',
+          properties: { b: { $ref: './B.json#/definitions/Item' } },
+          definitions: { D: { type: 'string' } },
+        }),
+        'B.json': JSON.stringify({
+          definitions: {
+            Item: { type: 'object', properties: { d: { $ref: '#/definitions/D' } } },
+            D: { type: 'number' },
+          },
+        }),
+      });
+
+      const bField = doc.fields[0].fields.find((f) => f.key === 'b')!;
+      DocumentUtilService.resolveTypeFragment(bField);
+      const dField = bField.fields.find((f) => f.key === 'd')!;
+      expect(dField.type).toBe(Types.Numeric);
+    });
+
+    it.each([
+      [
+        'a definition in it',
+        './B.json#/definitions/Item',
+        { definitions: { Item: { type: 'object', properties: { n: { type: 'number' } } } } },
+      ],
+      ['the whole file', './B.json', { type: 'object', properties: { n: { type: 'number' } } }],
+    ] as [string, string, JSONSchema7][])(
+      'should resolve a definition that only refers to %s of another file',
+      (_desc, ref, bSchema) => {
+        const doc = createMultiSchemaDocument(DocumentType.PARAM, 'refOnlyDefinition', {
+          'A.json': JSON.stringify({
+            type: 'object',
+            properties: { x: { $ref: '#/definitions/Ext' } },
+            definitions: { Ext: { $ref: ref } },
+          }),
+          'B.json': JSON.stringify(bSchema),
+        });
+
+        const xField = doc.fields[0].fields.find((f) => f.key === 'x')!;
+        DocumentUtilService.resolveTypeFragment(xField);
+        expect(xField.type).toBe(Types.Container);
+        expect(xField.fields.find((f) => f.key === 'n')!.type).toBe(Types.Numeric);
+      },
+    );
+
+    it('should create the document for files that only refer to each other', () => {
+      const doc = createMultiSchemaDocument(DocumentType.PARAM, 'refOnlyCircular', {
+        'A.json': JSON.stringify({ $ref: './B.json' }),
+        'B.json': JSON.stringify({ $ref: './A.json' }),
+      });
+
+      expect(doc.fields[0].type).toBe(Types.AnyType);
     });
 
     it('should use first schema as document schema', () => {
@@ -971,7 +1653,7 @@ describe('JsonSchemaDocumentService', () => {
 
     it.each<[string, string]>([
       ['does not exist', 'Missing'],
-      ['is a boolean schema', 'Flag'],
+      ['is the false schema', 'Flag'],
     ])('should throw when an external $ref points to a definition that %s', (_case, definitionName) => {
       const definition = new DocumentDefinition(
         DocumentType.SOURCE_BODY,
@@ -982,7 +1664,7 @@ describe('JsonSchemaDocumentService', () => {
             type: 'object',
             properties: { other: { $ref: `./Other.json#/definitions/${definitionName}` } },
           }),
-          'Other.json': JSON.stringify({ type: 'object', definitions: { Flag: true } }),
+          'Other.json': JSON.stringify({ type: 'object', definitions: { Flag: false } }),
         },
       );
 

@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CircularA",
+  "description": "Refers to CircularB.schema.json, which refers back to this file",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "b": { "$ref": "./CircularB.schema.json" }
+  }
+}
