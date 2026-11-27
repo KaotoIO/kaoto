@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:candidate-details"
+           xmlns:t="urn:candidate-details"
+           elementFormDefault="qualified">
+  <xs:complexType name="Address_t">
+    <xs:sequence>
+      <xs:element name="street" type="xs:string"/>
+      <xs:element name="zip" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Phone">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="number" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Root">
+    <xs:complexType>
+      <xs:choice>
+        <xs:element name="Address" type="t:Address_t"/>
+        <xs:element ref="t:Phone"/>
+        <xs:element name="Inline">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="value" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

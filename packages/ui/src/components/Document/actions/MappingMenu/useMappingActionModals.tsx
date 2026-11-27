@@ -78,6 +78,7 @@ export function useMappingActionModals(mapping: MappingItem | undefined, onUpdat
       namespaceMap,
       existingFieldItems,
       forEachContext,
+      isAddFieldOpen,
     );
   })();
 

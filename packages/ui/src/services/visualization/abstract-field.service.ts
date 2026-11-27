@@ -163,6 +163,7 @@ export class AbstractFieldService extends WrapperBaseService {
       key: qname,
       label: info.displayName,
       typeBadge: info.type,
+      ...this.buildSubstituteDetails(abstractField, qname, info, candidates, namespaceMap),
       selection: { memberIndex: 0, substituteQName: qname },
     }));
   }

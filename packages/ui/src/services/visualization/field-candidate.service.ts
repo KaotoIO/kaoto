@@ -30,6 +30,7 @@ export class FieldCandidateService extends WrapperBaseService {
     namespaceMap: Record<string, string>,
     existingFieldItems: FieldItem[] = [],
     forEachContext = false,
+    withDetails = false,
   ): { candidates: IWrapperCandidate[]; fields: IField[] } {
     const candidates: IWrapperCandidate[] = [];
     const fields: IField[] = [];
@@ -37,7 +38,13 @@ export class FieldCandidateService extends WrapperBaseService {
 
     for (const child of schemaFields) {
       if (child.wrapperKind === 'sequence') {
-        const nested = this.computeAddFieldCandidates(child.fields, namespaceMap, existingFieldItems, forEachContext);
+        const nested = this.computeAddFieldCandidates(
+          child.fields,
+          namespaceMap,
+          existingFieldItems,
+          forEachContext,
+          withDetails,
+        );
         for (let i = 0; i < nested.candidates.length; i++) {
           candidates.push({
             ...nested.candidates[i],
@@ -53,7 +60,7 @@ export class FieldCandidateService extends WrapperBaseService {
       if (this.shouldSkipField(child, forEachContext)) continue;
       if (this.isSlotExhausted(child, existingFieldItems)) continue;
 
-      for (const { candidate, field } of this.resolveFieldEntries(child, namespaceMap)) {
+      for (const { candidate, field } of this.resolveFieldEntries(child, namespaceMap, withDetails)) {
         candidate.key = `${index}`;
         candidate.selection.memberIndex = index;
         candidates.push(candidate);
@@ -65,15 +72,20 @@ export class FieldCandidateService extends WrapperBaseService {
     return { candidates, fields };
   }
 
-  private static resolveFieldEntries(child: IField, namespaceMap: Record<string, string>): CandidateEntry[] {
-    if (child.wrapperKind === 'choice') return this.resolveChoiceMembers(child, namespaceMap);
-    if (child.wrapperKind === 'abstract') return this.resolveAbstractSubstitutes(child, namespaceMap);
-    return [{ candidate: ChoiceFieldService.fieldToCandidate(child, '', 0), field: child }];
+  private static resolveFieldEntries(
+    child: IField,
+    namespaceMap: Record<string, string>,
+    withDetails = false,
+  ): CandidateEntry[] {
+    if (child.wrapperKind === 'choice') return this.resolveChoiceMembers(child, namespaceMap, withDetails);
+    if (child.wrapperKind === 'abstract') return this.resolveAbstractSubstitutes(child, namespaceMap, withDetails);
+    return [{ candidate: ChoiceFieldService.fieldToCandidate(child, '', 0, namespaceMap, withDetails), field: child }];
   }
 
   private static resolveAbstractSubstitutes(
     abstractField: IField,
     namespaceMap: Record<string, string>,
+    withDetails = false,
   ): CandidateEntry[] {
     const subs = FieldOverrideService.getFieldSubstitutionCandidates(abstractField, namespaceMap);
     const entries: CandidateEntry[] = [];
@@ -85,6 +97,7 @@ export class FieldCandidateService extends WrapperBaseService {
           key: '',
           label: info.displayName,
           typeBadge: info.type,
+          ...(withDetails ? this.buildCandidateDetails(field, namespaceMap) : {}),
           selection: { memberIndex: 0, substituteQName: qname },
         },
         field,
@@ -93,19 +106,26 @@ export class FieldCandidateService extends WrapperBaseService {
     return entries;
   }
 
-  private static resolveChoiceMembers(choiceField: IField, namespaceMap: Record<string, string>): CandidateEntry[] {
+  private static resolveChoiceMembers(
+    choiceField: IField,
+    namespaceMap: Record<string, string>,
+    withDetails = false,
+  ): CandidateEntry[] {
     const entries: CandidateEntry[] = [];
     for (const member of choiceField.fields) {
       if (member.wrapperKind === 'abstract') {
-        entries.push(...this.resolveAbstractSubstitutes(member, namespaceMap));
+        entries.push(...this.resolveAbstractSubstitutes(member, namespaceMap, withDetails));
       } else if (member.wrapperKind === 'sequence') {
         // Delegate to the general recursive resolver so choice/abstract/sequence nested inside
         // the sequence branch (per the XSD nestedParticle model) are dissolved the same way as
         // at the top level, instead of being dropped.
-        const nested = this.computeAddFieldCandidates(member.fields, namespaceMap);
+        const nested = this.computeAddFieldCandidates(member.fields, namespaceMap, [], false, withDetails);
         entries.push(...nested.candidates.map((candidate, i) => ({ candidate, field: nested.fields[i] })));
       } else {
-        entries.push({ candidate: ChoiceFieldService.fieldToCandidate(member, '', 0), field: member });
+        entries.push({
+          candidate: ChoiceFieldService.fieldToCandidate(member, '', 0, namespaceMap, withDetails),
+          field: member,
+        });
       }
     }
     return entries;

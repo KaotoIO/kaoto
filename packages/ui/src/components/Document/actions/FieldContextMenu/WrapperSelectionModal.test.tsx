@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { IWrapperCandidate } from '../../../../models/datamapper/field-action';
 import { Types } from '../../../../models/datamapper/types';
@@ -10,7 +10,13 @@ function makeCandidates(count: number): IWrapperCandidate[] {
     label: `Candidate ${i}`,
     typeBadge: Types.String,
     description: i % 2 === 0 ? `Description for ${i}` : undefined,
-    childrenPreview: i % 3 === 0 ? ['child1', 'child2'] : undefined,
+    children:
+      i % 3 === 0
+        ? [
+            { name: 'child1', typeLabel: 'xs:string' },
+            { name: 'child2', typeLabel: 'xs:int' },
+          ]
+        : undefined,
     selection: { memberIndex: i },
   }));
 }
@@ -51,16 +57,120 @@ describe('WrapperSelectionModal', () => {
     expect(badges).toHaveLength(3);
   });
 
-  it('should show description when present', () => {
+  it('should show an empty details pane when nothing is selected', () => {
     renderModal();
-    expect(screen.getByText('Description for 0')).toBeInTheDocument();
-    expect(screen.getByText('Description for 2')).toBeInTheDocument();
-    expect(screen.queryByText('Description for 1')).not.toBeInTheDocument();
+    const details = screen.getByTestId('test-modal-details');
+    expect(within(details).getByText('Select a candidate to see its details.')).toBeInTheDocument();
+    expect(screen.queryByText('Description for 0')).not.toBeInTheDocument();
+    expect(screen.queryByText('child1')).not.toBeInTheDocument();
   });
 
-  it('should show children preview when present', () => {
+  it('should show description and fields of the selected candidate in the details pane', () => {
     renderModal();
-    expect(screen.getByText('Fields: child1, child2')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId('wrapper-radio-key-0'));
+
+    const details = screen.getByTestId('test-modal-details');
+    expect(within(details).getByText('Candidate 0')).toBeInTheDocument();
+    expect(within(details).getByText('Description for 0')).toBeInTheDocument();
+    expect(within(details).getByText('Fields')).toBeInTheDocument();
+    expect(within(details).getByText('child1')).toBeInTheDocument();
+    expect(within(details).getByText('child2')).toBeInTheDocument();
+    expect(within(details).getByText('xs:int')).toBeInTheDocument();
+  });
+
+  it('should show the qualified type name in the details pane and the type category in the list', () => {
+    const candidates: IWrapperCandidate[] = [
+      {
+        key: 'email',
+        label: 'Email',
+        typeBadge: Types.Container,
+        typeLabel: 'tns:Email_t',
+        selection: { memberIndex: 0, substituteQName: 'tns:Email' },
+      },
+    ];
+    renderModal({ candidates });
+
+    fireEvent.click(screen.getByTestId('wrapper-radio-email'));
+
+    const details = screen.getByTestId('test-modal-details');
+    expect(within(details).getByText('tns:Email_t')).toBeInTheDocument();
+    expect(within(details).queryByText(Types.Container)).not.toBeInTheDocument();
+    expect(within(screen.getByTestId('test-modal')).getByText(Types.Container)).toBeInTheDocument();
+  });
+
+  it('should not place aria-live on the details pane to prevent screen reader flooding', () => {
+    renderModal();
+    expect(screen.getByTestId('test-modal-details')).not.toHaveAttribute('aria-live');
+  });
+
+  it('should clear details and disable Confirm when the selected candidate is filtered out', () => {
+    renderModal({ candidates: makeCandidates(15) });
+    const searchInput = screen.getByPlaceholderText('Filter candidates...');
+
+    fireEvent.click(screen.getByTestId('wrapper-radio-key-0'));
+    const confirmBtn = screen.getByText('Confirm').closest('button')!;
+    expect(confirmBtn).toBeEnabled();
+    const details = screen.getByTestId('test-modal-details');
+    expect(within(details).getByText('Candidate 0')).toBeInTheDocument();
+
+    // Filter out Candidate 0
+    fireEvent.change(searchInput, { target: { value: 'Candidate 1' } });
+    expect(screen.queryByText('Candidate 0')).not.toBeInTheDocument();
+    expect(confirmBtn).toBeDisabled();
+    expect(within(details).getByText('Select a candidate to see its details.')).toBeInTheDocument();
+
+    // Clearing the filter restores the visible selection and details
+    fireEvent.change(searchInput, { target: { value: '' } });
+    expect(within(screen.getByTestId('test-modal')).getByText('Candidate 0')).toBeInTheDocument();
+    expect(confirmBtn).toBeEnabled();
+    expect(within(details).getByText('Candidate 0')).toBeInTheDocument();
+  });
+
+  it('should ignore Escape when event is defaultPrevented during keyboard resizing', () => {
+    const props = renderModal();
+    const preventedEscape = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    preventedEscape.preventDefault();
+    document.body.dispatchEvent(preventedEscape);
+    expect(props.onClose).not.toHaveBeenCalled();
+
+    const normalEscape = new KeyboardEvent('keydown', { key: 'Escape', cancelable: true });
+    document.body.dispatchEvent(normalEscape);
+    expect(props.onClose).toHaveBeenCalled();
+  });
+
+  it('should update the details pane when the selection changes', () => {
+    renderModal();
+
+    fireEvent.click(screen.getByTestId('wrapper-radio-key-0'));
+    fireEvent.click(screen.getByTestId('wrapper-radio-key-2'));
+
+    const details = screen.getByTestId('test-modal-details');
+    expect(within(details).getByText('Candidate 2')).toBeInTheDocument();
+    expect(within(details).getByText('Description for 2')).toBeInTheDocument();
+    expect(within(details).queryByText('Description for 0')).not.toBeInTheDocument();
+    expect(within(details).queryByText('child1')).not.toBeInTheDocument();
+  });
+
+  it('should show a fallback when the selected candidate has no details', () => {
+    renderModal();
+
+    fireEvent.click(screen.getByTestId('wrapper-radio-key-1'));
+
+    const details = screen.getByTestId('test-modal-details');
+    expect(within(details).getByText('Candidate 1')).toBeInTheDocument();
+    expect(within(details).getByText('No additional details available.')).toBeInTheDocument();
+  });
+
+  it('should show details of the pre-selected candidate', () => {
+    renderModal({ selectedKey: 'key-2' });
+    const details = screen.getByTestId('test-modal-details');
+    expect(within(details).getByText('Description for 2')).toBeInTheDocument();
+  });
+
+  it('should render the candidate list and details in resizable split panels', () => {
+    renderModal();
+    expect(screen.getByRole('slider', { name: 'Resize panels' })).toBeInTheDocument();
   });
 
   it('should not show SearchInput when candidates <= 10', () => {

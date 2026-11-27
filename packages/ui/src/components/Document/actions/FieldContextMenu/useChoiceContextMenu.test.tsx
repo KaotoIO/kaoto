@@ -1,4 +1,4 @@
-import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react';
 import { FunctionComponent, PropsWithChildren } from 'react';
 
 import { useDataMapper } from '../../../../hooks/useDataMapper';
@@ -928,7 +928,7 @@ describe('useChoiceContextMenu', () => {
           .onClick();
       });
       const { rerender } = render(result.current.menu.modals);
-      expect(screen.getByText('Fields: url')).toBeInTheDocument();
+      expect(within(screen.getByTestId('choice-selection-modal-details')).getByText('url')).toBeInTheDocument();
 
       act(() => {
         const { namespaceMap } = result.current.mapper.mappingTree;
@@ -947,8 +947,38 @@ describe('useChoiceContextMenu', () => {
         result.current.mapper.updateDocument(document, document.definition, previousRefId);
       });
       rerender(result.current.menu.modals);
-      expect(screen.getByText('string')).toBeInTheDocument();
-      expect(screen.queryByText('Fields: url')).not.toBeInTheDocument();
+      const details = screen.getByTestId('choice-selection-modal-details');
+      expect(within(details).getByText('xs:string')).toBeInTheDocument();
+      expect(within(details).queryByText('url')).not.toBeInTheDocument();
+    });
+
+    it('should show the type and fields of abstract-derived candidates in the selection modal details pane', () => {
+      const { tree } = buildDocumentTree(DocumentType.SOURCE_BODY);
+      const largeNode = tree.root.children[0].children.find(
+        (c) => c.nodeData instanceof FieldNodeData && c.nodeData.field?.name === 'Large',
+      );
+      if (!largeNode) throw new Error('Large node not found');
+      const choiceNode = largeNode.children.find((c) => {
+        if (!(c.nodeData instanceof FieldNodeData)) return false;
+        return c.nodeData.field?.wrapperKind === 'choice' && c.nodeData.field.maxOccurs === 1;
+      });
+      if (!choiceNode) throw new Error('Choice node not found in Large');
+      const { result } = renderHook(() => useChoiceContextMenu(choiceNode.nodeData), { wrapper });
+      act(() => {
+        result.current.groups
+          .flatMap((group) => group.actions)
+          .find((action) => action.label === 'Select Member...')!
+          .onClick();
+      });
+      render(result.current.modals);
+
+      fireEvent.click(screen.getByTestId(/^wrapper-radio-0:.+:Email$/));
+
+      const details = screen.getByTestId('choice-selection-modal-details');
+      expect(within(details).getByText(/:Email_t$/)).toBeInTheDocument();
+      expect(within(details).getByText('content')).toBeInTheDocument();
+      expect(within(details).getByText('subject')).toBeInTheDocument();
+      expect(within(details).queryByText('No additional details available.')).not.toBeInTheDocument();
     });
 
     it('should dissolve abstract member into substitution candidates in context menu', () => {
