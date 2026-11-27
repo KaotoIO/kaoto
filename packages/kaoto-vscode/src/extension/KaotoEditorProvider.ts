@@ -309,13 +309,13 @@ export class KaotoEditorProvider implements vscode.CustomTextEditorProvider, vsc
 				}
 				void show(message);
 			}),
-			TestReportEvents.instance.onTestRunStarted(() => {
-				if (!session.stopped) {
+			TestReportEvents.instance.onTestRunStarted((testFilePaths) => {
+				if (!session.stopped && isTestRunOfDocument(testFilePaths, document)) {
 					session.bus.emit('host:testRun:started', null);
 				}
 			}),
-			TestReportEvents.instance.onTestReportReady(() => {
-				if (!session.stopped) {
+			TestReportEvents.instance.onTestReportReady((testFilePaths) => {
+				if (!session.stopped && isTestRunOfDocument(testFilePaths, document)) {
 					session.bus.emit('host:testReport:ready', null);
 				}
 			}),
@@ -700,6 +700,10 @@ export function registerKaotoEditorProvider(context: vscode.ExtensionContext, fa
 		}),
 	);
 	return provider;
+}
+/** Test runs are reported by file system path, so only a document on disk can be part of one. */
+function isTestRunOfDocument(testFilePaths: string[], document: vscode.TextDocument): boolean {
+	return document.uri.scheme === 'file' && testFilePaths.includes(document.uri.fsPath);
 }
 function checkCancellation(token: vscode.CancellationToken): void {
 	if (token.isCancellationRequested) {
