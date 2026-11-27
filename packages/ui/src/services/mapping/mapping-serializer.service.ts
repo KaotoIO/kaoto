@@ -563,11 +563,45 @@ export class MappingSerializerService {
     for (const gv of mappings.globalVariables) {
       if (gv.scope !== 'stylesheet') continue;
       if (gv.rawElement) {
-        stylesheet.appendChild(xsltDocument.importNode(gv.rawElement, true));
+        stylesheet.appendChild(MappingSerializerService.toPreservedVariableElement(xsltDocument, gv, gv.rawElement));
       } else {
         MappingSerializerService.populateMapping(stylesheet, gv);
       }
     }
+  }
+
+  /**
+   * The `xsl:variable` element a stylesheet variable was loaded from, with its name and expression as they are now.
+   * Its other attributes (e.g. `as`) and its children are kept as written. The name and expression can change after
+   * loading (an edit, or the rename or deletion of a variable it refers to), so they are written here, not kept.
+   * A cleared expression becomes `select=""`, like for every other cleared variable, unless the element has content:
+   * a variable cannot have both a `select` and content (XTSE0620). An element loaded without a `select` gets none
+   * while its expression is empty.
+   */
+  private static toPreservedVariableElement(xsltDocument: Document, variable: VariableItem, rawElement: Element) {
+    const element = xsltDocument.importNode(rawElement, true);
+    element.setAttribute('name', variable.name);
+    if (
+      variable.expression ||
+      (element.hasAttribute('select') && !MappingSerializerService.hasVariableContent(element))
+    ) {
+      element.setAttribute('select', variable.expression);
+    } else {
+      element.removeAttribute('select');
+    }
+    return element;
+  }
+
+  /**
+   * Whether a variable element has content: a child element, or text or CDATA other than whitespace; comments don't
+   * count
+   */
+  private static hasVariableContent(element: Element): boolean {
+    return Array.from(element.childNodes).some(
+      (node) =>
+        node.nodeType === Node.ELEMENT_NODE ||
+        ((node.nodeType === Node.TEXT_NODE || node.nodeType === Node.CDATA_SECTION_NODE) && !!node.textContent?.trim()),
+    );
   }
 
   private static populateTemplateVariables(templateRoot: Element, mappings: MappingTree) {

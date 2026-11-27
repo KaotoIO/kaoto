@@ -524,6 +524,9 @@ export class UnknownMappingItem extends MappingItem {
  * - If {@link children} is empty and {@link expression} is set: serializes as `<xsl:variable name="x" select="expr"/>`
  * - If {@link children} is not empty: serializes as `<xsl:variable name="x">...children...</xsl:variable>`
  *   (no select attribute)
+ * - If {@link rawElement} is set: serializes as that element, kept as loaded, with the current name and
+ *   {@link expression} as `select` (`select=""` when cleared). While the expression is empty, an element loaded
+ *   without a `select`, or one with content (a child element, or non-whitespace text or CDATA), gets no `select`.
  *
  * {@link scope} determines placement and visibility:
  * - `'node'` — scoped under a target element, stored in `parent.children` (default)
@@ -540,6 +543,11 @@ export class VariableItem extends MappingItem implements IExpressionHolder {
   readonly orderBucket = MappingItemOrderBucket.VARIABLE;
   expression = '';
   scope: VariableScope = 'node';
+  /**
+   * The `xsl:variable` element a stylesheet variable was loaded from, when it has more than `name` and `select`
+   * (another attribute such as `as`, or child nodes). Its other attributes and children are written back as loaded,
+   * with the current name and expression, see the class description.
+   */
   rawElement?: Element;
   doClone() {
     return new VariableItem(this.parent, this.name);

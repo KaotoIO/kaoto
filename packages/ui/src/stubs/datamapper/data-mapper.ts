@@ -440,6 +440,10 @@ export function getVariableStylesheetReservedNamesXslt(): string {
 export function getVariableStylesheetTextContentXslt(): string {
   return readStubFile('./xml/VariableStylesheetTextContent.xsl');
 }
+/** A stylesheet variable kept as written (`as` and a comment) that refers to another stylesheet variable */
+export function getVariableStylesheetPreservedXslt(): string {
+  return readStubFile('./xml/VariableStylesheetPreserved.xsl');
+}
 export function getVariableTemplateXslt(): string {
   return readStubFile('./xml/VariableTemplate.xsl');
 }
