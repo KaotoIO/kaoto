@@ -4,7 +4,7 @@ import './IntegrationShell.scss';
 
 import { InlineNotification } from '@carbon/react';
 import { FunctionComponent, useEffect, useState } from 'react';
-import { Navigate } from 'react-router';
+import { Navigate, useNavigate } from 'react-router';
 
 import { LoadingState } from '../../components/LoadingState/LoadingState';
 import { useIntegrationHeader } from '../../context/IntegrationHeaderContext';
@@ -36,6 +36,7 @@ const IntegrationShell: FunctionComponent = () => {
   const { path } = useActiveFile();
   const status = useFilesUiStore((state) => state.status);
   const store = useFilesUiStoreApi();
+  const navigate = useNavigate();
   const openFile = useOpenFile();
   const openEditorKind = openFile && editorKindFor(getFileType(openFile.path));
   const { shown, error: readError } = useOpenFileContent(openFile, openEditorKind);
@@ -86,6 +87,11 @@ const IntegrationShell: FunctionComponent = () => {
   };
   const currentSaveError = shown && saveError?.key === shown.key ? saveError.error : undefined;
 
+  // Pending edits are saved when the editor unmounts
+  const closeFile = () => {
+    void navigate(WORKSPACE_PATH);
+  };
+
   const viewMode = header?.viewMode ?? 'design';
   const editorKind = shown && editorKindFor(getFileType(shown.path));
 
@@ -113,6 +119,7 @@ const IntegrationShell: FunctionComponent = () => {
           icon={viewIconFor(editorKind, viewMode)}
           path={shown.path}
           content={stored?.key === shown.key ? stored.content : shown.content}
+          onClose={closeFile}
         />
       )}
       {currentSaveError && (
