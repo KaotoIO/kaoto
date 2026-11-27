@@ -58,6 +58,11 @@
 .cs--integration-shell__canvas {
   flex: 1;
   inline-size: 100%;
+
+  // The canvas fills the editor up to its clipped edges, so its keyboard focus ring (see the ui's Canvas.scss) goes
+  // inside the graph area, with the same clearance as outside
+  --canvas-focus-offset: -6px;
+  --canvas-focus-radius: #{kaoto.$card-radius};
 }
 
 // The body is a flex row, which would shrink the loader to the size of its spinner. A grid cell makes the loader
