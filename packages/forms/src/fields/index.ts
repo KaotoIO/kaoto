@@ -26,6 +26,7 @@ export * from './EditInPlaceField';
 export * from './EnumField';
 export * from './FieldActions';
 export * from './FieldWrapper';
+export * from './GroupedSelectField';
 export * from './ObjectField';
 export * from './OneOfField';
 export * from './PasswordField';

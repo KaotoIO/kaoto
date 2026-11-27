@@ -281,9 +281,16 @@ exports[`SettingsForm > should render 1`] = `
         class="cds--dropdown__wrapper cds--list-box__wrapper"
         data-testid="#.runtimeCatalogName-catalog-selector-toggle"
       >
+        <label
+          class="cds--label cds--visually-hidden"
+          for="downshift-_r_ID_-toggle-button"
+          id="downshift-_r_ID_-label"
+        >
+          Integrations runtime version
+        </label>
         <div
           class="cds--dropdown cds--list-box"
-          id="#.runtimeCatalogName-catalog-selector"
+          id="#.runtimeCatalogName-grouped-select"
         >
           <button
             aria-activedescendant=""
@@ -302,7 +309,7 @@ exports[`SettingsForm > should render 1`] = `
               class="cds--list-box__label"
             >
               <span
-                class="catalog-selector-selected"
+                class="grouped-select-field-selected"
               >
                 <img
                   alt="Red Hat logo"
@@ -403,9 +410,16 @@ exports[`SettingsForm > should render 1`] = `
         class="cds--dropdown__wrapper cds--list-box__wrapper"
         data-testid="#.testingCatalogName-catalog-selector-toggle"
       >
+        <label
+          class="cds--label cds--visually-hidden"
+          for="downshift-_r_ID_-toggle-button"
+          id="downshift-_r_ID_-label"
+        >
+          Testing runtime version
+        </label>
         <div
           class="cds--dropdown cds--list-box"
-          id="#.testingCatalogName-catalog-selector"
+          id="#.testingCatalogName-grouped-select"
         >
           <button
             aria-activedescendant=""
@@ -424,7 +438,7 @@ exports[`SettingsForm > should render 1`] = `
               class="cds--list-box__label"
             >
               <span
-                class="catalog-selector-selected"
+                class="grouped-select-field-selected"
               >
                 <img
                   alt="Citrus logo"

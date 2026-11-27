@@ -1,9 +1,6 @@
-import './CatalogSelectorField.scss';
-
-import { Dropdown } from '@carbon/react';
 import { CatalogLibraryEntry } from '@kaoto/camel-catalog/types';
-import { FieldProps, FieldWrapper, SchemaContext, useFieldValue } from '@kaoto/forms';
-import { FunctionComponent, useCallback, useContext, useMemo } from 'react';
+import { FieldProps, GroupedSelectField, GroupedSelectOptionGroup } from '@kaoto/forms';
+import { FunctionComponent, useMemo } from 'react';
 
 import { useRuntimeContext } from '../../../../../../hooks/useRuntimeContext/useRuntimeContext';
 import { SourceSchemaType } from '../../../../../../models/camel/source-schema-type';
@@ -15,29 +12,29 @@ interface ICatalogSelectorField extends FieldProps {
   validRuntimes: string[];
 }
 
-/** Flat item used by Dropdown — group headers are disabled, so they are shown but cannot be selected. */
-interface CatalogItem {
-  id: string;
-  label: string;
-  isHeader?: boolean;
-  disabled?: boolean;
-}
+/** Groups the catalogs by runtime, keeping only the runtimes the field accepts. */
+const getRuntimeGroupsFromCatalogs = (
+  catalogs: CatalogLibraryEntry[],
+  validRuntimes: string[],
+): GroupedSelectOptionGroup[] => {
+  const catalogsByRuntime = catalogs
+    .filter((catalog) => validRuntimes.includes(catalog.runtime))
+    .reduce<Record<string, CatalogLibraryEntry[]>>((accumulator, catalog) => {
+      if (!accumulator[catalog.runtime]) accumulator[catalog.runtime] = [];
+      accumulator[catalog.runtime].push(catalog);
+      return accumulator;
+    }, {});
 
-const renderCatalogItem = (item: CatalogItem) =>
-  item.isHeader ? (
-    <span className="catalog-selector-group-header">
-      {getRuntimeIcon(item.label)} {item.label}
-    </span>
-  ) : (
-    <span className="catalog-selector-item">{item.label}</span>
-  );
-
-const renderSelectedCatalogItem = (item: CatalogItem) => (
-  <span className="catalog-selector-selected">
-    {getRuntimeIcon(item.label)}
-    <span>{item.label}</span>
-  </span>
-);
+  return Object.entries(catalogsByRuntime).map(([runtime, runtimeCatalogs]) => ({
+    label: runtime,
+    icon: getRuntimeIcon(runtime),
+    options: runtimeCatalogs.map((catalog) => ({
+      value: catalog.name,
+      label: catalog.name,
+      icon: getRuntimeIcon(catalog.name), // Drawn only in the closed toggle, not in the list
+    })),
+  }));
+};
 
 const CatalogSelectorField: FunctionComponent<ICatalogSelectorField> = ({
   propName,
@@ -45,81 +42,22 @@ const CatalogSelectorField: FunctionComponent<ICatalogSelectorField> = ({
   schemaType,
   validRuntimes,
 }) => {
-  const { schema } = useContext(SchemaContext);
-  const { value: storedValue, onChange, disabled } = useFieldValue<string | undefined>(propName);
   const { catalogLibrary } = useRuntimeContext();
 
-  const catalogOptions = useMemo(
-    () => (catalogLibrary?.definitions ?? []).filter((c) => validRuntimes.includes(c.runtime)),
+  const runtimeGroups = useMemo(
+    () => getRuntimeGroupsFromCatalogs(catalogLibrary?.definitions ?? [], validRuntimes),
     [catalogLibrary?.definitions, validRuntimes],
   );
 
-  const value = storedValue || findCatalog(schemaType, catalogLibrary)?.name;
-
-  /** Flat list: group header followed by its catalog entries. */
-  const items: CatalogItem[] = useMemo(() => {
-    const grouped = catalogOptions.reduce(
-      (acc, catalog) => {
-        if (!acc[catalog.runtime]) acc[catalog.runtime] = [];
-        acc[catalog.runtime].push(catalog);
-        return acc;
-      },
-      {} as Record<string, CatalogLibraryEntry[]>,
-    );
-
-    return Object.entries(grouped).flatMap(([runtime, catalogs]) => [
-      { id: `__header__${runtime}`, label: runtime, isHeader: true, disabled: true },
-      ...catalogs.map((c) => ({ id: c.name, label: c.name })),
-    ]);
-  }, [catalogOptions]);
-
-  const selectedItem = useMemo(() => items.find((item) => item.id === value), [items, value]);
-
-  const handleChange = useCallback(
-    ({ selectedItem: item }: { selectedItem: CatalogItem | null }) => {
-      if (!item || item.isHeader) return;
-      onChange(item.id);
-    },
-    [onChange],
-  );
-
-  if (!catalogLibrary) {
-    return (
-      <FieldWrapper
-        propName={propName}
-        required={required}
-        title={schema.title}
-        type="object"
-        description={schema.description}
-      >
-        <div>Loading catalogs...</div>
-      </FieldWrapper>
-    );
-  }
-
   return (
-    <FieldWrapper
+    <GroupedSelectField
       propName={propName}
       required={required}
-      title={schema.title}
-      type="string"
-      description={schema.description}
-    >
-      <Dropdown
-        id={`${propName}-catalog-selector`}
-        titleText=""
-        hideLabel
-        label=""
-        items={items}
-        itemToString={(item) => item?.label ?? ''}
-        itemToElement={renderCatalogItem}
-        renderSelectedItem={renderSelectedCatalogItem}
-        selectedItem={selectedItem}
-        disabled={disabled}
-        data-testid={`${propName}-catalog-selector-toggle`}
-        onChange={handleChange}
-      />
-    </FieldWrapper>
+      groups={catalogLibrary ? runtimeGroups : undefined}
+      fallbackValue={findCatalog(schemaType, catalogLibrary)?.name}
+      loadingText="Loading catalogs..."
+      data-testid={`${propName}-catalog-selector-toggle`}
+    />
   );
 };
 
