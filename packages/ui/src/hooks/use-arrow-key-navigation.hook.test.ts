@@ -352,7 +352,7 @@ describe('useArrowKeyNavigation', () => {
       const scope = 'timer-to-log';
       const groupId = `${scope}|${scope}`;
       const group = makeNode('custom-group', `custom-group__${scope}`);
-      const leafPaths = ['source', 'steps.0.log', 'sink'];
+      const leafPaths = ['source', 'steps.0', 'sink'];
       const leaves = leafPaths.map((path) => makeNode('custom-node', `custom-node__${path}`));
       const entries = [
         { node: group, id: groupId },
@@ -375,12 +375,12 @@ describe('useArrowKeyNavigation', () => {
       fire('arrowright');
       expect(document.activeElement).toBe(group);
 
+      // The flow goes source → steps → sink, and neither `source` nor `sink` is a prefix of the other paths
       const visited = leaves.map(() => {
         fire('arrowright');
         return document.activeElement;
       });
-      expect(visited).toHaveLength(leaves.length);
-      expect(new Set(visited)).toEqual(new Set(leaves));
+      expect(visited).toEqual(leaves);
     });
 
     it('should order choice children as: when-placeholder → when[0] → when[0] steps → otherwise → otherwise steps', () => {

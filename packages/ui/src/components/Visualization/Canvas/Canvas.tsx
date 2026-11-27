@@ -41,6 +41,7 @@ import { applyCollapseState } from './apply-collapse-state';
 import { CanvasDefaults } from './canvas.defaults';
 import { CanvasEdge, CanvasNode, LayoutType } from './canvas.models';
 import { CanvasSideBar } from './CanvasSideBar';
+import { MainCanvasContext } from './main-canvas.context';
 import { consumeNodeSelection } from './node-selection-state';
 
 interface CanvasProps {
@@ -295,6 +296,9 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
 
   const isSidebarOpen = useMemo(() => selectedIds.length > 0, [selectedIds.length]);
 
+  /** Tells the graph of this surface that it is the one of `#canvas-main`, and whether that canvas is blocked */
+  const mainCanvasContext = useMemo(() => ({ blocked }), [blocked]);
+
   /** Move focus to the search bar when the sidebar opens */
   useEffect(() => {
     if (selectedVizNode) {
@@ -338,9 +342,11 @@ export const Canvas: FunctionComponent<PropsWithChildren<CanvasProps>> = ({
       <CanvasOverlayContext.Provider
         value={overlaySource?.model.nodes === nodes && overlaySource.model.edges === edges ? overlaySource : undefined}
       >
-        <div className="canvas-blockable" inert={blocked || undefined}>
-          <VisualizationSurface state={{ selectedIds }} />
-        </div>
+        <MainCanvasContext.Provider value={mainCanvasContext}>
+          <div className="canvas-blockable" inert={blocked || undefined}>
+            <VisualizationSurface state={{ selectedIds }} />
+          </div>
+        </MainCanvasContext.Provider>
       </CanvasOverlayContext.Provider>
       {children && (
         <div ref={overlayRef} className={clsx('canvas-overlay', { 'canvas-overlay-blocking': blocked })}>
