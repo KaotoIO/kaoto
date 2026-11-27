@@ -2,7 +2,8 @@ import catalogLibrary from '@kaoto/camel-catalog/index.json';
 import { CatalogDefinition, CatalogLibrary } from '@kaoto/camel-catalog/types';
 import { useSuggestionRegistry } from '@kaoto/forms';
 import { act, render, screen, waitFor } from '@testing-library/react';
-import { FunctionComponent, useContext, useEffect, useState } from 'react';
+import { toBlob } from 'html-to-image';
+import { createRef, FunctionComponent, useContext, useEffect, useState } from 'react';
 import type { Mock } from 'vitest';
 
 import { Anchors } from '../../components/registers/anchors';
@@ -19,7 +20,7 @@ import { camelRouteYaml } from '../../stubs/camel-route';
 import { getFirstCatalogMap } from '../../stubs/test-load-catalog';
 import { EventNotifier } from '../../utils';
 import { CatalogSchemaLoader } from '../../utils/catalog-schema-loader';
-import { RouteVisualization } from './RouteVisualization';
+import { RouteVisualization, RouteVisualizationHandle } from './RouteVisualization';
 
 describe('RouteVisualization', () => {
   let fetchResolve: () => void;
@@ -310,6 +311,122 @@ describe('RouteVisualization', () => {
       });
 
       expect(codeUpdatedSpy).toHaveBeenCalledWith({ code: canvasCode });
+    });
+  });
+
+  describe('tools for the host', () => {
+    let originalCreateObjectURL: typeof URL.createObjectURL;
+    let originalRevokeObjectURL: typeof URL.revokeObjectURL;
+
+    beforeEach(() => {
+      /* jsdom has no SVG layout nor blob URLs, and can't download files */
+      vi.spyOn(SVGSVGElement.prototype, 'getBBox').mockReturnValue(new DOMRect(0, 0, 100, 100));
+      originalCreateObjectURL = URL.createObjectURL;
+      originalRevokeObjectURL = URL.revokeObjectURL;
+      URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+      URL.revokeObjectURL = vi.fn();
+    });
+
+    afterEach(() => {
+      URL.createObjectURL = originalCreateObjectURL;
+      URL.revokeObjectURL = originalRevokeObjectURL;
+      vi.restoreAllMocks();
+    });
+
+    /** Renders the canvas with a handle and a state callback, and loads the catalogs until it is drawn */
+    const renderWithTools = async (code = camelRouteYaml) => {
+      const ref = createRef<RouteVisualizationHandle>();
+      const onToolsStateChange = vi.fn();
+      render(
+        <RouteVisualization
+          ref={ref}
+          catalogUrl={CatalogSchemaLoader.DEFAULT_CATALOG_PATH}
+          runtimeCatalogName=""
+          testingCatalogName=""
+          code={code}
+          codeChange={vi.fn()}
+          onToolsStateChange={onToolsStateChange}
+        />,
+      );
+      for (let i = 0; i < 5 && !document.querySelector('.canvas-surface'); i++) {
+        await act(async () => {
+          fetchResolve();
+        });
+      }
+      return { ref, onToolsStateChange };
+    };
+
+    it('tells the host that there is something to export once a route is drawn', async () => {
+      const { onToolsStateChange } = await renderWithTools();
+
+      await waitFor(() => {
+        expect(onToolsStateChange).toHaveBeenLastCalledWith({ canExport: true, isExportingImage: false });
+      });
+    });
+
+    it('tells the host that there is nothing to export without a route', async () => {
+      const { onToolsStateChange } = await renderWithTools('');
+
+      await waitFor(() => {
+        expect(onToolsStateChange).toHaveBeenCalled();
+      });
+      expect(onToolsStateChange).toHaveBeenLastCalledWith({ canExport: false, isExportingImage: false });
+    });
+
+    it('downloads the visible flows as kaoto-flow.png on exportImage and tells the host while it runs', async () => {
+      let downloadName: string | undefined;
+      vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (this: HTMLAnchorElement) {
+        downloadName = this.download;
+      });
+      const { ref, onToolsStateChange } = await renderWithTools();
+      await waitFor(() => {
+        expect(onToolsStateChange).toHaveBeenLastCalledWith({ canExport: true, isExportingImage: false });
+      });
+
+      act(() => {
+        ref.current!.exportImage();
+      });
+
+      expect(onToolsStateChange).toHaveBeenLastCalledWith({ canExport: true, isExportingImage: true });
+      await waitFor(
+        () => {
+          expect(onToolsStateChange).toHaveBeenLastCalledWith({ canExport: true, isExportingImage: false });
+        },
+        { timeout: 5000 },
+      );
+      expect(toBlob).toHaveBeenCalled();
+      expect(downloadName).toBe('kaoto-flow.png');
+    });
+
+    it('exports nothing when there is nothing to export', async () => {
+      const { ref, onToolsStateChange } = await renderWithTools('');
+      await waitFor(() => {
+        expect(onToolsStateChange).toHaveBeenCalled();
+      });
+
+      act(() => {
+        ref.current!.exportImage();
+      });
+
+      expect(onToolsStateChange).not.toHaveBeenCalledWith(expect.objectContaining({ isExportingImage: true }));
+      expect(screen.queryByTestId('hidden-canvas')).not.toBeInTheDocument();
+    });
+
+    it('opens the route documentation preview on openDocumentation, and closes it again', async () => {
+      const { ref } = await renderWithTools();
+
+      act(() => {
+        ref.current!.openDocumentation();
+      });
+
+      const preview = await screen.findByTestId('documentationPreviewModal');
+      expect(preview).toBeInTheDocument();
+      act(() => {
+        screen.getByRole('button', { name: 'Close' }).click();
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('documentationPreviewModal')).not.toBeInTheDocument();
+      });
     });
   });
 });

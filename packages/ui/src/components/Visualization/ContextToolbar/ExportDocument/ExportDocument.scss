@@ -8,6 +8,13 @@
     border-bottom: 1px solid var(--pf-t--global--border--color--50);
     margin-bottom: 0.5rem;
   }
+
+  // The diagram fits the preview. PatternFly's reset does this for every image, but a host such as kaoto-web doesn't
+  // load the reset.
+  img {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
 .export-document-preview-table {
